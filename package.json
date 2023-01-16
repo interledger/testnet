@@ -1,0 +1,20 @@
+{
+	"name": "@interledger/testnet",
+	"version": "1.0.0",
+	"homepage": "https://github.com/interledger/testnet#readme",
+	"bugs": "https://github.com/interledger/testnet/issues",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/interledger/testnet"
+	},
+	"scripts": {},
+	"devDependencies": {},
+	"engines": {
+		"pnpm": ">=7.14.0",
+		"npm": "pnpm",
+		"yarn": "pnpm",
+		"node": "^18.0.0"
+	},
+	"private": true,
+	"packageManager": "pnpm@7.14.0"
+}
