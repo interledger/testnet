@@ -1,20 +1,41 @@
 {
-	"name": "@interledger/testnet",
-	"version": "1.0.0",
-	"homepage": "https://github.com/interledger/testnet#readme",
-	"bugs": "https://github.com/interledger/testnet/issues",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/interledger/testnet"
-	},
-	"scripts": {},
-	"devDependencies": {},
-	"engines": {
-		"pnpm": ">=7.14.0",
-		"npm": "pnpm",
-		"yarn": "pnpm",
-		"node": "^18.0.0"
-	},
-	"private": true,
-	"packageManager": "pnpm@7.14.0"
+  "name": "@interledger/testnet",
+  "version": "1.0.0",
+  "homepage": "https://github.com/interledger/testnet#readme",
+  "bugs": "https://github.com/interledger/testnet/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/interledger/testnet"
+  },
+  "scripts": {
+    "check": "pnpm prettier:check && pnpm lint:check",
+    "format": "pnpm prettier:write && pnpm lint:fix",
+    "lint:check": "eslint -c '.eslintrc.js' --max-warnings=0 .",
+    "lint:fix": "eslint -c '.eslintrc.js' --max-warnings=0 --fix .",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky install",
+    "prettier:write": "prettier --config '.prettierrc.js' --write .",
+    "prettier:check": "prettier --config '.prettierrc.js' --check ."
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.4.2",
+    "@commitlint/config-conventional": "^17.4.2",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-react": "^7.32.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.3",
+    "prettier": "^2.8.3",
+    "typescript": "^4.9.4"
+  },
+  "engines": {
+    "pnpm": ">=7.14.0",
+    "npm": "pnpm",
+    "yarn": "pnpm",
+    "node": "^18.0.0"
+  },
+  "private": true,
+  "packageManager": "pnpm@7.14.0"
 }
