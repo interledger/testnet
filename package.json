@@ -10,6 +10,7 @@
   },
   "scripts": {
     "backend": "pnpm --filter backend --",
+    "build": "pnpm -r build",
     "check": "pnpm prettier:check && pnpm lint:check",
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
@@ -20,7 +21,8 @@
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
     "prettier:write": "prettier --config '.prettierrc.js' --write .",
-    "prettier:check": "prettier --config '.prettierrc.js' --check ."
+    "prettier:check": "prettier --config '.prettierrc.js' --check .",
+    "wallet": "pnpm --filter wallet --"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",
