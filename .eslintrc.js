@@ -20,7 +20,7 @@ module.exports = {
       jsx: true
     }
   },
-  plugins: ["react"],
+  plugins: ["react", "@typescript-eslint"],
   rules: {
     "@typescript-eslint/no-unused-vars": [
       "warn",

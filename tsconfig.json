@@ -1,0 +1,9 @@
+{
+  "references": [
+    {
+      "path": "packages/backend"
+    }
+  ],
+  "files": [],
+  "include": []
+}
