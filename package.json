@@ -11,7 +11,7 @@
   "scripts": {
     "backend": "pnpm --filter backend --",
     "build": "pnpm -r build",
-    "check": "pnpm prettier:check && pnpm lint:check",
+    "checks": "pnpm prettier:check && pnpm lint:check",
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",

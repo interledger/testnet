@@ -1,0 +1,40 @@
+name: PR Checks
+
+on:
+  push:
+    branches:
+      - '!main'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  checks:
+    name: ESLint and Prettier checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/setup
+      - run: pnpm checks
+
+  wallet:
+    name: Build wallet
+    needs: checks
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/setup
+      - run: pnpm wallet build
+
+  backend:
+    name: Build backend
+    needs: checks
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/setup
+      - run: pnpm backend build
+
+
+  
+  
