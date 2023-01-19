@@ -1,11 +1,19 @@
 /** @type {import("prettier").Config} */
 module.exports = {
-  semi: false,
-  jsxSingleQuote: true,
-  trailingComma: "none",
-  pluginSearchDirs: ["."],
-  quoteProps: "consistent",
   printWidth: 80,
-  singleQuote: false,
-  tabWidth: 2
+  tabWidth: 2,
+  semi: false,
+  singleQuote: true,
+  quoteProps: 'consistent',
+  jsxSingleQuote: false,
+  trailingComma: 'none',
+  pluginSearchDirs: false,
+  /**
+   * This plugin is going automatically sort Tailwind's classes, following
+   * it's recommended class order.
+   *
+   * https://tailwindcss.com/blog/automatic-class-sorting-with-prettier
+   */
+  plugins: [require('prettier-plugin-tailwindcss')],
+  tailwindConfig: './packages/wallet/tailwind.config.js'
 }

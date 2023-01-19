@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main className='min-w-screen min-h-screen grid place-items-center text-4xl bg-red-200'>
+    <main className="min-w-screen grid min-h-screen place-items-center bg-red-200 text-4xl">
       Interledger Wallet
     </main>
   )
