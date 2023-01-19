@@ -15,11 +15,12 @@ runs:
       uses: pnpm/action-setup@v2
       with:
         run_install: false
-        # we do not need to specify PNPM's version since we have the`packageManager`
+        # we do not need to specify PNPM's version since we have the `packageManager`
         # property set in `package.json`
     
     - name: Get PNPM store path
       id: pnpm-cache
+      shell: bash
       run: |
         echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
       
@@ -30,4 +31,5 @@ runs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Install dependencies
+      shell: bash
       run: pnpm install --frozen-lockfile
