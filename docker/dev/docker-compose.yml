@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  postgres:
+    image: 'postgres:15'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: ./packages/backend/Dockerfile.dev
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+    restart: always
+    ports:
+      - '3000:3000'
+    
+  wallet:
+    build:
+      context: ../..
+      dockerfile: ./packages/wallet/Dockerfile.dev
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+    restart: always
+    ports:
+      - '4000:4000'
+    # In order to take advantage of HMR inside Docker we have to add these volumes
+    volumes:
+      - ../../packages/wallet:/home/testnet/packages/wallet
+      - /home/testnet/packages/wallet/node_modules
+      - /home/testnet/packages/wallet/.next
+
+volumes:
+  pg-data:
