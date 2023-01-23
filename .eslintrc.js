@@ -7,31 +7,31 @@ module.exports = {
     node: true
   },
   extends: [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier'
   ],
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: "2020",
+    ecmaVersion: '2020',
     ecmaFeatures: {
       jsx: true
     }
   },
-  plugins: ["react", "@typescript-eslint"],
+  plugins: ['react', '@typescript-eslint'],
   rules: {
-    "react/react-in-jsx-scope": "off",
-    "@typescript-eslint/no-unused-vars": [
-      "warn",
-      { argsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" }
+    'react/react-in-jsx-scope': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' }
     ]
   },
-  ignorePatterns: ["**/*.js", "**/*.json", "node_modules", "dist"],
+  ignorePatterns: ['**/*.js', '**/*.json', 'node_modules', 'dist'],
   settings: {
     react: {
-      version: "detect"
+      version: 'detect'
     }
   }
 }
