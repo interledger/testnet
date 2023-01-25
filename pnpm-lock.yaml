@@ -50,6 +50,7 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       autoprefixer: ^10.4.13
+      class-variance-authority: ^0.4.0
       next: 13.1.2
       postcss: ^8.4.21
       react: 18.2.0
@@ -58,6 +59,7 @@ importers:
       typescript: ^4.9.4
     dependencies:
       '@next/font': 13.1.2
+      class-variance-authority: 0.4.0_typescript@4.9.4
       next: 13.1.2_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -1013,6 +1015,17 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
+
+  /class-variance-authority/0.4.0_typescript@4.9.4:
+    resolution: {integrity: sha512-74enNN8O9ZNieycac/y8FxqgyzZhZbxmCitAtAeUrLPlxjSd5zA7LfpprmxEcOmQBnaGs5hYhiSGnJ0mqrtBLQ==}
+    peerDependencies:
+      typescript: '>= 4.5.5 < 5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.4
+    dev: false
 
   /client-only/0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
@@ -3432,7 +3445,6 @@ packages:
     resolution: {integrity: sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
