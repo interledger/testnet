@@ -12,7 +12,7 @@ import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
  * safely type our button.
  *
  * Usage:
- *  - <Button intent='primary' size='md' className="text-bold">My Button</Button>
+ *  - <Button intent='primary' size='md'>My Button</Button>
  *
  * We can define `defaultVariants` for the component. In our case, if there is
  * no `intent` or `size` passed in, they will use the default variants specified
