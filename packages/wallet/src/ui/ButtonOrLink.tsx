@@ -1,11 +1,9 @@
 import { forwardRef } from 'react'
-import type { ComponentProps } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
-export type ButtonOrLinkProps = Omit<
-  ComponentProps<'button'> & ComponentProps<'a'>,
-  'ref'
->
+export type ButtonOrLinkProps = ComponentPropsWithoutRef<'button'> &
+  ComponentPropsWithoutRef<'a'>
 
 export const ButtonOrLink = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
