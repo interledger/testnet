@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import Sidebar from '@/components/Sidebar'
+import { Menu } from '@/components/Menu'
 
 type AppLayoutProps = {
   children: ReactNode
@@ -8,11 +8,13 @@ type AppLayoutProps = {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
-      <Sidebar />
-      <div className="flex flex-1 flex-col md:pl-60">
+      <Menu />
+      <div className="flex flex-1 flex-col pt-20 md:pl-60 md:pt-0">
         <main className="flex-1">
-          <div className="py-12">
-            <div className="mx-auto max-w-7xl px-14">{children}</div>
+          <div className="py-7 md:py-12">
+            <div className="mx-auto max-w-7xl px-7 transition-all duration-200 md:px-12">
+              {children}
+            </div>
           </div>
         </main>
       </div>
