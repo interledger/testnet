@@ -26,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
  *
  *      return (
  *            <Form form={form} onSubmit={(data) => {
- *                <input required {...form.register('name')} />
+ *                <Input required {...form.register('name')} />
  *            }}>
  *       )
  *  }
@@ -48,7 +48,8 @@ export const useZodForm = <T extends ZodSchema>({
   schema,
   ...props
 }: UseZodFormProps<T>) => {
-  useForm({
+  return useForm({
+    mode: 'onBlur',
     criteriaMode: 'all',
     resolver: zodResolver(schema),
     ...props
@@ -64,7 +65,12 @@ export const Form = <T extends FieldValues>({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} {...props}>
-        <fieldset disabled={form.formState.isSubmitting}>{children}</fieldset>
+        <fieldset
+          disabled={form.formState.isSubmitting}
+          className="flex flex-col space-y-4"
+        >
+          {children}
+        </fieldset>
       </form>
     </FormProvider>
   )
