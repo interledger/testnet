@@ -23,7 +23,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
  *		    schema: nameSchema
  *      });
  *
- *
  *      return (
  *            <Form form={form} onSubmit={(data) => {
  *                <Input required {...form.register('name')} />
