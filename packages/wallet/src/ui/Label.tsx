@@ -1,8 +1,8 @@
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 
 type LabelProps = Omit<
-  ComponentProps<'label'>,
-  'ref' | 'className' | 'children'
+  ComponentPropsWithoutRef<'label'>,
+  'className' | 'children'
 > & {
   children: ReactNode
 }
@@ -11,7 +11,7 @@ export const Label = ({ htmlFor, children, ...props }: LabelProps) => {
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-0.5 font-medium leading-none text-gray-500"
+      className="block font-medium text-gray-500"
       {...props}
     >
       {children}

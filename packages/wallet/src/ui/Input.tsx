@@ -1,23 +1,31 @@
-import { forwardRef } from 'react'
-import type { ComponentProps } from 'react'
+import { forwardRef, useId } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
 
 import { Label } from './Label'
+import { FieldError } from './FieldError'
 
-type InputProps = Omit<ComponentProps<'input'>, 'ref' | 'className'> & {
+type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'className'> & {
   label?: string
+  error?: string
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, type, ...props }, ref) => {
+  ({ label, type, error, ...props }, ref) => {
+    const id = useId()
+
     return (
-      <div className="flex w-full flex-col">
-        {label && <Label htmlFor={props.name}>{label}</Label>}
-        <input
-          ref={ref}
-          type={type ?? 'text'}
-          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 shadow-sm transition-colors duration-150 ease-linear placeholder:font-extralight focus:border-gray-500 focus:outline-none focus:ring-0"
-          {...props}
-        />
+      <div>
+        {label && <Label htmlFor={id}>{label}</Label>}
+        <div className="mt-1 shadow-sm">
+          <input
+            id={id}
+            ref={ref}
+            type={type ?? 'text'}
+            className="block w-full rounded-md border border-gray-300 transition-colors duration-150 placeholder:font-extralight focus:border-gray-500 focus:outline-none focus:ring-0"
+            {...props}
+          />
+        </div>
+        <FieldError error={error} />
       </div>
     )
   }
