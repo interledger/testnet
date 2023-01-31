@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 
 type LabelProps = Omit<
   ComponentPropsWithoutRef<'label'>,
-  'ref' | 'className' | 'children'
+  'className' | 'children'
 > & {
   children: ReactNode
 }
