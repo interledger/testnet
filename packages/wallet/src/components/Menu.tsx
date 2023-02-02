@@ -74,12 +74,12 @@ export const Menu = () => {
                 <Disclosure.Button className="rounded-m inline-flex items-center justify-center text-white/70 hover:text-white focus:outline-none">
                   {open ? (
                     <>
-                      <X className="h-8 w-8 " />
+                      <X className="h-8 w-8" />
                       <span className="sr-only">Close main menu</span>
                     </>
                   ) : (
                     <>
-                      <Bars className="h-8 w-8 " />
+                      <Bars className="h-8 w-8" />
                       <span className="sr-only">Open main menu</span>
                     </>
                   )}
