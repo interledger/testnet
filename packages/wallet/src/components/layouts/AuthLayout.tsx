@@ -19,7 +19,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
               quality={100}
             />
           </div>
-          <div className="flex-1 bg-[#C0F9FF]/70 py-24">
+          <div className="flex-1 bg-brand-blue/70 py-24">
             <div className="mx-auto flex w-full flex-col items-center sm:px-6 lg:px-20 xl:px-24">
               {children}
             </div>
