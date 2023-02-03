@@ -4,9 +4,9 @@ import { Disclosure, Transition } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
 import { Fragment } from 'react'
-import { Bars } from './icons/Bars'
-import { Home } from './icons/Home'
-import { X } from './icons/X'
+import { Bars } from './Icons/Bars'
+import { Home } from './Icons/Home'
+import { X } from './Icons/X'
 
 type NavigationItemProps = {
   name: string
