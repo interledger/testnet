@@ -1,0 +1,17 @@
+'package: backend': packages/backend/**/*
+'package: wallet': packages/wallet/**/*
+
+'type: ci':
+  - .github/*
+  - .github/**/*
+
+'type: documentation':
+  - "**/*.md"
+
+'type: source':
+  - packages/backend/src/**/*
+  - packages/wallet/src/**/*
+
+'type: test': packages/**/*.test.ts
+
+'type: docker': docker/*
