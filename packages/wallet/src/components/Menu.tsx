@@ -46,45 +46,46 @@ export const Menu = () => {
   const { pathname } = useRouter()
 
   return (
-    <Disclosure as="nav">
+    <Disclosure
+      as="nav"
+      className="fixed inset-x-0 flex h-20 flex-col md:inset-y-0 md:h-auto md:w-60"
+    >
       {({ open }) => (
         <>
-          <div className="fixed inset-x-0 flex h-20 flex-col md:inset-y-0 md:h-auto md:w-60">
-            <div className="flex min-h-0 flex-1 items-center bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] p-6  md:flex-col md:items-start md:overflow-y-auto">
-              <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
-              <div className="mt-14 hidden flex-1 space-y-8 md:block">
-                {navigationItems.map((navItem) => (
-                  <Link
-                    key={navItem.name}
-                    href={navItem.href}
-                    className={cx(
-                      pathname === navItem.href
-                        ? 'text-white'
-                        : 'text-gray-100/80 hover:text-white',
-                      'flex items-center space-x-4 text-lg font-semibold '
-                    )}
-                  >
-                    {navItem?.icon}
-                    <span>{navItem.name}</span>
-                  </Link>
-                ))}
-              </div>
-
-              <div className="ml-auto flex md:hidden">
-                <Disclosure.Button className="rounded-m inline-flex items-center justify-center text-white/70 hover:text-white focus:outline-none">
-                  {open ? (
-                    <>
-                      <X className="h-8 w-8" />
-                      <span className="sr-only">Close main menu</span>
-                    </>
-                  ) : (
-                    <>
-                      <Bars className="h-8 w-8" />
-                      <span className="sr-only">Open main menu</span>
-                    </>
+          <div className="flex min-h-0 flex-1 items-center bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] p-6  md:flex-col md:items-start md:overflow-y-auto">
+            <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
+            <div className="mt-14 hidden flex-1 space-y-8 md:block">
+              {navigationItems.map((navItem) => (
+                <Link
+                  key={navItem.name}
+                  href={navItem.href}
+                  className={cx(
+                    pathname === navItem.href
+                      ? 'text-white'
+                      : 'text-gray-100/80 hover:text-white',
+                    'flex items-center space-x-4 text-lg font-semibold '
                   )}
-                </Disclosure.Button>
-              </div>
+                >
+                  {navItem?.icon}
+                  <span>{navItem.name}</span>
+                </Link>
+              ))}
+            </div>
+
+            <div className="ml-auto flex md:hidden">
+              <Disclosure.Button className="rounded-m inline-flex items-center justify-center text-white/70 hover:text-white focus:outline-none">
+                {open ? (
+                  <>
+                    <X className="h-8 w-8" />
+                    <span className="sr-only">Close main menu</span>
+                  </>
+                ) : (
+                  <>
+                    <Bars className="h-8 w-8" />
+                    <span className="sr-only">Open main menu</span>
+                  </>
+                )}
+              </Disclosure.Button>
             </div>
           </div>
 
