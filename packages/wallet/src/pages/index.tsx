@@ -53,7 +53,7 @@ export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (_ctx) => {
   const accounts = await Promise.resolve(mockAccountList())
-  console.log(accounts)
+
   return {
     props: {
       accounts
