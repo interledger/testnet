@@ -52,7 +52,7 @@ export const Menu = () => {
     >
       {({ open }) => (
         <>
-          <div className="flex min-h-0 flex-1 items-center bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] p-6  md:flex-col md:items-start md:overflow-y-auto">
+          <div className="flex min-h-0 flex-1 items-center bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] px-6 py-10 md:flex-col md:items-start md:overflow-y-auto">
             <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
             <div className="mt-14 hidden flex-1 space-y-8 md:block">
               {navigationItems.map((navItem) => (
