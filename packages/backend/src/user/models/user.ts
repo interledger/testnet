@@ -25,7 +25,6 @@ export class User extends Model {
   }
 
   generateRefreshToken() {
-    // generate a refresh token
     return sign(
       { userId: this.id },
       process.env.JWT_REFRESH_TOKEN_SECRET as Secret,

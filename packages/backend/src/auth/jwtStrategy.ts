@@ -13,20 +13,11 @@ export const jwtStrategy = new JWTStrategy(
   },
   async (jwtPayload, done) => {
     try {
-      // find the user in db if exists
-
-      // const user = await User.query().findById(jwtPayload.id)
       const { expiration, userId } = jwtPayload
 
       if (Date.now() > expiration) {
         done('Unauthorized', false)
       }
-      // if (!user) {
-      //   return done(null, false)
-      // }
-
-      //* Return user to add it to req???
-
       return done(null, { id: Number(userId) } as User)
     } catch (error) {
       done(error)

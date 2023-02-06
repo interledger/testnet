@@ -1,18 +1,14 @@
-import express, { Application } from 'express'
-
-import cors from 'cors'
-import * as dotenv from 'dotenv'
-import Knex from 'knex'
-import { Model } from 'objection'
-dotenv.config()
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require('./database/knexfile.js')
-
+import cors from 'cors'
+import * as dotenv from 'dotenv'
+import express, { Application } from 'express'
+import Knex from 'knex'
+import { Model } from 'objection'
 import passport from 'passport'
-import { mainRouter } from './routes.js'
-
 import { jwtStrategy } from './auth/jwtStrategy.js'
+import { mainRouter } from './routes.js'
+dotenv.config()
 
 const app: Application = express()
 
@@ -29,8 +25,6 @@ app.use(passport.initialize())
 passport.use(jwtStrategy)
 
 app.use(mainRouter)
-
-// app.use(errorHandler)
 
 app.listen(process.env.PORT, (): void => {
   console.log(`🚀 🌑 | Backend listening on ${process.env.PORT}`)

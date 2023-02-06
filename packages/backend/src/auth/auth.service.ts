@@ -4,10 +4,8 @@ import { RefreshToken } from './models/refreshToken'
 
 export const signup = async (req: express.Request, res: express.Response) => {
   try {
-    // insert the new user in the db
     const user = await User.query().insert(req.body)
 
-    // return 201 status code and the user
     return res.status(201).json({ user })
   } catch (error) {
     return res.status(500).json({ error: 'Unable to create user' })
@@ -18,7 +16,6 @@ export const login = async (req: express.Request, res: express.Response) => {
   try {
     const { email, password } = req.body
 
-    // find the user in db by email and verify the password
     const user = await User.query()
       .findOne({ email })
       .select('id', 'email', 'password')
@@ -29,17 +26,13 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.status(401).json({ error: 'Invalid credentials' })
     }
 
-    // generate jwt and refresh token
     const jwt = user.generateJWT()
     const generatedToken = user.generateRefreshToken()
-
-    // store the refresh token in redis
 
     const refreshToken = new RefreshToken(user.id, generatedToken)
 
     await refreshToken.save()
 
-    // send the jwt and refresh token as cookies to the client
     res.cookie('AccessToken', jwt, { httpOnly: true })
     res.cookie('RefreshToken', refreshToken, { httpOnly: true })
 
