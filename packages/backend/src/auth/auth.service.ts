@@ -9,8 +9,8 @@ export const signup = async (req: express.Request, res: express.Response) => {
 
     // return 201 status code and the user
     return res.status(201).json({ user })
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message })
+  } catch (error) {
+    return res.status(500).json({ error: 'Unable to create user' })
   }
 }
 
