@@ -1,42 +1,38 @@
-import { v4 as uuidv4 } from 'uuid'
-import jwt from 'jsonwebtoken'
 import { Redis } from 'ioredis'
+import jwt from 'jsonwebtoken'
 
 const redis = new Redis()
 
 export class RefreshToken {
   id!: string
   token!: string
-  userId!: string
 
-  constructor(userId: string) {
-    this.id = uuidv4()
-    this.userId = userId
-    this.token = jwt.sign({ id: this.id }, process.env.JWT_SECRET!)
+  constructor(userId: number, token: string) {
+    this.id = `refresh_token:${userId}`
+    this.token = token
   }
 
-  static async verify(token: string) {
-    const { id } = jwt.verify(token, process.env.JWT_SECRET!) as { id: string }
+  static async verify(token: string): Promise<number> {
+    const { userId } = jwt.verify(
+      token,
+      process.env.JWT_REFRESH_TOKEN_SECRET!
+    ) as { userId: number }
 
-    const data = await redis.get(`refresh_token:${id}`)
+    const data = await redis.get(`refresh_token:${userId}`)
 
     if (!data) {
       throw new Error('Refresh token is invalid or has expired')
     }
 
-    return id
-  }
-
-  static async getUserId(token: string): Promise<string | null> {
-    return redis.get(`refresh_token:${token}`)
+    return Number(userId)
   }
 
   async save() {
     await redis.set(
-      `refresh_token:${this.id}`,
-      this.userId,
-      'ex',
-      60 * 60 * 24 * 7
+      this.id,
+      this.token,
+      'EX',
+      process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME!
     )
   }
 }

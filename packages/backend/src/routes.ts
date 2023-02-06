@@ -1,12 +1,19 @@
 import express from 'express'
-import { authRouter } from './auth/auth.routes'
+import passport from 'passport'
+import { login, refresh, signup } from './auth/auth.service'
 
 export const mainRouter = express.Router()
 
-// Handle sign in
-mainRouter.post('/signin', signIn)
-
-// Handle refresh
+mainRouter.post('/signup', signup)
+mainRouter.post('/login', login)
 mainRouter.post('/refresh', refresh)
 
-mainRouter.use('/auth', authRouter)
+mainRouter.post(
+  '/protected',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log(' a ajuns')
+    console.log(req)
+    res.status(200).json({ success: true })
+  }
+)
