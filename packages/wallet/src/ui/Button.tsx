@@ -31,6 +31,7 @@ const buttonStyles = cva(['inline-flex items-center justify-center'], {
       ]
     },
     size: {
+      sm: 'px-2 py-1 rounded-md font-medium',
       md: 'px-3 py-2 rounded-md font-medium'
     }
   },
