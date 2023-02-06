@@ -19,7 +19,7 @@ export class User extends Model {
       { userId: this.id },
       process.env.JWT_ACCESS_TOKEN_SECRET as Secret,
       {
-        expiresIn: '7d'
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
       }
     )
   }
@@ -30,7 +30,7 @@ export class User extends Model {
       { userId: this.id },
       process.env.JWT_REFRESH_TOKEN_SECRET as Secret,
       {
-        expiresIn: '7d'
+        expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
       }
     )
   }
