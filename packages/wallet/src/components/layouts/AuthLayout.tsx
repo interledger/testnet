@@ -10,7 +10,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
     <>
       <div className="h-full">
         <div className="flex min-h-full">
-          <div className="relative hidden w-0 flex-1 sm:block">
+          <div className="relative hidden w-0 flex-1 md:block">
             <Image
               fill
               className="object-cover"

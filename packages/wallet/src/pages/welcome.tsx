@@ -1,7 +1,7 @@
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { Button } from '@/ui/Button'
+import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
-import Link from 'next/link'
 
 export default function Welcome() {
   return (
@@ -13,7 +13,7 @@ export default function Welcome() {
       <h1 className="hidden space-x-4 text-5xl font-semibold text-brand-green-3 sm:mt-10 sm:block">
         Welcome
       </h1>
-      <h2 className="mt-5 mb-10 text-xl text-brand-green-4 sm:mt-20">
+      <h2 className="mt-5 mb-10 text-xl font-light text-brand-green-4 sm:mt-20">
         Already a member?
       </h2>
       <Button aria-label="log in" href="/login">
