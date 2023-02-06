@@ -22,7 +22,7 @@ export default function Home({ accounts }: HomeProps) {
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
           <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
         </div>
-        <div className="flex max-w-lg flex-col space-y-2">
+        <div className="flex w-full flex-col space-y-2 md:max-w-lg">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">My Accounts</h3>
             <Button intent="outline" size="sm" aria-label="manage accounts">
@@ -34,7 +34,7 @@ export default function Home({ accounts }: HomeProps) {
               <Link
                 href={`accounts/${account.id}`}
                 key={account.id}
-                className="flex items-center justify-between rounded-md bg-red-100 px-4 py-4 sm:px-6"
+                className="flex items-center justify-between rounded-md bg-brand-turqoise px-4 py-4"
               >
                 <span className="font-semibold">{account.name}</span>
                 <span>
