@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 
 enum Images {
   Park = 'park.webp',
-  Login = 'mobile-login.webp'
+  Login = 'login-welcome.webp'
 }
 
 type AuthLayoutProps = {
@@ -17,8 +17,7 @@ const AuthLayout = ({ image, children }: AuthLayoutProps) => {
     <>
       <div className="h-full">
         <div className="flex min-h-full">
-          <div className="relative hidden w-0 flex-1 md:block">
-            {image}
+          <div className="relative hidden w-0 flex-1 bg-brand-blue/70 md:block">
             <Image
               fill
               className="object-cover"
@@ -27,7 +26,7 @@ const AuthLayout = ({ image, children }: AuthLayoutProps) => {
               quality={100}
             />
           </div>
-          <div className="min-h-full flex-1 bg-brand-blue/70 py-10 sm:py-24">
+          <div className="min-h-full flex-1 bg-brand-blue/70 py-10">
             <div className="mx-auto flex min-h-full w-full flex-col items-center sm:px-6 lg:px-20 xl:px-24">
               {children}
             </div>

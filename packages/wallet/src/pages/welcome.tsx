@@ -2,6 +2,7 @@ import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { Button } from '@/ui/Button'
 import { Link } from '@/ui/Link'
+import Image from 'next/image'
 
 export default function Welcome() {
   return (
@@ -24,6 +25,14 @@ export default function Welcome() {
       <Button aria-label="sign up" href="register">
         Sign up
       </Button>
+      <Image
+        className="mt-auto object-cover md:hidden"
+        src="/welcome-mobile.webp"
+        alt="Welcome"
+        quality={100}
+        width={700}
+        height={200}
+      />
       <Link
         href="https://interledger.org"
         className="mt-auto text-sm font-extralight text-brand-green-4"

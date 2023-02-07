@@ -6,6 +6,7 @@ import { Link } from '@/ui/Link'
 import { Play } from '@/ui/Play'
 import { z } from 'zod'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 
 const loginSchema = z.object({
   email: z.string().min(5, { message: 'Email is required' }),
@@ -45,16 +46,28 @@ const Login = () => {
           error={loginForm.formState.errors.password?.message}
           placeholder="Password"
         />
-        <button aria-label="login" type="submit" className="m-auto py-10">
+        <button
+          aria-label="login"
+          type="submit"
+          className="m-auto py-2 sm:py-10"
+        >
           <Play />
         </button>
       </Form>
       <Link
         href="/recover-pswd"
-        className="mt-10 text-xs font-extralight text-brand-green-3"
+        className="py-2 text-xs font-extralight text-brand-green-3 sm:py-10"
       >
         Forgot password?
       </Link>
+      <Image
+        className="mt-auto object-cover md:hidden"
+        src="/login-mobile.webp"
+        alt="Login"
+        quality={100}
+        width={700}
+        height={200}
+      />
       <Link
         href="/register"
         className="mt-auto text-sm font-extralight text-brand-green-4"
