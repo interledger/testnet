@@ -43,7 +43,7 @@ const navigationItems: NavigationItemProps[] = [
 ]
 
 export const Menu = () => {
-  const { pathname } = useRouter()
+  const pathname = `/${useRouter().pathname.split('/')[1]}`
 
   return (
     <Disclosure
