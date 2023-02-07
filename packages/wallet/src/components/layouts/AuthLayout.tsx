@@ -1,21 +1,29 @@
 import Image from 'next/image'
 import { ReactNode } from 'react'
 
+enum Images {
+  Park = 'park.webp',
+  Login = 'mobile-login.webp'
+}
+
 type AuthLayoutProps = {
+  image: string
   children: ReactNode
 }
 
-const AuthLayout = ({ children }: AuthLayoutProps) => {
+const AuthLayout = ({ image, children }: AuthLayoutProps) => {
+  const imageSrc = `/${Images[image]}`
   return (
     <>
       <div className="h-full">
         <div className="flex min-h-full">
           <div className="relative hidden w-0 flex-1 md:block">
+            {image}
             <Image
               fill
               className="object-cover"
-              src="/park.webp"
-              alt="Park"
+              src={imageSrc}
+              alt={image}
               quality={100}
             />
           </div>
