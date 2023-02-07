@@ -37,7 +37,7 @@ const Login = () => {
           type="email"
           {...loginForm.register('email')}
           error={loginForm.formState.errors.email?.message}
-          placeholder="Email"
+          placeholder="Login ID"
         />
         <Input
           required
@@ -46,33 +46,34 @@ const Login = () => {
           error={loginForm.formState.errors.password?.message}
           placeholder="Password"
         />
+        <Link
+          href="/recover-pswd"
+          className="text-xs font-extralight text-brand-green-3"
+        >
+          Forgot password?
+        </Link>
         <button
           aria-label="login"
           type="submit"
-          className="m-auto py-2 sm:py-10"
+          className="m-auto py-2 sm:py-5"
         >
           <Play />
         </button>
       </Form>
-      <Link
-        href="/recover-pswd"
-        className="py-2 text-xs font-extralight text-brand-green-3 sm:py-10"
-      >
-        Forgot password?
-      </Link>
+
       <Image
         className="mt-auto object-cover md:hidden"
         src="/login-mobile.webp"
         alt="Login"
         quality={100}
-        width={700}
+        width={500}
         height={200}
       />
       <Link
         href="/register"
         className="mt-auto text-sm font-extralight text-brand-green-4"
       >
-        Not a member? Sign in
+        Not a customer? Create account
       </Link>
     </AuthLayout>
   )

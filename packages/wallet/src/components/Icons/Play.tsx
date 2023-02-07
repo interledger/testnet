@@ -3,28 +3,28 @@ import { SVGProps } from 'react'
 export const Play = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="53"
-      height="59"
-      viewBox="0 0 53 59"
+      width="40"
+      height="44"
+      viewBox="0 0 40 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
-        d="M49.5603 23.3603C53.9403 25.8904 53.9403 32.2204 49.5603 34.7504L30.1203 45.9703L10.6803 57.1904C6.3003 59.7204 0.820312 56.5604 0.820312 51.5004V29.0504V6.60034C0.820312 1.54034 6.3003 -1.61966 10.6803 0.910338L30.1203 12.1304L49.5603 23.3603Z"
-        fill="url(#paint0_linear_456_367)"
+        d="M36.9501 17.9794C40.2201 19.8694 40.2201 24.5794 36.9501 26.4694L22.4501 34.8394L7.95009 43.2094C4.68009 45.0994 0.600098 42.7394 0.600098 38.9594V22.2194V5.4794C0.600098 1.7094 4.69009 -0.650601 7.95009 1.2294L22.4501 9.59939L36.9501 17.9794Z"
+        fill="url(#paint0_linear_473_3152)"
       />
       <defs>
         <linearGradient
-          id="paint0_linear_456_367"
-          x1="0.826212"
-          y1="29.056"
-          x2="52.8514"
-          y2="29.056"
+          id="paint0_linear_473_3152"
+          x1="0.600498"
+          y1="22.2242"
+          x2="39.3997"
+          y2="22.2242"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#00B1D8" />
-          <stop offset="1" stopColor="#2EC08C" />
+          <stop offset="0.0016121" stopColor="#92DBCA" />
+          <stop offset="1" stopColor="#56B1AF" />
         </linearGradient>
       </defs>
     </svg>

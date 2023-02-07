@@ -9,7 +9,7 @@ export default function Welcome() {
     <AuthLayout image="Park">
       <HeaderLogo header="Welcome" />
       <h2 className="mt-5 mb-10 text-xl font-light text-brand-green-4 md:mt-20">
-        Already a member?
+        Already a customer?
       </h2>
       <Button aria-label="log in" href="/login">
         Log in
@@ -23,14 +23,14 @@ export default function Welcome() {
         New here?
       </h2>
       <Button aria-label="sign up" href="register">
-        Sign up
+        Create account
       </Button>
       <Image
         className="mt-auto object-cover md:hidden"
         src="/welcome-mobile.webp"
         alt="Welcome"
         quality={100}
-        width={700}
+        width={400}
         height={200}
       />
       <Link
