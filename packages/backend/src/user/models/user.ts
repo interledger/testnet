@@ -1,5 +1,4 @@
 import bcryptjs from 'bcryptjs'
-import { Secret, sign } from 'jsonwebtoken'
 import { Model } from 'objection'
 
 export class User extends Model {
@@ -12,26 +11,6 @@ export class User extends Model {
 
   async $beforeInsert() {
     this.password = await bcryptjs.hash(this.password, 10)
-  }
-
-  generateJWT() {
-    return sign(
-      { userId: this.id },
-      process.env.JWT_ACCESS_TOKEN_SECRET as Secret,
-      {
-        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
-      }
-    )
-  }
-
-  generateRefreshToken() {
-    return sign(
-      { userId: this.id },
-      process.env.JWT_REFRESH_TOKEN_SECRET as Secret,
-      {
-        expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
-      }
-    )
   }
 
   async verifyPassword(password: string) {

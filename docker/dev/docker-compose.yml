@@ -12,6 +12,14 @@ services:
     restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data
+    container_name: postgres
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis:/data
+    container_name: redis
 
   backend:
     build:
@@ -25,6 +33,7 @@ services:
     restart: always
     ports:
       - '3000:3000'
+    container_name: backend
     
   wallet:
     build:
@@ -44,6 +53,9 @@ services:
       - ../../packages/wallet:/home/testnet/packages/wallet
       - /home/testnet/packages/wallet/node_modules
       - /home/testnet/packages/wallet/.next
+    container_name: wallet
 
 volumes:
   pg-data:
+  redis:
+    driver: local

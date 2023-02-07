@@ -1,6 +1,19 @@
 import express from 'express'
+import { Secret, sign } from 'jsonwebtoken'
 import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
+
+const generateJWT = (userId: number) => {
+  return sign({ userId }, process.env.JWT_ACCESS_TOKEN_SECRET as Secret, {
+    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
+  })
+}
+
+const generateRefreshToken = (userId: number) => {
+  return sign({ userId }, process.env.JWT_REFRESH_TOKEN_SECRET as Secret, {
+    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
+  })
+}
 
 export const signup = async (req: express.Request, res: express.Response) => {
   try {
@@ -26,8 +39,8 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.status(401).json({ error: 'Invalid credentials' })
     }
 
-    const jwt = user.generateJWT()
-    const generatedToken = user.generateRefreshToken()
+    const jwt = generateJWT(user.id)
+    const generatedToken = generateRefreshToken(user.id)
 
     const refreshToken = new RefreshToken(user.id, generatedToken)
 
@@ -79,8 +92,8 @@ export const refresh = async (req: express.Request, res: express.Response) => {
     // *also regenerates the current refresh token in redis and returns it to the client to replace the old one.
     // *this enables features such as 'infinite login'
 
-    const newAccessToken = user.generateJWT()
-    const newRefreshToken = user.generateRefreshToken()
+    const newAccessToken = generateJWT(userId)
+    const newRefreshToken = generateRefreshToken(userId)
 
     //* the regenerated token can be updated in redis
     //* by just calling save on a new RefreshToken class instance that holds the same id (userId)

@@ -2,7 +2,10 @@
 import { Redis } from 'ioredis'
 import jwt from 'jsonwebtoken'
 
-const redis = new Redis()
+const redis = new Redis({
+  port: Number(process.env.REDIS_PORT!),
+  host: process.env.REDIS_HOST
+})
 
 export class RefreshToken {
   id!: string
