@@ -3,13 +3,13 @@ import AuthLayout from '@/components/layouts/AuthLayout'
 import { Form, useZodForm } from '@/ui/Form'
 import { Input } from '@/ui/Input'
 import { Link } from '@/ui/Link'
-import { Play } from '@/ui/Play'
+import { Play } from '@/components/Icons/Play'
 import { z } from 'zod'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 
 const loginSchema = z.object({
-  email: z.string().min(5, { message: 'Email is required' }),
+  email: z.string().email({ message: 'Email is required' }),
   password: z.string().min(6, { message: 'Password is required, min. 6 chars' })
 })
 
