@@ -1,18 +1,20 @@
 import Image from 'next/image'
 import { ReactNode } from 'react'
 
-enum Images {
-  Park = 'park.webp',
-  Login = 'login-welcome.webp'
-}
+const IMAGES = {
+  Park: 'park.webp',
+  Login: 'login-welcome.webp'
+} as const
+
+type Image = keyof typeof IMAGES
 
 type AuthLayoutProps = {
-  image: string
+  image: Image
   children: ReactNode
 }
 
 const AuthLayout = ({ image, children }: AuthLayoutProps) => {
-  const imageSrc = `/${Images[image]}`
+  const imageSrc = `/${IMAGES[image]}`
   return (
     <>
       <div className="h-full">
