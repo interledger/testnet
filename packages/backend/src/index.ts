@@ -21,7 +21,6 @@ Model.knex(knex)
 
 app.use(passport.initialize())
 
-
 app.use(mainRouter)
 
 app.listen(process.env.PORT, (): void => {

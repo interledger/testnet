@@ -3,24 +3,24 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-    return knex.schema.createTable('transactions', (table) => {
-      table.increments('id').primary()
-      table.integer('payment_id')
-      table.string('description')
-      table.integer('payment_pointer_id')
-      table.string('asset_code')
-      table.float('value')
-      table.enum('type', ['INCOMING', 'OUTGOING'])
-      table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED'])
+  return knex.schema.createTable('transactions', (table) => {
+    table.increments('id').primary()
+    table.integer('payment_id')
+    table.string('description')
+    table.integer('payment_pointer_id')
+    table.string('asset_code')
+    table.float('value')
+    table.enum('type', ['INCOMING', 'OUTGOING'])
+    table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED'])
 
-      table.timestamps(false, true)
-    })
-  }
-  
-  /**
-   * @param { import("knex").Knex } knex
-   * @returns { Promise<void> }
-   */
-  exports.down = function (knex) {
-    return knex.schema.dropTable('transactions')
-  }
+    table.timestamps(false, true)
+  })
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+exports.down = function (knex) {
+  return knex.schema.dropTable('transactions')
+}
