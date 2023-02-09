@@ -14,15 +14,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const id = useId()
     return (
       <div>
-        {label && <Label htmlFor={id}>{label}</Label>}
-        <div className="mt-1 shadow-sm">
+        <div className="relative mt-1 shadow-sm">
           <input
             id={id}
             ref={ref}
             type={type ?? 'text'}
-            className="block w-full rounded-md border border-gray-300 transition-colors duration-150 placeholder:font-extralight focus:border-gray-500 focus:outline-none focus:ring-0"
+            className="peer mb-2 block h-10 w-full rounded-md border border-brand-turqoise pt-7 pb-4 placeholder-transparent transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0"
             {...props}
+            placeholder={label}
           />
+          {label && <Label htmlFor={id}>{label}</Label>}
         </div>
         <FieldError error={error} />
       </div>
