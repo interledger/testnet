@@ -63,7 +63,7 @@ export const Form = <T extends FieldValues>({
 }: FormProps<T>) => {
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} {...props}>
+      <form onSubmit={form.handleSubmit(onSubmit)} {...props} className="w-3/5">
         <fieldset
           disabled={form.formState.isSubmitting}
           className="flex flex-col space-y-4"
