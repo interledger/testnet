@@ -6,7 +6,6 @@ import { Link } from '@/ui/Link'
 import { Play } from '@/components/Icons/Play'
 import { z } from 'zod'
 import { useRouter } from 'next/router'
-import Image from 'next/image'
 
 const registerSchema = z
   .object({
