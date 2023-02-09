@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={id}
             ref={ref}
             type={type ?? 'text'}
-            className="peer mb-2 block h-10 w-full rounded-md border border-brand-turqoise pt-7 pb-4 placeholder-transparent transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0"
+            className="peer block w-full rounded-md border border-brand-turqoise pt-4 pb-1 placeholder-transparent transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0"
             {...props}
             placeholder={label}
           />
