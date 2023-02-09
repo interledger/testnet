@@ -37,14 +37,14 @@ const Login = () => {
           type="email"
           {...loginForm.register('email')}
           error={loginForm.formState.errors.email?.message}
-          placeholder="Login ID"
+          label="Email"
         />
         <Input
           required
           type="password"
           {...loginForm.register('password')}
           error={loginForm.formState.errors.password?.message}
-          placeholder="Password"
+          label="Password"
         />
         <Link
           href="/recover-pswd"
