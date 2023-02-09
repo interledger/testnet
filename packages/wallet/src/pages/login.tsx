@@ -31,36 +31,37 @@ const Login = () => {
       <h2 className="mt-10 mb-5 text-xl font-semibold text-brand-green-4">
         Login
       </h2>
-      <Form form={loginForm} onSubmit={handleSubmit}>
-        <Input
-          required
-          type="email"
-          {...loginForm.register('email')}
-          error={loginForm.formState.errors.email?.message}
-          label="Email"
-        />
-        <Input
-          required
-          type="password"
-          {...loginForm.register('password')}
-          error={loginForm.formState.errors.password?.message}
-          label="Password"
-        />
-        <Link
-          href="/recover-pswd"
-          className="text-xs font-extralight text-brand-green-3"
-        >
-          Forgot password?
-        </Link>
-        <button
-          aria-label="login"
-          type="submit"
-          className="m-auto py-2 sm:py-5"
-        >
-          <Play />
-        </button>
-      </Form>
-
+      <div className="w-2/3">
+        <Form form={loginForm} onSubmit={handleSubmit}>
+          <Input
+            required
+            type="email"
+            {...loginForm.register('email')}
+            error={loginForm.formState.errors.email?.message}
+            label="E-mail"
+          />
+          <Input
+            required
+            type="password"
+            {...loginForm.register('password')}
+            error={loginForm.formState.errors.password?.message}
+            label="Password"
+          />
+          <Link
+            href="/recover-pswd"
+            className="text-xs font-extralight text-brand-green-3"
+          >
+            Forgot password?
+          </Link>
+          <button
+            aria-label="login"
+            type="submit"
+            className="m-auto py-2 sm:py-5"
+          >
+            <Play />
+          </button>
+        </Form>
+      </div>
       <Image
         className="mt-auto object-cover md:hidden"
         src="/login-mobile.webp"

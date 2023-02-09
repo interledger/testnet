@@ -3,7 +3,8 @@ import { ReactNode } from 'react'
 
 const IMAGES = {
   Park: 'park.webp',
-  Login: 'login-welcome.webp'
+  Login: 'login-welcome.webp',
+  Register: 'register.webp'
 } as const
 
 type Image = keyof typeof IMAGES
