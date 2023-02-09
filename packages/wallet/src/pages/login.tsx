@@ -37,7 +37,7 @@ const Login = () => {
           type="email"
           {...loginForm.register('email')}
           error={loginForm.formState.errors.email?.message}
-          label="Login ID"
+          label="Email"
         />
         <Input
           required
