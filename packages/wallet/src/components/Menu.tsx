@@ -8,6 +8,7 @@ import { Fragment, type SVGProps, useState } from 'react'
 import { Banknotes } from './Icons/Banknotes'
 import { Bars } from './Icons/Bars'
 import { Chevron } from './Icons/Chevron'
+import { Cog } from './Icons/Cog'
 import { Grant } from './Icons/Grant'
 import { Home } from './Icons/Home'
 import { X } from './Icons/X'
@@ -55,7 +56,7 @@ const menuItems: MenuItemProps[] = [
   {
     name: 'Settings',
     href: '/settings',
-    Icon: Home,
+    Icon: Cog,
     childrens: [
       {
         name: 'Account',
