@@ -122,7 +122,7 @@ export const Menu = () => {
                           {({ open }) => (
                             <>
                               <Disclosure.Button className="flex w-full items-center justify-between text-xl text-brand-green-4">
-                                <div className="flex space-x-3">
+                                <div className="flex space-x-4">
                                   <Icon className="h-8 w-8 text-brand-green-3" />
                                   <span className="flex-1">{name}</span>
                                 </div>
