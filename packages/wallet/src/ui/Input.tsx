@@ -14,12 +14,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const id = useId()
     return (
       <div>
-        <div className="relative mt-1 shadow-sm">
+        <div className="relative mt-1">
           <input
             id={id}
             ref={ref}
             type={type ?? 'text'}
-            className="peer block w-full rounded-xl border border-brand-turqoise pt-4 pb-1 placeholder-transparent transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0"
+            className="peer block w-full rounded-xl border border-brand-turqoise pt-4 pb-1 placeholder-transparent shadow-md transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0"
             {...props}
             placeholder={label}
           />
