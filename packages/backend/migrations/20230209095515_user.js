@@ -4,15 +4,15 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('users', (table) => {
-    table.increments('id').primary()
-    table.string('username')
-    table.string('email')
-    table.string('password')
-    table.string('last_name')
-    table.string('first_name')
-    table.string('rapyd_wallet_id')
-    table.string('rapyd_contact_id')
-    table.timestamps(false, true)
+    table.uuid('id').notNullable().primary()
+    table.string('email').notNullable()
+    table.string('password').notNullable()
+    table.string('last_name').notNullable()
+    table.string('first_name').notNullable()
+    table.string('rapyd_wallet_id').notNullable()
+    table.string('rapyd_contact_id').notNullable()
+    
+    table.timestamps(false, true, true)
   })
 }
 
