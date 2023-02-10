@@ -4,11 +4,12 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('accounts', (table) => {
-    table.string('rapyd_account_id').primary()
-    table.string('user_id')
-    table.string('asset_code')
+    table.uuid('id').notNullable().primary()
+    table.string('rapyd_account_id').notNullable()
+    table.string('user_id').notNullable()
+    table.string('asset_code').notNullable()
 
-    table.timestamps(false, true)
+    table.timestamps(false, true, true)
   })
 }
 
