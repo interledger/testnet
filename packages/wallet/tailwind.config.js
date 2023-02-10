@@ -14,6 +14,9 @@ module.exports = {
         'brand-green-2': '#80c68c',
         'brand-green-3': '#2ea38d',
         'brand-green-4': '#003a2f'
+      },
+      screens: {
+        'h-sm': { raw: '(min-height: 600px)' }
       }
     }
   },
