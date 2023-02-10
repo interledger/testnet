@@ -80,7 +80,7 @@ export const Menu = () => {
       <Transition.Root show={sidebarIsOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10 md:hidden"
+          className="relative z-20 md:hidden"
           onClose={setSidebarIsOpen}
         >
           {/* Backdrop */}
@@ -170,7 +170,7 @@ export const Menu = () => {
       </Transition.Root>
       {/* Mobile Menu - END */}
       {/* Desktop Menu */}
-      <nav className="fixed inset-x-0 flex h-20 flex-col md:inset-y-0 md:h-auto md:w-60">
+      <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
         <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-to-r md:from-[#00B1D8] md:to-[#6AC1B7]">
           <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
           <div className="mt-14 hidden flex-1 space-y-8 md:block">
