@@ -2,7 +2,7 @@
   "name": "backend",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "knex": "./node_modules/.bin/knex --knexfile src/database/knexfile.js"
+    "knex": "./node_modules/.bin/knex --knexfile database/knexfile.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",

@@ -4,7 +4,7 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('grants', (table) => {
-    table.increment('id').primary()
+    table.increments('id').primary()
 
     table.timestamps(false, true)
   })

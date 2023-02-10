@@ -4,11 +4,14 @@ module.exports = {
     connection: {
       database: 'testnet',
       user: 'postgres',
-      password: 'password'
+      password: 'password',
+      port: 5433
     },
     pool: {
-      min: 2,
-      max: 10
+      min: 0,
+      max: 10,
+      acquireTimeoutMillis: 60000,
+      idleTimeoutMillis: 600000,
     },
     migrations: {
       tableName: 'knex_migrations'
@@ -20,7 +23,8 @@ module.exports = {
     connection: {
       database: 'testnet',
       user: 'postgres',
-      password: 'password'
+      password: 'password',
+      port: 5432
     },
     pool: {
       min: 2,
@@ -36,7 +40,8 @@ module.exports = {
     connection: {
       database: 'testnet',
       user: 'postgres',
-      password: 'password'
+      password: 'password',
+      port: 5432
     },
     pool: {
       min: 2,

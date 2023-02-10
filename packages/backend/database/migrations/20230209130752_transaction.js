@@ -10,8 +10,8 @@ exports.up = function (knex) {
     table.integer('payment_pointer_id')
     table.string('asset_code')
     table.float('value')
-    table.enum('type', ['INCOMING', 'OUTGOING'])
-    table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED'])
+    table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
+    table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED']).notNullable()
 
     table.timestamps(false, true)
   })
