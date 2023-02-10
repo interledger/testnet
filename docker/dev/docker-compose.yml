@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
     ports:
-      - '5433:5433'
+      - '5433:5432'
     restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data

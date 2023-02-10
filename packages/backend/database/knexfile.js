@@ -11,7 +11,7 @@ module.exports = {
       min: 0,
       max: 10,
       acquireTimeoutMillis: 60000,
-      idleTimeoutMillis: 600000,
+      idleTimeoutMillis: 600000
     },
     migrations: {
       tableName: 'knex_migrations'
