@@ -4,9 +4,9 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('grants', (table) => {
-    table.increments('id').primary()
+    table.uuid('id').notNullable().primary()
 
-    table.timestamps(false, true)
+    table.timestamps(false, true, true)
   })
 }
 
