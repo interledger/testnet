@@ -1,31 +1,25 @@
-import express, {
-  Application,
-  NextFunction,
-  Request,
-  Response,
-  Router
-} from 'express'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const config = require('../knexfile.js')
+import cors from 'cors'
+import * as dotenv from 'dotenv'
+import express, { Application } from 'express'
+import Knex from 'knex'
+import { Model } from 'objection'
+import passport from 'passport'
+dotenv.config()
 
 const app: Application = express()
-const router: Router = Router()
-const PORT = 3000
 
 app.disable('X-Powered-By')
+
+app.use(cors())
 app.use(express.json())
 
-interface CustomResponse {
-  message: string
-}
+const knex = Knex(config[process.env.NODE_ENV || 'development'])
+Model.knex(knex)
 
-router.get(
-  '/',
-  async (_req: Request, res: Response<CustomResponse>, _next: NextFunction) => {
-    res.json({ message: '🐈' })
-  }
-)
+app.use(passport.initialize())
 
-app.use(router)
-
-app.listen(PORT, (): void => {
-  console.log(`🚀 🌑 | Backend listening on ${PORT}`)
+app.listen(process.env.PORT, (): void => {
+  console.log(`🚀 🌑 | Backend listening on ${process.env.PORT}`)
 })
