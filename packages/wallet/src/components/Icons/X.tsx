@@ -6,10 +6,14 @@ export const X = (props: SVGProps<SVGSVGElement>) => {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
+      stroke="url(#x-blue-green)"
       strokeWidth={1.5}
-      stroke="currentColor"
       {...props}
     >
+      <linearGradient id="x-blue-green" x1="100%" y1="100%" x2="0%" y2="0%">
+        <stop stopColor="#92dbca" offset="0%" />
+        <stop stopColor="#56b1af" offset="100%" />
+      </linearGradient>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
