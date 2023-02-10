@@ -4,16 +4,12 @@ import { useRouter } from 'next/router'
 
 const tabs = [
   {
-    name: 'Profile',
+    name: 'Account',
     href: '/settings'
   },
   {
-    name: 'Security',
-    href: '/settings/security'
-  },
-  {
-    name: 'Notifications',
-    href: '/settings/notifications'
+    name: 'API',
+    href: '/settings/api'
   }
 ]
 
@@ -22,13 +18,13 @@ export const SettingsTabs = () => {
 
   return (
     <div className="flex w-full flex-col space-y-5 md:max-w-lg">
-      <div className="my-10 flex space-x-10 p-1">
+      <div className="my-5 flex justify-between space-x-10 p-1">
         {tabs.map((tab) => (
           <Link
             key={tab.name}
             href={tab.href}
             className={cx(
-              'group relative mx-auto w-full py-2.5 text-center text-lg font-medium leading-5',
+              'group relative px-10 py-2.5 text-center text-lg font-medium leading-5',
               pathname === tab.href
                 ? 'text-brand-green-4'
                 : 'text-brand-green-3 hover:text-brand-green-4'
