@@ -21,7 +21,6 @@ app.use(express.json())
 
 app.use(passport.initialize())
 
-app.use(mainRouter)
 
 app.listen(process.env.PORT, (): void => {
   console.log(`🚀 🌑 | Backend listening on ${process.env.PORT}`)
