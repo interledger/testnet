@@ -7,10 +7,10 @@ exports.up = function (knex) {
     table.uuid('id').notNullable().primary()
     table.uuid('payment_id').notNullable()
     table.string('description')
-    
+
     table.uuid('payment_pointer_id').notNullable()
     table.foreign('payment_pointer_id').references('payment_pointers.id')
-   
+
     table.string('asset_code').notNullable()
     table.float('value').notNullable()
     table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
