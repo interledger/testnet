@@ -4,16 +4,19 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('transactions', (table) => {
-    table.increments('id').primary()
-    table.integer('payment_id')
+    table.uuid('id').notNullable().primary()
+    table.uuid('payment_id').notNullable()
     table.string('description')
-    table.integer('payment_pointer_id')
-    table.string('asset_code')
-    table.float('value')
+    
+    table.uuid('payment_pointer_id').notNullable()
+    table.foreign('payment_pointer_id').references('payment_pointers.id')
+   
+    table.string('asset_code').notNullable()
+    table.float('value').notNullable()
     table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
     table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED']).notNullable()
 
-    table.timestamps(false, true)
+    table.timestamps(false, true, true)
   })
 }
 
