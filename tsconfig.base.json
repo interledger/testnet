@@ -67,7 +67,6 @@
     /* Advanced Options */
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
-    "resolveJsonModule": true /* Enable importing .json files */,
-    "suppressImplicitAnyIndexErrors": true /* Suppress noImplicitAny errors when indexing objects that lack index signatures. */
+    "resolveJsonModule": true /* Enable importing .json files */
   }
 }
