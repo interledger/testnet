@@ -1,6 +1,7 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { Button } from '@/ui/Button'
+import { Divider } from '@/ui/Divider'
 import { Link } from '@/ui/Link'
 import Image from 'next/image'
 
@@ -14,12 +15,8 @@ export default function Welcome() {
       <Button aria-label="log in" href="/login">
         Log in
       </Button>
-      <div className="mt-10 flex w-full items-center">
-        <div className="flex-grow border-t border-[#b7eddf]"></div>
-        <span className="mx-4 flex-shrink text-brand-green-3">or</span>
-        <div className="flex-grow border-t border-[#b7eddf]"></div>
-      </div>
-      <h2 className="mt-10 mb-5 text-xl font-semibold text-brand-green-4">
+      <Divider content="or" />
+      <h2 className="mb-5 text-xl font-semibold text-brand-green-4">
         New here?
       </h2>
       <Button aria-label="sign up" href="register">
