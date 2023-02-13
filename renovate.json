@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "branchConcurrentLimit": 0,
+  "branchPrefix": "renovate--",
+  "enabled": true,
+  "extends": ["config:base"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["@types/node", "node"],
+      "allowedVersions": "<=18.14.0"
+    }
+  ],
+  "prConcurrentLimit": 10,
+  "prCreation": "not-pending",
+  "prHourlyLimit": 2,
+  "rangeStrategy": "bump",
+  "rebaseWhen": "conflicted"
+}
