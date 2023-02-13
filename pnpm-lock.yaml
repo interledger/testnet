@@ -40,7 +40,7 @@ importers:
       cors: ^2.8.5
       dotenv: ^16.0.3
       express: ^4.18.2
-      ioredis: ^5.3.0
+      ioredis: ^5.3.1
       knex: ^2.4.2
       objection: ^3.0.1
       passport: ^0.6.0
@@ -56,7 +56,7 @@ importers:
       cors: 2.8.5
       dotenv: 16.0.3
       express: 4.18.2
-      ioredis: 5.3.0
+      ioredis: 5.3.1
       knex: 2.4.2_pg@8.9.0
       objection: 3.0.1_knex@2.4.2
       passport: 0.6.0
@@ -399,7 +399,7 @@ packages:
     resolution: {integrity: sha512-zJbJ3FVE17CNl5KXzdeSPtdltc4tMT3TzC6fxQS0sQngkbFZ6h+0uTafsRqu+eSLIugf6Yb0Ea0SUuRr42Nk9g==}
     deprecated: This is a stub types definition. ioredis provides its own type definitions, so you do not need this installed.
     dependencies:
-      ioredis: 5.3.0
+      ioredis: 5.3.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -1778,8 +1778,8 @@ packages:
     engines: {node: '>= 0.10'}
     dev: false
 
-  /ioredis/5.3.0:
-    resolution: {integrity: sha512-Id9jKHhsILuIZpHc61QkagfVdUj2Rag5GzG1TGEvRNeM7dtTOjICgjC+tvqYxi//PuX2wjQ+Xjva2ONBuf92Pw==}
+  /ioredis/5.3.1:
+    resolution: {integrity: sha512-C+IBcMysM6v52pTLItYMeV4Hz7uriGtoJdz7SSBDX6u+zwSYGirLdQh3L7t/OItWITcw3gTFMjJReYUwS4zihg==}
     engines: {node: '>=12.22.0'}
     dependencies:
       '@ioredis/commands': 1.2.0
