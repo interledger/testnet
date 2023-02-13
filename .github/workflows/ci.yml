@@ -2,8 +2,8 @@ name: PR Checks
 
 on:
   push:
-    branches:
-      - '!main'
+    branches-ignore:
+      - 'main'
   pull_request:
     types:
       - opened
