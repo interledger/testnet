@@ -5,25 +5,29 @@ import { Play } from '../Icons/Play'
 import { Button } from '@/ui/Button'
 import { PersonalDetailsForm } from './PersonalDetailsForm'
 import { IdentificationForm } from './IdentificationForm'
+import Image from 'next/image'
 
 const kycTabs = [
   {
     name: 'Personal Details',
     id: 'personalInfo',
     title: 'Enter your details',
-    contentForm: <PersonalDetailsForm />
+    contentForm: <PersonalDetailsForm />,
+    imageMobile: 'personal-info-kyc.webp'
   },
   {
     name: 'ID proof',
     id: 'id',
     title: 'Choose document type',
-    contentForm: <IdentificationForm />
+    contentForm: <IdentificationForm />,
+    imageMobile: 'id-kyc.webp'
   },
   {
     name: 'Bank details',
     id: 'bank',
     title: 'Bank account details',
-    contentForm: <label>TBD</label>
+    contentForm: <label>TBD</label>,
+    imageMobile: 'bank-kyc.webp'
   }
 ]
 
@@ -32,7 +36,7 @@ export const KYCTabs = () => {
 
   const Navigation = () => {
     return (
-      <div className="my-auto flex w-full justify-between">
+      <div className="my-auto flex w-full justify-between px-5">
         {selectedIndex > 0 && (
           <button
             aria-label="login"
@@ -98,6 +102,14 @@ export const KYCTabs = () => {
         </Tab.Group>
       </div>
       <Navigation />
+      <Image
+        className="mt-auto object-cover md:hidden"
+        src={`/${kycTabs[selectedIndex].imageMobile}`}
+        alt="KYC"
+        quality={100}
+        width={500}
+        height={200}
+      />
     </>
   )
 }
