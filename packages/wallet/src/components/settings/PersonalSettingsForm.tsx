@@ -1,6 +1,6 @@
 import { Button } from '@/ui/Button'
-import { Form, useZodForm } from '@/ui/Form'
-import { Input } from '@/ui/Input'
+import { Form, useZodForm } from '@/ui/forms/Form'
+import { Input } from '@/ui/forms/Input'
 import { z } from 'zod'
 
 export type PersonalDetailsProps = {
