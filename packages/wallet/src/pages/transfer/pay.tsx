@@ -4,6 +4,7 @@ import { z } from 'zod'
 import Image from 'next/image'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
+import { Select } from '@/ui/forms/Select'
 
 const paySchema = z.object({
   fromAccount: z.string(),
@@ -29,13 +30,14 @@ export default function Pay() {
           $10,000
         </h3>
         <Form form={form} onSubmit={handleSubmit}>
-          <label className="relative top-4 w-10 rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] text-sm text-white">
+          <label className="relative top-3 w-10 rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] text-sm text-white">
             from
           </label>
-          <Input
-            required
-            {...form.register('fromAccount')}
+          <Select
+            name="fromAccount"
+            setValue={form.setValue}
             error={form.formState.errors.fromAccount?.message}
+            options={[]}
             label="Account"
           />
           <label className="relative top-4 w-10 rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] text-sm text-white">
