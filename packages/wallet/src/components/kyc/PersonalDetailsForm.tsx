@@ -1,6 +1,16 @@
-import { Form, useZodForm } from '@/ui/Form'
-import { Input } from '@/ui/Input'
+import { Form, useZodForm } from '@/ui/forms/Form'
+import { Input } from '@/ui/forms/Input'
+import { Select } from '@/ui/forms/Select'
 import { z } from 'zod'
+
+type CountryProps = {
+  name: string
+  value: string
+}
+
+type PersonalDetailsProps = {
+  countries: Array<CountryProps>
+}
 
 const personalDetailsSchema = z.object({
   firstName: z.string(),
@@ -9,7 +19,7 @@ const personalDetailsSchema = z.object({
   address: z.string()
 })
 
-export const PersonalDetailsForm = () => {
+export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
   const personalDetailsForm = useZodForm({
     schema: personalDetailsSchema
   })
@@ -34,11 +44,13 @@ export const PersonalDetailsForm = () => {
           label="Last name"
         />
       </div>
-      <Input
-        required
-        {...personalDetailsForm.register('country')}
+      <Select
+        name="country"
+        setValue={personalDetailsForm.setValue}
+        defaultValue={countries[0]}
         error={personalDetailsForm.formState.errors.country?.message}
-        label="Country"
+        options={countries}
+        label="Asset"
       />
       <Input
         required
