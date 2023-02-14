@@ -37,6 +37,7 @@ const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
               src={imageSrc}
               alt={image}
               quality={100}
+              objectFit="contain"
             />
           </div>
           <div
