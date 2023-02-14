@@ -1,9 +1,9 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/ui/Button'
-import { Form, useZodForm } from '@/ui/Form'
-import { Input } from '@/ui/Input'
-import { Select } from '@/ui/Select'
+import { Form, useZodForm } from '@/ui/forms/Form'
+import { Input } from '@/ui/forms/Input'
+import { Select } from '@/ui/forms/Select'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
