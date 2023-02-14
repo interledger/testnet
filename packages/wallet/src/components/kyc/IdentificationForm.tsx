@@ -1,5 +1,5 @@
+import { FileUpload } from '@/ui/FileUpload'
 import { Form, useZodForm } from '@/ui/Form'
-import { FileUpload } from '@/ui/Upload'
 import { z } from 'zod'
 
 // mock data, the list will come from Rapyd
