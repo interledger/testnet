@@ -28,7 +28,7 @@ importers:
     specifiers:
       '@types/bcryptjs': ^2.4.2
       '@types/cors': ^2.8.13
-      '@types/express': ^4.17.15
+      '@types/express': ^4.17.17
       '@types/ioredis': ^5.0.0
       '@types/jsonwebtoken': ^9.0.1
       '@types/node': ^18.11.18
@@ -66,7 +66,7 @@ importers:
       validator: 13.9.0
     devDependencies:
       '@types/bcryptjs': 2.4.2
-      '@types/express': 4.17.15
+      '@types/express': 4.17.17
       '@types/ioredis': 5.0.0
       '@types/jsonwebtoken': 9.0.1
       '@types/node': 18.11.18
@@ -378,19 +378,19 @@ packages:
       '@types/node': 18.11.18
     dev: false
 
-  /@types/express-serve-static-core/4.17.32:
-    resolution: {integrity: sha512-aI5h/VOkxOF2Z1saPy0Zsxs5avets/iaiAJYznQFm5By/pamU31xWKL//epiF4OfUA2qTOc9PV6tCUjhO8wlZA==}
+  /@types/express-serve-static-core/4.17.33:
+    resolution: {integrity: sha512-TPBqmR/HRYI3eC2E5hmiivIzv+bidAfXofM+sbonAGvyDhySGw9/PQZFt2BLOrjUUR++4eJVpx6KnLQK1Fk9tA==}
     dependencies:
       '@types/node': 18.11.18
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: true
 
-  /@types/express/4.17.15:
-    resolution: {integrity: sha512-Yv0k4bXGOH+8a+7bELd2PqHQsuiANB+A8a4gnQrkRWzrkKlb6KHaVvyXhqs04sVW/OWlbPyYxRgYlIXLfrufMQ==}
+  /@types/express/4.17.17:
+    resolution: {integrity: sha512-Q4FmmuLGBG58btUnfS1c1r/NQdlp3DMfGDGig8WhfpA2YRUtEkxAjkZb0yvplJGYdF1fsQ81iMDcH24sSCNC/Q==}
     dependencies:
       '@types/body-parser': 1.19.2
-      '@types/express-serve-static-core': 4.17.32
+      '@types/express-serve-static-core': 4.17.33
       '@types/qs': 6.9.7
       '@types/serve-static': 1.15.0
     dev: true
@@ -424,7 +424,7 @@ packages:
   /@types/passport-jwt/3.0.8:
     resolution: {integrity: sha512-VKJZDJUAHFhPHHYvxdqFcc5vlDht8Q2pL1/ePvKAgqRThDaCc84lSYOTQmnx3+JIkDlN+2KfhFhXIzlcVT+Pcw==}
     dependencies:
-      '@types/express': 4.17.15
+      '@types/express': 4.17.17
       '@types/jsonwebtoken': 9.0.1
       '@types/passport-strategy': 0.2.35
     dev: true
@@ -432,14 +432,14 @@ packages:
   /@types/passport-strategy/0.2.35:
     resolution: {integrity: sha512-o5D19Jy2XPFoX2rKApykY15et3Apgax00RRLf0RUotPDUsYrQa7x4howLYr9El2mlUApHmCMv5CZ1IXqKFQ2+g==}
     dependencies:
-      '@types/express': 4.17.15
+      '@types/express': 4.17.17
       '@types/passport': 1.0.11
     dev: true
 
   /@types/passport/1.0.11:
     resolution: {integrity: sha512-pz1cx9ptZvozyGKKKIPLcVDVHwae4hrH5d6g5J+DkMRRjR3cVETb4jMabhXAUbg3Ov7T22nFHEgaK2jj+5CBpw==}
     dependencies:
-      '@types/express': 4.17.15
+      '@types/express': 4.17.17
     dev: true
 
   /@types/prop-types/15.7.5:
