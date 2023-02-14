@@ -18,7 +18,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
           </div>
         </main>
-        <Bubbles className="absolute inset-y-0 right-0 hidden h-full lg:block" />
+        <Bubbles className="fixed inset-y-0 right-0 hidden h-full lg:block" />
       </div>
     </>
   )

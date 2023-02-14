@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const config = require('./database/knexfile.js')
+const config = require('../knexfile.js')
 import cors from 'cors'
 import * as dotenv from 'dotenv'
 import express, { Application } from 'express'

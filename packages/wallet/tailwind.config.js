@@ -6,7 +6,8 @@ module.exports = {
     extend: {
       colors: {
         'brand-turqoise': '#56c1bF',
-        'brand-blue': '#c0f9ff',
+        'brand-blue-1': '#c0f9ff',
+        'brand-blue-2': '#55b2b0',
         'brand-yellow': '#efdba4',
         'brand-orange': '#fab882',
         'brand-pink': '#f38d94',
@@ -14,6 +15,9 @@ module.exports = {
         'brand-green-2': '#80c68c',
         'brand-green-3': '#2ea38d',
         'brand-green-4': '#003a2f'
+      },
+      screens: {
+        'h-sm': { raw: '(min-height: 600px)' }
       }
     }
   },

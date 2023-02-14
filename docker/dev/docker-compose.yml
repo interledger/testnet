@@ -8,18 +8,11 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
     ports:
-      - '5432:5432'
+      - '5433:5432'
     restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data
     container_name: postgres
-  redis:
-    image: redis
-    ports:
-      - '6379:6379'
-    volumes:
-      - redis:/data
-    container_name: redis
 
   backend:
     build:
@@ -29,10 +22,10 @@ services:
       - postgres
     environment:
       NODE_ENV: development
-      PORT: 3000
+      PORT: 3003
     restart: always
     ports:
-      - '3000:3000'
+      - '3003:3003'
     container_name: backend
     
   wallet:
@@ -43,11 +36,11 @@ services:
       - postgres
     environment:
       NODE_ENV: development
-      PORT: 4000
+      PORT: 4003
     restart: always
     
     ports:
-      - '4000:4000'
+      - '4003:4003'
     # In order to take advantage of HMR inside Docker we have to add these volumes
     volumes:
       - ../../packages/wallet:/home/testnet/packages/wallet

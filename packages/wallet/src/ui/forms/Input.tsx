@@ -12,18 +12,18 @@ type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'className'> & {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, type, error, ...props }, ref) => {
     const id = useId()
-
     return (
       <div>
-        {label && <Label htmlFor={id}>{label}</Label>}
-        <div className="mt-1 shadow-sm">
+        <div className="relative mt-1">
           <input
             id={id}
             ref={ref}
             type={type ?? 'text'}
-            className="block w-full rounded-md border border-gray-300 transition-colors duration-150 placeholder:font-extralight focus:border-gray-500 focus:outline-none focus:ring-0"
+            className="peer block w-full rounded-xl border border-brand-turqoise pt-4 pb-1 placeholder-transparent shadow-md transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0"
             {...props}
+            placeholder={label}
           />
+          {label && <Label htmlFor={id}>{label}</Label>}
         </div>
         <FieldError error={error} />
       </div>
