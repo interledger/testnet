@@ -82,7 +82,7 @@ importers:
       '@next/font': 13.1.2
       '@tailwindcss/forms': ^0.5.3
       '@types/node': ^18.11.18
-      '@types/react': 18.0.26
+      '@types/react': 18.0.28
       '@types/react-dom': 18.0.10
       autoprefixer: ^10.4.13
       class-variance-authority: ^0.4.0
@@ -107,7 +107,7 @@ importers:
     devDependencies:
       '@tailwindcss/forms': 0.5.3_tailwindcss@3.2.4
       '@types/node': 18.11.18
-      '@types/react': 18.0.26
+      '@types/react': 18.0.28
       '@types/react-dom': 18.0.10
       autoprefixer: 10.4.13_postcss@8.4.21
       postcss: 8.4.21
@@ -457,11 +457,11 @@ packages:
   /@types/react-dom/18.0.10:
     resolution: {integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.0.28
     dev: true
 
-  /@types/react/18.0.26:
-    resolution: {integrity: sha512-hCR3PJQsAIXyxhTNSiDFY//LhnMZWpNNr5etoCqx/iUfGc5gXWtQR2Phl908jVR6uPXacojQWTg4qRpkxTuGug==}
+  /@types/react/18.0.28:
+    resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
