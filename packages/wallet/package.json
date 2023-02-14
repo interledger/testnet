@@ -6,7 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.8",
+    "@headlessui/react": "^1.7.10",
     "@hookform/resolvers": "^2.9.10",
     "@next/font": "13.1.2",
     "class-variance-authority": "^0.4.0",
