@@ -1,87 +1,103 @@
-import { ReactNode } from 'react'
+import { Play } from '@/components/Icons/Play'
 import { Listbox } from '@headlessui/react'
+import { cx } from 'class-variance-authority'
+import { useEffect, useState } from 'react'
+import type {
+  FieldPath,
+  FieldPathValue,
+  FieldValues,
+  UseFormSetValue
+} from 'react-hook-form'
+import { FieldError } from './FieldError'
 
-type Props = {
+type SelectOption = {
   value: string
-  onChange: (value: string) => void
-  disabled?: boolean
-  children: ReactNode
+  name: string
 }
 
-export const Select = (props: Props) => {
+type SelectProps<T extends FieldValues> = {
+  name: FieldPath<T>
+  setValue: UseFormSetValue<T>
+  defaultValue?: SelectOption
+  options: SelectOption[]
+  label?: string
+  placeholder?: string
+  error?: string
+}
+
+export const Select = <T extends FieldValues>({
+  name,
+  setValue,
+  defaultValue,
+  options,
+  label,
+  placeholder,
+  error
+}: SelectProps<T>) => {
+  const [selected, setSelected] = useState<SelectOption | null>(
+    defaultValue ?? null
+  )
+
+  /**
+   * TODO(@raducristianpopa): There might be a better way to do this
+   * https://react-hook-form.com/ts#UseControllerProps
+   */
+  useEffect(() => {
+    if (selected)
+      setValue(name, selected.value as FieldPathValue<T, FieldPath<T>>)
+  }, [selected, name, setValue])
+
   return (
-    <Listbox
-      name="test"
-      defaultValue={props.value}
-      value={props.value}
-      onChange={props.onChange}
-      disabled={props.disabled}
-    >
-      {({ open }) => (
-        <>
-          <div>
-            <Listbox.Button>
-              <span className="">
-                {props.value ? props.value : 'Please select an asset'}
+    <div>
+      <Listbox name={name} value={selected} onChange={setSelected}>
+        {({ open }) => (
+          <div className="relative">
+            <Listbox.Button className="peer relative block w-full rounded-xl border border-brand-turqoise px-3 pt-4 pb-1 text-left shadow-md transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0">
+              <span className="block truncate">
+                {selected
+                  ? selected.name
+                  : placeholder ?? 'Please select an option'}
+              </span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <Play
+                  className={cx(
+                    'h-4 w-4 transition-transform',
+                    open ? 'rotate-90' : 'rotate-180'
+                  )}
+                />
               </span>
             </Listbox.Button>
-            <Listbox.Options className="absolute">
-              {open && props.children}
-            </Listbox.Options>
-          </div>
-        </>
-      )}
-    </Listbox>
-  )
-}
+            <Listbox.Label
+              className={cx(
+                'absolute -top-1 left-3 block py-1 text-sm font-light transition-colors',
+                open ? 'text-brand-green-3' : 'text-brand-turqoise'
+              )}
+            >
+              {label}
+            </Listbox.Label>
 
-type SelectOptionProps = {
-  children: ReactNode
-  value: string
-}
-
-export const SelectOption = (props: SelectOptionProps) => {
-  return (
-    <Listbox.Option key={props.value} value={props.value}>
-      <span>{props.value}</span>
-    </Listbox.Option>
-  )
-}
-
-/*<Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {people.map((person, personIdx) => (
+            <Listbox.Options className="absolute z-10 mt-3 max-h-32 w-full overflow-y-auto overscroll-contain rounded-md border border-brand-green-3 bg-white">
+              {options.map((option) => (
                 <Listbox.Option
-                  key={personIdx}
-                  className={({ active }) =>
-                    `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                      active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                    }`
+                  key={option.value}
+                  className={({ selected }) =>
+                    cx(
+                      'relative flex items-center p-2 first:rounded-t-md last:rounded-b-md',
+                      selected
+                        ? 'bg-brand-green-3 text-white'
+                        : 'text-brand-green-3 hover:bg-brand-green-3/50 hover:text-white'
+                    )
                   }
-                  value={person}
+                  value={option}
                 >
-                  {({ selected }) => (
-                    <>
-                      <span
-                        className={`block truncate ${
-                          selected ? 'font-medium' : 'font-normal'
-                        }`}
-                      >
-                        {person.name}
-                      </span>
-                      {selected ? (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                          CHECK
-                        </span>
-                      ) : null}
-                    </>
-                  )}
+                  <span className="block truncate">{option.name}</span>
                 </Listbox.Option>
               ))}
             </Listbox.Options>
-          </Transition>*/
+            <FieldError error={error} />
+          </div>
+        )}
+      </Listbox>
+    </div>
+  )
+}
