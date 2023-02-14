@@ -42,8 +42,5 @@
     "node": "^18.0.0"
   },
   "private": true,
-  "packageManager": "pnpm@7.14.0",
-  "dependencies": {
-    "@headlessui/tailwindcss": "^0.1.2"
-  }
+  "packageManager": "pnpm@7.14.0"
 }

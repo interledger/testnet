@@ -1,14 +1,12 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
-import { KYCTabs } from '@/components/kyc/KYCTabs'
+import { KYC } from '@/components/kyc'
 import AuthLayout from '@/components/layouts/AuthLayout'
 
-const Kyc = () => {
+export default function KYCPage() {
   return (
     <AuthLayout image="Group" background="brand-green-5">
       <HeaderLogo header="Complete KYC" type="kyc" />
-      <KYCTabs />
+      <KYC />
     </AuthLayout>
   )
 }
-
-export default Kyc

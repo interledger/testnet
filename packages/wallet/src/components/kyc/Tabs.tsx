@@ -1,13 +1,13 @@
 import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
-import { useState } from 'react'
+import { useKYCFormContext } from './context'
+import Image from 'next/image'
+import { IdentificationForm } from './IdentificationForm'
+import { PersonalDetailsForm } from './PersonalDetailsForm'
 import { Play } from '../Icons/Play'
 import { Button } from '@/ui/Button'
-import { PersonalDetailsForm } from './PersonalDetailsForm'
-import { IdentificationForm } from './IdentificationForm'
-import Image from 'next/image'
 
-const kycTabs = [
+const tabs = [
   {
     name: 'Personal Details',
     id: 'personalInfo',
@@ -31,47 +31,18 @@ const kycTabs = [
   }
 ]
 
-export const KYCTabs = () => {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-
-  const Navigation = () => {
-    return (
-      <div className="my-auto flex w-full justify-between px-5">
-        {selectedIndex > 0 && (
-          <button
-            aria-label="login"
-            type="submit"
-            onClick={() => setSelectedIndex(selectedIndex - 1)}
-          >
-            <Play className="rotate-180" />
-          </button>
-        )}
-        {selectedIndex === kycTabs.length - 1 && (
-          <Button aria-label="submit" type="submit" className="mx-auto">
-            Submit
-          </Button>
-        )}
-        {selectedIndex < kycTabs.length - 1 && (
-          <button
-            aria-label="login"
-            onClick={() => setSelectedIndex(selectedIndex + 1)}
-          >
-            <Play />
-          </button>
-        )}
-      </div>
-    )
-  }
+export const Tabs = () => {
+  const { tab, setTab } = useKYCFormContext()
 
   return (
     <>
       <div className="w-full max-w-md px-2 py-5 sm:px-0">
-        <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
+        <Tab.Group selectedIndex={tab} onChange={setTab}>
           <Tab.List className="flex space-x-6">
-            {kycTabs.map((kycTab) => (
+            {tabs.map((kycTab) => (
               <Tab
                 key={kycTab.id}
-                className="text-md group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 text-brand-green-3 outline-none hover:text-brand-green-4 ui-selected:text-brand-green-4"
+                className="text-md ui-selected:text-brand-green-4 group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 text-brand-green-3 outline-none hover:text-brand-green-4"
               >
                 {({ selected }) => (
                   <>
@@ -90,7 +61,7 @@ export const KYCTabs = () => {
             ))}
           </Tab.List>
           <Tab.Panels>
-            {kycTabs.map((kycTab) => (
+            {tabs.map((kycTab) => (
               <Tab.Panel key={kycTab.id}>
                 <h2 className="py-10 text-xl font-semibold text-brand-green-3">
                   {kycTab.title}
@@ -101,15 +72,42 @@ export const KYCTabs = () => {
           </Tab.Panels>
         </Tab.Group>
       </div>
-      <Navigation />
       <Image
         className="mt-auto object-cover md:hidden"
-        src={`/${kycTabs[selectedIndex].imageMobile}`}
+        src={`/${tabs[tab].imageMobile}`}
         alt="KYC"
         quality={100}
         width={500}
         height={200}
       />
     </>
+  )
+}
+
+export const TabsNavigation = () => {
+  const { tab, setTab } = useKYCFormContext()
+
+  return (
+    <div className="my-auto flex w-full justify-between self-end px-5">
+      {tab > 0 && (
+        <button
+          aria-label="login"
+          type="submit"
+          onClick={() => setTab(tab - 1)}
+        >
+          <Play className="rotate-180" />
+        </button>
+      )}
+      {tab === tabs.length - 1 && (
+        <Button aria-label="submit" type="submit" className="mx-auto">
+          Submit
+        </Button>
+      )}
+      {tab < tabs.length - 1 && (
+        <button aria-label="login" onClick={() => setTab(tab + 1)}>
+          <Play />
+        </button>
+      )}
+    </div>
   )
 }
