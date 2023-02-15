@@ -36,15 +36,15 @@ const menuItems: MenuItemProps[] = [
     childrens: [
       {
         name: 'Send',
-        href: '/send'
+        href: '/transfer/send'
       },
       {
         name: 'Pay',
-        href: '/pay'
+        href: '/transfer/pay'
       },
       {
         name: 'Request',
-        href: '/request'
+        href: '/transfer/request'
       }
     ]
   },
