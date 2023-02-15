@@ -4,7 +4,7 @@ import AuthLayout from '@/components/layouts/AuthLayout'
 
 export default function KYCPage() {
   return (
-    <AuthLayout image="Group" background="brand-green-5">
+    <AuthLayout image="Group" background="green">
       <HeaderLogo header="Complete KYC" type="kyc" />
       <KYC />
     </AuthLayout>

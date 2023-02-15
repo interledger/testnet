@@ -26,14 +26,14 @@ const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
           <div
             className={cx(
               'relative hidden w-0 flex-1 md:block',
-              background === 'brand-green'
+              background === 'green'
                 ? 'bg-brand-green-5/80'
                 : 'bg-brand-blue-1/70'
             )}
           >
             <Image
               fill
-              className="object-contain"
+              className="object-cover"
               src={imageSrc}
               alt={image}
               quality={100}
@@ -42,7 +42,7 @@ const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
           <div
             className={cx(
               'min-h-full flex-1 py-10',
-              background === 'brand-green'
+              background === 'green'
                 ? 'bg-brand-green-5/80'
                 : 'bg-brand-blue-1/70'
             )}

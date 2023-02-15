@@ -3,11 +3,9 @@ import { TabsNavigation, Tabs } from './Tabs'
 
 export const KYC = () => {
   return (
-    <>
-      <KYCFormContextProvider>
-        <Tabs />
-        <TabsNavigation />
-      </KYCFormContextProvider>
-    </>
+    <KYCFormContextProvider>
+      <Tabs />
+      <TabsNavigation />
+    </KYCFormContextProvider>
   )
 }

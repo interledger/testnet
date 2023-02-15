@@ -104,14 +104,10 @@ export const TabsNavigation = () => {
   const { tab, setTab } = useKYCFormContext()
 
   return (
-    <div className="my-auto flex w-full justify-between self-end px-5">
-      {tab > 0 && (
-        <button
-          aria-label="login"
-          type="submit"
-          onClick={() => setTab(tab - 1)}
-        >
-          <Play className="rotate-180" />
+    <div className="my-auto flex w-full flex-row-reverse justify-between px-5">
+      {tab < tabs.length - 1 && (
+        <button aria-label="login" onClick={() => setTab(tab + 1)}>
+          <Play />
         </button>
       )}
       {tab === tabs.length - 1 && (
@@ -119,9 +115,14 @@ export const TabsNavigation = () => {
           Submit
         </Button>
       )}
-      {tab < tabs.length - 1 && (
-        <button aria-label="login" onClick={() => setTab(tab + 1)}>
-          <Play />
+
+      {tab > 0 && (
+        <button
+          aria-label="login"
+          type="submit"
+          onClick={() => setTab(tab - 1)}
+        >
+          <Play className="rotate-180" />
         </button>
       )}
     </div>

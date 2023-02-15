@@ -11,7 +11,9 @@ export const useKYCFormContext = () => {
   const formContext = useContext(KYCFormContext)
 
   if (!formContext) {
-    throw new Error('"useFormContext" is used outside the FormContextProvider.')
+    throw new Error(
+      '"useKYCFormContext" is used outside the KYCFormContextProvider.'
+    )
   }
 
   return formContext

@@ -50,7 +50,7 @@ export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
         defaultValue={countries[0]}
         error={personalDetailsForm.formState.errors.country?.message}
         options={countries}
-        label="Asset"
+        label="Country"
       />
       <Input
         required
