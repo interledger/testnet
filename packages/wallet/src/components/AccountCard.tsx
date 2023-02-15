@@ -6,7 +6,7 @@ type AccountCardProps = {
 
 export const AccountCard = ({ asset, name, balance }: AccountCardProps) => {
   return (
-    <div className="flex aspect-square flex-col rounded-lg shadow ">
+    <div className="flex aspect-square flex-col rounded-lg shadow">
       <div className="flex flex-1 flex-col p-2">
         <div className="flex flex-1 text-2xl font-semibold">
           <span className="inline-flex h-8 w-14 items-center justify-center rounded-md bg-white mix-blend-screen">
