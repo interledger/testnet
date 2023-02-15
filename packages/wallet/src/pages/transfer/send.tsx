@@ -7,7 +7,6 @@ import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
 import { Badge } from '@/components/transfer/Badge'
 import { TransferHeader } from '@/components/transfer/TransferHeader'
-import { Switch } from '@/components/transfer/Switch'
 
 const sendSchema = z.object({
   fromAccount: z.string(),
