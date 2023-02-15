@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
-import { Badge } from '@/components/Badge'
-import { TransferHeader } from '@/components/TransferHeader'
+import { Badge } from '@/components/transfer/Badge'
+import { TransferHeader } from '@/components/transfer/TransferHeader'
 
 const paySchema = z.object({
   fromAccount: z.string(),
