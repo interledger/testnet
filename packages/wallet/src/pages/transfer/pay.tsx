@@ -10,7 +10,7 @@ import { TransferHeader } from '@/components/transfer/TransferHeader'
 
 const paySchema = z.object({
   fromAccount: z.string(),
-  incomingPaymentPointer: z.string(),
+  incomingPaymentUrl: z.string(),
   amount: z.coerce.number(),
   currency: z.string()
 })
@@ -40,8 +40,8 @@ export default function Pay() {
           <Badge text="to" />
           <Input
             required
-            {...form.register('incomingPaymentPointer')}
-            error={form.formState.errors.incomingPaymentPointer?.message}
+            {...form.register('incomingPaymentUrl')}
+            error={form.formState.errors.incomingPaymentUrl?.message}
             label="Incoming payment URL"
           />
           <Input
@@ -66,7 +66,7 @@ export default function Pay() {
       <Image
         className="my-auto object-cover md:hidden"
         src="/pay.webp"
-        alt="Login"
+        alt="Pay"
         quality={100}
         width={500}
         height={200}

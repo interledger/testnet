@@ -66,7 +66,7 @@ export default function Send() {
       <Image
         className="my-auto object-cover md:hidden"
         src="/send.webp"
-        alt="Login"
+        alt="Send"
         quality={100}
         width={500}
         height={200}
