@@ -12,7 +12,7 @@ const NotFoundPage = () => {
       <Image
         className="mt-10 object-cover"
         src="/login-mobile.webp"
-        alt="Login"
+        alt="Page Not Found"
         quality={100}
         width={500}
         height={200}
