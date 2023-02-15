@@ -5,11 +5,13 @@ import Image from 'next/image'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
+import { Badge } from '@/components/Badge'
+import { TransferHeader } from '@/components/TransferHeader'
 
 const sendSchema = z.object({
   fromAccount: z.string(),
   toPaymentPointer: z.string(),
-  amount: z.number(),
+  amount: z.coerce.number(),
   currency: z.string()
 })
 
@@ -24,13 +26,10 @@ export default function Send() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col text-center lg:w-2/3">
-        <h2 className="text-xl font-light text-[#9D92D0]">Total balance</h2>
-        <h3 className="mb-10 text-3xl font-semibold text-[#9D92D0]">$10,000</h3>
+      <div className="flex flex-col lg:w-2/3">
+        <TransferHeader type="Lilac" balance="$10.000" />{' '}
         <Form form={form} onSubmit={handleSubmit}>
-          <label className="relative top-3 w-10 rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] text-sm text-white">
-            from
-          </label>
+          <Badge text="from" />
           <Select
             name="fromAccount"
             setValue={form.setValue}
@@ -38,9 +37,7 @@ export default function Send() {
             options={[]}
             label="Account"
           />
-          <label className="relative top-4 w-10 rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] text-sm text-white">
-            to
-          </label>
+          <Badge text="to" />
           <Input
             required
             {...form.register('toPaymentPointer')}
