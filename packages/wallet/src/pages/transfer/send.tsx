@@ -27,7 +27,7 @@ export default function Send() {
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="Lilac" balance="$10.000" />{' '}
+        <TransferHeader type="Lilac" balance="$10.000" />
         <Form form={form} onSubmit={handleSubmit}>
           <Badge text="from" />
           <Select
