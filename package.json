@@ -25,9 +25,9 @@
     "wallet": "pnpm --filter wallet --"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.48.1",
-    "@typescript-eslint/parser": "^5.48.1",
-    "eslint": "^8.32.0",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -36,11 +36,11 @@
     "typescript": "^4.9.4"
   },
   "engines": {
-    "pnpm": ">=7.14.0",
+    "pnpm": ">=7.27.0",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@7.14.0"
+  "packageManager": "pnpm@7.27.0"
 }
