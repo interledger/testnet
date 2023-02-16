@@ -18,7 +18,7 @@ export const jwtStrategy = new JWTStrategy(
       if (Date.now() > expiration) {
         done('Unauthorized', false)
       }
-      return done(null, { id: Number(userId) } as User)
+      return done(null, { id: userId } as User)
     } catch (error) {
       done(error)
     }

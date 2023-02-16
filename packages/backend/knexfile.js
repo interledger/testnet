@@ -5,7 +5,7 @@ module.exports = {
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 0,

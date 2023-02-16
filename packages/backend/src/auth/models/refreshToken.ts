@@ -1,42 +1,47 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Redis } from 'ioredis'
 import jwt from 'jsonwebtoken'
+import knex from 'knex'
+import { Model } from 'objection'
+import { User } from '../../user/models/user'
 
-const redis = new Redis({
-  port: Number(process.env.REDIS_PORT!),
-  host: process.env.REDIS_HOST
-})
+export class RefreshToken extends Model {
+  static tableName = 'refresh_tokens'
 
-export class RefreshToken {
-  id!: string
+  id!: number
   token!: string
+  userId!: string
+  expiresAt!: string
 
-  constructor(userId: number, token: string) {
-    this.id = `refresh_token:${userId}`
-    this.token = token
-  }
-
-  static async verify(token: string): Promise<number> {
+  static async verify(token: string): Promise<RefreshToken> {
     const { userId } = jwt.verify(
       token,
       process.env.JWT_REFRESH_TOKEN_SECRET!
-    ) as { userId: number }
+    ) as { userId: string }
 
-    const data = await redis.get(`refresh_token:${userId}`)
+    //TODO: change from directly checking if the refresh token is in the database,
+    //TODO to somehow store md5 sums of refresh tokens
+    //TODO: and verify the hashes instead of an exact string match of tokens
 
-    if (!data) {
+    const rt: RefreshToken | undefined = await knex('refresh_tokens')
+      .where({ user_id: userId, token })
+      .andWhere('expires_at', '>', new Date())
+      .first()
+
+    if (!rt) {
       throw new Error('Refresh token is invalid or has expired')
     }
 
-    return Number(userId)
+    return rt
   }
 
-  async save() {
-    await redis.set(
-      this.id,
-      this.token,
-      'EX',
-      process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME!
-    )
-  }
+  static relationMappings = () => ({
+    user: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: User,
+      join: {
+        from: 'refresh_tokens.userId',
+        to: 'users.id'
+      }
+    }
+  })
 }

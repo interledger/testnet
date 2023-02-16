@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
     ports:
-      - '5433:5432'
+      - '5432:5432'
     restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data
@@ -22,10 +22,12 @@ services:
       - postgres
     environment:
       NODE_ENV: development
-      PORT: 3003
+      PORT: 3000
+    # env_file:
+    #   - ../../packages/backend/.env
     restart: always
     ports:
-      - '3003:3003'
+      - '3000:3000'
     container_name: backend
     
   wallet:
