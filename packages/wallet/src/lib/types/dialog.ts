@@ -1,22 +1,28 @@
-import type { Dispatch, FC } from 'react'
+import type { Dispatch } from 'react'
+
+const DIALOG_ACTIONS = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE'
+} as const
 
 export type DialogState = {
-  open: boolean
-  dialog: FC | null
+  isOpen: boolean
+  dialog: JSX.Element | null
 }
-export enum DialogActions {
-  OPEN = 'OPEN',
-  CLOSE = 'CLOSE'
-}
+export type DialogActions = keyof typeof DIALOG_ACTIONS
 export type OpenDialogAction = {
-  type: DialogActions.OPEN
-  open: boolean
-  data: FC
+  type: DialogActions
+  data: {
+    isOpen: boolean
+    dialog: JSX.Element
+  }
 }
 export type CloseDialogAction = {
-  type: DialogActions.CLOSE
-  open: boolean
-  data: null
+  type: DialogActions
+  data: {
+    isOpen: boolean
+    dialog: null
+  }
 }
 export type DialogAction = OpenDialogAction | CloseDialogAction
 export type DialogDispatch = Dispatch<DialogAction>

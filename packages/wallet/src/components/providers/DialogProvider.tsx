@@ -1,5 +1,5 @@
 import { DialogContext, dialogInitialState } from '@/lib/context/dialog'
-import { DialogAction, DialogActions, DialogState } from '@/lib/types/dialog'
+import { DialogAction, DialogState } from '@/lib/types/dialog'
 import { ReactNode, useReducer } from 'react'
 
 type DialogProviderProps = {
@@ -11,17 +11,17 @@ export const reducer = (
   action: DialogAction
 ): DialogState => {
   switch (action.type) {
-    case DialogActions.OPEN:
+    case 'OPEN':
       return {
         ...state,
-        open: action.open,
-        dialog: action.data
+        isOpen: action.data.isOpen,
+        dialog: action.data.dialog
       }
-    case DialogActions.CLOSE: {
+    case 'CLOSE': {
       return {
         ...state,
-        open: action.open,
-        dialog: action.data
+        isOpen: action.data.isOpen,
+        dialog: action.data.dialog
       }
     }
   }
@@ -30,18 +30,16 @@ export const reducer = (
 export const DialogProvider = ({ children }: DialogProviderProps) => {
   const [state, dispatch] = useReducer(reducer, dialogInitialState)
 
-  const renderDialog = () => {
-    if (!state.open) return null
+  const Dialog = () => {
+    if (!state.isOpen) return null
     if (!state.dialog) return null
 
-    const Dialog = state.dialog
-
-    return <Dialog />
+    return state.dialog
   }
 
   return (
     <DialogContext.Provider value={{ state, dispatch }}>
-      {renderDialog()}
+      <Dialog />
       {children}
     </DialogContext.Provider>
   )

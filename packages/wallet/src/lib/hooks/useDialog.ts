@@ -1,22 +1,25 @@
-import { type FC, useContext } from 'react'
+import { useContext } from 'react'
 import { DialogContext } from '../context/dialog'
-import { DialogActions } from '../types/dialog'
 
 export const useDialog = () => {
   const { dispatch } = useContext(DialogContext)
 
-  const openDialog = (data: FC) =>
+  const openDialog = (dialog: JSX.Element) =>
     dispatch({
-      type: DialogActions.OPEN,
-      open: true,
-      data
+      type: 'OPEN',
+      data: {
+        isOpen: true,
+        dialog
+      }
     })
 
   const closeDialog = () =>
     dispatch({
-      type: DialogActions.CLOSE,
-      open: false,
-      data: null
+      type: 'CLOSE',
+      data: {
+        isOpen: false,
+        dialog: null
+      }
     })
 
   return { openDialog, closeDialog }
