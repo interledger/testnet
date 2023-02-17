@@ -6,7 +6,6 @@ import { existsSync, mkdirSync } from 'fs'
 const env = process.env.NODE_ENV || 'development'
 const logDirectory = path.join(__dirname, '../../logs')
 
-// Create the log directory if it does not exist
 if (!existsSync(logDirectory)) {
   mkdirSync(logDirectory)
 }
