@@ -12,14 +12,14 @@ export default function Welcome() {
       <h2 className="mt-5 mb-10 text-xl font-light text-brand-green-4 md:mt-20">
         Already a customer?
       </h2>
-      <Button aria-label="log in" href="/login">
+      <Button aria-label="log in" href="auth/login">
         Log in
       </Button>
       <Divider content="or" />
       <h2 className="mb-5 text-xl font-semibold text-brand-green-4">
         New here?
       </h2>
-      <Button aria-label="sign up" href="register">
+      <Button aria-label="sign up" href="auth/register">
         Create account
       </Button>
       <Image

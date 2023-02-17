@@ -71,7 +71,7 @@ const Login = () => {
         height={200}
       />
       <Link
-        href="/register"
+        href="register"
         className="mt-auto text-sm font-extralight text-brand-green-4"
       >
         Not a customer? Create account
