@@ -45,10 +45,9 @@ export const signup = async (req: express.Request, res: express.Response) => {
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' })
     }
-    /* eslint-disable no-unused-vars */
-    const { password, ...user } = await User.query().insert(req.body)
-    /* eslint-enable no-unused-vars */
-    return res.status(201).json({ user })
+    await User.query().insert(req.body)
+
+    return res.status(201).json({ message: 'Success' })
   } catch (error) {
     log.error(error)
     return res.status(500).json({ error: 'Unable to create user' })
