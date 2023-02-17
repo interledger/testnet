@@ -2,6 +2,9 @@ import express from 'express'
 import { Secret, sign } from 'jsonwebtoken'
 import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
+import logger from '../logger'
+
+const log = logger('AuthService')
 
 const generateJWT = (
   userId: string
@@ -34,10 +37,7 @@ const generateRefreshToken = (
 }
 
 export const signup = async (req: express.Request, res: express.Response) => {
-  console.log('reached signup')
   try {
-    console.log(req.body)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const existingUser = await User.query()
       .where('email', req.body.email)
       .first()
@@ -49,7 +49,7 @@ export const signup = async (req: express.Request, res: express.Response) => {
 
     return res.status(201).json({ user })
   } catch (error) {
-    console.log(error)
+    log.error(error)
     return res.status(500).json({ error: 'Unable to create user' })
   }
 }
@@ -109,7 +109,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     return res.send({ user })
   } catch (error) {
-    console.log(error)
+    log.error(error)
     return res.status(401).json({ error: 'Invalid credentials' })
   }
 }
@@ -157,7 +157,7 @@ export const refresh = async (req: express.Request, res: express.Response) => {
 
     res.status(200).send({ message: 'success' })
   } catch (error) {
-    console.error(error)
+    log.error(error)
     res.status(500).send({ message: 'Refresh failed' })
   }
 }

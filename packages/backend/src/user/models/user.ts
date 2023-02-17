@@ -19,7 +19,6 @@ export class User extends Model {
   }
 
   async verifyPassword(password: string): Promise<boolean> {
-    console.log(password, this.password)
     return bcryptjs.compare(password, this.password)
   }
 

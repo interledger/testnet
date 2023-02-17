@@ -4,7 +4,7 @@ FROM node:lts-hydrogen
 WORKDIR /home/testnet
 
 # Install PNPM
-RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7.14.0
+RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7.27.0
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY pnpm-lock.yaml .nvmrc .npmrc ./

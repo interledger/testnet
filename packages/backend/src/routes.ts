@@ -11,9 +11,7 @@ mainRouter.post('/refresh', refresh)
 mainRouter.post(
   '/protected',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    console.log(' a ajuns')
-    console.log(req)
+  (_req, res) => {
     res.status(200).json({ success: true })
   }
 )
