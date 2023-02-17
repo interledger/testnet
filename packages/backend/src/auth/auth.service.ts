@@ -3,23 +3,49 @@ import { Secret, sign } from 'jsonwebtoken'
 import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
 
-const generateJWT = (userId: string) => {
-  return sign({ userId }, process.env.JWT_ACCESS_TOKEN_SECRET as Secret, {
-    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
-  })
+const generateJWT = (
+  userId: string
+): { accessToken: string; expiresIn: number } => {
+  return {
+    accessToken: sign(
+      { userId },
+      process.env.JWT_ACCESS_TOKEN_SECRET as Secret,
+      {
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
+      }
+    ),
+    expiresIn: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME)
+  }
 }
 
-const generateRefreshToken = (userId: string) => {
-  return sign({ userId }, process.env.JWT_REFRESH_TOKEN_SECRET as Secret, {
-    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
-  })
+const generateRefreshToken = (
+  userId: string
+): { refreshToken: string; expiresIn: number } => {
+  return {
+    refreshToken: sign(
+      { userId },
+      process.env.JWT_REFRESH_TOKEN_SECRET as Secret,
+      {
+        expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
+      }
+    ),
+    expiresIn: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
+  }
 }
 
 export const signup = async (req: express.Request, res: express.Response) => {
   console.log('reached signup')
   try {
     console.log(req.body)
-    const user = await User.query().insert(req.body)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const existingUser = await User.query()
+      .where('email', req.body.email)
+      .first()
+
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists' })
+    }
+    const { password, ...user } = await User.query().insert(req.body)
 
     return res.status(201).json({ user })
   } catch (error) {
@@ -30,39 +56,66 @@ export const signup = async (req: express.Request, res: express.Response) => {
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, password } = req.body
+    const {
+      body: { email, password }
+    } = req
 
     const user = await User.query()
       .findOne({ email })
       .select('id', 'email', 'password')
       .throwIfNotFound()
+      .withGraphFetched('refreshTokens')
 
     const isValid = await user.verifyPassword(password)
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' })
     }
 
-    const jwt = generateJWT(user.id)
-    const generatedToken = generateRefreshToken(user.id)
+    let refreshToken = user.refreshTokens?.[0]
 
-    const refreshToken = new RefreshToken()
-    //TODO: Save refresh token to db, linked to users.
-    refreshToken.token = generatedToken
+    const { refreshToken: generatedToken, expiresIn: refreshTokenExpiresIn } =
+      generateRefreshToken(user.id)
 
-    await user.$relatedQuery('refreshTokens').insert(refreshToken)
+    if (refreshToken) {
+      refreshToken.token = generatedToken
+      refreshToken.expiresAt = new Date(
+        Date.now() + refreshTokenExpiresIn * 1000
+      )
 
-    res.cookie('AccessToken', jwt, { httpOnly: true })
-    res.cookie('RefreshToken', refreshToken, { httpOnly: true })
+      await refreshToken.$query().patch(refreshToken)
+    } else {
+      refreshToken = new RefreshToken()
+      refreshToken.token = generatedToken
+      refreshToken.expiresAt = new Date(
+        Date.now() + refreshTokenExpiresIn * 1000
+      )
 
-    return res.json({ user })
+      await user.$relatedQuery('refreshTokens').insert(refreshToken)
+    }
+
+    res.cookie('RefreshToken', refreshToken.token, {
+      httpOnly: true,
+      maxAge: refreshTokenExpiresIn * 1000
+    })
+
+    const { accessToken: jwt, expiresIn: accesTokenExpiresIn } = generateJWT(
+      user.id
+    )
+
+    res.cookie('AccessToken', jwt, {
+      httpOnly: true,
+      maxAge: accesTokenExpiresIn * 1000
+    })
+
+    return res.send({ user })
   } catch (error) {
+    console.log(error)
     return res.status(401).json({ error: 'Invalid credentials' })
   }
 }
 
 export const refresh = async (req: express.Request, res: express.Response) => {
   const refreshToken = req.cookies.RefreshToken
-
   if (!refreshToken) {
     return res.status(400).send({ message: 'No refresh token found' })
   }
@@ -80,15 +133,27 @@ export const refresh = async (req: express.Request, res: express.Response) => {
       return res.status(400).send({ message: 'User not found' })
     }
 
-    const newAccessToken = generateJWT(userId)
-    const newRefreshToken = generateRefreshToken(userId)
+    const { accessToken: newAccessToken, expiresIn: accesTokenExpiresIn } =
+      generateJWT(userId)
+    const { refreshToken: newRefreshToken, expiresIn: refreshTokenExpiresIn } =
+      generateRefreshToken(userId)
 
     existingRefreshToken.token = newRefreshToken
     existingRefreshToken.userId = user.id
-    await existingRefreshToken.$query().patch()
+    existingRefreshToken.expiresAt = new Date(
+      Date.now() + refreshTokenExpiresIn * 1000
+    )
+    await existingRefreshToken.$query().patch(existingRefreshToken)
 
-    res.cookie('AccessToken', newAccessToken, { httpOnly: true })
-    res.cookie('RefreshToken', newRefreshToken, { httpOnly: true })
+    res.cookie('AccessToken', newAccessToken, {
+      httpOnly: true,
+      maxAge: accesTokenExpiresIn * 1000
+    })
+
+    res.cookie('RefreshToken', newRefreshToken, {
+      httpOnly: true,
+      maxAge: refreshTokenExpiresIn * 1000
+    })
 
     res.status(200).send({ message: 'success' })
   } catch (error) {
