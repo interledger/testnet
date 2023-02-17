@@ -1,4 +1,8 @@
-version: '3'
+version: '3.5'
+
+networks:
+    dev-network:
+        driver: bridge
 
 services:
   postgres:
@@ -12,6 +16,8 @@ services:
     restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data
+    networks:
+      - dev-network
     container_name: postgres
 
   backend:
@@ -26,6 +32,8 @@ services:
     # env_file:
     #   - ../../packages/backend/.env
     restart: always
+    networks:
+    - dev-network
     ports:
       - '3000:3000'
     container_name: backend
@@ -40,7 +48,8 @@ services:
       NODE_ENV: development
       PORT: 4003
     restart: always
-    
+    networks:
+    - dev-network
     ports:
       - '4003:4003'
     # In order to take advantage of HMR inside Docker we have to add these volumes
@@ -52,5 +61,3 @@ services:
 
 volumes:
   pg-data:
-  redis:
-    driver: local

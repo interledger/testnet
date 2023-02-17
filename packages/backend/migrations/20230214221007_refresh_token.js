@@ -3,12 +3,12 @@ exports.up = function (knex) {
     table.increments('id').primary()
     table.string('token').notNullable()
     table
-      .uuid('user_id')
+      .uuid('userId')
       .unsigned()
       .notNullable()
       .references('users.id')
       .onDelete('CASCADE')
-    table.datetime('expires_at').notNullable()
+    table.datetime('expiresAt').notNullable()
     table.timestamps(true, true)
   })
 }

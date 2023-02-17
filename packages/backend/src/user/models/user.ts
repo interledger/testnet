@@ -12,12 +12,14 @@ export class User extends Model {
   firstName?: string
   rapydWalletId?: string
   rapydContactId?: string
+  refreshTokens?: Array<RefreshToken>
 
   async $beforeInsert() {
     this.password = await bcryptjs.hash(this.password, 10)
   }
 
   async verifyPassword(password: string): Promise<boolean> {
+    console.log(password, this.password)
     return bcryptjs.compare(password, this.password)
   }
 
@@ -28,7 +30,7 @@ export class User extends Model {
         modelClass: RefreshToken,
         join: {
           from: 'users.id',
-          to: 'refresh_tokens.user_id'
+          to: 'refresh_tokens.userId'
         }
       }
     }

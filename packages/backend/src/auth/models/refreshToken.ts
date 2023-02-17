@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import jwt from 'jsonwebtoken'
-import knex from 'knex'
 import { Model } from 'objection'
 import { User } from '../../user/models/user'
 
@@ -10,7 +9,7 @@ export class RefreshToken extends Model {
   id!: number
   token!: string
   userId!: string
-  expiresAt!: string
+  expiresAt!: Date
 
   static async verify(token: string): Promise<RefreshToken> {
     const { userId } = jwt.verify(
@@ -22,9 +21,9 @@ export class RefreshToken extends Model {
     //TODO to somehow store md5 sums of refresh tokens
     //TODO: and verify the hashes instead of an exact string match of tokens
 
-    const rt: RefreshToken | undefined = await knex('refresh_tokens')
-      .where({ user_id: userId, token })
-      .andWhere('expires_at', '>', new Date())
+    const rt: RefreshToken | undefined = await this.query()
+      .where({ userId: userId, token })
+      .andWhere('expiresAt', '>', new Date())
       .first()
 
     if (!rt) {

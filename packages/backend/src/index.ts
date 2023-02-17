@@ -34,6 +34,7 @@ import { Model } from 'objection'
 import passport from 'passport'
 import { jwtStrategy } from './auth/jwtStrategy.js'
 import { mainRouter } from './routes.js'
+import cookieParser from 'cookie-parser'
 
 const app: Application = express()
 
@@ -41,6 +42,7 @@ app.disable('X-Powered-By')
 
 app.use(cors())
 app.use(express.json())
+app.use(cookieParser())
 
 const knex = Knex(config[process.env.NODE_ENV || 'development'])
 Model.knex(knex)
