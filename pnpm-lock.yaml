@@ -77,7 +77,7 @@ importers:
 
   packages/wallet:
     specifiers:
-      '@headlessui/react': ^1.7.10
+      '@headlessui/react': ^1.7.11
       '@hookform/resolvers': ^2.9.10
       '@next/font': 13.1.6
       '@tailwindcss/forms': ^0.5.3
@@ -95,7 +95,7 @@ importers:
       typescript: ^4.9.4
       zod: ^3.20.2
     dependencies:
-      '@headlessui/react': 1.7.10_biqbaboplfbrettd7655fr4n2y
+      '@headlessui/react': 1.7.11_biqbaboplfbrettd7655fr4n2y
       '@hookform/resolvers': 2.9.10_react-hook-form@7.43.0
       '@next/font': 13.1.6
       class-variance-authority: 0.4.0_typescript@4.9.4
@@ -133,8 +133,8 @@ packages:
       - supports-color
     dev: true
 
-  /@headlessui/react/1.7.10_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-1m66h/5eayTEZVT2PI13/2PG3EVC7a9XalmUtVSC8X76pcyKYMuyX1XAL2RUtCr8WhoMa/KrDEyoeU5v+kSQOw==}
+  /@headlessui/react/1.7.11_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-EaDbVgcyiylhtskZZf4Qb/JiiByY7cYbd0qgZ9xm2pm2X7hKojG0P4TaQYKgPOV3vojPhd/pZyQh3nmRkkcSyw==}
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16 || ^17 || ^18
