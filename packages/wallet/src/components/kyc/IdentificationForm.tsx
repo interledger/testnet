@@ -1,4 +1,5 @@
-import { FileUpload } from '@/ui/FileUpload'
+import { Button } from '@/ui/Button'
+import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { z } from 'zod'
 
@@ -22,7 +23,9 @@ const idTypes = [
 ]
 
 const identificationSchema = z.object({
-  idType: z.string()
+  idType: z.string(),
+  frontSideID: z.string(),
+  selfie: z.string()
 })
 
 export const IdentificationForm = () => {
@@ -43,9 +46,9 @@ export const IdentificationForm = () => {
               required
               type="radio"
               id={idType.id}
-              name="idType"
               className="peer hidden"
               value={idType.type}
+              {...identificationForm.register('idType')}
             />
             <label
               htmlFor={idType.id}
@@ -56,10 +59,19 @@ export const IdentificationForm = () => {
           </div>
         ))}
       </div>
-      <div className="flex">
-        <FileUpload label="Front side" />
-        <FileUpload label="Back side" />
+      <div className="flex justify-evenly">
+        <FileUpload
+          label="Selfie image"
+          {...identificationForm.register('selfie')}
+        />
+        <FileUpload
+          label="Front side ID"
+          {...identificationForm.register('frontSideID')}
+        />
       </div>
+      <Button aria-label="Verify Account" type="submit">
+        Verify Account
+      </Button>
     </Form>
   )
 }
