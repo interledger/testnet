@@ -1,4 +1,4 @@
-import { parseEnv } from './config/env.js'
+import { parseEnv } from './config/envParser.js'
 parseEnv()
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require('../knexfile.js')

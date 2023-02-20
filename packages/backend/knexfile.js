@@ -1,13 +1,14 @@
 module.exports = {
   development: {
     client: 'postgresql',
-    connection: {
-      host: 'localhost',
-      database: 'testnet',
-      user: 'postgres',
-      password: 'password',
-      port: 5432
-    },
+    connection: 'postgres://postgres:password@postgres/testnet',
+    // connection: {
+    //   host: 'localhost',
+    //   database: 'testnet',
+    //   user: 'postgres',
+    //   password: 'password',
+    //   port: 5432
+    // },
     pool: {
       min: 0,
       max: 10,
