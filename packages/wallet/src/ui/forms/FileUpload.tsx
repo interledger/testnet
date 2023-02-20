@@ -1,4 +1,4 @@
-import { UploadSmile } from '@/components/Icons/UploadSmile'
+import { UploadSmile } from '@/components/icons/UploadSmile'
 import { forwardRef, useId } from 'react'
 import { FieldError } from './FieldError'
 
