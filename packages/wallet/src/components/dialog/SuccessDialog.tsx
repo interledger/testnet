@@ -1,7 +1,7 @@
 import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { BirdSuccess } from '../Icons/Bird'
+import { BirdSuccess } from '../icons/Bird'
 import type { DialogProps } from '@/lib/types/dialog'
 
 type SuccessDialogProps = DialogProps & {
