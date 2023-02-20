@@ -85,7 +85,7 @@ export const VerifyIdentityForm = () => {
           <FileUpload
             label="Selfie image"
             {...verifyIdentityForm.register('selfie')}
-            error={verifyIdentityForm.formState.errors.selfie?.message}
+            error={verifyIdentityForm.formState.errors.selfie?.message?.toString()}
           />
           <span className="text-sm font-light text-brand-orange">
             {verifyIdentityForm?.getValues('selfie')?.[0]?.name}
@@ -95,7 +95,7 @@ export const VerifyIdentityForm = () => {
           <FileUpload
             label="Front side ID"
             {...verifyIdentityForm.register('frontSideID')}
-            error={verifyIdentityForm.formState.errors.frontSideID?.message}
+            error={verifyIdentityForm.formState.errors.frontSideID?.message?.toString()}
           />
           <span className="text-sm font-light text-brand-orange">
             {verifyIdentityForm?.getValues('frontSideID')?.[0]?.name}

@@ -4,7 +4,7 @@ import { FieldError } from './FieldError'
 
 type FileUploadProps = {
   label?: string
-  error?: any
+  error?: string
 }
 
 export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
