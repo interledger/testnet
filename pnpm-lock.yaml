@@ -93,7 +93,7 @@ importers:
       react-hook-form: ^7.43.1
       tailwindcss: ^3.2.6
       typescript: ^4.9.5
-      zod: ^3.20.2
+      zod: ^3.20.6
     dependencies:
       '@headlessui/react': 1.7.11_biqbaboplfbrettd7655fr4n2y
       '@hookform/resolvers': 2.9.11_react-hook-form@7.43.1
@@ -103,7 +103,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.43.1_react@18.2.0
-      zod: 3.20.2
+      zod: 3.20.6
     devDependencies:
       '@tailwindcss/forms': 0.5.3_tailwindcss@3.2.6
       '@types/node': 18.13.0
@@ -3348,6 +3348,6 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /zod/3.20.2:
-    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+  /zod/3.20.6:
+    resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
     dev: false
