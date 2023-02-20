@@ -1,5 +1,7 @@
+import { SuccessDialog } from '@/components/dialog/SuccessDialog'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { useDialog } from '@/lib/hooks/useDialog'
 import { Button } from '@/ui/Button'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
@@ -22,12 +24,22 @@ const newAccountSchema = z.object({
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function CreateAccount({ assets }: CreateAccountProps) {
+  const { openDialog, closeDialog } = useDialog()
   const form = useZodForm({
     schema: newAccountSchema
   })
 
   const onSubmit = form.handleSubmit((data) => {
     console.log(data)
+    openDialog(
+      SuccessDialog({
+        onClose: closeDialog,
+        title: 'Account created.',
+        content: 'Your account was successfully created.',
+        redirect: '/account/id',
+        redirectText: 'View account'
+      })
+    )
   })
 
   return (
