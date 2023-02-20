@@ -6,7 +6,7 @@ import { User } from '../../user/models/user'
 export class RefreshToken extends Model {
   static tableName = 'refresh_tokens'
 
-  id!: number
+  id!: string
   token!: string
   userId!: string
   expiresAt!: Date

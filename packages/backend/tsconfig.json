@@ -6,6 +6,6 @@
     "rootDir": "./src",
     "declaration": false
   },
-  "include": ["src/**/*", "seeds"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/node_modules/*"]
 }

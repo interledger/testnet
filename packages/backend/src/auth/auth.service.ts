@@ -2,7 +2,7 @@ import express from 'express'
 import { Secret, sign } from 'jsonwebtoken'
 import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
-import logger from '../logger'
+import logger from '../config/logger'
 
 const log = logger('AuthService')
 

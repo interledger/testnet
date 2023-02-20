@@ -1,6 +1,6 @@
 exports.up = function (knex) {
-  return knex.schema.createTable('refresh_tokens', function (table) {
-    table.increments('id').primary()
+  return knex.schema.createTable('refreshTokens', function (table) {
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.string('token').notNullable()
     table
       .uuid('userId')
@@ -14,5 +14,5 @@ exports.up = function (knex) {
 }
 
 exports.down = function (knex) {
-  return knex.schema.dropTableIfExists('refresh_tokens')
+  return knex.schema.dropTableIfExists('refreshTokens')
 }

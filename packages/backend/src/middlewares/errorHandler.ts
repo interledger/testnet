@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import logger from './logger'
+import logger from '../config/logger'
 const log = logger('GlobalErrorHandler')
 export const errorHandler = (
   err: Error,
