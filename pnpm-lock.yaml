@@ -78,7 +78,7 @@ importers:
   packages/wallet:
     specifiers:
       '@headlessui/react': ^1.7.11
-      '@hookform/resolvers': ^2.9.10
+      '@hookform/resolvers': ^2.9.11
       '@next/font': 13.1.6
       '@tailwindcss/forms': ^0.5.3
       '@types/node': ^18.13.0
@@ -96,7 +96,7 @@ importers:
       zod: ^3.20.2
     dependencies:
       '@headlessui/react': 1.7.11_biqbaboplfbrettd7655fr4n2y
-      '@hookform/resolvers': 2.9.10_react-hook-form@7.43.0
+      '@hookform/resolvers': 2.9.11_react-hook-form@7.43.0
       '@next/font': 13.1.6
       class-variance-authority: 0.4.0_typescript@4.9.4
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
@@ -145,8 +145,8 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@hookform/resolvers/2.9.10_react-hook-form@7.43.0:
-    resolution: {integrity: sha512-JIL1DgJIlH9yuxcNGtyhsWX/PgNltz+5Gr6+8SX9fhXc/hPbEIk6wPI82nhgvp3uUb6ZfAM5mqg/x7KR7NAb+A==}
+  /@hookform/resolvers/2.9.11_react-hook-form@7.43.0:
+    resolution: {integrity: sha512-bA3aZ79UgcHj7tFV7RlgThzwSSHZgvfbt2wprldRkYBcMopdMvHyO17Wwp/twcJasNFischFfS7oz8Katz8DdQ==}
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
