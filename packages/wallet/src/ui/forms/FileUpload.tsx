@@ -1,23 +1,18 @@
 import { UploadSmile } from '@/components/Icons/UploadSmile'
-import { forwardRef, SyntheticEvent, useId, useState } from 'react'
+import { forwardRef, useId } from 'react'
+import { FieldError } from './FieldError'
 
 type FileUploadProps = {
   label?: string
+  error?: any
 }
 
 export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
-  ({ label, ...props }, ref) => {
-    const [selectedFile, setSelectedFile] = useState('')
-
-    const handleOnChange = (event: SyntheticEvent) => {
-      const target = event.target as HTMLInputElement
-      setSelectedFile(target.value.slice(target.value.lastIndexOf('\\') + 1))
-    }
-
+  ({ label, error, ...props }, ref) => {
     const id = useId()
 
     return (
-      <div className="my-5">
+      <>
         <label
           htmlFor={id}
           className="flex w-24 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-turqoise bg-white hover:border-brand-orange"
@@ -28,19 +23,10 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
               {label}
             </span>
           </div>
-          <input
-            id={id}
-            ref={ref}
-            type="file"
-            className="hidden"
-            {...props}
-            onChange={handleOnChange}
-          />
+          <input id={id} ref={ref} type="file" className="hidden" {...props} />
         </label>
-        <span className="text-sm font-light text-brand-orange">
-          {selectedFile}
-        </span>
-      </div>
+        <FieldError error={error} />
+      </>
     )
   }
 )

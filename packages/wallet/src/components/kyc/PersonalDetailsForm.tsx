@@ -14,10 +14,10 @@ type PersonalDetailsProps = {
 }
 
 const personalDetailsSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
+  firstName: z.string().min(3),
+  lastName: z.string().min(3),
   country: z.string(),
-  address: z.string(),
+  address: z.string().min(3),
   dateOfBirth: z.coerce.date(),
   phone: z.coerce.number()
 })
