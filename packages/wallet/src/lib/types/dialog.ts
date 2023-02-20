@@ -1,4 +1,10 @@
-import type { Dispatch } from 'react'
+import type { Dispatch, ReactNode } from 'react'
+
+export type DialogProps = {
+  title?: string
+  content: ReactNode
+  onClose: () => void
+}
 
 const DIALOG_ACTIONS = {
   OPEN: 'OPEN',
