@@ -4,7 +4,7 @@ import { useKYCFormContext } from './context'
 import Image from 'next/image'
 import { IdentificationForm } from './IdentificationForm'
 import { PersonalDetailsForm } from './PersonalDetailsForm'
-import { Play } from '../Icons/Play'
+import { Play } from '../icons/Play'
 import { Button } from '@/ui/Button'
 
 const countries = [

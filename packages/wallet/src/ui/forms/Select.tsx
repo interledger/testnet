@@ -1,4 +1,4 @@
-import { Play } from '@/components/Icons/Play'
+import { Play } from '@/components/icons/Play'
 import { Listbox } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useEffect, useState } from 'react'
