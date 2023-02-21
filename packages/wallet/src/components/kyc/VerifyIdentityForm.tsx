@@ -46,10 +46,10 @@ export const VerifyIdentityForm = () => {
   const [frontIDFile, setFrontIDFile] = useState('')
   const [selfieFile, setSelfieFile] = useState('')
 
-  const handleOnChange = (event: SyntheticEvent, fileType: string) => {
-    const target = event.target as HTMLInputElement
+  const handleOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget
     const fileName = target.value.slice(target.value.lastIndexOf('\\') + 1)
-    if (fileType === 'selfie') {
+    if (target.name === 'selfie') {
       setSelfieFile(fileName)
     } else {
       setFrontIDFile(fileName)
@@ -95,7 +95,7 @@ export const VerifyIdentityForm = () => {
           <FileUpload
             label="Selfie image"
             {...verifyIdentityForm.register('selfie', {
-              onChange: (e) => handleOnChange(e, 'selfie')
+              onChange: handleOnChange
             })}
             error={verifyIdentityForm.formState.errors.selfie?.message}
           />
@@ -107,7 +107,7 @@ export const VerifyIdentityForm = () => {
           <FileUpload
             label="Front side ID"
             {...verifyIdentityForm.register('frontSideID', {
-              onChange: (e) => handleOnChange(e, 'fontID')
+              onChange: handleOnChange
             })}
             error={verifyIdentityForm.formState.errors.frontSideID?.message}
           />
