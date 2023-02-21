@@ -36,11 +36,11 @@
     "typescript": "^4.9.5"
   },
   "engines": {
-    "pnpm": ">=7.27.0",
+    "pnpm": "7.27.1",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@7.27.0"
+  "packageManager": "pnpm@7.27.1"
 }
