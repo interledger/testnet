@@ -1,11 +1,12 @@
 import { KYCFormContextProvider } from './context'
-import { TabsNavigation, Tabs } from './Tabs'
+import { Tabs } from './Tabs'
 
 export const KYC = () => {
   return (
     <KYCFormContextProvider>
       <Tabs />
-      <TabsNavigation />
+      {/* ToDo - play buttons probably will be removed from code, and only submit buttons will stay  */}
+      {/* <TabsNavigation /> */}
     </KYCFormContextProvider>
   )
 }

@@ -122,7 +122,7 @@ export const Menu = () => {
                         <Disclosure as="div" key={name} className="space-y-1">
                           {({ open }) => (
                             <>
-                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-brand-green-4">
+                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-brand-green-4 outline-none">
                                 <div className="flex space-x-4">
                                   <Icon className="h-8 w-8 text-brand-green-3" />
                                   <span className="flex-1">{name}</span>
@@ -140,6 +140,7 @@ export const Menu = () => {
                                     as={Link}
                                     href={children.href}
                                     className="flex items-center space-x-4 pl-12 text-lg font-light text-brand-green-4"
+                                    onClick={() => setSidebarIsOpen(false)}
                                   >
                                     {children.name}
                                   </Disclosure.Button>
@@ -152,7 +153,7 @@ export const Menu = () => {
                         <Link
                           key={name}
                           href={href}
-                          className="font-tight flex items-center space-x-4 text-xl text-brand-green-4"
+                          className="flex items-center space-x-4 text-xl text-brand-green-4"
                         >
                           <Icon className="h-8 w-8 text-brand-green-3" />
                           <span>{name}</span>
