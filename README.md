@@ -1,6 +1,6 @@
 # Testnet
 
-[testnet](https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg)
+<img width="920" alt="testnet" src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg">
 
 ## What is Testnet?
 
