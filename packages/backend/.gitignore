@@ -1,0 +1,8 @@
+build
+
+/dist
+.env
+.env.development
+.env.production
+src/coverage
+tmp
