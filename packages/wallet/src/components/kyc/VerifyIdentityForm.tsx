@@ -2,6 +2,7 @@ import { Button } from '@/ui/Button'
 import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form, useZodForm } from '@/ui/forms/Form'
+import { SyntheticEvent, useState } from 'react'
 import { z } from 'zod'
 
 // mock data, the list will come from Rapyd
@@ -23,29 +24,38 @@ const idTypes = [
   }
 ]
 
-const verifyIdentitySchema = z
-  .object({
-    idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
-    frontSideID: z.any(),
-    selfie: z.any()
-  })
-  .superRefine(({ selfie, frontSideID }, ctx) => {
-    if (selfie[0] === undefined) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Please upload selfie',
-        path: ['selfie']
-      })
-    } else if (frontSideID[0] === undefined) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Please upload front of ID document',
-        path: ['frontSideID']
-      })
-    }
-  })
+const verifyIdentitySchema = z.object({
+  idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
+  frontSideID: z
+    .custom<FileList>()
+    .refine(
+      (frontSideID) => frontSideID?.length === 1,
+      'Front side of ID is required'
+    )
+    .refine(
+      (frontSideID) => frontSideID?.length < 2,
+      'You can only select one image'
+    ),
+  selfie: z
+    .custom<FileList>()
+    .refine((selfie) => selfie?.length === 1, 'Selfie is required')
+    .refine((selfie) => selfie?.length < 2, 'You can only select one image')
+})
 
 export const VerifyIdentityForm = () => {
+  const [frontIDFile, setFrontIDFile] = useState('')
+  const [selfieFile, setSelfieFile] = useState('')
+
+  const handleOnChange = (event: SyntheticEvent, fileType: string) => {
+    const target = event.target as HTMLInputElement
+    const fileName = target.value.slice(target.value.lastIndexOf('\\') + 1)
+    if (fileType === 'selfie') {
+      setSelfieFile(fileName)
+    } else {
+      setFrontIDFile(fileName)
+    }
+  }
+
   const verifyIdentityForm = useZodForm({
     schema: verifyIdentitySchema
   })
@@ -84,21 +94,25 @@ export const VerifyIdentityForm = () => {
         <div className="my-5">
           <FileUpload
             label="Selfie image"
-            {...verifyIdentityForm.register('selfie')}
-            error={verifyIdentityForm.formState.errors.selfie?.message?.toString()}
+            {...verifyIdentityForm.register('selfie', {
+              onChange: (e) => handleOnChange(e, 'selfie')
+            })}
+            error={verifyIdentityForm.formState.errors.selfie?.message}
           />
           <span className="text-sm font-light text-brand-orange">
-            {verifyIdentityForm?.getValues('selfie')?.[0]?.name}
+            {selfieFile}
           </span>
         </div>
         <div className="my-5">
           <FileUpload
             label="Front side ID"
-            {...verifyIdentityForm.register('frontSideID')}
-            error={verifyIdentityForm.formState.errors.frontSideID?.message?.toString()}
+            {...verifyIdentityForm.register('frontSideID', {
+              onChange: (e) => handleOnChange(e, 'fontID')
+            })}
+            error={verifyIdentityForm.formState.errors.frontSideID?.message}
           />
           <span className="text-sm font-light text-brand-orange">
-            {verifyIdentityForm?.getValues('frontSideID')?.[0]?.name}
+            {frontIDFile}
           </span>
         </div>
       </div>

@@ -1,8 +1,11 @@
 import { UploadSmile } from '@/components/icons/UploadSmile'
-import { forwardRef, useId } from 'react'
+import { ComponentPropsWithoutRef, forwardRef, useId } from 'react'
 import { FieldError } from './FieldError'
 
-type FileUploadProps = {
+type FileUploadProps = Omit<
+  ComponentPropsWithoutRef<'input'>,
+  'ref' | 'type'
+> & {
   label?: string
   error?: string
 }
