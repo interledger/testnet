@@ -1,12 +1,10 @@
 import axios from 'axios'
 
-const RAPYD_ENDPOINT = process.env.RAPYD_API
-
 // const makeRapydPostRequest = async (_endpoint: string, _body: string) => {
 // }
 
 const createRapydWallet = async (wallet: RapydWallet) => {
-  await axios.post(`${RAPYD_ENDPOINT}/user`, wallet)
+  await axios.post(`${process.env.RAPYD_API}/user`, wallet)
 }
 
 export { createRapydWallet }
