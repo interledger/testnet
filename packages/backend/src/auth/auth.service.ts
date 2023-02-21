@@ -3,6 +3,7 @@ import { Secret, sign } from 'jsonwebtoken'
 import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
 import logger from '../config/logger'
+import { UnauthorisedException } from '../errors/unauthorisedException'
 
 const log = logger('AuthService')
 
@@ -55,63 +56,54 @@ export const signup = async (req: express.Request, res: express.Response) => {
 }
 
 export const login = async (req: express.Request, res: express.Response) => {
-  try {
-    const {
-      body: { email, password }
-    } = req
+  const {
+    body: { email, password }
+  } = req
 
-    const user = await User.query()
-      .findOne({ email })
-      .select('id', 'email', 'password')
-      .throwIfNotFound()
-      .withGraphFetched('refreshTokens')
+  const user = await User.query()
+    .findOne({ email })
+    .select('id', 'email', 'password')
+    .throwIfNotFound(new UnauthorisedException('Invalid credentials'))
+    .withGraphFetched('refreshTokens')
 
-    const isValid = await user.verifyPassword(password)
-    if (!isValid) {
-      return res.status(401).json({ error: 'Invalid credentials' })
-    }
-
-    let refreshToken = user.refreshTokens?.[0]
-
-    const { refreshToken: generatedToken, expiresIn: refreshTokenExpiresIn } =
-      generateRefreshToken(user.id)
-
-    if (refreshToken) {
-      refreshToken.token = generatedToken
-      refreshToken.expiresAt = new Date(
-        Date.now() + refreshTokenExpiresIn * 1000
-      )
-
-      await refreshToken.$query().patch(refreshToken)
-    } else {
-      refreshToken = new RefreshToken()
-      refreshToken.token = generatedToken
-      refreshToken.expiresAt = new Date(
-        Date.now() + refreshTokenExpiresIn * 1000
-      )
-
-      await user.$relatedQuery('refreshTokens').insert(refreshToken)
-    }
-
-    res.cookie('RefreshToken', refreshToken.token, {
-      httpOnly: true,
-      maxAge: refreshTokenExpiresIn * 1000
-    })
-
-    const { accessToken: jwt, expiresIn: accesTokenExpiresIn } = generateJWT(
-      user.id
-    )
-
-    res.cookie('AccessToken', jwt, {
-      httpOnly: true,
-      maxAge: accesTokenExpiresIn * 1000
-    })
-
-    return res.send({ user })
-  } catch (error) {
-    log.error(error)
-    return res.status(401).json({ error: 'Invalid credentials' })
+  const isValid = await user.verifyPassword(password)
+  if (!isValid) {
+    throw new UnauthorisedException('Invalid credentials')
   }
+
+  let refreshToken = user.refreshTokens?.[0]
+
+  const { refreshToken: generatedToken, expiresIn: refreshTokenExpiresIn } =
+    generateRefreshToken(user.id)
+
+  if (refreshToken) {
+    refreshToken.token = generatedToken
+    refreshToken.expiresAt = new Date(Date.now() + refreshTokenExpiresIn * 1000)
+
+    await refreshToken.$query().patch(refreshToken)
+  } else {
+    refreshToken = new RefreshToken()
+    refreshToken.token = generatedToken
+    refreshToken.expiresAt = new Date(Date.now() + refreshTokenExpiresIn * 1000)
+
+    await user.$relatedQuery('refreshTokens').insert(refreshToken)
+  }
+
+  res.cookie('RefreshToken', refreshToken.token, {
+    httpOnly: true,
+    maxAge: refreshTokenExpiresIn * 1000
+  })
+
+  const { accessToken: jwt, expiresIn: accesTokenExpiresIn } = generateJWT(
+    user.id
+  )
+
+  res.cookie('AccessToken', jwt, {
+    httpOnly: true,
+    maxAge: accesTokenExpiresIn * 1000
+  })
+
+  return res.send({ user })
 }
 
 export const refresh = async (req: express.Request, res: express.Response) => {

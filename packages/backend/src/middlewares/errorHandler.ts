@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import logger from '../config/logger'
+import { BaseError } from '../errors/baseError'
 const log = logger('GlobalErrorHandler')
 export const errorHandler = (
   err: Error,
@@ -7,6 +8,11 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
-  log.error(err)
-  res.status(500).json({ error: 'Internal Server Error' })
+  if (err instanceof BaseError) {
+    const { statusCode, message } = err
+    res.status(statusCode).json({ error: message })
+  } else {
+    log.error(err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 }
