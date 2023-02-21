@@ -63,6 +63,8 @@ We use labels to communicate the intention of issues and PRs.
 - `package:backend` prefix denotes issues that are partaining to the backend package (Express).
 - `priority:` prefix denotes pirority of issues.
 
+Some labels will be automatically assigned to Issues/PRs.
+
 ### Code quality
 
 All the code quality tools used in the project are installed and configured at the root.
