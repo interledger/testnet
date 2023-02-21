@@ -40,26 +40,40 @@ Please read the [contribution guidelines](.github/contributing.md) before submit
 ### Environment Setup
 
 ```sh
-# install node 18
+# Install Node 18
 nvm install lts/hydrogen
 nvm use lts/hydrogen
 
-# install pnpm
+# Install pnpm using Corepack
 corepack enable
+```
 
-# if moving from yarn run
-pnpm clean
+If you do not have `corepack` installed locally you can use `npm` or `yarn` to install `pnpm`:
 
-# install dependencies
+```sh
+npm install pnpm -g
+# or
+yarn install pnpm -g
+```
+
+For other alternatives on how to install `pnpm`, you can see the [official documentation](https://pnpm.io/installation) from `pnpm`.
+
+To Install dependencies run:
+
+```sh
 pnpm i
 ```
 
-### Local Development
+### Local Playground
+
+From the root of the project:
 
 ```sh
-# build all the packages in the repo:
-pnpm -r build
-# build specific package (backend):
-pnpm --filter backend build
-
+# This will start both the wallet and backend application
+pnpm dev
 ```
+
+After running the command above you will have:
+
+- Wallet frontend available on http://localhost:4003/
+- Wallet backend avaiable on http://localhost:3003/

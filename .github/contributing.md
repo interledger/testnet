@@ -13,10 +13,10 @@ Before you begin:
 - [Types of contributions](#types-of-contributions)
   - [:mega: Discussions](#mega-discussions)
   - [:beetle: Issues](#beetle-issues)
-  - [:hammer_and_wrench: Pull requests](#hammer_and_wrench-pull-requests)
-- [Working in the testnet repository](#working-in-the-rafiki-repository)
-  - [Workspaces](#workspaces)
-    - [How to share scripts between workspaces?](#how-to-share-scripts-between-workspaces)
+  - [:hammer\_and\_wrench: Pull requests](#hammer_and_wrench-pull-requests)
+  - [:books: Documentation](#books-documentation)
+- [Working in the testnet repository](#working-in-the-testnet-repository)
+  - [Labels](#labels)
   - [Code quality](#code-quality)
     - [Linting](#linting)
     - [Formatting](#formatting)
@@ -97,10 +97,9 @@ Prettier config should not be overridden in any packages.
 
 #### Testing
 
-[Jest](https://jestjs.io/) is used for testing.
+[Jest](https://jestjs.io/) is used for unit and integration testing.
 
-Jest config at the root is intended to be a base config that should be extended by
-each package to suit the package's testing requirements.
+[Playwright](https://playwright.dev/) is used for end-to-end testing.
 
 #### Language
 
