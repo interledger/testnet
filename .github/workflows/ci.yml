@@ -16,6 +16,8 @@ jobs:
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - uses: ./.github/workflows/setup
       - run: pnpm checks
 
@@ -25,6 +27,8 @@ jobs:
     needs: checks
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - uses: ./.github/workflows/setup
       - run: pnpm wallet build
 
@@ -34,9 +38,7 @@ jobs:
     needs: checks
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - uses: ./.github/workflows/setup
       - run: pnpm backend build
-
-
-  
-  
