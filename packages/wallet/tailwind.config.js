@@ -19,7 +19,7 @@ module.exports = {
         1: '#d1f8ee',
         2: '#80c68c',
         3: '#2ea38d',
-        4: '#caf1e7', // 5
+        4: '#caf1e7',
         5: '#92dbca',
         6: '#56b1af',
         7: '#56bab8'
