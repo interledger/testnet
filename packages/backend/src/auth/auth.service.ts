@@ -14,7 +14,7 @@ const generateJWT = (
   userId: string
 ): { accessToken: string; expiresIn: number } => {
   return {
-    accessToken: sign({ userId }, env.JWT_ACCESS_TOKEN_SECRET as Secret, {
+    accessToken: sign({ userId }, env.JWT_ACCESS_TOKEN_SECRET, {
       expiresIn: env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
     }),
     expiresIn: Number(env.JWT_ACCESS_TOKEN_EXPIRATION_TIME)
@@ -25,7 +25,7 @@ const generateRefreshToken = (
   userId: string
 ): { refreshToken: string; expiresIn: number } => {
   return {
-    refreshToken: sign({ userId }, env.JWT_REFRESH_TOKEN_SECRET as Secret, {
+    refreshToken: sign({ userId }, env.JWT_REFRESH_TOKEN_SECRET, {
       expiresIn: env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
     }),
     expiresIn: Number(env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
