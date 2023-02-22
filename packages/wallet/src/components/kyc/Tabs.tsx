@@ -60,7 +60,7 @@ export const Tabs = () => {
                 key={kycTab.id}
                 className={({ selected }) =>
                   cx(
-                    'text-md ui-selected:text-green group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 outline-none',
+                    'text-md group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 outline-none',
                     selected ? 'text-green' : 'text-green-3 hover:text-green'
                   )
                 }
@@ -85,7 +85,7 @@ export const Tabs = () => {
           <Tab.Panels>
             {tabs.map((kycTab) => (
               <Tab.Panel key={kycTab.id}>
-                <h2 className="py-10 text-xl font-semibold text-green-3">
+                <h2 className="py-8 text-xl font-semibold text-green-3">
                   {kycTab.title}
                 </h2>
                 {kycTab.contentForm}
