@@ -36,7 +36,7 @@ export const PersonalSettingsForm = ({
   return (
     <>
       <div className="mb-5">
-        <h3 className="text-2xl text-brand-turqoise">Profile</h3>
+        <h3 className="text-2xl text-turqoise">Profile</h3>
       </div>
       <Form form={form} onSubmit={onSubmit}>
         <Input

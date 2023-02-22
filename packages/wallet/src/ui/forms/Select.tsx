@@ -1,4 +1,4 @@
-import { Play } from '@/components/Icons/Play'
+import { Play } from '@/components/icons/Play'
 import { Listbox } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useEffect, useState } from 'react'
@@ -52,7 +52,7 @@ export const Select = <T extends FieldValues>({
       <Listbox name={name} value={selected} onChange={setSelected}>
         {({ open }) => (
           <div className="relative">
-            <Listbox.Button className="peer relative block w-full rounded-xl border border-brand-turqoise bg-white px-3 pt-4 pb-1 text-left shadow-md transition-colors duration-150 focus:border-brand-green-3 focus:outline-none focus:ring-0">
+            <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pt-4 pb-1 text-left shadow-md transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">
               <span className="block truncate">
                 {selected
                   ? selected.name
@@ -70,13 +70,13 @@ export const Select = <T extends FieldValues>({
             <Listbox.Label
               className={cx(
                 'absolute -top-1 left-3 block py-1 text-sm font-light transition-colors',
-                open ? 'text-brand-green-3' : 'text-brand-turqoise'
+                open ? 'text-green-3' : 'text-turqoise'
               )}
             >
               {label}
             </Listbox.Label>
 
-            <Listbox.Options className="absolute z-10 mt-3 max-h-32 w-full overflow-y-auto overscroll-contain rounded-md border border-brand-green-3 bg-white">
+            <Listbox.Options className="absolute z-10 mt-3 max-h-32 w-full overflow-y-auto overscroll-contain rounded-md border border-green-3 bg-white">
               {options.map((option) => (
                 <Listbox.Option
                   key={option.value}
@@ -84,8 +84,8 @@ export const Select = <T extends FieldValues>({
                     cx(
                       'relative flex items-center p-2 first:rounded-t-md last:rounded-b-md',
                       selected
-                        ? 'bg-brand-green-3 text-white'
-                        : 'text-brand-green-3 hover:bg-brand-green-3/50 hover:text-white'
+                        ? 'bg-green-3 text-white'
+                        : 'text-green-3 hover:bg-green-3/50 hover:text-white'
                     )
                   }
                   value={option}

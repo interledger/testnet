@@ -33,9 +33,7 @@ export const ChangePasswordForm = () => {
   return (
     <>
       <div className="mb-5">
-        <h3 className="text-2xl text-brand-turqoise">
-          Change account password
-        </h3>
+        <h3 className="text-2xl text-turqoise">Change account password</h3>
       </div>
       <Form form={form} onSubmit={onSubmit}>
         <Input

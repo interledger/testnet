@@ -25,14 +25,20 @@ import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
 const buttonStyles = cva(['inline-flex items-center justify-center'], {
   variants: {
     intent: {
-      primary: ['text-white bg-gradient-to-r from-[#00B1D8] to-[#2EC08C]'],
+      primary: ['text-white bg-gradient-to-r from-green-5 to-green-6'],
+      secondary: ['text-white bg-gradient-secondary'],
+      success: ['text-green-3 bg-white'],
+      error: ['text-pink bg-white'],
       outline: [
-        'bg-transparent text-orange-500 border border-orange-500 hover:text-white hover:bg-orange-500'
+        'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
       ]
     },
     size: {
       sm: 'px-2 py-1 rounded-md font-medium',
       md: 'px-3 py-2 rounded-md font-medium'
+    },
+    fullWidth: {
+      true: 'w-full'
     }
   },
   defaultVariants: {
@@ -47,11 +53,11 @@ type ButtonProps = VariantProps<typeof buttonStyles> &
   }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ intent, size, children, className, ...props }, ref) => {
+  ({ fullWidth, intent, size, children, className, ...props }, ref) => {
     return (
       <ButtonOrLink
         ref={ref}
-        className={cx(className, buttonStyles({ intent, size }))}
+        className={cx(className, buttonStyles({ intent, size, fullWidth }))}
         {...props}
       >
         {children}
