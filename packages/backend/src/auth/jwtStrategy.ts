@@ -1,6 +1,7 @@
 import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt'
 import { Request } from 'express'
 import { User } from '../user/models/user'
+import env from '../config/env'
 
 export const jwtStrategy = new JWTStrategy(
   {
@@ -9,7 +10,7 @@ export const jwtStrategy = new JWTStrategy(
         return request?.cookies?.AccessToken as string
       }
     ]),
-    secretOrKey: process.env.JWT_ACCESS_TOKEN_SECRET
+    secretOrKey: env.JWT_ACCESS_TOKEN_SECRET
   },
   async (jwtPayload, done) => {
     try {

@@ -2,10 +2,11 @@ import express from 'express'
 import { Secret, sign } from 'jsonwebtoken'
 import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
-import logger from '../config/logger'
 import { UnauthorisedException } from '../errors/unauthorisedException'
 import { zParse } from '../middlewares/validator'
 import { loginSchema, signupSchema } from './schemas'
+import logger from '../utils/logger'
+import env from '../config/env'
 
 const log = logger('AuthService')
 
@@ -13,14 +14,10 @@ const generateJWT = (
   userId: string
 ): { accessToken: string; expiresIn: number } => {
   return {
-    accessToken: sign(
-      { userId },
-      process.env.JWT_ACCESS_TOKEN_SECRET as Secret,
-      {
-        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
-      }
-    ),
-    expiresIn: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME)
+    accessToken: sign({ userId }, env.JWT_ACCESS_TOKEN_SECRET as Secret, {
+      expiresIn: env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
+    }),
+    expiresIn: Number(env.JWT_ACCESS_TOKEN_EXPIRATION_TIME)
   }
 }
 
@@ -28,14 +25,10 @@ const generateRefreshToken = (
   userId: string
 ): { refreshToken: string; expiresIn: number } => {
   return {
-    refreshToken: sign(
-      { userId },
-      process.env.JWT_REFRESH_TOKEN_SECRET as Secret,
-      {
-        expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
-      }
-    ),
-    expiresIn: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
+    refreshToken: sign({ userId }, env.JWT_REFRESH_TOKEN_SECRET as Secret, {
+      expiresIn: env.JWT_REFRESH_TOKEN_EXPIRATION_TIME
+    }),
+    expiresIn: Number(env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
   }
 }
 

@@ -10,8 +10,9 @@ const envSchema = z.object({
   JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number()
 })
 
+type ENV = z.infer<typeof envSchema>
 
-export const parseEnv = () => {
+const env: ENV = (() => {
   const result = envSchema.safeParse(process.env)
 
   if (!result.success) {
@@ -23,7 +24,6 @@ export const parseEnv = () => {
   }
 
   return result.data
-}
+})()
 
-export const env = parseEnv()
-
+export default env

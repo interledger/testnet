@@ -1,9 +1,10 @@
 import { createLogger, format, transports } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import path from 'path'
-import { existsSync, mkdirSync } from 'fs'
 
-const env = process.env.NODE_ENV || 'development'
+import { existsSync, mkdirSync } from 'fs'
+import env from '../config/env'
+
 const logDirectory = path.join(__dirname, '../../logs')
 
 if (!existsSync(logDirectory)) {
@@ -35,7 +36,7 @@ const logger = (name: string) =>
     ),
     transports: [
       new transports.Console({
-        level: env === 'development' ? 'debug' : 'info'
+        level: env.NODE_ENV === 'development' ? 'debug' : 'info'
       }),
       dailyRotateTransport
     ]

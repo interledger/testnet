@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import jwt from 'jsonwebtoken'
 import { Model } from 'objection'
+import env from '../../config/env'
 import { User } from '../../user/models/user'
 
 export class RefreshToken extends Model {
@@ -12,10 +13,9 @@ export class RefreshToken extends Model {
   expiresAt!: Date
 
   static async verify(token: string): Promise<RefreshToken> {
-    const { userId } = jwt.verify(
-      token,
-      process.env.JWT_REFRESH_TOKEN_SECRET!
-    ) as { userId: string }
+    const { userId } = jwt.verify(token, env.JWT_REFRESH_TOKEN_SECRET!) as {
+      userId: string
+    }
 
     //TODO: change from directly checking if the refresh token is in the database,
     //TODO to somehow store md5 sums of refresh tokens
