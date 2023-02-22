@@ -1,13 +1,11 @@
-import axios from 'axios'
+import { makeGetRequest, makePostRequest } from '../utills/request'
 
 const getAcceptableIDtypesByCountry = async (countryCode: string) => {
-  return await axios.get(
-    `${process.env.RAPYD_API}/identities/types?country=${countryCode}`
-  )
+  return makeGetRequest(`identities/types?country=${countryCode}`)
 }
 
 const verifyIdentity = (profile: VerifyIdentityRequest) => {
-  return axios.post(`${process.env.RAPYD_API}/identities`, profile)
+  return makePostRequest('identities', JSON.stringify(profile))
 }
 
 export { getAcceptableIDtypesByCountry, verifyIdentity }
