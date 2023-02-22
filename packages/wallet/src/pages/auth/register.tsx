@@ -74,12 +74,12 @@ const Register = () => {
         </Form>
       </div>
       <div className="absolute bottom-0 h-[200px] w-full bg-[url('../../public/leafs.svg')] bg-contain bg-center bg-no-repeat md:hidden"></div>
-      <Link
-        href="login"
-        className="mt-auto pl-3 text-sm font-extralight text-green"
-      >
-        I am already a customer. Log in
-      </Link>
+      <p className="mt-auto font-extralight text-green">
+        Already a customer?{' '}
+        <Link href="login" className="font-medium underline">
+          Log in
+        </Link>
+      </p>
     </AuthLayout>
   )
 }

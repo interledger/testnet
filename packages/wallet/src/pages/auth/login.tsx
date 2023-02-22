@@ -47,7 +47,7 @@ const Login = () => {
           />
           <Link
             href="/recover-pswd"
-            className="text-xs font-extralight text-green-3"
+            className="text-sm font-extralight text-green-3 underline"
           >
             Forgot password?
           </Link>
@@ -68,12 +68,12 @@ const Login = () => {
         width={500}
         height={200}
       />
-      <Link
-        href="register"
-        className="mt-auto text-sm font-extralight text-green"
-      >
-        Not a customer? Create account
-      </Link>
+      <p className="mt-auto font-extralight text-green">
+        Not a customer?{' '}
+        <Link href="register" className="font-medium underline">
+          Create an account
+        </Link>
+      </p>
     </AuthLayout>
   )
 }

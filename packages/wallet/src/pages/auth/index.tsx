@@ -28,12 +28,12 @@ export default function Welcome() {
         width={400}
         height={200}
       />
-      <Link
-        href="https://interledger.org"
-        className="mt-auto text-sm font-extralight text-green"
-      >
-        About Interledger
-      </Link>
+      <p className="mt-auto font-extralight text-green">
+        About{' '}
+        <Link href="https://interledger.org" className="font-medium underline">
+          Interledger
+        </Link>
+      </p>
     </AuthLayout>
   )
 }
