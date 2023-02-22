@@ -30,7 +30,6 @@ export const SettingsTabs = () => {
                 : 'text-green-3 hover:text-green'
             )}
           >
-            {/*TODO: FIX GRADIENT HOVER*/}
             <>
               {tab.name}
               <div
@@ -38,7 +37,7 @@ export const SettingsTabs = () => {
                   'absolute inset-x-0 bottom-0 h-1 rounded-full',
                   pathname === tab.href
                     ? 'bg-green'
-                    : 'bg-gradient-primary group-hover:bg-green group-hover:from-green group-hover:to-green'
+                    : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
                 )}
               />
             </>

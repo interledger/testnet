@@ -65,7 +65,6 @@ export const Tabs = () => {
                   )
                 }
               >
-                {/*TODO: FIX GRADIENT HOVER*/}
                 {({ selected }) => (
                   <>
                     {kycTab.name}
@@ -74,7 +73,7 @@ export const Tabs = () => {
                         'absolute inset-x-0 bottom-0 h-1 rounded-full',
                         selected
                           ? 'bg-green'
-                          : 'group-hover:from-brand-green-4 group-hover:to-brand-green-4 bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7]'
+                          : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
                       )}
                     ></div>
                   </>
