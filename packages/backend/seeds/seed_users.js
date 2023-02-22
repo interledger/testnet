@@ -65,6 +65,5 @@ exports.seed = async function (knex) {
       rapydContactId: '6'
     }
   ]
-  console.log(users)
   await knex('users').insert(users)
 }
