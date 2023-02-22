@@ -1,18 +1,18 @@
 // import { HTTP400Error } from '../utils/httpErrors'
-import { Schema, ZodError } from 'zod'
-import { Request, Response, NextFunction } from 'express'
+import { Request } from 'express'
+import { AnyZodObject, z, ZodError } from 'zod'
 import { BadRequestException } from '../errors/badRequestException'
 
-export function validate(schema: Schema) {
-  return (req: Request, _res: Response, next: NextFunction) => {
-    try {
-      schema.parse(req.body)
-      next()
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new BadRequestException(error.errors[0].message)
-      }
-      next(error)
+export async function zParse<T extends AnyZodObject>(
+  schema: T,
+  req: Request
+): Promise<z.infer<T>> {
+  try {
+    return schema.parseAsync(req.body)
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new BadRequestException(error.errors[0].message)
     }
+    throw new BadRequestException(JSON.stringify(error))
   }
 }

@@ -1,14 +1,11 @@
 import express, { Request, Response } from 'express'
 import passport from 'passport'
 import { login, refresh, signup } from './auth/auth.service'
-import { signupSchema } from './auth/schemas/signupSchema'
-import { validate } from './middlewares/validator'
-import { loginSchema } from './auth/schemas/loginSchema'
 
 export const mainRouter = express.Router()
 
-mainRouter.post('/signup', validate(signupSchema), signup)
-mainRouter.post('/login', validate(loginSchema), login)
+mainRouter.post('/signup', signup)
+mainRouter.post('/login', login)
 mainRouter.post('/refresh', refresh)
 
 mainRouter.post(

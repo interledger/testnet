@@ -4,6 +4,8 @@ import { User } from '../user/models/user'
 import { RefreshToken } from './models/refreshToken'
 import logger from '../config/logger'
 import { UnauthorisedException } from '../errors/unauthorisedException'
+import { zParse } from '../middlewares/validator'
+import { loginSchema, signupSchema } from './schemas'
 
 const log = logger('AuthService')
 
@@ -39,14 +41,14 @@ const generateRefreshToken = (
 
 export const signup = async (req: express.Request, res: express.Response) => {
   try {
-    const existingUser = await User.query()
-      .where('email', req.body.email)
-      .first()
+    const { email, password } = await zParse(signupSchema, req)
+
+    const existingUser = await User.query().where('email', email).first()
 
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' })
     }
-    await User.query().insert(req.body)
+    await User.query().insert({ email, password })
 
     return res.status(201).json({ message: 'Success' })
   } catch (error) {
@@ -56,9 +58,7 @@ export const signup = async (req: express.Request, res: express.Response) => {
 }
 
 export const login = async (req: express.Request, res: express.Response) => {
-  const {
-    body: { email, password }
-  } = req
+  const { email, password } = await zParse(loginSchema, req)
 
   const user = await User.query()
     .findOne({ email })
