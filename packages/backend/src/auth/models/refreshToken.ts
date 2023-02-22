@@ -4,7 +4,7 @@ import { Model } from 'objection'
 import { User } from '../../user/models/user'
 
 export class RefreshToken extends Model {
-  static tableName = 'refresh_tokens'
+  static tableName = 'refreshTokens'
 
   id!: string
   token!: string
