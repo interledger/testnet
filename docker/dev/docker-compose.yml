@@ -29,8 +29,12 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3000
-    # env_file:
-    #   - ../../packages/backend/.env
+      NODE_ENV: development
+      DB_URL: postgres://postgres:password@postgres/testnet
+      JWT_ACCESS_TOKEN_SECRET: MY_SUPER_SECRET_ACCESS_TOKEN
+      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 100000000
+      JWT_REFRESH_TOKEN_SECRET: MY_SUPER_SECRET_REFRESH_TOKEN
+      JWT_REFRESH_TOKEN_EXPIRATION_TIME: 100000000
     restart: always
     networks:
     - dev-network
