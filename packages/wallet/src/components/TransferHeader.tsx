@@ -1,9 +1,9 @@
 import { cx } from 'class-variance-authority'
 
 const TYPES = {
-  Pink: 'text-brand-pink',
-  Lilac: 'text-[#9D92D0]',
-  Turqoise: 'text-brand-turqoise'
+  pink: 'text-pink',
+  violet: 'text-violet',
+  turqoise: 'text-turqoise'
 } as const
 
 type HeaderTypes = keyof typeof TYPES

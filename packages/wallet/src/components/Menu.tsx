@@ -88,12 +88,12 @@ export const Menu = () => {
             as={Fragment}
             enter="transition-opacity duration-500"
             enterFrom="opacity-0"
-            enterTo="opacity-100"
+            enterTo="opacity-90"
             leave="transition-opacity duration-500"
-            leaveFrom="opacity-100"
+            leaveFrom="opacity-90"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gradient-to-r from-[#92DBCA]/80 to-[#56B1AF]" />
+            <div className="fixed inset-0 bg-gradient-overlay" />
           </Transition.Child>
           {/* Backdrop - END */}
           {/* Menu */}
@@ -122,9 +122,9 @@ export const Menu = () => {
                         <Disclosure as="div" key={name} className="space-y-1">
                           {({ open }) => (
                             <>
-                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-brand-green-4 outline-none">
+                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-green outline-none">
                                 <div className="flex space-x-4">
-                                  <Icon className="h-8 w-8 text-brand-green-3" />
+                                  <Icon className="h-8 w-8 text-green-3" />
                                   <span className="flex-1">{name}</span>
                                 </div>
 
@@ -139,7 +139,7 @@ export const Menu = () => {
                                     key={children.name}
                                     as={Link}
                                     href={children.href}
-                                    className="flex items-center space-x-4 pl-12 text-lg font-light text-brand-green-4"
+                                    className="flex items-center space-x-4 pl-12 text-lg font-light text-green"
                                     onClick={() => setSidebarIsOpen(false)}
                                   >
                                     {children.name}
@@ -153,9 +153,9 @@ export const Menu = () => {
                         <Link
                           key={name}
                           href={href}
-                          className="flex items-center space-x-4 text-xl text-brand-green-4"
+                          className="flex items-center space-x-4 text-xl text-green"
                         >
-                          <Icon className="h-8 w-8 text-brand-green-3" />
+                          <Icon className="h-8 w-8 text-green-3" />
                           <span>{name}</span>
                         </Link>
                       )
@@ -172,7 +172,7 @@ export const Menu = () => {
       {/* Mobile Menu - END */}
       {/* Desktop Menu */}
       <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
-        <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-to-r md:from-[#00B1D8] md:to-[#6AC1B7]">
+        <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
           <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
           <div className="mt-14 hidden flex-1 space-y-8 md:block">
             {menuItems.map(({ name, href, Icon }) => (
@@ -182,7 +182,7 @@ export const Menu = () => {
                 className={cx(
                   pathname === href
                     ? 'text-white'
-                    : 'text-gray-100/80 hover:text-white',
+                    : 'text-green hover:text-white',
                   'flex items-center space-x-4 stroke-white text-lg font-semibold'
                 )}
               >

@@ -79,7 +79,7 @@ export const VerifyIdentityForm = () => {
               />
               <label
                 htmlFor={idType.id}
-                className="min-w-[50px] cursor-pointer rounded-xl border border-brand-turqoise bg-white p-2 text-center text-base font-light text-brand-turqoise shadow-md peer-checked:border-brand-orange peer-checked:text-brand-orange sm:min-w-[100px]"
+                className="min-w-[50px] cursor-pointer rounded-xl border border-turqoise bg-white p-2 text-center text-base font-light text-turqoise shadow-md peer-checked:border-orange peer-checked:text-orange sm:min-w-[100px]"
               >
                 {idType.label}
               </label>
@@ -99,9 +99,7 @@ export const VerifyIdentityForm = () => {
             })}
             error={verifyIdentityForm.formState.errors.selfie?.message}
           />
-          <span className="text-sm font-light text-brand-orange">
-            {selfieFile}
-          </span>
+          <span className="text-sm font-light text-orange">{selfieFile}</span>
         </div>
         <div className="my-5">
           <FileUpload
@@ -111,9 +109,7 @@ export const VerifyIdentityForm = () => {
             })}
             error={verifyIdentityForm.formState.errors.frontSideID?.message}
           />
-          <span className="text-sm font-light text-brand-orange">
-            {frontIDFile}
-          </span>
+          <span className="text-sm font-light text-orange">{frontIDFile}</span>
         </div>
       </div>
       <Button aria-label="Verify Account" type="submit">

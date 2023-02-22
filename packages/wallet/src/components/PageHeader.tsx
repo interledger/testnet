@@ -5,7 +5,7 @@ type PageHeaderProps = {
 
 export const PageHeader = ({ title, message }: PageHeaderProps) => {
   return (
-    <div className="text-brand-turqoise">
+    <div className="text-turqoise">
       <h1 className="text-2xl font-semibold transition-all duration-200 md:text-4xl">
         {title}
       </h1>

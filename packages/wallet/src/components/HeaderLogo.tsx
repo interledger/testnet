@@ -13,7 +13,7 @@ export const HeaderLogo = ({ header, type }: HeaderLogoProps) => {
       <h1
         className={cx(
           'mb-10 block space-x-4 text-xl md:mb-0 md:mt-10 md:text-5xl md:font-semibold',
-          type === 'kyc' ? 'text-brand-green-3' : 'text-brand-turqoise'
+          type === 'kyc' ? 'text-green-3' : 'text-turqoise'
         )}
       >
         {header}

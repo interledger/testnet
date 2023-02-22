@@ -23,28 +23,56 @@ export default function Home({ accounts }: HomeProps) {
           title="Hello, John Doe!"
           message="Here is your account overview!"
         />
-        <div className="md:mt-10">
+        <div className="text-green md:mt-10">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
           <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
         </div>
       </div>
-      <div className="mt-5 flex w-full flex-col space-y-2 md:max-w-lg">
+      <div className="my-5 flex flex-col space-y-5">
+        <div className="grid grid-cols-4 gap-2">
+          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Pay />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Send
+            </span>
+          </Link>
+          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Send />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Pay
+            </span>
+          </Link>
+          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Receive />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Receive
+            </span>
+          </Link>
+          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <New />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              New account
+            </span>
+          </Link>
+        </div>
+      </div>
+      <div className="flex w-full flex-col space-y-2 md:max-w-lg">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold leading-none text-brand-green-4">
+          <h3 className="text-lg font-semibold leading-none text-green">
             My Accounts
           </h3>
-          <Cog className="h-8 w-8 text-brand-green-3" />
+          <Cog className="h-8 w-8 text-green" />
         </div>
         <div className="grid grid-cols-2 gap-6">
           {accounts.map((account) => (
             <Link
               href={`accounts/${account.id}`}
               key={account.id}
-              className={`rounded-lg bg-gradient-to-r
-              [&:nth-child(4n+1)]:from-[#92DBCA] [&:nth-child(4n+1)]:to-[#56B1AF] 
-              [&:nth-child(4n+2)]:from-[#9DB8D6] [&:nth-child(4n+2)]:to-[#9D92D0] 
-              [&:nth-child(4n+3)]:from-[#FFC2D6] [&:nth-child(4n+3)]:to-[#FFA0AC] 
-              [&:nth-child(4n+4)]:from-[#E4D099] [&:nth-child(4n+4)]:to-[#FFB380]`}
+              className={`rounded-lg
+              [&:nth-child(4n+1)]:bg-gradient-primary 
+              [&:nth-child(4n+2)]:bg-gradient-violet 
+              [&:nth-child(4n+3)]:bg-gradient-pink 
+              [&:nth-child(4n+4)]:bg-gradient-orange`}
             >
               <AccountCard
                 name={account.name}
@@ -53,28 +81,6 @@ export default function Home({ accounts }: HomeProps) {
               />
             </Link>
           ))}
-        </div>
-        <div className="flex flex-col space-y-5">
-          <div className="grid grid-cols-4 gap-2">
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <Pay />
-              <span className="font-medium text-brand-green-4">Send</span>
-            </Link>
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <Send />
-              <span className="font-medium text-brand-green-4">Pay</span>
-            </Link>
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <Receive />
-              <span className="font-medium text-brand-green-4">Receive</span>
-            </Link>
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <New />
-              <span className="font-medium text-brand-green-4">
-                New account
-              </span>
-            </Link>
-          </div>
         </div>
       </div>
     </AppLayout>
