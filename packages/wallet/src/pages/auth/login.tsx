@@ -3,7 +3,7 @@ import AuthLayout from '@/components/layouts/AuthLayout'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
-import { Play } from '@/components/Icons/Play'
+import { Play } from '@/components/icons/Play'
 import { z } from 'zod'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -71,7 +71,7 @@ const Login = () => {
         height={200}
       />
       <Link
-        href="/register"
+        href="register"
         className="mt-auto text-sm font-extralight text-brand-green-4"
       >
         Not a customer? Create account

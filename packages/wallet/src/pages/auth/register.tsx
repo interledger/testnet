@@ -3,7 +3,7 @@ import AuthLayout from '@/components/layouts/AuthLayout'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
-import { Play } from '@/components/Icons/Play'
+import { Play } from '@/components/icons/Play'
 import { z } from 'zod'
 import { useRouter } from 'next/router'
 
@@ -34,7 +34,7 @@ const Register = () => {
 
   const handleSubmit = registerForm.handleSubmit((data) => {
     console.log(data)
-    router.push('/login')
+    router.push('auth/login')
   })
 
   return (
@@ -75,7 +75,7 @@ const Register = () => {
       </div>
       <div className="absolute bottom-0 h-[200px] w-full bg-[url('../../public/leafs.svg')] bg-contain bg-center bg-no-repeat md:hidden"></div>
       <Link
-        href="/login"
+        href="login"
         className="mt-auto pl-3 text-sm font-extralight text-brand-green-4"
       >
         I am already a customer. Log in
