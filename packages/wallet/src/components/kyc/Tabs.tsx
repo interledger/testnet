@@ -2,9 +2,9 @@ import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useKYCFormContext } from './context'
 import Image from 'next/image'
-import { IdentificationForm } from './IdentificationForm'
+import { VerifyIdentityForm } from './VerifyIdentityForm'
 import { PersonalDetailsForm } from './PersonalDetailsForm'
-import { Play } from '../Icons/Play'
+import { Play } from '../icons/Play'
 import { Button } from '@/ui/Button'
 
 const countries = [
@@ -35,7 +35,7 @@ const tabs = [
     name: 'ID proof',
     id: 'id',
     title: 'Choose document type',
-    contentForm: <IdentificationForm />,
+    contentForm: <VerifyIdentityForm />,
     imageMobile: 'id-kyc.webp'
   },
   {

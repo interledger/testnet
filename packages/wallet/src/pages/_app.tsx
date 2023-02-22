@@ -2,6 +2,7 @@ import '@/styles/main.css'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { Titillium_Web } from '@next/font/google'
+import { AppProvider } from '@/components/providers'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -23,7 +24,9 @@ export default function App({ Component, pageProps }: AppProps) {
           font-family: ${titilium.style.fontFamily};
         }
       `}</style>
-      <Component {...pageProps} />
+      <AppProvider>
+        <Component {...pageProps} />
+      </AppProvider>
     </>
   )
 }
