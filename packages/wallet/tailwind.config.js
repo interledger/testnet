@@ -44,9 +44,9 @@ module.exports = {
         'gradient-overlay': `linear-gradient(270deg, #92DBCA 0.16%, #56B1AF 100%)`,
         'gradient-success': `linear-gradient(to right, #00A7CE 0%, #1AABC6 19.43%, #45B1B8 55.37%, #60B6B0 83.45%, #6AB7AD 100%)`,
         'gradient-error': `linear-gradient(to right, #E489A0 1.13%, #E99E96 58.42%, #ECA891 100%)`,
-        'gradient-orange': '',
-        'gradient-pink': '',
-        'gradient-violet': ''
+        'gradient-violet': `linear-gradient(to right, #9A8FCD, #9AB5D3)`,
+        'gradient-pink': `linear-gradient(to right, #FF9DA9, #FFBFD3)`,
+        'gradient-orange': `linear-gradient(to right, #FFB080, #E1CD96)`
       },
       screens: {
         'h-sm': { raw: '(min-height: 600px)' }
@@ -55,6 +55,3 @@ module.exports = {
   },
   plugins: [require('@tailwindcss/forms')]
 }
-// backgroundImage: `linear-gradient(to bottom right, ${theme('colors.orange.300')}, ${theme('colors.rose.500')})`
-
-// ul bleu color #C0F9FF,10:48Background ul verde de la KYC #D1F8EE10:49Verdele din text #2EA38D10:50Verde inchis din text #003A2F10:51Turcoaz din pagina de account, practic culorile de la account: #56C1BF10:52Portocaliu #FAB88210:52Roz #F38D9410:54Galben #EFDBA410:55Verde deschis de la account #80C68C
