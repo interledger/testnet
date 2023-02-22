@@ -58,8 +58,14 @@ export const Tabs = () => {
             {tabs.map((kycTab) => (
               <Tab
                 key={kycTab.id}
-                className="text-md ui-selected:text-brand-green-4 group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 text-brand-green-3 outline-none hover:text-brand-green-4"
+                className={({ selected }) =>
+                  cx(
+                    'text-md ui-selected:text-green group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 outline-none',
+                    selected ? 'text-green' : 'text-green-3 hover:text-green'
+                  )
+                }
               >
+                {/*TODO: FIX GRADIENT HOVER*/}
                 {({ selected }) => (
                   <>
                     {kycTab.name}
@@ -67,8 +73,8 @@ export const Tabs = () => {
                       className={cx(
                         'absolute inset-x-0 bottom-0 h-1 rounded-full',
                         selected
-                          ? 'bg-brand-green-4'
-                          : 'bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] group-hover:from-brand-green-4 group-hover:to-brand-green-4'
+                          ? 'bg-green'
+                          : 'group-hover:from-brand-green-4 group-hover:to-brand-green-4 bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7]'
                       )}
                     ></div>
                   </>
@@ -79,7 +85,7 @@ export const Tabs = () => {
           <Tab.Panels>
             {tabs.map((kycTab) => (
               <Tab.Panel key={kycTab.id}>
-                <h2 className="py-10 text-xl font-semibold text-brand-green-3">
+                <h2 className="py-10 text-xl font-semibold text-green-3">
                   {kycTab.title}
                 </h2>
                 {kycTab.contentForm}

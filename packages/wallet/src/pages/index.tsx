@@ -34,7 +34,7 @@ export default function Home({ accounts }: HomeProps) {
               <Link
                 href={`accounts/${account.id}`}
                 key={account.id}
-                className="flex items-center justify-between rounded-md bg-brand-turqoise px-4 py-4"
+                className="flex items-center justify-between rounded-md bg-turqoise px-4 py-4"
               >
                 <span className="font-semibold">{account.name}</span>
                 <span>

@@ -28,9 +28,7 @@ const Login = () => {
   return (
     <AuthLayout image="Login">
       <HeaderLogo header="Welcome" />
-      <h2 className="mt-10 mb-5 text-xl font-semibold text-brand-green-4">
-        Login
-      </h2>
+      <h2 className="mt-10 mb-5 text-xl font-semibold text-green">Login</h2>
       <div className="w-2/3">
         <Form form={loginForm} onSubmit={handleSubmit}>
           <Input
@@ -49,7 +47,7 @@ const Login = () => {
           />
           <Link
             href="/recover-pswd"
-            className="text-xs font-extralight text-brand-green-3"
+            className="text-xs font-extralight text-green-3"
           >
             Forgot password?
           </Link>
@@ -72,7 +70,7 @@ const Login = () => {
       />
       <Link
         href="register"
-        className="mt-auto text-sm font-extralight text-brand-green-4"
+        className="mt-auto text-sm font-extralight text-green"
       >
         Not a customer? Create account
       </Link>

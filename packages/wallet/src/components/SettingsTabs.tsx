@@ -26,18 +26,19 @@ export const SettingsTabs = () => {
             className={cx(
               'group relative px-10 py-2.5 text-center text-lg font-medium leading-5',
               pathname === tab.href
-                ? 'text-brand-green-4'
-                : 'text-brand-green-3 hover:text-brand-green-4'
+                ? 'text-green'
+                : 'text-green-3 hover:text-green'
             )}
           >
+            {/*TODO: FIX GRADIENT HOVER*/}
             <>
               {tab.name}
               <div
                 className={cx(
                   'absolute inset-x-0 bottom-0 h-1 rounded-full',
                   pathname === tab.href
-                    ? 'bg-brand-green-4'
-                    : 'bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] group-hover:from-brand-green-4 group-hover:to-brand-green-4'
+                    ? 'bg-green'
+                    : 'bg-gradient-primary group-hover:bg-green group-hover:from-green group-hover:to-green'
                 )}
               />
             </>

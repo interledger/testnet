@@ -40,7 +40,7 @@ const Register = () => {
   return (
     <AuthLayout image="Register">
       <HeaderLogo header="Welcome" />
-      <h2 className="mt-10 mb-5 text-xl text-brand-green-4">Create Account</h2>
+      <h2 className="mt-10 mb-5 text-xl text-green">Create Account</h2>
       <div className="w-2/3">
         <Form form={registerForm} onSubmit={handleSubmit}>
           <Input
@@ -76,7 +76,7 @@ const Register = () => {
       <div className="absolute bottom-0 h-[200px] w-full bg-[url('../../public/leafs.svg')] bg-contain bg-center bg-no-repeat md:hidden"></div>
       <Link
         href="login"
-        className="mt-auto pl-3 text-sm font-extralight text-brand-green-4"
+        className="mt-auto pl-3 text-sm font-extralight text-green"
       >
         I am already a customer. Log in
       </Link>

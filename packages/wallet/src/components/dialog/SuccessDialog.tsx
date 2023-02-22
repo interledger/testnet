@@ -42,7 +42,7 @@ export const SuccessDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xs overflow-hidden rounded-lg bg-gradient-to-r from-[#00AAD1] via-[#45B4BB] to-[#6ABAB0] p-8 shadow-md">
+              <Dialog.Panel className="bg-gradient-success relative w-full max-w-xs overflow-hidden rounded-lg p-8 shadow-md">
                 <div>
                   <BirdSuccess className="mx-auto h-20 w-20" />
                   <div className="mt-3 text-center">
