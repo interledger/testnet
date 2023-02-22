@@ -1,7 +1,7 @@
-import { makePostRequest } from '../utills/request'
+import { makeRapydPostRequest } from '../utills/request'
 
 const createRapydWallet = async (wallet: RapydWallet) => {
-  return makePostRequest('user', JSON.stringify(wallet))
+  return makeRapydPostRequest('user', JSON.stringify(wallet))
 }
 
 export { createRapydWallet }

@@ -12,7 +12,7 @@ const getSignature = () => {
   return '222222'
 }
 
-const makeGetRequest = (url: string) => {
+const makeRapydGetRequest = (url: string) => {
   return axios.get(`${process.env.RAPYD_API}/${url}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ const makeGetRequest = (url: string) => {
   })
 }
 
-const makePostRequest = (url: string, body: string) => {
+const makeRapydPostRequest = (url: string, body: string) => {
   return axios.post(`${process.env.RAPYD_API}/${url}`, JSON.parse(body), {
     headers: {
       'Content-Type': 'application/json',
@@ -36,4 +36,4 @@ const makePostRequest = (url: string, body: string) => {
   })
 }
 
-export { makeGetRequest, makePostRequest }
+export { makeRapydGetRequest, makeRapydPostRequest }
