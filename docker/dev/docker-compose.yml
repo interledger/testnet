@@ -143,19 +143,6 @@ services:
     restart: unless-stopped
     networks:
       - testnet
-  signatures:
-    build:
-      context: ../../rafiki
-      dockerfile: ./packages/http-signature-utils/Dockerfile
-    restart: always
-    ports:
-      - '3042:3000'
-    environment:
-      KEY_FILE: /workspace/private-key.pem
-    volumes:
-      - ./private-key.pem:/workspace/private-key.pem
-    networks:
-      - testnet
 
 networks:
   testnet:
