@@ -16,11 +16,9 @@ export const AccountCard = ({ account }: AccountCardProps) => {
         [&:nth-child(4n+3)]:bg-gradient-pink [&:nth-child(4n+4)]:bg-gradient-orange `}
     >
       <div className="flex aspect-square flex-1 flex-col p-2">
-        <div className="flex flex-1 text-2xl font-semibold">
-          <span className="inline-flex h-8 w-14 items-center justify-center rounded-md bg-white mix-blend-screen">
-            {account.asset.code}
-          </span>
-        </div>
+        <span className="inline-flex h-8 w-14 items-center justify-center rounded-md bg-white text-2xl font-semibold mix-blend-screen">
+          {account.asset.code}
+        </span>
         <div className="mt-auto text-white">
           <p className="overflow-hidden text-ellipsis whitespace-nowrap font-light">
             {account.name}
