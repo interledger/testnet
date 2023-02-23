@@ -39,8 +39,10 @@ importers:
       bcrypt: ^5.1.0
       bcryptjs: ^2.4.3
       cors: ^2.8.5
+      crypto: ^1.0.1
       dotenv: ^16.0.3
       express: ^4.18.2
+      https: ^1.0.0
       ioredis: ^5.3.0
       knex: ^2.4.2
       objection: ^3.0.1
@@ -55,8 +57,10 @@ importers:
       bcrypt: 5.1.0
       bcryptjs: 2.4.3
       cors: 2.8.5
+      crypto: 1.0.1
       dotenv: 16.0.3
       express: 4.18.2
+      https: 1.0.0
       ioredis: 5.3.0
       knex: 2.4.2_pg@8.9.0
       objection: 3.0.1_knex@2.4.2
@@ -1055,6 +1059,11 @@ packages:
       which: 2.0.2
     dev: true
 
+  /crypto/1.0.1:
+    resolution: {integrity: sha512-VxBKmeNcqQdiUQUW2Tzq0t377b54N2bMtXO/qiLa+6eRRmmC4qT3D4OnTGoT/U6O9aklQ/jTwbOtRMTTY8G0Ig==}
+    deprecated: This package is no longer supported. It's now a built-in Node module. If you've depended on crypto, you should switch to the one that's built-in.
+    dev: false
+
   /cssesc/3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
@@ -1812,6 +1821,10 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /https/1.0.0:
+    resolution: {integrity: sha512-4EC57ddXrkaF0x83Oj8sM6SLQHAWXw90Skqu2M4AEWENZ3F02dFJE/GARA8igO79tcgYqGrD7ae4f5L3um2lgg==}
     dev: false
 
   /iconv-lite/0.4.24:
