@@ -1,6 +1,7 @@
 import { Button } from '@/ui/Button'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
+import { useState } from 'react'
 import { z } from 'zod'
 
 export type PersonalDetailsProps = {
@@ -24,6 +25,7 @@ const personalSchema = z.object({
 export const PersonalSettingsForm = ({
   personalDetails
 }: PersonalSettingsFormProps) => {
+  const [isReadOnly, setIsReadOnly] = useState(true)
   const form = useZodForm({
     schema: personalSchema,
     defaultValues: personalDetails
@@ -38,7 +40,7 @@ export const PersonalSettingsForm = ({
       <div className="mb-5">
         <h3 className="text-2xl text-turqoise">Profile</h3>
       </div>
-      <Form form={form} onSubmit={onSubmit}>
+      <Form form={form} onSubmit={onSubmit} readOnly={isReadOnly}>
         <Input
           required
           label="First name"
@@ -68,12 +70,32 @@ export const PersonalSettingsForm = ({
           error={form.formState.errors.email?.message}
           {...form.register('email')}
         />
-        <div className="mt-2 flex justify-end">
-          <Button type="submit" aria-label="save personal settings">
-            Save personal settings
+        {!isReadOnly && (
+          <div className="mt-2 flex justify-between">
+            <Button
+              intent="outline"
+              aria-label="stop editing"
+              onClick={() => setIsReadOnly(!isReadOnly)}
+            >
+              Close editing
+            </Button>
+            <Button type="submit" aria-label="save personal settings">
+              Save personal settings
+            </Button>
+          </div>
+        )}
+      </Form>
+      {isReadOnly && (
+        <div className="mt-4">
+          <Button
+            intent="primary"
+            aria-label="edit personal details"
+            onClick={() => setIsReadOnly(!isReadOnly)}
+          >
+            Edit
           </Button>
         </div>
-      </Form>
+      )}
     </>
   )
 }

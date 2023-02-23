@@ -1,5 +1,6 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { ApiKeys } from '@/components/settings/ApiKeys'
 import { SettingsTabs } from '@/components/SettingsTabs'
 
 export default function Notifications() {
@@ -7,7 +8,9 @@ export default function Notifications() {
     <AppLayout>
       <PageHeader title="API Settings" message="Edit API details" />
       <SettingsTabs />
-      <div className="flex w-full flex-col md:max-w-lg"></div>
+      <div className="flex w-full flex-col md:max-w-lg">
+        <ApiKeys />
+      </div>
     </AppLayout>
   )
 }

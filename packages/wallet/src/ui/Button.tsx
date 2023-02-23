@@ -47,7 +47,7 @@ const buttonStyles = cva(['inline-flex items-center justify-center'], {
   }
 })
 
-type ButtonProps = VariantProps<typeof buttonStyles> &
+export type ButtonProps = VariantProps<typeof buttonStyles> &
   ButtonOrLinkProps & {
     ['aria-label']: string
   }
