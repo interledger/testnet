@@ -1,4 +1,3 @@
-import { Clipboard, ClipboardCheck } from '@/components/icons/ClipBoard'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { ApiKeys } from '@/components/settings/ApiKeys'
