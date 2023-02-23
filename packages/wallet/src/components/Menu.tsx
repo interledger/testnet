@@ -140,7 +140,6 @@ export const Menu = () => {
                                     as={Link}
                                     href={children.href}
                                     className="flex items-center space-x-4 pl-12 text-lg font-light text-green"
-                                    onClick={() => setSidebarIsOpen(false)}
                                   >
                                     {children.name}
                                   </Disclosure.Button>
