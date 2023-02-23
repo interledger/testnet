@@ -1,5 +1,5 @@
 import { Clipboard, ClipboardCheck } from '@/components/icons/Clipboard'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { Button, ButtonProps } from './Button'
 
 function copyToClipboard(value: string) {
@@ -11,9 +11,9 @@ type CopyButtonProps = Omit<ButtonProps, 'intent'> & {
 }
 
 export const CopyButton = ({ value, ...props }: CopyButtonProps) => {
-  const [isCopied, setIsCopied] = React.useState(false)
+  const [isCopied, setIsCopied] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setTimeout(() => {
       setIsCopied(false)
     }, 4000)
