@@ -1,4 +1,4 @@
-import { Clipboard, ClipboardCheck } from '@/components/icons/ClipBoard'
+import { Clipboard, ClipboardCheck } from '@/components/icons/Clipboard'
 import React from 'react'
 import { Button, ButtonProps } from './Button'
 
