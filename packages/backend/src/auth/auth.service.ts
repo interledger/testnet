@@ -1,12 +1,12 @@
 import express from 'express'
-import { Secret, sign } from 'jsonwebtoken'
-import { User } from '../user/models/user'
-import { RefreshToken } from './models/refreshToken'
+import { sign } from 'jsonwebtoken'
+import env from '../config/env'
 import { UnauthorisedException } from '../errors/unauthorisedException'
 import { zParse } from '../middlewares/validator'
-import { loginSchema, signupSchema } from './schemas'
+import { User } from '../user/models/user'
 import logger from '../utils/logger'
-import env from '../config/env'
+import { RefreshToken } from './models/refreshToken'
+import { loginSchema, signupSchema } from './schemas'
 
 const log = logger('AuthService')
 
