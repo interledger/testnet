@@ -29,27 +29,27 @@ export default function Home({ accounts }: HomeProps) {
       </div>
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
         <div className="mt-2 grid grid-cols-4 gap-2">
-          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Pay className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
+          <Link className="h-18 w-18 group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Send className="h-8 w-8" />
+            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
               Send
             </span>
           </Link>
           <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Send className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
+            <Pay className="h-8 w-8" />
+            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
               Pay
             </span>
           </Link>
           <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Receive className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
+            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
               Receive
             </span>
           </Link>
           <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <New className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
+            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
               New account
             </span>
           </Link>
