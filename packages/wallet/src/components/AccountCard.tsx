@@ -1,23 +1,35 @@
+import { Link } from '@/ui/Link'
+import type { Account } from '@/utils/mocks'
+
 type AccountCardProps = {
-  asset: string
-  name: string
-  balance: number
+  account: Account
 }
 
-export const AccountCard = ({ asset, name, balance }: AccountCardProps) => {
+export const AccountCard = ({ account }: AccountCardProps) => {
   return (
-    <div className="flex aspect-square flex-1 flex-col p-2">
-      <div className="flex flex-1 text-2xl font-semibold">
-        <span className="inline-flex h-8 w-14 items-center justify-center rounded-md bg-white mix-blend-screen">
-          {asset}
-        </span>
+    <Link
+      href={`accounts/${account.id}`}
+      className={`
+        rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md
+        [&:nth-child(4n+1)]:bg-gradient-primary 
+        [&:nth-child(4n+2)]:bg-gradient-violet 
+        [&:nth-child(4n+3)]:bg-gradient-pink [&:nth-child(4n+4)]:bg-gradient-orange `}
+    >
+      <div className="flex aspect-square flex-1 flex-col p-2">
+        <div className="flex flex-1 text-2xl font-semibold">
+          <span className="inline-flex h-8 w-14 items-center justify-center rounded-md bg-white mix-blend-screen">
+            {account.asset.code}
+          </span>
+        </div>
+        <div className="mt-auto text-white">
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap font-light">
+            {account.name}
+          </p>
+          <p className="text-2xl font-semibold tracking-tighter">
+            {account.balance}
+          </p>
+        </div>
       </div>
-      <div className="mt-auto text-white">
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap font-light">
-          {name}
-        </p>
-        <p className="text-2xl font-semibold tracking-tighter">{balance}</p>
-      </div>
-    </div>
+    </Link>
   )
 }

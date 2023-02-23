@@ -59,23 +59,9 @@ export default function Home({ accounts }: HomeProps) {
             My Accounts
           </h3>
         </div>
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-6">
           {accounts.map((account) => (
-            <Link
-              href={`accounts/${account.id}`}
-              key={account.id}
-              className={`
-              rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md
-              [&:nth-child(4n+1)]:bg-gradient-primary 
-              [&:nth-child(4n+2)]:bg-gradient-violet 
-              [&:nth-child(4n+3)]:bg-gradient-pink [&:nth-child(4n+4)]:bg-gradient-orange `}
-            >
-              <AccountCard
-                name={account.name}
-                balance={account.balance}
-                asset={account.asset.code}
-              />
-            </Link>
+            <AccountCard key={account.id} account={account} />
           ))}
         </div>
       </div>
