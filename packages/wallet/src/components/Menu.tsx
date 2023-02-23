@@ -129,7 +129,7 @@ export const Menu = () => {
                                 </div>
 
                                 <Chevron
-                                  className="h-6 w-6"
+                                  className="h-6 w-6 transition-transform duration-100"
                                   direction={open ? 'down' : 'left'}
                                 />
                               </Disclosure.Button>
@@ -194,7 +194,7 @@ export const Menu = () => {
                         </div>
 
                         <Chevron
-                          className="h-6 w-6"
+                          className="h-6 w-6 transition-transform duration-100"
                           direction={open ? 'down' : 'left'}
                         />
                       </Disclosure.Button>
