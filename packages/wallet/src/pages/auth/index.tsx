@@ -9,16 +9,14 @@ export default function Welcome() {
   return (
     <AuthLayout image="Park">
       <HeaderLogo header="Welcome" />
-      <h2 className="mt-5 mb-10 text-xl font-light text-brand-green-4 md:mt-20">
+      <h2 className="mt-5 mb-10 text-xl font-light text-green md:mt-20">
         Already a customer?
       </h2>
       <Button aria-label="log in" href="auth/login">
         Log in
       </Button>
       <Divider content="or" />
-      <h2 className="mb-5 text-xl font-semibold text-brand-green-4">
-        New here?
-      </h2>
+      <h2 className="mb-5 text-xl font-semibold text-green">New here?</h2>
       <Button aria-label="sign up" href="auth/register">
         Create account
       </Button>
@@ -30,12 +28,12 @@ export default function Welcome() {
         width={400}
         height={200}
       />
-      <Link
-        href="https://interledger.org"
-        className="mt-auto text-sm font-extralight text-brand-green-4"
-      >
-        About Interledger
-      </Link>
+      <p className="mt-auto font-extralight text-green">
+        About{' '}
+        <Link href="https://interledger.org" className="font-medium underline">
+          Interledger
+        </Link>
+      </p>
     </AuthLayout>
   )
 }

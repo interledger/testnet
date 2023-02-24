@@ -30,4 +30,6 @@ RUN pnpm install -r --offline
 # Build backend
 RUN pnpm backend build
 
-CMD ["node", "./packages/backend/dist/index.js"]
+CMD ["node", "--inspect=0.0.0.0:9229", "./packages/backend/dist/index.js"]
+# Expose debugger port
+EXPOSE 9229

@@ -25,7 +25,7 @@ export default function Request() {
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="Turqoise" balance="$15.000" />
+        <TransferHeader type="turqoise" balance="$15.000" />
         <Form form={form} onSubmit={handleSubmit}>
           <div className="space-y-1">
             <Badge text="to" />

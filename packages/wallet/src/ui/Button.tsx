@@ -25,12 +25,12 @@ import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
 const buttonStyles = cva(['inline-flex items-center justify-center'], {
   variants: {
     intent: {
-      primary: ['text-white bg-gradient-to-r from-[#00B1D8] to-[#2EC08C]'],
-      secondary: ['text-white bg-gradient-to-r from-[#E78CA3] to-[#EFAB94]'],
-      success: ['text-[#2E9C86] bg-white'],
-      error: ['text-[#EA7F64] bg-white'],
+      primary: ['text-white bg-gradient-to-r from-green-5 to-green-6'],
+      secondary: ['text-white bg-gradient-secondary'],
+      success: ['text-green-3 bg-white'],
+      error: ['text-pink bg-white'],
       outline: [
-        'bg-transparent text-orange-500 border border-orange-500 hover:text-white hover:bg-orange-500'
+        'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
       ]
     },
     size: {
@@ -47,7 +47,7 @@ const buttonStyles = cva(['inline-flex items-center justify-center'], {
   }
 })
 
-type ButtonProps = VariantProps<typeof buttonStyles> &
+export type ButtonProps = VariantProps<typeof buttonStyles> &
   ButtonOrLinkProps & {
     ['aria-label']: string
   }

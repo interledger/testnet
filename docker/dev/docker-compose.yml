@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
   postgres:
@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
     ports:
-      - '5433:5432'
+      - '5433:5433'
     restart: unless-stopped
     networks:
       - testnet
@@ -27,13 +27,19 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3003
+      DB_URL: postgres://postgres:password@postgres/testnet
+      JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$Cj9t$Ix0TWMYrEnpq$X
+      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 900
+      JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
+      JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
     restart: always
     networks:
       - testnet
     ports:
       - '3003:3003'
+      # Map debugger port to local machine's port 9229
+      - '9229:9229'
     container_name: testnet
-
   wallet:
     build:
       context: ../..
@@ -53,6 +59,7 @@ services:
       - ../../packages/wallet:/home/testnet/packages/wallet
       - /home/testnet/packages/wallet/node_modules
       - /home/testnet/packages/wallet/.next
+    container_name: wallet
 
   # rafiki setup
   auth:
@@ -93,7 +100,7 @@ services:
       DATABASE_URL: postgresql://backend:backend@postgres/backend
       TIGERBEETLE_CLUSTER_ID: 0
       # Tigerbeetle will support DNS in future
-      TIGERBEETLE_REPLICA_ADDRESSES: '["10.5.0.50:4343"]'
+      TIGERBEETLE_REPLICA_ADDRESSES: '["10.4.0.50:4343"]'
       NONCE_REDIS_KEY: test
       AUTH_SERVER_GRANT_URL: http://auth:3006
       AUTH_SERVER_INTROSPECTION_URL: http://auth:3006/introspect
