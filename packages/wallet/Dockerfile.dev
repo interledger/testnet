@@ -1,10 +1,19 @@
 FROM node:lts-hydrogen
 
 # Set the working directory
-WORKDIR /home/testnet
+WORKDIR /home/testnet/rafiki
 
 # Install PNPM
 RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7.27.1
+
+# Copy lockfile, NVM and NPM configuration to the working directory
+COPY rafiki/pnpm-lock.yaml ./
+
+# Fetch packages from lockfile (https://pnpm.io/cli/fetch#usage-scenario)
+RUN pnpm fetch
+
+# Set the working directory
+WORKDIR /home/testnet
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY pnpm-lock.yaml .nvmrc .npmrc ./

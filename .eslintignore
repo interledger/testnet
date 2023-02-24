@@ -5,6 +5,7 @@ node_modules
 /.next
 .env
 .env.*
+/rafiki
 
 # Ignore PNPM lock file
 pnpm-lock.yaml
