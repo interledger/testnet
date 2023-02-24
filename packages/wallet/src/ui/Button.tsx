@@ -25,7 +25,9 @@ import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
 const buttonStyles = cva(['inline-flex items-center justify-center'], {
   variants: {
     intent: {
-      primary: ['text-white bg-gradient-to-r from-green-5 to-green-6'],
+      primary: [
+        'text-white bg-gradient-to-r from-green-5 to-green-6 hover:from-[#7acebe] hover:to-[#2b7576] hover:shadow-md'
+      ],
       secondary: ['text-white bg-gradient-secondary'],
       success: ['text-green-3 bg-white'],
       error: ['text-pink bg-white'],
