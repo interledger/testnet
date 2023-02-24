@@ -1,4 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+import {createPaymentPointer} from "./rafiki/graphql-client";
+
 const config = require('../knexfile.js')
 
 import cookieParser from 'cookie-parser'
@@ -46,3 +48,6 @@ app.use(errorHandler)
 app.listen(env.PORT, (): void => {
   console.log(`🚀 🌑 | Backend listening on ${env.PORT}`)
 })
+setTimeout(() => {
+  createPaymentPointer('test', '1', '1').catch((e) => console.log(e));
+}, 5000);
