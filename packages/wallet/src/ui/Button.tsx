@@ -22,30 +22,37 @@ import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
  *  - <Button>My Button</Button>
  */
 
-const buttonStyles = cva(['inline-flex items-center justify-center'], {
-  variants: {
-    intent: {
-      primary: ['text-white bg-gradient-to-r from-green-5 to-green-6'],
-      secondary: ['text-white bg-gradient-secondary'],
-      success: ['text-green-3 bg-white'],
-      error: ['text-pink bg-white'],
-      outline: [
-        'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
-      ]
+const buttonStyles = cva(
+  ['inline-flex items-center justify-center hover:shadow-md'],
+  {
+    variants: {
+      intent: {
+        primary: [
+          'text-white bg-gradient-to-r from-green-5 to-green-6 hover:bg-gradient-primary-dark'
+        ],
+        secondary: [
+          'text-white bg-gradient-secondary hover:bg-gradient-secondary-dark'
+        ],
+        success: ['text-green-3 bg-white hover:bg-white-1'],
+        error: ['text-pink bg-white hover:bg-white-1'],
+        outline: [
+          'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
+        ]
+      },
+      size: {
+        sm: 'px-2 py-1 rounded-md font-medium',
+        md: 'px-3 py-2 rounded-md font-medium'
+      },
+      fullWidth: {
+        true: 'w-full'
+      }
     },
-    size: {
-      sm: 'px-2 py-1 rounded-md font-medium',
-      md: 'px-3 py-2 rounded-md font-medium'
-    },
-    fullWidth: {
-      true: 'w-full'
+    defaultVariants: {
+      intent: 'primary',
+      size: 'md'
     }
-  },
-  defaultVariants: {
-    intent: 'primary',
-    size: 'md'
   }
-})
+)
 
 export type ButtonProps = VariantProps<typeof buttonStyles> &
   ButtonOrLinkProps & {

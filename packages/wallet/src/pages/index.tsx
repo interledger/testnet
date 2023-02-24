@@ -5,6 +5,7 @@ import { Receive } from '@/components/icons/Receive'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { mockAccountList, type Account } from '@/utils/mocks'
 import type {
@@ -65,6 +66,7 @@ export default function Home({ accounts }: HomeProps) {
           ))}
         </div>
       </div>
+      <SmallBubbles className="mt-10 block w-full md:hidden" />
     </AppLayout>
   )
 }
