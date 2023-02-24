@@ -66,7 +66,7 @@ export default function Home({ accounts }: HomeProps) {
           ))}
         </div>
       </div>
-      <SmallBubbles className="absolute inset-x-0 bottom-0 block w-full lg:hidden" />
+      <SmallBubbles className="absolute inset-x-0 bottom-0 -z-10 block w-full sm:hidden" />
     </AppLayout>
   )
 }
