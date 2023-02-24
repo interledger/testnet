@@ -1,6 +1,20 @@
 import { z } from 'zod'
+import { loginSchema } from '.'
 
-export const signupSchema = z.object({
-  email: z.string().email(),
-  password: z.string()
-})
+export const signupSchema = z
+  .object({
+    email: z.string().email({ message: 'Email is required' }),
+    password: z
+      .string()
+      .min(6, { message: 'Password is required, min. 6 chars' }),
+    confirmPassword: z.string()
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Passwords must match',
+        path: ['confirmPassword']
+      })
+    }
+  })

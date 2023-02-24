@@ -1,4 +1,3 @@
-// import { HTTP400Error } from '../utils/httpErrors'
 import { Request } from 'express'
 import { AnyZodObject, z, ZodError } from 'zod'
 import { BadRequestException } from '../errors/badRequestException'
