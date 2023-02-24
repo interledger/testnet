@@ -25,9 +25,9 @@ export default function AccountSettings({
         {/* <Divider />
         <ChangePasswordForm /> */}
       </div>
-      <SmallBubbles className="absolute inset-x-0 bottom-0 block w-full md:hidden" />
+      <SmallBubbles className="mt-10 block w-full md:hidden" />
       <Image
-        className="absolute bottom-10 -z-10 hidden object-cover md:block"
+        className="hidden md:block"
         src="/settings.webp"
         alt="Settings"
         quality={100}

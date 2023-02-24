@@ -13,14 +13,14 @@ export default function Notifications() {
       <div className="flex w-full flex-col md:max-w-lg">
         <ApiKeys />
       </div>
-      <SmallBubbles className="absolute inset-x-0 bottom-0 block w-full md:hidden" />
+      <SmallBubbles className="mt-10 block w-full md:hidden" />
       <Image
-        className="absolute bottom-10 hidden object-cover md:block"
+        className="mt-10 hidden md:block"
         src="/settings.webp"
         alt="Settings"
         quality={100}
-        width={500}
-        height={200}
+        width={400}
+        height={100}
       />
     </AppLayout>
   )
