@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { loginSchema } from '.'
 
 export const signupSchema = z
   .object({
