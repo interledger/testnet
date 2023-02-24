@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
     ports:
-      - '5432:5432'
+      - '5433:5433'
     restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data
@@ -28,7 +28,7 @@ services:
       - postgres
     environment:
       NODE_ENV: development
-      PORT: 3000
+      PORT: 3003
       DB_URL: postgres://postgres:password@postgres/testnet
       JWT_ACCESS_TOKEN_SECRET: MY_SUPER_SECRET_ACCESS_TOKEN
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: 100000000
@@ -38,7 +38,7 @@ services:
     networks:
     - dev-network
     ports:
-      - '3000:3000'
+      - '3003:3003'
       # Map debugger port to local machine's port 9229
       - '9229:9229'
     container_name: backend
