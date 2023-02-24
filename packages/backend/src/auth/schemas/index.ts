@@ -1,4 +1,2 @@
-import { loginSchema } from './loginSchema'
-import { signupSchema } from './signupSchema'
-
-export { loginSchema, signupSchema }
+export * from './loginSchema'
+export * from './signupSchema'

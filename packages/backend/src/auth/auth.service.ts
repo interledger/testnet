@@ -7,6 +7,7 @@ import { User } from '../user/models/user'
 import logger from '../utils/logger'
 import { RefreshToken } from './models/refreshToken'
 import { loginSchema, signupSchema } from './schemas'
+import { BadRequestException } from '../errors/badRequestException'
 
 const log = logger('AuthService')
 
@@ -34,7 +35,10 @@ const generateRefreshToken = (
 
 export const signup = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, password } = await zParse(signupSchema, req)
+    const { email, password, confirmPassword } = await zParse(signupSchema, req)
+    if (password !== confirmPassword) {
+      throw new BadRequestException("Passwords don't match")
+    }
 
     const existingUser = await User.query().where('email', email).first()
 
