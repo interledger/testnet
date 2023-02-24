@@ -1,13 +1,13 @@
 import express from 'express'
 import { sign } from 'jsonwebtoken'
 import env from '../config/env'
-import { UnauthorisedException } from '../errors/unauthorisedException'
 import { zParse } from '../middlewares/validator'
 import { User } from '../user/models/user'
 import logger from '../utils/logger'
 import { RefreshToken } from './models/refreshToken'
 import { loginSchema, signupSchema } from './schemas'
-import { BadRequestException } from '../errors/badRequestException'
+import { BadRequestException } from '../errors/BadRequestException'
+import { UnauthorisedException } from './errors/UnauthorisedException'
 
 const log = logger('AuthService')
 
@@ -20,6 +20,24 @@ const generateJWT = (
     }),
     expiresIn: Number(env.JWT_ACCESS_TOKEN_EXPIRATION_TIME)
   }
+}
+
+const appendTokensToCookie = (
+  res: express.Response,
+  accessToken: string,
+  accessTokenExpiresIn: number,
+  refreshToken: string,
+  refreshTokenExpiresIn: number
+) => {
+  res.cookie('AccessToken', accessToken, {
+    httpOnly: true,
+    maxAge: accessTokenExpiresIn * 1000
+  })
+
+  res.cookie('RefreshToken', refreshToken, {
+    httpOnly: true,
+    maxAge: refreshTokenExpiresIn * 1000
+  })
 }
 
 const generateRefreshToken = (
@@ -86,19 +104,15 @@ export const login = async (req: express.Request, res: express.Response) => {
     await user.$relatedQuery('refreshTokens').insert(refreshToken)
   }
 
-  res.cookie('RefreshToken', refreshToken.token, {
-    httpOnly: true,
-    maxAge: refreshTokenExpiresIn * 1000
-  })
+  const { accessToken, expiresIn: accessTokenExpiresIn } = generateJWT(user.id)
 
-  const { accessToken: jwt, expiresIn: accesTokenExpiresIn } = generateJWT(
-    user.id
+  appendTokensToCookie(
+    res,
+    accessToken,
+    accessTokenExpiresIn,
+    refreshToken.token,
+    refreshTokenExpiresIn
   )
-
-  res.cookie('AccessToken', jwt, {
-    httpOnly: true,
-    maxAge: accesTokenExpiresIn * 1000
-  })
 
   return res.send({ user })
 }
@@ -122,7 +136,7 @@ export const refresh = async (req: express.Request, res: express.Response) => {
       return res.status(400).send({ message: 'User not found' })
     }
 
-    const { accessToken: newAccessToken, expiresIn: accesTokenExpiresIn } =
+    const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
       generateJWT(userId)
     const { refreshToken: newRefreshToken, expiresIn: refreshTokenExpiresIn } =
       generateRefreshToken(userId)
@@ -134,15 +148,13 @@ export const refresh = async (req: express.Request, res: express.Response) => {
     )
     await existingRefreshToken.$query().patch(existingRefreshToken)
 
-    res.cookie('AccessToken', newAccessToken, {
-      httpOnly: true,
-      maxAge: accesTokenExpiresIn * 1000
-    })
-
-    res.cookie('RefreshToken', newRefreshToken, {
-      httpOnly: true,
-      maxAge: refreshTokenExpiresIn * 1000
-    })
+    appendTokensToCookie(
+      res,
+      newAccessToken,
+      accessTokenExpiresIn,
+      newRefreshToken,
+      refreshTokenExpiresIn
+    )
 
     res.status(200).send({ message: 'success' })
   } catch (error) {
