@@ -1,12 +1,10 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm'
 import {
   PersonalSettingsForm,
   type PersonalDetailsProps
 } from '@/components/settings/PersonalSettingsForm'
 import { SettingsTabs } from '@/components/SettingsTabs'
-import { Divider } from '@/ui/Divider'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 
 type AccountSettingsProps = InferGetServerSidePropsType<
@@ -22,8 +20,8 @@ export default function AccountSettings({
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm personalDetails={personalDetails} />
-        <Divider />
-        <ChangePasswordForm />
+        {/* <Divider />
+        <ChangePasswordForm /> */}
       </div>
     </AppLayout>
   )
