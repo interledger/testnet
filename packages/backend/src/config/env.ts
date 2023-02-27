@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import * as dotenv from "dotenv"
+import * as dotenv from 'dotenv'
 
 const envSchema = z.object({
   PORT: z.coerce.number(),
