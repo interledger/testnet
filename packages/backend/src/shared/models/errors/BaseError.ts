@@ -5,7 +5,11 @@ export abstract class BaseError extends Error implements Response<unknown> {
   public readonly message: string
   public readonly errors?: any
 
-  constructor(statusCode: number, message: string, errors?: any) {
+  constructor(
+    statusCode: number,
+    message: string,
+    errors?: Record<string, string>
+  ) {
     super(message)
     this.statusCode = statusCode
     this.message = message
