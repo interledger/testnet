@@ -28,7 +28,7 @@ services:
       NODE_ENV: development
       PORT: 3003
       DB_URL: postgres://postgres:password@postgres/testnet
-      JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$Cj9t$Ix0TWMYrEnpq$X
+      JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$$Cj9t$$Ix0TWMYrEnpq$$X
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: 900
       JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
       JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
