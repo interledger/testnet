@@ -1,6 +1,7 @@
 {
   "name": "backend",
   "scripts": {
+    "start": "node dist/index.js",
     "build": "tsc --build tsconfig.json",
     "knex": "knex"
   },
