@@ -16,8 +16,12 @@ type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
 
 const createPaymentPointerSchema = z.object({
   account: z.string().uuid(),
-  name: z.string().min(3, {
-    message: "Payment pointer's name should be at least 3 characters long."
+  paymentPointer: z.string().min(3, {
+    message: 'Payment pointer should be at least 3 characters long.'
+  }),
+  publicName: z.string().min(3, {
+    message:
+      "Payment pointer's public name should be at least 3 characters long."
   })
 })
 
@@ -62,7 +66,7 @@ export const CreatePaymentPointerDialog = ({
               <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl">
                 <Dialog.Title
                   as="h3"
-                  className="text-center text-2xl font-medium text-brand-green-4"
+                  className="text-brand-green-4 text-center text-2xl font-medium"
                 >
                   Create Payment Pointer
                 </Dialog.Title>
@@ -77,11 +81,22 @@ export const CreatePaymentPointerDialog = ({
                       options={[]}
                       label="Account"
                     />
+                    <div>
+                      <Input
+                        required
+                        label="Public name"
+                        error={form.formState?.errors?.paymentPointer?.message}
+                        {...form.register('paymentPointer')}
+                      />
+                      <p className="ml-2 text-sm">
+                        $rafiki.money/{form.watch('paymentPointer')}
+                      </p>
+                    </div>
                     <Input
                       required
-                      label="Name"
-                      error={form.formState?.errors?.name?.message}
-                      {...form.register('name')}
+                      label="Public name"
+                      error={form.formState?.errors?.publicName?.message}
+                      {...form.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button aria-label="create account" type="submit">
