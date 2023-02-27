@@ -3,7 +3,7 @@ export abstract class BaseError extends Error implements Response<unknown> {
   public readonly success: boolean
   public readonly statusCode: number
   public readonly message: string
-  public readonly errors?: any
+  public readonly errors?: Record<string, string>
 
   constructor(
     statusCode: number,
