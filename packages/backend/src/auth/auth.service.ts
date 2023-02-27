@@ -6,8 +6,9 @@ import { User } from '../user/models/user'
 import logger from '../utils/logger'
 import { RefreshToken } from './models/refreshToken'
 import { loginSchema, signupSchema } from './schemas'
-import { BadRequestException } from '../errors/BadRequestException'
+import { BadRequestException } from '../shared/models/errors/BadRequestException'
 import { UnauthorisedException } from './errors/UnauthorisedException'
+import { NextFunction } from 'express'
 
 const log = logger('AuthService')
 
@@ -72,58 +73,74 @@ export const signup = async (req: express.Request, res: express.Response) => {
   }
 }
 
-export const login = async (req: express.Request, res: express.Response) => {
-  const { email, password } = await zParse(loginSchema, req)
+export const login = async (
+  req: express.Request,
+  res: express.Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = await zParse(loginSchema, req)
 
-  const user = await User.query()
-    .findOne({ email })
-    .select('id', 'email', 'password')
-    .throwIfNotFound(new UnauthorisedException('Invalid credentials'))
-    .withGraphFetched('refreshTokens')
+    const user = await User.query()
+      .findOne({ email })
+      .select('id', 'email', 'password')
+      .withGraphFetched('refreshTokens')
 
-  const isValid = await user.verifyPassword(password)
-  if (!isValid) {
-    throw new UnauthorisedException('Invalid credentials')
+    if (!user) {
+      throw new UnauthorisedException('Invalid credentials')
+    }
+
+    const isValid = await user.verifyPassword(password)
+    if (!isValid) {
+      throw new UnauthorisedException('Invalid credentials')
+    }
+
+    let refreshToken = user.refreshTokens?.[0]
+
+    const { refreshToken: generatedToken, expiresIn: refreshTokenExpiresIn } =
+      generateRefreshToken(user.id)
+
+    if (refreshToken) {
+      refreshToken.token = generatedToken
+      refreshToken.expiresAt = new Date(
+        Date.now() + refreshTokenExpiresIn * 1000
+      )
+
+      await refreshToken.$query().patch(refreshToken)
+    } else {
+      refreshToken = new RefreshToken()
+      refreshToken.token = generatedToken
+      refreshToken.expiresAt = new Date(
+        Date.now() + refreshTokenExpiresIn * 1000
+      )
+
+      await user.$relatedQuery('refreshTokens').insert(refreshToken)
+    }
+
+    const { accessToken, expiresIn: accessTokenExpiresIn } = generateJWT(
+      user.id
+    )
+
+    appendTokensToCookie(
+      res,
+      accessToken,
+      accessTokenExpiresIn,
+      refreshToken.token,
+      refreshTokenExpiresIn
+    )
+
+    return res.send({ user })
+  } catch (e) {
+    next(e)
   }
-
-  let refreshToken = user.refreshTokens?.[0]
-
-  const { refreshToken: generatedToken, expiresIn: refreshTokenExpiresIn } =
-    generateRefreshToken(user.id)
-
-  if (refreshToken) {
-    refreshToken.token = generatedToken
-    refreshToken.expiresAt = new Date(Date.now() + refreshTokenExpiresIn * 1000)
-
-    await refreshToken.$query().patch(refreshToken)
-  } else {
-    refreshToken = new RefreshToken()
-    refreshToken.token = generatedToken
-    refreshToken.expiresAt = new Date(Date.now() + refreshTokenExpiresIn * 1000)
-
-    await user.$relatedQuery('refreshTokens').insert(refreshToken)
-  }
-
-  const { accessToken, expiresIn: accessTokenExpiresIn } = generateJWT(user.id)
-
-  appendTokensToCookie(
-    res,
-    accessToken,
-    accessTokenExpiresIn,
-    refreshToken.token,
-    refreshTokenExpiresIn
-  )
-
-  return res.send({ user })
 }
 
 export const refresh = async (req: express.Request, res: express.Response) => {
-  const refreshToken = req.cookies.RefreshToken
-  if (!refreshToken) {
-    return res.status(400).send({ message: 'No refresh token found' })
-  }
-
   try {
+    const refreshToken = req.cookies.RefreshToken
+    if (!refreshToken) {
+      return res.status(400).send({ message: 'No refresh token found' })
+    }
     const existingRefreshToken = await RefreshToken.verify(refreshToken)
     const { userId } = existingRefreshToken
     if (!userId) {
