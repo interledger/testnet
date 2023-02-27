@@ -26,9 +26,7 @@ const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
           <div
             className={cx(
               'relative hidden w-0 flex-1 md:block',
-              background === 'green'
-                ? 'bg-brand-green-5/80'
-                : 'bg-brand-blue-1/70'
+              background === 'green' ? 'bg-green-4' : 'bg-blue-1'
             )}
           >
             <Image
@@ -42,9 +40,7 @@ const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
           <div
             className={cx(
               'min-h-full flex-1 py-10',
-              background === 'green'
-                ? 'bg-brand-green-5/80'
-                : 'bg-brand-blue-1/70'
+              background === 'green' ? 'bg-green-4' : 'bg-blue-1'
             )}
           >
             <div className="mx-auto flex min-h-full w-full flex-col items-center sm:px-6 lg:px-20 xl:px-24">

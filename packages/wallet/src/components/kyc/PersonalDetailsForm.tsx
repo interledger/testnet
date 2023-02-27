@@ -19,7 +19,9 @@ const personalDetailsSchema = z.object({
   country: z.string(),
   address: z.string().min(3),
   dateOfBirth: z.coerce.date(),
-  phone: z.coerce.number()
+  phone: z.coerce.number({
+    invalid_type_error: 'Please enter a valid phone number'
+  })
 })
 
 export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {

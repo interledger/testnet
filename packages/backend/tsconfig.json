@@ -4,7 +4,8 @@
     "lib": ["ESNext"],
     "outDir": "./dist",
     "rootDir": "./src",
-    "declaration": false
+    "declaration": false,
+    "sourceMap": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/node_modules/*"]

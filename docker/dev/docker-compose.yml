@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
   postgres:
@@ -8,26 +8,38 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
     ports:
-      - '5433:5432'
+      - '5433:5433'
     restart: unless-stopped
+    networks:
+      - testnet
     volumes:
       - pg-data:/var/lib/postgresql/data
+      - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
     container_name: postgres
 
-  backend:
+  testnet:
     build:
       context: ../..
       dockerfile: ./packages/backend/Dockerfile.dev
     depends_on:
       - postgres
+      - backend
     environment:
       NODE_ENV: development
       PORT: 3003
+      DB_URL: postgres://postgres:password@postgres/testnet
+      JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$$Cj9t$$Ix0TWMYrEnpq$$X
+      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 900
+      JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
+      JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
     restart: always
+    networks:
+      - testnet
     ports:
       - '3003:3003'
-    container_name: backend
-    
+      # Map debugger port to local machine's port 9229
+      - '9229:9229'
+    container_name: testnet
   wallet:
     build:
       context: ../..
@@ -38,6 +50,8 @@ services:
       NODE_ENV: development
       PORT: 4003
     restart: always
+    networks:
+      - testnet
     ports:
       - '4003:4003'
     # In order to take advantage of HMR inside Docker we have to add these volumes
@@ -45,6 +59,106 @@ services:
       - ../../packages/wallet:/home/testnet/packages/wallet
       - /home/testnet/packages/wallet/node_modules
       - /home/testnet/packages/wallet/.next
+    container_name: wallet
+
+  # rafiki setup
+  auth:
+    image: ghcr.io/interledger/rafiki-auth:latest
+    build:
+      context: ../../rafiki
+      dockerfile: ./packages/auth/Dockerfile
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3007:3006'
+    environment:
+      NODE_ENV: development
+      AUTH_DATABASE_URL: postgresql://auth:auth@postgres/auth
+      INTROSPECTION_HTTPSIG: "false"
+    depends_on:
+      - tigerbeetle
+      - postgres
+  backend:
+    image: ghcr.io/interledger/rafiki-backend:latest
+    build:
+      context: ../../rafiki
+      dockerfile: ./packages/backend/Dockerfile
+    restart: always
+    privileged: true
+    ports:
+      - '3010:80'
+      - '3011:3001'
+    networks:
+      - testnet
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      ADMIN_PORT: 3001
+      CONNECTOR_PORT: 3002
+      OPEN_PAYMENTS_PORT: 80
+      DATABASE_URL: postgresql://backend:backend@postgres/backend
+      TIGERBEETLE_CLUSTER_ID: 0
+      # Tigerbeetle will support DNS in future
+      TIGERBEETLE_REPLICA_ADDRESSES: '["10.4.0.50:4343"]'
+      NONCE_REDIS_KEY: test
+      AUTH_SERVER_GRANT_URL: http://auth:3006
+      AUTH_SERVER_INTROSPECTION_URL: http://auth:3006/introspect
+      ILP_ADDRESS: test.rafiki
+      STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
+      ADMIN_KEY: admin
+      PUBLIC_HOST: http://backend
+      OPEN_PAYMENTS_URL: http://backend
+      REDIS_URL: redis://redis:6379/0
+      PAYMENT_POINTER_URL: https://backend/.well-known/pay
+      # testnet urls - not implemented
+      WEBHOOK_URL: http://testnet/webhooks
+      PRICES_URL: http://testnet/prices
+      QUOTE_URL: http://testnet/quotes
+    depends_on:
+      - tigerbeetle
+      - postgres
+      - redis
+  tigerbeetle:
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:621268959801084246679f25416a9451f553fe3697dd4f618f39503322079433
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - tigerbeetle-data:/var/lib/tigerbeetle
+    networks:
+      testnet:
+        ipv4_address: 10.4.0.50
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -ex
+        DATA_FILE=/var/lib/tigerbeetle/cluster_0_replica_0.tigerbeetle
+        set +e
+        ls $$DATA_FILE
+        DATA_FILE_EXISTS="$$?"
+        set -e
+        echo $$DATA_FILE_EXISTS
+        if [ "$$DATA_FILE_EXISTS" != 0 ]; then 
+          /opt/beta-beetle/tigerbeetle format --cluster=0 --replica=0 $$DATA_FILE; 
+        fi
+        hostname -I
+        ls /var/lib/tigerbeetle
+        /opt/beta-beetle/tigerbeetle start --addresses=0.0.0.0:4343 $$DATA_FILE
+  redis:
+    image: 'redis:7'
+    restart: unless-stopped
+    networks:
+      - testnet
+
+networks:
+  testnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.4.0.0/24
+          gateway: 10.4.0.1
 
 volumes:
   pg-data:
+  tigerbeetle-data: # named volumes can be managed easier using docker-compose
