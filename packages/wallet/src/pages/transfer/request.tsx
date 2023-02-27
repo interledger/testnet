@@ -9,7 +9,9 @@ import { TransferHeader } from '@/components/TransferHeader'
 
 const requestSchema = z.object({
   paymentPointer: z.string(),
-  amount: z.coerce.number(),
+  amount: z.coerce.number({
+    invalid_type_error: 'Please enter a valid amount'
+  }),
   currency: z.string()
 })
 
@@ -56,8 +58,16 @@ export default function Request() {
         </Form>
       </div>
       <Image
-        className="my-auto object-cover md:hidden"
+        className="mt-10 hidden object-cover md:block"
         src="/request.webp"
+        alt="Request"
+        quality={100}
+        width={600}
+        height={200}
+      />
+      <Image
+        className="my-auto object-cover md:hidden"
+        src="/request-mobile.webp"
         alt="Request"
         quality={100}
         width={500}

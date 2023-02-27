@@ -62,6 +62,7 @@ We use labels to communicate the intention of issues and PRs.
 - `package:wallet` prefix denotes issues that are partaining to the wallet package (NextJS).
 - `package:backend` prefix denotes issues that are partaining to the backend package (Express).
 - `priority:` prefix denotes pirority of issues.
+- `type:` prefix denotes the type of issues/PRs, ex. type:story represents a bigger issue with subtasks.
 
 Some labels will be automatically assigned to Issues/PRs.
 

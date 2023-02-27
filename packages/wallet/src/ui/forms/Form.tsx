@@ -41,6 +41,7 @@ interface FormProps<T extends FieldValues = any>
   extends Omit<ComponentProps<'form'>, 'onSubmit'> {
   form: UseFormReturn<T>
   onSubmit: ReturnType<SubmitHandler<T>>
+  readOnly?: boolean
 }
 
 export const useZodForm = <T extends ZodSchema>({
@@ -59,13 +60,14 @@ export const Form = <T extends FieldValues>({
   form,
   onSubmit,
   children,
+  readOnly = false,
   ...props
 }: FormProps<T>) => {
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} {...props}>
         <fieldset
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || readOnly}
           className="flex flex-col space-y-4"
         >
           {children}

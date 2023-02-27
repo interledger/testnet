@@ -28,6 +28,5 @@ export const mockAccountList = (): Account[] => [
   mockAccount(),
   mockAccount(),
   mockAccount(),
-  mockAccount(),
   mockAccount()
 ]

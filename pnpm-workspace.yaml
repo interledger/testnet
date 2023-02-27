@@ -1,2 +1,3 @@
 packages:
   - 'packages/*'
+  - 'rafiki/packages/open-payments'

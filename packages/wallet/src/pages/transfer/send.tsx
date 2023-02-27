@@ -7,11 +7,14 @@ import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
+import { TogglePayment } from '@/ui/TogglePayment'
 
 const sendSchema = z.object({
   fromAccount: z.string(),
   toPaymentPointer: z.string(),
-  amount: z.coerce.number(),
+  amount: z.coerce.number({
+    invalid_type_error: 'Please enter a valid amount'
+  }),
   currency: z.string()
 })
 
@@ -48,12 +51,15 @@ export default function Send() {
               label="Payment pointer"
             />
           </div>
-          <Input
-            required
-            {...form.register('amount')}
-            error={form.formState.errors.amount?.message}
-            label="Amount"
-          />
+          <div className="space-y-1">
+            <TogglePayment type="violet" />
+            <Input
+              required
+              {...form.register('amount')}
+              error={form.formState.errors.amount?.message}
+              label="Amount"
+            />
+          </div>
           <Input
             required
             {...form.register('currency')}
@@ -68,8 +74,16 @@ export default function Send() {
         </Form>
       </div>
       <Image
-        className="my-auto object-cover md:hidden"
+        className="mt-10 hidden object-cover md:block"
         src="/send.webp"
+        alt="Send"
+        quality={100}
+        width={600}
+        height={200}
+      />
+      <Image
+        className="my-auto object-cover md:hidden"
+        src="/send-mobile.webp"
         alt="Send"
         quality={100}
         width={500}
