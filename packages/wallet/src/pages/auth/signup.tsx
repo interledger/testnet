@@ -30,7 +30,7 @@ const SignUp = () => {
       return
     }
 
-    if (response.success === true) {
+    if (response.success) {
       openDialog(
         <SuccessDialog
           onClose={closeDialog}
