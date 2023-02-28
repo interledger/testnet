@@ -2,7 +2,7 @@ import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useKYCFormContext } from './context'
 import Image from 'next/image'
-import { IdentificationForm } from './IdentificationForm'
+import { VerifyIdentityForm } from './VerifyIdentityForm'
 import { PersonalDetailsForm } from './PersonalDetailsForm'
 import { Play } from '../icons/Play'
 import { Button } from '@/ui/Button'
@@ -35,7 +35,7 @@ const tabs = [
     name: 'ID proof',
     id: 'id',
     title: 'Choose document type',
-    contentForm: <IdentificationForm />,
+    contentForm: <VerifyIdentityForm />,
     imageMobile: 'id-kyc.webp'
   },
   {
@@ -58,7 +58,12 @@ export const Tabs = () => {
             {tabs.map((kycTab) => (
               <Tab
                 key={kycTab.id}
-                className="text-md ui-selected:text-brand-green-4 group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 text-brand-green-3 outline-none hover:text-brand-green-4"
+                className={({ selected }) =>
+                  cx(
+                    'text-md group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 outline-none',
+                    selected ? 'text-green' : 'text-green-3 hover:text-green'
+                  )
+                }
               >
                 {({ selected }) => (
                   <>
@@ -67,8 +72,8 @@ export const Tabs = () => {
                       className={cx(
                         'absolute inset-x-0 bottom-0 h-1 rounded-full',
                         selected
-                          ? 'bg-brand-green-4'
-                          : 'bg-gradient-to-r from-[#00B1D8] to-[#6AC1B7] group-hover:from-brand-green-4 group-hover:to-brand-green-4'
+                          ? 'bg-green'
+                          : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
                       )}
                     ></div>
                   </>
@@ -79,7 +84,7 @@ export const Tabs = () => {
           <Tab.Panels>
             {tabs.map((kycTab) => (
               <Tab.Panel key={kycTab.id}>
-                <h2 className="py-10 text-xl font-semibold text-brand-green-3">
+                <h2 className="py-8 text-xl font-semibold text-green-3">
                   {kycTab.title}
                 </h2>
                 {kycTab.contentForm}

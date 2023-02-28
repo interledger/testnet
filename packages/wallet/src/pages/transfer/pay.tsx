@@ -7,11 +7,14 @@ import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
+import { TogglePayment } from '@/ui/TogglePayment'
 
 const paySchema = z.object({
   fromAccount: z.string(),
   incomingPaymentUrl: z.string(),
-  amount: z.coerce.number(),
+  amount: z.coerce.number({
+    invalid_type_error: 'Please enter a valid amount'
+  }),
   currency: z.string()
 })
 
@@ -27,7 +30,7 @@ export default function Pay() {
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="Pink" balance="$10.000" />
+        <TransferHeader type="pink" balance="$10.000" />
         <Form form={form} onSubmit={handleSubmit}>
           <div className="space-y-1">
             <Badge text="from" />
@@ -48,12 +51,15 @@ export default function Pay() {
               label="Incoming payment URL"
             />
           </div>
-          <Input
-            required
-            {...form.register('amount')}
-            error={form.formState.errors.amount?.message}
-            label="Amount"
-          />
+          <div className="space-y-1">
+            <TogglePayment disabled={true} type="pink" />
+            <Input
+              required
+              {...form.register('amount')}
+              error={form.formState.errors.amount?.message}
+              label="Amount"
+            />
+          </div>
           <Input
             required
             {...form.register('currency')}
@@ -68,8 +74,16 @@ export default function Pay() {
         </Form>
       </div>
       <Image
-        className="my-auto object-cover md:hidden"
+        className="mt-10 hidden object-cover md:block"
         src="/pay.webp"
+        alt="Pay"
+        quality={100}
+        width={600}
+        height={200}
+      />
+      <Image
+        className="my-auto object-cover md:hidden"
+        src="/pay-mobile.webp"
         alt="Pay"
         quality={100}
         width={500}

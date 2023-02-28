@@ -1,4 +1,4 @@
-import { SmallBubbles } from '@/ui/Bubbles'
+import { MenuBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
@@ -60,18 +60,18 @@ const menuItems: MenuItemProps[] = [
     childrens: [
       {
         name: 'Account',
-        href: '/settings/'
+        href: '/settings'
       },
       {
         name: 'Developer',
-        href: '/settings/developer'
+        href: '/settings/api'
       }
     ]
   }
 ]
 
 export const Menu = () => {
-  const { pathname } = useRouter()
+  const pathname = `/${useRouter().pathname.split('/')?.slice(1)[0] ?? ''}`
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
 
   return (
@@ -88,12 +88,12 @@ export const Menu = () => {
             as={Fragment}
             enter="transition-opacity duration-500"
             enterFrom="opacity-0"
-            enterTo="opacity-100"
+            enterTo="opacity-90"
             leave="transition-opacity duration-500"
-            leaveFrom="opacity-100"
+            leaveFrom="opacity-90"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gradient-to-r from-[#92DBCA]/80 to-[#56B1AF]" />
+            <div className="fixed inset-0 bg-gradient-overlay" />
           </Transition.Child>
           {/* Backdrop - END */}
           {/* Menu */}
@@ -122,14 +122,14 @@ export const Menu = () => {
                         <Disclosure as="div" key={name} className="space-y-1">
                           {({ open }) => (
                             <>
-                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-brand-green-4">
+                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-green outline-none">
                                 <div className="flex space-x-4">
-                                  <Icon className="h-8 w-8 text-brand-green-3" />
+                                  <Icon className="h-8 w-8 text-green-3" />
                                   <span className="flex-1">{name}</span>
                                 </div>
 
                                 <Chevron
-                                  className="h-6 w-6"
+                                  className="h-6 w-6 transition-transform duration-100"
                                   direction={open ? 'down' : 'left'}
                                 />
                               </Disclosure.Button>
@@ -139,7 +139,7 @@ export const Menu = () => {
                                     key={children.name}
                                     as={Link}
                                     href={children.href}
-                                    className="flex items-center space-x-4 pl-12 text-lg font-light text-brand-green-4"
+                                    className="flex items-center space-x-4 pl-12 text-lg font-light text-green"
                                   >
                                     {children.name}
                                   </Disclosure.Button>
@@ -152,16 +152,16 @@ export const Menu = () => {
                         <Link
                           key={name}
                           href={href}
-                          className="font-tight flex items-center space-x-4 text-xl text-brand-green-4"
+                          className="flex items-center space-x-4 text-xl text-green"
                         >
-                          <Icon className="h-8 w-8 text-brand-green-3" />
+                          <Icon className="h-8 w-8 text-green-3" />
                           <span>{name}</span>
                         </Link>
                       )
                     )}
                   </nav>
                 </div>
-                <SmallBubbles className="absolute inset-x-0 bottom-0 hidden w-full h-sm:block" />
+                <MenuBubbles className="absolute inset-x-0 bottom-0 hidden w-full h-sm:block" />
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -171,24 +171,70 @@ export const Menu = () => {
       {/* Mobile Menu - END */}
       {/* Desktop Menu */}
       <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
-        <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-to-r md:from-[#00B1D8] md:to-[#6AC1B7]">
-          <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
-          <div className="mt-14 hidden flex-1 space-y-8 md:block">
-            {menuItems.map(({ name, href, Icon }) => (
-              <Link
-                key={name}
-                href={href}
-                className={cx(
-                  pathname === href
-                    ? 'text-white'
-                    : 'text-gray-100/80 hover:text-white',
-                  'flex items-center space-x-4 stroke-white text-lg font-semibold'
-                )}
-              >
-                <Icon className="h-6 w-6" />
-                <span>{name}</span>
-              </Link>
-            ))}
+        <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
+          <div className="flex items-center font-semibold text-green">
+            <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
+            <div className="pl-2">
+              <div className="text-lg md:text-2xl">Interledger</div>
+              <div className="text-sm md:text-lg">testnet</div>
+            </div>
+          </div>
+          <div className="mt-14 hidden w-full flex-1 space-y-8 md:block">
+            {menuItems.map(({ name, href, Icon, childrens }) =>
+              childrens ? (
+                <Disclosure as="div" key={name} className="space-y-1">
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className="flex w-full items-center justify-between text-lg font-semibold outline-none">
+                        <div
+                          className={cx(
+                            pathname === href
+                              ? 'text-white'
+                              : 'text-green hover:text-white',
+                            'flex items-center space-x-4'
+                          )}
+                        >
+                          <Icon className="h-6 w-6" />
+                          <span className="flex-1">{name}</span>
+                        </div>
+
+                        <Chevron
+                          className="h-6 w-6 transition-transform duration-100"
+                          direction={open ? 'down' : 'left'}
+                        />
+                      </Disclosure.Button>
+                      <Disclosure.Panel className="space-y-1">
+                        {childrens.map((children) => (
+                          <Disclosure.Button
+                            key={children.name}
+                            as={Link}
+                            href={children.href}
+                            className="flex items-center space-x-4 pl-10 hover:text-white"
+                            onClick={() => setSidebarIsOpen(false)}
+                          >
+                            {children.name}
+                          </Disclosure.Button>
+                        ))}
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+              ) : (
+                <Link
+                  key={name}
+                  href={href}
+                  className={cx(
+                    pathname === href
+                      ? 'text-white'
+                      : 'text-green hover:text-white',
+                    'flex items-center space-x-4 text-lg font-semibold'
+                  )}
+                >
+                  <Icon className="h-6 w-6" />
+                  <span>{name}</span>
+                </Link>
+              )
+            )}
           </div>
 
           <div className="ml-auto flex md:hidden">

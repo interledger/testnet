@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "branchConcurrentLimit": 0,
   "branchPrefix": "renovate--",
+  "cloneSubmodules": true,
   "enabled": true,
   "extends": ["config:base"],
   "packageRules": [

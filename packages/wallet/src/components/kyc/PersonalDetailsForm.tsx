@@ -1,3 +1,4 @@
+import { Button } from '@/ui/Button'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
@@ -13,10 +14,14 @@ type PersonalDetailsProps = {
 }
 
 const personalDetailsSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
+  firstName: z.string().min(3),
+  lastName: z.string().min(3),
   country: z.string(),
-  address: z.string()
+  address: z.string().min(3),
+  dateOfBirth: z.coerce.date(),
+  phone: z.coerce.number({
+    invalid_type_error: 'Please enter a valid phone number'
+  })
 })
 
 export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
@@ -58,6 +63,22 @@ export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
         error={personalDetailsForm.formState.errors.address?.message}
         label="Address"
       />
+      <Input
+        required
+        {...personalDetailsForm.register('phone')}
+        error={personalDetailsForm.formState.errors.phone?.message}
+        label="Phone"
+      />
+      <Input
+        required
+        {...personalDetailsForm.register('dateOfBirth')}
+        type="date"
+        error={personalDetailsForm.formState.errors.dateOfBirth?.message}
+        label="Date of birth"
+      />
+      <Button aria-label="Get Wallet Account" type="submit">
+        Get Wallet Account
+      </Button>
     </Form>
   )
 }
