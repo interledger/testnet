@@ -10,7 +10,9 @@ export async function zParse<T extends AnyZodObject>(
   if (!res.success) {
     const { fieldErrors } = res.error.flatten()
     Object.keys(fieldErrors).forEach((key) => {
+      /* eslint-disable */
       ;(fieldErrors[key] as any) = fieldErrors[key]![0]
+      /* eslint-enable */
     })
     throw new BadRequestException(
       'Invalid input',
