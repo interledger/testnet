@@ -1,4 +1,21 @@
 import axios, { AxiosError } from 'axios'
+import type { FieldPath } from 'react-hook-form'
+import { input, ZodTypeAny } from 'zod/lib/types'
+
+export type BaseResponse<
+  TData = undefined,
+  TErrors = Record<string, string>
+> = {
+  success: boolean
+  message?: string
+  data?: TData
+  errors?: TErrors
+}
+
+export type ValidationError<T extends ZodTypeAny> = Record<
+  FieldPath<input<T>>,
+  string
+>
 
 const setupAxios = () => {
   let refreshing = false
