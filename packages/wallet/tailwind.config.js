@@ -51,7 +51,8 @@ module.exports = {
         'gradient-error': `linear-gradient(to right, #E489A0 1.13%, #E99E96 58.42%, #ECA891 100%)`,
         'gradient-violet': `linear-gradient(to right, #9A8FCD, #9AB5D3)`,
         'gradient-pink': `linear-gradient(to right, #FF9DA9, #FFBFD3)`,
-        'gradient-orange': `linear-gradient(to right, #FFB080, #E1CD96)`
+        'gradient-orange': `linear-gradient(to right, #FFB080, #E1CD96)`,
+        'gradient-backdrop': `linear-gradient(to right, #56B1AFE6, #92DBCAE6, #56B1AFE6)`
       },
       screens: {
         'h-sm': { raw: '(min-height: 600px)' }
