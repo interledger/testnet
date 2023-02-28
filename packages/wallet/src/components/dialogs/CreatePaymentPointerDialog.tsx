@@ -49,7 +49,7 @@ export const CreatePaymentPointerDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gradient-to-tr from-[#56B1AF]/90 via-[#92DBCA]/90 to-[#56B1AF]/90 transition-opacity" />
+          <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -99,8 +99,8 @@ export const CreatePaymentPointerDialog = ({
                       {...form.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="create account" type="submit">
-                        Submit
+                      <Button aria-label="create payment pointer" type="submit">
+                        Create
                       </Button>
                       <Button
                         intent="outline"

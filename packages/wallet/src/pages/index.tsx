@@ -1,12 +1,10 @@
 import { AccountCard } from '@/components/AccountCard'
-import { CreatePaymentPointerDialog } from '@/components/dialogs/CreatePaymentPointerDialog'
 import { New } from '@/components/icons/New'
 import { Pay } from '@/components/icons/Pay'
 import { Receive } from '@/components/icons/Receive'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { useDialog } from '@/lib/hooks/useDialog'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { mockAccountList, type Account } from '@/utils/mocks'
@@ -18,8 +16,6 @@ import type {
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function Home({ accounts }: HomeProps) {
-  const { closeDialog, openDialog } = useDialog()
-
   return (
     <AppLayout>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
@@ -28,14 +24,7 @@ export default function Home({ accounts }: HomeProps) {
           message="Here is your account overview!"
         />
         <div className="text-green md:mt-10">
-          <h2
-            className="text-lg font-light md:text-xl"
-            onClick={() =>
-              openDialog(<CreatePaymentPointerDialog onClose={closeDialog} />)
-            }
-          >
-            Balance
-          </h2>
+          <h2 className="text-lg font-light md:text-xl">Balance</h2>
           <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
         </div>
       </div>
