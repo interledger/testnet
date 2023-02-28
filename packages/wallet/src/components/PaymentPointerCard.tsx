@@ -4,10 +4,10 @@ import { Button } from '@/ui/Button'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { IconButton } from '@/ui/IconButton'
 import {
-  ComponentPropsWithoutRef,
-  createRef,
+  type ComponentPropsWithoutRef,
   forwardRef,
   useEffect,
+  useRef,
   useState
 } from 'react'
 import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
@@ -52,8 +52,8 @@ export const PaymentPointerCard = ({
   const form = useZodForm({
     schema: paymentPointerSchema
   })
-  const inputRef = createRef<HTMLInputElement>()
-  const cardRef = createRef<HTMLDivElement>()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   const handleSubmit = form.handleSubmit((data) => {
     console.log(data)
