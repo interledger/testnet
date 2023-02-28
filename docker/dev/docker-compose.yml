@@ -24,6 +24,8 @@ services:
     depends_on:
       - postgres
       - backend
+    env_file:
+      - .env
     environment:
       NODE_ENV: development
       PORT: 3003
