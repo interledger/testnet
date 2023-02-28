@@ -24,7 +24,7 @@ const newAccountSchema = z.object({
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function CreateAccount({ assets }: CreateAccountProps) {
-  const { openDialog, closeDialog } = useDialog()
+  const [openDialog, closeDialog] = useDialog()
   const form = useZodForm({
     schema: newAccountSchema
   })
