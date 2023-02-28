@@ -50,6 +50,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 4003
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3003
     restart: always
     networks:
       - testnet
