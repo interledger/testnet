@@ -46,7 +46,7 @@ class UserService implements Service {
 
   async signUp(args: SignUpArgs) {
     try {
-      const response = await $axios.post<SuccessResponse>('/signupTest', args)
+      const response = await $axios.post<SuccessResponse>('/signup', args)
       return response.data
     } catch (e) {
       const error = e as AxiosError<SignUpError>
