@@ -1,16 +1,19 @@
 import { useOnClickOutside } from '@/lib/hooks/useOnClickOutside'
 import { Button } from '@/ui/Button'
+import { Form, useZodForm } from '@/ui/forms/Form'
 
 import { IconButton } from '@/ui/IconButton'
+import { cx } from 'class-variance-authority'
 import {
   ComponentPropsWithoutRef,
   createRef,
   forwardRef,
   useEffect,
-  useRef,
   useState
 } from 'react'
+import { z } from 'zod'
 import { PencilSquare } from './icons/Pencil'
+import { X } from './icons/X'
 
 type PaymentPointerCardProps = {
   paymentPointer: {
@@ -24,58 +27,83 @@ const PaymentPointerInput = forwardRef<
   ComponentPropsWithoutRef<'input'>
 >((props, ref) => {
   return (
-    <div className="flex items-center rounded-md bg-green-4">
+    <div className="flex w-full items-center rounded-md">
       <span className="border-green px-1 text-green">$rafiki.money/</span>
       <input
         className="border-b-violet underline outline-none"
         defaultValue={'test'}
         ref={ref}
+        {...props}
       />
     </div>
   )
 })
-
 PaymentPointerInput.displayName = 'PaymentPointerInput'
+
+const paymentPointerSchema = z.object({
+  paymentPointer: z.string().min(3)
+})
 
 export const PaymentPointerCard = ({
   paymentPointer
 }: PaymentPointerCardProps) => {
   const [isEditing, setIsEditing] = useState(false)
+  const form = useZodForm({
+    schema: paymentPointerSchema
+  })
   const inputRef = createRef<HTMLInputElement>()
+  const cardRef = createRef<HTMLDivElement>()
 
-  useOnClickOutside(inputRef, () => setIsEditing((prev) => !prev))
+  useOnClickOutside(cardRef, () => setIsEditing(false))
   useEffect(() => {
     inputRef.current?.focus()
   }, [inputRef])
 
   return (
-    <div className="flex items-center justify-between rounded-md px-2 py-3 shadow-md shadow-green-4 hover:shadow-green-6">
-      <div className="flex items-center space-x-2">
+    <div
+      ref={cardRef}
+      className="flex items-center justify-between rounded-md px-2 py-3 shadow-md shadow-green-4 hover:shadow-green-6"
+    >
+      <div className="flex flex-1 items-center space-x-2">
         <IconButton
           onClick={() => {
-            setIsEditing(true)
+            setIsEditing(!isEditing)
           }}
           aria-label="edit payment pointer"
-          className="h-6 w-6 text-green-7 transition-transform duration-75 hover:scale-[115%] hover:text-green-3"
+          className={cx(
+            isEditing ? 'text-pink' : 'text-green-7 hover:text-green-3',
+            'h-7 w-7 transition-transform duration-150 hover:scale-[115%] '
+          )}
         >
-          <PencilSquare />
+          {isEditing ? (
+            <X stroke="currentColor" strokeWidth={3} />
+          ) : (
+            <PencilSquare />
+          )}
         </IconButton>
         {isEditing ? (
-          <PaymentPointerInput ref={inputRef} />
+          <Form className="w-full" form={form} onSubmit={void 0} stack="h">
+            <PaymentPointerInput ref={inputRef} />
+            <Button type="submit" size="sm" aria-label="update payment pointer">
+              Save
+            </Button>
+          </Form>
         ) : (
           <span className="px-1 font-medium text-green-7">
             {paymentPointer.url}
           </span>
         )}
       </div>
-      <Button
-        href={`pp/${paymentPointer.id}`}
-        size="sm"
-        aria-label="view payent pointer"
-        className=""
-      >
-        View
-      </Button>
+      {isEditing ? null : (
+        <Button
+          intent="secondary"
+          href={`pp/${paymentPointer.id}`}
+          size="sm"
+          aria-label="view payent pointer"
+        >
+          View
+        </Button>
+      )}
     </div>
   )
 }

@@ -9,6 +9,7 @@ import {
 } from 'react-hook-form'
 import { type ZodSchema, type TypeOf } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { cx } from 'class-variance-authority'
 
 /**
  * General usage:
@@ -42,6 +43,8 @@ interface FormProps<T extends FieldValues = any>
   form: UseFormReturn<T>
   onSubmit: ReturnType<SubmitHandler<T>>
   readOnly?: boolean
+  // Horizontal or vertical stack
+  stack?: 'h' | 'v'
 }
 
 export const useZodForm = <T extends ZodSchema>({
@@ -61,6 +64,7 @@ export const Form = <T extends FieldValues>({
   onSubmit,
   children,
   readOnly = false,
+  stack = 'v',
   ...props
 }: FormProps<T>) => {
   return (
@@ -68,7 +72,10 @@ export const Form = <T extends FieldValues>({
       <form onSubmit={form.handleSubmit(onSubmit)} {...props}>
         <fieldset
           disabled={form.formState.isSubmitting || readOnly}
-          className="flex flex-col space-y-4"
+          className={cx(
+            'flex',
+            stack === 'v' ? 'flex-col space-y-4' : 'space-x-4'
+          )}
         >
           {children}
         </fieldset>
