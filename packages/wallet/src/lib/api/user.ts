@@ -29,11 +29,6 @@ interface Service {
 type SignUpArgs = z.infer<typeof signUpSchema>
 type SignUpError = ErrorResponse<typeof signUpSchema>
 
-export const signUp = async (args: SignUpArgs) => {
-  const response = await $axios.post<SuccessResponse>('/signupTest', args)
-  return response.data
-}
-
 class UserService implements Service {
   private static instance: UserService
 
