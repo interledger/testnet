@@ -52,7 +52,7 @@ export const ConfirmationDialog = ({
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button
                       intent="secondary"
-                      aria-label="delet  payment pointer"
+                      aria-label="confirm action"
                       onClick={() => {
                         onConfirm()
                         onClose()
