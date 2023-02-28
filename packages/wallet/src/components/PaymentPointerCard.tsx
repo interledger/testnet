@@ -10,7 +10,7 @@ import {
   useEffect,
   useState
 } from 'react'
-import { ConfirmationDialog } from './dialogs/ConfirmationModal'
+import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
 import { PencilSquare } from './icons/Pencil'
 import { X } from './icons/X'
 import { z } from 'zod'
@@ -125,7 +125,7 @@ export const PaymentPointerCard = ({
           intent="secondary"
           href={`pp/${paymentPointer.id}`}
           size="sm"
-          aria-label="view payent pointer"
+          aria-label="view payment pointer"
         >
           View
         </Button>
