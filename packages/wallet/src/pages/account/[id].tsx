@@ -1,3 +1,7 @@
+import { New } from '@/components/icons/New'
+import { Pay } from '@/components/icons/Pay'
+import { Receive } from '@/components/icons/Receive'
+import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { Link } from '@/ui/Link'
@@ -10,57 +14,45 @@ import { z } from 'zod'
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function AccountPage({ account }: AccountPageProps) {
-  console.log(account)
   return (
     <AppLayout>
-      <PageHeader
-        title="Hello, John Doe!"
-        message="Here is your account overview!"
-      />
-      <div className="mt-10 flex flex-col space-y-10">
-        <div>
+      <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
+        <PageHeader
+          title="Hello, John Doe!"
+          message="Here is your account overview!"
+        />
+        <div className="text-green md:mt-10">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
           <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
         </div>
-        <div className="flex w-full flex-col space-y-2 md:max-w-lg">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-brand-green-4">
-              Account
-            </h3>
-          </div>
-          <div className="flex flex-col space-y-5">
-            <div className="flex items-center justify-between rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] px-3 py-2">
-              <span className="font-semibold text-brand-green-4">
-                {account.name}
-              </span>
-              <span className="inline-flex h-8 w-10 items-center justify-center rounded-md bg-white font-bold mix-blend-screen">
-                {account.asset.code}
-              </span>
-            </div>
-            <div className="flex max-h-[300px] min-h-[300px] flex-col space-y-2 overflow-y-scroll px-4">
-              {account.paymentPointers.map((paymentPointer) => (
-                <Link key={paymentPointer} href={`/pp/${paymentPointer}`}>
-                  {paymentPointer}
-                </Link>
-              ))}
-            </div>
-          </div>
+      </div>
+      <div className="flex w-full flex-col space-y-3 md:max-w-md">
+        <div className="mt-2 flex justify-between space-x-2">
+          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Send className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+              Send
+            </span>
+          </Link>
+          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Pay className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+              Pay
+            </span>
+          </Link>
+          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Receive className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+              Receive
+            </span>
+          </Link>
         </div>
-        <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-lg px-20 pb-20">
-          <div className="grid grid-cols-3 gap-2">
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <span className="font-medium text-brand-green-4">Pay</span>
-            </Link>
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <span className="font-medium text-brand-green-4">Receive</span>
-            </Link>
-            <Link className="flex aspect-square flex-col items-center justify-center rounded-lg border border-[#92DBCA] bg-white shadow-md">
-              <span className="font-medium text-brand-green-4">
-                New account
-              </span>
-            </Link>
-          </div>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold leading-none text-green">
+            My Accounts
+          </h3>
         </div>
+        <div className="grid grid-cols-2 gap-6">{account.name}</div>
       </div>
     </AppLayout>
   )
