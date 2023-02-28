@@ -110,7 +110,7 @@ interface RapydWallet {
   id?: string
   accounts?: Array<RapydAccount>
   category?: 'collect' | 'disburse' | 'card_authorization' | 'general'
-  contacts?: RapydWalletContacts
+  contact?: RapydWalletContact
   email?: string
   ewallet_reference_id?: string
   first_name?: string

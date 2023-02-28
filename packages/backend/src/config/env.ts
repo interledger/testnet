@@ -8,7 +8,10 @@ const envSchema = z.object({
   JWT_ACCESS_TOKEN_SECRET: z.string(),
   JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.string(),
   JWT_REFRESH_TOKEN_SECRET: z.string(),
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number()
+  JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number(),
+  RAPYD_API: z.string(),
+  RAPYD_ACCESS_KEY: z.string(),
+  RAPYD_SECRET_KEY: z.string()
 })
 
 type ENV = z.infer<typeof envSchema>

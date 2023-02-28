@@ -1,5 +1,6 @@
 import axios from 'axios'
 import crypto from 'crypto'
+import env from '../../config/env'
 
 const generateRandomString = (size: number) => {
   try {
@@ -44,14 +45,14 @@ const sign = (
       urlPath +
       salt +
       timestamp +
-      process.env.RAPYD_ACCESS_KEY +
-      process.env.RAPYD_SECRET_KEY +
+      env.RAPYD_ACCESS_KEY +
+      env.RAPYD_SECRET_KEY +
       bodyString
     console.log(`toSign: ${toSign}`)
 
     const hash = crypto.createHmac(
       'sha256',
-      Buffer.from(process.env.RAPYD_SECRET_KEY ?? '')
+      Buffer.from(env.RAPYD_SECRET_KEY ?? '')
     )
     hash.update(toSign)
     const signature = Buffer.from(hash.digest('hex')).toString('base64')
@@ -64,37 +65,36 @@ const sign = (
   }
 }
 
-const makeRapydGetRequest = (url: string) => {
-  const salt = getSaltKey()
-  const timestamp = getCurrentTimestamp()
-  const signature = sign('get', url, salt, timestamp, '')
-
-  return axios.get(`${process.env.RAPYD_API}/${url}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      'access_key': process.env.RAPYD_ACCESS_KEY,
-      salt,
-      'timestamp': getCurrentTimestamp(),
-      signature,
-      'idempotency': getIdempotency()
-    }
-  })
-}
-
-const makeRapydPostRequest = (url: string, body: string) => {
+const getRapydRequestHeader = (url: string, body: string) => {
   const salt = getSaltKey()
   const timestamp = getCurrentTimestamp()
   const signature = sign('get', url, salt, timestamp, body)
 
-  return axios.post(`${process.env.RAPYD_API}/${url}`, JSON.parse(body), {
-    headers: {
-      'Content-Type': 'application/json',
-      'access_key': process.env.RAPYD_ACCESS_KEY,
-      salt,
-      'timestamp': getCurrentTimestamp(),
-      signature,
-      'idempotency': getIdempotency()
-    }
+  return {
+    'Content-Type': 'application/json',
+    'access_key': env.RAPYD_ACCESS_KEY,
+    salt,
+    'timestamp': getCurrentTimestamp(),
+    signature,
+    'idempotency': getIdempotency()
+  }
+}
+
+const makeRapydGetRequest = (url: string) => {
+  const headers = getRapydRequestHeader(url, '')
+
+  console.log(headers)
+
+  return axios.get(`${env.RAPYD_API}/${url}`, {
+    headers
+  })
+}
+
+const makeRapydPostRequest = (url: string, body: string) => {
+  const headers = getRapydRequestHeader(url, body)
+
+  return axios.post(`${env.RAPYD_API}/${url}`, JSON.parse(body), {
+    headers
   })
 }
 
