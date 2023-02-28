@@ -1,9 +1,9 @@
-import { New } from '@/components/icons/New'
 import { Pay } from '@/components/icons/Pay'
 import { Receive } from '@/components/icons/Receive'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Link } from '@/ui/Link'
 import type {
   GetServerSideProps,
@@ -23,7 +23,9 @@ export default function AccountPage({ account }: AccountPageProps) {
         />
         <div className="text-green md:mt-10">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
+          <p className="text-2xl font-semibold md:text-4xl">
+            {account.balance}
+          </p>
         </div>
       </div>
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
@@ -49,10 +51,25 @@ export default function AccountPage({ account }: AccountPageProps) {
         </div>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold leading-none text-green">
-            My Accounts
+            Account
           </h3>
         </div>
-        <div className="grid grid-cols-2 gap-6">{account.name}</div>
+        <div className="flex items-center justify-between rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] px-3 py-2">
+          <span className="text-brand-green-4 font-semibold">
+            {account.name}
+          </span>
+          <span className="inline-flex h-8 w-10 items-center justify-center rounded-md bg-white font-bold mix-blend-screen">
+            {account.asset.code}
+          </span>
+        </div>
+        <div className="flex flex-col space-y-2">
+          {account.paymentPointers.map((paymentPointer) => (
+            <PaymentPointerCard
+              key={paymentPointer.id}
+              paymentPointer={paymentPointer}
+            />
+          ))}
+        </div>
       </div>
     </AppLayout>
   )
@@ -66,11 +83,14 @@ export const getServerSideProps: GetServerSideProps<{
   account: {
     id: string
     name: string
-    balance: number
+    balance: string
     asset: {
       code: string
     }
-    paymentPointers: string[]
+    paymentPointers: {
+      id: string
+      url: string
+    }[]
   }
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
@@ -88,11 +108,18 @@ export const getServerSideProps: GetServerSideProps<{
       account: {
         id: 'ID',
         name: 'Account #1',
-        balance: 7344.02,
+        balance: new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(7344.02),
         asset: {
           code: 'USD'
         },
-        paymentPointers: ['$pp1.example', '$pp2.example', '$pp3.example']
+        paymentPointers: [
+          { id: '1', url: '$rafiki.money/pp1' },
+          { id: '2', url: '$rafiki.money/pp2' },
+          { id: '3', url: '$rafiki.money/pp3' }
+        ]
       }
     }
   }
