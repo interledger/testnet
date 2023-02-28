@@ -1,4 +1,4 @@
-import { SuccessDialog } from '@/components/dialog/SuccessDialog'
+import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -32,13 +32,13 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
   const onSubmit = form.handleSubmit((data) => {
     console.log(data)
     openDialog(
-      SuccessDialog({
-        onClose: closeDialog,
-        title: 'Account created.',
-        content: 'Your account was successfully created.',
-        redirect: '/account/id',
-        redirectText: 'View account'
-      })
+      <SuccessDialog
+        onClose={closeDialog}
+        title="Account created."
+        content="Your account was successfully created."
+        redirect="/account/id"
+        redirectText="View account"
+      />
     )
   })
 
