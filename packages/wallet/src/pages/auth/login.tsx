@@ -70,7 +70,7 @@ const Login = () => {
       />
       <p className="mt-auto font-extralight text-green">
         Not a customer?{' '}
-        <Link href="register" className="font-medium underline">
+        <Link href="signup" className="font-medium underline">
           Create an account
         </Link>
       </p>
