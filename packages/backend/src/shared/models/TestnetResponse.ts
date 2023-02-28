@@ -1,4 +1,4 @@
-export interface Response<T> {
+export interface TestnetResponse<T> {
   success: boolean
   message?: string
   errors?: Record<string, string>
