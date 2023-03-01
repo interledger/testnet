@@ -12,7 +12,7 @@ import env from './config/env.js'
 
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes.js'
-import { getAcceptableIDtypesByCountry } from './rapyd/verification/index.js'
+import { getAcceptableIDtypesByCountry } from './rapyd/verification'
 
 const app: Application = express()
 

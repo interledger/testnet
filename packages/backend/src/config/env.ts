@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import * as dotenv from 'dotenv'
 
 const envSchema = z.object({
   PORT: z.coerce.number(),
@@ -17,7 +16,6 @@ const envSchema = z.object({
 type ENV = z.infer<typeof envSchema>
 
 const env: ENV = (() => {
-  dotenv.config()
   const result = envSchema.safeParse(process.env)
 
   if (!result.success) {
