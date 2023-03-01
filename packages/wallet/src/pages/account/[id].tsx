@@ -1,6 +1,5 @@
 import { Exchange } from '@/components/icons/Exchange'
 import { New } from '@/components/icons/New'
-import { Pay } from '@/components/icons/Pay'
 import { Receive } from '@/components/icons/Receive'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
