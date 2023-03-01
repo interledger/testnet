@@ -11,7 +11,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 const SignUp = () => {
-  const { openDialog, closeDialog } = useDialog()
+  const [openDialog, closeDialog] = useDialog()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
