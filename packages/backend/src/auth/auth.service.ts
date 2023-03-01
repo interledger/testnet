@@ -157,9 +157,7 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     const user = await User.query().findById(userId)
 
     if (!user) {
-      return res
-        .status(400)
-        .send({ message: 'User not found.', success: false })
+      return res.status(400).send({ message: 'User not found', success: false })
     }
 
     const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
