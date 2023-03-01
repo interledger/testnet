@@ -105,19 +105,18 @@ export const login = async (
       generateRefreshToken(user.id)
 
     if (refreshToken) {
-      refreshToken.token = generatedToken
-      refreshToken.expiresAt = new Date(
-        Date.now() + refreshTokenExpiresIn * 1000
+      refreshToken = new RefreshToken(
+        refreshToken.token,
+        refreshToken.userId,
+        refreshTokenExpiresIn
       )
-
       await refreshToken.$query().patch(refreshToken)
     } else {
-      refreshToken = new RefreshToken()
-      refreshToken.token = generatedToken
-      refreshToken.expiresAt = new Date(
-        Date.now() + refreshTokenExpiresIn * 1000
+      refreshToken = new RefreshToken(
+        generatedToken,
+        user.id,
+        refreshTokenExpiresIn
       )
-
       await user.$relatedQuery('refreshTokens').insert(refreshToken)
     }
 
@@ -166,12 +165,13 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     const { refreshToken: newRefreshToken, expiresIn: refreshTokenExpiresIn } =
       generateRefreshToken(userId)
 
-    existingRefreshToken.token = newRefreshToken
-    existingRefreshToken.userId = user.id
-    existingRefreshToken.expiresAt = new Date(
-      Date.now() + refreshTokenExpiresIn * 1000
+    const updatedRefreshToken = new RefreshToken(
+      existingRefreshToken.token,
+      existingRefreshToken.userId,
+      refreshTokenExpiresIn
     )
-    await existingRefreshToken.$query().patch(existingRefreshToken)
+
+    await existingRefreshToken.$query().patch(updatedRefreshToken)
 
     appendTokensToCookie(
       res,

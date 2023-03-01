@@ -12,19 +12,23 @@ export class RefreshToken extends Model {
   userId!: string
   expiresAt!: Date
 
+  constructor(token: string = '', userId: string = '', expiresIn: number = 0) {
+    super()
+    this.token = token
+    this.expiresAt = new Date(Date.now() + expiresIn ?? 0 * 1000)
+    this.userId = userId
+  }
+
   static async verify(token: string): Promise<RefreshToken> {
     const { userId } = jwt.verify(token, env.JWT_REFRESH_TOKEN_SECRET!) as {
       userId: string
     }
 
-    //TODO: change from directly checking if the refresh token is in the database,
-    //TODO to somehow store md5 sums of refresh tokens
-    //TODO: and verify the hashes instead of an exact string match of tokens
-
-    const rt: RefreshToken | undefined = await this.query()
-      .where({ userId: userId, token })
-      .andWhere('expiresAt', '>', new Date())
-      .first()
+    const rt: RefreshToken | undefined =
+      await RefreshToken.query<RefreshToken>()
+        .where({ userId: userId, token })
+        .andWhere('expiresAt', '>', new Date())
+        .first()
 
     if (!rt) {
       throw new Error('Refresh token is invalid or has expired')
