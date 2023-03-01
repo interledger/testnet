@@ -10,6 +10,7 @@ import {
 import { type ZodSchema, type TypeOf } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cx } from 'class-variance-authority'
+import { XCircle } from '@/components/icons/X'
 
 /**
  * General usage:
@@ -59,6 +60,23 @@ export const useZodForm = <T extends ZodSchema>({
   })
 }
 
+type FormErrorProps = {
+  error?: string
+}
+
+export const FormError = ({ error }: FormErrorProps) => {
+  if (!error) return null
+
+  return (
+    <div className="flex space-x-4 rounded-lg bg-red-100 px-4 py-3 shadow-md">
+      <div className="flex-shrink-0">
+        <XCircle className="h-6 w-6 text-red-400" />
+      </div>
+      <p className="font-medium text-red-400">{error}</p>
+    </div>
+  )
+}
+
 export const Form = <T extends FieldValues>({
   form,
   onSubmit,
@@ -77,6 +95,7 @@ export const Form = <T extends FieldValues>({
             stack === 'v' ? 'flex-col space-y-4' : 'space-x-4'
           )}
         >
+          <FormError error={form.formState.errors.root?.message} />
           {children}
         </fieldset>
       </form>
