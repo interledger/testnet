@@ -15,5 +15,5 @@ export async function zParse<T extends AnyZodObject>(
 
     throw new BadRequestException('Invalid input', errors)
   }
-  return res
+  return res.data
 }
