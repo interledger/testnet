@@ -12,7 +12,7 @@ export class RefreshToken extends Model {
   userId!: string
   expiresAt!: Date
 
-  constructor(token: string = '', userId: string = '', expiresIn: number = 0) {
+  constructor(token = '', userId = '', expiresIn = 0) {
     super()
     this.token = token
     this.expiresAt = new Date(Date.now() + expiresIn ?? 0 * 1000)
