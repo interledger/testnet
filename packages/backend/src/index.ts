@@ -12,7 +12,6 @@ import env from './config/env'
 
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes'
-import { getAcceptableIDtypesByCountry } from './rapyd/verification'
 
 const app: Application = express()
 
@@ -33,8 +32,6 @@ passport.use(jwtStrategy)
 app.use(mainRouter)
 
 app.use(errorHandler)
-
-getAcceptableIDtypesByCountry('US').then((res) => console.log(res))
 
 app.listen(env.PORT, (): void => {
   console.log(`🚀 🌑 | Backend listening on ${env.PORT}`)
