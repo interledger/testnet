@@ -6,9 +6,9 @@ import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
 import { signUpSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { SuccessDialog } from '@/components/dialog/SuccessDialog'
+import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
-import { ErrorDialog } from '@/components/dialog/ErrorDialog'
+import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 const SignUp = () => {
   const { openDialog, closeDialog } = useDialog()
