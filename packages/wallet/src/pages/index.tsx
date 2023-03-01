@@ -32,25 +32,25 @@ export default function Home({ accounts }: HomeProps) {
         <div className="mt-2 flex justify-between space-x-2">
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Send className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Send
             </span>
           </Link>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Pay className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Pay
             </span>
           </Link>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Receive className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Receive
             </span>
           </Link>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <New className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               New account
             </span>
           </Link>

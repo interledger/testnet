@@ -1,6 +1,7 @@
+import { Exchange } from '@/components/icons/Exchange'
+import { New } from '@/components/icons/New'
 import { Pay } from '@/components/icons/Pay'
 import { Receive } from '@/components/icons/Receive'
-import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
@@ -30,22 +31,27 @@ export default function AccountPage({ account }: AccountPageProps) {
       </div>
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
         <div className="mt-2 flex justify-between space-x-2">
-          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Send className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
-              Send
-            </span>
-          </Link>
-          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Pay className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
-              Pay
-            </span>
+          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <New className="h-7 w-7" />
+            <div className="-space-y-2">
+              <p className="font-medium text-green-5 group-hover:text-green-6">
+                Add payment{' '}
+              </p>
+              <p className="font-medium text-green-5 group-hover:text-green-6">
+                pointer
+              </p>
+            </div>
           </Link>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Receive className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6 sm:text-base">
-              Receive
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Fund
+            </span>
+          </Link>
+          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+            <Exchange className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Exchange
             </span>
           </Link>
         </div>
