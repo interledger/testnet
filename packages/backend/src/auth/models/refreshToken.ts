@@ -15,8 +15,12 @@ export class RefreshToken extends Model {
   constructor(token = '', userId = '', expiresIn = 0) {
     super()
     this.token = token
-    this.expiresAt = new Date(Date.now() + expiresIn ?? 0 * 1000)
+    this.expiresAt = RefreshToken.expiresInToExpiresAt(expiresIn)
     this.userId = userId
+  }
+
+  static expiresInToExpiresAt(expiresIn: number): Date {
+    return new Date(Date.now() + expiresIn ?? 0 * 1000)
   }
 
   static async verify(token: string): Promise<RefreshToken> {
