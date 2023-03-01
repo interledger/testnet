@@ -56,7 +56,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
   try {
     const { email, password, confirmPassword } = await zParse(signupSchema, req)
     if (password !== confirmPassword) {
-      throw new BadRequestException("Passwords don't match")
+      throw new BadRequestException('Passwords do not match.')
     }
 
     const existingUser = await User.query().where('email', email).first()
@@ -64,7 +64,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'User already exists', success: false })
+        .json({ message: 'Email already exists.', success: false })
     }
     await User.query().insert({ email, password })
 
@@ -73,7 +73,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
     log.error(error)
     return res
       .status(500)
-      .json({ message: 'Unable to create user', success: false })
+      .json({ message: 'Unable to create account.', success: false })
   }
 }
 
@@ -91,12 +91,12 @@ export const login = async (
       .withGraphFetched('refreshTokens')
 
     if (!user) {
-      throw new UnauthorisedException('Invalid credentials')
+      throw new UnauthorisedException('Invalid credentials.')
     }
 
     const isValid = await user.verifyPassword(password)
     if (!isValid) {
-      throw new UnauthorisedException('Invalid credentials')
+      throw new UnauthorisedException('Invalid credentials.')
     }
 
     let refreshToken = user.refreshTokens?.[0]
@@ -132,7 +132,7 @@ export const login = async (
       refreshTokenExpiresIn
     )
 
-    return res.json({ success: true, message: 'Login successfull' })
+    return res.json({ success: true, message: 'Login successfull.' })
   } catch (e) {
     next(e)
   }
@@ -144,20 +144,22 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     if (!refreshToken) {
       return res
         .status(400)
-        .send({ message: 'No refresh token found', success: false })
+        .send({ message: 'No refresh token found.', success: false })
     }
     const existingRefreshToken = await RefreshToken.verify(refreshToken)
     const { userId } = existingRefreshToken
     if (!userId) {
       return res
         .status(400)
-        .send({ message: 'Invalid refresh token', success: false })
+        .send({ message: 'Invalid refresh token.', success: false })
     }
 
     const user = await User.query().findById(userId)
 
     if (!user) {
-      return res.status(400).send({ message: 'User not found', success: false })
+      return res
+        .status(400)
+        .send({ message: 'User not found.', success: false })
     }
 
     const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
@@ -184,6 +186,6 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     res.status(200).send({ message: 'success', success: true })
   } catch (error) {
     log.error(error)
-    res.status(500).send({ message: 'Refresh failed', success: false })
+    res.status(500).send({ message: 'Refresh failed.', success: false })
   }
 }
