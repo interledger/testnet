@@ -1,5 +1,5 @@
 import bcryptjs from 'bcryptjs'
-import { Model } from 'objection'
+import { Model, Pojo } from 'objection'
 import { RefreshToken } from '../../auth/models/refreshToken'
 
 export class User extends Model {

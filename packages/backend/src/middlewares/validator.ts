@@ -8,16 +8,12 @@ export async function zParse<T extends AnyZodObject>(
 ): Promise<z.infer<T>> {
   const res = await schema.safeParseAsync(req.body)
   if (!res.success) {
-    const { fieldErrors } = res.error.flatten()
-    Object.keys(fieldErrors).forEach((key) => {
-      /* eslint-disable */
-      ;(fieldErrors[key] as any) = fieldErrors[key]![0]
-      /* eslint-enable */
+    const errors: Record<string, string> = {}
+    res.error.issues.forEach((i) => {
+      errors[i.path[0]] = i.message
     })
-    throw new BadRequestException(
-      'Invalid input',
-      fieldErrors as unknown as Record<string, string>
-    )
+
+    throw new BadRequestException('Invalid input', errors)
   }
   return res
 }

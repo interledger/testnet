@@ -1,4 +1,3 @@
-import express from 'express'
 import { sign } from 'jsonwebtoken'
 import env from '../config/env'
 import { zParse } from '../middlewares/validator'
@@ -8,7 +7,8 @@ import { RefreshToken } from './models/refreshToken'
 import { loginSchema, signupSchema } from './schemas'
 import { BadRequestException } from '../shared/models/errors/BadRequestException'
 import { UnauthorisedException } from './errors/UnauthorisedException'
-import { NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import { BaseResponse } from '../shared/models/BaseResponse'
 
 const log = logger('AuthService')
 
@@ -24,7 +24,7 @@ const generateJWT = (
 }
 
 const appendTokensToCookie = (
-  res: express.Response,
+  res: Response,
   accessToken: string,
   accessTokenExpiresIn: number,
   refreshToken: string,
@@ -52,7 +52,7 @@ const generateRefreshToken = (
   }
 }
 
-export const signup = async (req: express.Request, res: express.Response) => {
+export const signup = async (req: Request, res: Response<BaseResponse>) => {
   try {
     const { email, password, confirmPassword } = await zParse(signupSchema, req)
     if (password !== confirmPassword) {
@@ -62,20 +62,24 @@ export const signup = async (req: express.Request, res: express.Response) => {
     const existingUser = await User.query().where('email', email).first()
 
     if (existingUser) {
-      return res.status(409).json({ error: 'User already exists' })
+      return res
+        .status(409)
+        .json({ message: 'User already exists', success: false })
     }
     await User.query().insert({ email, password })
 
-    return res.status(201).json({ message: 'Success' })
+    return res.status(201).json({ message: 'Success', success: true })
   } catch (error) {
     log.error(error)
-    return res.status(500).json({ error: 'Unable to create user' })
+    return res
+      .status(500)
+      .json({ message: 'Unable to create user', success: false })
   }
 }
 
 export const login = async (
-  req: express.Request,
-  res: express.Response,
+  req: Request,
+  res: Response<BaseResponse>,
   next: NextFunction
 ) => {
   try {
@@ -129,28 +133,32 @@ export const login = async (
       refreshTokenExpiresIn
     )
 
-    return res.send({ user })
+    return res.json({ success: true, message: 'Login successfull' })
   } catch (e) {
     next(e)
   }
 }
 
-export const refresh = async (req: express.Request, res: express.Response) => {
+export const refresh = async (req: Request, res: Response<BaseResponse>) => {
   try {
     const refreshToken = req.cookies.RefreshToken
     if (!refreshToken) {
-      return res.status(400).send({ message: 'No refresh token found' })
+      return res
+        .status(400)
+        .send({ message: 'No refresh token found', success: false })
     }
     const existingRefreshToken = await RefreshToken.verify(refreshToken)
     const { userId } = existingRefreshToken
     if (!userId) {
-      return res.status(400).send({ message: 'Invalid refresh token' })
+      return res
+        .status(400)
+        .send({ message: 'Invalid refresh token', success: false })
     }
 
     const user = await User.query().findById(userId)
 
     if (!user) {
-      return res.status(400).send({ message: 'User not found' })
+      return res.status(400).send({ message: 'User not found', success: false })
     }
 
     const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
@@ -173,9 +181,9 @@ export const refresh = async (req: express.Request, res: express.Response) => {
       refreshTokenExpiresIn
     )
 
-    res.status(200).send({ message: 'success' })
+    res.status(200).send({ message: 'success', success: true })
   } catch (error) {
     log.error(error)
-    res.status(500).send({ message: 'Refresh failed' })
+    res.status(500).send({ message: 'Refresh failed', success: false })
   }
 }

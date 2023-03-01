@@ -1,8 +1,5 @@
-import { TestnetResponse } from '../TestnetResponse'
-export abstract class BaseError
-  extends Error
-  implements TestnetResponse<unknown>
-{
+import { BaseResponse } from '../BaseResponse'
+export abstract class BaseError extends Error implements BaseResponse<never> {
   public readonly success: boolean
   public readonly statusCode: number
   public readonly message: string
