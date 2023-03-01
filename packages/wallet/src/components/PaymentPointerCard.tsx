@@ -30,7 +30,7 @@ const PaymentPointerInput = forwardRef<
     <div className="flex w-full items-center rounded-md">
       <span className="border-green px-1 text-green">$rafiki.money/</span>
       <input
-        className="border-b-violet underline outline-none"
+        className="underline outline-none"
         defaultValue={'test'}
         ref={ref}
         {...props}

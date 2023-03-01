@@ -1,9 +1,11 @@
+import { CreatePaymentPointerDialog } from '@/components/dialogs/CreatePaymentPointerDialog'
 import { Exchange } from '@/components/icons/Exchange'
 import { New } from '@/components/icons/New'
 import { Receive } from '@/components/icons/Receive'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
+import { useDialog } from '@/lib/hooks/useDialog'
 import { Link } from '@/ui/Link'
 import type {
   GetServerSideProps,
@@ -14,6 +16,7 @@ import { z } from 'zod'
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function AccountPage({ account }: AccountPageProps) {
+  const [openDialog, closeDialog] = useDialog()
   return (
     <AppLayout>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
@@ -30,7 +33,12 @@ export default function AccountPage({ account }: AccountPageProps) {
       </div>
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
         <div className="mt-2 flex justify-between space-x-2">
-          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <button
+            onClick={() =>
+              openDialog(<CreatePaymentPointerDialog onClose={closeDialog} />)
+            }
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
             <New className="h-7 w-7" />
             <div className="-space-y-2">
               <p className="font-medium text-green-5 group-hover:text-green-6">
@@ -40,7 +48,7 @@ export default function AccountPage({ account }: AccountPageProps) {
                 pointer
               </p>
             </div>
-          </Link>
+          </button>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Receive className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
