@@ -91,12 +91,12 @@ export const login = async (
       .withGraphFetched('refreshTokens')
 
     if (!user) {
-      throw new UnauthorisedException('Invalid credentials.')
+      throw new UnauthorisedException('Invalid credentials')
     }
 
     const isValid = await user.verifyPassword(password)
     if (!isValid) {
-      throw new UnauthorisedException('Invalid credentials.')
+      throw new UnauthorisedException('Invalid credentials')
     }
 
     let refreshToken = user.refreshTokens?.[0]
@@ -132,7 +132,7 @@ export const login = async (
       refreshTokenExpiresIn
     )
 
-    return res.json({ success: true, message: 'Login successfull.' })
+    return res.json({ success: true, message: 'Login successfull' })
   } catch (e) {
     next(e)
   }
@@ -144,14 +144,14 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     if (!refreshToken) {
       return res
         .status(400)
-        .send({ message: 'No refresh token found.', success: false })
+        .send({ message: 'No refresh token found', success: false })
     }
     const existingRefreshToken = await RefreshToken.verify(refreshToken)
     const { userId } = existingRefreshToken
     if (!userId) {
       return res
         .status(400)
-        .send({ message: 'Invalid refresh token.', success: false })
+        .send({ message: 'Invalid refresh token', success: false })
     }
 
     const user = await User.query().findById(userId)
@@ -186,6 +186,6 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     res.status(200).send({ message: 'success', success: true })
   } catch (error) {
     log.error(error)
-    res.status(500).send({ message: 'Refresh failed.', success: false })
+    res.status(500).send({ message: 'Refresh failed', success: false })
   }
 }

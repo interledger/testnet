@@ -7,7 +7,7 @@ export const signUpSchema = z
     email: z.string().email({ message: 'Email is required' }),
     password: z
       .string()
-      .min(6, { message: 'Password should be at least 6 characters long.' }),
+      .min(6, { message: 'Password should be at least 6 characters long' }),
     confirmPassword: z.string()
   })
   .superRefine(({ confirmPassword, password }, ctx) => {

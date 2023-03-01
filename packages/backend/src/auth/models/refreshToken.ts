@@ -42,7 +42,7 @@ export class RefreshToken extends Model {
       relation: Model.BelongsToOneRelation,
       modelClass: User,
       join: {
-        from: 'refresh_tokens.userId',
+        from: 'refreshTokens.userId',
         to: 'users.id'
       }
     }
