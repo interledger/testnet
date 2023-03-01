@@ -29,7 +29,7 @@ export class User extends Model {
         modelClass: RefreshToken,
         join: {
           from: 'users.id',
-          to: 'refresh_tokens.userId'
+          to: 'refreshTokens.userId'
         }
       }
     }
