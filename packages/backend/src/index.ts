@@ -7,11 +7,11 @@ import express, { Application } from 'express'
 import Knex from 'knex'
 import { Model } from 'objection'
 import passport from 'passport'
-import { jwtStrategy } from './auth/jwtStrategy.js'
-import env from './config/env.js'
+import { jwtStrategy } from './auth/jwtStrategy'
+import env from './config/env'
 
 import { errorHandler } from './middlewares/errorHandler'
-import { mainRouter } from './routes.js'
+import { mainRouter } from './routes'
 
 const app: Application = express()
 
