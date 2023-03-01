@@ -32,6 +32,9 @@ services:
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: 900
       JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
       JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
+      RAPYD_API: https://sandboxapi.rapyd.net/v1
+      RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
+      RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
     restart: always
     networks:
       - testnet
