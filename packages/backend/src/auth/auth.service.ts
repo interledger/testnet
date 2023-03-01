@@ -56,7 +56,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
   try {
     const { email, password, confirmPassword } = await zParse(signupSchema, req)
     if (password !== confirmPassword) {
-      throw new BadRequestException('Passwords do not match.')
+      throw new BadRequestException('Passwords do not match')
     }
 
     const existingUser = await User.query().where('email', email).first()
@@ -64,7 +64,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'Email already exists.', success: false })
+        .json({ message: 'Email already exists', success: false })
     }
     await User.query().insert({ email, password })
 
@@ -73,7 +73,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
     log.error(error)
     return res
       .status(500)
-      .json({ message: 'Unable to create account.', success: false })
+      .json({ message: 'Unable to create account', success: false })
   }
 }
 
