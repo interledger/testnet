@@ -4,25 +4,48 @@ import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
-import { z } from 'zod'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
-
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Email is required' }),
-  password: z.string().min(6, { message: 'Password is required, min. 6 chars' })
-})
+import { loginSchema, userService } from '@/lib/api/user'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { getObjectKeys } from '@/utils/helpers'
+import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 const Login = () => {
+  const { openDialog, closeDialog } = useDialog()
   const router = useRouter()
 
   const loginForm = useZodForm({
     schema: loginSchema
   })
 
-  const handleSubmit = loginForm.handleSubmit((data) => {
-    console.log(data)
-    router.push('/')
+  const handleSubmit = loginForm.handleSubmit(async (data) => {
+    const response = await userService.login(data)
+
+    if (!response) {
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Login failed. Please try again"
+        />
+      )
+      return
+    }
+
+    if (response.success) {
+      router.push('/')
+    } else {
+      const { errors, message } = response
+
+      if (errors) {
+        getObjectKeys(errors).map((field) =>
+          loginForm.setError(field, { message: errors[field] })
+        )
+      }
+      if (message) {
+        loginForm.setError('root', { message })
+      }
+    }
   })
 
   return (

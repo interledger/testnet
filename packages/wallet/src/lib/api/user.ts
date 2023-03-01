@@ -20,14 +20,23 @@ export const signUpSchema = z
     }
   })
 
+export const loginSchema = z.object({
+  email: z.string().email({ message: 'Email is required' }),
+  password: z.string().min(1, { message: 'Password is required' })
+})
+
 interface Service {
   signUp: (
     args: SignUpArgs
   ) => Promise<SuccessResponse | SignUpError | undefined>
+  login: (args: LoginArgs) => Promise<SuccessResponse | LoginError | undefined>
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
 type SignUpError = ErrorResponse<typeof signUpSchema>
+
+type LoginArgs = z.infer<typeof loginSchema>
+type LoginError = ErrorResponse<typeof loginSchema>
 
 class UserService implements Service {
   private static instance: UserService
@@ -45,6 +54,16 @@ class UserService implements Service {
       return response.data
     } catch (e) {
       const error = e as AxiosError<SignUpError>
+      return error.response?.data
+    }
+  }
+
+  async login(args: LoginArgs) {
+    try {
+      const response = await $axios.post<SuccessResponse>('/login', args)
+      return response.data
+    } catch (e) {
+      const error = e as AxiosError<LoginError>
       return error.response?.data
     }
   }
