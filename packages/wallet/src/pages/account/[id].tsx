@@ -131,7 +131,9 @@ export const getServerSideProps: GetServerSideProps<{
         paymentPointers: [
           { id: '1', url: '$rafiki.money/pp1' },
           { id: '2', url: '$rafiki.money/pp2' },
-          { id: '3', url: '$rafiki.money/pp3' }
+          { id: '3', url: '$rafiki.money/pp3' },
+          { id: '4', url: '$rafiki.money/pp4' },
+          { id: '5', url: '$rafiki.money/pp5' }
         ]
       }
     }
