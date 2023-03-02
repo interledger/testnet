@@ -28,16 +28,22 @@ module.exports = {
         7: '#56bab8'
       },
       orange: {
-        DEFAULT: '#fab882'
+        DEFAULT: '#fab882',
+        1: '#fde3cd',
+        2: '#e1a675'
       },
       turqoise: {
         DEFAULT: '#56c1bf'
       },
       pink: {
-        DEFAULT: '#f38d94'
+        DEFAULT: '#f38d94',
+        1: '#fad1d4',
+        2: '#db7f85'
       },
       violet: {
-        DEFAULT: '#8075ad'
+        DEFAULT: '#8075ad',
+        1: '#ccc8de',
+        2: '#73699c'
       }
     },
     extend: {

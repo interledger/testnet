@@ -32,6 +32,9 @@ module.exports = {
   settings: {
     react: {
       version: 'detect'
+    },
+    next: {
+      rootDir: './packages/wallet/src'
     }
   }
 }

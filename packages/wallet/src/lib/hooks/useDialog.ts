@@ -22,5 +22,5 @@ export const useDialog = () => {
       }
     })
 
-  return { openDialog, closeDialog }
+  return [openDialog, closeDialog] as const
 }
