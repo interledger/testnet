@@ -121,7 +121,9 @@ class UserService implements Service {
 
   async verifyIdentity(args: VerifyIdentityArgs) {
     try {
-      const response = await $axios.post<SuccessResponse>('/verify', args)
+      const response = await $axios.post<SuccessResponse>('/verify', args, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
       return response.data
     } catch (e) {
       const error = e as AxiosError<VerifyIdentityError>
