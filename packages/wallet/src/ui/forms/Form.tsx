@@ -44,7 +44,7 @@ interface FormProps<T extends FieldValues = any>
   form: UseFormReturn<T>
   onSubmit: ReturnType<SubmitHandler<T>>
   readOnly?: boolean
-  // Horizontal or vertical stack
+  // Horizontal or vertical stack (`flex-col` or `flex-row`)
   stack?: 'h' | 'v'
 }
 
