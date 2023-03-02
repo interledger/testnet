@@ -1,12 +1,15 @@
 import express, { Request, Response } from 'express'
 import passport from 'passport'
 import { login, refresh, signup } from './auth/auth.service'
+import { createWallet } from './wallet/wallet.service'
 
 export const mainRouter = express.Router()
 
 mainRouter.post('/signup', signup)
 mainRouter.post('/login', login)
 mainRouter.post('/refresh', refresh)
+
+mainRouter.post('/wallet', createWallet)
 
 mainRouter.post(
   '/protected',
