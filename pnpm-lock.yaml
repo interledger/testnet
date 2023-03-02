@@ -91,7 +91,8 @@ importers:
     specifiers:
       '@headlessui/react': ^1.7.12
       '@hookform/resolvers': ^2.9.11
-      '@next/bundle-analyzer': ^13.2.1
+      '@next/bundle-analyzer': ^13.1.6
+      '@next/eslint-plugin-next': ^13.1.6
       '@next/font': 13.2.1
       '@tailwindcss/forms': ^0.5.3
       '@types/node': ^18.14.0
@@ -121,6 +122,7 @@ importers:
       zod: 3.20.6
     devDependencies:
       '@next/bundle-analyzer': 13.2.1
+      '@next/eslint-plugin-next': 13.1.6
       '@tailwindcss/forms': 0.5.3_tailwindcss@3.2.7
       '@types/node': 18.14.0
       '@types/react': 18.0.28
@@ -274,6 +276,12 @@ packages:
   /@next/env/13.2.1:
     resolution: {integrity: sha512-Hq+6QZ6kgmloCg8Kgrix+4F0HtvLqVK3FZAnlAoS0eonaDemHe1Km4kwjSWRE3JNpJNcKxFHF+jsZrYo0SxWoQ==}
     dev: false
+
+  /@next/eslint-plugin-next/13.1.6:
+    resolution: {integrity: sha512-o7cauUYsXjzSJkay8wKjpKJf2uLzlggCsGUkPu3lP09Pv97jYlekTC20KJrjQKmSv5DXV0R/uks2ZXhqjNkqAw==}
+    dependencies:
+      glob: 7.1.7
+    dev: true
 
   /@next/font/13.2.1:
     resolution: {integrity: sha512-4sergLt7xp9+mZuKME/xM4tLlHGTcmL7naCq0qCTcAlof6NnttshYgiLOdhSiy0NcI+/yM3BjvdEk++O96UzTg==}
@@ -1886,6 +1894,17 @@ packages:
     engines: {node: '>=10.13.0'}
     dependencies:
       is-glob: 4.0.3
+    dev: true
+
+  /glob/7.1.7:
+    resolution: {integrity: sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==}
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 3.1.2
+      once: 1.4.0
+      path-is-absolute: 1.0.1
     dev: true
 
   /glob/7.2.3:
