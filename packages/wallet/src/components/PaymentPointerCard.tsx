@@ -92,20 +92,7 @@ export const PaymentPointerCard = ({
   useOnClickOutside(cardRef, () => setIsEditing(false))
 
   return (
-    <div
-      ref={cardRef}
-      className={`
-        flex items-center justify-between border-b border-b-green-4 px-2 py-3
-        [&:nth-child(4n+1)_div_button]:bg-green-5 [&:nth-child(4n+1)_div_button:hover]:bg-green-6 
-        [&:nth-child(4n+2)_div_button]:bg-violet-1 [&:nth-child(4n+2)_div_button:hover]:bg-violet-2
-        [&:nth-child(4n+3)_div_button]:bg-pink-1 [&:nth-child(4n+3)_div_button:hover]:bg-pink-2
-        [&:nth-child(4n+4)_div_button]:bg-orange-1 [&:nth-child(4n+4)_div_button:hover]:bg-orange-2
-        [&:nth-child(4n+1)_div]:text-green-6
-        [&:nth-child(4n+2)_div]:text-violet-2
-        [&:nth-child(4n+3)_div]:text-pink-2
-        [&:nth-child(4n+4)_div]:text-orange-2
-      `}
-    >
+    <div ref={cardRef} className={cardStyles}>
       {/* IDEA:
         We can show a tooltip when the user is hovering the `Edit` or `Delete` buttons. 
       */}
@@ -168,3 +155,15 @@ export const PaymentPointerCard = ({
     </div>
   )
 }
+
+const cardStyles = `
+flex items-center justify-between border-b border-b-green-4 px-2 py-3
+[&:nth-child(4n+1)_div_button]:bg-green-5 [&:nth-child(4n+1)_div_button:hover]:bg-green-6 
+[&:nth-child(4n+2)_div_button]:bg-violet-1 [&:nth-child(4n+2)_div_button:hover]:bg-violet-2
+[&:nth-child(4n+3)_div_button]:bg-pink-1 [&:nth-child(4n+3)_div_button:hover]:bg-pink-2
+[&:nth-child(4n+4)_div_button]:bg-orange-1 [&:nth-child(4n+4)_div_button:hover]:bg-orange-2
+[&:nth-child(4n+1)_div]:text-green-6
+[&:nth-child(4n+2)_div]:text-violet-2
+[&:nth-child(4n+3)_div]:text-pink-2
+[&:nth-child(4n+4)_div]:text-orange-2
+`
