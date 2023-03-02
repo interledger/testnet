@@ -90,7 +90,7 @@ const SignUp = () => {
         </Form>
       </div>
       <div className="absolute bottom-0 h-[200px] w-full bg-[url('../../public/leafs.svg')] bg-contain bg-center bg-no-repeat md:hidden"></div>
-      <p className="mt-auto font-extralight text-green">
+      <p className="z-10 mt-auto font-extralight text-green">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">
           Log in

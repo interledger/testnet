@@ -23,7 +23,7 @@ import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
  */
 
 const buttonStyles = cva(
-  ['inline-flex items-center justify-center hover:shadow-md'],
+  ['inline-flex items-center justify-center hover:shadow-md outline-none'],
   {
     variants: {
       intent: {
