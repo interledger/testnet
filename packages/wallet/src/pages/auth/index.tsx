@@ -17,7 +17,7 @@ export default function Welcome() {
       </Button>
       <Divider content="or" />
       <h2 className="mb-5 text-xl font-semibold text-green">New here?</h2>
-      <Button aria-label="sign up" href="auth/register">
+      <Button aria-label="sign up" href="auth/signup">
         Create account
       </Button>
       <Image

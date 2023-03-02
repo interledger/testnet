@@ -17,13 +17,23 @@ const app: Application = express()
 
 app.disable('X-Powered-By')
 
-app.use(cors())
+app.use(
+  cors({
+    origin: 'http://localhost:4003',
+    credentials: true
+  })
+)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 const knex = Knex(config[env.NODE_ENV || 'development'])
 Model.knex(knex)
+;(async () => {
+  knex.migrate.latest({
+    directory: __dirname + '/../migrations'
+  })
+})()
 
 app.use(passport.initialize())
 

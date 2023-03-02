@@ -7,7 +7,7 @@ module.exports = {
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 0,
@@ -27,7 +27,7 @@ module.exports = {
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 2,
@@ -45,7 +45,7 @@ module.exports = {
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 2,

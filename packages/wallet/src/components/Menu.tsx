@@ -210,7 +210,6 @@ export const Menu = () => {
                             as={Link}
                             href={children.href}
                             className="flex items-center space-x-4 pl-10 hover:text-white"
-                            onClick={() => setSidebarIsOpen(false)}
                           >
                             {children.name}
                           </Disclosure.Button>

@@ -7,8 +7,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
+      # PGPORT: 5433
     ports:
-      - '5433:5433'
+      - '5433:5432'
     restart: unless-stopped
     networks:
       - testnet
