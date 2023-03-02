@@ -12,7 +12,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 const Login = () => {
-  const { openDialog, closeDialog } = useDialog()
+  const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
 
   const loginForm = useZodForm({

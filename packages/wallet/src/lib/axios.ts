@@ -33,6 +33,9 @@ const setupAxios = () => {
     // On rejected
     async (error: AxiosError) => {
       if (error.response && error.response?.status === 401 && error.config) {
+        if (error.config.url === '/login') {
+          return Promise.reject(error)
+        }
         if (!refreshing) {
           refreshing = true
           try {
