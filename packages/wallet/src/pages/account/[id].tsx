@@ -67,7 +67,7 @@ export default function AccountPage({ account }: AccountPageProps) {
             Account
           </h3>
         </div>
-        <div className="flex items-center justify-between rounded-md bg-gradient-to-r from-[#92DBCA] to-[#56B1AF] px-3 py-2">
+        <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
           <span className="text-brand-green-4 font-semibold">
             {account.name}
           </span>
