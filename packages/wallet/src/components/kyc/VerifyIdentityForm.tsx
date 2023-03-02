@@ -1,9 +1,13 @@
+import { userService, verifyIdentitySchema } from '@/lib/api/user'
+import { useDialog } from '@/lib/hooks/useDialog'
 import { Button } from '@/ui/Button'
 import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form, useZodForm } from '@/ui/forms/Form'
+import { getObjectKeys } from '@/utils/helpers'
 import { SyntheticEvent, useState } from 'react'
-import { z } from 'zod'
+import { ErrorDialog } from '../dialogs/ErrorDialog'
+import { SuccessDialog } from '../dialogs/SuccessDialog'
 
 // mock data, the list will come from Rapyd
 const idTypes = [
@@ -24,25 +28,8 @@ const idTypes = [
   }
 ]
 
-const verifyIdentitySchema = z.object({
-  idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
-  frontSideID: z
-    .custom<FileList>()
-    .refine(
-      (frontSideID) => frontSideID?.length === 1,
-      'Front side of ID is required'
-    )
-    .refine(
-      (frontSideID) => frontSideID?.length < 2,
-      'You can only select one image'
-    ),
-  selfie: z
-    .custom<FileList>()
-    .refine((selfie) => selfie?.length === 1, 'Selfie is required')
-    .refine((selfie) => selfie?.length < 2, 'You can only select one image')
-})
-
 export const VerifyIdentityForm = () => {
+  const [openDialog, closeDialog] = useDialog()
   const [frontIDFile, setFrontIDFile] = useState('')
   const [selfieFile, setSelfieFile] = useState('')
 
@@ -60,8 +47,40 @@ export const VerifyIdentityForm = () => {
     schema: verifyIdentitySchema
   })
 
-  const handleSubmit = verifyIdentityForm.handleSubmit((data) => {
-    console.log(data)
+  const handleSubmit = verifyIdentityForm.handleSubmit(async (data) => {
+    const response = await userService.verifyIdentity(data)
+
+    if (!response) {
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Something went wrong. Please try again"
+        />
+      )
+      return
+    }
+
+    if (response.success) {
+      openDialog(
+        <SuccessDialog
+          onClose={closeDialog}
+          content="Your identity has been veryfied."
+          redirect="/"
+          redirectText="Go to your account overview"
+        />
+      )
+    } else {
+      const { errors, message } = response
+
+      if (errors) {
+        getObjectKeys(errors).map((field) =>
+          verifyIdentityForm.setError(field, { message: errors[field] })
+        )
+      }
+      if (message) {
+        verifyIdentityForm.setError('root', { message })
+      }
+    }
   })
 
   return (

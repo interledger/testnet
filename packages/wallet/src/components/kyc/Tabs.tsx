@@ -42,13 +42,17 @@ const tabs = [
     name: 'Bank details',
     id: 'bank',
     title: 'Bank account details',
-    contentForm: <label>TBD</label>,
+    contentForm: (
+      <label>
+        Work in progress. We are using play money for the time being.
+      </label>
+    ),
     imageMobile: 'bank-kyc.webp'
   }
 ]
 
 export const Tabs = () => {
-  const { tab, setTab } = useKYCFormContext()
+  const { tab, setTab, disabled } = useKYCFormContext()
 
   return (
     <>
@@ -57,11 +61,15 @@ export const Tabs = () => {
           <Tab.List className="flex space-x-6">
             {tabs.map((kycTab) => (
               <Tab
+                disabled={disabled}
                 key={kycTab.id}
                 className={({ selected }) =>
                   cx(
                     'text-md group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 outline-none',
-                    selected ? 'text-green' : 'text-green-3 hover:text-green'
+                    selected ? 'text-green' : 'text-green-3 hover:text-green',
+                    kycTab.id === 'personalInfo'
+                      ? 'disabled:text-green'
+                      : 'disabled:text-black/40'
                   )
                 }
               >

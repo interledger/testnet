@@ -1,8 +1,13 @@
+import { personalDetailsSchema, userService } from '@/lib/api/user'
+import { useDialog } from '@/lib/hooks/useDialog'
 import { Button } from '@/ui/Button'
 import { Form, useZodForm } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
-import { z } from 'zod'
+import { getObjectKeys } from '@/utils/helpers'
+import { ErrorDialog } from '../dialogs/ErrorDialog'
+import { SuccessDialog } from '../dialogs/SuccessDialog'
+import { useKYCFormContext } from './context'
 
 type CountryProps = {
   name: string
@@ -13,24 +18,56 @@ type PersonalDetailsProps = {
   countries: Array<CountryProps>
 }
 
-const personalDetailsSchema = z.object({
-  firstName: z.string().min(3),
-  lastName: z.string().min(3),
-  country: z.string(),
-  address: z.string().min(3),
-  dateOfBirth: z.coerce.date(),
-  phone: z.coerce.number({
-    invalid_type_error: 'Please enter a valid phone number'
-  })
-})
-
 export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
+  const [openDialog, closeDialog] = useDialog()
+  const { setTab, setDisabled } = useKYCFormContext()
+
   const personalDetailsForm = useZodForm({
     schema: personalDetailsSchema
   })
 
-  const handleSubmit = personalDetailsForm.handleSubmit((data) => {
-    console.log(data)
+  const handleSubmit = personalDetailsForm.handleSubmit(async (data) => {
+    const response = await userService.createWallet(data)
+
+    if (!response) {
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Something went wrong. Please try again"
+        />
+      )
+      return
+    }
+
+    if (response.success) {
+      openDialog(
+        <SuccessDialog
+          onClose={() => {
+            setDisabled(false)
+            closeDialog()
+          }}
+          onSuccess={() => {
+            // set ID types approoved by Country, ID types from response
+            setDisabled(false)
+            setTab(1)
+            closeDialog()
+          }}
+          content="Your wallet was created."
+          redirect="/kyc"
+          redirectText="Verify Your Identity"
+        />
+      )
+    } else {
+      const { errors, message } = response
+      if (errors) {
+        getObjectKeys(errors).map((field) =>
+          personalDetailsForm.setError(field, { message: errors[field] })
+        )
+      }
+      if (message) {
+        personalDetailsForm.setError('root', { message })
+      }
+    }
   })
 
   return (

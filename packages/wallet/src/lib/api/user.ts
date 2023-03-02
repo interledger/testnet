@@ -25,11 +25,46 @@ export const loginSchema = z.object({
   password: z.string().min(1, { message: 'Password is required' })
 })
 
+export const personalDetailsSchema = z.object({
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
+  country: z.string(),
+  address: z.string().min(1, { message: 'Address is required' }),
+  dateOfBirth: z.coerce.date(),
+  phone: z.coerce.number({
+    invalid_type_error: 'Please enter a valid phone number'
+  })
+})
+
+export const verifyIdentitySchema = z.object({
+  idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
+  frontSideID: z
+    .custom<FileList>()
+    .refine(
+      (frontSideID) => frontSideID?.length === 1,
+      'Front side of ID is required'
+    )
+    .refine(
+      (frontSideID) => frontSideID?.length < 2,
+      'You can only select one image'
+    ),
+  selfie: z
+    .custom<FileList>()
+    .refine((selfie) => selfie?.length === 1, 'Selfie is required')
+    .refine((selfie) => selfie?.length < 2, 'You can only select one image')
+})
+
 interface Service {
   signUp: (
     args: SignUpArgs
   ) => Promise<SuccessResponse | SignUpError | undefined>
   login: (args: LoginArgs) => Promise<SuccessResponse | LoginError | undefined>
+  createWallet: (
+    args: WalletArgs
+  ) => Promise<SuccessResponse | WalletError | undefined>
+  verifyIdentity: (
+    args: VerifyIdentityArgs
+  ) => Promise<SuccessResponse | VerifyIdentityError | undefined>
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
@@ -37,6 +72,12 @@ type SignUpError = ErrorResponse<typeof signUpSchema>
 
 type LoginArgs = z.infer<typeof loginSchema>
 type LoginError = ErrorResponse<typeof loginSchema>
+
+type WalletArgs = z.infer<typeof personalDetailsSchema>
+type WalletError = ErrorResponse<typeof personalDetailsSchema>
+
+type VerifyIdentityArgs = z.infer<typeof verifyIdentitySchema>
+type VerifyIdentityError = ErrorResponse<typeof verifyIdentitySchema>
 
 class UserService implements Service {
   private static instance: UserService
@@ -64,6 +105,26 @@ class UserService implements Service {
       return response.data
     } catch (e) {
       const error = e as AxiosError<LoginError>
+      return error.response?.data
+    }
+  }
+
+  async createWallet(args: WalletArgs) {
+    try {
+      const response = await $axios.post<SuccessResponse>('/wallet', args)
+      return response.data
+    } catch (e) {
+      const error = e as AxiosError<WalletError>
+      return error.response?.data
+    }
+  }
+
+  async verifyIdentity(args: VerifyIdentityArgs) {
+    try {
+      const response = await $axios.post<SuccessResponse>('/verify', args)
+      return response.data
+    } catch (e) {
+      const error = e as AxiosError<VerifyIdentityError>
       return error.response?.data
     }
   }
