@@ -75,7 +75,7 @@ export default function AccountPage({ account }: AccountPageProps) {
             {account.asset.code}
           </span>
         </div>
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col">
           {account.paymentPointers.map((paymentPointer) => (
             <PaymentPointerCard
               key={paymentPointer.id}
