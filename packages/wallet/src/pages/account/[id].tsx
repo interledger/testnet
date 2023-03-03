@@ -1,7 +1,8 @@
 import { CreatePaymentPointerDialog } from '@/components/dialogs/CreatePaymentPointerDialog'
+import { FundAccountDialog } from '@/components/dialogs/FundAccountDialog'
 import { Exchange } from '@/components/icons/Exchange'
 import { New } from '@/components/icons/New'
-import { Receive } from '@/components/icons/Receive'
+import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
@@ -49,12 +50,19 @@ export default function AccountPage({ account }: AccountPageProps) {
               </p>
             </div>
           </button>
-          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Receive className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Fund
-            </span>
-          </Link>
+          <button
+            onClick={() =>
+              openDialog(<FundAccountDialog onClose={closeDialog} />)
+            }
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
+            <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+              <Request className="h-8 w-8" />
+              <span className="font-medium text-green-5 group-hover:text-green-6">
+                Fund
+              </span>
+            </Link>
+          </button>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Exchange className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
@@ -68,9 +76,7 @@ export default function AccountPage({ account }: AccountPageProps) {
           </h3>
         </div>
         <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
-          <span className="text-brand-green-4 font-semibold">
-            {account.name}
-          </span>
+          <span className="font-semibold text-green">{account.name}</span>
           <span className="inline-flex h-8 w-10 items-center justify-center rounded-md bg-white font-bold mix-blend-screen">
             {account.asset.code}
           </span>

@@ -1,40 +1,59 @@
-import { Button } from '@/ui/Button'
+import type { DialogProps } from '@/lib/types/dialog'
+import { Form, useZodForm } from '@/ui/forms/Form'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Select } from '@/ui/forms/Select'
-import type { DialogProps } from '@/lib/types/dialog'
-import { Form, useZodForm } from '@/ui/forms/Form'
-import { z } from 'zod'
 import { Input } from '@/ui/forms/Input'
+import { Button } from '@/ui/Button'
+import { accountService, fundAccountSchema } from '@/lib/api/account'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { ErrorDialog } from './ErrorDialog'
+import { getObjectKeys } from '@/utils/helpers'
 
-type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
+type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
   account?: {
     name: string
     value: string
+    asset: { code: string }
   }
 }
 
-const createPaymentPointerSchema = z.object({
-  account: z.string().uuid(),
-  paymentPointer: z.string().min(3, {
-    message: 'Payment pointer should be at least 3 characters long.'
-  }),
-  publicName: z.string().min(3, {
-    message:
-      "Payment pointer's public name should be at least 3 characters long."
-  })
-})
-
-export const CreatePaymentPointerDialog = ({
+export const FundAccountDialog = ({
   onClose,
   account
-}: CreatePaymentPointerDialogProps) => {
-  const form = useZodForm({
-    schema: createPaymentPointerSchema
+}: FundAccountDialogProps) => {
+  const [openDialog, closeDialog] = useDialog()
+  const fundAccountForm = useZodForm({
+    schema: fundAccountSchema
   })
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
+  const handleSubmit = fundAccountForm.handleSubmit(async (data) => {
+    const response = await accountService.fundAccount(data)
+
+    if (!response) {
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Fund Account failed. Please try again"
+        />
+      )
+      return
+    }
+
+    if (response.success) {
+      closeDialog()
+    } else {
+      const { errors, message } = response
+
+      if (errors) {
+        getObjectKeys(errors).map((field) =>
+          fundAccountForm.setError(field, { message: errors[field] })
+        )
+      }
+      if (message) {
+        fundAccountForm.setError('root', { message })
+      }
+    }
   })
 
   return (
@@ -51,7 +70,6 @@ export const CreatePaymentPointerDialog = ({
         >
           <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
         </Transition.Child>
-
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
@@ -68,39 +86,38 @@ export const CreatePaymentPointerDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Create Payment Pointer
+                  Fund Account
                 </Dialog.Title>
-
                 <div className="px-4">
-                  <Form form={form} onSubmit={handleSubmit}>
+                  <Form form={fundAccountForm} onSubmit={handleSubmit}>
                     <Select
                       name="account"
-                      setValue={form.setValue}
+                      setValue={fundAccountForm.setValue}
                       defaultValue={account}
-                      error={form.formState.errors.account?.message}
+                      error={fundAccountForm.formState.errors.account?.message}
                       options={[]}
                       label="Account"
                     />
-                    <div>
-                      <Input
-                        required
-                        label="Public name"
-                        error={form.formState?.errors?.paymentPointer?.message}
-                        {...form.register('paymentPointer')}
-                      />
-                      <p className="ml-2 text-sm text-green">
-                        $rafiki.money/{form.watch('paymentPointer')}
-                      </p>
+                    <div className="flex items-center">
+                      <div className="mr-1 grow">
+                        <Input
+                          required
+                          label="Amount"
+                          defaultValue={100}
+                          error={
+                            fundAccountForm.formState?.errors?.amount?.message
+                          }
+                          {...fundAccountForm.register('amount')}
+                        />
+                      </div>
+                      <span className="inline-flex h-8 w-10 items-center justify-center rounded-md border border-turqoise bg-white font-bold text-turqoise">
+                        {/* TODO replace with {account?.asset.code} */}
+                        USD
+                      </span>
                     </div>
-                    <Input
-                      required
-                      label="Public name"
-                      error={form.formState?.errors?.publicName?.message}
-                      {...form.register('publicName')}
-                    />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="create payment pointer" type="submit">
-                        Create
+                      <Button aria-label="fund account" type="submit">
+                        Fund
                       </Button>
                       <Button
                         intent="outline"

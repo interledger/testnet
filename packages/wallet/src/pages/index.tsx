@@ -1,7 +1,7 @@
 import { AccountCard } from '@/components/AccountCard'
 import { New } from '@/components/icons/New'
 import { Pay } from '@/components/icons/Pay'
-import { Receive } from '@/components/icons/Receive'
+import { Request } from '@/components/icons/Request'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
@@ -30,22 +30,34 @@ export default function Home({ accounts }: HomeProps) {
       </div>
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
         <div className="mt-2 flex justify-between space-x-2">
-          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <Link
+            key="send"
+            href="/transfer/send"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
             <Send className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
               Send
             </span>
           </Link>
-          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <Link
+            key="pay"
+            href="/transfer/pay"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
             <Pay className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
               Pay
             </span>
           </Link>
-          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Receive className="h-8 w-8" />
+          <Link
+            key="request"
+            href="/transfer/request"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
+            <Request className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
-              Receive
+              Request
             </span>
           </Link>
           <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
