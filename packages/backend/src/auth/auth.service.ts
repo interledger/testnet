@@ -52,7 +52,11 @@ const generateRefreshToken = (
   }
 }
 
-export const signup = async (req: Request, res: Response<BaseResponse>) => {
+export const signup = async (
+  req: Request,
+  res: Response<BaseResponse>,
+  next: NextFunction
+) => {
   try {
     const { email, password, confirmPassword } = await zParse(signupSchema, req)
     if (password !== confirmPassword) {
@@ -70,10 +74,7 @@ export const signup = async (req: Request, res: Response<BaseResponse>) => {
 
     return res.status(201).json({ message: 'Success', success: true })
   } catch (error) {
-    log.error(error)
-    return res
-      .status(500)
-      .json({ message: 'Unable to create account', success: false })
+    next(error)
   }
 }
 
@@ -105,9 +106,8 @@ export const login = async (
       generateRefreshToken(user.id)
 
     if (refreshToken) {
-      refreshToken = new RefreshToken(
-        refreshToken.token,
-        refreshToken.userId,
+      refreshToken.token = generatedToken
+      refreshToken.expiresAt = RefreshToken.expiresInToExpiresAt(
         refreshTokenExpiresIn
       )
       await refreshToken.$query().patch(refreshToken)
@@ -165,13 +165,13 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     const { refreshToken: newRefreshToken, expiresIn: refreshTokenExpiresIn } =
       generateRefreshToken(userId)
 
-    const updatedRefreshToken = new RefreshToken(
-      existingRefreshToken.token,
-      existingRefreshToken.userId,
+    existingRefreshToken.token = newRefreshToken
+    existingRefreshToken.userId = user.id
+    existingRefreshToken.expiresAt = RefreshToken.expiresInToExpiresAt(
       refreshTokenExpiresIn
     )
 
-    await existingRefreshToken.$query().patch(updatedRefreshToken)
+    await existingRefreshToken.$query().patch(existingRefreshToken)
 
     appendTokensToCookie(
       res,

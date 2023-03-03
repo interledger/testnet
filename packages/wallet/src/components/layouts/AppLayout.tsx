@@ -12,7 +12,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <Menu />
       <div className="flex flex-1 flex-col pt-20 md:pl-60 md:pt-0">
         <main className="flex-1">
-          <div className="py-7 md:py-12">
+          <div className="py-7 md:py-10">
             <div className="mx-auto max-w-7xl px-7 md:px-20">{children}</div>
           </div>
         </main>

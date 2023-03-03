@@ -29,28 +29,28 @@ export default function Home({ accounts }: HomeProps) {
         </div>
       </div>
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
-        <div className="mt-2 grid grid-cols-4 gap-2">
-          <Link className="h-18 w-18 group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+        <div className="mt-2 flex justify-between space-x-2">
+          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Send className="h-8 w-8" />
-            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Send
             </span>
           </Link>
-          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Pay className="h-8 w-8" />
-            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Pay
             </span>
           </Link>
-          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Receive className="h-8 w-8" />
-            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Receive
             </span>
           </Link>
-          <Link className="group flex aspect-square flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <New className="h-8 w-8" />
-            <span className="text-sm font-medium text-green-5 group-hover:text-green-6 sm:text-base">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               New account
             </span>
           </Link>
