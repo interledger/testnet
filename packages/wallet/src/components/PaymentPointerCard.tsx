@@ -157,7 +157,7 @@ export const PaymentPointerCard = ({
 }
 
 const cardStyles = `
-flex items-center justify-between border-b border-b-green-4 px-2 py-3
+flex items-center justify-between border-b border-b-green-4 px-2 pb-3 pt-1
 [&:nth-child(4n+1)_div_button]:bg-green-5 [&:nth-child(4n+1)_div_button:hover]:bg-green-6 
 [&:nth-child(4n+2)_div_button]:bg-violet-1 [&:nth-child(4n+2)_div_button:hover]:bg-violet-2
 [&:nth-child(4n+3)_div_button]:bg-pink-1 [&:nth-child(4n+3)_div_button:hover]:bg-pink-2
