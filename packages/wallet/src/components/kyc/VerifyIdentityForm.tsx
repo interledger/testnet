@@ -1,7 +1,8 @@
 import { Button } from '@/ui/Button'
 import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { SyntheticEvent, useState } from 'react'
 import { z } from 'zod'
 

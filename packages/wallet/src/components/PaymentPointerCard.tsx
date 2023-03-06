@@ -1,6 +1,7 @@
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useOnClickOutside } from '@/lib/hooks/useOnClickOutside'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { IconButton } from '@/ui/IconButton'
 import { cx } from 'class-variance-authority'
 import {

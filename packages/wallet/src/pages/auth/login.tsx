@@ -1,6 +1,7 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'

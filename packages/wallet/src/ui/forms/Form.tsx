@@ -1,14 +1,10 @@
 import { type ComponentProps } from 'react'
 import {
-  useForm,
   FormProvider,
   type FieldValues,
   type UseFormReturn,
-  type UseFormProps,
   type SubmitHandler
 } from 'react-hook-form'
-import { type ZodSchema, type TypeOf } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { cx } from 'class-variance-authority'
 import { XCircle } from '@/components/icons/X'
 
@@ -35,10 +31,6 @@ import { XCircle } from '@/components/icons/X'
  * ```
  */
 
-interface UseZodFormProps<T extends ZodSchema> extends UseFormProps<TypeOf<T>> {
-  schema: T
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FormProps<T extends FieldValues = any>
   extends Omit<ComponentProps<'form'>, 'onSubmit'> {
@@ -47,18 +39,6 @@ interface FormProps<T extends FieldValues = any>
   readOnly?: boolean
   // Horizontal or vertical stack (`flex-col` or `flex-row`)
   stack?: 'h' | 'v'
-}
-
-export const useZodForm = <T extends ZodSchema>({
-  schema,
-  ...props
-}: UseZodFormProps<T>) => {
-  return useForm({
-    mode: 'onBlur',
-    criteriaMode: 'all',
-    resolver: zodResolver(schema),
-    ...props
-  })
 }
 
 type FormErrorProps = {

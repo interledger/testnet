@@ -1,5 +1,6 @@
 import { Button } from '@/ui/Button'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useState } from 'react'
 import { z } from 'zod'
