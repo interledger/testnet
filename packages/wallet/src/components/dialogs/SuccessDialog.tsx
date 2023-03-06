@@ -18,6 +18,20 @@ export const SuccessDialog = ({
   redirect,
   redirectText
 }: SuccessDialogProps) => {
+  const successButtonProps: {
+    href?: string
+    onClick?: () => void
+  } = {
+    href: redirect ?? '/',
+    onClick: () => {
+      onSuccess ? onSuccess() : undefined
+      onClose()
+    }
+  }
+  if (onSuccess) {
+    delete successButtonProps.href
+  }
+
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -66,23 +80,21 @@ export const SuccessDialog = ({
                       intent="secondary"
                       aria-label={redirectText ?? 'redirect'}
                       fullWidth
-                      href={redirect ?? '/'}
-                      onClick={() => {
-                        onSuccess ? onSuccess() : undefined
-                        onClose()
-                      }}
+                      {...successButtonProps}
                     >
                       {redirectText}
                     </Button>
                   )}
-                  <Button
-                    intent="success"
-                    aria-label="close dialog"
-                    fullWidth
-                    onClick={() => onClose()}
-                  >
-                    Close
-                  </Button>
+                  {!onSuccess && (
+                    <Button
+                      intent="success"
+                      aria-label="close dialog"
+                      fullWidth
+                      onClick={() => onClose()}
+                    >
+                      Close
+                    </Button>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
