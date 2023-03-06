@@ -10,7 +10,6 @@ exports.up = function (knex) {
     table.string('lastName')
     table.string('firstName')
     table.string('address')
-    table.string('phoneNumber')
     table.string('rapydWalletId')
     table.string('rapydContactId')
 
