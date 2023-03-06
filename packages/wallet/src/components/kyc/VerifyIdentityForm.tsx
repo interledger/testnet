@@ -1,9 +1,10 @@
 import { userService, verifyIdentitySchema } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
 import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
 import { getObjectKeys } from '@/utils/helpers'
 import { SyntheticEvent, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
@@ -47,44 +48,45 @@ export const VerifyIdentityForm = () => {
     schema: verifyIdentitySchema
   })
 
-  const handleSubmit = verifyIdentityForm.handleSubmit(async (data) => {
-    const response = await userService.verifyIdentity(data)
-
-    if (!response) {
-      openDialog(
-        <ErrorDialog
-          onClose={closeDialog}
-          content="Something went wrong. Please try again"
-        />
-      )
-      return
-    }
-
-    if (response.success) {
-      openDialog(
-        <SuccessDialog
-          onClose={closeDialog}
-          content="Your identity has been veryfied."
-          redirect="/"
-          redirectText="Go to your account overview"
-        />
-      )
-    } else {
-      const { errors, message } = response
-
-      if (errors) {
-        getObjectKeys(errors).map((field) =>
-          verifyIdentityForm.setError(field, { message: errors[field] })
-        )
-      }
-      if (message) {
-        verifyIdentityForm.setError('root', { message })
-      }
-    }
-  })
-
   return (
-    <Form form={verifyIdentityForm} onSubmit={handleSubmit}>
+    <Form
+      form={verifyIdentityForm}
+      onSubmit={async (data) => {
+        const response = await userService.verifyIdentity(data)
+
+        if (!response) {
+          openDialog(
+            <ErrorDialog
+              onClose={closeDialog}
+              content="Something went wrong. Please try again"
+            />
+          )
+          return
+        }
+
+        if (response.success) {
+          openDialog(
+            <SuccessDialog
+              onClose={closeDialog}
+              content="Your identity has been veryfied."
+              redirect="/"
+              redirectText="Go to your account overview"
+            />
+          )
+        } else {
+          const { errors, message } = response
+
+          if (errors) {
+            getObjectKeys(errors).map((field) =>
+              verifyIdentityForm.setError(field, { message: errors[field] })
+            )
+          }
+          if (message) {
+            verifyIdentityForm.setError('root', { message })
+          }
+        }
+      }}
+    >
       <div>
         <div className="flex justify-between">
           {idTypes.map((idType) => (
