@@ -30,23 +30,25 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
     schema: newAccountSchema
   })
 
-  const onSubmit = form.handleSubmit((data) => {
-    console.log(data)
-    openDialog(
-      <SuccessDialog
-        onClose={closeDialog}
-        title="Account created."
-        content="Your account was successfully created."
-        redirect="/account/id"
-        redirectText="View account"
-      />
-    )
-  })
-
   return (
     <AppLayout>
       <PageHeader title="Create a new account" />
-      <Form form={form} onSubmit={onSubmit} className="mt-10 max-w-lg">
+      <Form
+        form={form}
+        onSubmit={(data) => {
+          console.log(data)
+          openDialog(
+            <SuccessDialog
+              onClose={closeDialog}
+              title="Account created."
+              content="Your account was successfully created."
+              redirect="/account/id"
+              redirectText="View account"
+            />
+          )
+        }}
+        className="mt-10 max-w-lg"
+      >
         <Input
           required
           placeholder="My Account"

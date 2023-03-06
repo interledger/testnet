@@ -20,41 +20,42 @@ const Login = () => {
     schema: loginSchema
   })
 
-  const handleSubmit = loginForm.handleSubmit(async (data) => {
-    const response = await userService.login(data)
-
-    if (!response) {
-      openDialog(
-        <ErrorDialog
-          onClose={closeDialog}
-          content="Login failed. Please try again"
-        />
-      )
-      return
-    }
-
-    if (response.success) {
-      router.push('/')
-    } else {
-      const { errors, message } = response
-
-      if (errors) {
-        getObjectKeys(errors).map((field) =>
-          loginForm.setError(field, { message: errors[field] })
-        )
-      }
-      if (message) {
-        loginForm.setError('root', { message })
-      }
-    }
-  })
-
   return (
     <AuthLayout image="Login">
       <HeaderLogo header="Welcome" />
       <h2 className="mt-10 mb-5 text-xl font-semibold text-green">Login</h2>
       <div className="w-2/3">
-        <Form form={loginForm} onSubmit={handleSubmit}>
+        <Form
+          form={loginForm}
+          onSubmit={async (data) => {
+            const response = await userService.login(data)
+
+            if (!response) {
+              openDialog(
+                <ErrorDialog
+                  onClose={closeDialog}
+                  content="Login failed. Please try again"
+                />
+              )
+              return
+            }
+
+            if (response.success) {
+              router.push('/')
+            } else {
+              const { errors, message } = response
+
+              if (errors) {
+                getObjectKeys(errors).map((field) =>
+                  loginForm.setError(field, { message: errors[field] })
+                )
+              }
+              if (message) {
+                loginForm.setError('root', { message })
+              }
+            }
+          }}
+        >
           <Input
             required
             type="email"

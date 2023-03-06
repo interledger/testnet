@@ -27,16 +27,17 @@ export const ChangePasswordForm = () => {
     schema: changePasswordSchema
   })
 
-  const onSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <>
       <div className="mb-5">
         <h3 className="text-2xl text-turqoise">Change account password</h3>
       </div>
-      <Form form={form} onSubmit={onSubmit}>
+      <Form
+        form={form}
+        onSubmit={(data) => {
+          console.log(data)
+        }}
+      >
         <Input
           required
           type="password"

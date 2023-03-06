@@ -32,16 +32,18 @@ export const PersonalSettingsForm = ({
     defaultValues: personalDetails
   })
 
-  const onSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <>
       <div className="mb-5">
         <h3 className="text-2xl text-turqoise">Profile</h3>
       </div>
-      <Form form={form} onSubmit={onSubmit} readOnly={isReadOnly}>
+      <Form
+        form={form}
+        onSubmit={(data) => {
+          console.log(data)
+        }}
+        readOnly={isReadOnly}
+      >
         <Input
           required
           label="First name"

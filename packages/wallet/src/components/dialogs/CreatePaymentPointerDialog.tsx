@@ -34,10 +34,6 @@ export const CreatePaymentPointerDialog = ({
     schema: createPaymentPointerSchema
   })
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -73,7 +69,12 @@ export const CreatePaymentPointerDialog = ({
                 </Dialog.Title>
 
                 <div className="px-4">
-                  <Form form={form} onSubmit={handleSubmit}>
+                  <Form
+                    form={form}
+                    onSubmit={(data) => {
+                      console.log(data)
+                    }}
+                  >
                     <Select
                       name="account"
                       setValue={form.setValue}

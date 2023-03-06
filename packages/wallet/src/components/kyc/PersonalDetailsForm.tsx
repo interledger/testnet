@@ -30,12 +30,13 @@ export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
     schema: personalDetailsSchema
   })
 
-  const handleSubmit = personalDetailsForm.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
-    <Form form={personalDetailsForm} onSubmit={handleSubmit}>
+    <Form
+      form={personalDetailsForm}
+      onSubmit={(data) => {
+        console.log(data)
+      }}
+    >
       <div className="flex flex-row justify-between">
         <Input
           required

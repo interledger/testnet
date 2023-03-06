@@ -24,15 +24,16 @@ export default function Pay() {
     schema: paySchema
   })
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="pink" balance="$10.000" />
-        <Form form={form} onSubmit={handleSubmit}>
+        <Form
+          form={form}
+          onSubmit={(data) => {
+            console.log(data)
+          }}
+        >
           <div className="space-y-1">
             <Badge text="from" />
             <Select

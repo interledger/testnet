@@ -61,12 +61,13 @@ export const VerifyIdentityForm = () => {
     schema: verifyIdentitySchema
   })
 
-  const handleSubmit = verifyIdentityForm.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
-    <Form form={verifyIdentityForm} onSubmit={handleSubmit}>
+    <Form
+      form={verifyIdentityForm}
+      onSubmit={(data) => {
+        console.log(data)
+      }}
+    >
       <div>
         <div className="flex justify-between">
           {idTypes.map((idType) => (

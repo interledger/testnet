@@ -21,15 +21,16 @@ export default function Request() {
     schema: requestSchema
   })
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="turqoise" balance="$15.000" />
-        <Form form={form} onSubmit={handleSubmit}>
+        <Form
+          form={form}
+          onSubmit={(data) => {
+            console.log(data)
+          }}
+        >
           <div className="space-y-1">
             <Badge text="to" />
             <Input

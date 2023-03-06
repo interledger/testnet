@@ -81,11 +81,6 @@ export const PaymentPointerCard = ({
 
   const cardRef = useRef<HTMLDivElement>(null)
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
-    setIsEditing(false)
-  })
-
   const handleDeleteConfirmation = () => {
     console.log('deletion confirmed')
   }
@@ -129,7 +124,10 @@ export const PaymentPointerCard = ({
           <Form
             className="w-full"
             form={form}
-            onSubmit={handleSubmit}
+            onSubmit={(data) => {
+              console.log(data)
+              setIsEditing(false)
+            }}
             stack="h"
           >
             <PaymentPointerInput
