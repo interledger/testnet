@@ -1,4 +1,5 @@
 import { personalDetailsSchema, userService } from '@/lib/api/user'
+import $axios from '@/lib/axios'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
@@ -6,26 +7,32 @@ import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
 import { getObjectKeys } from '@/utils/helpers'
+import { useEffect, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { useKYCFormContext } from './context'
 
-type CountryProps = {
-  name: string
-  value: string
-}
-
-type PersonalDetailsProps = {
-  countries: Array<CountryProps>
-}
-
-export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
+export const PersonalDetailsForm = () => {
   const [openDialog, closeDialog] = useDialog()
+  const [countries, setCountries] = useState([])
   const { setTab, setDisabled } = useKYCFormContext()
 
   const personalDetailsForm = useZodForm({
     schema: personalDetailsSchema
   })
+
+  const fetchCountries = async () => {
+    try {
+      const response = await $axios.get('/countries')
+      setCountries(response.data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
+    fetchCountries()
+  }, [])
 
   return (
     <Form

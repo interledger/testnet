@@ -7,28 +7,12 @@ import { PersonalDetailsForm } from './PersonalDetailsForm'
 import { Play } from '../icons/Play'
 import { Button } from '@/ui/Button'
 
-const countries = [
-  {
-    name: 'Romania',
-    value: 'RO'
-  },
-  {
-    name: 'United Kingdom',
-    value: 'UK'
-  },
-  {
-    name: 'United States',
-    value: 'US'
-  },
-  { name: 'Argentina', value: 'ARG' }
-]
-
 const tabs = [
   {
     name: 'Personal Details',
     id: 'personalInfo',
     title: 'Enter your details',
-    contentForm: <PersonalDetailsForm countries={countries} />,
+    contentForm: <PersonalDetailsForm />,
     imageMobile: 'personal-info-kyc.webp'
   },
   {
