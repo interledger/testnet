@@ -1,5 +1,6 @@
 import { Button } from '@/ui/Button'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -31,16 +32,18 @@ export const PersonalSettingsForm = ({
     defaultValues: personalDetails
   })
 
-  const onSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <>
       <div className="mb-5">
         <h3 className="text-2xl text-turqoise">Profile</h3>
       </div>
-      <Form form={form} onSubmit={onSubmit} readOnly={isReadOnly}>
+      <Form
+        form={form}
+        onSubmit={(data) => {
+          console.log(data)
+        }}
+        readOnly={isReadOnly}
+      >
         <Input
           required
           label="First name"
