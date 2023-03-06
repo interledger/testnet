@@ -12,20 +12,11 @@ export const createWallet = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      address,
-      city,
-      state,
-      country,
-      zip,
-      phone
-    } = await zParse(walletSchema, req)
+    const { firstName, lastName, email, address, city, country, zip, phone } =
+      await zParse(walletSchema, req)
     const eWalletReferenceId = `${firstName}-${lastName}-402949`
 
-    await createRapydWallet({
+    const result = await createRapydWallet({
       first_name: firstName,
       last_name: lastName,
       email,
@@ -42,7 +33,6 @@ export const createWallet = async (
           name: `${firstName} ${lastName}`,
           line_1: address,
           city,
-          state,
           country,
           zip,
           phone_number: phone
@@ -50,7 +40,15 @@ export const createWallet = async (
       }
     })
 
-    return res.status(201).json({ message: 'Success', success: true })
+    if (result.status.status === 'SUCCESS') {
+      return res
+        .status(201)
+        .json({ message: 'Success', success: true, data: result.data })
+    }
+
+    return res
+      .status(201)
+      .json({ message: 'Success', success: true, data: result.data })
   } catch (error) {
     log.error(error)
     return res
