@@ -26,9 +26,10 @@ import { XCircle } from '@/components/icons/X'
  *      });
  *
  *      return (
- *            <Form form={form} onSubmit={(data) => {
- *                <Input required {...form.register('name')} />
- *            }}>
+ *            <Form form={form} onSubmit={(data) => console.log(data)}>
+ *              <Input required {...form.register('name')} />
+ *              <button type="submit">Submit</button>
+ *            </Form>
  *       )
  *  }
  * ```
