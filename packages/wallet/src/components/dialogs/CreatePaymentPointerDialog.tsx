@@ -3,7 +3,8 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Select } from '@/ui/forms/Select'
 import type { DialogProps } from '@/lib/types/dialog'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { z } from 'zod'
 import { Input } from '@/ui/forms/Input'
 
@@ -31,10 +32,6 @@ export const CreatePaymentPointerDialog = ({
 }: CreatePaymentPointerDialogProps) => {
   const form = useZodForm({
     schema: createPaymentPointerSchema
-  })
-
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
   })
 
   return (
@@ -72,7 +69,12 @@ export const CreatePaymentPointerDialog = ({
                 </Dialog.Title>
 
                 <div className="px-4">
-                  <Form form={form} onSubmit={handleSubmit}>
+                  <Form
+                    form={form}
+                    onSubmit={(data) => {
+                      console.log(data)
+                    }}
+                  >
                     <Select
                       name="account"
                       setValue={form.setValue}
