@@ -43,7 +43,7 @@ interface UseZodFormProps<T extends ZodSchema> extends UseFormProps<TypeOf<T>> {
 interface FormProps<T extends FieldValues = any>
   extends Omit<ComponentProps<'form'>, 'onSubmit'> {
   form: UseFormReturn<T>
-  onSubmit: ReturnType<SubmitHandler<T>>
+  onSubmit: SubmitHandler<T>
   readOnly?: boolean
   // Horizontal or vertical stack (`flex-col` or `flex-row`)
   stack?: 'h' | 'v'
