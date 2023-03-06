@@ -50,19 +50,17 @@ export default function AccountPage({ account }: AccountPageProps) {
               </p>
             </div>
           </button>
-          <button
+          <Link
             onClick={() =>
               openDialog(<FundAccountDialog onClose={closeDialog} />)
             }
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
-            <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-              <Request className="h-8 w-8" />
-              <span className="font-medium text-green-5 group-hover:text-green-6">
-                Fund
-              </span>
-            </Link>
-          </button>
+            <Request className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Fund
+            </span>
+          </Link>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
             <Exchange className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">

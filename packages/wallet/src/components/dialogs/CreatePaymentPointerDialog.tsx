@@ -84,7 +84,7 @@ export const CreatePaymentPointerDialog = ({
                     <div>
                       <Input
                         required
-                        label="Public name"
+                        label="Payment Pointer name"
                         error={form.formState?.errors?.paymentPointer?.message}
                         {...form.register('paymentPointer')}
                       />
