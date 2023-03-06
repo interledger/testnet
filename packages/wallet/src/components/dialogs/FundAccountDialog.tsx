@@ -1,5 +1,4 @@
 import type { DialogProps } from '@/lib/types/dialog'
-import { Form, useZodForm } from '@/ui/forms/Form'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Select } from '@/ui/forms/Select'
@@ -9,6 +8,8 @@ import { accountService, fundAccountSchema } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { useZodForm } from '@/lib/hooks/useZodForm'
+import { Form } from '@/ui/forms/Form'
 
 type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
   account?: {
@@ -25,35 +26,6 @@ export const FundAccountDialog = ({
   const [openDialog, closeDialog] = useDialog()
   const fundAccountForm = useZodForm({
     schema: fundAccountSchema
-  })
-
-  const handleSubmit = fundAccountForm.handleSubmit(async (data) => {
-    const response = await accountService.fundAccount(data)
-
-    if (!response) {
-      openDialog(
-        <ErrorDialog
-          onClose={closeDialog}
-          content="Fund Account failed. Please try again"
-        />
-      )
-      return
-    }
-
-    if (response.success) {
-      closeDialog()
-    } else {
-      const { errors, message } = response
-
-      if (errors) {
-        getObjectKeys(errors).map((field) =>
-          fundAccountForm.setError(field, { message: errors[field] })
-        )
-      }
-      if (message) {
-        fundAccountForm.setError('root', { message })
-      }
-    }
   })
 
   return (
@@ -89,7 +61,39 @@ export const FundAccountDialog = ({
                   Fund Account
                 </Dialog.Title>
                 <div className="px-4">
-                  <Form form={fundAccountForm} onSubmit={handleSubmit}>
+                  <Form
+                    form={fundAccountForm}
+                    onSubmit={async (data) => {
+                      const response = await accountService.fundAccount(data)
+
+                      if (!response) {
+                        openDialog(
+                          <ErrorDialog
+                            onClose={closeDialog}
+                            content="Fund Account failed. Please try again"
+                          />
+                        )
+                        return
+                      }
+
+                      if (response.success) {
+                        closeDialog()
+                      } else {
+                        const { errors, message } = response
+
+                        if (errors) {
+                          getObjectKeys(errors).map((field) =>
+                            fundAccountForm.setError(field, {
+                              message: errors[field]
+                            })
+                          )
+                        }
+                        if (message) {
+                          fundAccountForm.setError('root', { message })
+                        }
+                      }
+                    }}
+                  >
                     <Select
                       name="account"
                       setValue={fundAccountForm.setValue}
