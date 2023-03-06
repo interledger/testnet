@@ -29,11 +29,9 @@ export const personalDetailsSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' }),
   country: z.string(),
+  city: z.string().min(1, { message: 'City is required' }),
   address: z.string().min(1, { message: 'Address is required' }),
-  dateOfBirth: z.coerce.date(),
-  phone: z.coerce.number({
-    invalid_type_error: 'Please enter a valid phone number'
-  })
+  zip: z.coerce.number({ invalid_type_error: 'Please enter a valid ZIP code' })
 })
 
 export const verifyIdentitySchema = z.object({

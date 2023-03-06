@@ -98,22 +98,21 @@ export const PersonalDetailsForm = ({ countries }: PersonalDetailsProps) => {
       />
       <Input
         required
+        {...personalDetailsForm.register('city')}
+        error={personalDetailsForm.formState.errors.city?.message}
+        label="City"
+      />
+      <Input
+        required
         {...personalDetailsForm.register('address')}
         error={personalDetailsForm.formState.errors.address?.message}
         label="Address"
       />
       <Input
         required
-        {...personalDetailsForm.register('phone')}
-        error={personalDetailsForm.formState.errors.phone?.message}
-        label="Phone"
-      />
-      <Input
-        required
-        {...personalDetailsForm.register('dateOfBirth')}
-        type="date"
-        error={personalDetailsForm.formState.errors.dateOfBirth?.message}
-        label="Date of birth"
+        {...personalDetailsForm.register('zip')}
+        error={personalDetailsForm.formState.errors.zip?.message}
+        label="ZIP Code"
       />
       <Button aria-label="Get Wallet Account" type="submit">
         Get Wallet Account
