@@ -31,7 +31,6 @@ export default function Home({ accounts }: HomeProps) {
       <div className="flex w-full flex-col space-y-3 md:max-w-md">
         <div className="mt-2 flex justify-between space-x-2">
           <Link
-            key="send"
             href="/transfer/send"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
@@ -41,7 +40,6 @@ export default function Home({ accounts }: HomeProps) {
             </span>
           </Link>
           <Link
-            key="pay"
             href="/transfer/pay"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
@@ -51,7 +49,6 @@ export default function Home({ accounts }: HomeProps) {
             </span>
           </Link>
           <Link
-            key="request"
             href="/transfer/request"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
@@ -60,7 +57,10 @@ export default function Home({ accounts }: HomeProps) {
               Request
             </span>
           </Link>
-          <Link className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+          <Link
+            href="/account/create"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
             <New className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
               New account

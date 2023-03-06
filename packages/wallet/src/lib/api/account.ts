@@ -4,9 +4,11 @@ import $axios, { ErrorResponse, SuccessResponse } from '../axios'
 
 export const fundAccountSchema = z.object({
   account: z.string().uuid(),
-  amount: z.coerce.number({
-    invalid_type_error: 'Please enter a valid amount'
-  })
+  amount: z.coerce
+    .number({
+      invalid_type_error: 'Please enter a valid amount'
+    })
+    .positive()
 })
 
 interface Service {
