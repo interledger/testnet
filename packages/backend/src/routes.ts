@@ -1,12 +1,13 @@
 import express, { Request, Response } from 'express'
 import passport from 'passport'
-import { login, refresh, signup } from './auth/auth.service'
+import { login, me, refresh, signup } from './auth/auth.service'
 
 export const mainRouter = express.Router()
 
 mainRouter.post('/signup', signup)
 mainRouter.post('/login', login)
 mainRouter.post('/refresh', refresh)
+mainRouter.get('/me', me)
 
 mainRouter.post(
   '/protected',
