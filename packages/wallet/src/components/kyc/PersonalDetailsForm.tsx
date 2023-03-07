@@ -1,12 +1,11 @@
 import { personalDetailsSchema, userService } from '@/lib/api/user'
-import $axios from '@/lib/axios'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select, SelectOption } from '@/ui/forms/Select'
-import { getObjectKeys } from '@/utils/helpers'
+import { fetchCountries, getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
@@ -21,17 +20,12 @@ export const PersonalDetailsForm = () => {
     schema: personalDetailsSchema
   })
 
-  const fetchCountries = async () => {
-    try {
-      const response = await $axios.get('/countries')
-      setCountries(response.data.data)
-    } catch (e) {
-      console.log(e)
-    }
+  const getCountries = async () => {
+    setCountries(await fetchCountries())
   }
 
   useEffect(() => {
-    fetchCountries()
+    getCountries()
   }, [])
 
   return (
