@@ -2,6 +2,7 @@ import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt'
 import { Request } from 'express'
 import { User } from '../user/models/user'
 import env from '../config/env'
+import { UnauthorisedException } from './errors/UnauthorisedException'
 
 export const jwtStrategy = new JWTStrategy(
   {
@@ -10,18 +11,20 @@ export const jwtStrategy = new JWTStrategy(
         return request?.cookies?.AccessToken as string
       }
     ]),
-    secretOrKey: env.JWT_ACCESS_TOKEN_SECRET
+    secretOrKey: env.JWT_ACCESS_TOKEN_SECRET,
+    passReqToCallback: true
   },
-  async (jwtPayload, done) => {
-    try {
-      const { expiration, userId } = jwtPayload
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async (req: Request, jwtPayload: any, done: any) => {
+    const { exp, userId, email, noKyc } = jwtPayload
 
-      if (Date.now() > expiration) {
-        done('Unauthorized', false)
-      }
-      return done(null, { id: userId } as User)
-    } catch (error) {
-      done(error)
+    if (Date.now() > exp * 1000) {
+      return done(new UnauthorisedException('Access token expired'), false)
     }
+
+    if (noKyc && req.url !== '/wallet') {
+      return done(new UnauthorisedException('Account has no KYC'), false)
+    }
+    return done(null, { id: userId, email } as User)
   }
 )

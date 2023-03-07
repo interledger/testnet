@@ -63,7 +63,7 @@ export const CreatePaymentPointerDialog = ({
               <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl">
                 <Dialog.Title
                   as="h3"
-                  className="text-brand-green-4 text-center text-2xl font-medium"
+                  className="text-center text-2xl font-medium text-green-6"
                 >
                   Create Payment Pointer
                 </Dialog.Title>
@@ -86,11 +86,11 @@ export const CreatePaymentPointerDialog = ({
                     <div>
                       <Input
                         required
-                        label="Public name"
+                        label="Payment Pointer name"
                         error={form.formState?.errors?.paymentPointer?.message}
                         {...form.register('paymentPointer')}
                       />
-                      <p className="ml-2 text-sm">
+                      <p className="ml-2 text-sm text-green">
                         $rafiki.money/{form.watch('paymentPointer')}
                       </p>
                     </div>
@@ -109,7 +109,7 @@ export const CreatePaymentPointerDialog = ({
                         aria-label="close dialog"
                         onClick={() => onClose()}
                       >
-                        Close
+                        Cancel
                       </Button>
                     </div>
                   </Form>
