@@ -2,7 +2,8 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { Button } from '@/ui/Button'
 import { z } from 'zod'
 import Image from 'next/image'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Select } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
@@ -23,15 +24,16 @@ export default function Pay() {
     schema: paySchema
   })
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="pink" balance="$10.000" />
-        <Form form={form} onSubmit={handleSubmit}>
+        <Form
+          form={form}
+          onSubmit={(data) => {
+            console.log(data)
+          }}
+        >
           <div className="space-y-1">
             <Badge size="fixed" text="from" />
             <Select
