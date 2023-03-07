@@ -10,7 +10,7 @@ import type {
 } from 'react-hook-form'
 import { FieldError } from './FieldError'
 
-type SelectOption = {
+export type SelectOption = {
   value: string
   name: string
 }

@@ -5,7 +5,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
-import { Select } from '@/ui/forms/Select'
+import { Select, SelectOption } from '@/ui/forms/Select'
 import { getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
@@ -14,7 +14,7 @@ import { useKYCFormContext } from './context'
 
 export const PersonalDetailsForm = () => {
   const [openDialog, closeDialog] = useDialog()
-  const [countries, setCountries] = useState([])
+  const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled } = useKYCFormContext()
 
   const personalDetailsForm = useZodForm({
@@ -24,7 +24,7 @@ export const PersonalDetailsForm = () => {
   const fetchCountries = async () => {
     try {
       const response = await $axios.get('/countries')
-      setCountries(response.data)
+      setCountries(response.data.data)
     } catch (e) {
       console.log(e)
     }
