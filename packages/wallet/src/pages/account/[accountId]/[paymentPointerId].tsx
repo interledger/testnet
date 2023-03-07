@@ -32,7 +32,8 @@ export default function TransactionsPage({
           }
         />
       </div>
-      <div className="mt-10 flex w-full flex-col space-y-3 md:max-w-3xl">
+      {/* TODO: Filters */}
+      <div className="mt-10 flex w-full flex-col space-y-3 md:max-w-2xl">
         <Table>
           <Table.Head columns={['', 'Date', 'Merchant', 'Status', 'Amount']} />
           <Table.Body>
@@ -40,12 +41,19 @@ export default function TransactionsPage({
               transactions.map((trx) => (
                 <Table.Row key={trx.id}>
                   <Table.Cell className="w-10">
+                    {/*
+                      Having only an arrow that describes the transaction type
+                      can be confusig. 
+                      TODO: Find a better way to display to display transaction type.
+                    */}
                     <Arrow
                       className="h-4 w-4"
-                      direction={trx.type === 'outgoing' ? 'right' : 'left'}
+                      direction={trx.type === 'incoming' ? 'right' : 'left'}
                     />
                   </Table.Cell>
-                  <Table.Cell>{trx.date}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap">
+                    {trx.date}
+                  </Table.Cell>
                   <Table.Cell>{trx.merchant}</Table.Cell>
                   <Table.Cell>
                     <Badge
@@ -116,32 +124,48 @@ export const getServerSideProps: GetServerSideProps<{
         {
           id: '#1111',
           type: 'incoming',
-          date: new Date().toLocaleDateString(),
-          merchant: 'STARBUCKS',
+          date: new Date().toLocaleDateString('default', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }),
+          merchant: '$rafiki.money/john',
           amount: 4000,
           status: 'COMPLETED'
         },
         {
           id: '#1112',
           type: 'incoming',
-          date: new Date().toLocaleDateString(),
-          merchant: 'STARBUCKS',
+          date: new Date().toLocaleDateString('default', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }),
+          merchant: '$rafiki.money/john',
           amount: 4000,
           status: 'FUNDING'
         },
         {
           id: '#1113',
           type: 'incoming',
-          date: new Date().toLocaleDateString(),
-          merchant: 'STARBUCKS',
+          date: new Date().toLocaleString('default', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }),
+          merchant: '$rafiki.money/john',
           amount: 4000,
           status: 'EXPIRED'
         },
         {
           id: '#1114',
           type: 'outgoing',
-          date: new Date().toLocaleDateString(),
-          merchant: 'STARBUCKS',
+          date: new Date().toLocaleDateString('default', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }),
+          merchant: '$rafiki.money/john',
           amount: 4000,
           status: 'PENDING'
         }
