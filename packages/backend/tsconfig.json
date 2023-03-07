@@ -8,5 +8,6 @@
     "sourceMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/node_modules/*"]
+  "exclude": ["node_modules", "**/node_modules/*"],
+  "typeRoots": ["./src/types", "./node_modules/@types"]
 }

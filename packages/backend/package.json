@@ -3,7 +3,9 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc --build tsconfig.json",
-    "knex": "knex"
+    "knex": "knex",
+    "copy:graphql-types": "cp ../../rafiki/packages/backend/src/graphql/generated/graphql.ts ./src/rafiki/generated",
+    "postinstall": "pnpm copy:graphql-types"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",

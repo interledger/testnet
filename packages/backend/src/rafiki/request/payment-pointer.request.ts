@@ -1,21 +1,14 @@
-import {request, gql} from 'graphql-request'
-import {PaymentPointer} from "open-payments";
+import {CreatePaymentPointerMutationResponse, PaymentPointer} from "../generated/graphql";
+import {gql} from "graphql-request";
+import {requestGQL} from "../graphql.client";
+import env from "../../config/env";
 
-const GRAPHQL_ENDPOINT = 'http://backend:3001/graphql'
-const OPEN_PAYMENTS_HOST = 'https://backend:80'
-export async function requestGQL(query: string, variables: any, headers: any): Promise<any> {
-    return request({
-        url: GRAPHQL_ENDPOINT,
-        document: query,
-        variables: variables,
-        requestHeaders: headers,
-    }).then((data) => console.log(data))
-}
+const OPEN_PAYMENTS_HOST = env.OPEN_PAYMENTS_HOST
 
-export async function createPaymentPointer(
+export async function createRafikiPaymentPointer(
     accountName: string,
     paymentPointerName: string,
-    _assetId: string
+    assetId: string
 ): Promise<PaymentPointer> {
     const createPaymentPointerQuery= gql`
     mutation CreatePaymentPointer($input: CreatePaymentPointerInput!) {
@@ -32,18 +25,13 @@ export async function createPaymentPointer(
     }
   `
     const createPaymentPointerInput = {
-        asset: {
-            code: 'USD',
-            scale: 1
-        },
+        assetId: assetId,
         url: `${OPEN_PAYMENTS_HOST}/${accountName}/${paymentPointerName}`,
         publicName: paymentPointerName
     }
 
-    return requestGQL(createPaymentPointerQuery, { input: createPaymentPointerInput }, {})
-        .then(({ data }) => {
-            console.log(data)
-
+    return requestGQL<{ createPaymentPointer: CreatePaymentPointerMutationResponse }>(createPaymentPointerQuery, { input: createPaymentPointerInput }, {})
+        .then((data) => {
             if (
                 !data.createPaymentPointer.success ||
                 !data.createPaymentPointer.paymentPointer

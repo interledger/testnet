@@ -5,6 +5,7 @@
 exports.up = function (knex) {
   return knex.schema.createTable('paymentPointers', (table) => {
     table.uuid('id').notNullable().primary()
+    table.string('publicName').notNullable()
     table.uuid('accountId').notNullable()
     table.foreign('accountId').references('accounts.id')
 
