@@ -1,7 +1,8 @@
 import { Button } from '@/ui/Button'
 import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { SyntheticEvent, useState } from 'react'
 import { z } from 'zod'
 
@@ -60,12 +61,13 @@ export const VerifyIdentityForm = () => {
     schema: verifyIdentitySchema
   })
 
-  const handleSubmit = verifyIdentityForm.handleSubmit((data) => {
-    console.log(data)
-  })
-
   return (
-    <Form form={verifyIdentityForm} onSubmit={handleSubmit}>
+    <Form
+      form={verifyIdentityForm}
+      onSubmit={(data) => {
+        console.log(data)
+      }}
+    >
       <div>
         <div className="flex justify-between">
           {idTypes.map((idType) => (

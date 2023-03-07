@@ -3,7 +3,8 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Select } from '@/ui/forms/Select'
 import type { DialogProps } from '@/lib/types/dialog'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { z } from 'zod'
 import { Input } from '@/ui/forms/Input'
 
@@ -31,10 +32,6 @@ export const CreatePaymentPointerDialog = ({
 }: CreatePaymentPointerDialogProps) => {
   const form = useZodForm({
     schema: createPaymentPointerSchema
-  })
-
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
   })
 
   return (
@@ -66,13 +63,18 @@ export const CreatePaymentPointerDialog = ({
               <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl">
                 <Dialog.Title
                   as="h3"
-                  className="text-brand-green-4 text-center text-2xl font-medium"
+                  className="text-center text-2xl font-medium text-green-6"
                 >
                   Create Payment Pointer
                 </Dialog.Title>
 
                 <div className="px-4">
-                  <Form form={form} onSubmit={handleSubmit}>
+                  <Form
+                    form={form}
+                    onSubmit={(data) => {
+                      console.log(data)
+                    }}
+                  >
                     <Select
                       name="account"
                       setValue={form.setValue}
@@ -84,11 +86,11 @@ export const CreatePaymentPointerDialog = ({
                     <div>
                       <Input
                         required
-                        label="Public name"
+                        label="Payment Pointer name"
                         error={form.formState?.errors?.paymentPointer?.message}
                         {...form.register('paymentPointer')}
                       />
-                      <p className="ml-2 text-sm">
+                      <p className="ml-2 text-sm text-green">
                         $rafiki.money/{form.watch('paymentPointer')}
                       </p>
                     </div>
@@ -107,7 +109,7 @@ export const CreatePaymentPointerDialog = ({
                         aria-label="close dialog"
                         onClick={() => onClose()}
                       >
-                        Close
+                        Cancel
                       </Button>
                     </div>
                   </Form>

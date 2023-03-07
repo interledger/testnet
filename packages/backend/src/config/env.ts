@@ -8,7 +8,7 @@ const envSchema = z.object({
   NODE_ENV: z.string().default('development'),
   DB_URL: z.string(),
   JWT_ACCESS_TOKEN_SECRET: z.string(),
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.string(),
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.number(),
   JWT_REFRESH_TOKEN_SECRET: z.string(),
   JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number(),
   RAPYD_API: z.string(),
