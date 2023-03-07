@@ -13,7 +13,10 @@ export const getCountryNames = async (
     const result = await makeRapydGetRequest('data/countries')
 
     if (result.status.status !== 'SUCCESS')
-      throw new Error(result.status.message)
+      return res.status(500).json({
+        message: `Unable to get country names from rapyd : ${result.status.message}`,
+        success: false
+      })
 
     const countryNames = result.data.map((item: RapydCountry) => ({
       name: item.name,
