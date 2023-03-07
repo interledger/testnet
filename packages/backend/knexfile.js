@@ -3,11 +3,11 @@ module.exports = {
     client: 'postgresql',
     // connection: 'postgres://postgres:password@postgres/testnet',
     connection: {
-      host: '0.0.0.0',
+      host: 'postgres',
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 0,
@@ -23,11 +23,11 @@ module.exports = {
   testing: {
     client: 'postgresql',
     connection: {
-      host: '0.0.0.0',
+      host: 'postgres',
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 2,
@@ -45,7 +45,7 @@ module.exports = {
       database: 'testnet',
       user: 'postgres',
       password: 'password',
-      port: 5433
+      port: 5432
     },
     pool: {
       min: 2,

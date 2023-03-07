@@ -10,6 +10,7 @@ export class User extends Model {
   password!: string
   lastName?: string
   firstName?: string
+  address?: string
   rapydWalletId?: string
   rapydContactId?: string
   refreshTokens?: Array<RefreshToken>

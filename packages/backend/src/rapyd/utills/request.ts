@@ -21,12 +21,12 @@ const calcSignature = (
   return crypto.enc.Base64.stringify(crypto.enc.Utf8.parse(signature))
 }
 
-const getRapydRequestHeader = (url: string, body: string) => {
+const getRapydRequestHeader = (method: string, url: string, body: string) => {
   const salt = crypto.lib.WordArray.random(12).toString()
   const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString()
 
   const signature = calcSignature(
-    'post',
+    method,
     `/v1/${url}`,
     salt,
     env.RAPYD_ACCESS_KEY,
@@ -44,7 +44,7 @@ const getRapydRequestHeader = (url: string, body: string) => {
 }
 
 const makeRapydGetRequest = async (url: string) => {
-  const headers = getRapydRequestHeader(url, '')
+  const headers = getRapydRequestHeader('get', url, '')
 
   const res = await axios.get(`${env.RAPYD_API}/${url}`, {
     headers
@@ -54,13 +54,18 @@ const makeRapydGetRequest = async (url: string) => {
 }
 
 const makeRapydPostRequest = async (url: string, body: string) => {
-  const headers = getRapydRequestHeader(url, body)
+  const headers = getRapydRequestHeader('post', url, body)
 
-  const res = await axios.post(`${env.RAPYD_API}/${url}`, JSON.parse(body), {
-    headers
-  })
+  try {
+    const res = await axios.post(`${env.RAPYD_API}/${url}`, JSON.parse(body), {
+      headers
+    })
 
-  return res.data
+    return res.data
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (e as any).response.data
+  }
 }
 
 export { makeRapydGetRequest, makeRapydPostRequest }

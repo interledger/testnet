@@ -4,6 +4,8 @@ import { Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { walletSchema } from './schemas/walletSchema'
 import { createRapydWallet } from '../rapyd/wallet'
+import { User } from '../user/models/user'
+import crypto from 'crypto'
 
 const log = logger('WalletService')
 
@@ -12,15 +14,30 @@ export const createWallet = async (
   res: Response<BaseResponse>
 ) => {
   try {
+    // will be uncommented when the jwt token is attached to headers on frontend
+    // const user = req.user as User
+    // const email = user.email
     const { firstName, lastName, email, address, city, country, zip, phone } =
       await zParse(walletSchema, req)
-    const eWalletReferenceId = `${firstName}-${lastName}-402949`
+
+    // update address field of user
+    await User.query()
+      .findOne({ email })
+      .patch({
+        address: `${address}, ${city}, ${zip}, ${country}`
+      })
+
+    const randomIdentifier = crypto
+      .randomBytes(8)
+      .toString('base64')
+      .slice(0, 8)
+    const rapydWalletId = `${firstName}-${lastName}-${randomIdentifier}`
 
     const result = await createRapydWallet({
       first_name: firstName,
       last_name: lastName,
       email,
-      ewallet_reference_id: eWalletReferenceId,
+      ewallet_reference_id: rapydWalletId,
       phone_number: phone,
       type: 'person',
       contact: {
@@ -40,15 +57,19 @@ export const createWallet = async (
       }
     })
 
-    if (result.status.status === 'SUCCESS') {
-      return res
-        .status(201)
-        .json({ message: 'Success', success: true, data: result.data })
-    }
+    if (result.status.status !== 'SUCCESS')
+      return res.status(500).json({
+        message: `Unable to create wallet : ${result.status.message}`,
+        success: false
+      })
+
+    await User.query().findOne({ email }).patch({
+      rapydWalletId
+    })
 
     return res
       .status(201)
-      .json({ message: 'Success', success: true, data: result.data })
+      .json({ message: 'Success', success: true, data: result })
   } catch (error) {
     log.error(error)
     return res
