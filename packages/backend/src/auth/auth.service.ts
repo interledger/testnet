@@ -4,6 +4,7 @@ import env from '../config/env'
 import { zParse } from '../middlewares/validator'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { BadRequestException } from '../shared/models/errors/BadRequestException'
+import { NotFoundException } from '../shared/models/errors/NotFoundException'
 import { User } from '../user/models/user'
 import { UnauthorisedException } from './errors/UnauthorisedException'
 import { RefreshToken } from './models/refreshToken'
@@ -189,6 +190,49 @@ export const refresh = async (
     )
 
     res.status(200).send({ message: 'success', success: true })
+  } catch (e) {
+    next(e)
+  }
+}
+
+export interface UserProfile {
+  email: string
+  firstName?: string
+  lastName?: string
+  noKyc: boolean
+}
+export const me = async (
+  req: Request,
+  res: Response<BaseResponse<UserProfile>>,
+  next: NextFunction
+) => {
+  try {
+    const refreshToken = req.cookies.RefreshToken
+    if (!refreshToken) {
+      throw new BadRequestException('No refresh token provided')
+    }
+
+    const existingRefreshToken = await RefreshToken.verify(refreshToken)
+    const { userId } = existingRefreshToken
+    if (!userId) {
+      throw new BadRequestException('Invalid refresh token')
+    }
+
+    const user = await User.query().findById(userId)
+    if (!user) {
+      throw new NotFoundException()
+    }
+
+    return res.status(200).send({
+      message: 'success',
+      success: true,
+      data: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        noKyc: !user.rapydContactId
+      }
+    })
   } catch (e) {
     next(e)
   }

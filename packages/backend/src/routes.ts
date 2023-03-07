@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
 import passport from 'passport'
-import { login, refresh, signup } from './auth/auth.service'
+import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
 import { createWallet } from './wallet/wallet.service'
 
@@ -16,6 +16,16 @@ mainRouter.use(function (req, _res, next) {
 mainRouter.post('/signup', signup)
 mainRouter.post('/login', login)
 mainRouter.post('/refresh', refresh)
+mainRouter.get('/me', me)
+
+mainRouter.post(
+  '/wallet',
+  // will be uncommented when jwt token is attached to header from frontend
+  // passport.authenticate('jwt', { session: false }),
+  createWallet
+)
+
+mainRouter.get('/countries', getCountryNames)
 
 mainRouter.post(
   '/wallet',
