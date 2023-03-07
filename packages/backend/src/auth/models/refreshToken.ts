@@ -41,14 +41,14 @@ export class RefreshToken extends Model {
     return rt
   }
 
-  static relationMappings = () => ({
-    user: {
-      relation: Model.BelongsToOneRelation,
-      modelClass: User,
-      join: {
-        from: 'refreshTokens.userId',
-        to: 'users.id'
-      }
-    }
-  })
+  // static relationMappings = () => ({
+  //   user: {
+  //     relation: Model.BelongsToOneRelation,
+  //     modelClass: User,
+  //     join: {
+  //       from: 'refreshTokens.userId',
+  //       to: 'users.id'
+  //     }
+  //   }
+  // })
 }
