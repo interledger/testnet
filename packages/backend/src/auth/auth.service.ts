@@ -1,22 +1,31 @@
+import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import env from '../config/env'
 import { zParse } from '../middlewares/validator'
+import { BaseResponse } from '../shared/models/BaseResponse'
+import { BadRequestException } from '../shared/models/errors/BadRequestException'
 import { User } from '../user/models/user'
-import logger from '../utils/logger'
+import { UnauthorisedException } from './errors/UnauthorisedException'
 import { RefreshToken } from './models/refreshToken'
 import { loginSchema, signupSchema } from './schemas'
-import { BadRequestException } from '../shared/models/errors/BadRequestException'
-import { UnauthorisedException } from './errors/UnauthorisedException'
-import { NextFunction, Request, Response } from 'express'
-import { BaseResponse } from '../shared/models/BaseResponse'
 
-const log = logger('AuthService')
+export interface AccessTokenPayload {
+  userId: string
+  email: string
+  noKyc?: boolean
+  expiresIn: number
+}
 
 const generateJWT = (
-  userId: string
+  user: User
 ): { accessToken: string; expiresIn: number } => {
+  const payload = {
+    userId: user.id,
+    email: user.email,
+    noKyc: !user.rapydWalletId
+  }
   return {
-    accessToken: sign({ userId }, env.JWT_ACCESS_TOKEN_SECRET, {
+    accessToken: sign(payload, env.JWT_ACCESS_TOKEN_SECRET, {
       expiresIn: env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
     }),
     expiresIn: Number(env.JWT_ACCESS_TOKEN_EXPIRATION_TIME)
@@ -120,9 +129,7 @@ export const login = async (
       await user.$relatedQuery('refreshTokens').insert(refreshToken)
     }
 
-    const { accessToken, expiresIn: accessTokenExpiresIn } = generateJWT(
-      user.id
-    )
+    const { accessToken, expiresIn: accessTokenExpiresIn } = generateJWT(user)
 
     appendTokensToCookie(
       res,
@@ -138,30 +145,30 @@ export const login = async (
   }
 }
 
-export const refresh = async (req: Request, res: Response<BaseResponse>) => {
+export const refresh = async (
+  req: Request,
+  res: Response<BaseResponse>,
+  next: NextFunction
+) => {
   try {
     const refreshToken = req.cookies.RefreshToken
     if (!refreshToken) {
-      return res
-        .status(400)
-        .send({ message: 'No refresh token found', success: false })
+      throw new UnauthorisedException('No refresh token provided')
     }
     const existingRefreshToken = await RefreshToken.verify(refreshToken)
     const { userId } = existingRefreshToken
     if (!userId) {
-      return res
-        .status(400)
-        .send({ message: 'Invalid refresh token', success: false })
+      throw new UnauthorisedException('Invalid refresh token')
     }
 
     const user = await User.query().findById(userId)
 
     if (!user) {
-      return res.status(400).send({ message: 'User not found', success: false })
+      throw new UnauthorisedException('Invalid refresh token')
     }
 
     const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
-      generateJWT(userId)
+      generateJWT(user)
     const { refreshToken: newRefreshToken, expiresIn: refreshTokenExpiresIn } =
       generateRefreshToken(userId)
 
@@ -182,8 +189,7 @@ export const refresh = async (req: Request, res: Response<BaseResponse>) => {
     )
 
     res.status(200).send({ message: 'success', success: true })
-  } catch (error) {
-    log.error(error)
-    res.status(500).send({ message: 'Refresh failed', success: false })
+  } catch (e) {
+    next(e)
   }
 }
