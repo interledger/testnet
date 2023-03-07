@@ -1,6 +1,7 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
-import { Form, useZodForm } from '@/ui/forms/Form'
+import { Form } from '@/ui/forms/Form'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
@@ -17,48 +18,49 @@ const SignUp = () => {
     schema: signUpSchema
   })
 
-  const handleSubmit = signUpForm.handleSubmit(async (data) => {
-    const response = await userService.signUp(data)
-
-    if (!response) {
-      openDialog(
-        <ErrorDialog
-          onClose={closeDialog}
-          content="Something went wrong. Please try again"
-        />
-      )
-      return
-    }
-
-    if (response.success) {
-      openDialog(
-        <SuccessDialog
-          onClose={closeDialog}
-          content="Your account was created."
-          redirect="/auth/login"
-          redirectText="Go to login page"
-        />
-      )
-    } else {
-      const { errors, message } = response
-
-      if (errors) {
-        getObjectKeys(errors).map((field) =>
-          signUpForm.setError(field, { message: errors[field] })
-        )
-      }
-      if (message) {
-        signUpForm.setError('root', { message })
-      }
-    }
-  })
-
   return (
     <AuthLayout image="Register">
       <HeaderLogo header="Welcome" />
       <h2 className="mt-10 mb-5 text-xl text-green">Create Account</h2>
       <div className="w-2/3">
-        <Form form={signUpForm} onSubmit={handleSubmit}>
+        <Form
+          form={signUpForm}
+          onSubmit={async (data) => {
+            const response = await userService.signUp(data)
+
+            if (!response) {
+              openDialog(
+                <ErrorDialog
+                  onClose={closeDialog}
+                  content="Something went wrong. Please try again"
+                />
+              )
+              return
+            }
+
+            if (response.success) {
+              openDialog(
+                <SuccessDialog
+                  onClose={closeDialog}
+                  content="Your account was created."
+                  redirect="/auth/login"
+                  redirectText="Go to login page"
+                />
+              )
+            } else {
+              const { errors, message } = response
+
+              if (errors) {
+                getObjectKeys(errors).map((field) =>
+                  signUpForm.setError(field, { message: errors[field] })
+                )
+              }
+              if (message) {
+                signUpForm.setError('root', { message })
+              }
+            }
+          }}
+        >
           <Input
             required
             type="email"

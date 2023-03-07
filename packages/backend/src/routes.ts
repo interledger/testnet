@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express'
 import passport from 'passport'
-import { login, refresh, signup } from './auth/auth.service'
+import { login, me, refresh, signup } from './auth/auth.service'
+import { getCountryNames } from './rapyd/countries/countries.service'
+import { createWallet } from './wallet/wallet.service'
 import {
   create as createAsset,
   getById as getAssetById,
@@ -19,9 +21,25 @@ import {
 
 export const mainRouter = express.Router()
 
+mainRouter.use(function (req, _res, next) {
+  req.setTimeout(500000, function () {
+    // call back function is called when request timed out.
+  })
+  next()
+})
+
 mainRouter.post('/signup', signup)
 mainRouter.post('/login', login)
 mainRouter.post('/refresh', refresh)
+mainRouter.get('/me', me)
+
+mainRouter.post(
+  '/wallet',
+  passport.authenticate('jwt', { session: false }),
+  createWallet
+)
+
+mainRouter.get('/countries', getCountryNames)
 
 mainRouter.post(
   '/protected',
