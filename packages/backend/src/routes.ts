@@ -20,8 +20,7 @@ mainRouter.get('/me', me)
 
 mainRouter.post(
   '/wallet',
-  // will be uncommented when jwt token is attached to header from frontend
-  // passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', { session: false }),
   createWallet
 )
 

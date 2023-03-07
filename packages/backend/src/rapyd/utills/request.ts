@@ -46,11 +46,16 @@ const getRapydRequestHeader = (method: string, url: string, body: string) => {
 const makeRapydGetRequest = async (url: string) => {
   const headers = getRapydRequestHeader('get', url, '')
 
-  const res = await axios.get(`${env.RAPYD_API}/${url}`, {
-    headers
-  })
+  try {
+    const res = await axios.get(`${env.RAPYD_API}/${url}`, {
+      headers
+    })
 
-  return res.data
+    return res.data
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (e as any).response.data
+  }
 }
 
 const makeRapydPostRequest = async (url: string, body: string) => {
