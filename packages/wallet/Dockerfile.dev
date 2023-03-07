@@ -4,7 +4,8 @@ FROM node:lts-hydrogen
 WORKDIR /home/testnet/rafiki
 
 # Install PNPM
-RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7.28.0
+RUN corepack enable
+RUN corepack prepare pnpm@7.28.0 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY rafiki/pnpm-lock.yaml ./
