@@ -30,7 +30,7 @@ export default function Request() {
         <TransferHeader type="turqoise" balance="$15.000" />
         <Form form={form} onSubmit={handleSubmit}>
           <div className="space-y-1">
-            <Badge text="to" />
+            <Badge size="fixed" text="to" />
             <Input
               required
               {...form.register('paymentPointer')}
