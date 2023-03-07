@@ -14,10 +14,9 @@ export const createWallet = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    // will be uncommented when the jwt token is attached to headers on frontend
-    // const user = req.user as User
-    // const email = user.email
-    const { firstName, lastName, email, address, city, country, zip, phone } =
+    const user = req.user as User
+    const email = user.email
+    const { firstName, lastName, address, city, country, zip, phone } =
       await zParse(walletSchema, req)
 
     // update address field of user
