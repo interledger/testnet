@@ -1,6 +1,6 @@
 import { SVGProps } from 'react'
 
-export const Receive = (props: SVGProps<SVGSVGElement>) => {
+export const Request = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       width="33"
