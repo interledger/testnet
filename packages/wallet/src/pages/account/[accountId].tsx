@@ -89,7 +89,7 @@ export default function AccountPage({ account }: AccountPageProps) {
 }
 
 const querySchema = z.object({
-  id: z.string().uuid()
+  accountId: z.string().uuid()
 })
 
 export const getServerSideProps: GetServerSideProps<{
