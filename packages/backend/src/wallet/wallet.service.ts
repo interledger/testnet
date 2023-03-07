@@ -68,7 +68,7 @@ export const createWallet = async (
 
     return res
       .status(201)
-      .json({ message: 'Success', success: true, data: result })
+      .json({ message: 'Success', success: true, data: result.data })
   } catch (error) {
     log.error(error)
     return res
