@@ -5,7 +5,7 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select, SelectOption } from '@/ui/forms/Select'
-import { fetchCountries, getObjectKeys } from '@/utils/helpers'
+import { fetchCountries, fetchDocuments, getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
@@ -14,11 +14,18 @@ import { useKYCFormContext } from './context'
 export const PersonalDetailsForm = () => {
   const [openDialog, closeDialog] = useDialog()
   const [countries, setCountries] = useState<SelectOption[]>([])
-  const { setTab, setDisabled } = useKYCFormContext()
+  const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
+
+  // DEV TESTING => always USA selected
+  const defaultCountry = { value: 'US', name: 'United States of America' }
 
   const personalDetailsForm = useZodForm({
     schema: personalDetailsSchema
   })
+
+  const getDocuments = async () => {
+    setIdTypes(await fetchDocuments())
+  }
 
   const getCountries = async () => {
     setCountries(await fetchCountries())
@@ -47,12 +54,9 @@ export const PersonalDetailsForm = () => {
         if (response.success) {
           openDialog(
             <SuccessDialog
-              onClose={() => {
-                setDisabled(false)
-                closeDialog()
-              }}
+              onClose={closeDialog}
               onSuccess={() => {
-                // set ID types approoved by Country, ID types from response
+                getDocuments()
                 setDisabled(false)
                 setTab(1)
                 closeDialog()
@@ -75,6 +79,9 @@ export const PersonalDetailsForm = () => {
         }
       }}
     >
+      <span className="font-semibold text-pink">
+        Test data is used in development mode!
+      </span>
       <div className="flex flex-row justify-between">
         <Input
           required
@@ -92,10 +99,12 @@ export const PersonalDetailsForm = () => {
       <Select
         name="country"
         setValue={personalDetailsForm.setValue}
-        defaultValue={countries[0]}
         error={personalDetailsForm.formState.errors.country?.message}
         options={countries}
         label="Country"
+        // DEV TESTING => always disabled and USA selected
+        defaultValue={defaultCountry}
+        isDisabled={true}
       />
       <Input
         required

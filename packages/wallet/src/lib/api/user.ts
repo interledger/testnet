@@ -35,21 +35,32 @@ export const personalDetailsSchema = z.object({
 })
 
 export const verifyIdentitySchema = z.object({
-  idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
-  frontSideID: z
-    .custom<FileList>()
-    .refine(
-      (frontSideID) => frontSideID?.length === 1,
-      'Front side of ID is required'
-    )
-    .refine(
-      (frontSideID) => frontSideID?.length < 2,
-      'You can only select one image'
-    ),
-  selfie: z
-    .custom<FileList>()
-    .refine((selfie) => selfie?.length === 1, 'Selfie is required')
-    .refine((selfie) => selfie?.length < 2, 'You can only select one image')
+  idType: z.string({ invalid_type_error: 'Please select an ID Type' })
+  // DEV TESTING => default documents and selfie is sent to verify
+  // frontSideID: z
+  //   .custom<FileList>()
+  //   .refine(
+  //     (frontSideID) => frontSideID?.length === 1,
+  //     'Front side of ID is required'
+  //   )
+  //   .refine(
+  //     (frontSideID) => frontSideID?.length < 2,
+  //     'You can only select one image'
+  //   ),
+  // backSideID: z
+  //   .custom<FileList>()
+  //   .refine(
+  //     (backSideID) => backSideID?.length === 1,
+  //     'Back side of ID is required'
+  //   )
+  //   .refine(
+  //     (backSideID) => backSideID?.length < 2,
+  //     'You can only select one image'
+  //   ),
+  // selfie: z
+  //   .custom<FileList>()
+  //   .refine((selfie) => selfie?.length === 1, 'Selfie is required')
+  //   .refine((selfie) => selfie?.length < 2, 'You can only select one image')
 })
 
 interface Service {
@@ -119,9 +130,7 @@ class UserService implements Service {
 
   async verifyIdentity(args: VerifyIdentityArgs) {
     try {
-      const response = await $axios.post<SuccessResponse>('/verify', args, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const response = await $axios.post<SuccessResponse>('/verify', args)
       return response.data
     } catch (e) {
       const error = e as AxiosError<VerifyIdentityError>

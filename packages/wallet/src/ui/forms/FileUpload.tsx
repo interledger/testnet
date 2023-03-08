@@ -8,10 +8,11 @@ type FileUploadProps = Omit<
 > & {
   label?: string
   error?: string
+  isDisabled?: boolean
 }
 
 export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
-  ({ label, error, ...props }, ref) => {
+  ({ label, error, isDisabled, ...props }, ref) => {
     const id = useId()
 
     return (
@@ -24,7 +25,14 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
             <UploadSmile />
             <span className="text-md pt-2 font-light">{label}</span>
           </div>
-          <input id={id} ref={ref} type="file" className="hidden" {...props} />
+          <input
+            disabled={isDisabled ?? false}
+            id={id}
+            ref={ref}
+            type="file"
+            className="hidden"
+            {...props}
+          />
         </label>
         <FieldError error={error} />
       </>

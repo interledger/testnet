@@ -23,6 +23,7 @@ type SelectProps<T extends FieldValues> = {
   label?: string
   placeholder?: string
   error?: string
+  isDisabled?: boolean
 }
 
 export const Select = <T extends FieldValues>({
@@ -32,7 +33,8 @@ export const Select = <T extends FieldValues>({
   options,
   label,
   placeholder,
-  error
+  error,
+  isDisabled
 }: SelectProps<T>) => {
   const [selected, setSelected] = useState<SelectOption | null>(
     defaultValue ?? null
@@ -49,7 +51,12 @@ export const Select = <T extends FieldValues>({
 
   return (
     <div>
-      <Listbox name={name} value={selected} onChange={setSelected}>
+      <Listbox
+        name={name}
+        value={selected}
+        onChange={setSelected}
+        disabled={isDisabled ?? false}
+      >
         {({ open }) => (
           <div className="relative">
             <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pt-4 pb-1 text-left shadow-md outline-none transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">

@@ -17,3 +17,13 @@ export const fetchCountries = async () => {
     console.log(e)
   }
 }
+
+/** `fetchDocuments` gets list of approoved documents by countries from Rapyd */
+export const fetchDocuments = async () => {
+  try {
+    const response = await $axios.get('/documents')
+    return response.data.data
+  } catch (e) {
+    console.log(e)
+  }
+}
