@@ -114,7 +114,7 @@ export const VerifyIdentityForm = () => {
               />
               <label
                 htmlFor={idType.type}
-                className="w-auto cursor-pointer rounded-xl border border-turqoise bg-white p-2 text-center text-base font-light text-turqoise shadow-md peer-checked:border-orange peer-checked:text-orange sm:min-w-[100px]"
+                className="w-[150px] cursor-pointer rounded-xl border border-turqoise bg-white p-2 text-center text-base font-light text-turqoise shadow-md peer-checked:border-orange peer-checked:text-orange sm:min-w-[100px]"
               >
                 {idType.name}
               </label>
