@@ -23,7 +23,7 @@ const generateJWT = (
   const payload = {
     userId: user.id,
     email: user.email,
-    noKyc: !user.rapydWalletId
+    noKyc: !user.rapydEWalletId
   }
   return {
     accessToken: sign(payload, env.JWT_ACCESS_TOKEN_SECRET, {

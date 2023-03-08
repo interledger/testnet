@@ -3,7 +3,7 @@ import passport from 'passport'
 import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
 import { getDocumentTypes } from './rapyd/documents/documents.service'
-import { createWallet } from './wallet/wallet.service'
+import { createWallet, verifyIdentity } from './wallet/wallet.service'
 
 export const mainRouter = express.Router()
 
@@ -25,8 +25,19 @@ mainRouter.post(
   createWallet
 )
 
+mainRouter.post(
+  '/verify',
+  passport.authenticate('jwt', { session: false }),
+  verifyIdentity
+)
+
+mainRouter.get(
+  '/documents',
+  passport.authenticate('jwt', { session: false }),
+  getDocumentTypes
+)
+
 mainRouter.get('/countries', getCountryNames)
-mainRouter.get('/documents', getDocumentTypes)
 
 mainRouter.post(
   '/protected',
