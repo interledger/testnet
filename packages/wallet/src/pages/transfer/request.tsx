@@ -32,7 +32,7 @@ export default function Request() {
           }}
         >
           <div className="space-y-1">
-            <Badge text="to" />
+            <Badge size="fixed" text="to" />
             <Input
               required
               {...form.register('paymentPointer')}

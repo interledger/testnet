@@ -17,7 +17,7 @@
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "docker:compose": "docker compose -f ./docker/dev/docker-compose.yml",
     "docker:down": "pnpm docker:compose down",
-    "dev": "pnpm docker:compose up -d --build",
+    "dev": "pnpm docker:compose up -d --build && pnpm wallet dev",
     "dev-backend": "pnpm run backend build && pnpm docker:compose up -d --build && nodemon --watch packages/backend -e ts --exec 'pnpm docker:compose up -d --no-deps --build testnet'",
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint -c '.eslintrc.js' --max-warnings=0 .",
@@ -29,10 +29,10 @@
     "wallet": "pnpm --filter wallet --"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
     "eslint": "^8.35.0",
-    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "nodemon": "^2.0.21",

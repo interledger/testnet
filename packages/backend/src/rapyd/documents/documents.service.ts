@@ -5,31 +5,35 @@ import { makeRapydGetRequest } from '../utills/request'
 
 const log = logger('rapydService')
 
-export const getCountryNames = async (
-  _: Request,
+export const getDocumentTypes = async (
+  req: Request,
   res: Response<BaseResponse>
 ) => {
   try {
-    const result = await makeRapydGetRequest('data/countries')
+    const { country } = req.query
+    const result = await makeRapydGetRequest(
+      `identities/types?country=${country}`
+    )
 
     if (result.status.status !== 'SUCCESS')
       return res.status(500).json({
-        message: `Unable to get country names from rapyd : ${result.status.message}`,
+        message: `Unable to get document types from rapyd : ${result.status.message}`,
         success: false
       })
 
-    const countryNames = result.data.map((item: RapydCountry) => ({
+    const documentTypes = result.data.map((item: RapydDocumentType) => ({
+      type: item.type,
       name: item.name,
-      value: item.iso_alpha2
+      is_back_required: item.is_back_required
     }))
 
     return res
       .status(200)
-      .json({ message: 'Success', success: true, data: countryNames })
+      .json({ message: 'Success', success: true, data: documentTypes })
   } catch (error) {
     log.error(error)
     return res.status(500).json({
-      message: 'Unable to get country names from rapyd',
+      message: 'Unable to get document types from rapyd',
       success: false
     })
   }
