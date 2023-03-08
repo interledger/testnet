@@ -87,7 +87,6 @@ export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (_ctx) => {
   const accounts = await Promise.resolve(mockAccountList())
-
   return {
     props: {
       accounts

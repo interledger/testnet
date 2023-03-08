@@ -1,9 +1,9 @@
 {
   "name": "wallet",
   "scripts": {
-    "dev": "next dev",
+    "dev": "PORT=4003 next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "PORT=4003 next start"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.13",
