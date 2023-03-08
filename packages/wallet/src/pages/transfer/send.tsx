@@ -35,7 +35,7 @@ export default function Send() {
           }}
         >
           <div className="space-y-1">
-            <Badge text="from" />
+            <Badge size="fixed" text="from" />
             <Select
               name="fromAccount"
               setValue={form.setValue}
@@ -45,7 +45,7 @@ export default function Send() {
             />
           </div>
           <div className="space-y-1">
-            <Badge text="to" />
+            <Badge size="fixed" text="to" />
             <Input
               required
               {...form.register('toPaymentPointer')}
