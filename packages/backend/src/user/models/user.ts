@@ -11,7 +11,9 @@ export class User extends Model {
   lastName?: string
   firstName?: string
   address?: string
-  rapydWalletId?: string
+  country?: string
+  rapydEWalletReferenceId?: string
+  rapydEWalletId?: string
   rapydContactId?: string
   refreshTokens?: Array<RefreshToken>
 

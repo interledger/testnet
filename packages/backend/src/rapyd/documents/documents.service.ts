@@ -2,6 +2,7 @@ import logger from '../../utils/logger'
 import { Request, Response } from 'express'
 import { BaseResponse } from '../../shared/models/BaseResponse'
 import { makeRapydGetRequest } from '../utills/request'
+import { User } from '../../user/models/user'
 
 const log = logger('rapydService')
 
@@ -10,7 +11,14 @@ export const getDocumentTypes = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const { country } = req.query
+    const { email } = req.user as User
+
+    const user = await User.query().where('email', email).first()
+    if (!user) throw new Error(`user doesn't exist`)
+
+    const country = user.country
+    if (!country) throw new Error(`country code doesn't exist in database`)
+
     const result = await makeRapydGetRequest(
       `identities/types?country=${country}`
     )
