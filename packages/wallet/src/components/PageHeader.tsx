@@ -1,6 +1,8 @@
+import { ReactNode } from 'react'
+
 type PageHeaderProps = {
   title: string
-  message?: string
+  message?: ReactNode
 }
 
 export const PageHeader = ({ title, message }: PageHeaderProps) => {
