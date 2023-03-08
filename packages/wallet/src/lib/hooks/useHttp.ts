@@ -11,11 +11,11 @@ export const useHttpRequest = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       TArgs = never
     >(
-      fn: (a?: TArgs) => Promise<TResponse>,
-      args?: TArgs
+      fn: (a: TArgs) => Promise<TResponse>,
+      args: TArgs
     ) => {
       setIsLoading(true)
-      const response = args ? await fn(args) : await fn()
+      const response = await fn(args)
       setIsLoading(false)
 
       return response
