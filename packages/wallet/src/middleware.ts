@@ -29,13 +29,13 @@ export async function middleware(req: NextRequest) {
     const { data } = (await response.json()) as SuccessResponse<UserData>
 
     // If the user is logged in and has not completed KYC, redirect to KYC page.
-    if (!data?.noKyc && req.nextUrl.pathname !== '/kyc') {
+    if (data?.noKyc && req.nextUrl.pathname !== '/kyc') {
       return NextResponse.redirect(new URL('/kyc', req.url))
     }
 
     // If KYC is completed and the user tries to navigate to the page, redirect
     // to homepage.
-    if (isPublic || req.nextUrl.pathname === '/kyc') {
+    if (!data?.noKyc && req.nextUrl.pathname === '/kyc') {
       return NextResponse.redirect(new URL('/', req.url))
     }
   } else {
@@ -49,7 +49,6 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next()
 }
 
-// Avoid running the middleware for static assets.
-export const config = {
-  matcher: '/((?!_next/static|_next/image|favicon.ico).*)'
-}
+// A simple trick to avoid running the middleware on all static files.
+// Static files have a `.` in the path, while dynamic files do not.
+export const config = { matcher: '/((?!_next|.*\\.).*)' }
