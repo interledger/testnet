@@ -8,7 +8,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { mockAccountList, type Account } from '@/utils/mocks'
-import { _ky } from '@/lib/test'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -29,8 +28,8 @@ export default function Home({ accounts }: HomeProps) {
           <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
         </div>
       </div>
-      <div className="flex w-full flex-col space-y-3 md:max-w-md">
-        <div className="mt-2 flex justify-between space-x-2">
+      <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
+        <div className="flex justify-between space-x-2">
           <Link
             href="/transfer/send"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
@@ -88,14 +87,6 @@ export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (_ctx) => {
   const accounts = await Promise.resolve(mockAccountList())
-
-  // try {
-  //   const response = await (await _ky.get('countries')).json()
-  //   console.log(response)
-  // } catch (error) {
-  //   const e = error as HTTPError
-  //   console.log(e.request)
-  // }
 
   return {
     props: {

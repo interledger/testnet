@@ -1,7 +1,7 @@
 import '@/styles/main.css'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-import { Titillium_Web } from '@next/font/google'
+import { Titillium_Web } from 'next/font/google'
 import { AppProvider } from '@/components/providers'
 
 const titilium = Titillium_Web({
