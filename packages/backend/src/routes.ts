@@ -38,6 +38,7 @@ mainRouter.get(
 )
 
 mainRouter.get('/countries', getCountryNames)
+mainRouter.get('/documents', getDocumentTypes)
 
 mainRouter.post(
   '/protected',
