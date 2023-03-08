@@ -12,6 +12,11 @@ const isPublicPath = (path: string) => {
 const publicPaths = ['/auth*']
 
 export async function middleware(req: NextRequest) {
+  // Skip checks in dev environment
+  if (process.env.NODE_ENV === 'development') {
+    return NextResponse.next()
+  }
+
   const isPublic = isPublicPath(req.nextUrl.pathname)
 
   // Because this is not going to run in the browser, we have to explictly pass
