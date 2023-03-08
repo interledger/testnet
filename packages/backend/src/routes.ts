@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import passport from 'passport'
 import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
+import { getDocumentTypes } from './rapyd/documents/documents.service'
 import { createWallet } from './wallet/wallet.service'
 
 export const mainRouter = express.Router()
@@ -25,6 +26,7 @@ mainRouter.post(
 )
 
 mainRouter.get('/countries', getCountryNames)
+mainRouter.get('/documents', getDocumentTypes)
 
 mainRouter.post(
   '/protected',
