@@ -12,7 +12,6 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useHttpRequest } from '@/lib/hooks/useHttp'
-import { accountService } from '@/lib/api/account'
 
 const Login = () => {
   const [openDialog, closeDialog] = useDialog()
