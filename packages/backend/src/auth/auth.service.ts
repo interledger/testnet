@@ -120,14 +120,14 @@ export const login = async (
       refreshToken.expiresAt = RefreshToken.expiresInToExpiresAt(
         refreshTokenExpiresIn
       )
-      await refreshToken.$query().patch(refreshToken)
+      await refreshToken.$query().patch({ ...refreshToken })
     } else {
       refreshToken = new RefreshToken(
         generatedToken,
         user.id,
         refreshTokenExpiresIn
       )
-      await user.$relatedQuery('refreshTokens').insert(refreshToken)
+      await user.$relatedQuery('refreshTokens').insert({ ...refreshToken })
     }
 
     const { accessToken, expiresIn: accessTokenExpiresIn } = generateJWT(user)
