@@ -37,7 +37,7 @@ export const KYCFormContextProvider = ({
   const [tab, setTab] = useState(0)
   const [disabled, setDisabled] = useState(true)
   const [idTypes, setIdTypes] = useState([
-    { type: '', name: '', isBackRequired: true }
+    { type: '', name: '', isBackRequired: false }
   ])
   return (
     <KYCFormContext.Provider

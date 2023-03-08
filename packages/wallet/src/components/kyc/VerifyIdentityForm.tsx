@@ -93,9 +93,12 @@ export const VerifyIdentityForm = () => {
         </span>
       )}
       <div>
-        <div className="flex justify-between">
+        <div className="grid grid-cols-3 gap-3">
           {idTypes.map((idType) => (
-            <div key={idType.type} className="flex w-auto justify-center">
+            <div
+              key={idType.type}
+              className="flex w-auto items-center justify-center"
+            >
               <input
                 type="radio"
                 id={idType.type}
@@ -111,7 +114,7 @@ export const VerifyIdentityForm = () => {
               />
               <label
                 htmlFor={idType.type}
-                className="min-w-[50px] cursor-pointer rounded-xl border border-turqoise bg-white p-2 text-center text-base font-light text-turqoise shadow-md peer-checked:border-orange peer-checked:text-orange sm:min-w-[100px]"
+                className="w-auto cursor-pointer rounded-xl border border-turqoise bg-white p-2 text-center text-base font-light text-turqoise shadow-md peer-checked:border-orange peer-checked:text-orange sm:min-w-[100px]"
               >
                 {idType.name}
               </label>
