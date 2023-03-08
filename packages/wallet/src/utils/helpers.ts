@@ -15,6 +15,7 @@ export const fetchCountries = async () => {
     return response.data.data
   } catch (e) {
     console.log(e)
+    return []
   }
 }
 
@@ -25,5 +26,6 @@ export const fetchDocuments = async () => {
     return response.data.data
   } catch (e) {
     console.log(e)
+    return []
   }
 }
