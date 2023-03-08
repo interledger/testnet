@@ -1,32 +1,27 @@
-// Client only
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { ErrorResponse, SuccessResponse } from '../axios'
 
 export const useHttpRequest = () => {
+  const [isLoading, setIsLoading] = useState(false)
+
   const sendRequest = useCallback(
     async <
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      C extends SuccessResponse<any> | ErrorResponse<any> | undefined,
+      TResponse extends SuccessResponse<any> | ErrorResponse<any> | undefined,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      T = any
+      TArgs = never
     >(
-      fn: (a: T) => Promise<C>,
-      args: T
+      fn: (a?: TArgs) => Promise<TResponse>,
+      args?: TArgs
     ) => {
-      const test = await fn(args)
+      setIsLoading(true)
+      const response = args ? await fn(args) : await fn()
+      setIsLoading(false)
 
-      if (test?.success) {
-        console.log('dispatch success')
-      } else {
-        console.log('dispatch error')
-      }
-
-      return test
+      return response
     },
     []
   )
 
-  return {
-    sendRequest
-  }
+  return [sendRequest, isLoading] as const
 }
