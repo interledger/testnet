@@ -15,6 +15,7 @@ interface Service {
   fundAccount: (
     args: FundAccountArgs
   ) => Promise<SuccessResponse | FundAccountError | undefined>
+  test: () => Promise<SuccessResponse<{ a: string }>>
 }
 
 type FundAccountArgs = z.infer<typeof fundAccountSchema>
@@ -37,6 +38,18 @@ class AccountService implements Service {
     } catch (e) {
       const error = e as AxiosError<FundAccountError>
       return error.response?.data
+    }
+  }
+
+  async test(): Promise<{
+    success: true
+    message: string
+    data: { a: string }
+  }> {
+    try {
+      await _ky.post('protected')
+    } catch (error) {
+      return error
     }
   }
 }

@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios'
 import type { FieldPath } from 'react-hook-form'
 import { input, ZodTypeAny } from 'zod/lib/types'
 
-type BaseResponse = {
+export type BaseResponse = {
   message?: string
 }
 
@@ -20,7 +20,7 @@ const setupAxios = () => {
   let refreshing = false
 
   const _axios = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    baseURL: 'http://localhost:3003',
     headers: {
       'Content-Type': 'application/json'
     },

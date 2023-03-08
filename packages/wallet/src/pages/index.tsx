@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { mockAccountList, type Account } from '@/utils/mocks'
+import { _ky } from '@/lib/test'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -87,6 +88,14 @@ export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (_ctx) => {
   const accounts = await Promise.resolve(mockAccountList())
+
+  // try {
+  //   const response = await (await _ky.get('countries')).json()
+  //   console.log(response)
+  // } catch (error) {
+  //   const e = error as HTTPError
+  //   console.log(e.request)
+  // }
 
   return {
     props: {

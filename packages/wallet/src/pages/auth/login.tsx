@@ -11,10 +11,14 @@ import { loginSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
+import { useHttpRequest } from '@/lib/hooks/useHttp'
+import { accountService } from '@/lib/api/account'
 
 const Login = () => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
+
+  const { sendRequest } = useHttpRequest()
 
   const loginForm = useZodForm({
     schema: loginSchema
@@ -28,7 +32,8 @@ const Login = () => {
         <Form
           form={loginForm}
           onSubmit={async (data) => {
-            const response = await userService.login(data)
+            // const response = await userService.login(data)
+            const response = await sendRequest(userService.login, data)
 
             if (!response) {
               openDialog(
