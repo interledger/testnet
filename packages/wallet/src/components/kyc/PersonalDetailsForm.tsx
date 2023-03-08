@@ -16,8 +16,11 @@ export const PersonalDetailsForm = () => {
   const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
 
-  // DEV TESTING => always USA selected
-  const defaultCountry = { value: 'US', name: 'United States of America' }
+  // set default values for DEV mode, USA is selected for ID verification
+  const isDevMode = process.env.NODE_ENV === 'development'
+  const defaultCountry = isDevMode
+    ? { value: 'US', name: 'United States of America' }
+    : undefined
 
   const personalDetailsForm = useZodForm({
     schema: personalDetailsSchema
@@ -79,9 +82,11 @@ export const PersonalDetailsForm = () => {
         }
       }}
     >
-      <span className="font-semibold text-pink">
-        Test data is used in development mode!
-      </span>
+      {isDevMode && (
+        <span className="font-semibold text-pink">
+          Test data is used in development mode!
+        </span>
+      )}
       <div className="flex flex-row justify-between">
         <Input
           required
@@ -104,7 +109,7 @@ export const PersonalDetailsForm = () => {
         label="Country"
         // DEV TESTING => always disabled and USA selected
         defaultValue={defaultCountry}
-        isDisabled={true}
+        isDisabled={isDevMode}
       />
       <Input
         required

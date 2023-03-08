@@ -7,42 +7,39 @@ import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form } from '@/ui/forms/Form'
 import { getObjectKeys } from '@/utils/helpers'
 import { useRouter } from 'next/router'
+import { SyntheticEvent, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { useKYCFormContext } from './context'
 
 export const VerifyIdentityForm = () => {
-  const [openDialog, closeDialog] = useDialog()
+  // set default values and documents for DEV mode
+  const isDevMode = process.env.NODE_ENV === 'development'
 
+  const [openDialog, closeDialog] = useDialog()
   const { idTypes } = useKYCFormContext()
+  const [frontIDFile, setFrontIDFile] = useState('')
+  const [selfieFile, setSelfieFile] = useState('')
+  const [backIDFile, setBackIDFile] = useState('')
+  const [isBackRequired, setIsBackRequired] = useState(false)
   const router = useRouter()
 
-  // DEV TESTING => default files are used
-  // const [frontIDFile, setFrontIDFile] = useState('')
-  // const [selfieFile, setSelfieFile] = useState('')
+  const handleFileOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget
+    const fileName = target.value.slice(target.value.lastIndexOf('\\') + 1)
+    if (target.name === 'selfie') {
+      setSelfieFile(fileName)
+    } else if (target.name === 'frontSideID') {
+      setFrontIDFile(fileName)
+    } else {
+      setBackIDFile(fileName)
+    }
+  }
 
-  // ToDO figure out how to show/hide backSide ID if required
-  // const [backIDFile, setBackIDFile] = useState('')
-  // const [isBackRequired, setIsBackRequired] = useState(false)
-
-  // DEV TESTING => default files are used
-  // const handleFileOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
-  //   const target = event.currentTarget
-  //   const fileName = target.value.slice(target.value.lastIndexOf('\\') + 1)
-  //   if (target.name === 'selfie') {
-  //     setSelfieFile(fileName)
-  //   } else if (target.name === 'frontSideID') {
-  //     setFrontIDFile(fileName)
-  //   }
-  //    else {
-  //     setBackIDFile(fileName)
-  //   }
-  // }
-
-  // ToDO figure out how to show/hide backSide ID if required
-  // const handleIdTypeChange = (isBackRequired: boolean) => {
-  //   setIsBackRequired(isBackRequired)
-  // }
+  const handleIdTypeChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget
+    setIsBackRequired(target.getAttribute('data-back-id') === 'true')
+  }
 
   const verifyIdentityForm = useZodForm({
     schema: verifyIdentitySchema
@@ -90,9 +87,11 @@ export const VerifyIdentityForm = () => {
         }
       }}
     >
-      <span className="font-semibold text-pink">
-        Test data is used in development mode!
-      </span>
+      {isDevMode && (
+        <span className="font-semibold text-pink">
+          Test data is used in development mode!
+        </span>
+      )}
       <div>
         <div className="flex justify-between">
           {idTypes.map((idType) => (
@@ -102,12 +101,13 @@ export const VerifyIdentityForm = () => {
                 id={idType.type}
                 className="peer hidden"
                 value={idType.type}
-                {...verifyIdentityForm.register('idType')}
-                // DEV TESTING => always PA selected and disabled
-                checked={idType.type === 'PA'}
-                disabled={idType.type !== 'PA'}
-                // ToDO figure out how to show/hide backSide ID if required
-                // onChange={() => handleIdTypeChange(idType.isBackRequired)}
+                data-back-id={idType.isBackRequired}
+                {...verifyIdentityForm.register('idType', {
+                  onChange: handleIdTypeChange
+                })}
+                // DEV MODE => Use Passport as default value
+                checked={isDevMode && idType.type === 'PA'}
+                disabled={isDevMode && idType.type !== 'PA'}
               />
               <label
                 htmlFor={idType.type}
@@ -124,37 +124,54 @@ export const VerifyIdentityForm = () => {
       </div>
       <div className="flex justify-evenly">
         <div className="my-5">
-          <FileUpload
-            label="Selfie image"
-            // DEV TESTING => default selfie is sent to verify
-            isDisabled={true}
-            // {...verifyIdentityForm.register('selfie', {
-            //   onChange: handleFileOnChange
-            // })}
-            // error={verifyIdentityForm.formState.errors.selfie?.message}
-          />
-          {/* <span className="text-sm font-light text-orange">{selfieFile}</span> */}
-          <span className="text-sm font-light text-orange">
-            testSelfie.jpeg
-          </span>
+          {!isDevMode && (
+            <>
+              <FileUpload
+                label="Selfie image"
+                {...verifyIdentityForm.register('selfie', {
+                  onChange: handleFileOnChange
+                })}
+                error={verifyIdentityForm.formState.errors.selfie?.message}
+              />
+              <span className="text-sm font-light text-orange">
+                {selfieFile}
+              </span>
+            </>
+          )}
+          {isDevMode && (
+            <>
+              <FileUpload isDisabled={true} label="Selfie image" />
+              <span className="text-sm font-light text-orange">
+                testSelfie.jpeg
+              </span>
+            </>
+          )}
         </div>
         <div className="my-5">
-          <FileUpload
-            label="Front side ID"
-            // DEV TESTING => default document is sent to verify
-            isDisabled={true}
-            // {...verifyIdentityForm.register('frontSideID', {
-            //   onChange: handleFileOnChange
-            // })}
-            // error={verifyIdentityForm.formState.errors.frontSideID?.message}
-          />
-          {/* <span className="text-sm font-light text-orange">{frontIDFile}</span> */}
-          <span className="text-sm font-light text-orange">
-            testFrontId.jpeg
-          </span>
+          {!isDevMode && (
+            <>
+              <FileUpload
+                label="Front side ID"
+                {...verifyIdentityForm.register('frontSideID', {
+                  onChange: handleFileOnChange
+                })}
+                error={verifyIdentityForm.formState.errors.frontSideID?.message}
+              />
+              <span className="text-sm font-light text-orange">
+                {frontIDFile}
+              </span>
+            </>
+          )}
+          {isDevMode && (
+            <>
+              <FileUpload isDisabled={true} label="Front side ID" />
+              <span className="text-sm font-light text-orange">
+                testFrontId.jpeg
+              </span>
+            </>
+          )}
         </div>
-        {/* ToDO figure out how to show/hide backSide ID if required
-        {isBackRequired && (
+        {!isDevMode && isBackRequired && (
           <div className="my-5">
             <FileUpload
               label="Back side ID"
@@ -165,7 +182,7 @@ export const VerifyIdentityForm = () => {
             />
             <span className="text-sm font-light text-orange">{backIDFile}</span>
           </div>
-        )} */}
+        )}
       </div>
       <Button aria-label="Verify Account" type="submit">
         Verify Account

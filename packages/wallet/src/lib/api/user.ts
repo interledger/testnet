@@ -34,34 +34,44 @@ export const personalDetailsSchema = z.object({
   zip: z.string().min(1, { message: 'ZIP code is required' })
 })
 
-export const verifyIdentitySchema = z.object({
-  idType: z.string({ invalid_type_error: 'Please select an ID Type' })
-  // DEV TESTING => default documents and selfie is sent to verify
-  // frontSideID: z
-  //   .custom<FileList>()
-  //   .refine(
-  //     (frontSideID) => frontSideID?.length === 1,
-  //     'Front side of ID is required'
-  //   )
-  //   .refine(
-  //     (frontSideID) => frontSideID?.length < 2,
-  //     'You can only select one image'
-  //   ),
-  // backSideID: z
-  //   .custom<FileList>()
-  //   .refine(
-  //     (backSideID) => backSideID?.length === 1,
-  //     'Back side of ID is required'
-  //   )
-  //   .refine(
-  //     (backSideID) => backSideID?.length < 2,
-  //     'You can only select one image'
-  //   ),
-  // selfie: z
-  //   .custom<FileList>()
-  //   .refine((selfie) => selfie?.length === 1, 'Selfie is required')
-  //   .refine((selfie) => selfie?.length < 2, 'You can only select one image')
-})
+export const verifyIdentitySchema =
+  process.env.NODE_ENV === 'development'
+    ? z.object({
+        idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
+        frontSideID: z.string().optional(),
+        backSideID: z.string().optional(),
+        selfie: z.string().optional()
+      })
+    : z.object({
+        idType: z.string({ invalid_type_error: 'Please select an ID Type' }),
+        frontSideID: z
+          .custom<FileList>()
+          .refine(
+            (frontSideID) => frontSideID?.length === 1,
+            'Front side of ID is required'
+          )
+          .refine(
+            (frontSideID) => frontSideID?.length < 2,
+            'You can only select one image'
+          ),
+        backSideID: z
+          .custom<FileList>()
+          .refine(
+            (backSideID) => backSideID?.length === 1,
+            'Back side of ID is required'
+          )
+          .refine(
+            (backSideID) => backSideID?.length < 2,
+            'You can only select one image'
+          ),
+        selfie: z
+          .custom<FileList>()
+          .refine((selfie) => selfie?.length === 1, 'Selfie is required')
+          .refine(
+            (selfie) => selfie?.length < 2,
+            'You can only select one image'
+          )
+      })
 
 interface Service {
   signUp: (
