@@ -22,7 +22,6 @@ export const createPaymentPointer = async (
       .throwIfNotFound()
 
     const rafikiPaymentPointer = await createRafikiPaymentPointer(
-      account.name,
       publicName,
       account.assetRafikiId
     )

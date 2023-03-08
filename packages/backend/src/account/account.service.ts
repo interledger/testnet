@@ -5,6 +5,7 @@ import { accountSchema } from './schemas/account.schema'
 import { getAsset } from '../rafiki/request/asset.request'
 import { Account } from './account.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
+import { AccountExistsException } from './errors/AccountExistsException'
 
 export const createAccount = async (
   req: Request,
@@ -14,6 +15,15 @@ export const createAccount = async (
   try {
     const { name, assetRafikiId } = await zParse(accountSchema, req)
     const userId = getUserIdFromRequest(req)
+
+    const existentAccount = await Account.query()
+      .where('userId', userId)
+      .where('name', name)
+      .first()
+    if (existentAccount) {
+      new AccountExistsException(name)
+    }
+
     const asset = await getAsset(assetRafikiId)
 
     const account = await Account.query().insert({

@@ -4,7 +4,6 @@ import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
 import { createWallet } from './wallet/wallet.service'
 import {
-  create as createAsset,
   getById as getAssetById,
   list as listAsset
 } from './asset/asset.service'
@@ -50,11 +49,6 @@ mainRouter.post(
 )
 
 // asset
-mainRouter.post(
-  '/assets',
-  passport.authenticate('jwt', { session: false }),
-  createAsset
-)
 mainRouter.get(
   '/assets',
   passport.authenticate('jwt', { session: false }),

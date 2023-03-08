@@ -9,7 +9,6 @@ import env from '../../config/env'
 const OPEN_PAYMENTS_HOST = env.OPEN_PAYMENTS_HOST
 
 export async function createRafikiPaymentPointer(
-  accountName: string,
   paymentPointerName: string,
   assetId: string
 ): Promise<PaymentPointer> {
@@ -29,7 +28,7 @@ export async function createRafikiPaymentPointer(
   `
   const createPaymentPointerInput = {
     assetId: assetId,
-    url: `${OPEN_PAYMENTS_HOST}/${accountName}/${paymentPointerName}`,
+    url: `${OPEN_PAYMENTS_HOST}/${paymentPointerName}`,
     publicName: paymentPointerName
   }
 
