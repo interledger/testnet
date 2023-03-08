@@ -25,6 +25,13 @@ export const loginSchema = z.object({
   password: z.string().min(1, { message: 'Password is required' })
 })
 
+export type UserData = {
+  email: string
+  firstName: string
+  lastName: string
+  noKyc: boolean
+}
+
 interface Service {
   signUp: (
     args: SignUpArgs
