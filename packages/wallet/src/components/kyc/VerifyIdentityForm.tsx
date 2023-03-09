@@ -15,7 +15,7 @@ import { useKYCFormContext } from './context'
 
 export const VerifyIdentityForm = () => {
   // set default values and documents for DEV mode
-  const isDevMode = process.env.NODE_ENV === 'development'
+  const useTestDataKYC = process.env.NEXT_PUBLIC_USE_TEST_KYC_DATA === 'true'
 
   const [openDialog, closeDialog] = useDialog()
   const { idTypes } = useKYCFormContext()
@@ -88,9 +88,10 @@ export const VerifyIdentityForm = () => {
         }
       }}
     >
-      {isDevMode && (
+      {useTestDataKYC && (
         <span className="font-semibold text-pink">
-          Test data is used in development mode!
+          For testing purposes Passport is selected, and images uploaded by
+          default!
         </span>
       )}
       <div>
@@ -109,9 +110,9 @@ export const VerifyIdentityForm = () => {
                 {...verifyIdentityForm.register('documentType', {
                   onChange: handleIdTypeChange
                 })}
-                // DEV MODE => Use Passport as default value
-                checked={isDevMode && idType.type === 'PA'}
-                disabled={isDevMode && idType.type !== 'PA'}
+                // TESTING => Use Passport as default value
+                checked={useTestDataKYC && idType.type === 'PA'}
+                disabled={useTestDataKYC && idType.type !== 'PA'}
               />
               <label
                 htmlFor={idType.type}
@@ -128,7 +129,7 @@ export const VerifyIdentityForm = () => {
       </div>
       <div className="flex justify-evenly">
         <div className="my-5">
-          {!isDevMode && (
+          {!useTestDataKYC && (
             <>
               <FileUpload
                 label="Selfie image"
@@ -142,9 +143,9 @@ export const VerifyIdentityForm = () => {
               </span>
             </>
           )}
-          {isDevMode && (
+          {useTestDataKYC && (
             <>
-              <FileUpload isDisabled={true} label="Selfie image" />
+              <FileUpload disabled={true} label="Selfie image" />
               <input
                 type="hidden"
                 {...verifyIdentityForm.register('faceImage')}
@@ -155,14 +156,11 @@ export const VerifyIdentityForm = () => {
                 {...verifyIdentityForm.register('faceImageType')}
                 value={testImageType}
               />
-              <span className="text-sm font-light text-orange">
-                testSelfie.jpeg
-              </span>
             </>
           )}
         </div>
         <div className="my-5">
-          {!isDevMode && (
+          {!useTestDataKYC && (
             <>
               <FileUpload
                 label="Front side ID"
@@ -178,9 +176,9 @@ export const VerifyIdentityForm = () => {
               </span>
             </>
           )}
-          {isDevMode && (
+          {useTestDataKYC && (
             <>
-              <FileUpload isDisabled={true} label="Front side ID" />
+              <FileUpload disabled={true} label="Front side ID" />
               <input
                 type="hidden"
                 {...verifyIdentityForm.register('frontSideImage')}
@@ -191,13 +189,10 @@ export const VerifyIdentityForm = () => {
                 {...verifyIdentityForm.register('frontSideImageType')}
                 value={testImageType}
               />
-              <span className="text-sm font-light text-orange">
-                testFrontId.jpeg
-              </span>
             </>
           )}
         </div>
-        {!isDevMode && isBackRequired && (
+        {!useTestDataKYC && isBackRequired && (
           <div className="my-5">
             <FileUpload
               label="Back side ID"

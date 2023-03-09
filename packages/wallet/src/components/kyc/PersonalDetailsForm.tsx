@@ -16,9 +16,9 @@ export const PersonalDetailsForm = () => {
   const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
 
-  // set default values for DEV mode, USA is selected for ID verification
-  const isDevMode = process.env.NODE_ENV === 'development'
-  const defaultCountry = isDevMode
+  // set default values testing, USA is selected for ID verification
+  const useTestDataKYC = process.env.NEXT_PUBLIC_USE_TEST_KYC_DATA === 'true'
+  const defaultCountry = useTestDataKYC
     ? { value: 'US', name: 'United States of America' }
     : undefined
 
@@ -82,9 +82,9 @@ export const PersonalDetailsForm = () => {
         }
       }}
     >
-      {isDevMode && (
+      {useTestDataKYC && (
         <span className="font-semibold text-pink">
-          Test data is used in development mode!
+          USA is selected by default for testing purposes!
         </span>
       )}
       <div className="flex flex-row justify-between">
@@ -107,9 +107,9 @@ export const PersonalDetailsForm = () => {
         error={personalDetailsForm.formState.errors.country?.message}
         options={countries}
         label="Country"
-        // DEV TESTING => always disabled and USA selected
+        // TESTING => always disabled and USA selected
         defaultValue={defaultCountry}
-        isDisabled={isDevMode}
+        isDisabled={useTestDataKYC}
       />
       <Input
         required
