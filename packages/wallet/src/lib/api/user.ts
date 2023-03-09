@@ -1,6 +1,10 @@
-import type { AxiosError } from 'axios'
+import { HTTPError } from 'ky'
 import { z } from 'zod'
-import $axios, { type ErrorResponse, type SuccessResponse } from '../axios'
+import {
+  httpClient,
+  type ErrorResponse,
+  type SuccessResponse
+} from '../httpClient'
 
 export const signUpSchema = z
   .object({
@@ -32,11 +36,12 @@ export type UserData = {
   noKyc: boolean
 }
 
-interface Service {
+interface UserService {
   signUp: (
     args: SignUpArgs
   ) => Promise<SuccessResponse | SignUpError | undefined>
-  login: (args: LoginArgs) => Promise<SuccessResponse | LoginError | undefined>
+  login: (args: LoginArgs) => Promise<SuccessResponse | LoginError>
+  me: (cookies?: string) => Promise<SuccessResponse<UserData> | LoginError>
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
@@ -45,35 +50,50 @@ type SignUpError = ErrorResponse<typeof signUpSchema>
 type LoginArgs = z.infer<typeof loginSchema>
 type LoginError = ErrorResponse<typeof loginSchema>
 
-class UserService implements Service {
-  private static instance: UserService
-
-  static getInstance(): UserService {
-    if (!UserService.instance) {
-      UserService.instance = new UserService()
-    }
-    return UserService.instance
-  }
-
-  async signUp(args: SignUpArgs) {
+const createUserService = (): UserService => ({
+  async signUp(args) {
     try {
-      const response = await $axios.post<SuccessResponse>('/signup', args)
-      return response.data
+      const response = await httpClient
+        .post('signup', {
+          body: JSON.stringify(args)
+        })
+        .json<SuccessResponse>()
+      return response
     } catch (e) {
-      const error = e as AxiosError<SignUpError>
-      return error.response?.data
+      const error = e as HTTPError
+      return error.response.json() as Promise<SignUpError>
     }
-  }
+  },
 
-  async login(args: LoginArgs) {
+  async login(args) {
     try {
-      const response = await $axios.post<SuccessResponse>('/login', args)
-      return response.data
+      const response = await httpClient
+        .post('login', {
+          body: JSON.stringify(args)
+        })
+        .json<SuccessResponse>()
+      return response
     } catch (e) {
-      const error = e as AxiosError<LoginError>
-      return error.response?.data
+      const error = e as HTTPError
+      return error.response.json() as Promise<LoginError>
+    }
+  },
+
+  async me(cookies) {
+    try {
+      const response = await httpClient
+        .get('me', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<SuccessResponse<UserData>>()
+      return response
+    } catch (e) {
+      const error = e as HTTPError
+      return error.response.json() as Promise<LoginError>
     }
   }
-}
+})
 
-export const userService = UserService.getInstance()
+export const userService = createUserService()

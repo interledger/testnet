@@ -1,6 +1,10 @@
-import { AxiosError } from 'axios'
+import { HTTPError } from 'ky'
 import { z } from 'zod'
-import $axios, { ErrorResponse, SuccessResponse } from '../axios'
+import {
+  httpClient,
+  type ErrorResponse,
+  type SuccessResponse
+} from '../httpClient'
 
 export const fundAccountSchema = z.object({
   account: z.string().uuid(),
@@ -11,7 +15,7 @@ export const fundAccountSchema = z.object({
     .positive()
 })
 
-interface Service {
+interface AccountService {
   fundAccount: (
     args: FundAccountArgs
   ) => Promise<SuccessResponse | FundAccountError | undefined>
@@ -20,25 +24,20 @@ interface Service {
 type FundAccountArgs = z.infer<typeof fundAccountSchema>
 type FundAccountError = ErrorResponse<typeof fundAccountSchema>
 
-class AccountService implements Service {
-  private static instance: AccountService
-
-  static getInstance(): AccountService {
-    if (!AccountService.instance) {
-      AccountService.instance = new AccountService()
-    }
-    return AccountService.instance
-  }
-
+const createAccountService = (): AccountService => ({
   async fundAccount(args: FundAccountArgs) {
     try {
-      const response = await $axios.post<SuccessResponse>('/fund', args)
-      return response.data
+      const response = await httpClient
+        .post('fund', {
+          body: JSON.stringify(args)
+        })
+        .json<SuccessResponse>()
+      return response
     } catch (e) {
-      const error = e as AxiosError<FundAccountError>
-      return error.response?.data
+      const error = e as HTTPError
+      return error.response.json() as Promise<FundAccountError>
     }
   }
-}
+})
 
-export const accountService = AccountService.getInstance()
+export const accountService = createAccountService()

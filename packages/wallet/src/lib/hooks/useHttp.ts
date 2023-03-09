@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ErrorResponse, SuccessResponse } from '../axios'
+import { ErrorResponse, SuccessResponse } from '../httpClient'
 
 export const useHttpRequest = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -9,7 +9,7 @@ export const useHttpRequest = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       TResponse extends SuccessResponse<any> | ErrorResponse<any> | undefined,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      TArgs = never
+      TArgs = any
     >(
       fn: (a: TArgs) => Promise<TResponse>,
       args: TArgs
