@@ -18,7 +18,7 @@ export const fundAccountSchema = z.object({
 interface AccountService {
   fundAccount: (
     args: FundAccountArgs
-  ) => Promise<SuccessResponse | FundAccountError | undefined>
+  ) => Promise<SuccessResponse | FundAccountError>
 }
 
 type FundAccountArgs = z.infer<typeof fundAccountSchema>
