@@ -8,10 +8,10 @@ import {
 
 export const signUpSchema = z
   .object({
-    email: z.string().min(1),
+    email: z.string().email({ message: 'Email is required' }),
     password: z
       .string()
-      .min(4, { message: 'Password should be at least 6 characters long' }),
+      .min(6, { message: 'Password should be at least 6 characters long' }),
     confirmPassword: z.string()
   })
   .superRefine(({ confirmPassword, password }, ctx) => {

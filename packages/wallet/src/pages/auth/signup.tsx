@@ -9,7 +9,6 @@ import { signUpSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
-import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 const SignUp = () => {
   const [openDialog, closeDialog] = useDialog()
@@ -27,16 +26,6 @@ const SignUp = () => {
           form={signUpForm}
           onSubmit={async (data) => {
             const response = await userService.signUp(data)
-
-            if (!response) {
-              openDialog(
-                <ErrorDialog
-                  onClose={closeDialog}
-                  content="Something went wrong. Please try again"
-                />
-              )
-              return
-            }
 
             if (response.success) {
               openDialog(
