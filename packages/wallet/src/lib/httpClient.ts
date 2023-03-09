@@ -4,7 +4,7 @@ import type { FieldPath } from 'react-hook-form'
 import { input, ZodTypeAny } from 'zod/lib/types'
 
 export type BaseResponse = {
-  message?: string
+  message: string
 }
 
 export type SuccessResponse<T = undefined> = BaseResponse & {

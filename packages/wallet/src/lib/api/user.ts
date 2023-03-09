@@ -122,7 +122,7 @@ const createUserService = (): UserService => ({
     try {
       const response = await httpClient
         .post('signup', {
-          body: JSON.stringify(args)
+          json: args
         })
         .json<SuccessResponse>()
       return response
@@ -136,7 +136,7 @@ const createUserService = (): UserService => ({
     try {
       const response = await httpClient
         .post('login', {
-          body: JSON.stringify(args)
+          json: args
         })
         .json<SuccessResponse>()
       return response
@@ -166,7 +166,7 @@ const createUserService = (): UserService => ({
     try {
       const response = await httpClient
         .post('/wallet', {
-          body: JSON.stringify(args)
+          json: args
         })
         .json<SuccessResponse>()
       return response
@@ -180,7 +180,7 @@ const createUserService = (): UserService => ({
     try {
       const response = await httpClient
         .post('/verify', {
-          body: JSON.stringify(args)
+          json: args
         })
         .json<SuccessResponse>()
       return response

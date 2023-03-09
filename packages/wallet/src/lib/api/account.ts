@@ -15,21 +15,21 @@ export const fundAccountSchema = z.object({
     .positive()
 })
 
+type FundAccountArgs = z.infer<typeof fundAccountSchema>
+type FundAccountError = ErrorResponse<typeof fundAccountSchema>
+
 interface AccountService {
   fundAccount: (
     args: FundAccountArgs
   ) => Promise<SuccessResponse | FundAccountError>
 }
 
-type FundAccountArgs = z.infer<typeof fundAccountSchema>
-type FundAccountError = ErrorResponse<typeof fundAccountSchema>
-
 const createAccountService = (): AccountService => ({
   async fundAccount(args: FundAccountArgs) {
     try {
       const response = await httpClient
         .post('fund', {
-          body: JSON.stringify(args)
+          json: args
         })
         .json<SuccessResponse>()
       return response
