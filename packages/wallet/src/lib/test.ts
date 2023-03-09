@@ -9,17 +9,6 @@ export const _ky = ky.extend({
     'Content-Type': 'application/json'
   },
   hooks: {
-    beforeError: [
-      (error) => {
-        const { response } = error
-        if (response && response.body) {
-          error.name = 'GitHubError'
-          error.message = `${response.body.message} (${response.status})`
-        }
-
-        return error
-      }
-    ],
     afterResponse: [
       async (request, options, response) => {
         if (response.status === 401) {
@@ -29,7 +18,9 @@ export const _ky = ky.extend({
           if (!refreshing) {
             refreshing = true
             try {
-              await ky('refresh', options)
+              await ky('refresh', {
+                headers: request.headers
+              })
               refreshing = false
               await ky(request, options)
             } catch (e) {

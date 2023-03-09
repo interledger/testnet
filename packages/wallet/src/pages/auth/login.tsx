@@ -17,7 +17,7 @@ const Login = () => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
 
-  const { sendRequest } = useHttpRequest()
+  const [sendRequest] = useHttpRequest()
 
   const loginForm = useZodForm({
     schema: loginSchema

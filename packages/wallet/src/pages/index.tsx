@@ -5,6 +5,7 @@ import { Request } from '@/components/icons/Request'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { _ky } from '@/lib/test'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { mockAccountList, type Account } from '@/utils/mocks'
@@ -24,7 +25,12 @@ export default function Home({ accounts }: HomeProps) {
           message="Here is your account overview!"
         />
         <div className="text-green md:mt-10">
-          <h2 className="text-lg font-light md:text-xl">Balance</h2>
+          <h2
+            className="text-lg font-light md:text-xl"
+            onClick={async () => await _ky.get('me')}
+          >
+            Balance
+          </h2>
           <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
         </div>
       </div>
@@ -87,6 +93,12 @@ export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (_ctx) => {
   const accounts = await Promise.resolve(mockAccountList())
+
+  await _ky.post('protected', {
+    headers: {
+      Cookie: _ctx.req.headers.cookie
+    }
+  })
 
   return {
     props: {
