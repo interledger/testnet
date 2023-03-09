@@ -1,20 +1,17 @@
-import ky from 'ky'
+import ky, { HTTPError } from 'ky'
 
-import type { FieldPath } from 'react-hook-form'
-import { input, ZodTypeAny } from 'zod/lib/types'
+import type { FieldPath, FieldValues } from 'react-hook-form'
 
-export type BaseResponse = {
+export type SuccessResponse<T = undefined> = {
   message: string
-}
-
-export type SuccessResponse<T = undefined> = BaseResponse & {
   success: true
   data?: T
 }
 
-export type ErrorResponse<T extends ZodTypeAny> = BaseResponse & {
+export type ErrorResponse<T = undefined> = {
+  message: string
   success: false
-  errors?: Record<FieldPath<input<T>>, string>
+  errors: T extends FieldValues ? Record<FieldPath<T>, string> : undefined
 }
 
 export const httpClient = ky.extend({
@@ -24,3 +21,38 @@ export const httpClient = ky.extend({
     'Content-Type': 'application/json'
   }
 })
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isErrorResponse = <T = ErrorResponse<any>>(
+  json: unknown
+): json is T => {
+  return (
+    Boolean(json) &&
+    typeof json === 'object' &&
+    (json as ErrorResponse).success === false &&
+    typeof (json as ErrorResponse).message === 'string' &&
+    (typeof (json as ErrorResponse).errors === 'undefined' ||
+      typeof (json as ErrorResponse).errors === 'object')
+  )
+}
+
+export const generateBaseError = (message: string): ErrorResponse => ({
+  success: false,
+  message,
+  errors: undefined
+})
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getError<T = ErrorResponse<any>>(
+  e: unknown,
+  fallback: string
+) {
+  if (e instanceof HTTPError) {
+    const response = await e.response.json()
+    if (isErrorResponse<T>(response)) {
+      return response
+    }
+    return generateBaseError(e.message)
+  }
+  return generateBaseError(fallback)
+}
