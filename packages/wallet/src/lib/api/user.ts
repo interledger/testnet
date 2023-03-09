@@ -163,7 +163,7 @@ const createUserService = (): UserService => ({
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<SuccessResponse<UserData>>()
+        .json<MeResult>()
       return response
     } catch (error) {
       return getError<ErrorResponse>(
