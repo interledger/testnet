@@ -1,4 +1,4 @@
-import { HTTPError } from 'ky'
+import { getError } from '../httpClient'
 import { z } from 'zod'
 import {
   httpClient,
@@ -8,10 +8,10 @@ import {
 
 export const signUpSchema = z
   .object({
-    email: z.string().email({ message: 'Email is required' }),
+    email: z.string().min(1),
     password: z
       .string()
-      .min(6, { message: 'Password should be at least 6 characters long' }),
+      .min(4, { message: 'Password should be at least 6 characters long' }),
     confirmPassword: z.string()
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -96,25 +96,30 @@ export type UserData = {
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
-type SignUpError = ErrorResponse<typeof signUpSchema>
+type SignUpError = ErrorResponse<SignUpArgs | undefined>
+type SignUpResponse = Promise<SuccessResponse | SignUpError>
 
 type LoginArgs = z.infer<typeof loginSchema>
-type LoginError = ErrorResponse<typeof loginSchema>
+type LoginError = ErrorResponse<LoginArgs | undefined>
+type LoginResponse = Promise<SuccessResponse | LoginError>
 
-type WalletArgs = z.infer<typeof personalDetailsSchema>
-type WalletError = ErrorResponse<typeof personalDetailsSchema>
+type MeResult = SuccessResponse<UserData>
+type MeResponse = Promise<MeResult | ErrorResponse>
+
+type CreateWalletArgs = z.infer<typeof personalDetailsSchema>
+type CreateWalletError = ErrorResponse<CreateWalletArgs | undefined>
+type CreateWalletResponse = Promise<SuccessResponse | CreateWalletError>
 
 type VerifyIdentityArgs = z.infer<typeof verifyIdentitySchema>
-type VerifyIdentityError = ErrorResponse<typeof verifyIdentitySchema>
+type VerifyIdentityError = ErrorResponse<VerifyIdentityArgs | undefined>
+type VerifyIdentityResponse = Promise<SuccessResponse | VerifyIdentityError>
 
 interface UserService {
-  signUp: (args: SignUpArgs) => Promise<SuccessResponse | SignUpError>
-  login: (args: LoginArgs) => Promise<SuccessResponse | LoginError>
-  me: (cookies?: string) => Promise<SuccessResponse<UserData> | LoginError>
-  createWallet: (args: WalletArgs) => Promise<SuccessResponse | WalletError>
-  verifyIdentity: (
-    args: VerifyIdentityArgs
-  ) => Promise<SuccessResponse | VerifyIdentityError>
+  signUp: (args: SignUpArgs) => SignUpResponse
+  login: (args: LoginArgs) => LoginResponse
+  me: (cookies?: string) => MeResponse
+  createWallet: (args: CreateWalletArgs) => CreateWalletResponse
+  verifyIdentity: (args: VerifyIdentityArgs) => VerifyIdentityResponse
 }
 
 const createUserService = (): UserService => ({
@@ -126,9 +131,11 @@ const createUserService = (): UserService => ({
         })
         .json<SuccessResponse>()
       return response
-    } catch (e) {
-      const error = e as HTTPError
-      return error.response.json() as Promise<SignUpError>
+    } catch (error) {
+      return getError<SignUpError>(
+        error,
+        'We could not create your account. Please try again.'
+      )
     }
   },
 
@@ -140,9 +147,11 @@ const createUserService = (): UserService => ({
         })
         .json<SuccessResponse>()
       return response
-    } catch (e) {
-      const error = e as HTTPError
-      return error.response.json() as Promise<LoginError>
+    } catch (error) {
+      return getError<LoginError>(
+        error,
+        'We could not log you in. Please try again.'
+      )
     }
   },
 
@@ -156,13 +165,15 @@ const createUserService = (): UserService => ({
         })
         .json<SuccessResponse<UserData>>()
       return response
-    } catch (e) {
-      const error = e as HTTPError
-      return error.response.json() as Promise<LoginError>
+    } catch (error) {
+      return getError<ErrorResponse>(
+        error,
+        'Unable to retrive user information.'
+      )
     }
   },
 
-  async createWallet(args: WalletArgs) {
+  async createWallet(args: CreateWalletArgs) {
     try {
       const response = await httpClient
         .post('/wallet', {
@@ -170,9 +181,11 @@ const createUserService = (): UserService => ({
         })
         .json<SuccessResponse>()
       return response
-    } catch (e) {
-      const error = e as HTTPError
-      return error.response.json() as Promise<WalletError>
+    } catch (error) {
+      return getError<CreateWalletError>(
+        error,
+        'Something went wrong while trying to create your wallet. Please try again.'
+      )
     }
   },
 
@@ -184,9 +197,11 @@ const createUserService = (): UserService => ({
         })
         .json<SuccessResponse>()
       return response
-    } catch (e) {
-      const error = e as HTTPError
-      return error.response.json() as Promise<VerifyIdentityError>
+    } catch (error) {
+      return getError<VerifyIdentityError>(
+        error,
+        'Something went wrong while verifying your ID. Please try again.'
+      )
     }
   }
 })
