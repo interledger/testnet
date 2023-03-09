@@ -7,28 +7,12 @@ import { PersonalDetailsForm } from './PersonalDetailsForm'
 import { Play } from '../icons/Play'
 import { Button } from '@/ui/Button'
 
-const countries = [
-  {
-    name: 'Romania',
-    value: 'RO'
-  },
-  {
-    name: 'United Kingdom',
-    value: 'UK'
-  },
-  {
-    name: 'United States',
-    value: 'US'
-  },
-  { name: 'Argentina', value: 'ARG' }
-]
-
 const tabs = [
   {
     name: 'Personal Details',
     id: 'personalInfo',
     title: 'Enter your details',
-    contentForm: <PersonalDetailsForm countries={countries} />,
+    contentForm: <PersonalDetailsForm />,
     imageMobile: 'personal-info-kyc.webp'
   },
   {
@@ -42,13 +26,17 @@ const tabs = [
     name: 'Bank details',
     id: 'bank',
     title: 'Bank account details',
-    contentForm: <label>TBD</label>,
+    contentForm: (
+      <label>
+        Work in progress. We are using play money for the time being.
+      </label>
+    ),
     imageMobile: 'bank-kyc.webp'
   }
 ]
 
 export const Tabs = () => {
-  const { tab, setTab } = useKYCFormContext()
+  const { tab, setTab, disabled } = useKYCFormContext()
 
   return (
     <>
@@ -57,11 +45,15 @@ export const Tabs = () => {
           <Tab.List className="flex space-x-6">
             {tabs.map((kycTab) => (
               <Tab
+                disabled={disabled}
                 key={kycTab.id}
                 className={({ selected }) =>
                   cx(
                     'text-md group relative mx-auto w-full py-2.5 text-center font-semibold leading-5 outline-none',
-                    selected ? 'text-green' : 'text-green-3 hover:text-green'
+                    selected ? 'text-green' : 'text-green-3 hover:text-green',
+                    kycTab.id === 'personalInfo'
+                      ? 'disabled:text-green'
+                      : 'disabled:text-black/40'
                   )
                 }
               >

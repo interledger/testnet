@@ -10,7 +10,9 @@ exports.up = function (knex) {
     table.string('lastName')
     table.string('firstName')
     table.string('address')
-    table.string('rapydWalletId')
+    table.string('country')
+    table.string('rapydEWalletReferenceId')
+    table.string('rapydEWalletId')
     table.string('rapydContactId')
 
     table.timestamps(false, true, true)

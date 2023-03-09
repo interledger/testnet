@@ -5,17 +5,33 @@ import { BirdSuccess } from '../icons/Bird'
 import type { DialogProps } from '@/lib/types/dialog'
 
 type SuccessDialogProps = DialogProps & {
+  onSuccess?: () => void
   redirect?: string
   redirectText?: string
 }
 
 export const SuccessDialog = ({
   onClose,
+  onSuccess,
   title,
   content,
   redirect,
   redirectText
 }: SuccessDialogProps) => {
+  const successButtonProps: {
+    href?: string
+    onClick?: () => void
+  } = {
+    href: redirect ?? '/',
+    onClick: () => {
+      onSuccess ? onSuccess() : undefined
+      onClose()
+    }
+  }
+  if (onSuccess) {
+    delete successButtonProps.href
+  }
+
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -60,22 +76,21 @@ export const SuccessDialog = ({
                 </div>
                 <div className="mt-5 grid grid-cols-1 gap-3">
                   <Button
-                    intent="success"
-                    aria-label="close dialog"
+                    intent="secondary"
+                    aria-label={redirectText ?? 'redirect'}
                     fullWidth
-                    onClick={() => onClose()}
+                    {...successButtonProps}
                   >
-                    Close
+                    {redirectText}
                   </Button>
-                  {redirect && (
+                  {!onSuccess && (
                     <Button
-                      intent="secondary"
-                      aria-label={redirectText ?? 'redirect'}
+                      intent="success"
+                      aria-label="close dialog"
                       fullWidth
-                      href={redirect ?? '/'}
                       onClick={() => onClose()}
                     >
-                      {redirectText}
+                      Close
                     </Button>
                   )}
                 </div>
