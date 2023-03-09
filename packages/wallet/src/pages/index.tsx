@@ -29,7 +29,7 @@ export default function Home({ accounts }: HomeProps) {
         </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        <div className="flex justify-between space-x-2">
+        <div className="my-5 flex justify-between space-x-2">
           <Link
             href="/transfer/send"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"

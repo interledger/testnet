@@ -92,11 +92,11 @@ export const verifyIdentity = async (
     const { email } = req.user as User
 
     const {
-      document_type,
-      front_side_image,
-      front_side_image_mime_type,
-      face_image,
-      face_image_mime_type
+      documentType,
+      frontSideImage,
+      frontSideImageType,
+      faceImage,
+      faceImageType
     } = await zParse(kycSchema, req)
 
     const user = await User.query().where('email', email).first()
@@ -105,16 +105,18 @@ export const verifyIdentity = async (
     const country = user.country
     if (!country) throw new Error(`country code doesn't exist in database`)
 
-    const result = await rapydVerifyIdentity({
+    const values = {
       reference_id: user.rapydEWalletReferenceId,
       ewallet: user.rapydEWalletId,
       country,
-      document_type,
-      front_side_image,
-      front_side_image_mime_type,
-      face_image,
-      face_image_mime_type
-    })
+      document_type: documentType,
+      front_side_image: frontSideImage,
+      front_side_image_mime_type: frontSideImageType,
+      face_image: faceImage,
+      face_image_mime_type: faceImageType
+    }
+    console.log(values)
+    const result = await rapydVerifyIdentity(values)
 
     if (result.status.status !== 'SUCCESS')
       return res.status(500).json({

@@ -33,7 +33,7 @@ export default function AccountPage({ account }: AccountPageProps) {
         </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        <div className="flex justify-between space-x-2">
+        <div className="my-5 flex justify-between space-x-2">
           <button
             onClick={() =>
               openDialog(<CreatePaymentPointerDialog onClose={closeDialog} />)

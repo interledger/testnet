@@ -6,6 +6,7 @@ import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form } from '@/ui/forms/Form'
 import { getObjectKeys } from '@/utils/helpers'
+import { testImageType, testImageVerifyIdentity } from '@/utils/mocks'
 import { useRouter } from 'next/router'
 import { SyntheticEvent, useState } from 'react'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
@@ -27,9 +28,9 @@ export const VerifyIdentityForm = () => {
   const handleFileOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget
     const fileName = target.value.slice(target.value.lastIndexOf('\\') + 1)
-    if (target.name === 'selfie') {
+    if (target.name === 'faceImage') {
       setSelfieFile(fileName)
-    } else if (target.name === 'frontSideID') {
+    } else if (target.name === 'frontSideImage') {
       setFrontIDFile(fileName)
     } else {
       setBackIDFile(fileName)
@@ -105,7 +106,7 @@ export const VerifyIdentityForm = () => {
                 className="peer hidden"
                 value={idType.type}
                 data-back-id={idType.isBackRequired}
-                {...verifyIdentityForm.register('idType', {
+                {...verifyIdentityForm.register('documentType', {
                   onChange: handleIdTypeChange
                 })}
                 // DEV MODE => Use Passport as default value
@@ -122,7 +123,7 @@ export const VerifyIdentityForm = () => {
           ))}
         </div>
         <FieldError
-          error={verifyIdentityForm.formState.errors.idType?.message}
+          error={verifyIdentityForm.formState.errors.documentType?.message}
         />
       </div>
       <div className="flex justify-evenly">
@@ -131,10 +132,10 @@ export const VerifyIdentityForm = () => {
             <>
               <FileUpload
                 label="Selfie image"
-                {...verifyIdentityForm.register('selfie', {
+                {...verifyIdentityForm.register('faceImage', {
                   onChange: handleFileOnChange
                 })}
-                error={verifyIdentityForm.formState.errors.selfie?.message}
+                error={verifyIdentityForm.formState.errors.faceImage?.message}
               />
               <span className="text-sm font-light text-orange">
                 {selfieFile}
@@ -144,6 +145,16 @@ export const VerifyIdentityForm = () => {
           {isDevMode && (
             <>
               <FileUpload isDisabled={true} label="Selfie image" />
+              <input
+                type="hidden"
+                {...verifyIdentityForm.register('faceImage')}
+                value={testImageVerifyIdentity}
+              />
+              <input
+                type="hidden"
+                {...verifyIdentityForm.register('faceImageType')}
+                value={testImageType}
+              />
               <span className="text-sm font-light text-orange">
                 testSelfie.jpeg
               </span>
@@ -155,10 +166,12 @@ export const VerifyIdentityForm = () => {
             <>
               <FileUpload
                 label="Front side ID"
-                {...verifyIdentityForm.register('frontSideID', {
+                {...verifyIdentityForm.register('frontSideImage', {
                   onChange: handleFileOnChange
                 })}
-                error={verifyIdentityForm.formState.errors.frontSideID?.message}
+                error={
+                  verifyIdentityForm.formState.errors.frontSideImage?.message
+                }
               />
               <span className="text-sm font-light text-orange">
                 {frontIDFile}
@@ -168,6 +181,16 @@ export const VerifyIdentityForm = () => {
           {isDevMode && (
             <>
               <FileUpload isDisabled={true} label="Front side ID" />
+              <input
+                type="hidden"
+                {...verifyIdentityForm.register('frontSideImage')}
+                value={testImageVerifyIdentity}
+              />
+              <input
+                type="hidden"
+                {...verifyIdentityForm.register('frontSideImageType')}
+                value={testImageType}
+              />
               <span className="text-sm font-light text-orange">
                 testFrontId.jpeg
               </span>
@@ -178,10 +201,10 @@ export const VerifyIdentityForm = () => {
           <div className="my-5">
             <FileUpload
               label="Back side ID"
-              {...verifyIdentityForm.register('backSideID', {
+              {...verifyIdentityForm.register('backSideImage', {
                 onChange: handleFileOnChange
               })}
-              error={verifyIdentityForm.formState.errors.backSideID?.message}
+              error={verifyIdentityForm.formState.errors.backSideImage?.message}
             />
             <span className="text-sm font-light text-orange">{backIDFile}</span>
           </div>
