@@ -73,6 +73,13 @@ export const verifyIdentitySchema =
           )
       })
 
+export type UserData = {
+  email: string
+  firstName: string
+  lastName: string
+  noKyc: boolean
+}
+
 interface Service {
   signUp: (
     args: SignUpArgs
