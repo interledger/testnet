@@ -115,7 +115,6 @@ export const verifyIdentity = async (
       face_image: faceImage,
       face_image_mime_type: faceImageType
     }
-    console.log(values)
     const result = await rapydVerifyIdentity(values)
 
     if (result.status.status !== 'SUCCESS')
