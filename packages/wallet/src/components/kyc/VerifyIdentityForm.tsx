@@ -5,18 +5,15 @@ import { Button } from '@/ui/Button'
 import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form } from '@/ui/forms/Form'
+import { USE_TEST_DATA_KYC } from '@/utils/constants'
 import { getObjectKeys } from '@/utils/helpers'
 import { testImageType, testImageVerifyIdentity } from '@/utils/mocks'
 import { useRouter } from 'next/router'
 import { SyntheticEvent, useState } from 'react'
-import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { useKYCFormContext } from './context'
 
 export const VerifyIdentityForm = () => {
-  // set default values and documents for DEV mode
-  const useTestDataKYC = process.env.NEXT_PUBLIC_USE_TEST_KYC_DATA === 'true'
-
   const [openDialog, closeDialog] = useDialog()
   const { idTypes } = useKYCFormContext()
   const [frontIDFile, setFrontIDFile] = useState('')
@@ -52,16 +49,6 @@ export const VerifyIdentityForm = () => {
       onSubmit={async (data) => {
         const response = await userService.verifyIdentity(data)
 
-        if (!response) {
-          openDialog(
-            <ErrorDialog
-              onClose={closeDialog}
-              content="Something went wrong. Please try again"
-            />
-          )
-          return
-        }
-
         if (response.success) {
           openDialog(
             <SuccessDialog
@@ -76,19 +63,17 @@ export const VerifyIdentityForm = () => {
           )
         } else {
           const { errors, message } = response
+          verifyIdentityForm.setError('root', { message })
 
           if (errors) {
             getObjectKeys(errors).map((field) =>
               verifyIdentityForm.setError(field, { message: errors[field] })
             )
           }
-          if (message) {
-            verifyIdentityForm.setError('root', { message })
-          }
         }
       }}
     >
-      {useTestDataKYC && (
+      {USE_TEST_DATA_KYC && (
         <span className="font-semibold text-pink">
           For testing purposes Passport is selected, and images uploaded by
           default!
@@ -111,8 +96,8 @@ export const VerifyIdentityForm = () => {
                   onChange: handleIdTypeChange
                 })}
                 // TESTING => Use Passport as default value
-                checked={useTestDataKYC && idType.type === 'PA'}
-                disabled={useTestDataKYC && idType.type !== 'PA'}
+                checked={USE_TEST_DATA_KYC && idType.type === 'PA'}
+                disabled={USE_TEST_DATA_KYC && idType.type !== 'PA'}
               />
               <label
                 htmlFor={idType.type}
@@ -129,21 +114,7 @@ export const VerifyIdentityForm = () => {
       </div>
       <div className="flex justify-evenly">
         <div className="my-5">
-          {!useTestDataKYC && (
-            <>
-              <FileUpload
-                label="Selfie image"
-                {...verifyIdentityForm.register('faceImage', {
-                  onChange: handleFileOnChange
-                })}
-                error={verifyIdentityForm.formState.errors.faceImage?.message}
-              />
-              <span className="text-sm font-light text-orange">
-                {selfieFile}
-              </span>
-            </>
-          )}
-          {useTestDataKYC && (
+          {USE_TEST_DATA_KYC ? (
             <>
               <FileUpload disabled={true} label="Selfie image" />
               <input
@@ -157,10 +128,23 @@ export const VerifyIdentityForm = () => {
                 value={testImageType}
               />
             </>
+          ) : (
+            <>
+              <FileUpload
+                label="Selfie image"
+                {...verifyIdentityForm.register('faceImage', {
+                  onChange: handleFileOnChange
+                })}
+                error={verifyIdentityForm.formState.errors.faceImage?.message}
+              />
+              <span className="text-sm font-light text-orange">
+                {selfieFile}
+              </span>
+            </>
           )}
         </div>
         <div className="my-5">
-          {!useTestDataKYC && (
+          {!USE_TEST_DATA_KYC ? (
             <>
               <FileUpload
                 label="Front side ID"
@@ -175,8 +159,7 @@ export const VerifyIdentityForm = () => {
                 {frontIDFile}
               </span>
             </>
-          )}
-          {useTestDataKYC && (
+          ) : (
             <>
               <FileUpload disabled={true} label="Front side ID" />
               <input
@@ -192,7 +175,7 @@ export const VerifyIdentityForm = () => {
             </>
           )}
         </div>
-        {!useTestDataKYC && isBackRequired && (
+        {!USE_TEST_DATA_KYC && isBackRequired && (
           <div className="my-5">
             <FileUpload
               label="Back side ID"
