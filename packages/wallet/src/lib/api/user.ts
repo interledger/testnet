@@ -115,15 +115,15 @@ type VerifyIdentityError = ErrorResponse<VerifyIdentityArgs | undefined>
 type VerifyIdentityResponse = Promise<SuccessResponse | VerifyIdentityError>
 
 interface UserService {
-  signUp: (args: SignUpArgs) => SignUpResponse
-  login: (args: LoginArgs) => LoginResponse
-  me: (cookies?: string) => MeResponse
-  createWallet: (args: CreateWalletArgs) => CreateWalletResponse
-  verifyIdentity: (args: VerifyIdentityArgs) => VerifyIdentityResponse
+  signUp: (args: SignUpArgs) => Promise<SignUpResponse>
+  login: (args: LoginArgs) => Promise<LoginResponse>
+  me: (cookies?: string) => Promise<MeResponse>
+  createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
+  verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
 }
 
 const createUserService = (): UserService => ({
-  async signUp(args) {
+  async signUp(args): Promise<SignUpResponse> {
     try {
       const response = await httpClient
         .post('signup', {
@@ -132,14 +132,14 @@ const createUserService = (): UserService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<SignUpError>(
+      return getError<SignUpArgs>(
         error,
         'We could not create your account. Please try again.'
       )
     }
   },
 
-  async login(args) {
+  async login(args): Promise<LoginResponse> {
     try {
       const response = await httpClient
         .post('login', {
@@ -148,14 +148,14 @@ const createUserService = (): UserService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<LoginError>(
+      return getError<LoginArgs>(
         error,
         'We could not log you in. Please try again.'
       )
     }
   },
 
-  async me(cookies) {
+  async me(cookies): Promise<MeResponse> {
     try {
       const response = await httpClient
         .get('me', {
@@ -166,14 +166,11 @@ const createUserService = (): UserService => ({
         .json<MeResult>()
       return response
     } catch (error) {
-      return getError<ErrorResponse>(
-        error,
-        'Unable to retrive user information.'
-      )
+      return getError(error, 'Unable to retrive user information.')
     }
   },
 
-  async createWallet(args: CreateWalletArgs) {
+  async createWallet(args: CreateWalletArgs): Promise<CreateWalletResponse> {
     try {
       const response = await httpClient
         .post('/wallet', {
@@ -182,14 +179,16 @@ const createUserService = (): UserService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<CreateWalletError>(
+      return getError<CreateWalletArgs>(
         error,
         'Something went wrong while trying to create your wallet. Please try again.'
       )
     }
   },
 
-  async verifyIdentity(args: VerifyIdentityArgs) {
+  async verifyIdentity(
+    args: VerifyIdentityArgs
+  ): Promise<VerifyIdentityResponse> {
     try {
       const response = await httpClient
         .post('/verify', {
@@ -198,7 +197,7 @@ const createUserService = (): UserService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<VerifyIdentityError>(
+      return getError<VerifyIdentityArgs>(
         error,
         'Something went wrong while verifying your ID. Please try again.'
       )

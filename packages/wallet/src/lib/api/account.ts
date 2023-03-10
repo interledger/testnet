@@ -1,6 +1,6 @@
-import { HTTPError } from 'ky'
 import { z } from 'zod'
 import {
+  getError,
   httpClient,
   type ErrorResponse,
   type SuccessResponse
@@ -16,16 +16,15 @@ export const fundAccountSchema = z.object({
 })
 
 type FundAccountArgs = z.infer<typeof fundAccountSchema>
-type FundAccountError = ErrorResponse<typeof fundAccountSchema>
+type FundAccountError = ErrorResponse<FundAccountArgs | undefined>
+type FundAccountResponse = Promise<SuccessResponse | FundAccountError>
 
 interface AccountService {
-  fundAccount: (
-    args: FundAccountArgs
-  ) => Promise<SuccessResponse | FundAccountError>
+  fundAccount: (args: FundAccountArgs) => Promise<FundAccountResponse>
 }
 
 const createAccountService = (): AccountService => ({
-  async fundAccount(args: FundAccountArgs) {
+  async fundAccount(args: FundAccountArgs): Promise<FundAccountResponse> {
     try {
       const response = await httpClient
         .post('fund', {
@@ -33,9 +32,11 @@ const createAccountService = (): AccountService => ({
         })
         .json<SuccessResponse>()
       return response
-    } catch (e) {
-      const error = e as HTTPError
-      return error.response.json() as Promise<FundAccountError>
+    } catch (error) {
+      return getError<FundAccountArgs>(
+        error,
+        'We were unable to fund your account. Please try again.'
+      )
     }
   }
 })
