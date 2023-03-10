@@ -1,4 +1,4 @@
-import { httpClient } from '@/lib/httpClient'
+import { httpClient, SuccessResponse } from '@/lib/httpClient'
 import { SelectOption } from '@/ui/forms/Select'
 
 /**
@@ -13,8 +13,10 @@ export const getObjectKeys = Object.keys as <T extends object>(
 // Gets list of countries from Rapyd
 export const fetchCountries = async (): Promise<SelectOption[]> => {
   try {
-    const response = await httpClient.get('countries').json<SelectOption[]>()
-    return response
+    const response = await httpClient
+      .get('countries')
+      .json<SuccessResponse<SelectOption[]>>()
+    return response?.data ?? []
   } catch (error) {
     console.log(error)
     return []
@@ -30,8 +32,10 @@ type DocumentType = {
 // Gets list of approoved documents by countries from Rapyd
 export const fetchDocuments = async (): Promise<DocumentType[]> => {
   try {
-    const response = await httpClient.get('documents').json<DocumentType[]>()
-    return response
+    const response = await httpClient
+      .get('documents')
+      .json<SuccessResponse<DocumentType[]>>()
+    return response?.data ?? []
   } catch (error) {
     console.log(error)
     return []

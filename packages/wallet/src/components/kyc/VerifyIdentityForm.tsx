@@ -8,6 +8,7 @@ import { Form } from '@/ui/forms/Form'
 import { USE_TEST_DATA_KYC } from '@/utils/constants'
 import { getObjectKeys } from '@/utils/helpers'
 import { testImageType, testImageVerifyIdentity } from '@/utils/mocks'
+import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
 import { SyntheticEvent, useState } from 'react'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
@@ -16,21 +17,41 @@ import { useKYCFormContext } from './context'
 export const VerifyIdentityForm = () => {
   const [openDialog, closeDialog] = useDialog()
   const { idTypes } = useKYCFormContext()
-  const [frontIDFile, setFrontIDFile] = useState('')
-  const [selfieFile, setSelfieFile] = useState('')
-  const [backIDFile, setBackIDFile] = useState('')
   const [isBackRequired, setIsBackRequired] = useState(false)
+  const [selfie, setSelfie] = useState('')
+  const [selfieType, setSelfieType] = useState('')
+  const [frontSideID, setFrontSideID] = useState('')
+  const [frontSideIDType, setFrontSideIDType] = useState('')
+  const [backSideID, setBackSideID] = useState('')
+  const [backSideIDType, setBackSideIDType] = useState('')
   const router = useRouter()
 
   const handleFileOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    const reader = new FileReader()
     const target = event.currentTarget
-    const fileName = target.value.slice(target.value.lastIndexOf('\\') + 1)
-    if (target.name === 'faceImage') {
-      setSelfieFile(fileName)
-    } else if (target.name === 'frontSideImage') {
-      setFrontIDFile(fileName)
-    } else {
-      setBackIDFile(fileName)
+    if (target.files && target.files.length > 0) {
+      const file = target.files[0]
+      reader.readAsDataURL(file)
+      reader.onloadend = () => {
+        let fileBase64 = reader.result?.toString() || ''
+        fileBase64 = fileBase64.slice(fileBase64.indexOf('base64') + 7)
+        if (target.name === 'faceImageUpload') {
+          verifyIdentityForm.setValue('faceImage', fileBase64)
+          verifyIdentityForm.setValue('faceImageType', file.type)
+          setSelfie(fileBase64)
+          setSelfieType(file.type)
+        } else if (target.name === 'frontSideIDUpload') {
+          verifyIdentityForm.setValue('frontSideImage', fileBase64)
+          verifyIdentityForm.setValue('frontSideImageType', file.type)
+          setFrontSideID(fileBase64)
+          setFrontSideIDType(file.type)
+        } else {
+          verifyIdentityForm.setValue('backSideImage', fileBase64)
+          verifyIdentityForm.setValue('backSideImageType', file.type)
+          setBackSideID(fileBase64)
+          setBackSideIDType(file.type)
+        }
+      }
     }
   }
 
@@ -90,18 +111,23 @@ export const VerifyIdentityForm = () => {
                 type="radio"
                 id={idType.type}
                 className="peer hidden"
-                value={idType.type}
+                // TESTING => Use Passport as default value
+                value={USE_TEST_DATA_KYC ? 'PA' : idType.type}
                 data-back-id={idType.isBackRequired}
                 {...verifyIdentityForm.register('documentType', {
                   onChange: handleIdTypeChange
                 })}
-                // TESTING => Use Passport as default value
-                checked={USE_TEST_DATA_KYC && idType.type === 'PA'}
-                disabled={USE_TEST_DATA_KYC && idType.type !== 'PA'}
               />
               <label
                 htmlFor={idType.type}
-                className="w-[150px] cursor-pointer rounded-xl border border-turqoise bg-white p-2 text-center text-base font-light text-turqoise shadow-md peer-checked:border-orange peer-checked:text-orange sm:min-w-[100px]"
+                className={cx(
+                  USE_TEST_DATA_KYC
+                    ? idType.name === 'Passport'
+                      ? 'border-orange text-orange'
+                      : 'border-turqoise text-turqoise'
+                    : 'border-turqoise text-turqoise peer-checked:border-orange peer-checked:text-orange',
+                  'w-[150px] cursor-pointer rounded-xl border  bg-white p-2 text-center text-base font-light shadow-md sm:min-w-[100px]'
+                )}
               >
                 {idType.name}
               </label>
@@ -114,79 +140,95 @@ export const VerifyIdentityForm = () => {
       </div>
       <div className="flex justify-evenly">
         <div className="my-5">
-          {USE_TEST_DATA_KYC ? (
-            <>
-              <FileUpload disabled={true} label="Selfie image" />
-              <input
-                type="hidden"
-                {...verifyIdentityForm.register('faceImage')}
-                value={testImageVerifyIdentity}
-              />
-              <input
-                type="hidden"
-                {...verifyIdentityForm.register('faceImageType')}
-                value={testImageType}
-              />
-            </>
-          ) : (
-            <>
-              <FileUpload
-                label="Selfie image"
-                {...verifyIdentityForm.register('faceImage', {
-                  onChange: handleFileOnChange
-                })}
-                error={verifyIdentityForm.formState.errors.faceImage?.message}
-              />
-              <span className="text-sm font-light text-orange">
-                {selfieFile}
-              </span>
-            </>
-          )}
+          <>
+            <FileUpload
+              label="Selfie image"
+              onChange={handleFileOnChange}
+              name="faceImageUpload"
+              disabled={USE_TEST_DATA_KYC}
+              image={USE_TEST_DATA_KYC ? testImageVerifyIdentity : selfie}
+              imageType={USE_TEST_DATA_KYC ? testImageType : selfieType}
+              error={verifyIdentityForm.formState.errors.faceImage?.message}
+            />
+            <input
+              type="hidden"
+              {...verifyIdentityForm.register('faceImage')}
+              value={
+                USE_TEST_DATA_KYC
+                  ? testImageVerifyIdentity
+                  : verifyIdentityForm.getValues('faceImage')
+              }
+            />
+            <input
+              type="hidden"
+              {...verifyIdentityForm.register('faceImageType')}
+              value={
+                USE_TEST_DATA_KYC
+                  ? testImageType
+                  : verifyIdentityForm.getValues('faceImageType')
+              }
+            />
+          </>
         </div>
         <div className="my-5">
-          {!USE_TEST_DATA_KYC ? (
+          <>
+            <FileUpload
+              label="Front side ID"
+              onChange={handleFileOnChange}
+              name="frontSideIDUpload"
+              disabled={USE_TEST_DATA_KYC}
+              image={USE_TEST_DATA_KYC ? testImageVerifyIdentity : frontSideID}
+              imageType={USE_TEST_DATA_KYC ? testImageType : frontSideIDType}
+              error={
+                verifyIdentityForm.formState.errors.frontSideImage?.message
+              }
+            />
+            <input
+              type="hidden"
+              {...verifyIdentityForm.register('frontSideImage')}
+              value={
+                USE_TEST_DATA_KYC
+                  ? testImageVerifyIdentity
+                  : verifyIdentityForm.getValues('frontSideImage')
+              }
+            />
+            <input
+              type="hidden"
+              {...verifyIdentityForm.register('frontSideImageType')}
+              value={
+                USE_TEST_DATA_KYC
+                  ? testImageType
+                  : verifyIdentityForm.getValues('frontSideImageType')
+              }
+            />
+          </>
+        </div>
+        <div className="my-5">
+          {isBackRequired && (
             <>
               <FileUpload
-                label="Front side ID"
-                {...verifyIdentityForm.register('frontSideImage', {
-                  onChange: handleFileOnChange
-                })}
+                label="Back side ID"
+                onChange={handleFileOnChange}
+                name="backSideIDUpload"
+                image={backSideID}
+                imageType={backSideIDType}
                 error={
-                  verifyIdentityForm.formState.errors.frontSideImage?.message
+                  verifyIdentityForm.formState.errors.backSideImage?.message
                 }
               />
-              <span className="text-sm font-light text-orange">
-                {frontIDFile}
-              </span>
-            </>
-          ) : (
-            <>
-              <FileUpload disabled={true} label="Front side ID" />
               <input
                 type="hidden"
-                {...verifyIdentityForm.register('frontSideImage')}
-                value={testImageVerifyIdentity}
+                {...verifyIdentityForm.register('backSideImage')}
+                value={verifyIdentityForm.getValues('backSideImage')}
               />
               <input
                 type="hidden"
-                {...verifyIdentityForm.register('frontSideImageType')}
-                value={testImageType}
+                {...verifyIdentityForm.register('backSideImageType')}
+                value={verifyIdentityForm.getValues('backSideImage')}
               />
             </>
           )}
         </div>
-        {!USE_TEST_DATA_KYC && isBackRequired && (
-          <div className="my-5">
-            <FileUpload
-              label="Back side ID"
-              {...verifyIdentityForm.register('backSideImage', {
-                onChange: handleFileOnChange
-              })}
-              error={verifyIdentityForm.formState.errors.backSideImage?.message}
-            />
-            <span className="text-sm font-light text-orange">{backIDFile}</span>
-          </div>
-        )}
       </div>
       <Button aria-label="Verify Account" type="submit">
         Verify Account

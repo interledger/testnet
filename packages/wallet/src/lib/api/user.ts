@@ -38,55 +38,19 @@ export const personalDetailsSchema = z.object({
   zip: z.string().min(1, { message: 'ZIP code is required' })
 })
 
-export const verifyIdentitySchema =
-  process.env.NODE_ENV === 'development'
-    ? z.object({
-        documentType: z.string({
-          invalid_type_error: 'Please select an ID Type'
-        }),
-        frontSideImage: z.string(),
-        frontSideImageType: z.string().optional(),
-        backSideImage: z.string().optional(),
-        backSideImageType: z.string().optional(),
-        faceImage: z.string(),
-        faceImageType: z.string().optional()
-      })
-    : z.object({
-        documentType: z.string({
-          invalid_type_error: 'Please select an ID Type'
-        }),
-        frontSideImage: z
-          .custom<FileList>()
-          .refine(
-            (frontSideImage) => frontSideImage?.length === 1,
-            'Front side of ID is required'
-          )
-          .refine(
-            (frontSideImage) => frontSideImage?.length < 2,
-            'You can only select one image'
-          ),
-        frontSideImageType: z.string().optional(),
-        backSideImage: z
-          .custom<FileList>()
-          .refine(
-            (backSideImage) => backSideImage?.length === 1,
-            'Back side of ID is required'
-          )
-          .refine(
-            (backSideImage) => backSideImage?.length < 2,
-            'You can only select one image'
-          )
-          .optional(),
-        backSideImageType: z.string().optional(),
-        faceImage: z
-          .custom<FileList>()
-          .refine((faceImage) => faceImage?.length === 1, 'Selfie is required')
-          .refine(
-            (faceImage) => faceImage?.length < 2,
-            'You can only select one image'
-          ),
-        faceImageType: z.string().optional()
-      })
+export const verifyIdentitySchema = z.object({
+  documentType: z.string({
+    invalid_type_error: 'Please select an ID Type'
+  }),
+  frontSideImage: z
+    .string()
+    .min(1, { message: 'Front side of ID is required' }),
+  frontSideImageType: z.string(),
+  backSideImage: z.string().optional(),
+  backSideImageType: z.string().optional(),
+  faceImage: z.string().min(1, { message: 'A selfie image is required' }),
+  faceImageType: z.string()
+})
 
 export type UserData = {
   email: string
@@ -173,7 +137,7 @@ const createUserService = (): UserService => ({
   async createWallet(args: CreateWalletArgs): Promise<CreateWalletResponse> {
     try {
       const response = await httpClient
-        .post('/wallet', {
+        .post('wallet', {
           json: args
         })
         .json<SuccessResponse>()
@@ -191,7 +155,7 @@ const createUserService = (): UserService => ({
   ): Promise<VerifyIdentityResponse> {
     try {
       const response = await httpClient
-        .post('/verify', {
+        .post('verify', {
           json: args
         })
         .json<SuccessResponse>()
