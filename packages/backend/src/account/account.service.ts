@@ -5,7 +5,8 @@ import { accountSchema } from './schemas/account.schema'
 import { getAsset } from '../rafiki/request/asset.request'
 import { Account } from './account.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
-import { AccountExistsException } from './errors/AccountExistsException'
+import { ConflictException } from '../shared/models/errors/ConflictException'
+import { NotFoundException } from '../shared/models/errors/NotFoundException'
 
 export const createAccount = async (
   req: Request,
@@ -21,7 +22,7 @@ export const createAccount = async (
       .where('name', name)
       .first()
     if (existentAccount) {
-      new AccountExistsException(name)
+      throw new ConflictException(`Account with ${name} already exists`)
     }
 
     const asset = await getAsset(assetRafikiId)
@@ -62,12 +63,25 @@ export const getAccountById = async (
   try {
     const userId = getUserIdFromRequest(req)
     const accountId = req.params.id
-    const account = await Account.query()
-      .findById(accountId)
-      .where('userId', userId)
-      .throwIfNotFound()
+    const account = await findAccountById(accountId, userId)
+
     return res.json({ success: true, message: 'Success', data: account })
   } catch (e) {
     next(e)
   }
+}
+
+export const findAccountById = async (
+  accountId: string,
+  userId: string
+): Promise<Account> => {
+  const account = await Account.query()
+    .findById(accountId)
+    .where('userId', userId)
+
+  if (!account) {
+    throw new NotFoundException()
+  }
+
+  return account
 }
