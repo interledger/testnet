@@ -46,27 +46,6 @@ services:
       # Map debugger port to local machine's port 9229
       - '9229:9229'
     container_name: testnet
-  wallet:
-    build:
-      context: ../..
-      dockerfile: ./packages/wallet/Dockerfile.dev
-    depends_on:
-      - postgres
-    environment:
-      NODE_ENV: development
-      PORT: 4003
-      NEXT_PUBLIC_BACKEND_URL: http://localhost:3003
-    restart: always
-    networks:
-      - testnet
-    ports:
-      - '4003:4003'
-    # In order to take advantage of HMR inside Docker we have to add these volumes
-    volumes:
-      - ../../packages/wallet:/home/testnet/packages/wallet
-      - /home/testnet/packages/wallet/node_modules
-      - /home/testnet/packages/wallet/.next
-    container_name: wallet
 
   # rafiki setup
   auth:

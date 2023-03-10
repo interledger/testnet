@@ -1,16 +1,15 @@
 {
   "name": "wallet",
   "scripts": {
-    "dev": "next dev",
+    "dev": "PORT=4003 next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "PORT=4003 next start"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.13",
     "@hookform/resolvers": "^2.9.11",
-    "@next/font": "13.2.3",
-    "axios": "^1.3.4",
     "class-variance-authority": "^0.4.0",
+    "ky": "^0.33.2",
     "next": "13.2.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",

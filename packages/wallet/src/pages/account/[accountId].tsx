@@ -32,8 +32,8 @@ export default function AccountPage({ account }: AccountPageProps) {
           </p>
         </div>
       </div>
-      <div className="flex w-full flex-col space-y-3 md:max-w-md">
-        <div className="mt-2 flex justify-between space-x-2">
+      <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
+        <div className="my-5 flex justify-between space-x-2">
           <button
             onClick={() =>
               openDialog(<CreatePaymentPointerDialog onClose={closeDialog} />)
@@ -93,7 +93,7 @@ export default function AccountPage({ account }: AccountPageProps) {
 }
 
 const querySchema = z.object({
-  id: z.string().uuid()
+  accountId: z.string().uuid()
 })
 
 export const getServerSideProps: GetServerSideProps<{

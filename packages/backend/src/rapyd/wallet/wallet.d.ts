@@ -121,3 +121,14 @@ interface RapydWallet {
   type?: 'company' | 'person' | 'client'
   verification_status?: 'not verified' | 'KYCd'
 }
+
+interface RapydIdentityRequest {
+  reference_id?: string
+  ewallet?: string
+  country?: string
+  document_type?: string
+  front_side_image?: string
+  front_side_image_mime_type?: string
+  face_image?: string
+  face_image_mime_type?: string
+}

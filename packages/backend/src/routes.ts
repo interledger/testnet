@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express'
 import passport from 'passport'
 import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
-import { createWallet } from './wallet/wallet.service'
+import { getDocumentTypes } from './rapyd/documents/documents.service'
+import { createWallet, verifyIdentity } from './wallet/wallet.service'
 import { assetRouter } from './asset/asset.route'
 import { paymentPointerRouter } from './payment-pointer/payment-pointer.route'
 import { accountRouter } from './account/account.route'
@@ -27,7 +28,20 @@ mainRouter.post(
   createWallet
 )
 
+mainRouter.post(
+  '/verify',
+  passport.authenticate('jwt', { session: false }),
+  verifyIdentity
+)
+
+mainRouter.get(
+  '/documents',
+  passport.authenticate('jwt', { session: false }),
+  getDocumentTypes
+)
+
 mainRouter.get('/countries', getCountryNames)
+mainRouter.get('/documents', getDocumentTypes)
 
 mainRouter.post(
   '/protected',
