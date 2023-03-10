@@ -96,7 +96,9 @@ export const verifyIdentity = async (
       frontSideImage,
       frontSideImageType,
       faceImage,
-      faceImageType
+      faceImageType,
+      backSideImage,
+      backSideImageType
     } = await zParse(kycSchema, req)
 
     const user = await User.query().where('email', email).first()
@@ -113,7 +115,9 @@ export const verifyIdentity = async (
       front_side_image: frontSideImage,
       front_side_image_mime_type: frontSideImageType,
       face_image: faceImage,
-      face_image_mime_type: faceImageType
+      face_image_mime_type: faceImageType,
+      back_side_image: backSideImage,
+      back_side_image_mime_type: backSideImageType
     }
     const result = await rapydVerifyIdentity(values)
 
