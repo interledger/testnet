@@ -31,14 +31,12 @@ const Login = () => {
               router.push('/')
             } else {
               const { errors, message } = response
+              loginForm.setError('root', { message })
 
               if (errors) {
                 getObjectKeys(errors).map((field) =>
                   loginForm.setError(field, { message: errors[field] })
                 )
-              }
-              if (message) {
-                loginForm.setError('root', { message })
               }
             }
           }}

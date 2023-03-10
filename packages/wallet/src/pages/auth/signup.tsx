@@ -38,14 +38,12 @@ const SignUp = () => {
               )
             } else {
               const { errors, message } = response
+              signUpForm.setError('root', { message })
 
               if (errors) {
                 getObjectKeys(errors).map((field) =>
                   signUpForm.setError(field, { message: errors[field] })
                 )
-              }
-              if (message) {
-                signUpForm.setError('root', { message })
               }
             }
           }}
