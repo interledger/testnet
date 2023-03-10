@@ -11,5 +11,7 @@ export const kycSchema = z.object({
   faceImage: z.string({ required_error: 'face image is required' }),
   faceImageType: z.string({
     required_error: 'face image mime type is required'
-  })
+  }),
+  backSideImage: z.string().optional(),
+  backSideImageType: z.string().optional()
 })

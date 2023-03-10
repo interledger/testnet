@@ -18,12 +18,6 @@ export const VerifyIdentityForm = () => {
   const [openDialog, closeDialog] = useDialog()
   const { idTypes } = useKYCFormContext()
   const [isBackRequired, setIsBackRequired] = useState(false)
-  const [selfie, setSelfie] = useState('')
-  const [selfieType, setSelfieType] = useState('')
-  const [frontSideID, setFrontSideID] = useState('')
-  const [frontSideIDType, setFrontSideIDType] = useState('')
-  const [backSideID, setBackSideID] = useState('')
-  const [backSideIDType, setBackSideIDType] = useState('')
   const router = useRouter()
 
   const handleFileOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -38,18 +32,15 @@ export const VerifyIdentityForm = () => {
         if (target.name === 'faceImageUpload') {
           verifyIdentityForm.setValue('faceImage', fileBase64)
           verifyIdentityForm.setValue('faceImageType', file.type)
-          setSelfie(fileBase64)
-          setSelfieType(file.type)
+          verifyIdentityForm.trigger('faceImage')
         } else if (target.name === 'frontSideIDUpload') {
           verifyIdentityForm.setValue('frontSideImage', fileBase64)
           verifyIdentityForm.setValue('frontSideImageType', file.type)
-          setFrontSideID(fileBase64)
-          setFrontSideIDType(file.type)
+          verifyIdentityForm.trigger('frontSideImage')
         } else {
           verifyIdentityForm.setValue('backSideImage', fileBase64)
           verifyIdentityForm.setValue('backSideImageType', file.type)
-          setBackSideID(fileBase64)
-          setBackSideIDType(file.type)
+          verifyIdentityForm.trigger('backSideImage')
         }
       }
     }
@@ -58,6 +49,10 @@ export const VerifyIdentityForm = () => {
   const handleIdTypeChange = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget
     setIsBackRequired(target.getAttribute('data-back-id') === 'true')
+    if (!isBackRequired) {
+      verifyIdentityForm.setValue('backSideImage', '')
+      verifyIdentityForm.setValue('backSideImageType', '')
+    }
   }
 
   const verifyIdentityForm = useZodForm({
@@ -146,8 +141,16 @@ export const VerifyIdentityForm = () => {
               onChange={handleFileOnChange}
               name="faceImageUpload"
               disabled={USE_TEST_DATA_KYC}
-              image={USE_TEST_DATA_KYC ? testImageVerifyIdentity : selfie}
-              imageType={USE_TEST_DATA_KYC ? testImageType : selfieType}
+              image={
+                USE_TEST_DATA_KYC
+                  ? testImageVerifyIdentity
+                  : verifyIdentityForm.getValues('faceImage')
+              }
+              imageType={
+                USE_TEST_DATA_KYC
+                  ? testImageType
+                  : verifyIdentityForm.getValues('faceImageType')
+              }
               error={verifyIdentityForm.formState.errors.faceImage?.message}
             />
             <input
@@ -177,8 +180,16 @@ export const VerifyIdentityForm = () => {
               onChange={handleFileOnChange}
               name="frontSideIDUpload"
               disabled={USE_TEST_DATA_KYC}
-              image={USE_TEST_DATA_KYC ? testImageVerifyIdentity : frontSideID}
-              imageType={USE_TEST_DATA_KYC ? testImageType : frontSideIDType}
+              image={
+                USE_TEST_DATA_KYC
+                  ? testImageVerifyIdentity
+                  : verifyIdentityForm.getValues('frontSideImage')
+              }
+              imageType={
+                USE_TEST_DATA_KYC
+                  ? testImageType
+                  : verifyIdentityForm.getValues('frontSideImageType')
+              }
               error={
                 verifyIdentityForm.formState.errors.frontSideImage?.message
               }
@@ -210,8 +221,8 @@ export const VerifyIdentityForm = () => {
                 label="Back side ID"
                 onChange={handleFileOnChange}
                 name="backSideIDUpload"
-                image={backSideID}
-                imageType={backSideIDType}
+                image={verifyIdentityForm.getValues('backSideImage')}
+                imageType={verifyIdentityForm.getValues('backSideImage')}
                 error={
                   verifyIdentityForm.formState.errors.backSideImage?.message
                 }
