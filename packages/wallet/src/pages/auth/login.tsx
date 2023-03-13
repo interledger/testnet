@@ -8,12 +8,9 @@ import { Play } from '@/components/icons/Play'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
-import { useDialog } from '@/lib/hooks/useDialog'
 import { getObjectKeys } from '@/utils/helpers'
-import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 const Login = () => {
-  const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
 
   const loginForm = useZodForm({
@@ -30,28 +27,16 @@ const Login = () => {
           onSubmit={async (data) => {
             const response = await userService.login(data)
 
-            if (!response) {
-              openDialog(
-                <ErrorDialog
-                  onClose={closeDialog}
-                  content="Login failed. Please try again"
-                />
-              )
-              return
-            }
-
             if (response.success) {
               router.push('/')
             } else {
               const { errors, message } = response
+              loginForm.setError('root', { message })
 
               if (errors) {
                 getObjectKeys(errors).map((field) =>
                   loginForm.setError(field, { message: errors[field] })
                 )
-              }
-              if (message) {
-                loginForm.setError('root', { message })
               }
             }
           }}

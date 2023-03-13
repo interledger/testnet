@@ -1,15 +1,17 @@
 import { z } from 'zod'
 
 export const kycSchema = z.object({
-  document_type: z.string({ required_error: 'document type is required' }),
-  front_side_image: z.string({
+  documentType: z.string({ required_error: 'document type is required' }),
+  frontSideImage: z.string({
     required_error: 'front side image is required'
   }),
-  front_side_image_mime_type: z.string({
+  frontSideImageType: z.string({
     required_error: 'front side image mime type is required'
   }),
-  face_image: z.string({ required_error: 'face image is required' }),
-  face_image_mime_type: z.string({
+  faceImage: z.string({ required_error: 'face image is required' }),
+  faceImageType: z.string({
     required_error: 'face image mime type is required'
-  })
+  }),
+  backSideImage: z.string().optional(),
+  backSideImageType: z.string().optional()
 })

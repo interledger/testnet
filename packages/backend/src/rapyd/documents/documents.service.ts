@@ -32,7 +32,7 @@ export const getDocumentTypes = async (
     const documentTypes = result.data.map((item: RapydDocumentType) => ({
       type: item.type,
       name: item.name,
-      is_back_required: item.is_back_required
+      isBackRequired: item.is_back_required
     }))
 
     return res
