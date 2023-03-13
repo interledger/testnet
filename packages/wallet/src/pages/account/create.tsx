@@ -6,28 +6,21 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { Select } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
 } from 'next/types'
-import { z } from 'zod'
-
-const newAccountSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: 'Accout name should be at least 3 characters long.' }),
-  asset: z
-    .string({ required_error: 'Please select an asset for your account.' })
-    .uuid()
-})
+import { accountService, createAccountSchema } from '@/lib/api/account'
+import { getObjectKeys } from '@/utils/helpers'
+import { assetService } from '@/lib/api/asset'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function CreateAccount({ assets }: CreateAccountProps) {
   const [openDialog, closeDialog] = useDialog()
   const form = useZodForm({
-    schema: newAccountSchema
+    schema: createAccountSchema
   })
 
   return (
@@ -35,17 +28,30 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
       <PageHeader title="Create a new account" />
       <Form
         form={form}
-        onSubmit={(data) => {
-          console.log(data)
-          openDialog(
-            <SuccessDialog
-              onClose={closeDialog}
-              title="Account created."
-              content="Your account was successfully created."
-              redirect="/account/id"
-              redirectText="View account"
-            />
-          )
+        onSubmit={async (data) => {
+          const response = await accountService.create(data)
+
+          if (response.success) {
+            openDialog(
+              <SuccessDialog
+                onClose={closeDialog}
+                title="Account created."
+                content="Your account was successfully created."
+                redirect={`/account/${response.data?.id}`}
+                redirectText="View account"
+              />
+            )
+            form.reset()
+          } else {
+            const { errors, message } = response
+            form.setError('root', { message })
+
+            if (errors) {
+              getObjectKeys(errors).map((field) =>
+                form.setError(field, { message: errors[field] })
+              )
+            }
+          }
         }}
         className="mt-10 max-w-lg"
       >
@@ -57,10 +63,10 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           {...form.register('name')}
         />
         <Select
-          name="asset"
+          name="assetRafikiId"
           setValue={form.setValue}
           defaultValue={assets[0]}
-          error={form.formState.errors.asset?.message}
+          error={form.formState.errors.assetRafikiId?.message}
           options={assets}
           label="Asset"
         />
@@ -73,18 +79,25 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  assets: {
-    name: string
-    value: string
-  }[]
-}> = async (_ctx) => {
+  assets: SelectOption[]
+}> = async (ctx) => {
+  const response = await assetService.list(ctx.req.headers.cookie)
+
+  // TODO: https://nextjs.org/docs/advanced-features/custom-error-page#more-advanced-error-page-customizing
+  if (!response.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  const assets = response.data?.map((asset) => ({
+    name: asset.code,
+    value: asset.id
+  }))
+
   return {
     props: {
-      assets: [
-        { name: 'EUR', value: 'a4ad467b-0ee0-432a-a09b-568b32a0b76a' },
-        { name: 'RON', value: 'b4ad467b-0ee0-432a-a09b-568b32a0b76b' },
-        { name: 'USD', value: 'c4ad467b-0ee0-432a-a09b-568b32a0b76c' }
-      ]
+      assets: assets ?? []
     }
   }
 }

@@ -5,9 +5,10 @@ import { Request } from '@/components/icons/Request'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { accountService } from '@/lib/api/account'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
-import { mockAccountList, type Account } from '@/utils/mocks'
+import { type Account } from '@/lib/api/account'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -72,11 +73,17 @@ export default function Home({ accounts }: HomeProps) {
             My Accounts
           </h3>
         </div>
-        <div className="grid grid-cols-2 gap-6">
-          {accounts.map((account) => (
-            <AccountCard key={account.id} account={account} />
-          ))}
-        </div>
+        {accounts.length > 0 ? (
+          <div className="grid grid-cols-2 gap-6">
+            {accounts.map((account) => (
+              <AccountCard key={account.id} account={account} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center p-4 text-green">
+            No accounts.
+          </div>
+        )}
       </div>
       <SmallBubbles className="mt-10 block w-full md:hidden" />
     </AppLayout>
@@ -85,12 +92,18 @@ export default function Home({ accounts }: HomeProps) {
 
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
-}> = async (_ctx) => {
-  const accounts = await Promise.resolve(mockAccountList())
+}> = async (ctx) => {
+  const response = await accountService.list(ctx.req.headers.cookie)
+
+  if (!response.success) {
+    return {
+      notFound: true
+    }
+  }
 
   return {
     props: {
-      accounts
+      accounts: response.data ?? []
     }
   }
 }
