@@ -38,19 +38,53 @@ export const personalDetailsSchema = z.object({
   zip: z.string().min(1, { message: 'ZIP code is required' })
 })
 
-export const verifyIdentitySchema = z.object({
-  documentType: z.string({
-    invalid_type_error: 'Please select an ID Type'
-  }),
-  frontSideImage: z
-    .string()
-    .min(1, { message: 'Front side of ID is required' }),
-  frontSideImageType: z.string(),
-  backSideImage: z.string().optional(),
-  backSideImageType: z.string().optional(),
-  faceImage: z.string().min(1, { message: 'A selfie image is required' }),
-  faceImageType: z.string()
-})
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png']
+export const verifyIdentitySchema = z
+  .object({
+    documentType: z.string({
+      invalid_type_error: 'Please select an ID Type'
+    }),
+    frontSideImage: z
+      .string()
+      .min(1, { message: 'Front side of ID is required' }),
+    frontSideImageType: z.string(),
+    backSideImage: z.string().optional(),
+    backSideImageType: z.string().optional(),
+    faceImage: z.string().min(1, { message: 'A selfie image is required' }),
+    faceImageType: z.string()
+  })
+  .superRefine(({ frontSideImageType }, ctx) => {
+    if (!ACCEPTED_IMAGE_TYPES.includes(frontSideImageType.toString())) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Image must be 'jpeg' or 'png'`,
+        path: ['frontSideImage']
+      })
+    }
+  })
+  .superRefine(({ faceImageType }, ctx) => {
+    if (!ACCEPTED_IMAGE_TYPES.includes(faceImageType.toString())) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Image must be 'jpeg' or 'png'`,
+        path: ['faceImage']
+      })
+    }
+  })
+  .superRefine(({ backSideImageType }, ctx) => {
+    console.log(backSideImageType)
+    if (
+      backSideImageType &&
+      backSideImageType?.length > 0 &&
+      !ACCEPTED_IMAGE_TYPES.includes(backSideImageType.toString())
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Image must be 'jpeg' or 'png'`,
+        path: ['backSideImage']
+      })
+    }
+  })
 
 export type UserData = {
   email: string
