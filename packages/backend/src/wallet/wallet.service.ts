@@ -15,14 +15,13 @@ export const createWallet = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const user = req.user as User
-    const email = user.email
+    const { id, email } = req.user as User
     const { firstName, lastName, address, city, country, zip, phone } =
       await zParse(walletSchema, req)
 
     // update address field of user
     await User.query()
-      .findOne({ email })
+      .findById(id)
       .patch({
         firstName: firstName,
         lastName: lastName,
@@ -89,7 +88,7 @@ export const verifyIdentity = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const { email } = req.user as User
+    const { id } = req.user as User
 
     const {
       documentType,
@@ -101,7 +100,7 @@ export const verifyIdentity = async (
       backSideImageType
     } = await zParse(kycSchema, req)
 
-    const user = await User.query().where('email', email).first()
+    const user = await User.query().findById(id)
     if (!user) throw new Error(`user doesn't exist`)
 
     const country = user.country
