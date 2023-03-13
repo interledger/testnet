@@ -1,6 +1,10 @@
-import type { AxiosError } from 'axios'
+import { getError } from '../httpClient'
 import { z } from 'zod'
-import $axios, { type ErrorResponse, type SuccessResponse } from '../axios'
+import {
+  httpClient,
+  type ErrorResponse,
+  type SuccessResponse
+} from '../httpClient'
 
 export const signUpSchema = z
   .object({
@@ -34,55 +38,19 @@ export const personalDetailsSchema = z.object({
   zip: z.string().min(1, { message: 'ZIP code is required' })
 })
 
-export const verifyIdentitySchema =
-  process.env.NODE_ENV === 'development'
-    ? z.object({
-        documentType: z.string({
-          invalid_type_error: 'Please select an ID Type'
-        }),
-        frontSideImage: z.string(),
-        frontSideImageType: z.string().optional(),
-        backSideImage: z.string().optional(),
-        backSideImageType: z.string().optional(),
-        faceImage: z.string(),
-        faceImageType: z.string().optional()
-      })
-    : z.object({
-        documentType: z.string({
-          invalid_type_error: 'Please select an ID Type'
-        }),
-        frontSideImage: z
-          .custom<FileList>()
-          .refine(
-            (frontSideImage) => frontSideImage?.length === 1,
-            'Front side of ID is required'
-          )
-          .refine(
-            (frontSideImage) => frontSideImage?.length < 2,
-            'You can only select one image'
-          ),
-        frontSideImageType: z.string().optional(),
-        backSideImage: z
-          .custom<FileList>()
-          .refine(
-            (backSideImage) => backSideImage?.length === 1,
-            'Back side of ID is required'
-          )
-          .refine(
-            (backSideImage) => backSideImage?.length < 2,
-            'You can only select one image'
-          )
-          .optional(),
-        backSideImageType: z.string().optional(),
-        faceImage: z
-          .custom<FileList>()
-          .refine((faceImage) => faceImage?.length === 1, 'Selfie is required')
-          .refine(
-            (faceImage) => faceImage?.length < 2,
-            'You can only select one image'
-          ),
-        faceImageType: z.string().optional()
-      })
+export const verifyIdentitySchema = z.object({
+  documentType: z.string({
+    invalid_type_error: 'Please select an ID Type'
+  }),
+  frontSideImage: z
+    .string()
+    .min(1, { message: 'Front side of ID is required' }),
+  frontSideImageType: z.string(),
+  backSideImage: z.string().optional(),
+  backSideImageType: z.string().optional(),
+  faceImage: z.string().min(1, { message: 'A selfie image is required' }),
+  faceImageType: z.string()
+})
 
 export type UserData = {
   email: string
@@ -91,80 +59,114 @@ export type UserData = {
   noKyc: boolean
 }
 
-interface Service {
-  signUp: (
-    args: SignUpArgs
-  ) => Promise<SuccessResponse | SignUpError | undefined>
-  login: (args: LoginArgs) => Promise<SuccessResponse | LoginError | undefined>
-  createWallet: (
-    args: WalletArgs
-  ) => Promise<SuccessResponse | WalletError | undefined>
-  verifyIdentity: (
-    args: VerifyIdentityArgs
-  ) => Promise<SuccessResponse | VerifyIdentityError | undefined>
-}
-
 type SignUpArgs = z.infer<typeof signUpSchema>
-type SignUpError = ErrorResponse<typeof signUpSchema>
+type SignUpError = ErrorResponse<SignUpArgs | undefined>
+type SignUpResponse = Promise<SuccessResponse | SignUpError>
 
 type LoginArgs = z.infer<typeof loginSchema>
-type LoginError = ErrorResponse<typeof loginSchema>
+type LoginError = ErrorResponse<LoginArgs | undefined>
+type LoginResponse = Promise<SuccessResponse | LoginError>
 
-type WalletArgs = z.infer<typeof personalDetailsSchema>
-type WalletError = ErrorResponse<typeof personalDetailsSchema>
+type MeResult = SuccessResponse<UserData>
+type MeResponse = Promise<MeResult | ErrorResponse>
+
+type CreateWalletArgs = z.infer<typeof personalDetailsSchema>
+type CreateWalletError = ErrorResponse<CreateWalletArgs | undefined>
+type CreateWalletResponse = Promise<SuccessResponse | CreateWalletError>
 
 type VerifyIdentityArgs = z.infer<typeof verifyIdentitySchema>
-type VerifyIdentityError = ErrorResponse<typeof verifyIdentitySchema>
+type VerifyIdentityError = ErrorResponse<VerifyIdentityArgs | undefined>
+type VerifyIdentityResponse = Promise<SuccessResponse | VerifyIdentityError>
 
-class UserService implements Service {
-  private static instance: UserService
-
-  static getInstance(): UserService {
-    if (!UserService.instance) {
-      UserService.instance = new UserService()
-    }
-    return UserService.instance
-  }
-
-  async signUp(args: SignUpArgs) {
-    try {
-      const response = await $axios.post<SuccessResponse>('/signup', args)
-      return response.data
-    } catch (e) {
-      const error = e as AxiosError<SignUpError>
-      return error.response?.data
-    }
-  }
-
-  async login(args: LoginArgs) {
-    try {
-      const response = await $axios.post<SuccessResponse>('/login', args)
-      return response.data
-    } catch (e) {
-      const error = e as AxiosError<LoginError>
-      return error.response?.data
-    }
-  }
-
-  async createWallet(args: WalletArgs) {
-    try {
-      const response = await $axios.post<SuccessResponse>('/wallet', args)
-      return response.data
-    } catch (e) {
-      const error = e as AxiosError<WalletError>
-      return error.response?.data
-    }
-  }
-
-  async verifyIdentity(args: VerifyIdentityArgs) {
-    try {
-      const response = await $axios.post<SuccessResponse>('/verify', args)
-      return response.data
-    } catch (e) {
-      const error = e as AxiosError<VerifyIdentityError>
-      return error.response?.data
-    }
-  }
+interface UserService {
+  signUp: (args: SignUpArgs) => Promise<SignUpResponse>
+  login: (args: LoginArgs) => Promise<LoginResponse>
+  me: (cookies?: string) => Promise<MeResponse>
+  createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
+  verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
 }
 
-export const userService = UserService.getInstance()
+const createUserService = (): UserService => ({
+  async signUp(args): Promise<SignUpResponse> {
+    try {
+      const response = await httpClient
+        .post('signup', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<SignUpArgs>(
+        error,
+        'We could not create your account. Please try again.'
+      )
+    }
+  },
+
+  async login(args): Promise<LoginResponse> {
+    try {
+      const response = await httpClient
+        .post('login', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<LoginArgs>(
+        error,
+        'We could not log you in. Please try again.'
+      )
+    }
+  },
+
+  async me(cookies): Promise<MeResponse> {
+    try {
+      const response = await httpClient
+        .get('me', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<MeResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to retrive user information.')
+    }
+  },
+
+  async createWallet(args: CreateWalletArgs): Promise<CreateWalletResponse> {
+    try {
+      const response = await httpClient
+        .post('wallet', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<CreateWalletArgs>(
+        error,
+        'Something went wrong while trying to create your wallet. Please try again.'
+      )
+    }
+  },
+
+  async verifyIdentity(
+    args: VerifyIdentityArgs
+  ): Promise<VerifyIdentityResponse> {
+    try {
+      const response = await httpClient
+        .post('verify', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<VerifyIdentityArgs>(
+        error,
+        'Something went wrong while verifying your ID. Please try again.'
+      )
+    }
+  }
+})
+
+export const userService = createUserService()

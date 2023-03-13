@@ -7,6 +7,8 @@ import { createRapydWallet, rapydVerifyIdentity } from '../rapyd/wallet'
 import { User } from '../user/models/user'
 import crypto from 'crypto'
 import { kycSchema } from './schemas/kycSchema'
+import { NotFoundException } from '../shared/models/errors/NotFoundException'
+import { appendAccessTokenToCookie, generateJWT } from '../auth/auth.service'
 
 const log = logger('WalletService')
 
@@ -15,20 +17,9 @@ export const createWallet = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const user = req.user as User
-    const email = user.email
+    const { id, email } = req.user as User
     const { firstName, lastName, address, city, country, zip, phone } =
       await zParse(walletSchema, req)
-
-    // update address field of user
-    await User.query()
-      .findOne({ email })
-      .patch({
-        firstName: firstName,
-        lastName: lastName,
-        address: `${address}, ${city}, ${zip}`,
-        country
-      })
 
     const randomIdentifier = crypto
       .randomBytes(8)
@@ -67,11 +58,21 @@ export const createWallet = async (
       })
 
     const eWallet = result.data
-    await User.query().findOne({ email }).patch({
+    const user = await User.query().patchAndFetchById(id, {
+      firstName: firstName,
+      lastName: lastName,
+      address: `${address}, ${city}, ${zip}`,
+      country,
       rapydEWalletReferenceId: rapydEWalletReferenceId,
       rapydEWalletId: eWallet?.id,
       rapydContactId: eWallet?.contacts?.data[0]?.id
     })
+
+    if (!user) throw new NotFoundException()
+
+    const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
+      generateJWT(user)
+    appendAccessTokenToCookie(res, newAccessToken, accessTokenExpiresIn)
 
     return res
       .status(201)
@@ -89,17 +90,19 @@ export const verifyIdentity = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const { email } = req.user as User
+    const { id } = req.user as User
 
     const {
       documentType,
       frontSideImage,
       frontSideImageType,
       faceImage,
-      faceImageType
+      faceImageType,
+      backSideImage,
+      backSideImageType
     } = await zParse(kycSchema, req)
 
-    const user = await User.query().where('email', email).first()
+    const user = await User.query().findById(id)
     if (!user) throw new Error(`user doesn't exist`)
 
     const country = user.country
@@ -113,7 +116,9 @@ export const verifyIdentity = async (
       front_side_image: frontSideImage,
       front_side_image_mime_type: frontSideImageType,
       face_image: faceImage,
-      face_image_mime_type: faceImageType
+      face_image_mime_type: faceImageType,
+      back_side_image: backSideImage,
+      back_side_image_mime_type: backSideImageType
     }
     const result = await rapydVerifyIdentity(values)
 

@@ -1,5 +1,4 @@
 import { UploadSmile } from '@/components/icons/UploadSmile'
-import { testImageType, testImageVerifyIdentity } from '@/utils/mocks'
 import { ComponentPropsWithoutRef, forwardRef, useId } from 'react'
 import { FieldError } from './FieldError'
 import Image from 'next/image'
@@ -9,33 +8,33 @@ type FileUploadProps = Omit<
   'ref' | 'type'
 > & {
   label?: string
+  image?: string
+  imageType?: string
   error?: string
 }
 
 export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
-  ({ label, error, ...props }, ref) => {
+  ({ label, image, imageType, error, ...props }, ref) => {
     const id = useId()
-    const useTestDataKYC = process.env.NEXT_PUBLIC_USE_TEST_KYC_DATA === 'true'
-
     return (
       <>
         <label
           htmlFor={id}
           className="flex w-24 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-turqoise bg-white text-turqoise hover:border-orange hover:text-orange"
         >
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            {!useTestDataKYC ? (
+          <div className="flex h-24 flex-col items-center justify-center pt-5 pb-6">
+            {image ? (
+              <Image
+                alt="test"
+                width={70}
+                height={70}
+                src={`data:${imageType};base64,${image}`}
+              />
+            ) : (
               <>
                 <UploadSmile />
                 <span className="text-md pt-2 font-light">{label}</span>
               </>
-            ) : (
-              <Image
-                alt="test"
-                width={100}
-                height={100}
-                src={`data:${testImageType};base64,${testImageVerifyIdentity}`}
-              />
             )}
           </div>
           <input id={id} ref={ref} type="file" className="hidden" {...props} />

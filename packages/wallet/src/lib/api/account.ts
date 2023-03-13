@@ -1,6 +1,10 @@
-import { AxiosError } from 'axios'
 import { z } from 'zod'
-import $axios, { ErrorResponse, SuccessResponse } from '../axios'
+import {
+  getError,
+  httpClient,
+  type ErrorResponse,
+  type SuccessResponse
+} from '../httpClient'
 
 export const fundAccountSchema = z.object({
   account: z.string().uuid(),
@@ -11,34 +15,30 @@ export const fundAccountSchema = z.object({
     .positive()
 })
 
-interface Service {
-  fundAccount: (
-    args: FundAccountArgs
-  ) => Promise<SuccessResponse | FundAccountError | undefined>
-}
-
 type FundAccountArgs = z.infer<typeof fundAccountSchema>
-type FundAccountError = ErrorResponse<typeof fundAccountSchema>
+type FundAccountError = ErrorResponse<FundAccountArgs | undefined>
+type FundAccountResponse = Promise<SuccessResponse | FundAccountError>
 
-class AccountService implements Service {
-  private static instance: AccountService
-
-  static getInstance(): AccountService {
-    if (!AccountService.instance) {
-      AccountService.instance = new AccountService()
-    }
-    return AccountService.instance
-  }
-
-  async fundAccount(args: FundAccountArgs) {
-    try {
-      const response = await $axios.post<SuccessResponse>('/fund', args)
-      return response.data
-    } catch (e) {
-      const error = e as AxiosError<FundAccountError>
-      return error.response?.data
-    }
-  }
+interface AccountService {
+  fundAccount: (args: FundAccountArgs) => Promise<FundAccountResponse>
 }
 
-export const accountService = AccountService.getInstance()
+const createAccountService = (): AccountService => ({
+  async fundAccount(args: FundAccountArgs): Promise<FundAccountResponse> {
+    try {
+      const response = await httpClient
+        .post('fund', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<FundAccountArgs>(
+        error,
+        'We were unable to fund your account. Please try again.'
+      )
+    }
+  }
+})
+
+export const accountService = createAccountService()

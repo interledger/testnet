@@ -22,12 +22,7 @@ export const jwtStrategy = new JWTStrategy(
       return done(new UnauthorisedException('Access token expired'), false)
     }
 
-    if (
-      noKyc &&
-      req.url !== '/wallet' &&
-      req.url !== '/documents' &&
-      req.url !== '/verify'
-    ) {
+    if (noKyc && req.url !== '/wallet') {
       return done(new UnauthorisedException('Account has no KYC'), false)
     }
     return done(null, { id: userId, email } as User)

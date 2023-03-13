@@ -30,12 +30,14 @@ services:
       PORT: 3003
       DB_URL: postgres://postgres:password@postgres/testnet
       JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$$Cj9t$$Ix0TWMYrEnpq$$X
-      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 900
+      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 2630000
       JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
       JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
       RAPYD_API: https://sandboxapi.rapyd.net/v1
       RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
+      OPEN_PAYMENTS_HOST: https://backend:80
+      GRAPHQL_ENDPOINT: http://backend:3001/graphql
     restart: always
     networks:
       - testnet
