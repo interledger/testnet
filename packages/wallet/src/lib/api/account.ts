@@ -18,9 +18,9 @@ export const fundAccountSchema = z.object({
 export const createAccountSchema = z.object({
   name: z
     .string()
-    .min(3, { message: 'Accout name should be at least 3 characters long.' }),
+    .min(3, { message: 'Accout name should be at least 3 characters long' }),
   assetRafikiId: z
-    .string({ required_error: 'Please select an asset for your account.' })
+    .string({ required_error: 'Please select an asset for your account' })
     .uuid()
 })
 
@@ -61,7 +61,7 @@ const createAccountService = (): AccountService => ({
         .json<ListAccountsResult>()
       return response
     } catch (error) {
-      return getError(error, 'Unable to fetch account list.')
+      return getError(error, 'Unable to fetch account list')
     }
   },
 
