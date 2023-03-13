@@ -13,7 +13,9 @@ const envSchema = z.object({
   JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number(),
   RAPYD_API: z.string(),
   RAPYD_ACCESS_KEY: z.string(),
-  RAPYD_SECRET_KEY: z.string()
+  RAPYD_SECRET_KEY: z.string(),
+  GRAPHQL_ENDPOINT: z.string().url(),
+  OPEN_PAYMENTS_HOST: z.string().url()
 })
 
 type ENV = z.infer<typeof envSchema>

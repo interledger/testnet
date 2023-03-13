@@ -3,7 +3,9 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc --build tsconfig.json",
-    "knex": "knex"
+    "knex": "knex",
+    "copy:graphql-types": "cp ../../rafiki/packages/backend/src/graphql/generated/graphql.ts ./src/rafiki/generated",
+    "postinstall": "pnpm copy:graphql-types"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",
@@ -14,6 +16,8 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "graphql": "^16.6.0",
+    "graphql-request": "^5.1.0",
     "knex": "^2.4.2",
     "objection": "^3.0.1",
     "open-payments": "workspace:../../rafiki/packages/open-payments",

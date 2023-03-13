@@ -4,6 +4,9 @@ import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
 import { getDocumentTypes } from './rapyd/documents/documents.service'
 import { createWallet, verifyIdentity } from './wallet/wallet.service'
+import { assetRouter } from './asset/asset.route'
+import { paymentPointerRouter } from './payment-pointer/payment-pointer.route'
+import { accountRouter } from './account/account.route'
 
 export const mainRouter = express.Router()
 
@@ -47,6 +50,10 @@ mainRouter.post(
     res.status(200).json({ success: true })
   }
 )
+
+mainRouter.use('/assets', assetRouter)
+mainRouter.use('/accounts', accountRouter)
+mainRouter.use('', paymentPointerRouter)
 
 mainRouter.use('*', (req: Request, res: Response) => {
   const err = Error(`Requested path ${req.path} not found`)
