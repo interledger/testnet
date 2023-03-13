@@ -17,7 +17,7 @@ export interface AccessTokenPayload {
   expiresIn: number
 }
 
-const generateJWT = (
+export const generateJWT = (
   user: User
 ): { accessToken: string; expiresIn: number } => {
   const payload = {
@@ -33,6 +33,28 @@ const generateJWT = (
   }
 }
 
+export const appendAccessTokenToCookie = (
+  res: Response,
+  token: string,
+  expiresIn: number
+) => {
+  res.cookie('AccessToken', token, {
+    httpOnly: true,
+    maxAge: expiresIn * 1000
+  })
+}
+
+const appendRefreshTokenToCookie = (
+  res: Response,
+  token: string,
+  expiresIn: number
+) => {
+  res.cookie('RefreshToken', token, {
+    httpOnly: true,
+    maxAge: expiresIn * 1000
+  })
+}
+
 const appendTokensToCookie = (
   res: Response,
   accessToken: string,
@@ -40,15 +62,8 @@ const appendTokensToCookie = (
   refreshToken: string,
   refreshTokenExpiresIn: number
 ) => {
-  res.cookie('AccessToken', accessToken, {
-    httpOnly: true,
-    maxAge: accessTokenExpiresIn * 1000
-  })
-
-  res.cookie('RefreshToken', refreshToken, {
-    httpOnly: true,
-    maxAge: refreshTokenExpiresIn * 1000
-  })
+  appendAccessTokenToCookie(res, accessToken, accessTokenExpiresIn)
+  appendRefreshTokenToCookie(res, refreshToken, refreshTokenExpiresIn)
 }
 
 const generateRefreshToken = (
