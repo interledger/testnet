@@ -1,24 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
-import { signup } from '../../src/auth/auth.service'
+import { Model } from 'objection'
 
-import {
-  ContainerInstance,
-  startContainer,
-  stopContainer,
-  TEST_TIMEOUTS
-} from '../test-setup'
-
-import { BadRequestException } from '../../src/shared/models/errors/BadRequestException'
+import { BadRequestException } from '../../shared/models/errors/BadRequestException'
+import { signup } from '../../auth/auth.service'
 
 describe('AuthService', () => {
-  jest.setTimeout(TEST_TIMEOUTS)
-  let containerInstance: ContainerInstance
-
   beforeAll(async () => {
-    containerInstance = await startContainer()
+    Model.knex(global.__TESTING_KNEX__)
   })
-
-  afterAll(async () => await stopContainer(containerInstance))
 
   describe('signup', () => {
     it('should return a token and refreshToken when valid credentials are supplied.', async () => {
@@ -67,6 +56,30 @@ describe('AuthService', () => {
       )
       expect(nextFn).toHaveBeenCalledWith(
         new BadRequestException('Passwords do not match')
+      )
+    })
+
+    it('should throw a BadRequestException if input validation failed ', async () => {
+      const mockReq = {
+        body: {
+          emailz: 'test@test.com',
+          password: 'Admin1234',
+          confirmPassword: 'wrongPass'
+        }
+      } as Request
+      const mockRes = {
+        json: jest.fn(),
+        status: jest.fn()
+      }
+      const nextFn = jest.fn()
+      mockRes.status.mockImplementation(() => mockRes)
+      await signup(
+        mockReq,
+        mockRes as unknown as Response,
+        nextFn as NextFunction
+      )
+      expect(nextFn).toHaveBeenCalledWith(
+        new BadRequestException('Invalid input', { email: 'Required' })
       )
     })
   })
