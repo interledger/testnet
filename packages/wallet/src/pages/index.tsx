@@ -22,9 +22,9 @@ export default function Home({ accounts, user }: HomeProps) {
     <AppLayout>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader
-          title={`Hello ${
+          title={`Hello${
             user.firstName && user.lastName
-              ? ',' + user.firstName + ' ' + user.lastName + '!'
+              ? ' ,' + user.firstName + ' ' + user.lastName + '!'
               : '!'
           }`}
           message="Here is your account overview!"
