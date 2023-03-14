@@ -1,49 +1,47 @@
-import {
-  CreatePaymentPointerMutationResponse,
-  PaymentPointer
-} from '../generated/graphql'
 import { gql } from 'graphql-request'
-import { requestGQL } from '../graphql.client'
 import env from '../../config/env'
+import type {
+  CreatePaymentPointerMutation,
+  CreatePaymentPointerMutationVariables
+} from '../generated/graphql'
+import { graphqlClient } from '../graphqlClient'
 
-const OPEN_PAYMENTS_HOST = env.OPEN_PAYMENTS_HOST
+const createPaymentPointeMutation = gql`
+  mutation CreatePaymentPointerMutation($input: CreatePaymentPointerInput!) {
+    createPaymentPointer(input: $input) {
+      code
+      success
+      message
+      paymentPointer {
+        id
+        url
+        publicName
+      }
+    }
+  }
+`
 
 export async function createRafikiPaymentPointer(
   paymentPointerName: string,
   assetId: string
-): Promise<PaymentPointer> {
-  const createPaymentPointerQuery = gql`
-    mutation CreatePaymentPointer($input: CreatePaymentPointerInput!) {
-      createPaymentPointer(input: $input) {
-        code
-        success
-        message
-        paymentPointer {
-          id
-          url
-          publicName
-        }
-      }
+) {
+  const response = await graphqlClient.request<
+    CreatePaymentPointerMutation,
+    CreatePaymentPointerMutationVariables
+  >(createPaymentPointeMutation, {
+    input: {
+      assetId,
+      publicName: paymentPointerName,
+      url: `${env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
     }
-  `
-  const createPaymentPointerInput = {
-    assetId: assetId,
-    url: `${OPEN_PAYMENTS_HOST}/${paymentPointerName}`,
-    publicName: paymentPointerName
+  })
+
+  if (
+    !response.createPaymentPointer.success ||
+    !response.createPaymentPointer.paymentPointer
+  ) {
+    throw new Error('Data was empty')
   }
 
-  return requestGQL<{
-    createPaymentPointer: CreatePaymentPointerMutationResponse
-  }>(createPaymentPointerQuery, { input: createPaymentPointerInput }).then(
-    (data) => {
-      if (
-        !data.createPaymentPointer.success ||
-        !data.createPaymentPointer.paymentPointer
-      ) {
-        throw new Error('Data was empty')
-      }
-
-      return data.createPaymentPointer.paymentPointer
-    }
-  )
+  return response.createPaymentPointer.paymentPointer
 }
