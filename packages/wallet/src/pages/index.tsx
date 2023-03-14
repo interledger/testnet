@@ -24,7 +24,7 @@ export default function Home({ accounts, user }: HomeProps) {
         <PageHeader
           title={`Hello${
             user.firstName && user.lastName
-              ? ' ,' + user.firstName + ' ' + user.lastName + '!'
+              ? ', ' + user.firstName + ' ' + user.lastName + '!'
               : '!'
           }`}
           message="Here is your account overview!"
