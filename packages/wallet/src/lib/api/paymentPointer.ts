@@ -17,8 +17,9 @@ export const createPaymentPointerSchema = z.object({
   })
 })
 
-type PaymentPointer = {
+export type PaymentPointer = {
   id: string
+  url: string
   publicName: string
   accountId: string
 }

@@ -6,6 +6,8 @@ import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
+import { Account, accountService } from '@/lib/api/account'
+import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { Link } from '@/ui/Link'
 import type {
@@ -76,7 +78,7 @@ export default function AccountPage({ account }: AccountPageProps) {
         <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
           <span className="font-semibold text-green">{account.name}</span>
           <span className="inline-flex h-8 w-10 items-center justify-center rounded-md bg-white font-bold mix-blend-screen">
-            {account.asset.code}
+            {account.assetCode}
           </span>
         </div>
         <div className="flex flex-col">
@@ -97,18 +99,8 @@ const querySchema = z.object({
 })
 
 export const getServerSideProps: GetServerSideProps<{
-  account: {
-    id: string
-    name: string
-    balance: string
-    asset: {
-      code: string
-    }
-    paymentPointers: {
-      id: string
-      url: string
-    }[]
-  }
+  account: Account
+  paymentPointers: PaymentPointer[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -118,28 +110,27 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  // TODO: Additional check on the backend response
+  const [accountResponse, paymentPointersResponse] = await Promise.all([
+    accountService.get(result.data.accountId, ctx.req.headers.cookie),
+    paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
+  ])
+
+  if (!accountResponse.success || !paymentPointersResponse.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  if (!accountResponse.data || !paymentPointersResponse.data) {
+    return {
+      notFound: true
+    }
+  }
 
   return {
     props: {
-      account: {
-        id: 'ID',
-        name: 'Account #1',
-        balance: new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(7344.02),
-        asset: {
-          code: 'USD'
-        },
-        paymentPointers: [
-          { id: '1', url: '$rafiki.money/pp1' },
-          { id: '2', url: '$rafiki.money/pp2' },
-          { id: '3', url: '$rafiki.money/pp3' },
-          { id: '4', url: '$rafiki.money/pp4' },
-          { id: '5', url: '$rafiki.money/pp5' }
-        ]
-      }
+      account: accountResponse.data,
+      paymentPointers: paymentPointersResponse.data
     }
   }
 }

@@ -14,12 +14,10 @@ import { z } from 'zod'
 import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
 import { PencilSquare } from './icons/Pencil'
 import { X } from './icons/X'
+import { PaymentPointer } from '@/lib/api/paymentPointer'
 
 type PaymentPointerCardProps = {
-  paymentPointer: {
-    id: string
-    url: string
-  }
+  paymentPointer: PaymentPointer
 }
 
 const PaymentPointerInput = forwardRef<

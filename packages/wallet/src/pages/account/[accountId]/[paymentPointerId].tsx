@@ -1,6 +1,8 @@
 import { Arrow } from '@/components/icons/Arrow'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { accountService } from '@/lib/api/account'
+import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
 import type {
@@ -109,6 +111,15 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true
     }
   }
+
+  const response = await Promise.allSettled([
+    accountService.get(result.data.accountId, ctx.req.headers.cookie),
+    paymentPointerService.get(
+      result.data.accountId,
+      result.data.paymentPointerId,
+      ctx.req.headers.cookie
+    )
+  ])
 
   return {
     props: {
