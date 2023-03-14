@@ -52,6 +52,7 @@ export const VerifyIdentityForm = () => {
     if (!isBackRequired) {
       verifyIdentityForm.setValue('backSideImage', '')
       verifyIdentityForm.setValue('backSideImageType', '')
+      verifyIdentityForm.trigger('backSideImage')
     }
   }
 
