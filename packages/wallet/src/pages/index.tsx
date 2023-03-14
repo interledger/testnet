@@ -5,27 +5,33 @@ import { Request } from '@/components/icons/Request'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { accountService } from '@/lib/api/account'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
-import { mockAccountList, type Account } from '@/utils/mocks'
+import { type Account } from '@/lib/api/account'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
 } from 'next/types'
+import { userService } from '@/lib/api/user'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Home({ accounts }: HomeProps) {
+export default function Home({ accounts, user }: HomeProps) {
   return (
     <AppLayout>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader
-          title="Hello, John Doe!"
+          title={`Hello${
+            user.firstName && user.lastName
+              ? ', ' + user.firstName + ' ' + user.lastName + '!'
+              : '!'
+          }`}
           message="Here is your account overview!"
         />
         <div className="text-green md:mt-10">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">$2,934</p>
+          <p className="text-2xl font-semibold md:text-4xl">$0</p>
         </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
@@ -72,11 +78,17 @@ export default function Home({ accounts }: HomeProps) {
             My Accounts
           </h3>
         </div>
-        <div className="grid grid-cols-2 gap-6">
-          {accounts.map((account) => (
-            <AccountCard key={account.id} account={account} />
-          ))}
-        </div>
+        {accounts.length > 0 ? (
+          <div className="grid grid-cols-2 gap-6">
+            {accounts.map((account) => (
+              <AccountCard key={account.id} account={account} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center p-4 text-green">
+            No accounts.
+          </div>
+        )}
       </div>
       <SmallBubbles className="mt-10 block w-full md:hidden" />
     </AppLayout>
@@ -85,12 +97,27 @@ export default function Home({ accounts }: HomeProps) {
 
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
-}> = async (_ctx) => {
-  const accounts = await Promise.resolve(mockAccountList())
+  user: {
+    firstName: string
+    lastName: string
+  }
+}> = async (ctx) => {
+  const response = await accountService.list(ctx.req.headers.cookie)
+  const user = await userService.me(ctx.req.headers.cookie)
+
+  if (!response.success || !user.success) {
+    return {
+      notFound: true
+    }
+  }
 
   return {
     props: {
-      accounts
+      accounts: response.data ?? [],
+      user: {
+        firstName: user.data?.firstName ?? '',
+        lastName: user.data?.lastName ?? ''
+      }
     }
   }
 }

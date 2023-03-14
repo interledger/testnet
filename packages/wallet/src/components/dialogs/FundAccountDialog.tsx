@@ -64,7 +64,7 @@ export const FundAccountDialog = ({
                   <Form
                     form={fundAccountForm}
                     onSubmit={async (data) => {
-                      const response = await accountService.fundAccount(data)
+                      const response = await accountService.fund(data)
 
                       if (!response) {
                         openDialog(
