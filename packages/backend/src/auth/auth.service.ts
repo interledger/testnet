@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
+
 import env from '../config/env'
 import { zParse } from '../middlewares/validator'
 import { BaseResponse } from '../shared/models/BaseResponse'
@@ -20,6 +21,8 @@ export interface AccessTokenPayload {
 export const generateJWT = (
   user: User
 ): { accessToken: string; expiresIn: number } => {
+  console.log('user wallet id', user.rapydEWalletId)
+  console.log('user model', user)
   const payload = {
     userId: user.id,
     email: user.email,
@@ -113,7 +116,6 @@ export const login = async (
 
     const user = await User.query()
       .findOne({ email })
-      .select('id', 'email', 'password')
       .withGraphFetched('refreshTokens')
 
     if (!user) {
