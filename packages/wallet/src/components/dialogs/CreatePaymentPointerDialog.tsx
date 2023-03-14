@@ -5,8 +5,8 @@ import { Select } from '@/ui/forms/Select'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { z } from 'zod'
 import { Input } from '@/ui/forms/Input'
+import { createPaymentPointerSchema } from '@/lib/api/paymentPointer'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   account?: {
@@ -14,17 +14,6 @@ type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
     value: string
   }
 }
-
-const createPaymentPointerSchema = z.object({
-  account: z.string().uuid(),
-  paymentPointer: z.string().min(3, {
-    message: 'Payment pointer should be at least 3 characters long.'
-  }),
-  publicName: z.string().min(3, {
-    message:
-      "Payment pointer's public name should be at least 3 characters long."
-  })
-})
 
 export const CreatePaymentPointerDialog = ({
   onClose,

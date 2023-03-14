@@ -16,11 +16,14 @@ export const createPaymentPointer = async (
   try {
     const userId = getUserIdFromRequest(req)
     const accountId = req.params.accountId
-    const { publicName } = await zParse(paymentPointerSchema, req)
+    const { paymentPointerName, publicName } = await zParse(
+      paymentPointerSchema,
+      req
+    )
     const account = await findAccountById(accountId, userId)
 
     const rafikiPaymentPointer = await createRafikiPaymentPointer(
-      publicName,
+      paymentPointerName,
       account.assetRafikiId
     )
     const paymentPointer = await PaymentPointerModel.query().insert({
