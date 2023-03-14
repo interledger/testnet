@@ -27,6 +27,10 @@ export const createAccount = async (
 
     const asset = await getAsset(assetRafikiId)
 
+    if (!asset) {
+      throw new NotFoundException()
+    }
+
     const account = await Account.query().insert({
       name,
       userId,

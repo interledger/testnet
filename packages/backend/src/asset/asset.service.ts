@@ -8,10 +8,11 @@ import {
   getAsset,
   listAssets
 } from '../rafiki/request/asset.request'
+import { NotFoundException } from '../shared/models/errors/NotFoundException'
 
 export const create = async (
   req: Request,
-  res: Response<BaseResponse<Asset>>,
+  res: Response<BaseResponse<Partial<Asset>>>,
   next: NextFunction
 ) => {
   try {
@@ -38,11 +39,15 @@ export const list = async (
 
 export const getById = async (
   req: Request,
-  res: Response<BaseResponse<Asset>>,
+  res: Response<BaseResponse<Partial<Asset>>>,
   next: NextFunction
 ) => {
   try {
     const asset = await getAsset(req.params.id)
+    if (!asset) {
+      throw new NotFoundException()
+    }
+
     return res.json({ success: true, message: 'Success', data: asset })
   } catch (e) {
     next(e)
