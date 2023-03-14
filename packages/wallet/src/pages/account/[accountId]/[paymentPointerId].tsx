@@ -112,7 +112,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const response = await Promise.allSettled([
+  const [_account, _paymentPointers] = await Promise.allSettled([
     accountService.get(result.data.accountId, ctx.req.headers.cookie),
     paymentPointerService.get(
       result.data.accountId,
