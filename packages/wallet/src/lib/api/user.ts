@@ -5,6 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 
 export const signUpSchema = z
   .object({
@@ -38,19 +39,49 @@ export const personalDetailsSchema = z.object({
   zip: z.string().min(1, { message: 'ZIP code is required' })
 })
 
-export const verifyIdentitySchema = z.object({
-  documentType: z.string({
-    invalid_type_error: 'Please select an ID Type'
-  }),
-  frontSideImage: z
-    .string()
-    .min(1, { message: 'Front side of ID is required' }),
-  frontSideImageType: z.string(),
-  backSideImage: z.string().optional(),
-  backSideImageType: z.string().optional(),
-  faceImage: z.string().min(1, { message: 'A selfie image is required' }),
-  faceImageType: z.string()
-})
+export const verifyIdentitySchema = z
+  .object({
+    documentType: z.string({
+      invalid_type_error: 'Please select an ID Type'
+    }),
+    frontSideImage: z
+      .string()
+      .min(1, { message: 'Front side of ID is required' }),
+    frontSideImageType: z.string(),
+    backSideImage: z.string().optional(),
+    backSideImageType: z.string().optional(),
+    faceImage: z.string().min(1, { message: 'A selfie image is required' }),
+    faceImageType: z.string()
+  })
+  .superRefine(
+    ({ frontSideImageType, faceImageType, backSideImageType }, ctx) => {
+      if (!ACCEPTED_IMAGE_TYPES.includes(frontSideImageType)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Image must be 'jpeg' or 'png'`,
+          path: ['frontSideImage']
+        })
+      }
+      if (!ACCEPTED_IMAGE_TYPES.includes(faceImageType)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Image must be 'jpeg' or 'png'`,
+          path: ['faceImage']
+        })
+      }
+      if (
+        backSideImageType &&
+        backSideImageType?.length > 0 &&
+        !ACCEPTED_IMAGE_TYPES.includes(backSideImageType)
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Image must be 'jpeg' or 'png'`,
+          path: ['backSideImage']
+        })
+      }
+    }
+  )
 
 export type UserData = {
   email: string
