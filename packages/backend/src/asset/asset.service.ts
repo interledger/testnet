@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { zParse } from '../middlewares/validator'
 import { assetSchema } from './schemas/asset.schema'
-import { Asset } from '../rafiki/generated/graphql'
+import type { Asset, CreateAssetMutation } from '../rafiki/generated/graphql'
 import {
   createAsset,
   getAsset,
@@ -12,7 +12,7 @@ import { NotFoundException } from '../shared/models/errors/NotFoundException'
 
 export const create = async (
   req: Request,
-  res: Response<BaseResponse<Partial<Asset>>>,
+  res: Response<BaseResponse<CreateAssetMutation['createAsset']['asset']>>,
   next: NextFunction
 ) => {
   try {
@@ -39,7 +39,7 @@ export const list = async (
 
 export const getById = async (
   req: Request,
-  res: Response<BaseResponse<Partial<Asset>>>,
+  res: Response<BaseResponse<Asset>>,
   next: NextFunction
 ) => {
   try {
