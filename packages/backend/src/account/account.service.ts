@@ -7,6 +7,11 @@ import { Account } from './account.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { ConflictException } from '../shared/models/errors/ConflictException'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
+import { User } from '../user/models/user'
+import {
+  issueVirtualAccount,
+  simulateBankTransferToWallet
+} from '../rapyd/virtual-accounts'
 
 export const createAccount = async (
   req: Request,
@@ -27,12 +32,40 @@ export const createAccount = async (
 
     const asset = await getAsset(assetRafikiId)
 
+    // issue virtual account to wallet
+    const user = await User.query().findById(userId)
+    if (!user) throw new NotFoundException()
+
+    const result = await issueVirtualAccount({
+      country: user.country ?? '',
+      currency: asset.code,
+      ewallet: user.rapydEWalletId ?? ''
+    })
+
+    if (result.status.status !== 'SUCCESS')
+      return res.status(500).json({
+        message: `Unable to issue virtal account to ewallet : ${result.status.message}`,
+        success: false
+      })
+
+    // save virtual bank account number to database
+    const virtualAccount = result.data
+
     const account = await Account.query().insert({
       name,
       userId,
       assetCode: asset.code,
-      assetRafikiId
+      assetRafikiId,
+      rapydAccountId: virtualAccount.id
     })
+
+    // fund some money to wallet
+    await simulateBankTransferToWallet({
+      amount: 100,
+      currency: asset.code,
+      issued_bank_account: virtualAccount.id
+    })
+
     return res.json({
       success: true,
       message: 'Account created',
