@@ -1,91 +1,96 @@
-import {
-  Asset,
-  AssetEdge,
-  AssetMutationResponse,
-  AssetsConnection
+import type {
+  CreateAssetMutation,
+  CreateAssetMutationVariables,
+  GetAssetQuery,
+  GetAssetQueryVariables,
+  GetAssetsQuery,
+  GetAssetsQueryVariables
 } from '../generated/graphql'
 import { gql } from 'graphql-request'
-import { requestGQL } from '../graphql.client'
+import { graphqlClient } from '../graphqlClient'
 
-export async function createAsset(code: string, scale: number): Promise<Asset> {
-  const createAssetMutation = gql`
-    mutation CreateAsset($input: CreateAssetInput!) {
-      createAsset(input: $input) {
+const createAssetMutation = gql`
+  mutation CreateAssetMutation($input: CreateAssetInput!) {
+    createAsset(input: $input) {
+      code
+      success
+      message
+      asset {
+        id
         code
-        success
-        message
-        asset {
-          id
-          code
-          scale
-        }
+        scale
       }
-    }
-  `
-  const createAssetInput = {
-    input: {
-      code,
-      scale
     }
   }
+`
 
-  return requestGQL<{ createAsset: AssetMutationResponse }>(
-    createAssetMutation,
-    createAssetInput
-  ).then(({ createAsset }) => {
-    if (!createAsset.success || !createAsset.asset) {
-      throw new Error('Data was empty')
-    }
+export async function createAsset(code: string, scale: number) {
+  const response = await graphqlClient.request<
+    CreateAssetMutation,
+    CreateAssetMutationVariables
+  >(createAssetMutation, { input: { code, scale } })
 
-    return createAsset.asset
-  })
+  if (!response.createAsset.success || !response.createAsset.asset) {
+    throw new Error('Data was empty')
+  }
+
+  return response.createAsset.asset
 }
 
-export async function listAssets(): Promise<Asset[]> {
-  const getAssetsQuery = gql`
-    query GetAssets($after: String, $before: String, $first: Int, $last: Int) {
-      assets(after: $after, before: $before, first: $first, last: $last) {
-        edges {
-          cursor
-          node {
-            code
-            createdAt
-            id
-            scale
-            withdrawalThreshold
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-          hasPreviousPage
-          startCursor
+const getAssetsQuery = gql`
+  query GetAssetsQuery(
+    $after: String
+    $before: String
+    $first: Int
+    $last: Int
+  ) {
+    assets(after: $after, before: $before, first: $first, last: $last) {
+      edges {
+        cursor
+        node {
+          code
+          createdAt
+          id
+          scale
+          withdrawalThreshold
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
     }
-  `
+  }
+`
 
-  return requestGQL<{ assets: AssetsConnection }>(getAssetsQuery).then(
-    (data) => {
-      return data.assets.edges.map((el: AssetEdge) => el.node)
-    }
-  )
+export async function listAssets() {
+  const response = await graphqlClient.request<
+    GetAssetsQuery,
+    GetAssetsQueryVariables
+  >(getAssetsQuery, {})
+
+  return response.assets.edges.map((el) => el.node)
 }
 
-export async function getAsset(id: string): Promise<Asset> {
-  const getAssetsQuery = gql`
-    query GetAsset($id: String!) {
-      asset(id: $id) {
-        code
-        createdAt
-        id
-        scale
-        withdrawalThreshold
-      }
+const getAssetQuery = gql`
+  query GetAssetQuery($id: String!) {
+    asset(id: $id) {
+      code
+      createdAt
+      id
+      scale
+      withdrawalThreshold
     }
-  `
+  }
+`
 
-  return requestGQL<{ asset: Asset }>(getAssetsQuery, { id }).then((data) => {
-    return data.asset
-  })
+export async function getAsset(id: string) {
+  const response = await graphqlClient.request<
+    GetAssetQuery,
+    GetAssetQueryVariables
+  >(getAssetQuery, { id })
+
+  return response.asset
 }
