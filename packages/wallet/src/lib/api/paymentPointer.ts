@@ -9,11 +9,12 @@ import {
 export const createPaymentPointerSchema = z.object({
   accountId: z.string().uuid(),
   paymentPointerName: z.string().min(3, {
-    message: "Payment pointer's name should be at least 3 characters long"
+    message:
+      'The name of the payment pointer should be at least 3 characters long'
   }),
   publicName: z.string().min(3, {
     message:
-      "Payment pointer's public name should be at least 3 characters long"
+      'The public name of the payment pointer should be at least 3 characters long'
   })
 })
 
