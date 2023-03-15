@@ -23,6 +23,7 @@ const createPaymentPointeMutation = gql`
 
 export async function createRafikiPaymentPointer(
   paymentPointerName: string,
+  publicName: string,
   assetId: string
 ) {
   const response = await graphqlClient.request<
@@ -31,16 +32,16 @@ export async function createRafikiPaymentPointer(
   >(createPaymentPointeMutation, {
     input: {
       assetId,
-      publicName: paymentPointerName,
+      publicName,
       url: `${env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
     }
   })
 
-  if (
-    !response.createPaymentPointer.success ||
-    !response.createPaymentPointer.paymentPointer
-  ) {
-    throw new Error('Data was empty')
+  if (!response.createPaymentPointer.success) {
+    throw new Error(response.createPaymentPointer.message)
+  }
+  if (!response.createPaymentPointer.paymentPointer) {
+    throw new Error('Unable to fetch created payment pointer')
   }
 
   return response.createPaymentPointer.paymentPointer
