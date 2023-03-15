@@ -8,7 +8,7 @@ import {
 
 export const createPaymentPointerSchema = z.object({
   accountId: z.string().uuid(),
-  paymentPointer: z.string().min(3, {
+  paymentPointerName: z.string().min(3, {
     message: "Payment pointer's name should be at least 3 characters long"
   }),
   publicName: z.string().min(3, {
@@ -94,10 +94,10 @@ const createPaymentPointerService = (): PaymentPointerService => ({
 
   async create(args): Promise<CreatePaymentPointerResponse> {
     try {
-      const response = httpClient
+      const response = await httpClient
         .post(`accounts/${args.accountId}/payment-pointers`, {
           json: {
-            paymentPointerName: args.paymentPointer,
+            paymentPointerName: args.paymentPointerName,
             publicName: args.publicName
           }
         })

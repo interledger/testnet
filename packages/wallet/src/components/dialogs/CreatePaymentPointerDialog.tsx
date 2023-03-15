@@ -1,24 +1,29 @@
 import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { Select } from '@/ui/forms/Select'
+import { Select, SelectOption } from '@/ui/forms/Select'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { createPaymentPointerSchema } from '@/lib/api/paymentPointer'
+import {
+  createPaymentPointerSchema,
+  paymentPointerService
+} from '@/lib/api/paymentPointer'
+import { useRouter } from 'next/router'
+import { getObjectKeys } from '@/utils/helpers'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
-  account?: {
-    name: string
-    value: string
-  }
+  defaultValue?: SelectOption
+  accounts: SelectOption[]
 }
 
 export const CreatePaymentPointerDialog = ({
   onClose,
-  account
+  defaultValue,
+  accounts
 }: CreatePaymentPointerDialogProps) => {
+  const router = useRouter()
   const form = useZodForm({
     schema: createPaymentPointerSchema
   })
@@ -60,27 +65,47 @@ export const CreatePaymentPointerDialog = ({
                 <div className="px-4">
                   <Form
                     form={form}
-                    onSubmit={(data) => {
-                      console.log(data)
+                    onSubmit={async (data) => {
+                      const response = await paymentPointerService.create(data)
+
+                      if (response.success) {
+                        onClose()
+                        router.push(`/account/${data.accountId}`)
+                      } else {
+                        const { errors, message } = response
+                        form.setError('root', {
+                          message
+                        })
+
+                        if (errors) {
+                          getObjectKeys(errors).map((field) =>
+                            form.setError(field, {
+                              message: errors[field]
+                            })
+                          )
+                        }
+                      }
                     }}
                   >
                     <Select
-                      name="account"
+                      name="accountId"
                       setValue={form.setValue}
-                      defaultValue={account}
-                      error={form.formState.errors.account?.message}
-                      options={[]}
+                      defaultValue={defaultValue}
+                      error={form.formState.errors.accountId?.message}
+                      options={accounts}
                       label="Account"
                     />
                     <div>
                       <Input
                         required
                         label="Payment Pointer name"
-                        error={form.formState?.errors?.paymentPointer?.message}
-                        {...form.register('paymentPointer')}
+                        error={
+                          form.formState?.errors?.paymentPointerName?.message
+                        }
+                        {...form.register('paymentPointerName')}
                       />
                       <p className="ml-2 text-sm text-green">
-                        $rafiki.money/{form.watch('paymentPointer')}
+                        $rafiki.money/{form.watch('paymentPointerName')}
                       </p>
                     </div>
                     <Input

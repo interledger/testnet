@@ -9,6 +9,7 @@ import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useDialog } from '@/lib/hooks/useDialog'
+import { SelectOption } from '@/ui/forms/Select'
 import { Link } from '@/ui/Link'
 import type {
   GetServerSideProps,
@@ -18,7 +19,11 @@ import { z } from 'zod'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function AccountPage({ account }: AccountPageProps) {
+export default function AccountPage({
+  account,
+  accounts,
+  paymentPointers
+}: AccountPageProps) {
   const [openDialog, closeDialog] = useDialog()
   return (
     <AppLayout>
@@ -29,16 +34,20 @@ export default function AccountPage({ account }: AccountPageProps) {
         />
         <div className="text-green md:mt-10">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">
-            {account.balance}
-          </p>
+          <p className="text-2xl font-semibold md:text-4xl">${0}</p>
         </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">
           <button
             onClick={() =>
-              openDialog(<CreatePaymentPointerDialog onClose={closeDialog} />)
+              openDialog(
+                <CreatePaymentPointerDialog
+                  accounts={accounts}
+                  defaultValue={{ name: account.name, value: account.id }}
+                  onClose={closeDialog}
+                />
+              )
             }
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
@@ -82,12 +91,18 @@ export default function AccountPage({ account }: AccountPageProps) {
           </span>
         </div>
         <div className="flex flex-col">
-          {account.paymentPointers.map((paymentPointer) => (
-            <PaymentPointerCard
-              key={paymentPointer.id}
-              paymentPointer={paymentPointer}
-            />
-          ))}
+          {paymentPointers.length > 0 ? (
+            paymentPointers.map((paymentPointer) => (
+              <PaymentPointerCard
+                key={paymentPointer.id}
+                paymentPointer={paymentPointer}
+              />
+            ))
+          ) : (
+            <div className="flex items-center justify-center p-4 text-green">
+              No payment pointers found for this account.
+            </div>
+          )}
         </div>
       </div>
     </AppLayout>
@@ -101,6 +116,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointers: PaymentPointer[]
+  accounts: SelectOption[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -110,26 +126,42 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse, paymentPointersResponse] = await Promise.all([
-    accountService.get(result.data.accountId, ctx.req.headers.cookie),
-    paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
-  ])
+  const [accountResponse, accountsResponse, paymentPointersResponse] =
+    await Promise.all([
+      accountService.get(result.data.accountId, ctx.req.headers.cookie),
+      accountService.list(ctx.req.headers.cookie),
+      paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
+    ])
 
-  if (!accountResponse.success || !paymentPointersResponse.success) {
+  if (
+    !accountResponse.success ||
+    !paymentPointersResponse.success ||
+    !accountsResponse.success
+  ) {
     return {
       notFound: true
     }
   }
 
-  if (!accountResponse.data || !paymentPointersResponse.data) {
+  if (
+    !accountResponse.data ||
+    !paymentPointersResponse.data ||
+    !accountsResponse.data
+  ) {
     return {
       notFound: true
     }
   }
+
+  const accounts = accountsResponse.data.map((account) => ({
+    name: account.name,
+    value: account.id
+  }))
 
   return {
     props: {
       account: accountResponse.data,
+      accounts,
       paymentPointers: paymentPointersResponse.data
     }
   }
