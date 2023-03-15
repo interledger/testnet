@@ -6,7 +6,8 @@
     "knex": "knex",
     "test": "jest",
     "copy:graphql-types": "cp ../../rafiki/packages/backend/src/graphql/generated/graphql.ts ./src/rafiki/generated",
-    "postinstall": "pnpm copy:graphql-types"
+    "postinstall": "pnpm copy:graphql-types",
+    "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",
@@ -35,6 +36,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@graphql-codegen/cli": "^3.2.2",
+    "@graphql-codegen/typescript": "^3.0.2",
+    "@graphql-codegen/typescript-operations": "^3.0.2",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/crypto-js": "^4.1.1",

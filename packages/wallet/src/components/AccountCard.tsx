@@ -1,5 +1,5 @@
 import { Link } from '@/ui/Link'
-import type { Account } from '@/utils/mocks'
+import type { Account } from '@/lib/api/account'
 
 type AccountCardProps = {
   account: Account
@@ -8,7 +8,7 @@ type AccountCardProps = {
 export const AccountCard = ({ account }: AccountCardProps) => {
   return (
     <Link
-      href={`accounts/${account.id}`}
+      href={`account/${account.id}`}
       className={`
         rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md
         [&:nth-child(4n+1)]:bg-gradient-primary 
@@ -18,15 +18,14 @@ export const AccountCard = ({ account }: AccountCardProps) => {
     >
       <div className="flex aspect-square flex-1 flex-col p-2">
         <span className="inline-flex h-8 w-14 items-center justify-center rounded-md bg-white text-2xl font-semibold mix-blend-screen">
-          {account.asset.code}
+          {account.assetCode}
         </span>
         <div className="mt-auto text-white">
           <p className="overflow-hidden text-ellipsis whitespace-nowrap font-light">
             {account.name}
           </p>
-          <p className="text-2xl font-semibold tracking-tighter">
-            {account.balance}
-          </p>
+          {/* TODO: Replace with the actual account balance */}
+          <p className="text-2xl font-semibold tracking-tighter">{0}</p>
         </div>
       </div>
     </Link>

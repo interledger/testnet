@@ -22,10 +22,16 @@ export const createAccount = async (
       .where('name', name)
       .first()
     if (existentAccount) {
-      throw new ConflictException(`Account with ${name} already exists`)
+      throw new ConflictException(
+        `An account with the name '${name}' already exists`
+      )
     }
 
     const asset = await getAsset(assetRafikiId)
+
+    if (!asset) {
+      throw new NotFoundException()
+    }
 
     const account = await Account.query().insert({
       name,
