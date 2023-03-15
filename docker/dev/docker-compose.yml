@@ -106,7 +106,7 @@ services:
       - postgres
       - redis
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:621268959801084246679f25416a9451f553fe3697dd4f618f39503322079433
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:739d2ddf8de75a41c95de565680ab634770548bb745d44c2fb45ecadc991389a
     restart: unless-stopped
     privileged: true
     volumes:
