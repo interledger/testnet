@@ -18,7 +18,7 @@ export const createPaymentPointer = async (
   try {
     const userId = getUserIdFromRequest(req)
     const accountId = req.params.accountId
-    const { publicName, paymentPointerName } = await zParse(
+    const { paymentPointerName, publicName } = await zParse(
       paymentPointerSchema,
       req
     )

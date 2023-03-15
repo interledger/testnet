@@ -12,13 +12,13 @@ export const paymentPointerSchema = z.object({
       message: 'Payment pointer name must be at least 3 characters long'
     })
     .refine((paymentPointerName) => paymentPointerName[0] !== '_', {
-      message: 'Payment pointer name can not start with an underscore'
+      message: 'Payment pointer name cannot start with an underscore'
     })
     .refine(
       (paymentPointerName) =>
         paymentPointerName[paymentPointerName.length - 1] !== '_',
       {
-        message: 'Payment pointer name can not end with an underscore'
+        message: 'Payment pointer name cannot end with an underscore'
       }
     ),
   publicName: z
