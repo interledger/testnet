@@ -10,18 +10,17 @@ import { ErrorDialog } from './ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
+import { AccountSelectOption } from '@/pages/account/[accountId]'
 
 type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
-  account?: {
-    name: string
-    value: string
-    asset: { code: string }
-  }
+  defaultValue?: AccountSelectOption
+  accounts: AccountSelectOption[]
 }
 
 export const FundAccountDialog = ({
   onClose,
-  account
+  defaultValue,
+  accounts
 }: FundAccountDialogProps) => {
   const [openDialog, closeDialog] = useDialog()
   const fundAccountForm = useZodForm({
@@ -95,11 +94,13 @@ export const FundAccountDialog = ({
                     }}
                   >
                     <Select
-                      name="account"
+                      name="accountId"
                       setValue={fundAccountForm.setValue}
-                      defaultValue={account}
-                      error={fundAccountForm.formState.errors.account?.message}
-                      options={[]}
+                      defaultValue={defaultValue}
+                      error={
+                        fundAccountForm.formState.errors.accountId?.message
+                      }
+                      options={accounts}
                       label="Account"
                     />
                     <div className="flex items-center">
@@ -114,9 +115,13 @@ export const FundAccountDialog = ({
                           {...fundAccountForm.register('amount')}
                         />
                       </div>
+                      <input
+                        type="hidden"
+                        {...fundAccountForm.register('assetCode')}
+                        value={defaultValue?.assetCode}
+                      />
                       <span className="inline-flex h-8 w-10 items-center justify-center rounded-md border border-turqoise bg-white font-bold text-turqoise">
-                        {/* TODO replace with {account?.asset.code} */}
-                        USD
+                        {defaultValue?.assetCode}
                       </span>
                     </div>
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">

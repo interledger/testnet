@@ -38,6 +38,7 @@ export const createAccount = async (
     }
     const existingAsset = await Account.query()
       .where('assetCode', asset.code)
+      .where('userId', userId)
       .first()
     if (existingAsset) {
       throw new ConflictException(
@@ -73,6 +74,12 @@ export const createAccount = async (
       assetCode: asset.code,
       assetRafikiId,
       rapydAccountId: virtualAccount.id
+    })
+
+    await simulateBankTransferToWallet({
+      amount: 0,
+      currency: account.assetCode,
+      issued_bank_account: account.rapydAccountId
     })
 
     return res.json({

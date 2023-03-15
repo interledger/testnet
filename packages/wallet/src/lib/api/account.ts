@@ -7,12 +7,14 @@ import {
 } from '../httpClient'
 
 export const fundAccountSchema = z.object({
-  account: z.string().uuid(),
+  accountId: z.string().uuid(),
   amount: z.coerce
     .number({
       invalid_type_error: 'Please enter a valid amount'
     })
-    .positive()
+    .min(1, { message: 'Please enter an amount' })
+    .positive(),
+  assetCode: z.string()
 })
 
 export const createAccountSchema = z.object({
@@ -65,7 +67,7 @@ const createAccountService = (): AccountService => ({
         .json<GetAccountResult>()
       return response
     } catch (error) {
-      return getError(error, 'Unable to fetch account details')
+      return getError(error, 'Unable to fetch account details.')
     }
   },
 
@@ -80,7 +82,7 @@ const createAccountService = (): AccountService => ({
         .json<ListAccountsResult>()
       return response
     } catch (error) {
-      return getError(error, 'Unable to fetch account list')
+      return getError(error, 'Unable to fetch account list.')
     }
   },
 
@@ -103,7 +105,7 @@ const createAccountService = (): AccountService => ({
   async fund(args: FundAccountArgs): Promise<FundAccountResponse> {
     try {
       const response = await httpClient
-        .post('fund', {
+        .post('accounts/fund', {
           json: args
         })
         .json<SuccessResponse>()
