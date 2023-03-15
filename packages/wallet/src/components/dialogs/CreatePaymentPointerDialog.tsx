@@ -70,7 +70,9 @@ export const CreatePaymentPointerDialog = ({
 
                       if (response.success) {
                         onClose()
-                        router.push(`/account/${data.accountId}`)
+                        router.push(
+                          `/account/${response.data?.accountId}/${response.data?.id}`
+                        )
                       } else {
                         const { errors, message } = response
                         form.setError('root', {

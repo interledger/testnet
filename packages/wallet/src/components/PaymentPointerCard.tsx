@@ -15,6 +15,7 @@ import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
 import { PencilSquare } from './icons/Pencil'
 import { X } from './icons/X'
 import { PaymentPointer } from '@/lib/api/paymentPointer'
+import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
@@ -38,16 +39,16 @@ const PaymentPointerInput = forwardRef<
 })
 PaymentPointerInput.displayName = 'PaymentPointerInput'
 
-type PaymentPointerCardButtonProps = ComponentPropsWithoutRef<'button'> & {
+type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
 }
 
 const PaymentPointerCardButton = forwardRef<
-  HTMLButtonElement,
+  HTMLButtonElement | HTMLAnchorElement,
   PaymentPointerCardButtonProps
 >(({ className, children, ...props }, ref) => {
   return (
-    <button
+    <ButtonOrLink
       ref={ref}
       className={cx(
         className,
@@ -56,7 +57,7 @@ const PaymentPointerCardButton = forwardRef<
       {...props}
     >
       {children}
-    </button>
+    </ButtonOrLink>
   )
 })
 PaymentPointerCardButton.displayName = 'PaymentPointerCardButton'
@@ -143,7 +144,10 @@ export const PaymentPointerCard = ({
         ) : (
           <>
             <span className="px-1 font-medium">{paymentPointer.url}</span>
-            <PaymentPointerCardButton aria-label="view payment pointer">
+            <PaymentPointerCardButton
+              href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
+              aria-label="view payment pointer"
+            >
               View
             </PaymentPointerCardButton>
           </>
@@ -155,10 +159,10 @@ export const PaymentPointerCard = ({
 
 const cardStyles = `
 flex items-center justify-between border-b border-b-green-4 px-2 py-3
-[&:nth-child(4n+1)_div_button]:bg-green-5 [&:nth-child(4n+1)_div_button:hover]:bg-green-6 
-[&:nth-child(4n+2)_div_button]:bg-violet-1 [&:nth-child(4n+2)_div_button:hover]:bg-violet-2
-[&:nth-child(4n+3)_div_button]:bg-pink-1 [&:nth-child(4n+3)_div_button:hover]:bg-pink-2
-[&:nth-child(4n+4)_div_button]:bg-orange-1 [&:nth-child(4n+4)_div_button:hover]:bg-orange-2
+[&:nth-child(4n+1)_div_a]:bg-green-5 [&:nth-child(4n+1)_div_a:hover]:bg-green-6 
+[&:nth-child(4n+2)_div_a]:bg-violet-1 [&:nth-child(4n+2)_div_a:hover]:bg-violet-2
+[&:nth-child(4n+3)_div_a]:bg-pink-1 [&:nth-child(4n+3)_div_a:hover]:bg-pink-2
+[&:nth-child(4n+4)_div_a]:bg-orange-1 [&:nth-child(4n+4)_div_a:hover]:bg-orange-2
 [&:nth-child(4n+1)_div]:text-green-6
 [&:nth-child(4n+2)_div]:text-violet-2
 [&:nth-child(4n+3)_div]:text-pink-2

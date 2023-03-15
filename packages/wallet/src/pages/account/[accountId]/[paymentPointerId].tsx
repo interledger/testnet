@@ -1,8 +1,8 @@
 import { Arrow } from '@/components/icons/Arrow'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { accountService } from '@/lib/api/account'
-import { paymentPointerService } from '@/lib/api/paymentPointer'
+import { Account, accountService } from '@/lib/api/account'
+import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
 import type {
@@ -87,14 +87,8 @@ const querySchema = z.object({
 })
 
 export const getServerSideProps: GetServerSideProps<{
-  account: {
-    id: string
-    name: string
-  }
-  paymentPointer: {
-    id: string
-    url: string
-  }
+  account: Account
+  paymentPointer: PaymentPointer
   transactions: {
     id: string
     type: 'incoming' | 'outgoing'
@@ -112,7 +106,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [_account, _paymentPointers] = await Promise.allSettled([
+  const [accountResponse, paymentPointerResponse] = await Promise.all([
     accountService.get(result.data.accountId, ctx.req.headers.cookie),
     paymentPointerService.get(
       result.data.accountId,
@@ -121,16 +115,24 @@ export const getServerSideProps: GetServerSideProps<{
     )
   ])
 
+  if (!accountResponse.success || !paymentPointerResponse.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  if (!accountResponse.data || !paymentPointerResponse.data) {
+    return {
+      notFound: true
+    }
+  }
+
+  // TODO: Get transactions
+
   return {
     props: {
-      account: {
-        id: result.data.accountId,
-        name: 'Account #1'
-      },
-      paymentPointer: {
-        id: result.data.paymentPointerId,
-        url: '$rafiki.money/me'
-      },
+      account: accountResponse.data,
+      paymentPointer: paymentPointerResponse.data,
       transactions: [
         {
           id: '#1111',
