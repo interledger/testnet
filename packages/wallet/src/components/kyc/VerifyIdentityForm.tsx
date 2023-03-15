@@ -57,7 +57,10 @@ export const VerifyIdentityForm = () => {
   }
 
   const verifyIdentityForm = useZodForm({
-    schema: verifyIdentitySchema
+    schema: verifyIdentitySchema,
+    defaultValues: {
+      ...(USE_TEST_DATA_KYC ? { documentType: 'PA' } : {})
+    }
   })
 
   return (
