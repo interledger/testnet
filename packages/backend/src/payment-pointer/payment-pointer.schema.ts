@@ -1,11 +1,28 @@
 import { z } from 'zod'
 
 export const paymentPointerSchema = z.object({
-  paymentPointerName: z.string().min(3, {
-    message: "Payment pointer's name should be at least 3 characters long"
-  }),
-  publicName: z.string().min(3, {
-    message:
-      "Payment pointer's public name should be at least 3 characters long"
-  })
+  paymentPointerName: z
+    .string()
+    .trim()
+    .regex(new RegExp(/^[a-z1-9_]*$/), {
+      message:
+        'Payment pointer name can only contain letters, numbers (non zero) and underscores'
+    })
+    .min(3, {
+      message: 'Payment pointer name must be at least 3 characters long'
+    })
+    .refine((paymentPointerName) => paymentPointerName[0] !== '_', {
+      message: 'Payment pointer name can not start with an underscore'
+    })
+    .refine(
+      (paymentPointerName) =>
+        paymentPointerName[paymentPointerName.length - 1] !== '_',
+      {
+        message: 'Payment pointer name can not end with an underscore'
+      }
+    ),
+  publicName: z
+    .string()
+    .trim()
+    .min(3, { message: 'Public name must be at least 3 characters long' })
 })

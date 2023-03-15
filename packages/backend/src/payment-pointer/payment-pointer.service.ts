@@ -7,6 +7,8 @@ import { PaymentPointerModel } from './payment-pointer.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
+import env from '../config/env'
+import { ConflictException } from '../shared/models/errors/ConflictException'
 
 export const createPaymentPointer = async (
   req: Request,
@@ -22,11 +24,24 @@ export const createPaymentPointer = async (
     )
     const account = await findAccountById(accountId, userId)
 
+    const existingPaymentPointer = await PaymentPointerModel.query().findOne({
+      url: `${env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
+    })
+
+    if (existingPaymentPointer) {
+      throw new ConflictException(
+        'This payment pointer already exists. Please choose another name.'
+      )
+    }
+
     const rafikiPaymentPointer = await createRafikiPaymentPointer(
       paymentPointerName,
+      publicName,
       account.assetRafikiId
     )
+
     const paymentPointer = await PaymentPointerModel.query().insert({
+      url: rafikiPaymentPointer.url,
       publicName,
       accountId,
       id: rafikiPaymentPointer.id

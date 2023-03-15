@@ -113,7 +113,6 @@ export const login = async (
 
     const user = await User.query()
       .findOne({ email })
-      .select('id', 'email', 'password')
       .withGraphFetched('refreshTokens')
 
     if (!user) {
