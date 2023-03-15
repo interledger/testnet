@@ -64,15 +64,7 @@ export default function AccountPage({
           <Link
             onClick={() =>
               openDialog(
-                <FundAccountDialog
-                  accounts={accounts}
-                  defaultValue={{
-                    name: account.name,
-                    value: account.id,
-                    assetCode: account.assetCode
-                  }}
-                  onClose={closeDialog}
-                />
+                <FundAccountDialog account={account} onClose={closeDialog} />
               )
             }
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
@@ -119,10 +111,6 @@ export default function AccountPage({
   )
 }
 
-export type AccountSelectOption = SelectOption & {
-  assetCode?: string
-}
-
 const querySchema = z.object({
   accountId: z.string().uuid()
 })
@@ -130,7 +118,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointers: PaymentPointer[]
-  accounts: AccountSelectOption[]
+  accounts: SelectOption[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -169,8 +157,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   const accounts = accountsResponse.data.map((account) => ({
     name: account.name,
-    value: account.id,
-    assetCode: account.assetCode
+    value: account.id
   }))
 
   return {
