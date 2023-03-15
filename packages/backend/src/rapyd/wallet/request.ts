@@ -29,10 +29,10 @@ const rapydVerifyIdentity = async (req: RapydIdentityRequest) => {
   return await makeRapydPostRequest('identities', JSON.stringify(req))
 }
 
-export const getAccountBalance = async (
+const getAccountsBalance = async (
   walletId: string
 ): Promise<RapydGetAccoutBalanceResponse> => {
   return makeRapydGetRequest(`user/${walletId}/accounts`)
 }
 
-export { createRapydWallet, rapydVerifyIdentity }
+export { createRapydWallet, rapydVerifyIdentity, getAccountsBalance }
