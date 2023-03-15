@@ -70,6 +70,22 @@ export const listAccounts = async (
   try {
     const userId = getUserIdFromRequest(req)
     const accounts = await Account.query().where('userId', userId)
+
+    const user = await User.query().findById(userId)
+
+    if (!user || !user.rapydEWalletId) {
+      throw new NotFoundException()
+    }
+
+    const accountsBalance = await getAccountBalance(user.rapydEWalletId)
+
+    accounts.forEach((acc) => {
+      acc.balance =
+        accountsBalance.data.find(
+          (rapydAccount) => rapydAccount.currency === acc.assetCode
+        )?.balance ?? 0
+    })
+
     return res.json({ success: true, message: 'Success', data: accounts })
   } catch (e) {
     next(e)
@@ -84,6 +100,17 @@ export const getAccountById = async (
     const userId = getUserIdFromRequest(req)
     const accountId = req.params.id
     const account = await findAccountById(accountId, userId)
+
+    const user = await User.query().findById(userId)
+
+    if (!user || !user.rapydEWalletId) {
+      throw new NotFoundException()
+    }
+
+    const accountsBalance = await getAccountBalance(user.rapydEWalletId)
+    account.balance =
+      accountsBalance.data.find((acc) => acc.currency === account.assetCode)
+        ?.balance ?? 0
 
     return res.json({ success: true, message: 'Success', data: account })
   } catch (e) {

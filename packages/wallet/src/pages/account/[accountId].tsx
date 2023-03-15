@@ -34,7 +34,9 @@ export default function AccountPage({
         />
         <div className="text-green md:mt-10">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">${0}</p>
+          <p className="text-2xl font-semibold md:text-4xl">
+            {account.balance} {account.assetCode}
+          </p>
         </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">

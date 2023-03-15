@@ -24,8 +24,10 @@ export const AccountCard = ({ account }: AccountCardProps) => {
           <p className="overflow-hidden text-ellipsis whitespace-nowrap font-light">
             {account.name}
           </p>
-          {/* TODO: Replace with the actual account balance */}
-          <p className="text-2xl font-semibold tracking-tighter">{0}</p>
+
+          <p className="text-2xl font-semibold tracking-tighter">
+            {account.balance}
+          </p>
         </div>
       </div>
     </Link>

@@ -28,7 +28,7 @@ export type Account = {
   id: string
   name: string
   assetCode: string
-  balance?: number
+  balance: number
 }
 
 type GetAccountResult = SuccessResponse<Account>
