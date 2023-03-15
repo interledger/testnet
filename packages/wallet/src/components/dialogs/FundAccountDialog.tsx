@@ -9,6 +9,7 @@ import { ErrorDialog } from './ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
+import { useRouter } from 'next/router'
 
 type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account
@@ -18,6 +19,7 @@ export const FundAccountDialog = ({
   onClose,
   account
 }: FundAccountDialogProps) => {
+  const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
   const fundAccountForm = useZodForm({
     schema: fundAccountSchema
@@ -72,6 +74,7 @@ export const FundAccountDialog = ({
                       }
 
                       if (response.success) {
+                        router.reload()
                         closeDialog()
                       } else {
                         const { errors, message } = response

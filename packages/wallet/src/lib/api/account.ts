@@ -30,7 +30,7 @@ export type Account = {
   id: string
   name: string
   assetCode: string
-  balance: number
+  balance: string
 }
 
 type GetAccountResult = SuccessResponse<Account>

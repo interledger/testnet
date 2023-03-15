@@ -11,6 +11,7 @@ import { ConflictException } from '../shared/models/errors/ConflictException'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
 import { User } from '../user/models/user'
 import { getUserIdFromRequest } from '../utils/getUserId'
+import { formatBalance } from '../utils/helpers'
 import { Account } from './account.model'
 import { accountSchema, fundSchema } from './schemas/account.schema'
 
@@ -88,9 +89,10 @@ export const createAccount = async (
     }
 
     const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
-    account.balance =
+    account.balance = formatBalance(
       accountsBalance.data.find((acc) => acc.currency === account.assetCode)
         ?.balance ?? 0
+    )
 
     return res.json({
       success: true,
@@ -120,10 +122,11 @@ export const listAccounts = async (
     const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
 
     accounts.forEach((acc) => {
-      acc.balance =
+      acc.balance = formatBalance(
         accountsBalance.data.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
         )?.balance ?? 0
+      )
     })
 
     return res.json({ success: true, message: 'Success', data: accounts })
@@ -149,9 +152,10 @@ export const getAccountById = async (
     }
 
     const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
-    account.balance =
+    account.balance = formatBalance(
       accountsBalance.data.find((acc) => acc.currency === account.assetCode)
         ?.balance ?? 0
+    )
 
     return res.json({ success: true, message: 'Success', data: account })
   } catch (e) {

@@ -9,7 +9,7 @@ export class Account extends Model {
   assetCode!: string
   userId!: string
   rapydAccountId!: string
-  balance!: number
+  balance!: string
 
   static relationMappings = () => ({
     user: {
