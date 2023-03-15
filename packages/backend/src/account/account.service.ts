@@ -7,7 +7,7 @@ import { Account } from './account.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { ConflictException } from '../shared/models/errors/ConflictException'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
-import { getAccountBalance } from '../rapyd/wallet'
+import { getAccountsBalance } from '../rapyd/wallet'
 import { User } from '../user/models/user'
 
 export const createAccount = async (
@@ -48,7 +48,7 @@ export const createAccount = async (
       throw new NotFoundException()
     }
 
-    const accountsBalance = await getAccountBalance(user.rapydEWalletId)
+    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
     account.balance =
       accountsBalance.data.find((acc) => acc.currency === account.assetCode)
         ?.balance ?? 0
@@ -77,7 +77,7 @@ export const listAccounts = async (
       throw new NotFoundException()
     }
 
-    const accountsBalance = await getAccountBalance(user.rapydEWalletId)
+    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
 
     accounts.forEach((acc) => {
       acc.balance =
@@ -107,7 +107,7 @@ export const getAccountById = async (
       throw new NotFoundException()
     }
 
-    const accountsBalance = await getAccountBalance(user.rapydEWalletId)
+    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
     account.balance =
       accountsBalance.data.find((acc) => acc.currency === account.assetCode)
         ?.balance ?? 0
