@@ -56,6 +56,7 @@ export const createPaymentPointer = async (
     next(e)
   }
 }
+
 export const listPaymentPointers = async (
   req: Request,
   res: Response<BaseResponse<PaymentPointerModel[]>>,
@@ -81,6 +82,7 @@ export const listPaymentPointers = async (
     next(e)
   }
 }
+
 export const getPaymentPointerById = async (
   req: Request,
   res: Response<BaseResponse<PaymentPointerModel>>,
