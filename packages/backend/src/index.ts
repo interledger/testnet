@@ -28,6 +28,7 @@ app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 app.use(cookieParser())
 
 const knex = Knex(config[env.NODE_ENV || 'development'])
+
 Model.knex(knex)
 ;(async () => {
   knex.migrate.latest({

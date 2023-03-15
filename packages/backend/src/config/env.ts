@@ -1,16 +1,16 @@
 import { z } from 'zod'
 
-// import * as dotenv from 'dotenv'
-// dotenv.config({})
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+// const d = require('dotenv')
 
 const envSchema = z.object({
-  PORT: z.coerce.number(),
+  PORT: z.coerce.number().default(3000),
   NODE_ENV: z.string().default('development'),
-  DB_URL: z.string(),
-  JWT_ACCESS_TOKEN_SECRET: z.string(),
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.number(),
-  JWT_REFRESH_TOKEN_SECRET: z.string(),
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number(),
+  DB_URL: z.string().default('postgres://postgres:password@postgres/testnet'),
+  JWT_ACCESS_TOKEN_SECRET: z.string().default('AT_SECRET'),
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.number().default(2630000),
+  JWT_REFRESH_TOKEN_SECRET: z.string().default('RT_SECRET'),
+  JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number().default(2630000),
   RAPYD_API: z.string(),
   RAPYD_ACCESS_KEY: z.string(),
   RAPYD_SECRET_KEY: z.string(),
@@ -34,4 +34,5 @@ const env: ENV = (() => {
   return result.data
 })()
 
+// const env = d.config()
 export default env
