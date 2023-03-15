@@ -7,6 +7,8 @@ import { Account } from './account.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { ConflictException } from '../shared/models/errors/ConflictException'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
+import { getAccountBalance } from '../rapyd/wallet'
+import { User } from '../user/models/user'
 
 export const createAccount = async (
   req: Request,
@@ -39,6 +41,18 @@ export const createAccount = async (
       assetCode: asset.code,
       assetRafikiId
     })
+
+    const user = await User.query().findById(userId)
+
+    if (!user || !user.rapydEWalletId) {
+      throw new NotFoundException()
+    }
+
+    const accountsBalance = await getAccountBalance(user.rapydEWalletId)
+    account.balance =
+      accountsBalance.data.find((acc) => acc.currency === account.assetCode)
+        ?.balance ?? 0
+
     return res.json({
       success: true,
       message: 'Account created',
