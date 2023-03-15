@@ -9,7 +9,7 @@ exports.up = function (knex) {
       .notNullable()
       .primary()
       .defaultTo(knex.raw('gen_random_uuid()'))
-    table.string('rapydAccountId')
+    table.string('rapydAccountId').notNullable()
     table.string('userId').notNullable()
     table.string('assetCode').notNullable()
     table.string('assetRafikiId').notNullable()
