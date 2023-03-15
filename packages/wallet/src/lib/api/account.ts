@@ -31,6 +31,9 @@ export type Account = {
   balance?: number
 }
 
+type GetAccountResult = SuccessResponse<Account>
+type GetAccountResponse = GetAccountResult | ErrorResponse
+
 type ListAccountsResult = SuccessResponse<Account[]>
 type ListAccountsResponse = Promise<ListAccountsResult | ErrorResponse>
 
@@ -44,12 +47,28 @@ type FundAccountError = ErrorResponse<FundAccountArgs | undefined>
 type FundAccountResponse = Promise<SuccessResponse | FundAccountError>
 
 interface AccountService {
+  get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (cookies?: string) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
 }
 
 const createAccountService = (): AccountService => ({
+  async get(accountId, cookies): Promise<GetAccountResponse> {
+    try {
+      const response = await httpClient
+        .get(`accounts/${accountId}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<GetAccountResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to fetch account details')
+    }
+  },
+
   async list(cookies): Promise<ListAccountsResponse> {
     try {
       const response = await httpClient
