@@ -23,7 +23,7 @@ export const Progress = () => {
     router.events.on('routeChangeComplete', done)
     router.events.on('routeChangeError', done)
     return () => {
-      // done()
+      done()
       router.events.off('routeChangeStart', start)
       router.events.off('routeChangeComplete', done)
       router.events.off('routeChangeError', done)
