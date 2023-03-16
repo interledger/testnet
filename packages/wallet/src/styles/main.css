@@ -17,3 +17,19 @@
 #__next {
   @apply h-full;
 }
+
+#nprogress {
+  @apply pointer-events-none;
+}
+
+#nprogress .bar {
+  @apply fixed top-0 left-0 z-[1000] h-1.5 w-full bg-pink;
+}
+
+.nprogress-custom-parent {
+  @apply relative overflow-hidden;
+}
+
+.nprogress-custom-parent #nprogress .bar {
+  @apply absolute;
+}

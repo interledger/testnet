@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { Titillium_Web } from 'next/font/google'
 import { AppProvider } from '@/components/providers'
+import { Progress } from '@/ui/Progress'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -25,6 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
         }
       `}</style>
       <AppProvider>
+        <Progress />
         <Component {...pageProps} />
       </AppProvider>
     </>
