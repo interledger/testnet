@@ -1,5 +1,10 @@
 import logger from '../../../utils/logger'
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
+import { NotFoundException } from '../../../shared/models/errors/NotFoundException'
+import { Account } from '../../../account/account.model'
+import { Query } from '../../generated/graphql'
+import { User } from '../../../user/models/user'
+import { makeRapydPostRequest } from '../../../rapyd/utills/request'
 
 export enum EventType {
   IncomingPaymentCompleted = 'incoming_payment.completed',
@@ -36,10 +41,14 @@ export class WebHookService {
         await this.handleOutgoingPaymentCreated(wh)
         break
       case EventType.OutgoingPaymentCompleted:
+        await this.handleOutgoingPaymentCompleted(wh)
+        break
       case EventType.OutgoingPaymentFailed:
         await this.handleOutgoingPaymentCompletedFailed(wh)
         break
       case EventType.IncomingPaymentCompleted:
+        await this.handleIncomingPaymentCompleted(wh)
+        break
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentCompletedExpired(wh)
         break
@@ -48,28 +57,92 @@ export class WebHookService {
     }
   }
 
-  //   private parseAmount(amount: AmountJSON): Amount {
-  //     return {
-  //       value: BigInt(amount['value']),
-  //       assetCode: amount['assetCode'],
-  //       assetScale: amount['assetScale']
-  //     }
-  //   }
+  private async getRapydWalletIdFromWebHook(
+    wh: WebHook
+  ): Promise<string | undefined> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payment: any = wh.data['payment']
+    const ppId = payment['paymentPointerId'] as string
 
-  private handleOutgoingPaymentCreated(wh: WebHook) {
-    //* TODO: handleOutgoingPaymentCreated
+    const user = await User.query()
+      .joinRelated('accounts.paymentPointers')
+      .where('paymentPointers.id', ppId)
+      .first()
+
+    if (!user) {
+      //! maybe just log, no throw
+      throw new NotFoundException('Associated user not found!')
+    }
+
+    return user.rapydEWalletId
+  }
+
+  private getAmountFromWebHook(wh: WebHook) {
+    return Number(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (wh.data['payment'] as any)[
+        `${
+          wh.type === EventType.OutgoingPaymentCompleted
+            ? 'sendAmount'
+            : 'receiveAmount'
+        }`
+      ]
+    )
+  }
+
+  private async handleIncomingPaymentCompleted(wh: WebHook) {
     log.info(wh)
 
-    // const payment: any = wh.data['payment']
-    // const pp = payment['paymentPointerId'] as string
+    const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
+    const amount = this.getAmountFromWebHook(wh)
 
-    //   const acc = await mockAccounts.getByPaymentPointer(pp)
+    const result = await makeRapydPostRequest(
+      'account/deposit',
+      JSON.stringify({
+        amount,
+        currency: 'USD',
+        ewallet: rapydWalletId
+      })
+    )
 
-    // const amt = this.parseAmount(payment['sendAmount'])
+    if (result.status.status !== 'SUCCESS') {
+      log.error(
+        result.status.message ||
+          `Unable to deposit into wallet: ${rapydWalletId}`
+      )
+    }
 
-    //   await mockAccounts.pendingDebit(acc.id, amt.value)
+    log.info(`Succesfully deposited ${amount} into ${rapydWalletId}`)
+  }
 
-    // notify rafiki
+  private async handleOutgoingPaymentCompleted(wh: WebHook) {
+    log.info(wh)
+
+    const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
+    const amount = this.getAmountFromWebHook(wh)
+
+    const result = await makeRapydPostRequest(
+      'account/withdraw',
+      JSON.stringify({
+        ewallet: rapydWalletId,
+        amount,
+        currency: 'USD'
+      })
+    )
+
+    if (result.status.status !== 'SUCCESS') {
+      log.error(
+        result.status.message ||
+          `Unable to withdraw from wallet: ${rapydWalletId}`
+      )
+    }
+
+    log.info(`Succesfully withdrew ${amount} from ${rapydWalletId}`)
+  }
+
+  private async handleOutgoingPaymentCreated(wh: WebHook) {
+    //* TODO: handleOutgoingPaymentCreated
+    log.info(wh)
 
     return
   }
@@ -77,20 +150,6 @@ export class WebHookService {
   async handleOutgoingPaymentCompletedFailed(wh: WebHook) {
     //* TODO: handleOutgoingPaymentCompletedFailed
     log.info(wh)
-
-    // const payment = wh.data['payment']
-    // const pp = payment['paymentPointerId'] as string
-    // const acc = await mockAccounts.getByPaymentPointer(pp)
-
-    // const amtSend = parseAmount(payment['sendAmount'])
-    // const amtSent = parseAmount(payment['sentAmount'])
-
-    // const toVoid = amtSend.value - amtSent.value
-
-    // await mockAccounts.debit(acc.id, amtSent.value, true)
-    // if (toVoid > 0) {
-    //   await mockAccounts.voidPendingDebit(acc.id, toVoid)
-    // }
 
     // TODO: withdraw remaining liquidity
 
@@ -100,14 +159,6 @@ export class WebHookService {
   handleIncomingPaymentCompletedExpired(wh: WebHook) {
     //* TODO: handleIncomingPaymentCompletedExpired
     log.info(wh)
-
-    // const payment = wh.data['incomingPayment']
-    // const pp = payment['paymentPointerId'] as string
-    // const acc = await mockAccounts.getByPaymentPointer(pp)
-
-    // const amt = parseAmount(payment['receivedAmount'])
-
-    // await mockAccounts.credit(acc.id, amt.value, false)
 
     return
   }

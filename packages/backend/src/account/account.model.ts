@@ -1,4 +1,6 @@
 import { Model } from 'objection'
+import { PaymentPointerModel } from '../payment-pointer/payment-pointer.model'
+import { User } from '../user/models/user'
 
 export class Account extends Model {
   static tableName = 'accounts'
@@ -9,14 +11,23 @@ export class Account extends Model {
   assetCode!: string
   userId!: string
   rapydAccountId!: string
+  paymentPointers?: Array<PaymentPointerModel>
 
   static relationMappings = () => ({
     user: {
       relation: Model.BelongsToOneRelation,
-      modelClass: Account,
+      modelClass: User,
       join: {
         from: 'accounts.userId',
         to: 'users.id'
+      }
+    },
+    paymentPointers: {
+      relation: Model.HasManyRelation,
+      modelClass: PaymentPointerModel,
+      join: {
+        from: 'accounts.id',
+        to: 'paymentPointers.id'
       }
     }
   })
