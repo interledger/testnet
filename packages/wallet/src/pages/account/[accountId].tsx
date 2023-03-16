@@ -9,7 +9,7 @@ import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { SelectOption } from '@/ui/forms/Select'
+
 import { Link } from '@/ui/Link'
 import type {
   GetServerSideProps,
@@ -21,7 +21,6 @@ type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function AccountPage({
   account,
-  accounts,
   paymentPointers
 }: AccountPageProps) {
   const [openDialog, closeDialog] = useDialog()
@@ -45,8 +44,7 @@ export default function AccountPage({
             onClick={() =>
               openDialog(
                 <CreatePaymentPointerDialog
-                  accounts={accounts}
-                  defaultValue={{ name: account.name, value: account.id }}
+                  accountName={account.name}
                   onClose={closeDialog}
                 />
               )
@@ -120,7 +118,6 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointers: PaymentPointer[]
-  accounts: SelectOption[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -130,42 +127,27 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse, accountsResponse, paymentPointersResponse] =
-    await Promise.all([
-      accountService.get(result.data.accountId, ctx.req.headers.cookie),
-      accountService.list(ctx.req.headers.cookie),
-      paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
-    ])
+  const [accountResponse, paymentPointersResponse] = await Promise.all([
+    accountService.get(result.data.accountId, ctx.req.headers.cookie),
 
-  if (
-    !accountResponse.success ||
-    !paymentPointersResponse.success ||
-    !accountsResponse.success
-  ) {
+    paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
+  ])
+
+  if (!accountResponse.success || !paymentPointersResponse.success) {
     return {
       notFound: true
     }
   }
 
-  if (
-    !accountResponse.data ||
-    !paymentPointersResponse.data ||
-    !accountsResponse.data
-  ) {
+  if (!accountResponse.data || !paymentPointersResponse.data) {
     return {
       notFound: true
     }
   }
-
-  const accounts = accountsResponse.data.map((account) => ({
-    name: account.name,
-    value: account.id
-  }))
 
   return {
     props: {
       account: accountResponse.data,
-      accounts,
       paymentPointers: paymentPointersResponse.data
     }
   }

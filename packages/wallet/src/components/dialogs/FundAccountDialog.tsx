@@ -74,7 +74,7 @@ export const FundAccountDialog = ({
                       }
 
                       if (response.success) {
-                        router.reload()
+                        router.replace(router.asPath)
                         closeDialog()
                       } else {
                         const { errors, message } = response
@@ -98,6 +98,7 @@ export const FundAccountDialog = ({
                         fundAccountForm.formState.errors.accountId?.message
                       }
                       label="Account"
+                      readOnly
                     />
                     <input
                       type="hidden"
