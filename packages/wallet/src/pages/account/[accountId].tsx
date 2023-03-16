@@ -129,7 +129,6 @@ export const getServerSideProps: GetServerSideProps<{
 
   const [accountResponse, paymentPointersResponse] = await Promise.all([
     accountService.get(result.data.accountId, ctx.req.headers.cookie),
-
     paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
   ])
 

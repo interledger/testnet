@@ -19,9 +19,9 @@
 }
 
 #nprogress {
-  @apply pointer-events-none md:pl-64;
+  @apply pointer-events-none;
 }
 
 #nprogress .bar {
-  @apply fixed top-0 right-0 z-[1000] h-1.5 w-full bg-pink md:ml-64;
+  @apply fixed top-0 right-0 z-[1000] h-1.5 w-full bg-pink;
 }
