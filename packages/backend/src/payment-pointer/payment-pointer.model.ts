@@ -20,3 +20,10 @@ export class PaymentPointerModel extends Model {
     }
   })
 }
+
+const test = PaymentPointerModel.query()
+  .findOne({ id: 'id' })
+  .withGraphJoined('accounts')
+  .where('accounts.id', '=', 'paymentPointers.accountId')
+  .withGraphJoined('users')
+  .where('users.id', '=', 'accounts.userId')

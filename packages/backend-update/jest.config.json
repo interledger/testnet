@@ -1,0 +1,9 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "globalSetup": "./jest.setup.js",
+  "globalTeardown": "./jest.teardown.js",
+  "moduleNameMapper": {
+    "@/(.*)": "<rootDir>/src/$1"
+  }
+}

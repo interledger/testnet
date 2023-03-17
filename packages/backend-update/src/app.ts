@@ -20,6 +20,10 @@ export class App {
     this.server = express.listen(env.PORT)
   }
 
+  public stop = async (): Promise<void> => {
+    this.server.close()
+  }
+
   public getPort(): number {
     const address = this.server.address()
     if (address && !(typeof address === 'string')) {
