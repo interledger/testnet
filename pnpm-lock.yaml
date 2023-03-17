@@ -111,6 +111,27 @@ importers:
       axios: 1.3.4
       typescript: 4.9.5
 
+  packages/backend-update:
+    specifiers:
+      '@types/express': ^4.17.17
+      '@types/node': ^18.14.0
+      '@types/uuid': ^9.0.1
+      express: ^4.18.2
+      typescript: ^4.9.5
+      winston: ^3.8.2
+      winston-daily-rotate-file: ^4.7.1
+      zod: ^3.21.4
+    dependencies:
+      express: 4.18.2
+      winston: 3.8.2
+      winston-daily-rotate-file: 4.7.1_winston@3.8.2
+      zod: 3.21.4
+    devDependencies:
+      '@types/express': 4.17.17
+      '@types/node': 18.14.0
+      '@types/uuid': 9.0.1
+      typescript: 4.9.5
+
   packages/wallet:
     specifiers:
       '@headlessui/react': ^1.7.13
@@ -7547,11 +7568,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /spdx-correct/3.1.1:
-    resolution: {integrity: sha512-cOYcUWwhCuHCXi49RhFRCyJEK3iPj1Ziz9DpViV3tbZOwXD49QzIN3MpOLJNxh2qwq2lJJZaKMVw9qNi4jTC0w==}
+  /spdx-correct/3.2.0:
+    resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
     dependencies:
       spdx-expression-parse: 3.0.1
-      spdx-license-ids: 3.0.12
+      spdx-license-ids: 3.0.13
     dev: true
 
   /spdx-exceptions/2.3.0:
@@ -7562,11 +7583,11 @@ packages:
     resolution: {integrity: sha512-cbqHunsQWnJNE6KhVSMsMeH5H/L9EpymbzqTQ3uLwNCLZ1Q481oWaofqH7nO6V07xlXwY6PhQdQ2IedWx/ZK4Q==}
     dependencies:
       spdx-exceptions: 2.3.0
-      spdx-license-ids: 3.0.12
+      spdx-license-ids: 3.0.13
     dev: true
 
-  /spdx-license-ids/3.0.12:
-    resolution: {integrity: sha512-rr+VVSXtRhO4OHbXUiAF7xW3Bo9DuuF6C5jH+q/x15j2jniycgKbxU09Hr0WqlSLUs4i4ltHGXqTe7VHclYWyA==}
+  /spdx-license-ids/3.0.13:
+    resolution: {integrity: sha512-XkD+zwiqXHikFZm4AX/7JSCXA98U5Db4AFd5XUg/+9UNtnH75+Z9KxtpYiJZx36mUDVOwH83pl7yvCer6ewM3w==}
     dev: true
 
   /split-ca/1.0.1:
@@ -8163,7 +8184,7 @@ packages:
   /validate-npm-package-license/3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
     dependencies:
-      spdx-correct: 3.1.1
+      spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
     dev: true
 
