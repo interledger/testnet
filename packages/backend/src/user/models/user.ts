@@ -38,7 +38,7 @@ export class User extends Model {
         }
       },
       accounts: {
-        relation: Model.HasOneRelation,
+        relation: Model.HasManyRelation,
         modelClass: Account,
         join: {
           from: 'users.id',

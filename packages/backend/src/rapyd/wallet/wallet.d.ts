@@ -132,3 +132,11 @@ interface RapydIdentityRequest {
   face_image?: string
   face_image_mime_type?: string
 }
+
+interface RapydWithdrawRequest {
+  ewallet: string
+  amount: number
+  currency: string
+}
+
+type RapydDepositRequest = RapydWithdrawRequest

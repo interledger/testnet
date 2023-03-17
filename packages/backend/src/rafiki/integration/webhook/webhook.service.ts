@@ -1,10 +1,16 @@
-import logger from '../../../utils/logger'
+import { knex } from '../../..'
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
-import { NotFoundException } from '../../../shared/models/errors/NotFoundException'
-import { Account } from '../../../account/account.model'
-import { Query } from '../../generated/graphql'
-import { User } from '../../../user/models/user'
-import { makeRapydPostRequest } from '../../../rapyd/utills/request'
+
+import {
+  rapydDepositLiquidity,
+  rapydWithdrawLiquidity
+} from '../../../rapyd/wallet'
+import { InternalServerError } from '../../../shared/models/errors/InternalServerError'
+import logger from '../../../utils/logger'
+import {
+  depositLiquidity,
+  withdrawLiqudity
+} from '../../request/liquidity.request'
 
 export enum EventType {
   IncomingPaymentCompleted = 'incoming_payment.completed',
@@ -57,86 +63,104 @@ export class WebHookService {
     }
   }
 
-  private async getRapydWalletIdFromWebHook(
-    wh: WebHook
-  ): Promise<string | undefined> {
+  private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const payment: any = wh.data['payment']
-    const ppId = payment['paymentPointerId'] as string
+    const ppId = wh.data['paymentPointerId'] as string
 
-    const user = await User.query()
-      .joinRelated('accounts.paymentPointers')
-      .where('paymentPointers.id', ppId)
-      .first()
+    try {
+      const query = `select "users"."rapydEWalletId" from "users" inner join "accounts" on "accounts"."userId"::uuid = "users"."id" inner join "paymentPointers" as "accounts:paymentPointers" on "accounts:paymentPointers"."accountId" = "accounts"."id" where "accounts:paymentPointers"."id" = '${ppId}'`
+      const response = await knex.raw(query)
 
-    if (!user) {
-      //! maybe just log, no throw
-      throw new NotFoundException('Associated user not found!')
+      const rapydEWalletId = response?.rows?.[0]?.rapydEWalletId
+
+      if (!rapydEWalletId) {
+        throw new BadRequestException('Invalid input')
+      }
+
+      return rapydEWalletId
+    } catch (e) {
+      log.error(e)
+      throw new InternalServerError()
     }
-
-    return user.rapydEWalletId
   }
 
-  private getAmountFromWebHook(wh: WebHook) {
-    return Number(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (wh.data['payment'] as any)[
-        `${
-          wh.type === EventType.OutgoingPaymentCompleted
-            ? 'sendAmount'
-            : 'receiveAmount'
-        }`
-      ]
-    )
+  private parseAmount(amount: AmountJSON): Amount {
+    return {
+      value: BigInt(amount['value']),
+      assetCode: amount['assetCode'],
+      assetScale: amount['assetScale']
+    }
+  }
+
+  private getAmountFromWebHook(wh: WebHook): Amount {
+    let amount
+    if (wh.type === EventType.OutgoingPaymentCompleted) {
+      const amtSend = this.parseAmount(wh.data.sendAmount as AmountJSON)
+
+      //* maybe store this as transaction data
+      // const amtSent = this.parseAmount(payment['sentAmount'])
+      // const fee = amtSend.value - amtSent.value
+
+      amount = amtSend
+    }
+
+    if (wh.type === EventType.IncomingPaymentCompleted) {
+      amount = this.parseAmount(wh.data.receivedAmount as AmountJSON)
+    }
+
+    if (!amount) {
+      throw new BadRequestException('Unable to extract amount from webhook')
+    }
+
+    return amount
+  }
+
+  amountToNumber(amount: Amount) {
+    return (Number(amount.value) / 100).toFixed(amount.assetScale)
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
-    log.info(wh)
-
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    const result = await makeRapydPostRequest(
-      'account/deposit',
-      JSON.stringify({
-        amount,
-        currency: 'USD',
-        ewallet: rapydWalletId
-      })
-    )
+    const result = await rapydDepositLiquidity({
+      amount: +this.amountToNumber(amount),
+      currency: amount.assetCode,
+      ewallet: rapydWalletId
+    })
 
     if (result.status.status !== 'SUCCESS') {
       log.error(
         result.status.message ||
           `Unable to deposit into wallet: ${rapydWalletId}`
       )
+      return
     }
+
+    await depositLiquidity(wh.id)
 
     log.info(`Succesfully deposited ${amount} into ${rapydWalletId}`)
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
-    log.info(wh)
-
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    const result = await makeRapydPostRequest(
-      'account/withdraw',
-      JSON.stringify({
-        ewallet: rapydWalletId,
-        amount,
-        currency: 'USD'
-      })
-    )
+    const result = await rapydWithdrawLiquidity({
+      amount: +this.amountToNumber(amount),
+      currency: amount.assetCode,
+      ewallet: rapydWalletId
+    })
 
     if (result.status.status !== 'SUCCESS') {
       log.error(
         result.status.message ||
           `Unable to withdraw from wallet: ${rapydWalletId}`
       )
+      return
     }
 
+    await withdrawLiqudity(wh.id)
     log.info(`Succesfully withdrew ${amount} from ${rapydWalletId}`)
   }
 

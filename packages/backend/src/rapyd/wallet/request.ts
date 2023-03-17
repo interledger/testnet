@@ -8,4 +8,17 @@ const rapydVerifyIdentity = async (req: RapydIdentityRequest) => {
   return await makeRapydPostRequest('identities', JSON.stringify(req))
 }
 
-export { createRapydWallet, rapydVerifyIdentity }
+const rapydWithdrawLiquidity = async (req: RapydWithdrawRequest) => {
+  return await makeRapydPostRequest('account/withdraw', JSON.stringify(req))
+}
+
+const rapydDepositLiquidity = async (req: RapydDepositRequest) => {
+  return await makeRapydPostRequest('account/withdraw', JSON.stringify(req))
+}
+
+export {
+  createRapydWallet,
+  rapydVerifyIdentity,
+  rapydWithdrawLiquidity,
+  rapydDepositLiquidity
+}

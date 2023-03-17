@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import passport from 'passport'
 import { PricesController } from './prices/prices.controller'
 import { PricesService } from './prices/prices.service'
 import { QuoteController } from './quote/quote.controller'
@@ -18,20 +17,8 @@ const quoteController = new QuoteController(quoteService)
 const webHookService = new WebHookService()
 const webHookController = new WebHookController(webHookService)
 
-rafikiIntegrationRouter.get(
-  'prices',
-  passport.authenticate('jwt', { session: false }),
-  pricesController.getPrices
-)
+rafikiIntegrationRouter.get('/prices', pricesController.getPrices)
 
-rafikiIntegrationRouter.post(
-  'quote',
-  passport.authenticate('jwt', { session: false }),
-  quoteController.createQuote
-)
+rafikiIntegrationRouter.post('/quote', quoteController.createQuote)
 
-rafikiIntegrationRouter.post(
-  'webhooks',
-  passport.authenticate('jwt', { session: false }),
-  webHookController.onWebHook
-)
+rafikiIntegrationRouter.post('/webhooks', webHookController.onWebHook)

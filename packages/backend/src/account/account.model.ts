@@ -27,7 +27,7 @@ export class Account extends Model {
       modelClass: PaymentPointerModel,
       join: {
         from: 'accounts.id',
-        to: 'paymentPointers.id'
+        to: 'paymentPointers.accountId'
       }
     }
   })
