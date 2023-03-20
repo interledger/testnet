@@ -124,7 +124,7 @@ importers:
       '@types/react-dom': 18.0.11
       autoprefixer: ^10.4.14
       class-variance-authority: ^0.4.0
-      ky: ^0.33.2
+      ky: ^0.33.3
       next: 13.2.4
       nprogress: ^0.2.0
       postcss: ^8.4.21
@@ -138,7 +138,7 @@ importers:
       '@headlessui/react': 1.7.13_biqbaboplfbrettd7655fr4n2y
       '@hookform/resolvers': 2.9.11_react-hook-form@7.43.5
       class-variance-authority: 0.4.0_typescript@4.9.5
-      ky: 0.33.2
+      ky: 0.33.3
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
       nprogress: 0.2.0
       react: 18.2.0
@@ -5789,8 +5789,8 @@ packages:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
     dev: false
 
-  /ky/0.33.2:
-    resolution: {integrity: sha512-f6oS2rKUcPu5FzdqCDbFpmzis/JlqFZw8uIHm/jf8Kc3vtnW+VDhuashOAKyBZv8bFiZFZUMNxTC0JtahEvujA==}
+  /ky/0.33.3:
+    resolution: {integrity: sha512-CasD9OCEQSFIam2U8efFK81Yeg8vNMTBUqtMOHlrcWQHqUX3HeCl9Dr31u4toV7emlH8Mymk5+9p0lL6mKb/Xw==}
     engines: {node: '>=14.16'}
     dev: false
 
