@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/icons/Spinner'
 import { cva, cx, type VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
 
@@ -57,17 +58,22 @@ const buttonStyles = cva(
 export type ButtonProps = VariantProps<typeof buttonStyles> &
   ButtonOrLinkProps & {
     ['aria-label']: string
+    loading?: boolean
   }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ fullWidth, intent, size, children, className, ...props }, ref) => {
+  (
+    { fullWidth, intent, size, children, className, loading, ...props },
+    ref
+  ) => {
     return (
       <ButtonOrLink
         ref={ref}
         className={cx(className, buttonStyles({ intent, size, fullWidth }))}
         {...props}
       >
-        {children}
+        {loading && <Spinner />}
+        <div className={cx(loading ? 'invisible' : 'visible')}>{children}</div>
       </ButtonOrLink>
     )
   }

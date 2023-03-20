@@ -127,7 +127,11 @@ export const FundAccountDialog = ({
                       />
                     </div>
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="fund account" type="submit">
+                      <Button
+                        aria-label="fund account"
+                        type="submit"
+                        loading={fundAccountForm.formState.isSubmitting}
+                      >
                         Fund
                       </Button>
                       <Button
