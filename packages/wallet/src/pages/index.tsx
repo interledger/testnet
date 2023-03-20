@@ -29,10 +29,6 @@ export default function Home({ accounts, user }: HomeProps) {
           }`}
           message="Here is your account overview!"
         />
-        <div className="text-green md:mt-10">
-          <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">$0</p>
-        </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">

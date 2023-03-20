@@ -119,12 +119,14 @@ importers:
       '@next/eslint-plugin-next': ^13.2.4
       '@tailwindcss/forms': ^0.5.3
       '@types/node': ^18.14.0
+      '@types/nprogress': ^0.2.0
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
       autoprefixer: ^10.4.14
       class-variance-authority: ^0.4.0
       ky: ^0.33.2
       next: 13.2.4
+      nprogress: ^0.2.0
       postcss: ^8.4.21
       react: 18.2.0
       react-dom: 18.2.0
@@ -138,6 +140,7 @@ importers:
       class-variance-authority: 0.4.0_typescript@4.9.5
       ky: 0.33.2
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
+      nprogress: 0.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.43.5_react@18.2.0
@@ -147,6 +150,7 @@ importers:
       '@next/eslint-plugin-next': 13.2.4
       '@tailwindcss/forms': 0.5.3_tailwindcss@3.2.7
       '@types/node': 18.14.0
+      '@types/nprogress': 0.2.0
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
       autoprefixer: 10.4.14_postcss@8.4.21
@@ -2139,6 +2143,10 @@ packages:
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
+    dev: true
+
+  /@types/nprogress/0.2.0:
+    resolution: {integrity: sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==}
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -6332,6 +6340,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       path-key: 3.1.1
+    dev: false
+
+  /nprogress/0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
     dev: false
 
   /nullthrows/1.1.1:
