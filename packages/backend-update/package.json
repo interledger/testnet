@@ -6,6 +6,9 @@
   },
   "dependencies": {
     "express": "^4.18.2",
+    "knex": "^2.4.2",
+    "objection": "^3.0.1",
+    "pg": "^8.10.0",
     "winston": "^3.8.2",
     "winston-daily-rotate-file": "^4.7.1",
     "zod": "^3.21.4"
