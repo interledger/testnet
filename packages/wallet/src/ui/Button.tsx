@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/icons/Spinner'
 import { cva, cx, type VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
 
@@ -71,22 +72,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cx(className, buttonStyles({ intent, size, fullWidth }))}
         {...props}
       >
-        {loading && (
-          <svg
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 16 16"
-            className="absolute h-5 w-5 animate-spin"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeWidth="2"
-              d="M2.204 6.447A6 6 0 108 2"
-            ></path>
-          </svg>
-        )}
+        {loading && <Spinner />}
         <div className={cx(loading ? 'invisible' : 'visible')}>{children}</div>
       </ButtonOrLink>
     )
