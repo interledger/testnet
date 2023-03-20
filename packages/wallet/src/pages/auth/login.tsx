@@ -9,10 +9,11 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
+import { useState } from 'react'
 
 const Login = () => {
   const router = useRouter()
-
+  const [isLoading, setIsLoading] = useState(false)
   const loginForm = useZodForm({
     schema: loginSchema
   })
@@ -25,6 +26,7 @@ const Login = () => {
         <Form
           form={loginForm}
           onSubmit={async (data) => {
+            setIsLoading(true)
             const response = await userService.login(data)
 
             if (response.success) {
@@ -39,6 +41,7 @@ const Login = () => {
                 )
               }
             }
+            setIsLoading(false)
           }}
         >
           <Input
@@ -66,7 +69,7 @@ const Login = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play />
+            <Play loading={isLoading} />
           </button>
         </Form>
       </div>

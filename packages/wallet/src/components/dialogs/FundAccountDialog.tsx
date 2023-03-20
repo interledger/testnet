@@ -1,6 +1,6 @@
 import type { DialogProps } from '@/lib/types/dialog'
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
 import { Account, accountService, fundAccountSchema } from '@/lib/api/account'
@@ -21,6 +21,7 @@ export const FundAccountDialog = ({
 }: FundAccountDialogProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
+  const [isLoading, setIsLoading] = useState(false)
   const fundAccountForm = useZodForm({
     schema: fundAccountSchema
   })
@@ -61,6 +62,7 @@ export const FundAccountDialog = ({
                   <Form
                     form={fundAccountForm}
                     onSubmit={async (data) => {
+                      setIsLoading(true)
                       const response = await accountService.fund(data)
 
                       if (!response) {
@@ -70,6 +72,7 @@ export const FundAccountDialog = ({
                             content="Fund Account failed. Please try again"
                           />
                         )
+                        setIsLoading(false)
                         return
                       }
 
@@ -90,6 +93,7 @@ export const FundAccountDialog = ({
                           fundAccountForm.setError('root', { message })
                         }
                       }
+                      setIsLoading(false)
                     }}
                   >
                     <Input
@@ -127,7 +131,11 @@ export const FundAccountDialog = ({
                       />
                     </div>
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="fund account" type="submit">
+                      <Button
+                        aria-label="fund account"
+                        type="submit"
+                        loading={isLoading}
+                      >
                         Fund
                       </Button>
                       <Button

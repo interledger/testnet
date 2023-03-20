@@ -7,6 +7,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
+import { useState } from 'react'
 
 const requestSchema = z.object({
   paymentPointer: z.string(),
@@ -17,6 +18,7 @@ const requestSchema = z.object({
 })
 
 export default function Request() {
+  const [isLoading, setIsLoading] = useState(false)
   const form = useZodForm({
     schema: requestSchema
   })
@@ -28,7 +30,9 @@ export default function Request() {
         <Form
           form={form}
           onSubmit={(data) => {
+            setIsLoading(true)
             console.log(data)
+            setIsLoading(false)
           }}
         >
           <div className="space-y-1">
@@ -53,7 +57,12 @@ export default function Request() {
             label="Currency"
           />
           <div className="flex justify-center py-5">
-            <Button aria-label="Pay" type="submit" className="w-24">
+            <Button
+              aria-label="Pay"
+              type="submit"
+              className="w-24"
+              loading={isLoading}
+            >
               Request
             </Button>
           </div>

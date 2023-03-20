@@ -1,6 +1,6 @@
 import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -20,6 +20,7 @@ export const CreatePaymentPointerDialog = ({
   onClose,
   accountName
 }: CreatePaymentPointerDialogProps) => {
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const form = useZodForm({
     schema: createPaymentPointerSchema
@@ -65,6 +66,7 @@ export const CreatePaymentPointerDialog = ({
                   <Form
                     form={form}
                     onSubmit={async (data) => {
+                      setIsLoading(true)
                       const response = await paymentPointerService.create(
                         accountId,
                         data
@@ -89,6 +91,7 @@ export const CreatePaymentPointerDialog = ({
                           )
                         }
                       }
+                      setIsLoading(false)
                     }}
                   >
                     <Input value={accountName} label="Account" readOnly />
@@ -112,7 +115,11 @@ export const CreatePaymentPointerDialog = ({
                       {...form.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="create payment pointer" type="submit">
+                      <Button
+                        aria-label="create payment pointer"
+                        type="submit"
+                        loading={isLoading}
+                      >
                         Create
                       </Button>
                       <Button

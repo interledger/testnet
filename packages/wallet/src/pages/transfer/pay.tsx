@@ -9,6 +9,7 @@ import { Select } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
+import { useState } from 'react'
 
 const paySchema = z.object({
   fromAccount: z.string(),
@@ -20,6 +21,7 @@ const paySchema = z.object({
 })
 
 export default function Pay() {
+  const [isLoading, setIsLoading] = useState(false)
   const form = useZodForm({
     schema: paySchema
   })
@@ -31,7 +33,9 @@ export default function Pay() {
         <Form
           form={form}
           onSubmit={(data) => {
+            setIsLoading(true)
             console.log(data)
+            setIsLoading(false)
           }}
         >
           <div className="space-y-1">
@@ -69,7 +73,12 @@ export default function Pay() {
             label="Currency"
           />
           <div className="flex justify-center py-5">
-            <Button aria-label="Pay" type="submit" className="w-24">
+            <Button
+              aria-label="Pay"
+              type="submit"
+              className="w-24"
+              loading={isLoading}
+            >
               Pay
             </Button>
           </div>

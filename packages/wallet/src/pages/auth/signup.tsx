@@ -9,9 +9,11 @@ import { signUpSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { useState } from 'react'
 
 const SignUp = () => {
   const [openDialog, closeDialog] = useDialog()
+  const [isLoading, setIsLoading] = useState(false)
 
   const signUpForm = useZodForm({
     schema: signUpSchema
@@ -25,6 +27,7 @@ const SignUp = () => {
         <Form
           form={signUpForm}
           onSubmit={async (data) => {
+            setIsLoading(true)
             const response = await userService.signUp(data)
 
             if (response.success) {
@@ -46,6 +49,8 @@ const SignUp = () => {
                 )
               }
             }
+            setIsLoading(false)
+            console.log(isLoading)
           }}
         >
           <Input
@@ -74,7 +79,7 @@ const SignUp = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play />
+            <Play loading={isLoading} />
           </button>
         </Form>
       </div>

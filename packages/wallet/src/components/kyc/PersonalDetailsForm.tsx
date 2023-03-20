@@ -13,6 +13,7 @@ import { useKYCFormContext } from './context'
 
 export const PersonalDetailsForm = () => {
   const [openDialog, closeDialog] = useDialog()
+  const [isLoading, setIsLoading] = useState(false)
   const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
 
@@ -41,6 +42,7 @@ export const PersonalDetailsForm = () => {
     <Form
       form={personalDetailsForm}
       onSubmit={async (data) => {
+        setIsLoading(true)
         const response = await userService.createWallet(data)
 
         if (response.success) {
@@ -68,6 +70,7 @@ export const PersonalDetailsForm = () => {
             )
           }
         }
+        setIsLoading(false)
       }}
     >
       {USE_TEST_DATA_KYC && (
@@ -117,7 +120,7 @@ export const PersonalDetailsForm = () => {
         error={personalDetailsForm.formState.errors.zip?.message}
         label="ZIP Code"
       />
-      <Button aria-label="Get Wallet Account" type="submit">
+      <Button aria-label="Get Wallet Account" type="submit" loading={isLoading}>
         Get Wallet Account
       </Button>
     </Form>
