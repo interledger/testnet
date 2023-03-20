@@ -18,7 +18,6 @@ export const VerifyIdentityForm = () => {
   const [openDialog, closeDialog] = useDialog()
   const { idTypes } = useKYCFormContext()
   const [isBackRequired, setIsBackRequired] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const handleFileOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -68,7 +67,6 @@ export const VerifyIdentityForm = () => {
     <Form
       form={verifyIdentityForm}
       onSubmit={async (data) => {
-        setIsLoading(true)
         const response = await userService.verifyIdentity(data)
 
         if (response.success) {
@@ -93,7 +91,6 @@ export const VerifyIdentityForm = () => {
             )
           }
         }
-        setIsLoading(false)
       }}
     >
       {USE_TEST_DATA_KYC && (
