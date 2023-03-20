@@ -3,9 +3,8 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-  return knex.schema.createTable('refreshTokens', function (table) {
+  return knex.schema.createTable('sessions', function (table) {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
-    table.string('token').notNullable()
     table.datetime('expiresAt').notNullable()
 
     table.uuid('userId').notNullable()
@@ -20,5 +19,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTableIfExists('refreshTokens')
+  return knex.schema.dropTableIfExists('sessions')
 }
