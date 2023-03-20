@@ -1,6 +1,6 @@
 import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -20,9 +20,8 @@ export const CreatePaymentPointerDialog = ({
   onClose,
   accountName
 }: CreatePaymentPointerDialogProps) => {
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const form = useZodForm({
+  const createPaymentPointerForm = useZodForm({
     schema: createPaymentPointerSchema
   })
 
@@ -64,9 +63,8 @@ export const CreatePaymentPointerDialog = ({
 
                 <div className="px-4">
                   <Form
-                    form={form}
+                    form={createPaymentPointerForm}
                     onSubmit={async (data) => {
-                      setIsLoading(true)
                       const response = await paymentPointerService.create(
                         accountId,
                         data
@@ -79,19 +77,18 @@ export const CreatePaymentPointerDialog = ({
                         )
                       } else {
                         const { errors, message } = response
-                        form.setError('root', {
+                        createPaymentPointerForm.setError('root', {
                           message
                         })
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            form.setError(field, {
+                            createPaymentPointerForm.setError(field, {
                               message: errors[field]
                             })
                           )
                         }
                       }
-                      setIsLoading(false)
                     }}
                   >
                     <Input value={accountName} label="Account" readOnly />
@@ -100,25 +97,34 @@ export const CreatePaymentPointerDialog = ({
                         required
                         label="Payment Pointer name"
                         error={
-                          form.formState?.errors?.paymentPointerName?.message
+                          createPaymentPointerForm.formState?.errors
+                            ?.paymentPointerName?.message
                         }
-                        {...form.register('paymentPointerName')}
+                        {...createPaymentPointerForm.register(
+                          'paymentPointerName'
+                        )}
                       />
                       <p className="ml-2 text-sm text-green">
-                        $rafiki.money/{form.watch('paymentPointerName')}
+                        $rafiki.money/
+                        {createPaymentPointerForm.watch('paymentPointerName')}
                       </p>
                     </div>
                     <Input
                       required
                       label="Public name"
-                      error={form.formState?.errors?.publicName?.message}
-                      {...form.register('publicName')}
+                      error={
+                        createPaymentPointerForm.formState?.errors?.publicName
+                          ?.message
+                      }
+                      {...createPaymentPointerForm.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
                         aria-label="create payment pointer"
                         type="submit"
-                        loading={isLoading}
+                        loading={
+                          createPaymentPointerForm.formState.isSubmitting
+                        }
                       >
                         Create
                       </Button>

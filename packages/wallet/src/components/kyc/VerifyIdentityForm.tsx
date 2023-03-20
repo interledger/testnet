@@ -248,7 +248,11 @@ export const VerifyIdentityForm = () => {
           )}
         </div>
       </div>
-      <Button aria-label="Verify Account" type="submit" loading={isLoading}>
+      <Button
+        aria-label="Verify Account"
+        type="submit"
+        loading={verifyIdentityForm.formState.isSubmitting}
+      >
         Verify Account
       </Button>
     </Form>

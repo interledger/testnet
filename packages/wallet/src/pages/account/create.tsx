@@ -14,12 +14,10 @@ import type {
 import { accountService, createAccountSchema } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
-import { useState } from 'react'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function CreateAccount({ assets }: CreateAccountProps) {
-  const [isLoading, setIsLoading] = useState(false)
   const [openDialog, closeDialog] = useDialog()
   const form = useZodForm({
     schema: createAccountSchema
@@ -31,7 +29,6 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
       <Form
         form={form}
         onSubmit={async (data) => {
-          setIsLoading(true)
           const response = await accountService.create(data)
 
           if (response.success) {
@@ -55,7 +52,6 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
               )
             }
           }
-          setIsLoading(false)
         }}
         className="mt-10 max-w-lg"
       >
@@ -74,7 +70,11 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           options={assets}
           label="Asset"
         />
-        <Button type="submit" aria-label="create account" loading={isLoading}>
+        <Button
+          type="submit"
+          aria-label="create account"
+          loading={form.formState.isSubmitting}
+        >
           Create account
         </Button>
       </Form>

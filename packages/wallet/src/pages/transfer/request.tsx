@@ -7,7 +7,6 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
-import { useState } from 'react'
 
 const requestSchema = z.object({
   paymentPointer: z.string(),
@@ -18,8 +17,7 @@ const requestSchema = z.object({
 })
 
 export default function Request() {
-  const [isLoading, setIsLoading] = useState(false)
-  const form = useZodForm({
+  const requestForm = useZodForm({
     schema: requestSchema
   })
 
@@ -28,32 +26,30 @@ export default function Request() {
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="turqoise" balance="$15.000" />
         <Form
-          form={form}
+          form={requestForm}
           onSubmit={(data) => {
-            setIsLoading(true)
             console.log(data)
-            setIsLoading(false)
           }}
         >
           <div className="space-y-1">
             <Badge size="fixed" text="to" />
             <Input
               required
-              {...form.register('paymentPointer')}
-              error={form.formState.errors.paymentPointer?.message}
+              {...requestForm.register('paymentPointer')}
+              error={requestForm.formState.errors.paymentPointer?.message}
               label="Payment pointer"
             />
           </div>
           <Input
             required
-            {...form.register('amount')}
-            error={form.formState.errors.amount?.message}
+            {...requestForm.register('amount')}
+            error={requestForm.formState.errors.amount?.message}
             label="Amount"
           />
           <Input
             required
-            {...form.register('currency')}
-            error={form.formState.errors.currency?.message}
+            {...requestForm.register('currency')}
+            error={requestForm.formState.errors.currency?.message}
             label="Currency"
           />
           <div className="flex justify-center py-5">
@@ -61,7 +57,7 @@ export default function Request() {
               aria-label="Pay"
               type="submit"
               className="w-24"
-              loading={isLoading}
+              loading={requestForm.formState.isSubmitting}
             >
               Request
             </Button>

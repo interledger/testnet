@@ -9,7 +9,6 @@ import { Select } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
-import { useState } from 'react'
 
 const sendSchema = z.object({
   fromAccount: z.string(),
@@ -21,8 +20,7 @@ const sendSchema = z.object({
 })
 
 export default function Send() {
-  const [isLoading, setIsLoading] = useState(false)
-  const form = useZodForm({
+  const sendForm = useZodForm({
     schema: sendSchema
   })
 
@@ -31,19 +29,17 @@ export default function Send() {
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="violet" balance="$10.000" />
         <Form
-          form={form}
+          form={sendForm}
           onSubmit={(data) => {
-            setIsLoading(true)
             console.log(data)
-            setIsLoading(false)
           }}
         >
           <div className="space-y-1">
             <Badge size="fixed" text="from" />
             <Select
               name="fromAccount"
-              setValue={form.setValue}
-              error={form.formState.errors.fromAccount?.message}
+              setValue={sendForm.setValue}
+              error={sendForm.formState.errors.fromAccount?.message}
               options={[]}
               label="Account"
             />
@@ -52,8 +48,8 @@ export default function Send() {
             <Badge size="fixed" text="to" />
             <Input
               required
-              {...form.register('toPaymentPointer')}
-              error={form.formState.errors.toPaymentPointer?.message}
+              {...sendForm.register('toPaymentPointer')}
+              error={sendForm.formState.errors.toPaymentPointer?.message}
               label="Payment pointer"
             />
           </div>
@@ -61,15 +57,15 @@ export default function Send() {
             <TogglePayment type="violet" />
             <Input
               required
-              {...form.register('amount')}
-              error={form.formState.errors.amount?.message}
+              {...sendForm.register('amount')}
+              error={sendForm.formState.errors.amount?.message}
               label="Amount"
             />
           </div>
           <Input
             required
-            {...form.register('currency')}
-            error={form.formState.errors.currency?.message}
+            {...sendForm.register('currency')}
+            error={sendForm.formState.errors.currency?.message}
             label="Currency"
           />
           <div className="flex justify-center py-5">
@@ -77,7 +73,7 @@ export default function Send() {
               aria-label="Pay"
               type="submit"
               className="w-24"
-              loading={isLoading}
+              loading={sendForm.formState.isSubmitting}
             >
               Send
             </Button>

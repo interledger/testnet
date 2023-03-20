@@ -1,6 +1,6 @@
 import type { DialogProps } from '@/lib/types/dialog'
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
 import { Account, accountService, fundAccountSchema } from '@/lib/api/account'
@@ -21,7 +21,6 @@ export const FundAccountDialog = ({
 }: FundAccountDialogProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
-  const [isLoading, setIsLoading] = useState(false)
   const fundAccountForm = useZodForm({
     schema: fundAccountSchema
   })
@@ -62,7 +61,6 @@ export const FundAccountDialog = ({
                   <Form
                     form={fundAccountForm}
                     onSubmit={async (data) => {
-                      setIsLoading(true)
                       const response = await accountService.fund(data)
 
                       if (!response) {
@@ -72,7 +70,6 @@ export const FundAccountDialog = ({
                             content="Fund Account failed. Please try again"
                           />
                         )
-                        setIsLoading(false)
                         return
                       }
 
@@ -93,7 +90,6 @@ export const FundAccountDialog = ({
                           fundAccountForm.setError('root', { message })
                         }
                       }
-                      setIsLoading(false)
                     }}
                   >
                     <Input
@@ -134,7 +130,7 @@ export const FundAccountDialog = ({
                       <Button
                         aria-label="fund account"
                         type="submit"
-                        loading={isLoading}
+                        loading={fundAccountForm.formState.isSubmitting}
                       >
                         Fund
                       </Button>
