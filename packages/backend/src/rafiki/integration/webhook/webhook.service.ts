@@ -1,12 +1,11 @@
-import { knex } from '../../..'
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
 
 import {
   rapydDepositLiquidity,
   rapydWithdrawLiquidity
 } from '../../../rapyd/wallet'
-import { InternalServerError } from '../../../shared/models/errors/InternalServerError'
 import logger from '../../../utils/logger'
+import { PaymentPointerModel } from '../../../payment-pointer/payment-pointer.model'
 import {
   depositLiquidity,
   withdrawLiqudity
@@ -41,47 +40,41 @@ export interface Amount {
 const log = logger('WebHookService')
 
 export class WebHookService {
-  async onWebHook(wh: WebHook) {
+  async onWebHook(wh: WebHook): Promise<boolean> {
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
-        await this.handleOutgoingPaymentCreated(wh)
-        break
+        return this.handleOutgoingPaymentCreated(wh)
       case EventType.OutgoingPaymentCompleted:
-        await this.handleOutgoingPaymentCompleted(wh)
-        break
+        return this.handleOutgoingPaymentCompleted(wh)
       case EventType.OutgoingPaymentFailed:
-        await this.handleOutgoingPaymentCompletedFailed(wh)
-        break
+        return this.handleOutgoingPaymentCompletedFailed(wh)
       case EventType.IncomingPaymentCompleted:
-        await this.handleIncomingPaymentCompleted(wh)
-        break
+        return this.handleIncomingPaymentCompleted(wh)
       case EventType.IncomingPaymentExpired:
-        await this.handleIncomingPaymentCompletedExpired(wh)
-        break
+        return this.handleIncomingPaymentCompletedExpired(wh)
       default:
         throw new BadRequestException(`unknown event type, ${wh.type}`)
     }
   }
 
   private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ppId = wh.data['paymentPointerId'] as string
+    const ppId = wh.data.paymentPointerId as string
 
-    try {
-      const query = `select "users"."rapydEWalletId" from "users" inner join "accounts" on "accounts"."userId"::uuid = "users"."id" inner join "paymentPointers" as "accounts:paymentPointers" on "accounts:paymentPointers"."accountId" = "accounts"."id" where "accounts:paymentPointers"."id" = '${ppId}'`
-      const response = await knex.raw(query)
-
-      const rapydEWalletId = response?.rows?.[0]?.rapydEWalletId
-
-      if (!rapydEWalletId) {
-        throw new BadRequestException('Invalid input')
-      }
-
-      return rapydEWalletId
-    } catch (e) {
-      log.error(e)
-      throw new InternalServerError()
+    const pp = await PaymentPointerModel.query()
+      .findById(ppId)
+      .withGraphFetched('account.user')
+    if (!pp) {
+      throw new BadRequestException('Invalid payment pointer')
     }
+
+    const user = pp.account.user
+    if (!user || !user.rapydEWalletId) {
+      throw new BadRequestException(
+        'No user associated to the provided payment pointer'
+      )
+    }
+
+    return user.rapydEWalletId
   }
 
   private parseAmount(amount: AmountJSON): Amount {
@@ -96,11 +89,9 @@ export class WebHookService {
     let amount
     if (wh.type === EventType.OutgoingPaymentCompleted) {
       const amtSend = this.parseAmount(wh.data.sendAmount as AmountJSON)
-
       //* maybe store this as transaction data
       // const amtSent = this.parseAmount(payment['sentAmount'])
       // const fee = amtSend.value - amtSent.value
-
       amount = amtSend
     }
 
@@ -134,12 +125,13 @@ export class WebHookService {
         result.status.message ||
           `Unable to deposit into wallet: ${rapydWalletId}`
       )
-      return
+      return false
     }
 
     await depositLiquidity(wh.id)
 
     log.info(`Succesfully deposited ${amount} into ${rapydWalletId}`)
+    return true
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
@@ -157,18 +149,19 @@ export class WebHookService {
         result.status.message ||
           `Unable to withdraw from wallet: ${rapydWalletId}`
       )
-      return
+      throw new BadRequestException('Unable to withdraw from wallet')
     }
 
     await withdrawLiqudity(wh.id)
     log.info(`Succesfully withdrew ${amount} from ${rapydWalletId}`)
+    return true
   }
 
   private async handleOutgoingPaymentCreated(wh: WebHook) {
     //* TODO: handleOutgoingPaymentCreated
     log.info(wh)
 
-    return
+    return true
   }
 
   async handleOutgoingPaymentCompletedFailed(wh: WebHook) {
@@ -177,13 +170,13 @@ export class WebHookService {
 
     // TODO: withdraw remaining liquidity
 
-    return
+    return true
   }
 
   handleIncomingPaymentCompletedExpired(wh: WebHook) {
     //* TODO: handleIncomingPaymentCompletedExpired
     log.info(wh)
 
-    return
+    return true
   }
 }

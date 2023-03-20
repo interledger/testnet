@@ -6,6 +6,7 @@ import {
   WithdrawLiquidityMutationVariables
 } from '../generated/graphql'
 import { graphqlClient } from '../graphqlClient'
+import { BadRequestException } from '../../shared/models/errors/BadRequestException'
 
 const withdrawLiquidityMutation = gql`
   mutation WithdrawLiquidityMutation($eventId: String!) {
@@ -38,8 +39,9 @@ export async function withdrawLiqudity(eventId: string) {
   })
 
   if (!response.withdrawEventLiquidity?.success) {
-    throw new Error(
-      response.withdrawEventLiquidity?.message || 'Unable to withdrawLiquidity'
+    throw new BadRequestException(
+      response.withdrawEventLiquidity?.message ||
+        'Unable to withdrawLiquidity from rafiki'
     )
   }
 
@@ -55,8 +57,9 @@ export async function depositLiquidity(eventId: string) {
   })
 
   if (!response.depositEventLiquidity?.success) {
-    throw new Error(
-      response.depositEventLiquidity?.message || 'Unable to withdrawLiquidity'
+    throw new BadRequestException(
+      response.depositEventLiquidity?.message ||
+        'Unable to withdrawLiquidity from rafiki'
     )
   }
 

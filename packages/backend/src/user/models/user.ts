@@ -17,7 +17,7 @@ export class User extends Model {
   rapydEWalletId?: string
   rapydContactId?: string
   refreshTokens?: Array<RefreshToken>
-  account?: Account
+  accounts?: Array<Account>
 
   async $beforeInsert() {
     this.password = await bcryptjs.hash(this.password, 10)
