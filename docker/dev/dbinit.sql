@@ -5,3 +5,5 @@ ALTER DATABASE backend OWNER TO backend;
 CREATE USER auth WITH PASSWORD 'auth';
 CREATE DATABASE auth;
 ALTER DATABASE auth OWNER TO auth;
+
+CREATE DATABASE "testnet-backend-update";

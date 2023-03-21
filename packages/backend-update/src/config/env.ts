@@ -3,11 +3,16 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.string().default('development'),
-  DB_URL: z.string().default('postgres://postgres:password@postgres/testnet'),
-  JWT_ACCESS_TOKEN_SECRET: z.string().default('AT_SECRET'),
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.number().default(2630000),
-  JWT_REFRESH_TOKEN_SECRET: z.string().default('RT_SECRET'),
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.coerce.number().default(2630000),
+  DATABASE_URL: z
+    .string()
+    .default(
+      'postgres://postgres:password@localhost:5433/testnet-backend-update'
+    ),
+  COOKIE_NAME: z.string().default('testnet.cookie'),
+  COOKIE_PASSWORD: z
+    .string()
+    .default('testnet.cookie.password.super.secret.ilp'), // min. 32 chars
+  COOKIE_TTL: z.coerce.number().default(2630000), // 1 month
   RAPYD_API: z.string().default('https://sandboxapi.rapyd.net/v1'),
   RAPYD_ACCESS_KEY: z.string().default('RAPYD_ACCESS_KEY'),
   RAPYD_SECRET_KEY: z.string().default('RAPYD_SECRET_KEY'),

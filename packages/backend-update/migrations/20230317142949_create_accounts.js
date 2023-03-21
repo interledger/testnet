@@ -7,7 +7,7 @@ exports.up = function (knex) {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.string('name').notNullable()
 
-    table.uuid('user_id').notNullable()
+    table.uuid('userId').notNullable()
     table.foreign('userId').references('users.id').onDelete('CASCADE')
 
     table.string('assetId').notNullable()

@@ -4,7 +4,7 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('users', (table) => {
-    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid'))
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.string('email').notNullable()
     table.string('password').notNullable()
 
@@ -15,6 +15,7 @@ exports.up = function (knex) {
     table.string('rapydReferenceId')
     table.string('rapydWalletId')
     table.string('rapydContactId')
+    table.string('kycId')
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

@@ -3,6 +3,7 @@
   "testEnvironment": "node",
   "globalSetup": "./jest.setup.js",
   "globalTeardown": "./jest.teardown.js",
+  "modulePathIgnorePatterns": ["<rootDir>/dist/"],
   "moduleNameMapper": {
     "@/(.*)": "<rootDir>/src/$1"
   }
