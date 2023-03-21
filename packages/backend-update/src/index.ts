@@ -1,7 +1,6 @@
 import knex from 'knex'
 import { App, Bindings } from './app'
 import { AuthController } from './auth/controller'
-import { AuthRouter } from './auth/router'
 import { AuthService } from './auth/service'
 import { Env, env } from './config/env'
 import { logger } from './config/logger'
@@ -37,19 +36,15 @@ export const createContainer = (config: Env): Container<Bindings> => {
 
   // Authenication Modules
   container.register('authService', async () => {
+    const env = await container.resolve('env')
     const userService = await container.resolve('userService')
-    return new AuthService(userService)
+    return new AuthService(userService, env)
   })
   container.register('authController', async () => {
-    const env = await container.resolve('env')
     const logger = await container.resolve('logger')
     const authService = await container.resolve('authService')
 
-    return new AuthController(authService, env, logger)
-  })
-  container.register('authRouter', async () => {
-    const authController = await container.resolve('authController')
-    return new AuthRouter(authController)
+    return new AuthController(authService, logger)
   })
 
   return container
@@ -60,7 +55,6 @@ const app = new App(container)
 
 export const start = async (app: App): Promise<void> => {
   await app.startServer()
-  console.info(`Server listening on port ${app.getPort()}`)
 }
 
 if (!module.parent) {

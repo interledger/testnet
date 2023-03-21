@@ -1,26 +1,8 @@
-import { existsSync, mkdirSync } from 'fs'
-import path from 'path'
 import { createLogger, format, transports } from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file'
 import { env } from './env'
 
-const logDirectory = path.join(__dirname, '../../logs')
-
-if (!existsSync(logDirectory)) {
-  mkdirSync(logDirectory)
-}
-
-const dailyRotateTransport = new DailyRotateFile({
-  level: 'debug',
-  dirname: logDirectory,
-  filename: '%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
-  zippedArchive: true,
-  maxSize: '20m',
-  maxFiles: '14d'
-})
-
 export const logger = createLogger({
+  silent: env.NODE_ENV === 'test',
   format: format.combine(
     format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
@@ -35,7 +17,6 @@ export const logger = createLogger({
   transports: [
     new transports.Console({
       level: env.NODE_ENV === 'development' ? 'debug' : 'info'
-    }),
-    dailyRotateTransport
+    })
   ]
 })

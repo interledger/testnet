@@ -1,5 +1,6 @@
 {
   "preset": "ts-jest",
+  "clearMocks": true,
   "testEnvironment": "node",
   "globalSetup": "./jest.setup.js",
   "globalTeardown": "./jest.teardown.js",

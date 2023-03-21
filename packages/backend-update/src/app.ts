@@ -1,22 +1,21 @@
 import express, {
+  Router,
   type Express,
   type NextFunction,
-  type Request,
-  type Response
+  type Request
 } from 'express'
 import { Server } from 'http'
 import helmet from 'helmet'
 import type { Knex } from 'knex'
 import type { Logger } from 'winston'
 import type { AuthController } from './auth/controller'
-import type { AuthRouter } from './auth/router'
 import type { AuthService } from './auth/service'
 import type { Env } from './config/env'
 import type { UserService } from './user/service'
 import { Container } from './container'
 import { Model } from 'objection'
 import { withSession } from './middleware/withSession'
-import { BaseError } from './errors/Base'
+import { errorHandler } from './middleware/errorHandler'
 
 export interface Bindings {
   env: Env
@@ -25,7 +24,6 @@ export interface Bindings {
   userService: UserService
   authService: AuthService
   authController: AuthController
-  authRouter: AuthRouter
 }
 
 export class App {
@@ -36,6 +34,7 @@ export class App {
   public async startServer(): Promise<void> {
     const express = await this.init()
     const env = await this.container.resolve('env')
+    const logger = await this.container.resolve('logger')
     const knex = await this.container.resolve('knex')
 
     await knex.migrate.latest({
@@ -44,6 +43,7 @@ export class App {
     Model.knex(knex)
 
     this.server = express.listen(env.PORT)
+    logger.info(`Server started on port ${env.PORT}`)
   }
 
   public stop = async (): Promise<void> => {
@@ -60,26 +60,42 @@ export class App {
 
   private async init(): Promise<Express> {
     const app = express()
+    const router = Router()
 
     const env = await this.container.resolve('env')
-    const logger = await this.container.resolve('logger')
-    const authRouter = await this.container.resolve('authRouter')
+    const authController = await this.container.resolve('authController')
 
     app.use(helmet())
-
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
 
-    app.use('/auth', authRouter.router)
-    app.get('/', (_req: Request, res: Response) => {
-      res.json({
+    // Only allow JSON
+    router.use('*', (req: Request, res: CustomResponse, next: NextFunction) => {
+      if (req.is('application/json')) {
+        next()
+      } else {
+        res.status(415).json({
+          success: false,
+          message: "Only 'application/json' content type is supported"
+        })
+      }
+    })
+
+    // Test route
+    router.get('/', (_req: Request, res: CustomResponse) => {
+      res.send({
         id: _req.session.id,
         user: _req.session.user
       })
     })
 
-    app.use('*', (req: Request, res: Response) => {
+    // Auth Routes
+    router.post('/auth/sign-up', authController.signUp)
+    router.post('/auth/log-in', authController.logIn)
+
+    // Return an error for invalid routes
+    router.use('*', (req: Request, res: CustomResponse) => {
       const e = Error(`Requested path ${req.path} was not found`)
 
       res.status(404).send({
@@ -89,20 +105,10 @@ export class App {
       })
     })
 
-    app.use((e: Error, _req: Request, res: Response, _next: NextFunction) => {
-      if (e instanceof BaseError) {
-        res.status(e.statusCode).json({
-          success: e.success,
-          message: e.message,
-          errors: e.errors
-        })
-      } else {
-        logger.error(e)
-        res
-          .status(500)
-          .json({ success: false, message: 'Internal Server Error' })
-      }
-    })
+    // Global error handler
+    router.use(errorHandler)
+
+    app.use(router)
 
     return app
   }
