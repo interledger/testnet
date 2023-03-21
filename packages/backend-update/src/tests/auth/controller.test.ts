@@ -137,7 +137,7 @@ describe('Authentication Controller', (): void => {
         }
       })
 
-      await authService.createUser(args)
+      const user = await authService.createUser(args)
       await applyMiddleware(withSession, request, response)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
 
@@ -145,6 +145,13 @@ describe('Authentication Controller', (): void => {
 
       expect(authorizeSpy).toHaveBeenCalledWith(args)
       expect(nextFunction).toHaveBeenCalledTimes(0)
+      expect(request.session.id).toBeDefined()
+      expect(request.session.user).toMatchObject({
+        id: user.id,
+        email: user.email,
+        needsWallet: !user.rapydWalletId,
+        needsIDProof: !user.kycId
+      })
       expect(response.statusCode).toBe(200)
       expect(response._getJSONData()).toMatchObject({
         success: true,

@@ -41,19 +41,18 @@ export class AuthController implements IAuthController {
     try {
       const { email, password } = await validate(logInSchema, req)
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      await this.authService.authorize({
+      const { user, session } = await this.authService.authorize({
         email,
         password
       })
 
-      // req.session.id = session.id
-      // req.session.user = {
-      //   id: user.id,
-      //   email: user.email,
-      //   needsWallet: !user.rapydWalletId,
-      //   needsIDProof: !user.kycId
-      // }
+      req.session.id = session.id
+      req.session.user = {
+        id: user.id,
+        email: user.email,
+        needsWallet: !user.rapydWalletId,
+        needsIDProof: !user.kycId
+      }
 
       await req.session.save()
 
