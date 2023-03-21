@@ -1,22 +1,18 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { Button } from '@/ui/Button'
-import { z } from 'zod'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
-
-const requestSchema = z.object({
-  paymentPointer: z.string(),
-  amount: z.coerce.number({
-    invalid_type_error: 'Please enter a valid amount'
-  }),
-  currency: z.string()
-})
+import { useDialog } from '@/lib/hooks/useDialog'
+import { requestSchema, transfersService } from '@/lib/api/transfers'
+import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
+import { getObjectKeys } from '@/utils/helpers'
 
 export default function Request() {
+  const [openDialog, closeDialog] = useDialog()
   const requestForm = useZodForm({
     schema: requestSchema
   })
@@ -27,8 +23,29 @@ export default function Request() {
         <TransferHeader type="turqoise" balance="$15.000" />
         <Form
           form={requestForm}
-          onSubmit={(data) => {
-            console.log(data)
+          onSubmit={async (data) => {
+            const response = await transfersService.request(data)
+
+            if (response.success) {
+              openDialog(
+                <SuccessDialog
+                  onClose={closeDialog}
+                  title="Funds requested."
+                  content="Funds were successfully requested."
+                  redirect={`/`}
+                  redirectText="Go to your accounts"
+                />
+              )
+            } else {
+              const { errors, message } = response
+              requestForm.setError('root', { message })
+
+              if (errors) {
+                getObjectKeys(errors).map((field) =>
+                  requestForm.setError(field, { message: errors[field] })
+                )
+              }
+            }
           }}
         >
           <div className="space-y-1">
@@ -45,12 +62,6 @@ export default function Request() {
             {...requestForm.register('amount')}
             error={requestForm.formState.errors.amount?.message}
             label="Amount"
-          />
-          <Input
-            required
-            {...requestForm.register('currency')}
-            error={requestForm.formState.errors.currency?.message}
-            label="Currency"
           />
           <div className="flex justify-center py-5">
             <Button

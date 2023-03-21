@@ -1,25 +1,24 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { Button } from '@/ui/Button'
-import { z } from 'zod'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { Select } from '@/ui/forms/Select'
+import { Select, SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { accountService } from '@/lib/api/account'
+import { sendSchema, transfersService } from '@/lib/api/transfers'
+import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
+import { getObjectKeys } from '@/utils/helpers'
+import { useDialog } from '@/lib/hooks/useDialog'
 
-const sendSchema = z.object({
-  fromAccount: z.string(),
-  toPaymentPointer: z.string(),
-  amount: z.coerce.number({
-    invalid_type_error: 'Please enter a valid amount'
-  }),
-  currency: z.string()
-})
+type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Send() {
+export default function Send({ accounts }: SendProps) {
+  const [openDialog, closeDialog] = useDialog()
   const sendForm = useZodForm({
     schema: sendSchema
   })
@@ -30,17 +29,38 @@ export default function Send() {
         <TransferHeader type="violet" balance="$10.000" />
         <Form
           form={sendForm}
-          onSubmit={(data) => {
-            console.log(data)
+          onSubmit={async (data) => {
+            const response = await transfersService.send(data)
+
+            if (response.success) {
+              openDialog(
+                <SuccessDialog
+                  onClose={closeDialog}
+                  title="Funds sent."
+                  content="Funds were successfully sent."
+                  redirect={`/`}
+                  redirectText="Go to your accounts"
+                />
+              )
+            } else {
+              const { errors, message } = response
+              sendForm.setError('root', { message })
+
+              if (errors) {
+                getObjectKeys(errors).map((field) =>
+                  sendForm.setError(field, { message: errors[field] })
+                )
+              }
+            }
           }}
         >
           <div className="space-y-1">
             <Badge size="fixed" text="from" />
             <Select
-              name="fromAccount"
+              name="accountId"
               setValue={sendForm.setValue}
-              error={sendForm.formState.errors.fromAccount?.message}
-              options={[]}
+              error={sendForm.formState.errors.accountId?.message}
+              options={accounts}
               label="Account"
             />
           </div>
@@ -62,12 +82,6 @@ export default function Send() {
               label="Amount"
             />
           </div>
-          <Input
-            required
-            {...sendForm.register('currency')}
-            error={sendForm.formState.errors.currency?.message}
-            label="Currency"
-          />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"
@@ -98,4 +112,35 @@ export default function Send() {
       />
     </AppLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<{
+  accounts: SelectOption[]
+}> = async (ctx) => {
+  const [accountsResponse] = await Promise.all([
+    accountService.list(ctx.req.headers.cookie)
+  ])
+
+  if (!accountsResponse.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  if (!accountsResponse.data) {
+    return {
+      notFound: true
+    }
+  }
+
+  const accounts = accountsResponse.data.map((account) => ({
+    name: `${account.name} (${account.assetCode})`,
+    value: account.id
+  }))
+
+  return {
+    props: {
+      accounts
+    }
+  }
 }
