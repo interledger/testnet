@@ -5,6 +5,7 @@ import {
   type PersonalDetailsProps
 } from '@/components/settings/PersonalSettingsForm'
 import { SettingsTabs } from '@/components/SettingsTabs'
+import { userService } from '@/lib/api/user'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
@@ -40,14 +41,29 @@ export default function AccountSettings({
 
 export const getServerSideProps: GetServerSideProps<{
   personalDetails: PersonalDetailsProps
-}> = async (_ctx) => {
+}> = async (ctx) => {
+  console.log('here I am')
+  const result = await userService.me(ctx.req.headers.cookie)
+
+  if (!result.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  if (!result.data) {
+    return {
+      notFound: true
+    }
+  }
+
   return {
     props: {
       personalDetails: {
-        firstName: 'John',
-        lastName: 'Doe',
-        address: 'Edmond Street 5, 10555, London, United Kingdom',
-        email: 'john@doe.com'
+        firstName: result.data.firstName,
+        lastName: result.data.lastName,
+        address: result.data.address,
+        email: result.data.email
       }
     }
   }
