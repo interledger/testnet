@@ -16,6 +16,7 @@ import { Container } from './container'
 import { Model } from 'objection'
 import { withSession } from './middleware/withSession'
 import { errorHandler } from './middleware/errorHandler'
+import { isAuth } from './middleware/isAuth'
 
 export interface Bindings {
   env: Env
@@ -58,6 +59,7 @@ export class App {
     return 0
   }
 
+  // TODO: Rate limiting
   private async init(): Promise<Express> {
     const app = express()
     const router = Router()
@@ -82,14 +84,6 @@ export class App {
       }
     })
 
-    // Test route
-    router.get('/', (_req: Request, res: CustomResponse) => {
-      res.send({
-        id: _req.session.id,
-        user: _req.session.user
-      })
-    })
-
     // Auth Routes
     router.post('/auth/sign-up', authController.signUp)
     router.post('/auth/log-in', authController.logIn)
@@ -100,7 +94,7 @@ export class App {
 
       res.status(404).send({
         success: false,
-        message: e.name,
+        message: e.message,
         stack: env.NODE_ENV === 'development' ? e.stack : undefined
       })
     })
