@@ -16,7 +16,6 @@ import { Container } from './container'
 import { Model } from 'objection'
 import { withSession } from './middleware/withSession'
 import { errorHandler } from './middleware/errorHandler'
-import { isAuth } from './middleware/isAuth'
 
 export interface Bindings {
   env: Env

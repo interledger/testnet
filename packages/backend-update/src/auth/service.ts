@@ -38,12 +38,12 @@ export class AuthService implements IAuthService {
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
     const user = await User.query().findOne({ email: args.email })
 
+    // TODO: Prevent timing attacks
     if (!user) {
       throw new Unauthorized('Invalid credentials')
     }
 
     const isValid = await user.verifyPassword(args.password)
-
     if (!isValid) {
       throw new Unauthorized('Invalid credentials')
     }
