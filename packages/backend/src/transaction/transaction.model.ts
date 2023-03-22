@@ -9,8 +9,8 @@ export class TransactionModel extends Model {
   paymentPointerId!: string
   assetCode!: string
   value!: number
-  type!: 'INCOMING'| 'OUTGOING'
-  status!: 'PENDING'| 'COMPLETED'| 'REJECTED'
+  type!: 'INCOMING' | 'OUTGOING'
+  status!: 'PENDING' | 'COMPLETED' | 'REJECTED'
 
   static relationMappings = () => ({
     user: {

@@ -1,6 +1,10 @@
 import express from 'express'
 import passport from 'passport'
-import { getById as getAssetById, list as listAsset, create } from './asset.service'
+import {
+  getById as getAssetById,
+  list as listAsset,
+  create
+} from './asset.service'
 
 export const assetRouter = express.Router()
 

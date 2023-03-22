@@ -1,13 +1,10 @@
 import { gql } from 'graphql-request'
 import env from '../../config/env'
 import type {
-  CreatePaymentPointerKeyMutationVariables,
   CreatePaymentPointerMutation,
-  CreatePaymentPointerMutationVariables, JwkInput
+  CreatePaymentPointerMutationVariables
 } from '../generated/graphql'
 import { graphqlClient } from '../graphqlClient'
-import {CreatePaymentPointerKeyMutation} from "../generated/graphql";
-import {JWK} from "http-signature-utils";
 
 const createPaymentPointerMutation = gql`
   mutation CreatePaymentPointerMutation($input: CreatePaymentPointerInput!) {
@@ -48,35 +45,4 @@ export async function createRafikiPaymentPointer(
   }
 
   return response.createPaymentPointer.paymentPointer
-}
-
-const createPaymentPointerKeyMutation = gql`
-  mutation CreatePaymentPointerKey($input: CreatePaymentPointerKeyInput!) {
-    createPaymentPointerKey(input: $input) {
-      code
-      success
-      message
-    }
-  }
-`
-
-export async function createPaymentPointerKey(
-  paymentPointerId: string,
-  jwk: JWK,
-) {
-  const response = await graphqlClient.request<
-      CreatePaymentPointerKeyMutation,
-    CreatePaymentPointerKeyMutationVariables
-  >(createPaymentPointerKeyMutation, {
-    input: {
-      paymentPointerId,
-      jwk: jwk as JwkInput,
-    }
-  })
-
-  if (!response.createPaymentPointerKey.success) {
-    throw new Error(response.createPaymentPointerKey.message)
-  }
-
-  return response.createPaymentPointerKey;
 }

@@ -1,6 +1,6 @@
 import express from 'express'
 import passport from 'passport'
-import {listTransactions} from "./transaction.service";
+import { listTransactions } from './transaction.service'
 
 export const transactionsRouter = express.Router()
 

@@ -39,10 +39,6 @@ services:
       OPEN_PAYMENTS_HOST: https://backend:80
       GRAPHQL_ENDPOINT: http://backend:3001/graphql
       AUTH_SERVER_GRANT_URL: http://auth:3007
-      SIGNATURE_URL: http://signatures:3000
-      KEY_FILE: /workspace/private-key.pem
-    volumes:
-      - ./private-key.pem:/workspace/private-key.pem
     restart: always
     networks:
       - testnet
@@ -71,19 +67,6 @@ services:
     depends_on:
       - tigerbeetle
       - postgres
-  signatures:
-    build:
-      context: ../../rafiki
-      dockerfile: ./packages/http-signature-utils/Dockerfile
-    restart: always
-    ports:
-      - '3045:3000'
-    environment:
-      KEY_FILE: /workspace/private-key.pem
-    volumes:
-      - ./private-key.pem:/workspace/private-key.pem
-    networks:
-      - testnet
   backend:
     image: ghcr.io/interledger/rafiki-backend:latest
     build:

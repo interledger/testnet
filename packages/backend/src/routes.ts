@@ -7,9 +7,9 @@ import { createWallet, verifyIdentity } from './wallet/wallet.service'
 import { assetRouter } from './asset/asset.route'
 import { paymentPointerRouter } from './payment-pointer/payment-pointer.route'
 import { accountRouter } from './account/account.route'
-import {incomingPaymentRouter} from "./incoming-payment/incoming-payment.route";
-import {outgoingPaymentRouter} from "./outgoing-payment/outgoing-payment.route";
-import {transactionsRouter} from "./transaction/transaction.route";
+import { incomingPaymentRouter } from './incoming-payment/incoming-payment.route'
+import { outgoingPaymentRouter } from './outgoing-payment/outgoing-payment.route'
+import { transactionsRouter } from './transaction/transaction.route'
 
 export const mainRouter = express.Router()
 
