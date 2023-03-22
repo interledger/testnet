@@ -2,8 +2,8 @@
   "preset": "ts-jest",
   "clearMocks": true,
   "testEnvironment": "node",
-  "setupFiles": ["./jest.setup.js"],
-  "globalTeardown": "./jest.teardown.js",
+  "setupFiles": ["<rootDir>/jest.setup.js"],
+  "globalTeardown": "<rootDir>/jest.teardown.js",
   "modulePathIgnorePatterns": ["<rootDir>/dist/"],
   "moduleNameMapper": {
     "@/(.*)": "<rootDir>/src/$1"
