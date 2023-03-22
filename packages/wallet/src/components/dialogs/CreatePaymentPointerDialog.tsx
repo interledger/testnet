@@ -21,7 +21,7 @@ export const CreatePaymentPointerDialog = ({
   accountName
 }: CreatePaymentPointerDialogProps) => {
   const router = useRouter()
-  const form = useZodForm({
+  const createPaymentPointerForm = useZodForm({
     schema: createPaymentPointerSchema
   })
 
@@ -63,7 +63,7 @@ export const CreatePaymentPointerDialog = ({
 
                 <div className="px-4">
                   <Form
-                    form={form}
+                    form={createPaymentPointerForm}
                     onSubmit={async (data) => {
                       const response = await paymentPointerService.create(
                         accountId,
@@ -77,13 +77,13 @@ export const CreatePaymentPointerDialog = ({
                         )
                       } else {
                         const { errors, message } = response
-                        form.setError('root', {
+                        createPaymentPointerForm.setError('root', {
                           message
                         })
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            form.setError(field, {
+                            createPaymentPointerForm.setError(field, {
                               message: errors[field]
                             })
                           )
@@ -97,22 +97,35 @@ export const CreatePaymentPointerDialog = ({
                         required
                         label="Payment Pointer name"
                         error={
-                          form.formState?.errors?.paymentPointerName?.message
+                          createPaymentPointerForm.formState?.errors
+                            ?.paymentPointerName?.message
                         }
-                        {...form.register('paymentPointerName')}
+                        {...createPaymentPointerForm.register(
+                          'paymentPointerName'
+                        )}
                       />
                       <p className="ml-2 text-sm text-green">
-                        $rafiki.money/{form.watch('paymentPointerName')}
+                        $rafiki.money/
+                        {createPaymentPointerForm.watch('paymentPointerName')}
                       </p>
                     </div>
                     <Input
                       required
                       label="Public name"
-                      error={form.formState?.errors?.publicName?.message}
-                      {...form.register('publicName')}
+                      error={
+                        createPaymentPointerForm.formState?.errors?.publicName
+                          ?.message
+                      }
+                      {...createPaymentPointerForm.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="create payment pointer" type="submit">
+                      <Button
+                        aria-label="create payment pointer"
+                        type="submit"
+                        loading={
+                          createPaymentPointerForm.formState.isSubmitting
+                        }
+                      >
                         Create
                       </Button>
                       <Button

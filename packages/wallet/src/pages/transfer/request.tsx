@@ -17,7 +17,7 @@ const requestSchema = z.object({
 })
 
 export default function Request() {
-  const form = useZodForm({
+  const requestForm = useZodForm({
     schema: requestSchema
   })
 
@@ -26,7 +26,7 @@ export default function Request() {
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="turqoise" balance="$15.000" />
         <Form
-          form={form}
+          form={requestForm}
           onSubmit={(data) => {
             console.log(data)
           }}
@@ -35,25 +35,30 @@ export default function Request() {
             <Badge size="fixed" text="to" />
             <Input
               required
-              {...form.register('paymentPointer')}
-              error={form.formState.errors.paymentPointer?.message}
+              {...requestForm.register('paymentPointer')}
+              error={requestForm.formState.errors.paymentPointer?.message}
               label="Payment pointer"
             />
           </div>
           <Input
             required
-            {...form.register('amount')}
-            error={form.formState.errors.amount?.message}
+            {...requestForm.register('amount')}
+            error={requestForm.formState.errors.amount?.message}
             label="Amount"
           />
           <Input
             required
-            {...form.register('currency')}
-            error={form.formState.errors.currency?.message}
+            {...requestForm.register('currency')}
+            error={requestForm.formState.errors.currency?.message}
             label="Currency"
           />
           <div className="flex justify-center py-5">
-            <Button aria-label="Pay" type="submit" className="w-24">
+            <Button
+              aria-label="Pay"
+              type="submit"
+              className="w-24"
+              loading={requestForm.formState.isSubmitting}
+            >
               Request
             </Button>
           </div>

@@ -12,7 +12,6 @@ import { getObjectKeys } from '@/utils/helpers'
 
 const Login = () => {
   const router = useRouter()
-
   const loginForm = useZodForm({
     schema: loginSchema
   })
@@ -66,7 +65,7 @@ const Login = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play />
+            <Play loading={loginForm.formState.isSubmitting} />
           </button>
         </Form>
       </div>

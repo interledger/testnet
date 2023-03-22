@@ -20,7 +20,7 @@ const paySchema = z.object({
 })
 
 export default function Pay() {
-  const form = useZodForm({
+  const payForm = useZodForm({
     schema: paySchema
   })
 
@@ -29,7 +29,7 @@ export default function Pay() {
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="pink" balance="$10.000" />
         <Form
-          form={form}
+          form={payForm}
           onSubmit={(data) => {
             console.log(data)
           }}
@@ -38,8 +38,8 @@ export default function Pay() {
             <Badge size="fixed" text="from" />
             <Select
               name="fromAccount"
-              setValue={form.setValue}
-              error={form.formState.errors.fromAccount?.message}
+              setValue={payForm.setValue}
+              error={payForm.formState.errors.fromAccount?.message}
               options={[]}
               label="Account"
             />
@@ -48,8 +48,8 @@ export default function Pay() {
             <Badge size="fixed" text="to" />
             <Input
               required
-              {...form.register('incomingPaymentUrl')}
-              error={form.formState.errors.incomingPaymentUrl?.message}
+              {...payForm.register('incomingPaymentUrl')}
+              error={payForm.formState.errors.incomingPaymentUrl?.message}
               label="Incoming payment URL"
             />
           </div>
@@ -57,19 +57,24 @@ export default function Pay() {
             <TogglePayment disabled={true} type="pink" />
             <Input
               required
-              {...form.register('amount')}
-              error={form.formState.errors.amount?.message}
+              {...payForm.register('amount')}
+              error={payForm.formState.errors.amount?.message}
               label="Amount"
             />
           </div>
           <Input
             required
-            {...form.register('currency')}
-            error={form.formState.errors.currency?.message}
+            {...payForm.register('currency')}
+            error={payForm.formState.errors.currency?.message}
             label="Currency"
           />
           <div className="flex justify-center py-5">
-            <Button aria-label="Pay" type="submit" className="w-24">
+            <Button
+              aria-label="Pay"
+              type="submit"
+              className="w-24"
+              loading={payForm.formState.isSubmitting}
+            >
               Pay
             </Button>
           </div>
