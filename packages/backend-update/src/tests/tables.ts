@@ -22,8 +22,8 @@ async function getTables(knex: Knex, ignoredTables: string[]): Promise<string> {
     "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"
   )
   return result.rows
-    .map((val: { tableName: string }) => {
-      if (!ignoredTables.includes(val.tableName)) return val.tableName
+    .map((val: { tablename: string }) => {
+      if (!ignoredTables.includes(val.tablename)) return val.tablename
     })
     .filter(Boolean)
     .join('","')

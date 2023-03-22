@@ -1,14 +1,22 @@
-const { PostgreSqlContainer } = require('testcontainers')
+const { GenericContainer } = require('testcontainers')
+const { randomBytes } = require('crypto')
 
-module.exports = async (_config) => {
-  try {
-    const container = await new PostgreSqlContainer('postgres:15')
-      .withPassword('password')
-      .withExposedPorts(5432)
-      .start()
+const POSTGRES_PASSWORD = 'password'
+const POSTGRES_DB = randomBytes(16).toString('hex')
+const POSTGRES_PORT = 5432
 
-    global.__TESTING_POSTGRES_CONTAINER__ = container
-  } catch (e) {
-    console.log(e)
-  }
+module.exports = async () => {
+  const container = await new GenericContainer('postgres:15')
+    .withEnvironment({
+      POSTGRES_PASSWORD,
+      POSTGRES_DB
+    })
+    .withExposedPorts(POSTGRES_PORT)
+    .start()
+
+  process.env.DATABASE_URL = `postgresql://postgres:${POSTGRES_PASSWORD}@localhost:${container.getMappedPort(
+    POSTGRES_PORT
+  )}/${POSTGRES_DB}`
+
+  global.__POSTGRES_CONTAINER__ = container
 }
