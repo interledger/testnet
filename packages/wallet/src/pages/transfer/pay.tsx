@@ -16,6 +16,7 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
+import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -33,6 +34,12 @@ export default function Pay({ accounts }: PayProps) {
 
     if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
       setPaymentPointers([])
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Could not load payment pointers. Please try again"
+        />
+      )
       return
     }
 

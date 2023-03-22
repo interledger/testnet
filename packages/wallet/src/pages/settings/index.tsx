@@ -42,7 +42,6 @@ export default function AccountSettings({
 export const getServerSideProps: GetServerSideProps<{
   personalDetails: PersonalDetailsProps
 }> = async (ctx) => {
-  console.log('here I am')
   const result = await userService.me(ctx.req.headers.cookie)
 
   if (!result.success) {
