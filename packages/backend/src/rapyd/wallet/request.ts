@@ -1,4 +1,8 @@
-import { makeRapydGetRequest, makeRapydPostRequest } from '../utills/request'
+import {
+  makeRapydGetRequest,
+  makeRapydPostRequest,
+  makeRapydPutRequest
+} from '../utills/request'
 
 // TODO: Abstract interface for different Rapyd responses
 interface RapydGetAccoutBalanceResponse {
@@ -26,7 +30,7 @@ const createRapydWallet = async (wallet: RapydWallet) => {
 }
 
 const updateRapydProfile = async (profile: RapydProfile) => {
-  return await makeRapydPostRequest('user', JSON.stringify(profile))
+  return await makeRapydPutRequest('user', JSON.stringify(profile))
 }
 
 const rapydVerifyIdentity = async (req: RapydIdentityRequest) => {
