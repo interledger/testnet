@@ -7,7 +7,6 @@ import {
 } from '../httpClient'
 
 export const createPaymentPointerSchema = z.object({
-  accountId: z.string().uuid(),
   paymentPointerName: z.string().min(3, {
     message:
       'The name of the payment pointer should be at least 3 characters long'
@@ -51,6 +50,7 @@ interface PaymentPointerService {
     cookies?: string
   ) => Promise<ListPaymentPointerResponse>
   create: (
+    accountId: string,
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
 }
@@ -93,14 +93,11 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     }
   },
 
-  async create(args): Promise<CreatePaymentPointerResponse> {
+  async create(accountId, args): Promise<CreatePaymentPointerResponse> {
     try {
       const response = await httpClient
-        .post(`accounts/${args.accountId}/payment-pointers`, {
-          json: {
-            paymentPointerName: args.paymentPointerName,
-            publicName: args.publicName
-          }
+        .post(`accounts/${accountId}/payment-pointers`, {
+          json: args
         })
         .json<CreatePaymentPointerResult>()
       return response

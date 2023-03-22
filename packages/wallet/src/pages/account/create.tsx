@@ -70,7 +70,11 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           options={assets}
           label="Asset"
         />
-        <Button type="submit" aria-label="create account">
+        <Button
+          type="submit"
+          aria-label="create account"
+          loading={form.formState.isSubmitting}
+        >
           Create account
         </Button>
       </Form>

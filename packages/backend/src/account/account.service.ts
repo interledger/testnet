@@ -1,17 +1,19 @@
 import { NextFunction, Request, Response } from 'express'
-import { BaseResponse } from '../shared/models/BaseResponse'
 import { zParse } from '../middlewares/validator'
-import { accountSchema, fundSchema } from './schemas/account.schema'
 import { getAsset } from '../rafiki/request/asset.request'
-import { Account } from './account.model'
-import { getUserIdFromRequest } from '../utils/getUserId'
-import { ConflictException } from '../shared/models/errors/ConflictException'
-import { NotFoundException } from '../shared/models/errors/NotFoundException'
-import { User } from '../user/models/user'
 import {
   issueVirtualAccount,
   simulateBankTransferToWallet
 } from '../rapyd/virtual-accounts'
+import { getAccountsBalance } from '../rapyd/wallet'
+import { BaseResponse } from '../shared/models/BaseResponse'
+import { ConflictException } from '../shared/models/errors/ConflictException'
+import { NotFoundException } from '../shared/models/errors/NotFoundException'
+import { User } from '../user/models/user'
+import { getUserIdFromRequest } from '../utils/getUserId'
+import { formatBalance } from '../utils/helpers'
+import { Account } from './account.model'
+import { accountSchema, fundSchema } from './schemas/account.schema'
 
 export const createAccount = async (
   req: Request,
@@ -82,6 +84,16 @@ export const createAccount = async (
       issued_bank_account: account.rapydAccountId
     })
 
+    if (!user || !user.rapydEWalletId) {
+      throw new NotFoundException()
+    }
+
+    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
+    account.balance = formatBalance(
+      accountsBalance.data.find((acc) => acc.currency === account.assetCode)
+        ?.balance ?? 0
+    )
+
     return res.json({
       success: true,
       message: 'Account created',
@@ -100,6 +112,23 @@ export const listAccounts = async (
   try {
     const userId = getUserIdFromRequest(req)
     const accounts = await Account.query().where('userId', userId)
+
+    const user = await User.query().findById(userId)
+
+    if (!user || !user.rapydEWalletId) {
+      throw new NotFoundException()
+    }
+
+    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
+
+    accounts.forEach((acc) => {
+      acc.balance = formatBalance(
+        accountsBalance.data.find(
+          (rapydAccount) => rapydAccount.currency === acc.assetCode
+        )?.balance ?? 0
+      )
+    })
+
     return res.json({ success: true, message: 'Success', data: accounts })
   } catch (e) {
     next(e)
@@ -115,6 +144,18 @@ export const getAccountById = async (
     const userId = getUserIdFromRequest(req)
     const accountId = req.params.id
     const account = await findAccountById(accountId, userId)
+
+    const user = await User.query().findById(userId)
+
+    if (!user || !user.rapydEWalletId) {
+      throw new NotFoundException()
+    }
+
+    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
+    account.balance = formatBalance(
+      accountsBalance.data.find((acc) => acc.currency === account.assetCode)
+        ?.balance ?? 0
+    )
 
     return res.json({ success: true, message: 'Success', data: account })
   } catch (e) {

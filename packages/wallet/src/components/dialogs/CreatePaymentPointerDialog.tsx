@@ -1,7 +1,6 @@
 import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { Select, SelectOption } from '@/ui/forms/Select'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -14,19 +13,19 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
-  defaultValue?: SelectOption
-  accounts: SelectOption[]
+  accountName: string
 }
 
 export const CreatePaymentPointerDialog = ({
   onClose,
-  defaultValue,
-  accounts
+  accountName
 }: CreatePaymentPointerDialogProps) => {
   const router = useRouter()
-  const form = useZodForm({
+  const createPaymentPointerForm = useZodForm({
     schema: createPaymentPointerSchema
   })
+
+  const accountId = router.query.accountId as string
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -64,9 +63,12 @@ export const CreatePaymentPointerDialog = ({
 
                 <div className="px-4">
                   <Form
-                    form={form}
+                    form={createPaymentPointerForm}
                     onSubmit={async (data) => {
-                      const response = await paymentPointerService.create(data)
+                      const response = await paymentPointerService.create(
+                        accountId,
+                        data
+                      )
 
                       if (response.success) {
                         onClose()
@@ -75,13 +77,13 @@ export const CreatePaymentPointerDialog = ({
                         )
                       } else {
                         const { errors, message } = response
-                        form.setError('root', {
+                        createPaymentPointerForm.setError('root', {
                           message
                         })
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            form.setError(field, {
+                            createPaymentPointerForm.setError(field, {
                               message: errors[field]
                             })
                           )
@@ -89,35 +91,41 @@ export const CreatePaymentPointerDialog = ({
                       }
                     }}
                   >
-                    <Select
-                      name="accountId"
-                      setValue={form.setValue}
-                      defaultValue={defaultValue}
-                      error={form.formState.errors.accountId?.message}
-                      options={accounts}
-                      label="Account"
-                    />
+                    <Input value={accountName} label="Account" readOnly />
                     <div>
                       <Input
                         required
                         label="Payment Pointer name"
                         error={
-                          form.formState?.errors?.paymentPointerName?.message
+                          createPaymentPointerForm.formState?.errors
+                            ?.paymentPointerName?.message
                         }
-                        {...form.register('paymentPointerName')}
+                        {...createPaymentPointerForm.register(
+                          'paymentPointerName'
+                        )}
                       />
                       <p className="ml-2 text-sm text-green">
-                        $rafiki.money/{form.watch('paymentPointerName')}
+                        $rafiki.money/
+                        {createPaymentPointerForm.watch('paymentPointerName')}
                       </p>
                     </div>
                     <Input
                       required
                       label="Public name"
-                      error={form.formState?.errors?.publicName?.message}
-                      {...form.register('publicName')}
+                      error={
+                        createPaymentPointerForm.formState?.errors?.publicName
+                          ?.message
+                      }
+                      {...createPaymentPointerForm.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button aria-label="create payment pointer" type="submit">
+                      <Button
+                        aria-label="create payment pointer"
+                        type="submit"
+                        loading={
+                          createPaymentPointerForm.formState.isSubmitting
+                        }
+                      >
                         Create
                       </Button>
                       <Button

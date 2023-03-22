@@ -57,7 +57,10 @@ export const VerifyIdentityForm = () => {
   }
 
   const verifyIdentityForm = useZodForm({
-    schema: verifyIdentitySchema
+    schema: verifyIdentitySchema,
+    defaultValues: {
+      ...(USE_TEST_DATA_KYC ? { documentType: 'PA' } : {})
+    }
   })
 
   return (
@@ -242,7 +245,11 @@ export const VerifyIdentityForm = () => {
           )}
         </div>
       </div>
-      <Button aria-label="Verify Account" type="submit">
+      <Button
+        aria-label="Verify Account"
+        type="submit"
+        loading={verifyIdentityForm.formState.isSubmitting}
+      >
         Verify Account
       </Button>
     </Form>
