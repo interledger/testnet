@@ -6,6 +6,7 @@ import { Env, env } from './config/env'
 import { logger } from './config/logger'
 import { Container } from './container'
 import { UserService } from './user/service'
+import { UserController } from './user/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -33,6 +34,10 @@ export const createContainer = (config: Env): Container<Bindings> => {
 
   // User Modules
   container.register('userService', async () => new UserService())
+  container.register('userController', async () => {
+    const logger = await container.resolve('logger')
+    return new UserController(logger)
+  })
 
   // Authenication Modules
   container.register('authService', async () => {

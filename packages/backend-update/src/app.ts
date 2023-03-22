@@ -12,6 +12,7 @@ import type { AuthController } from './auth/controller'
 import type { AuthService } from './auth/service'
 import type { Env } from './config/env'
 import type { UserService } from './user/service'
+import type { UserController } from './user/controller'
 import { Container } from './container'
 import { Model } from 'objection'
 import { withSession } from './middleware/withSession'
@@ -22,6 +23,7 @@ export interface Bindings {
   logger: Logger
   knex: Knex
   userService: UserService
+  userController: UserController
   authService: AuthService
   authController: AuthController
 }
@@ -65,6 +67,7 @@ export class App {
 
     const env = await this.container.resolve('env')
     const authController = await this.container.resolve('authController')
+    const userController = await this.container.resolve('userController')
 
     app.use(helmet())
     app.use(express.json())
@@ -82,6 +85,9 @@ export class App {
         })
       }
     })
+
+    // Me Endpoint
+    router.get('/me', userController.me)
 
     // Auth Routes
     router.post('/auth/sign-up', authController.signUp)
