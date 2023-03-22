@@ -2,13 +2,14 @@ import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { zParse } from '../middlewares/validator'
 import { paymentPointerSchema } from './payment-pointer.schema'
-import { createRafikiPaymentPointer } from '../rafiki/request/payment-pointer.request'
+import {createPaymentPointerKey, createRafikiPaymentPointer} from '../rafiki/request/payment-pointer.request'
 import { PaymentPointerModel } from './payment-pointer.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
 import env from '../config/env'
 import { ConflictException } from '../shared/models/errors/ConflictException'
+import {generateJwk, parseOrProvisionKey} from "http-signature-utils";
 
 export const createPaymentPointer = async (
   req: Request,
@@ -46,6 +47,13 @@ export const createPaymentPointer = async (
       accountId,
       id: rafikiPaymentPointer.id
     })
+
+    await createPaymentPointerKey(paymentPointer.id,
+      generateJwk({
+        keyId: `keyid-${account.id}`,
+        privateKey: parseOrProvisionKey(env.KEY_FILE)
+      })
+    )
 
     return res.json({
       success: true,

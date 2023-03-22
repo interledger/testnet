@@ -15,7 +15,10 @@ const envSchema = z.object({
   RAPYD_ACCESS_KEY: z.string(),
   RAPYD_SECRET_KEY: z.string(),
   GRAPHQL_ENDPOINT: z.string().url(),
-  OPEN_PAYMENTS_HOST: z.string().url()
+  OPEN_PAYMENTS_HOST: z.string().url(),
+  AUTH_SERVER_GRANT_URL: z.string().url(),
+  SIGNATURE_URL: z.string().url(),
+  KEY_FILE: z.string()
 })
 
 type ENV = z.infer<typeof envSchema>

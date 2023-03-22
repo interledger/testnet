@@ -813,3 +813,10 @@ export type CreatePaymentPointerMutationVariables = Exact<{
 
 
 export type CreatePaymentPointerMutation = { __typename?: 'Mutation', createPaymentPointer: { __typename?: 'CreatePaymentPointerMutationResponse', code: string, success: boolean, message: string, paymentPointer?: { __typename?: 'PaymentPointer', id: string, url: string, publicName?: string | null } | null } };
+
+export type CreatePaymentPointerKeyMutationVariables = Exact<{
+  input: CreatePaymentPointerKeyInput;
+}>;
+
+
+export type CreatePaymentPointerKeyMutation = { __typename?: 'Mutation', createPaymentPointerKey: { __typename?: 'CreatePaymentPointerKeyMutationResponse', code: string, success: boolean, message: string, paymentPointer?: { __typename?: 'PaymentPointer', id: string, url: string, publicName?: string | null } | null } };

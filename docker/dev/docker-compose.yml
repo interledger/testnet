@@ -38,6 +38,11 @@ services:
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://backend:80
       GRAPHQL_ENDPOINT: http://backend:3001/graphql
+      AUTH_SERVER_GRANT_URL: http://auth:3007
+      SIGNATURE_URL: http://signatures:3000
+      KEY_FILE: /workspace/private-key.pem
+    volumes:
+      - ./private-key.pem:/workspace/private-key.pem
     restart: always
     networks:
       - testnet
@@ -57,14 +62,28 @@ services:
     networks:
       - testnet
     ports:
-      - '3007:3006'
+      - '3007:3007'
     environment:
+      PORT: 3007
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://auth:auth@postgres/auth
       INTROSPECTION_HTTPSIG: "false"
     depends_on:
       - tigerbeetle
       - postgres
+  signatures:
+    build:
+      context: ../../rafiki
+      dockerfile: ./packages/http-signature-utils/Dockerfile
+    restart: always
+    ports:
+      - '3045:3000'
+    environment:
+      KEY_FILE: /workspace/private-key.pem
+    volumes:
+      - ./private-key.pem:/workspace/private-key.pem
+    networks:
+      - testnet
   backend:
     image: ghcr.io/interledger/rafiki-backend:latest
     build:
@@ -88,8 +107,8 @@ services:
       # Tigerbeetle will support DNS in future
       TIGERBEETLE_REPLICA_ADDRESSES: '["10.4.0.50:4343"]'
       NONCE_REDIS_KEY: test
-      AUTH_SERVER_GRANT_URL: http://auth:3006
-      AUTH_SERVER_INTROSPECTION_URL: http://auth:3006/introspect
+      AUTH_SERVER_GRANT_URL: http://auth:3007
+      AUTH_SERVER_INTROSPECTION_URL: http://auth:3007/introspect
       ILP_ADDRESS: test.rafiki
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin

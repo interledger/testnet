@@ -15,16 +15,13 @@ export const jwtStrategy = new JWTStrategy(
     passReqToCallback: true
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async (req: Request, jwtPayload: any, done: any) => {
-    const { exp, userId, email, noKyc } = jwtPayload
+  async (_req: Request, jwtPayload: any, done: any) => {
+    const { exp, userId, email } = jwtPayload
 
     if (Date.now() > exp * 1000) {
       return done(new UnauthorisedException('Access token expired'), false)
     }
 
-    if (noKyc && req.url !== '/wallet') {
-      return done(new UnauthorisedException('Account has no KYC'), false)
-    }
     return done(null, { id: userId, email } as User)
   }
 )

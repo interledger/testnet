@@ -1,3 +1,4 @@
 packages:
   - 'packages/*'
   - 'rafiki/packages/open-payments'
+  - 'rafiki/packages/http-signature-utils'
