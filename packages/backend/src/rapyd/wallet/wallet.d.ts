@@ -122,6 +122,12 @@ interface RapydWallet {
   verification_status?: 'not verified' | 'KYCd'
 }
 
+interface RapydProfile {
+  ewallet?: string
+  first_name?: string
+  last_name?: string
+}
+
 interface RapydIdentityRequest {
   reference_id?: string
   ewallet?: string

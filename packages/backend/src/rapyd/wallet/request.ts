@@ -25,6 +25,10 @@ const createRapydWallet = async (wallet: RapydWallet) => {
   return await makeRapydPostRequest('user', JSON.stringify(wallet))
 }
 
+const updateRapydProfile = async (profile: RapydProfile) => {
+  return await makeRapydPostRequest('user', JSON.stringify(profile))
+}
+
 const rapydVerifyIdentity = async (req: RapydIdentityRequest) => {
   return await makeRapydPostRequest('identities', JSON.stringify(req))
 }
@@ -35,4 +39,9 @@ const getAccountsBalance = async (
   return makeRapydGetRequest(`user/${walletId}/accounts`)
 }
 
-export { createRapydWallet, rapydVerifyIdentity, getAccountsBalance }
+export {
+  createRapydWallet,
+  updateRapydProfile,
+  rapydVerifyIdentity,
+  getAccountsBalance
+}

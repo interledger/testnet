@@ -2,8 +2,12 @@ import { zParse } from '../middlewares/validator'
 import logger from '../utils/logger'
 import { Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
-import { walletSchema } from './schemas/walletSchema'
-import { createRapydWallet, rapydVerifyIdentity } from '../rapyd/wallet'
+import { profileSchema, walletSchema } from './schemas/walletSchema'
+import {
+  createRapydWallet,
+  rapydVerifyIdentity,
+  updateRapydProfile
+} from '../rapyd/wallet'
 import { User } from '../user/models/user'
 import crypto from 'crypto'
 import { kycSchema } from './schemas/kycSchema'
@@ -82,6 +86,47 @@ export const createWallet = async (
     return res
       .status(500)
       .json({ message: 'Unable to create wallet', success: false })
+  }
+}
+
+export const updateProfile = async (
+  req: Request,
+  res: Response<BaseResponse>
+) => {
+  try {
+    const { id } = req.user as User
+    let user = await User.query().findById(id)
+    if (!user) throw new Error(`user doesn't exist`)
+    const { firstName, lastName } = await zParse(profileSchema, req)
+
+    const result = await updateRapydProfile({
+      first_name: firstName,
+      last_name: lastName,
+      ewallet: user.rapydEWalletId
+    })
+
+    if (result.status.status !== 'SUCCESS')
+      return res.status(500).json({
+        message: `Unable to update profile : ${result.status.message}`,
+        success: false
+      })
+
+    user = await User.query().patchAndFetchById(id, {
+      firstName: firstName,
+      lastName: lastName,
+      rapydEWalletReferenceId: user.rapydEWalletReferenceId
+    })
+
+    if (!user) throw new NotFoundException()
+
+    return res
+      .status(201)
+      .json({ message: 'Success', success: true, data: result.data })
+  } catch (error) {
+    log.error(error)
+    return res
+      .status(500)
+      .json({ message: 'Unable to update profile', success: false })
   }
 }
 
