@@ -8,6 +8,7 @@ import {
 
 export const paySchema = z.object({
   accountId: z.string().uuid(),
+  paymentPointerId: z.string(),
   incomingPaymentUrl: z.string(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
@@ -16,6 +17,7 @@ export const paySchema = z.object({
 
 export const sendSchema = z.object({
   accountId: z.string().uuid(),
+  paymentPointerId: z.string(),
   toPaymentPointer: z.string(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'

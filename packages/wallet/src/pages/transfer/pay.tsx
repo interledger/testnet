@@ -14,14 +14,37 @@ import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { useState } from 'react'
+import { paymentPointerService } from '@/lib/api/paymentPointer'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function Pay({ accounts }: PayProps) {
   const [openDialog, closeDialog] = useDialog()
+  const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const payForm = useZodForm({
     schema: paySchema
   })
+
+  const handleAccountOnChange = async () => {
+    const paymentPointerResponse = await paymentPointerService.list(
+      payForm.getValues('accountId')
+    )
+
+    if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
+      setPaymentPointers([])
+      return
+    }
+
+    const paymentPointers = paymentPointerResponse.data.map(
+      (paymentPointer) => ({
+        name: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        value: paymentPointer.id
+      })
+    )
+
+    setPaymentPointers(paymentPointers)
+  }
 
   return (
     <AppLayout>
@@ -61,7 +84,15 @@ export default function Pay({ accounts }: PayProps) {
               setValue={payForm.setValue}
               error={payForm.formState.errors.accountId?.message}
               options={accounts}
+              onChange={handleAccountOnChange}
               label="Account"
+            />
+            <Select
+              name="paymentPointerId"
+              setValue={payForm.setValue}
+              error={payForm.formState.errors.paymentPointerId?.message}
+              options={paymentPointers}
+              label="Payment Pointer"
             />
           </div>
           <div className="space-y-1">
