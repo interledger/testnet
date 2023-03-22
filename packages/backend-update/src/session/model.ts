@@ -6,7 +6,6 @@ export class Session extends BaseModel {
   static tableName = 'sessions'
 
   public expiresAt!: Date
-
   public readonly userId!: string
 
   static relationMappings = () => ({

@@ -6,10 +6,8 @@ export class PaymentPointer extends BaseModel {
   static tableName = 'paymentPointers'
 
   public publicName!: string
-
   public readonly id!: string
   public readonly url!: string
-
   public readonly accountId!: string
   public Account!: Account
 

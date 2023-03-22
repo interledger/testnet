@@ -8,9 +8,8 @@ import { bcrypt, bcryptVerify } from 'hash-wasm'
 export class User extends BaseModel {
   static tableName = 'users'
 
-  private password!: string
-
   public email!: string
+  private password!: string
   public lastName?: string
   public firstName?: string
   public address?: string
@@ -19,7 +18,6 @@ export class User extends BaseModel {
   public rapydWalletId?: string
   public rapydContactId?: string
   public kycId?: string
-
   public sessions?: Session[]
 
   async $beforeInsert(queryContext: QueryContext): Promise<void> {
