@@ -51,7 +51,7 @@ export const Select = <T extends FieldValues>({
       setValue(name, selected.value as FieldPathValue<T, FieldPath<T>>)
       if (onChange) onChange()
     }
-  }, [selected, name, setValue])
+  }, [selected, name, setValue, onChange])
 
   return (
     <div>
