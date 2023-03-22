@@ -38,7 +38,6 @@ services:
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://backend:80
       GRAPHQL_ENDPOINT: http://backend:3001/graphql
-      AUTH_SERVER_GRANT_URL: http://auth:3007
     restart: always
     networks:
       - testnet

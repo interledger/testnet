@@ -66,21 +66,3 @@ export const createPayment = async (
     next(e)
   }
 }
-
-export const continueRequest = async (
-  req: Request,
-  res: Response<BaseResponse<Record<string, string>>>,
-  next: NextFunction
-) => {
-  try {
-    console.log(req.query.interact_ref)
-
-    return res.json({
-      success: true,
-      message: 'Continue request',
-      data: { interactRef: req.query.interact_ref as string }
-    })
-  } catch (e) {
-    next(e)
-  }
-}
