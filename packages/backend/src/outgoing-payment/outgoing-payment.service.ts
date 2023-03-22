@@ -11,6 +11,8 @@ import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
 import { createOutgoingPayment } from '../rafiki/request/outgoing-payment.request'
 import { createQuote } from '../rafiki/request/quote.request'
+import { Asset } from '../rafiki/generated/graphql'
+import { createIncomingPayment } from '../rafiki/request/incoming-payment.request'
 
 export const createPayment = async (
   req: Request,
@@ -18,10 +20,19 @@ export const createPayment = async (
   next: NextFunction
 ) => {
   try {
-    const { incomingPaymentUrl, paymentPointerId, amount } = await zParse(
-      outgoingPaymentSchema,
-      req
-    )
+    const {
+      incomingPaymentUrl,
+      toPaymentPointerId,
+      paymentPointerId,
+      amount,
+      isReceive
+    } = await zParse(outgoingPaymentSchema, req)
+
+    if (!incomingPaymentUrl && !toPaymentPointerId) {
+      throw new BadRequestException(
+        'incomingPaymentUrl or toPaymentPointerId shoudl be defined'
+      )
+    }
 
     const userId = getUserIdFromRequest(req)
     const existingPaymentPointer = await PaymentPointerModel.query().findById(
@@ -40,11 +51,16 @@ export const createPayment = async (
       throw new NotFoundException()
     }
 
+    const paymentUrl: string =
+      incomingPaymentUrl ||
+      (await createReceiver(amount, asset, toPaymentPointerId))
+
     const quote = await createQuote(
       paymentPointerId,
-      incomingPaymentUrl,
+      paymentUrl,
       amount,
-      asset
+      asset,
+      isReceive
     )
     const payment = await createOutgoingPayment(paymentPointerId, quote.id)
 
@@ -65,4 +81,21 @@ export const createPayment = async (
   } catch (e) {
     next(e)
   }
+}
+
+async function createReceiver(
+  amount: number,
+  asset: Asset,
+  paymentPointerId = ''
+): Promise<string> {
+  const existingPaymentPointer = await PaymentPointerModel.query().findById(
+    paymentPointerId
+  )
+  if (!existingPaymentPointer) {
+    throw new BadRequestException('Invalid payment pointer')
+  }
+
+  const response = await createIncomingPayment(paymentPointerId, amount, asset)
+
+  return `${existingPaymentPointer.url}/incoming-payments/${response.id}`
 }

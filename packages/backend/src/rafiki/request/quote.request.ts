@@ -42,17 +42,26 @@ export async function createQuote(
   paymentPointerId: string,
   receiver: string,
   amount: number,
-  asset: Asset
+  asset: Asset,
+  isReceive: boolean
 ): Promise<Quote> {
+  const value = {
+    value: amount as unknown as bigint,
+    assetCode: asset.code,
+    assetScale: asset.scale
+  }
+
   const input: CreateQuoteInput = {
-    sendAmount: {
-      value: amount as unknown as bigint,
-      assetCode: asset.code,
-      assetScale: asset.scale
-    },
     paymentPointerId,
     receiver
   }
+
+  if (isReceive) {
+    input.receiveAmount = value
+  } else {
+    input.sendAmount = value
+  }
+
   const { createQuote } = await graphqlClient.request<
     CreateQuoteMutation,
     CreateQuoteMutationVariables
