@@ -44,6 +44,7 @@ describe('Authentication Controller', (): void => {
 
   beforeEach(async (): Promise<void> => {
     response = createResponse()
+    request = createRequest()
   })
 
   afterAll(async (): Promise<void> => {
@@ -57,15 +58,12 @@ describe('Authentication Controller', (): void => {
 
   describe('Sign Up', (): void => {
     it('returns status 201 if the user is created', async (): Promise<void> => {
-      request = createRequest({
-        method: 'POST',
-        body: {
-          ...args,
-          confirmPassword: args.password
-        }
-      })
-      const createSpy = jest.spyOn(authService, 'createUser')
+      request.body = {
+        ...args,
+        confirmPassword: args.password
+      }
 
+      const createSpy = jest.spyOn(authService, 'createUser')
       await authController.signUp(request, response, nextFunction)
 
       expect(createSpy).toHaveBeenCalledWith(args)
@@ -78,17 +76,13 @@ describe('Authentication Controller', (): void => {
     })
 
     it('returns status 400 if the request body is not valid', async (): Promise<void> => {
-      request = createRequest({
-        method: 'POST',
-        url: '/',
-        body: {
-          ...args,
-          confirmPassword: 'not-the-same'
-        }
-      })
+      request.body = {
+        ...args,
+        confirmPassword: 'not-the-same'
+      }
 
       await authController.signUp(request, response, (err) => {
-        nextFunction(err)
+        nextFunction()
         errorHandler(err, request, response, nextFunction)
       })
 
@@ -101,20 +95,16 @@ describe('Authentication Controller', (): void => {
     })
 
     it('returns status 500 on unexpected error', async (): Promise<void> => {
-      request = createRequest({
-        method: 'POST',
-        body: {
-          ...args,
-          confirmPassword: args.password
-        }
-      })
+      request.body = {
+        ...args,
+        confirmPassword: args.password
+      }
 
       const createSpy = jest
         .spyOn(authService, 'createUser')
         .mockRejectedValueOnce(new Error('Unexpected error'))
-
       await authController.signUp(request, response, (err) => {
-        nextFunction(err)
+        nextFunction()
         errorHandler(err, request, response, nextFunction)
       })
 
@@ -130,17 +120,13 @@ describe('Authentication Controller', (): void => {
 
   describe('Log In', (): void => {
     it('returns status 200 if the user is authorized', async (): Promise<void> => {
-      request = createRequest({
-        method: 'POST',
-        body: {
-          ...args
-        }
-      })
+      request.body = {
+        ...args
+      }
 
       const user = await authService.createUser(args)
-      await applyMiddleware(withSession, request, response)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
-
+      await applyMiddleware(withSession, request, response)
       await authController.logIn(request, response, nextFunction)
 
       expect(authorizeSpy).toHaveBeenCalledWith(args)
@@ -156,6 +142,47 @@ describe('Authentication Controller', (): void => {
       expect(response._getJSONData()).toMatchObject({
         success: true,
         message: 'Authorized'
+      })
+    })
+
+    it('returns status 400 if the request body is not valid', async (): Promise<void> => {
+      request.body = {
+        ...args,
+        email: 'not-an-email'
+      }
+
+      await authController.logIn(request, response, (err) => {
+        nextFunction()
+        errorHandler(err, request, response, nextFunction)
+      })
+
+      expect(nextFunction).toHaveBeenCalledTimes(1)
+      expect(response.statusCode).toBe(400)
+      expect(response._getJSONData()).toMatchObject({
+        success: false,
+        message: 'Invalid input'
+      })
+    })
+
+    it('returns status 500 on unexpected error', async (): Promise<void> => {
+      request.body = {
+        ...args
+      }
+
+      const authorizeSpy = jest
+        .spyOn(authService, 'authorize')
+        .mockRejectedValueOnce(new Error('Unexpected error'))
+      await authController.logIn(request, response, (err) => {
+        nextFunction()
+        errorHandler(err, request, response, nextFunction)
+      })
+
+      expect(authorizeSpy).toHaveBeenCalledTimes(1)
+      expect(nextFunction).toHaveBeenCalledTimes(1)
+      expect(response.statusCode).toBe(500)
+      expect(response._getJSONData()).toMatchObject({
+        success: false,
+        message: 'Internal Server Error'
       })
     })
   })

@@ -1,3 +1,4 @@
+import axios, { AxiosError } from 'axios'
 import { createContainer } from '@/index'
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
@@ -21,7 +22,27 @@ describe('Application', (): void => {
     knex.destroy()
   })
 
-  test('1 equals 1', (): void => {
-    expect(1).toEqual(1)
+  it('returns status 415 if the content type is not application/json', async (): Promise<void> => {
+    try {
+      await axios.get(`http://localhost:${appContainer.port}/`, {
+        headers: {
+          'Content-Type': 'application/xml'
+        }
+      })
+    } catch (e) {
+      expect((e as AxiosError).response?.status).toBe(415)
+    }
+  })
+
+  it('returns status 404 if the route does not exist', async (): Promise<void> => {
+    try {
+      await axios.post(`http://localhost:${appContainer.port}/`, {
+        json: {
+          a: 'b'
+        }
+      })
+    } catch (e) {
+      expect((e as AxiosError).response?.status).toBe(404)
+    }
   })
 })
