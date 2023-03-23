@@ -11,6 +11,9 @@ import {
 import { assetRouter } from './asset/asset.route'
 import { paymentPointerRouter } from './payment-pointer/payment-pointer.route'
 import { accountRouter } from './account/account.route'
+import { incomingPaymentRouter } from './incoming-payment/incoming-payment.route'
+import { outgoingPaymentRouter } from './outgoing-payment/outgoing-payment.route'
+import { transactionsRouter } from './transaction/transaction.route'
 
 export const mainRouter = express.Router()
 
@@ -64,6 +67,9 @@ mainRouter.post(
 mainRouter.use('/assets', assetRouter)
 mainRouter.use('/accounts', accountRouter)
 mainRouter.use('', paymentPointerRouter)
+mainRouter.use('', incomingPaymentRouter)
+mainRouter.use('', outgoingPaymentRouter)
+mainRouter.use('', transactionsRouter)
 
 mainRouter.use('*', (req: Request, res: Response) => {
   const err = Error(`Requested path ${req.path} not found`)
