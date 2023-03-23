@@ -37,15 +37,16 @@ const rapydDepositLiquidity = async (req: RapydDepositRequest) => {
   return await makeRapydPostRequest('account/withdraw', JSON.stringify(req))
 }
 
+const getAccountsBalance = async (
+  walletId: string
+): Promise<RapydGetAccoutBalanceResponse> => {
+  return makeRapydGetRequest(`user/${walletId}/accounts`)
+}
+
 export {
   createRapydWallet,
   rapydVerifyIdentity,
   rapydWithdrawLiquidity,
   rapydDepositLiquidity,
   getAccountsBalance
-}
-const getAccountsBalance = async (
-  walletId: string
-): Promise<RapydGetAccoutBalanceResponse> => {
-  return makeRapydGetRequest(`user/${walletId}/accounts`)
 }

@@ -99,9 +99,9 @@ services:
       REDIS_URL: redis://redis:6379/0
       PAYMENT_POINTER_URL: https://backend/.well-known/pay
       # testnet urls - not implemented
-      WEBHOOK_URL: http://testnet/webhooks
-      PRICES_URL: http://testnet/prices
-      QUOTE_URL: http://testnet/quotes
+      WEBHOOK_URL: http://testnet:3003/rafiki/webhooks
+      PRICES_URL: http://testnet:3003/rafiki/prices
+      QUOTE_URL: http://testnet:3003/rafiki/quote
     depends_on:
       - tigerbeetle
       - postgres

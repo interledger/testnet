@@ -79,8 +79,6 @@ export class QuoteService {
 
     //* TODO: React on quote create
 
-    return {
-      receivedQuote
-    }
+    return receivedQuote
   }
 }
