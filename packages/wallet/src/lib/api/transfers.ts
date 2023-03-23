@@ -41,9 +41,18 @@ type SendArgs = z.infer<typeof sendSchema>
 type SendError = ErrorResponse<SendArgs | undefined>
 type SendResponse = Promise<SuccessResponse | SendError>
 
+type RequestSuccessResponse = {
+  paymentPointerId: string
+  paymentId: string
+  assetCode: string
+  value: number
+  type: string
+  status: string
+}
 type RequestArgs = z.infer<typeof requestSchema>
+type RequestResult = SuccessResponse<RequestSuccessResponse>
 type RequestError = ErrorResponse<RequestArgs | undefined>
-type RequestResponse = Promise<SuccessResponse | RequestError>
+type RequestResponse = Promise<RequestResult | RequestError>
 
 interface TransfersService {
   pay: (args: PayArgs) => Promise<PayResponse>

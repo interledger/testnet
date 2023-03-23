@@ -19,9 +19,24 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
+function getIncomingPaymentUrl(
+  paymentId: string,
+  paymentPointers: SelectPaymentPointerOption[],
+  paymentPointerId: string
+): string {
+  return `${
+    paymentPointers.find(
+      (paymentPointer) => paymentPointer.value === paymentPointerId
+    )?.url
+  }/incoming-payments/${paymentId}`
+}
+
+type SelectPaymentPointerOption = SelectOption & { url: string }
 export default function Request({ accounts }: RequestProps) {
   const [openDialog, closeDialog] = useDialog()
-  const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
+  const [paymentPointers, setPaymentPointers] = useState<
+    SelectPaymentPointerOption[]
+  >([])
   const [balance, setBalance] = useState('')
   const requestForm = useZodForm({
     schema: requestSchema
@@ -53,7 +68,8 @@ export default function Request({ accounts }: RequestProps) {
     const paymentPointers = paymentPointerResponse.data.map(
       (paymentPointer) => ({
         name: `${paymentPointer.publicName} (${paymentPointer.url})`,
-        value: paymentPointer.id
+        value: paymentPointer.id,
+        url: paymentPointer.url
       })
     )
 
@@ -73,8 +89,13 @@ export default function Request({ accounts }: RequestProps) {
               openDialog(
                 <SuccessDialog
                   onClose={closeDialog}
+                  copyToClipboard={getIncomingPaymentUrl(
+                    response.data?.paymentId || '',
+                    paymentPointers,
+                    requestForm.getValues('paymentPointerId')
+                  )}
                   title="Funds requested."
-                  content="Funds were successfully requested."
+                  content="Funds were successfully requested"
                   redirect={`/`}
                   redirectText="Go to your accounts"
                 />
