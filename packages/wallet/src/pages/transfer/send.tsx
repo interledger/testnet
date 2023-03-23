@@ -23,11 +23,21 @@ type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 export default function Send({ accounts }: SendProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
+  const [balance, setBalance] = useState('')
   const sendForm = useZodForm({
     schema: sendSchema
   })
 
   const handleAccountOnChange = async () => {
+    const accountId = sendForm.getValues('accountId')
+    const selectedAccount = accounts.find(
+      (account) => account.value === accountId
+    )
+    setBalance(
+      selectedAccount
+        ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
+        : ''
+    )
     const paymentPointerResponse = await paymentPointerService.list(
       sendForm.getValues('accountId')
     )
@@ -56,7 +66,7 @@ export default function Send({ accounts }: SendProps) {
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="violet" balance="$10.000" />
+        <TransferHeader type="violet" balance={balance} />
         <Form
           form={sendForm}
           onSubmit={async (data) => {
@@ -152,8 +162,9 @@ export default function Send({ accounts }: SendProps) {
   )
 }
 
+type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
 export const getServerSideProps: GetServerSideProps<{
-  accounts: SelectOption[]
+  accounts: SelectAccountOption[]
 }> = async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
@@ -173,7 +184,9 @@ export const getServerSideProps: GetServerSideProps<{
 
   const accounts = accountsResponse.data.map((account) => ({
     name: `${account.name} (${account.assetCode})`,
-    value: account.id
+    value: account.id,
+    balance: account.balance,
+    assetCode: account.assetCode
   }))
 
   return {

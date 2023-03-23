@@ -51,6 +51,7 @@ export const Select = <T extends FieldValues>({
       setValue(name, selected.value as FieldPathValue<T, FieldPath<T>>)
       if (onChange) onChange()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, name, setValue])
 
   return (

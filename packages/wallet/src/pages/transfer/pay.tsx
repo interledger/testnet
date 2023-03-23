@@ -23,11 +23,21 @@ type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 export default function Pay({ accounts }: PayProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
+  const [balance, setBalance] = useState('')
   const payForm = useZodForm({
     schema: paySchema
   })
 
   const handleAccountOnChange = async () => {
+    const accountId = payForm.getValues('accountId')
+    const selectedAccount = accounts.find(
+      (account) => account.value === accountId
+    )
+    setBalance(
+      selectedAccount
+        ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
+        : ''
+    )
     const paymentPointerResponse = await paymentPointerService.list(
       payForm.getValues('accountId')
     )
@@ -56,7 +66,7 @@ export default function Pay({ accounts }: PayProps) {
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="pink" balance="$10.000" />
+        <TransferHeader type="pink" balance={balance} />
         <Form
           form={payForm}
           onSubmit={async (data) => {
@@ -152,8 +162,9 @@ export default function Pay({ accounts }: PayProps) {
   )
 }
 
+type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
 export const getServerSideProps: GetServerSideProps<{
-  accounts: SelectOption[]
+  accounts: SelectAccountOption[]
 }> = async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
@@ -173,7 +184,9 @@ export const getServerSideProps: GetServerSideProps<{
 
   const accounts = accountsResponse.data.map((account) => ({
     name: `${account.name} (${account.assetCode})`,
-    value: account.id
+    value: account.id,
+    balance: account.balance,
+    assetCode: account.assetCode
   }))
 
   return {

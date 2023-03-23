@@ -22,14 +22,22 @@ type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 export default function Request({ accounts }: RequestProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
+  const [balance, setBalance] = useState('')
   const requestForm = useZodForm({
     schema: requestSchema
   })
 
   const handleAccountOnChange = async () => {
-    const paymentPointerResponse = await paymentPointerService.list(
-      requestForm.getValues('accountId')
+    const accountId = requestForm.getValues('accountId')
+    const selectedAccount = accounts.find(
+      (account) => account.value === accountId
     )
+    setBalance(
+      selectedAccount
+        ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
+        : ''
+    )
+    const paymentPointerResponse = await paymentPointerService.list(accountId)
 
     if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
       setPaymentPointers([])
@@ -55,7 +63,7 @@ export default function Request({ accounts }: RequestProps) {
   return (
     <AppLayout>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="turqoise" balance="$15.000" />
+        <TransferHeader type="turqoise" balance={balance} />
         <Form
           form={requestForm}
           onSubmit={async (data) => {
@@ -140,8 +148,9 @@ export default function Request({ accounts }: RequestProps) {
   )
 }
 
+type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
 export const getServerSideProps: GetServerSideProps<{
-  accounts: SelectOption[]
+  accounts: SelectAccountOption[]
 }> = async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
@@ -161,7 +170,9 @@ export const getServerSideProps: GetServerSideProps<{
 
   const accounts = accountsResponse.data.map((account) => ({
     name: `${account.name} (${account.assetCode})`,
-    value: account.id
+    value: account.id,
+    balance: account.balance,
+    assetCode: account.assetCode
   }))
 
   return {
