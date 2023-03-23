@@ -154,7 +154,6 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   ): Promise<GetTransactionsResponse> {
     try {
       const response = await httpClient
-
         .get(
           `accounts/${accountId}/payment-pointers/${paymentPointerId}/transactions`,
           {
