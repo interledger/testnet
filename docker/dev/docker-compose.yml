@@ -107,7 +107,7 @@ services:
       - postgres
       - redis
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:621268959801084246679f25416a9451f553fe3697dd4f618f39503322079433
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:a1259a4c1e49b3bab3d4cb61160f47dbfb2599964577a0b9144673de9a3bea9d
     restart: unless-stopped
     privileged: true
     volumes:
@@ -127,11 +127,11 @@ services:
         set -e
         echo $$DATA_FILE_EXISTS
         if [ "$$DATA_FILE_EXISTS" != 0 ]; then 
-          /opt/beta-beetle/tigerbeetle format --cluster=0 --replica=0 $$DATA_FILE; 
+          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE; 
         fi
-        hostname -I
+        hostname -i
         ls /var/lib/tigerbeetle
-        /opt/beta-beetle/tigerbeetle start --addresses=0.0.0.0:4343 $$DATA_FILE
+        ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE 
   redis:
     image: 'redis:7'
     restart: unless-stopped
