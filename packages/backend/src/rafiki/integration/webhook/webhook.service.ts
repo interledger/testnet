@@ -172,7 +172,7 @@ Action: Deposit liquidity
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    const result = await rapydDepositLiquidity({
+    const result = await rapydWithdrawLiquidity({
       amount: +this.amountToNumber(amount),
       currency: amount.assetCode,
       ewallet: rapydWalletId
