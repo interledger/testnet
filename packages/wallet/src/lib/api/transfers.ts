@@ -9,7 +9,7 @@ import {
 export const paySchema = z.object({
   accountId: z.string().uuid(),
   paymentPointerId: z.string(),
-  incomingPaymentUrl: z.string(),
+  incomingPaymentUrl: z.string().url(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   })
@@ -18,10 +18,11 @@ export const paySchema = z.object({
 export const sendSchema = z.object({
   accountId: z.string().uuid(),
   paymentPointerId: z.string(),
-  toPaymentPointer: z.string(),
+  toPaymentPointerUrl: z.string().url(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
-  })
+  }),
+  isReceive: z.boolean().default(true)
 })
 
 export const requestSchema = z.object({
@@ -53,7 +54,7 @@ const createTransfersService = (): TransfersService => ({
   async pay(args): Promise<PayResponse> {
     try {
       const response = await httpClient
-        .post('pay', {
+        .post('outgoing-payments', {
           json: args
         })
         .json<SuccessResponse>()
@@ -69,7 +70,7 @@ const createTransfersService = (): TransfersService => ({
   async send(args): Promise<SendResponse> {
     try {
       const response = await httpClient
-        .post('send', {
+        .post('outgoing-payments', {
           json: args
         })
         .json<SuccessResponse>()

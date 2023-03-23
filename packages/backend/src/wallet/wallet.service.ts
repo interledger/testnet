@@ -13,6 +13,7 @@ import crypto from 'crypto'
 import { kycSchema } from './schemas/kycSchema'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
 import { appendAccessTokenToCookie, generateJWT } from '../auth/auth.service'
+import { getUserIdFromRequest } from '../utils/getUserId'
 
 const log = logger('WalletService')
 
@@ -94,8 +95,8 @@ export const updateProfile = async (
   res: Response<BaseResponse>
 ) => {
   try {
-    const { id } = req.user as User
-    let user = await User.query().findById(id)
+    const userId = getUserIdFromRequest(req)
+    let user = await User.query().findById(userId)
     if (!user) throw new Error(`user doesn't exist`)
     const { firstName, lastName } = await zParse(profileSchema, req)
 

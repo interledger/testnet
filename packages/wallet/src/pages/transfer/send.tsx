@@ -106,8 +106,8 @@ export default function Send({ accounts }: SendProps) {
             <Badge size="fixed" text="to" />
             <Input
               required
-              {...sendForm.register('toPaymentPointer')}
-              error={sendForm.formState.errors.toPaymentPointer?.message}
+              {...sendForm.register('toPaymentPointerUrl')}
+              error={sendForm.formState.errors.toPaymentPointerUrl?.message}
               label="Payment pointer"
             />
           </div>
