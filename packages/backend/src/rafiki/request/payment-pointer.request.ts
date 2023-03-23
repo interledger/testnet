@@ -6,7 +6,7 @@ import type {
 } from '../generated/graphql'
 import { graphqlClient } from '../graphqlClient'
 
-const createPaymentPointeMutation = gql`
+const createPaymentPointerMutation = gql`
   mutation CreatePaymentPointerMutation($input: CreatePaymentPointerInput!) {
     createPaymentPointer(input: $input) {
       code
@@ -29,7 +29,7 @@ export async function createRafikiPaymentPointer(
   const response = await graphqlClient.request<
     CreatePaymentPointerMutation,
     CreatePaymentPointerMutationVariables
-  >(createPaymentPointeMutation, {
+  >(createPaymentPointerMutation, {
     input: {
       assetId,
       publicName,
