@@ -19,7 +19,7 @@ type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function CreateAccount({ assets }: CreateAccountProps) {
   const [openDialog, closeDialog] = useDialog()
-  const form = useZodForm({
+  const createAccountForm = useZodForm({
     schema: createAccountSchema
   })
 
@@ -27,7 +27,7 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
     <AppLayout>
       <PageHeader title="Create a new account" />
       <Form
-        form={form}
+        form={createAccountForm}
         onSubmit={async (data) => {
           const response = await accountService.create(data)
 
@@ -41,14 +41,14 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
                 redirectText="View account"
               />
             )
-            form.reset()
+            createAccountForm.reset()
           } else {
             const { errors, message } = response
-            form.setError('root', { message })
+            createAccountForm.setError('root', { message })
 
             if (errors) {
               getObjectKeys(errors).map((field) =>
-                form.setError(field, { message: errors[field] })
+                createAccountForm.setError(field, { message: errors[field] })
               )
             }
           }
@@ -59,21 +59,21 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           required
           placeholder="My Account"
           label="Account name"
-          error={form.formState?.errors?.name?.message}
-          {...form.register('name')}
+          error={createAccountForm.formState?.errors?.name?.message}
+          {...createAccountForm.register('name')}
         />
         <Select
           name="assetRafikiId"
-          setValue={form.setValue}
+          setValue={createAccountForm.setValue}
           defaultValue={assets[0]}
-          error={form.formState.errors.assetRafikiId?.message}
+          error={createAccountForm.formState.errors.assetRafikiId?.message}
           options={assets}
           label="Asset"
         />
         <Button
           type="submit"
           aria-label="create account"
-          loading={form.formState.isSubmitting}
+          loading={createAccountForm.formState.isSubmitting}
         >
           Create account
         </Button>
