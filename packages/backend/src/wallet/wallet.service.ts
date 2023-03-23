@@ -112,7 +112,7 @@ export const updateProfile = async (
         success: false
       })
 
-    user = await User.query().patchAndFetchById(id, {
+    user = await User.query().patchAndFetchById(userId, {
       firstName: firstName,
       lastName: lastName,
       rapydEWalletReferenceId: user.rapydEWalletReferenceId

@@ -26,7 +26,8 @@ export const sendSchema = z.object({
 })
 
 export const requestSchema = z.object({
-  paymentPointer: z.string(),
+  accountId: z.string().uuid(),
+  paymentPointerId: z.string(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   })
@@ -86,7 +87,7 @@ const createTransfersService = (): TransfersService => ({
   async request(args): Promise<RequestResponse> {
     try {
       const response = await httpClient
-        .post('request', {
+        .post('incoming-payments', {
           json: args
         })
         .json<SuccessResponse>()

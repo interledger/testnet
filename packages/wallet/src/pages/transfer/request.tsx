@@ -10,12 +10,47 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { Select, SelectOption } from '@/ui/forms/Select'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { accountService } from '@/lib/api/account'
+import { paymentPointerService } from '@/lib/api/paymentPointer'
+import { useState } from 'react'
+import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 
-export default function Request() {
+type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
+
+export default function Request({ accounts }: RequestProps) {
   const [openDialog, closeDialog] = useDialog()
+  const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const requestForm = useZodForm({
     schema: requestSchema
   })
+
+  const handleAccountOnChange = async () => {
+    const paymentPointerResponse = await paymentPointerService.list(
+      requestForm.getValues('accountId')
+    )
+
+    if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
+      setPaymentPointers([])
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Could not load payment pointers. Please try again"
+        />
+      )
+      return
+    }
+
+    const paymentPointers = paymentPointerResponse.data.map(
+      (paymentPointer) => ({
+        name: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        value: paymentPointer.id
+      })
+    )
+
+    setPaymentPointers(paymentPointers)
+  }
 
   return (
     <AppLayout>
@@ -50,13 +85,23 @@ export default function Request() {
         >
           <div className="space-y-1">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              {...requestForm.register('paymentPointer')}
-              error={requestForm.formState.errors.paymentPointer?.message}
-              label="Payment pointer"
+            <Select
+              name="accountId"
+              setValue={requestForm.setValue}
+              error={requestForm.formState.errors.accountId?.message}
+              options={accounts}
+              onChange={handleAccountOnChange}
+              label="Account"
+            />
+            <Select
+              name="paymentPointerId"
+              setValue={requestForm.setValue}
+              error={requestForm.formState.errors.paymentPointerId?.message}
+              options={paymentPointers}
+              label="Payment Pointer"
             />
           </div>
+
           <Input
             required
             {...requestForm.register('amount')}
@@ -93,4 +138,35 @@ export default function Request() {
       />
     </AppLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<{
+  accounts: SelectOption[]
+}> = async (ctx) => {
+  const [accountsResponse] = await Promise.all([
+    accountService.list(ctx.req.headers.cookie)
+  ])
+
+  if (!accountsResponse.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  if (!accountsResponse.data) {
+    return {
+      notFound: true
+    }
+  }
+
+  const accounts = accountsResponse.data.map((account) => ({
+    name: `${account.name} (${account.assetCode})`,
+    value: account.id
+  }))
+
+  return {
+    props: {
+      accounts
+    }
+  }
 }
