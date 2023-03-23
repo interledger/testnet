@@ -39,6 +39,11 @@ export const personalDetailsSchema = z.object({
   zip: z.string().min(1, { message: 'ZIP code is required' })
 })
 
+export const profileSchema = z.object({
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' })
+})
+
 export const verifyIdentitySchema = z
   .object({
     documentType: z.string({
@@ -87,6 +92,7 @@ export type UserData = {
   email: string
   firstName: string
   lastName: string
+  address: string
   noKyc: boolean
 }
 
@@ -109,12 +115,17 @@ type VerifyIdentityArgs = z.infer<typeof verifyIdentitySchema>
 type VerifyIdentityError = ErrorResponse<VerifyIdentityArgs | undefined>
 type VerifyIdentityResponse = Promise<SuccessResponse | VerifyIdentityError>
 
+type ProfileArgs = z.infer<typeof profileSchema>
+type ProfileError = ErrorResponse<ProfileArgs | undefined>
+type ProfileResponse = Promise<SuccessResponse | ProfileError>
+
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
   login: (args: LoginArgs) => Promise<LoginResponse>
   me: (cookies?: string) => Promise<MeResponse>
   createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
   verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
+  updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -195,6 +206,22 @@ const createUserService = (): UserService => ({
       return getError<VerifyIdentityArgs>(
         error,
         'Something went wrong while verifying your ID. Please try again.'
+      )
+    }
+  },
+
+  async updateProfile(args: ProfileArgs): Promise<ProfileResponse> {
+    try {
+      const response = await httpClient
+        .post('updateProfile', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<ProfileArgs>(
+        error,
+        'Something went wrong while updating your profile. Please try again.'
       )
     }
   }

@@ -3,7 +3,11 @@ import passport from 'passport'
 import { login, me, refresh, signup } from './auth/auth.service'
 import { getCountryNames } from './rapyd/countries/countries.service'
 import { getDocumentTypes } from './rapyd/documents/documents.service'
-import { createWallet, verifyIdentity } from './wallet/wallet.service'
+import {
+  createWallet,
+  updateProfile,
+  verifyIdentity
+} from './wallet/wallet.service'
 import { assetRouter } from './asset/asset.route'
 import { paymentPointerRouter } from './payment-pointer/payment-pointer.route'
 import { accountRouter } from './account/account.route'
@@ -30,6 +34,12 @@ mainRouter.post(
   '/wallet',
   passport.authenticate('jwt', { session: false }),
   createWallet
+)
+
+mainRouter.post(
+  '/updateProfile',
+  passport.authenticate('jwt', { session: false }),
+  updateProfile
 )
 
 mainRouter.post(

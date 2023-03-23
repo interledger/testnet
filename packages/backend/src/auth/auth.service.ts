@@ -213,6 +213,7 @@ export interface UserProfile {
   email: string
   firstName?: string
   lastName?: string
+  address?: string
   noKyc: boolean
 }
 export const me = async (
@@ -244,6 +245,7 @@ export const me = async (
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        address: user.address,
         noKyc: !user.rapydContactId
       }
     })
