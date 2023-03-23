@@ -111,6 +111,16 @@ export class WebHookService {
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
+    //* DOCS:
+    /*
+An Open Payments Incoming Payment was completed, either manually or programmatically, i.e. 
+it does not accept any incoming funds anymore. 
+The Account Servicing Entity SHOULD withdraw all funds received and deposit them
+into the payee's account.
+
+Action: Withdraw liquidity
+    */
+
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
@@ -128,17 +138,41 @@ export class WebHookService {
       return false
     }
 
-    await depositLiquidity(wh.id)
+    await withdrawLiqudity(wh.id)
 
     log.info(`Succesfully deposited ${amount} into ${rapydWalletId}`)
     return true
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
+    //* DOCS:
+    /*
+An Open Payments Outgoing Payment was completed, i.e. it won't send any further funds. 
+The Account Servicing Entity SHOULD withdraw any excess liquidity and deposit it 
+into the payer's account.
+
+Action: Withdraw liquidity
+    */
+
+    log.info(`webhook outgoing payment completed: ${wh.id}`)
+    //TODO:withdraw liquidity (related to the fee)
+    return true
+  }
+
+  private async handleOutgoingPaymentCreated(wh: WebHook) {
+    //* DOCS:
+    /*
+An Open Payments Outgoing Payment has been created. 
+It requires liquidity to be processed. 
+The Account Servicing Entity SHOULD reserve 
+the maximum requisite funds for the payment attempt on the payer's account.
+
+Action: Deposit liquidity
+    */
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    const result = await rapydWithdrawLiquidity({
+    const result = await rapydDepositLiquidity({
       amount: +this.amountToNumber(amount),
       currency: amount.assetCode,
       ewallet: rapydWalletId
@@ -147,19 +181,11 @@ export class WebHookService {
     if (result.status.status !== 'SUCCESS') {
       log.error(
         result.status.message ||
-          `Unable to withdraw from wallet: ${rapydWalletId}`
+          `Unable to deposit into wallet: ${rapydWalletId}`
       )
-      throw new BadRequestException('Unable to withdraw from wallet')
+      return false
     }
-
-    await withdrawLiqudity(wh.id)
-    log.info(`Succesfully withdrew ${amount} from ${rapydWalletId}`)
-    return true
-  }
-
-  private async handleOutgoingPaymentCreated(wh: WebHook) {
-    //* TODO: handleOutgoingPaymentCreated
-    log.info(wh)
+    await depositLiquidity(wh.id)
 
     return true
   }

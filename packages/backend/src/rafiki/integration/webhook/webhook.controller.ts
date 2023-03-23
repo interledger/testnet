@@ -1,18 +1,15 @@
 import { NextFunction, Request, Response } from 'express'
 import { WebHookService } from './webhook.service'
-import { BaseResponse } from '../../../shared/models/BaseResponse'
+// import { BaseResponse } from '../../../shared/models/BaseResponse'
 
 export class WebHookController {
   constructor(private webHookService: WebHookService) {}
 
-  onWebHook = async (
-    req: Request,
-    res: Response<BaseResponse>,
-    next: NextFunction
-  ) => {
+  onWebHook = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const wh = req.body
-      res.status(200).json({ success: await this.webHookService.onWebHook(wh) })
+      await this.webHookService.onWebHook(wh)
+      res.status(200).send()
     } catch (e) {
       next(e)
     }
