@@ -30,7 +30,7 @@ export const createPayment = async (
 
     if (!incomingPaymentUrl && !toPaymentPointerUrl) {
       throw new BadRequestException(
-        'incomingPaymentUrl or toPaymentPointerUrl shoudl be defined'
+        'incomingPaymentUrl or toPaymentPointerUrl should be defined'
       )
     }
 
