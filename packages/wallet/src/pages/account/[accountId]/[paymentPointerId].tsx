@@ -2,9 +2,14 @@ import { Arrow } from '@/components/icons/Arrow'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { Account, accountService } from '@/lib/api/account'
-import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
+import {
+  PaymentPointer,
+  paymentPointerService,
+  TransactionWithFormattedValue
+} from '@/lib/api/paymentPointer'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
+import { formatAmount } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -50,13 +55,13 @@ export default function TransactionsPage({
                     */}
                     <Arrow
                       className="h-4 w-4"
-                      direction={trx.type === 'incoming' ? 'right' : 'left'}
+                      direction={trx.type === 'INCOMING' ? 'right' : 'left'}
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
-                    {trx.date}
+                    {trx.createdAt}
                   </Table.Cell>
-                  <Table.Cell>{trx.merchant}</Table.Cell>
+                  <Table.Cell>{trx.description ?? 'No description'}</Table.Cell>
                   <Table.Cell>
                     <Badge
                       intent={getStatusBadgeIntent(trx.status)}
@@ -64,7 +69,9 @@ export default function TransactionsPage({
                       text={trx.status}
                     />
                   </Table.Cell>
-                  <Table.Cell>{trx.amount}</Table.Cell>
+                  <Table.Cell>
+                    {trx.value} {trx.assetCode}
+                  </Table.Cell>
                 </Table.Row>
               ))
             ) : (
@@ -89,14 +96,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointer: PaymentPointer
-  transactions: {
-    id: string
-    type: 'incoming' | 'outgoing'
-    date: string
-    merchant: string
-    amount: number
-    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'EXPIRED' | 'FUNDING'
-  }[]
+  transactions: TransactionWithFormattedValue[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -106,83 +106,56 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse, paymentPointerResponse] = await Promise.all([
-    accountService.get(result.data.accountId, ctx.req.headers.cookie),
-    paymentPointerService.get(
-      result.data.accountId,
-      result.data.paymentPointerId,
-      ctx.req.headers.cookie
-    )
-  ])
+  const [accountResponse, paymentPointerResponse, transactionsResponse] =
+    await Promise.all([
+      accountService.get(result.data.accountId, ctx.req.headers.cookie),
+      paymentPointerService.get(
+        result.data.accountId,
+        result.data.paymentPointerId,
+        ctx.req.headers.cookie
+      ),
+      paymentPointerService.getTransactions(
+        result.data.accountId,
+        result.data.paymentPointerId,
+        ctx.req.headers.cookie
+      )
+    ])
 
-  if (!accountResponse.success || !paymentPointerResponse.success) {
+  if (
+    !accountResponse.success ||
+    !paymentPointerResponse.success ||
+    !transactionsResponse.success
+  ) {
     return {
       notFound: true
     }
   }
 
-  if (!accountResponse.data || !paymentPointerResponse.data) {
+  if (
+    !accountResponse.data ||
+    !paymentPointerResponse.data ||
+    !transactionsResponse.data
+  ) {
     return {
       notFound: true
     }
   }
 
-  // TODO: Get transactions
+  const transactions = transactionsResponse.data.map((trx) => ({
+    ...trx,
+    createdAt: new Date(trx.createdAt).toLocaleDateString('default', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }),
+    value: formatAmount(trx.value)
+  }))
 
   return {
     props: {
       account: accountResponse.data,
       paymentPointer: paymentPointerResponse.data,
-      transactions: [
-        {
-          id: '#1111',
-          type: 'incoming',
-          date: new Date().toLocaleDateString('default', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-          }),
-          merchant: '$rafiki.money/john',
-          amount: 4000,
-          status: 'COMPLETED'
-        },
-        {
-          id: '#1112',
-          type: 'incoming',
-          date: new Date().toLocaleDateString('default', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-          }),
-          merchant: '$rafiki.money/john',
-          amount: 4000,
-          status: 'FUNDING'
-        },
-        {
-          id: '#1113',
-          type: 'incoming',
-          date: new Date().toLocaleString('default', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-          }),
-          merchant: '$rafiki.money/john',
-          amount: 4000,
-          status: 'EXPIRED'
-        },
-        {
-          id: '#1114',
-          type: 'outgoing',
-          date: new Date().toLocaleDateString('default', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-          }),
-          merchant: '$rafiki.money/john',
-          amount: 4000,
-          status: 'PENDING'
-        }
-      ]
+      transactions
     }
   }
 }
