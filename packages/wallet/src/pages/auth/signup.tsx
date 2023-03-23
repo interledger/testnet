@@ -74,7 +74,7 @@ const SignUp = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play />
+            <Play loading={signUpForm.formState.isSubmitting} />
           </button>
         </Form>
       </div>

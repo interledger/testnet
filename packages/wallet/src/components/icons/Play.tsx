@@ -1,6 +1,9 @@
+import { cx } from 'class-variance-authority'
 import { SVGProps } from 'react'
 
-export const Play = (props: SVGProps<SVGSVGElement>) => {
+type PlayProps = SVGProps<SVGSVGElement> & { loading?: boolean }
+
+export const Play = (props: PlayProps) => {
   return (
     <svg
       width="40"
@@ -8,6 +11,7 @@ export const Play = (props: SVGProps<SVGSVGElement>) => {
       viewBox="0 0 40 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={cx(props.loading ? 'animate-ping' : '')}
       {...props}
     >
       <path

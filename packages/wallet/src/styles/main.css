@@ -17,3 +17,11 @@
 #__next {
   @apply h-full;
 }
+
+#nprogress {
+  @apply pointer-events-none;
+}
+
+#nprogress .bar {
+  @apply fixed top-0 right-0 z-[1000] h-1.5 w-full bg-pink;
+}

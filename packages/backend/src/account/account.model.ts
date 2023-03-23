@@ -13,6 +13,7 @@ export class Account extends Model {
   rapydAccountId!: string
   paymentPointers?: Array<PaymentPointerModel>
   user!: User
+  balance!: string
 
   static relationMappings = () => ({
     user: {

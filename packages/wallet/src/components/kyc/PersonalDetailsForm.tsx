@@ -117,7 +117,11 @@ export const PersonalDetailsForm = () => {
         error={personalDetailsForm.formState.errors.zip?.message}
         label="ZIP Code"
       />
-      <Button aria-label="Get Wallet Account" type="submit">
+      <Button
+        aria-label="Get Wallet Account"
+        type="submit"
+        loading={personalDetailsForm.formState.isSubmitting}
+      >
         Get Wallet Account
       </Button>
     </Form>
