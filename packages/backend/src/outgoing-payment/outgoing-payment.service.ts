@@ -22,15 +22,15 @@ export const createPayment = async (
   try {
     const {
       incomingPaymentUrl,
-      toPaymentPointerId,
+      toPaymentPointerUrl,
       paymentPointerId,
       amount,
       isReceive
     } = await zParse(outgoingPaymentSchema, req)
 
-    if (!incomingPaymentUrl && !toPaymentPointerId) {
+    if (!incomingPaymentUrl && !toPaymentPointerUrl) {
       throw new BadRequestException(
-        'incomingPaymentUrl or toPaymentPointerId shoudl be defined'
+        'incomingPaymentUrl or toPaymentPointerUrl shoudl be defined'
       )
     }
 
@@ -53,7 +53,7 @@ export const createPayment = async (
 
     const paymentUrl: string =
       incomingPaymentUrl ||
-      (await createReceiver(amount, asset, toPaymentPointerId))
+      (await createReceiver(amount, asset, toPaymentPointerUrl))
 
     const quote = await createQuote(
       paymentPointerId,
@@ -86,16 +86,20 @@ export const createPayment = async (
 async function createReceiver(
   amount: number,
   asset: Asset,
-  paymentPointerId = ''
+  paymentPointerUrl = ''
 ): Promise<string> {
-  const existingPaymentPointer = await PaymentPointerModel.query().findById(
-    paymentPointerId
-  )
+  const existingPaymentPointer = await PaymentPointerModel.query().findOne({
+    url: paymentPointerUrl
+  })
   if (!existingPaymentPointer) {
     throw new BadRequestException('Invalid payment pointer')
   }
 
-  const response = await createIncomingPayment(paymentPointerId, amount, asset)
+  const response = await createIncomingPayment(
+    existingPaymentPointer.id,
+    amount,
+    asset
+  )
 
   return `${existingPaymentPointer.url}/incoming-payments/${response.id}`
 }
