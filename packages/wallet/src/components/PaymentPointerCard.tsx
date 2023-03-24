@@ -16,6 +16,7 @@ import { PencilSquare } from './icons/Pencil'
 import { X } from './icons/X'
 import { PaymentPointer } from '@/lib/api/paymentPointer'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
+import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
@@ -27,7 +28,7 @@ const PaymentPointerInput = forwardRef<
 >((props, ref) => {
   return (
     <div className="flex w-full items-center rounded-md px-1">
-      <span>$rafiki.money/</span>
+      <span>{OPEN_PAYMENTS_HOST}</span>
       <input
         className="underline outline-none"
         defaultValue={'test'}
@@ -74,7 +75,7 @@ export const PaymentPointerCard = ({
   const form = useZodForm({
     schema: paymentPointerSchema,
     defaultValues: {
-      paymentPointer: paymentPointer.url.split('/')[1]
+      paymentPointer: paymentPointer.url.split('/')[3]
     }
   })
 
