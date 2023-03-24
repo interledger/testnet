@@ -122,7 +122,7 @@ export class WebHookService {
   }
 
   amountToNumber(amount: Amount) {
-    return (Number(amount.value) / 100).toFixed(amount.assetScale)
+    return Number(amount.value).toFixed(amount.assetScale)
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
@@ -139,7 +139,11 @@ Action: Withdraw liquidity
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    console.log(`Amount to deposit on incoming payment completed: ${amount}`)
+    console.log(
+      `Amount to deposit on incoming payment completed: ${+this.amountToNumber(
+        amount
+      )}`
+    )
 
     const result = await rapydDepositLiquidity({
       amount: +this.amountToNumber(amount),
@@ -192,7 +196,11 @@ Action: Deposit liquidity
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    console.log(`Amount to withdraw on outgoing payment created: ${amount}`)
+    console.log(
+      `Amount to withdraw on outgoing payment created:  ${+this.amountToNumber(
+        amount
+      )}`
+    )
 
     const result = await rapydWithdrawLiquidity({
       amount: +this.amountToNumber(amount),

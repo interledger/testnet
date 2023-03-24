@@ -42,7 +42,7 @@ const rapydWithdrawLiquidity = async (req: RapydWithdrawRequest) => {
 }
 
 const rapydDepositLiquidity = async (req: RapydDepositRequest) => {
-  return await makeRapydPostRequest('account/withdraw', JSON.stringify(req))
+  return await makeRapydPostRequest('account/deposit', JSON.stringify(req))
 }
 
 const getAccountsBalance = async (
