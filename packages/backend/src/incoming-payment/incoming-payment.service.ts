@@ -40,7 +40,7 @@ export const createPayment = async (
 
     const response = await createIncomingPayment(
       paymentPointerId,
-      amount,
+      amount * 10 ** asset.scale,
       asset
     )
 
@@ -48,7 +48,7 @@ export const createPayment = async (
       paymentPointerId: existingPaymentPointer.id,
       paymentId: response.id,
       assetCode: asset.code,
-      value: amount,
+      value: amount * 10 ** asset.scale,
       type: 'INCOMING',
       status: 'PENDING'
     })
