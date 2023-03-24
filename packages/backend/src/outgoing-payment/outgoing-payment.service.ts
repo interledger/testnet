@@ -8,7 +8,7 @@ import { NotFoundException } from '../shared/models/errors/NotFoundException'
 import { outgoingPaymentSchema } from './outgoing-payment.schema'
 import { TransactionModel } from '../transaction/transaction.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
-import { findAccountById } from '../account/account.service'
+import { findAccountById, getAccountBalance } from '../account/account.service'
 import { createOutgoingPayment } from '../rafiki/request/outgoing-payment.request'
 import { createQuote } from '../rafiki/request/quote.request'
 import { Asset } from '../rafiki/generated/graphql'
@@ -42,10 +42,16 @@ export const createPayment = async (
       throw new BadRequestException('Invalid payment pointer')
     }
 
-    const { assetRafikiId } = await findAccountById(
+    const { assetRafikiId, assetCode } = await findAccountById(
       existingPaymentPointer.accountId,
       userId
     )
+    const balance = await getAccountBalance(userId, assetCode)
+
+    if (parseFloat(balance) < amount) {
+      throw new BadRequestException('Not enough founds in account')
+    }
+
     const asset = await getAsset(assetRafikiId)
     if (!asset) {
       throw new NotFoundException()
