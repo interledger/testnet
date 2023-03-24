@@ -34,7 +34,7 @@ export async function withdrawLiqudity(eventId: string) {
   const response = await graphqlClient.request<
     WithdrawLiquidityMutation,
     WithdrawLiquidityMutationVariables
-  >(depositLiquidityMutation, {
+  >(withdrawLiquidityMutation, {
     eventId
   })
 
@@ -52,14 +52,13 @@ export async function depositLiquidity(eventId: string) {
   const response = await graphqlClient.request<
     DepositLiquidityMutation,
     DepositLiquidityMutationVariables
-  >(withdrawLiquidityMutation, {
+  >(depositLiquidityMutation, {
     eventId
   })
 
   if (!response.depositEventLiquidity?.success) {
     throw new BadRequestException(
-      response.depositEventLiquidity?.message ||
-        'Unable to withdrawLiquidity from rafiki'
+      response.depositEventLiquidity?.message || 'Unable to deposit to rafiki'
     )
   }
 

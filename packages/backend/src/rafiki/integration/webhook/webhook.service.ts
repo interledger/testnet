@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
 
 import {
@@ -58,7 +59,15 @@ export class WebHookService {
   }
 
   private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
-    const ppId = wh.data.paymentPointerId as string
+    let ppId = ''
+    if (wh.type === EventType.IncomingPaymentCompleted) {
+      console.log(`incoming: ${JSON.stringify(wh)}`)
+      ppId = (wh.data.incomingPayment as any).paymentPointerId as string
+    }
+    if (wh.type === EventType.OutgoingPaymentCreated) {
+      console.log(`outgoing: ${JSON.stringify(wh)}`)
+      ppId = (wh.data.payment as any).paymentPointerId as string
+    }
 
     const pp = await PaymentPointerModel.query()
       .findById(ppId)
@@ -87,8 +96,11 @@ export class WebHookService {
 
   private getAmountFromWebHook(wh: WebHook): Amount {
     let amount
-    if (wh.type === EventType.OutgoingPaymentCompleted) {
-      const amtSend = this.parseAmount(wh.data.sendAmount as AmountJSON)
+    if (wh.type === EventType.OutgoingPaymentCreated) {
+      console.log(`amount on created: ${JSON.stringify(wh)} `)
+      const amtSend = this.parseAmount(
+        (wh.data.payment as any).sendAmount as AmountJSON
+      )
       //* maybe store this as transaction data
       // const amtSent = this.parseAmount(payment['sentAmount'])
       // const fee = amtSend.value - amtSent.value
@@ -96,7 +108,10 @@ export class WebHookService {
     }
 
     if (wh.type === EventType.IncomingPaymentCompleted) {
-      amount = this.parseAmount(wh.data.receivedAmount as AmountJSON)
+      console.log(`amount on incoming: ${JSON.stringify(wh)} `)
+      amount = this.parseAmount(
+        (wh.data.incomingPayment as any).receivedAmount as AmountJSON
+      )
     }
 
     if (!amount) {
@@ -123,6 +138,8 @@ Action: Withdraw liquidity
 
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    console.log(`Amount to deposit on incoming payment completed: ${amount}`)
 
     const result = await rapydDepositLiquidity({
       amount: +this.amountToNumber(amount),
@@ -156,6 +173,9 @@ Action: Withdraw liquidity
 
     log.info(`webhook outgoing payment completed: ${wh.id}`)
     //TODO:withdraw liquidity (related to the fee)
+
+    console.log(`Withdrawing from rafiki on  outgoing payment completed`)
+    await withdrawLiqudity(wh.id)
     return true
   }
 
@@ -171,6 +191,8 @@ Action: Deposit liquidity
     */
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    console.log(`Amount to withdraw on outgoing payment created: ${amount}`)
 
     const result = await rapydWithdrawLiquidity({
       amount: +this.amountToNumber(amount),
