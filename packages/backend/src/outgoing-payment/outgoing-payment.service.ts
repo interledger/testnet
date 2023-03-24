@@ -59,12 +59,16 @@ export const createPayment = async (
 
     const paymentUrl: string =
       incomingPaymentUrl ||
-      (await createReceiver(amount, asset, toPaymentPointerUrl))
+      (await createReceiver(
+        amount * 10 ** asset.scale,
+        asset,
+        toPaymentPointerUrl
+      ))
 
     const quote = await createQuote(
       paymentPointerId,
       paymentUrl,
-      amount,
+      amount * 10 ** asset.scale,
       asset,
       isReceive
     )
@@ -74,7 +78,7 @@ export const createPayment = async (
       paymentPointerId: existingPaymentPointer.id,
       paymentId: payment.id,
       assetCode: asset.code,
-      value: amount,
+      value: amount * 10 ** asset.scale,
       type: 'OUTGOING',
       status: 'PENDING'
     })

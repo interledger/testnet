@@ -122,7 +122,9 @@ export class WebHookService {
   }
 
   amountToNumber(amount: Amount) {
-    return Number(amount.value).toFixed(amount.assetScale)
+    return (Number(amount.value) * 10 ** -amount.assetScale).toFixed(
+      amount.assetScale
+    )
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
