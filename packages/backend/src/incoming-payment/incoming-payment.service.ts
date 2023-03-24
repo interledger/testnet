@@ -9,6 +9,7 @@ import { createIncomingPayment } from '../rafiki/request/incoming-payment.reques
 import { TransactionModel } from '../transaction/transaction.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
+import { Asset } from '../rafiki/generated/graphql'
 
 export const createPayment = async (
   req: Request,
@@ -38,20 +39,11 @@ export const createPayment = async (
       throw new NotFoundException()
     }
 
-    const response = await createIncomingPayment(
+    const transaction = await createIncomingPaymentTransactions(
       paymentPointerId,
       amount,
       asset
     )
-
-    const transaction = await TransactionModel.query().insert({
-      paymentPointerId: existingPaymentPointer.id,
-      paymentId: response.id,
-      assetCode: asset.code,
-      value: amount,
-      type: 'INCOMING',
-      status: 'PENDING'
-    })
 
     return res.json({
       success: true,
@@ -61,4 +53,21 @@ export const createPayment = async (
   } catch (e) {
     next(e)
   }
+}
+
+export async function createIncomingPaymentTransactions(
+  paymentPointerId: string,
+  amount: number,
+  asset: Asset
+): Promise<TransactionModel> {
+  const response = await createIncomingPayment(paymentPointerId, amount, asset)
+
+  return TransactionModel.query().insert({
+    paymentPointerId: paymentPointerId,
+    paymentId: response.id,
+    assetCode: asset.code,
+    value: amount,
+    type: 'INCOMING',
+    status: 'PENDING'
+  })
 }
