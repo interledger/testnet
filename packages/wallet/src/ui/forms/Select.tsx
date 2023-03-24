@@ -18,6 +18,7 @@ export type SelectOption = {
 type SelectProps<T extends FieldValues> = {
   name: FieldPath<T>
   setValue: UseFormSetValue<T>
+  onChange?: () => void
   defaultValue?: SelectOption
   options: SelectOption[]
   label?: string
@@ -29,6 +30,7 @@ type SelectProps<T extends FieldValues> = {
 export const Select = <T extends FieldValues>({
   name,
   setValue,
+  onChange,
   defaultValue,
   options,
   label,
@@ -45,8 +47,11 @@ export const Select = <T extends FieldValues>({
    * https://react-hook-form.com/ts#UseControllerProps
    */
   useEffect(() => {
-    if (selected)
+    if (selected) {
       setValue(name, selected.value as FieldPathValue<T, FieldPath<T>>)
+      if (onChange) onChange()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, name, setValue])
 
   return (

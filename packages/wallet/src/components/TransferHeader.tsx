@@ -17,7 +17,7 @@ export const TransferHeader = ({ type, balance }: TransferHeaderProps) => {
   return (
     <div className="text-center">
       <h2 className={cx('text-xl font-light', TYPES[type])}>Total balance</h2>
-      <h3 className={cx('mb-10 text-3xl font-semibold', TYPES[type])}>
+      <h3 className={cx('mb-10 h-10 text-3xl font-semibold', TYPES[type])}>
         {balance}
       </h3>
     </div>

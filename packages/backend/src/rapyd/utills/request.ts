@@ -73,4 +73,19 @@ const makeRapydPostRequest = async (url: string, body: string) => {
   }
 }
 
-export { makeRapydGetRequest, makeRapydPostRequest }
+const makeRapydPutRequest = async (url: string, body: string) => {
+  const headers = getRapydRequestHeader('put', url, body)
+
+  try {
+    const res = await axios.put(`${env.RAPYD_API}/${url}`, JSON.parse(body), {
+      headers
+    })
+
+    return res.data
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (e as any).response.data
+  }
+}
+
+export { makeRapydGetRequest, makeRapydPostRequest, makeRapydPutRequest }

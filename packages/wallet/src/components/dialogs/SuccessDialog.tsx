@@ -3,11 +3,13 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { BirdSuccess } from '../icons/Bird'
 import type { DialogProps } from '@/lib/types/dialog'
+import { CopyButton } from '@/ui/CopyButton'
 
 type SuccessDialogProps = DialogProps & {
   onSuccess?: () => void
   redirect?: string
   redirectText?: string
+  copyToClipboard?: string
 }
 
 export const SuccessDialog = ({
@@ -16,7 +18,8 @@ export const SuccessDialog = ({
   title,
   content,
   redirect,
-  redirectText
+  redirectText,
+  copyToClipboard
 }: SuccessDialogProps) => {
   const successButtonProps: {
     href?: string
@@ -75,6 +78,20 @@ export const SuccessDialog = ({
                   </div>
                 </div>
                 <div className="mt-5 grid grid-cols-1 gap-3">
+                  {copyToClipboard && (
+                    <div>
+                      <p className="mt-2 text-sm font-light text-white">
+                        Incoming payment url (copy to clipboard):
+                      </p>
+                      <p className="mt-2 text-sm font-light text-white">
+                        {copyToClipboard}
+                      </p>
+                      <CopyButton
+                        value={copyToClipboard}
+                        aria-label="copy api key"
+                      />
+                    </div>
+                  )}
                   <Button
                     intent="secondary"
                     aria-label={redirectText ?? 'redirect'}

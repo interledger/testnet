@@ -7,7 +7,7 @@ import {
 } from '../httpClient'
 
 export const createPaymentPointerSchema = z.object({
-  paymentPointerName: z.string().min(3, {
+  paymentPointerName: z.string().toLowerCase().min(3, {
     message:
       'The name of the payment pointer should be at least 3 characters long'
   }),
