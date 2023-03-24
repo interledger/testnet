@@ -24,6 +24,36 @@ export type PaymentPointer = {
   accountId: string
 }
 
+const TRANSACTION_TYPE = {
+  INCOMING: 'INCOMING',
+  OUTGOING: 'OUTGOING'
+} as const
+type TransactionType = keyof typeof TRANSACTION_TYPE
+
+const TRANSACTION_STATUS = {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  REJECTED: 'REJECTED'
+} as const
+type TransactionStatus = keyof typeof TRANSACTION_STATUS
+
+export interface Transaction {
+  id: string
+  paymentId: string
+  description: string
+  paymentPointerId: string
+  assetCode: string
+  value: number
+  type: TransactionType
+  status: TransactionStatus
+  createdAt: string
+  updatedAt: string
+}
+export interface TransactionWithFormattedValue
+  extends Omit<Transaction, 'value'> {
+  value: string
+}
+
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
@@ -39,6 +69,9 @@ type CreatePaymentPointerResponse =
   | CreatePaymentPointerResult
   | CreatePaymentPointerError
 
+type GetTransactionsResult = SuccessResponse<Transaction[]>
+type GetTransactionsResponse = GetTransactionsResult | ErrorResponse
+
 interface PaymentPointerService {
   get: (
     accountId: string,
@@ -53,6 +86,11 @@ interface PaymentPointerService {
     accountId: string,
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
+  getTransactions: (
+    accountId: string,
+    paymentPointerId: string,
+    cookies?: string
+  ) => Promise<GetTransactionsResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -103,6 +141,31 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return response
     } catch (error) {
       return getError<CreatePaymentPointerArgs>(
+        error,
+        'We were not able to create your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async getTransactions(
+    accountId,
+    paymentPointerId,
+    cookies
+  ): Promise<GetTransactionsResponse> {
+    try {
+      const response = await httpClient
+        .get(
+          `accounts/${accountId}/payment-pointers/${paymentPointerId}/transactions`,
+          {
+            headers: {
+              ...(cookies ? { Cookie: cookies } : {})
+            }
+          }
+        )
+        .json<GetTransactionsResult>()
+      return response
+    } catch (error) {
+      return getError(
         error,
         'We were not able to create your payment pointer. Please try again.'
       )
