@@ -4,7 +4,7 @@ import { Exchange } from '@/components/icons/Exchange'
 import { New } from '@/components/icons/New'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
-import { PageHeader } from '@/components/PageHeader'
+
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
