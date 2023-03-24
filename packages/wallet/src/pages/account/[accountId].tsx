@@ -26,17 +26,11 @@ export default function AccountPage({
   const [openDialog, closeDialog] = useDialog()
   return (
     <AppLayout>
-      <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
-        <PageHeader
-          title="Hello, John Doe!"
-          message="Here is your account overview!"
-        />
-        <div className="text-green md:mt-10">
-          <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">
-            {account.balance} {account.assetCode}
-          </p>
-        </div>
+      <div className="text-green">
+        <h2 className="text-lg font-light md:text-xl">Balance</h2>
+        <p className="text-2xl font-semibold md:text-4xl">
+          {account.balance} {account.assetCode}
+        </p>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">
