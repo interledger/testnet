@@ -12,7 +12,7 @@ import { findAccountById, getAccountBalance } from '../account/account.service'
 import { createOutgoingPayment } from '../rafiki/request/outgoing-payment.request'
 import { createQuote } from '../rafiki/request/quote.request'
 import { Asset } from '../rafiki/generated/graphql'
-import { createIncomingPayment } from '../rafiki/request/incoming-payment.request'
+import { createIncomingPaymentTransactions } from '../incoming-payment/incoming-payment.service'
 
 export const createPayment = async (
   req: Request,
@@ -101,11 +101,11 @@ async function createReceiver(
     throw new BadRequestException('Invalid payment pointer')
   }
 
-  const response = await createIncomingPayment(
+  const response = await createIncomingPaymentTransactions(
     existingPaymentPointer.id,
     amount,
     asset
   )
 
-  return `${existingPaymentPointer.url}/incoming-payments/${response.id}`
+  return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
 }
