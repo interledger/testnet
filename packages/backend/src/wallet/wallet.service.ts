@@ -72,9 +72,9 @@ export const createWallet = async (
       rapydEWalletId: eWallet?.id,
       rapydContactId: eWallet?.contacts?.data[0]?.id
     })
-
+    console.log(1)
     if (!user) throw new NotFoundException()
-
+    console.log(2)
     const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
       generateJWT(user)
     appendAccessTokenToCookie(res, newAccessToken, accessTokenExpiresIn)
@@ -97,7 +97,7 @@ export const updateProfile = async (
   try {
     const userId = getUserIdFromRequest(req)
     let user = await User.query().findById(userId)
-    if (!user) throw new Error(`user doesn't exist`)
+    if (!user) throw new NotFoundException()
     const { firstName, lastName } = await zParse(profileSchema, req)
 
     const result = await updateRapydProfile({

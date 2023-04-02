@@ -1,3 +1,12 @@
+const createWalletRequest = {
+  firstName: 'rafiki',
+  lastName: 'test',
+  address: 'addresss',
+  city: 'city',
+  country: 'country',
+  zip: '12345'
+}
+
 const mockRapydWallet: RapydWallet = {
   first_name: 'John',
   last_name: 'Doe',
@@ -40,4 +49,4 @@ const mockRapydWallet: RapydWallet = {
   }
 }
 
-export { mockRapydWallet }
+export { createWalletRequest, mockRapydWallet }
