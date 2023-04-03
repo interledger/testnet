@@ -113,7 +113,7 @@ export const PersonalSettingsForm = ({
           </Button>
         </div>
       )}
-      <div className="mt-6 mb-4">
+      <div className="mb-4 mt-6">
         <Input
           label="Address"
           placeholder="Address"

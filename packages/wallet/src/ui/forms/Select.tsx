@@ -64,7 +64,7 @@ export const Select = <T extends FieldValues>({
       >
         {({ open }) => (
           <div className="relative">
-            <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pt-4 pb-1 text-left shadow-md outline-none transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">
+            <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pb-1 pt-4 text-left shadow-md outline-none transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">
               <span className="block truncate">
                 {selected
                   ? selected.name
