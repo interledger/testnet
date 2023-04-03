@@ -130,20 +130,20 @@ importers:
       postcss: ^8.4.21
       react: 18.2.0
       react-dom: 18.2.0
-      react-hook-form: ^7.43.7
+      react-hook-form: ^7.43.9
       tailwindcss: ^3.2.7
       typescript: ^4.9.5
       zod: ^3.21.4
     dependencies:
       '@headlessui/react': 1.7.13_biqbaboplfbrettd7655fr4n2y
-      '@hookform/resolvers': 3.0.0_react-hook-form@7.43.7
+      '@hookform/resolvers': 3.0.0_react-hook-form@7.43.9
       class-variance-authority: 0.4.0_typescript@4.9.5
       ky: 0.33.3
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
       nprogress: 0.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-hook-form: 7.43.7_react@18.2.0
+      react-hook-form: 7.43.9_react@18.2.0
       zod: 3.21.4
     devDependencies:
       '@next/bundle-analyzer': 13.2.4
@@ -1453,12 +1453,12 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@hookform/resolvers/3.0.0_react-hook-form@7.43.7:
+  /@hookform/resolvers/3.0.0_react-hook-form@7.43.9:
     resolution: {integrity: sha512-SQPefakODpyq25b/phHXDKCdRrEfPcCXV7B4nAa139wE1DxufYbbNAjeo0T04ZXBokRxZ+wD8iA1kkVMa3QwjQ==}
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
-      react-hook-form: 7.43.7_react@18.2.0
+      react-hook-form: 7.43.9_react@18.2.0
     dev: false
 
   /@humanwhocodes/config-array/0.11.8:
@@ -6835,8 +6835,8 @@ packages:
       scheduler: 0.23.0
     dev: false
 
-  /react-hook-form/7.43.7_react@18.2.0:
-    resolution: {integrity: sha512-38yehQkQQ5uufaPKFScs7jhLE8n3+LG9H/BZfFAiBL2+7piDmw/BrdNJV4irzMaPnWZGhmGLHVICHXNVGIuXZg==}
+  /react-hook-form/7.43.9_react@18.2.0:
+    resolution: {integrity: sha512-AUDN3Pz2NSeoxQ7Hs6OhQhDr6gtF9YRuutGDwPQqhSUAHJSgGl2VeY3qN19MG0SucpjgDiuMJ4iC5T5uB+eaNQ==}
     engines: {node: '>=12.22.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18
