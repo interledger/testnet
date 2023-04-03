@@ -20,7 +20,7 @@ const SignUp = () => {
   return (
     <AuthLayout image="Register">
       <HeaderLogo header="Welcome" />
-      <h2 className="mt-10 mb-5 text-xl text-green">Create Account</h2>
+      <h2 className="mb-5 mt-10 text-xl text-green">Create Account</h2>
       <div className="w-2/3">
         <Form
           form={signUpForm}

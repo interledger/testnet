@@ -22,7 +22,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           htmlFor={id}
           className="flex w-24 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-turqoise bg-white text-turqoise hover:border-orange hover:text-orange"
         >
-          <div className="flex h-24 flex-col items-center justify-center pt-5 pb-6">
+          <div className="flex h-24 flex-col items-center justify-center pb-6 pt-5">
             {image ? (
               <Image
                 alt="test"

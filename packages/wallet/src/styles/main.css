@@ -23,5 +23,5 @@
 }
 
 #nprogress .bar {
-  @apply fixed top-0 right-0 z-[1000] h-1.5 w-full bg-pink;
+  @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink;
 }
