@@ -1,6 +1,5 @@
 import { zParse } from '../middlewares/validator'
-import logger from '../utils/logger'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { profileSchema, walletSchema } from './schemas/walletSchema'
 import {
@@ -15,11 +14,10 @@ import { NotFoundException } from '../shared/models/errors/NotFoundException'
 import { appendAccessTokenToCookie, generateJWT } from '../auth/auth.service'
 import { getUserIdFromRequest } from '../utils/getUserId'
 
-const log = logger('WalletService')
-
 export const createWallet = async (
   req: Request,
-  res: Response<BaseResponse>
+  res: Response<BaseResponse>,
+  next: NextFunction
 ) => {
   try {
     const { id, email } = req.user as User
@@ -72,9 +70,8 @@ export const createWallet = async (
       rapydEWalletId: eWallet?.id,
       rapydContactId: eWallet?.contacts?.data[0]?.id
     })
-    console.log(1)
     if (!user) throw new NotFoundException()
-    console.log(2)
+
     const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
       generateJWT(user)
     appendAccessTokenToCookie(res, newAccessToken, accessTokenExpiresIn)
@@ -83,16 +80,14 @@ export const createWallet = async (
       .status(201)
       .json({ message: 'Success', success: true, data: result.data })
   } catch (error) {
-    log.error(error)
-    return res
-      .status(500)
-      .json({ message: 'Unable to create wallet', success: false })
+    next(error)
   }
 }
 
 export const updateProfile = async (
   req: Request,
-  res: Response<BaseResponse>
+  res: Response<BaseResponse>,
+  next: NextFunction
 ) => {
   try {
     const userId = getUserIdFromRequest(req)
@@ -124,16 +119,14 @@ export const updateProfile = async (
       .status(201)
       .json({ message: 'Success', success: true, data: result.data })
   } catch (error) {
-    log.error(error)
-    return res
-      .status(500)
-      .json({ message: 'Unable to update profile', success: false })
+    next(error)
   }
 }
 
 export const verifyIdentity = async (
   req: Request,
-  res: Response<BaseResponse>
+  res: Response<BaseResponse>,
+  next: NextFunction
 ) => {
   try {
     const { id } = req.user as User
@@ -149,7 +142,7 @@ export const verifyIdentity = async (
     } = await zParse(kycSchema, req)
 
     const user = await User.query().findById(id)
-    if (!user) throw new Error(`user doesn't exist`)
+    if (!user) throw new NotFoundException()
 
     const country = user.country
     if (!country) throw new Error(`country code doesn't exist in database`)
@@ -178,9 +171,6 @@ export const verifyIdentity = async (
       .status(201)
       .json({ message: 'Success', success: true, data: result.data })
   } catch (error) {
-    log.error(error)
-    return res
-      .status(500)
-      .json({ message: 'Unable to send kyc documents', success: false })
+    next(error)
   }
 }

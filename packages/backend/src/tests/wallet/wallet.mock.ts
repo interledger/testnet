@@ -7,6 +7,16 @@ const createWalletRequest = {
   zip: '12345'
 }
 
+const verifyIdentityRequest = {
+  documentType: 'PA',
+  frontSideImage: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMk=',
+  frontSideImageType: 'image/jpeg',
+  faceImage: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMSEhUSEhIVFhUXGBoVGRgk=',
+  faceImageType: 'image/jpeg',
+  backSideImage: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMk=',
+  backSideImageType: 'image/jpeg'
+}
+
 const mockRapydWallet: RapydWallet = {
   first_name: 'John',
   last_name: 'Doe',
@@ -49,4 +59,23 @@ const mockRapydWallet: RapydWallet = {
   }
 }
 
-export { createWalletRequest, mockRapydWallet }
+const mockVerifyIdentityResponse = {
+  status: {
+    error_code: '',
+    status: 'SUCCESS',
+    message: '',
+    response_code: '',
+    operation_id: '70d9e1a7-416d-45ab-bfee-95788f8d1bbb'
+  },
+  data: {
+    id: 'kycid_6899d0a145c264bdb04fc7dc421a03f3',
+    reference_id: '555'
+  }
+}
+
+export {
+  createWalletRequest,
+  mockRapydWallet,
+  verifyIdentityRequest,
+  mockVerifyIdentityResponse
+}
