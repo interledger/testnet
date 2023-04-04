@@ -5,7 +5,7 @@ WORKDIR /home/testnet/rafiki
 
 # Install PNPM
 RUN corepack enable
-RUN corepack prepare pnpm@7.30.5 --activate
+RUN corepack prepare pnpm@7.31.0 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY rafiki/pnpm-lock.yaml ./
