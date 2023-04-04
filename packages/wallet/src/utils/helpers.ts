@@ -41,3 +41,7 @@ export const fetchDocuments = async (): Promise<DocumentType[]> => {
     return []
   }
 }
+
+export const formatAmount = (value: number, scale = 2) => {
+  return (value * 10 ** -scale).toFixed(scale)
+}

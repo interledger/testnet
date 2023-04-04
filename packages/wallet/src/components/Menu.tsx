@@ -107,7 +107,7 @@ export const Menu = () => {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="relative flex w-64 flex-col overflow-hidden rounded-l-3xl bg-white pl-4 pt-5 pb-4">
+              <Dialog.Panel className="relative flex w-64 flex-col overflow-hidden rounded-l-3xl bg-white pb-4 pl-4 pt-5">
                 <button
                   className="ml-auto mr-4 inline-block"
                   type="button"
@@ -170,7 +170,7 @@ export const Menu = () => {
       </Transition.Root>
       {/* Mobile Menu - END */}
       {/* Desktop Menu */}
-      <nav className="fixed inset-x-0 z-10 flex h-20 flex-col shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
+      <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
         <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
           <div className="flex items-center font-semibold text-green">
             <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />

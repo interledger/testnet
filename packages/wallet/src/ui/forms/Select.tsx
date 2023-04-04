@@ -4,8 +4,9 @@ import { cx } from 'class-variance-authority'
 import { useEffect, useState } from 'react'
 import type {
   FieldPath,
-  FieldPathValue,
   FieldValues,
+  Path,
+  PathValue,
   UseFormSetValue
 } from 'react-hook-form'
 import { FieldError } from './FieldError'
@@ -18,6 +19,7 @@ export type SelectOption = {
 type SelectProps<T extends FieldValues> = {
   name: FieldPath<T>
   setValue: UseFormSetValue<T>
+  onChange?: () => void
   defaultValue?: SelectOption
   options: SelectOption[]
   label?: string
@@ -29,6 +31,7 @@ type SelectProps<T extends FieldValues> = {
 export const Select = <T extends FieldValues>({
   name,
   setValue,
+  onChange,
   defaultValue,
   options,
   label,
@@ -45,8 +48,11 @@ export const Select = <T extends FieldValues>({
    * https://react-hook-form.com/ts#UseControllerProps
    */
   useEffect(() => {
-    if (selected)
-      setValue(name, selected.value as FieldPathValue<T, FieldPath<T>>)
+    if (selected) {
+      setValue(name, selected.value as PathValue<T, Path<T>>)
+      if (onChange) onChange()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, name, setValue])
 
   return (
@@ -59,7 +65,7 @@ export const Select = <T extends FieldValues>({
       >
         {({ open }) => (
           <div className="relative">
-            <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pt-4 pb-1 text-left shadow-md outline-none transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">
+            <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pb-1 pt-4 text-left shadow-md outline-none transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">
               <span className="block truncate">
                 {selected
                   ? selected.name

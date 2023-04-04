@@ -9,7 +9,7 @@ export default function Welcome() {
   return (
     <AuthLayout image="Park">
       <HeaderLogo header="Welcome" />
-      <h2 className="mt-5 mb-10 text-xl font-light text-green md:mt-20">
+      <h2 className="mb-10 mt-5 text-xl font-light text-green md:mt-20">
         Already a customer?
       </h2>
       <Button aria-label="log in" href="auth/login">

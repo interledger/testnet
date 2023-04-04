@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/paymentPointer'
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
+import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -105,7 +106,7 @@ export const CreatePaymentPointerDialog = ({
                         )}
                       />
                       <p className="ml-2 text-sm text-green">
-                        $rafiki.money/
+                        {OPEN_PAYMENTS_HOST}
                         {createPaymentPointerForm.watch('paymentPointerName')}
                       </p>
                     </div>
