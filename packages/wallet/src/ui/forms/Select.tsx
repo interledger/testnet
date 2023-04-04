@@ -4,8 +4,9 @@ import { cx } from 'class-variance-authority'
 import { useEffect, useState } from 'react'
 import type {
   FieldPath,
-  FieldPathValue,
   FieldValues,
+  Path,
+  PathValue,
   UseFormSetValue
 } from 'react-hook-form'
 import { FieldError } from './FieldError'
@@ -48,7 +49,7 @@ export const Select = <T extends FieldValues>({
    */
   useEffect(() => {
     if (selected) {
-      setValue(name, selected.value as FieldPathValue<T, FieldPath<T>>)
+      setValue(name, selected.value as PathValue<T, Path<T>>)
       if (onChange) onChange()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
