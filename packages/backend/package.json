@@ -24,7 +24,7 @@
     "open-payments": "workspace:../../rafiki/packages/open-payments",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
-    "testcontainers": "^9.3.0",
+    "testcontainers": "^9.4.0",
     "ts-jest": "^29.1.0",
     "pg": "^8.10.0",
     "uuid": "^9.0.0",
