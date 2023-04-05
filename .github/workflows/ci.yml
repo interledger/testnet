@@ -55,7 +55,7 @@ jobs:
       - run: pnpm --filter backend-update test
 
   build-backend-update:
-    name: Test backend update
+    name: Build backend update
     runs-on: ubuntu-latest
     needs: test-backend-update
     steps:
