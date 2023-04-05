@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: ./github/workflows/setup
+      - uses: ./.github/workflows/setup
       - run: pnpm --filter backend-update test
 
   build-backend-update:
@@ -62,5 +62,5 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: ./github/workflows/setup
-      - run: pnpm --filter backend-update test
+      - uses: ./.github/workflows/setup
+      - run: pnpm --filter backend-update build
