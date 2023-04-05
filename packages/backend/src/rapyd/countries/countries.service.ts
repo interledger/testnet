@@ -1,22 +1,20 @@
-import logger from '../../utils/logger'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../../shared/models/BaseResponse'
+import { ThirdPartyApiFailedException } from '../../shared/models/errors/ThirdPartyApiFailedException'
 import { makeRapydGetRequest } from '../utills/request'
-
-const log = logger('rapydService')
 
 export const getCountryNames = async (
   _: Request,
-  res: Response<BaseResponse>
+  res: Response<BaseResponse>,
+  next: NextFunction
 ) => {
   try {
     const result = await makeRapydGetRequest('data/countries')
 
     if (result.status.status !== 'SUCCESS')
-      return res.status(500).json({
-        message: `Unable to get country names from rapyd : ${result.status.message}`,
-        success: false
-      })
+      throw new ThirdPartyApiFailedException(
+        'Unable to get country names from rapyd'
+      )
 
     const countryNames = result.data.map((item: RapydCountry) => ({
       name: item.name,
@@ -27,10 +25,6 @@ export const getCountryNames = async (
       .status(200)
       .json({ message: 'Success', success: true, data: countryNames })
   } catch (error) {
-    log.error(error)
-    return res.status(500).json({
-      message: 'Unable to get country names from rapyd',
-      success: false
-    })
+    next(error)
   }
 }
