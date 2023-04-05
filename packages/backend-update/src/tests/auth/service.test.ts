@@ -5,14 +5,16 @@ import { Container } from '@/container'
 import { createApp, TestApp } from '../app'
 import { Knex } from 'knex'
 import { truncateTables } from '../tables'
-import { AuthService } from '@/auth/service'
+import type { AuthService } from '@/auth/service'
 import { faker } from '@faker-js/faker'
+import type { UserService } from '@/user/service'
 
 describe('Authentication Service', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
+  let userService: UserService
 
   const args = {
     email: faker.internet.email(),
@@ -24,6 +26,7 @@ describe('Authentication Service', (): void => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
+    userService = await bindings.resolve('userService')
   })
 
   afterAll(async (): Promise<void> => {
@@ -37,15 +40,15 @@ describe('Authentication Service', (): void => {
 
   describe('Create User', (): void => {
     it('creates a new user', async (): Promise<void> => {
-      await expect(authService.createUser(args)).resolves.toMatchObject({
+      await expect(userService.create(args)).resolves.toMatchObject({
         email: args.email
       })
     })
 
     it('throws an error if the email is already in use', async (): Promise<void> => {
-      await authService.createUser(args)
+      await userService.create(args)
 
-      await expect(authService.createUser(args)).rejects.toThrowError(
+      await expect(userService.create(args)).rejects.toThrowError(
         /Email already in use/
       )
     })
@@ -53,7 +56,7 @@ describe('Authentication Service', (): void => {
 
   describe('Authorize', (): void => {
     it('authorizes a user', async (): Promise<void> => {
-      const user = await authService.createUser(args)
+      const user = await userService.create(args)
 
       await expect(authService.authorize(args)).resolves.toMatchObject({
         session: {
@@ -73,7 +76,7 @@ describe('Authentication Service', (): void => {
     })
 
     it('throws an error if the password is invalid', async (): Promise<void> => {
-      await authService.createUser(args)
+      await userService.create(args)
 
       await expect(
         authService.authorize({ ...args, password: 'invalid' })

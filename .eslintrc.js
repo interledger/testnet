@@ -28,7 +28,7 @@ module.exports = {
       { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' }
     ]
   },
-  ignorePatterns: ['**/*.js', '**/*.json', 'node_modules', 'dist'],
+  ignorePatterns: ['**/*.js', '**/*.json', 'node_modules', 'dist', 'coverage'],
   settings: {
     react: {
       version: 'detect'

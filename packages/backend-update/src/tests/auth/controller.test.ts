@@ -12,12 +12,13 @@ import {
   MockRequest,
   MockResponse
 } from 'node-mocks-http'
-import { AuthController } from '@/auth/controller'
-import { AuthService } from '@/auth/service'
+import type { AuthController } from '@/auth/controller'
+import type { AuthService } from '@/auth/service'
 import { errorHandler } from '@/middleware/errorHandler'
 import { faker } from '@faker-js/faker'
 import { applyMiddleware } from '../utils'
 import { withSession } from '@/middleware/withSession'
+import type { UserService } from '@/user/service'
 
 describe('Authentication Controller', (): void => {
   let bindings: Container<Bindings>
@@ -25,6 +26,7 @@ describe('Authentication Controller', (): void => {
   let knex: Knex
   let authService: AuthService
   let authController: AuthController
+  let userService: UserService
   let request: MockRequest<Request>
   let response: MockResponse<Response>
 
@@ -40,6 +42,7 @@ describe('Authentication Controller', (): void => {
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
     authController = await bindings.resolve('authController')
+    userService = await bindings.resolve('userService')
   })
 
   beforeEach(async (): Promise<void> => {
@@ -63,7 +66,7 @@ describe('Authentication Controller', (): void => {
         confirmPassword: args.password
       }
 
-      const createSpy = jest.spyOn(authService, 'createUser')
+      const createSpy = jest.spyOn(userService, 'create')
       await authController.signUp(request, response, nextFunction)
 
       expect(createSpy).toHaveBeenCalledWith(args)
@@ -101,7 +104,7 @@ describe('Authentication Controller', (): void => {
       }
 
       const createSpy = jest
-        .spyOn(authService, 'createUser')
+        .spyOn(userService, 'create')
         .mockRejectedValueOnce(new Error('Unexpected error'))
       await authController.signUp(request, response, (err) => {
         nextFunction()
@@ -124,7 +127,7 @@ describe('Authentication Controller', (): void => {
         ...args
       }
 
-      const user = await authService.createUser(args)
+      const user = await userService.create(args)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
       await applyMiddleware(withSession, request, response)
       await authController.logIn(request, response, nextFunction)

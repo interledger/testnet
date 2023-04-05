@@ -1,10 +1,10 @@
 import axios, { AxiosError } from 'axios'
 import { createContainer } from '@/index'
-import { Bindings } from '@/app'
+import type { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { Container } from '@/container'
+import type { Container } from '@/container'
 import { createApp, TestApp } from './app'
-import { Knex } from 'knex'
+import type { Knex } from 'knex'
 
 describe('Application', (): void => {
   let bindings: Container<Bindings>

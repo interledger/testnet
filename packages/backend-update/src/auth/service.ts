@@ -1,39 +1,24 @@
 import { User } from '@/user/model'
-import { Conflict, Unauthorized } from '@/errors'
-import { UserService } from '../user/service'
+import { Unauthorized } from '@/errors'
 import addSeconds from 'date-fns/addSeconds'
 import { Env } from '@/config/env'
 import { Session } from '@/session/model'
 
-interface CreateUserArgs {
+interface AuthorizeArgs {
   email: string
   password: string
 }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface AuthorizeArgs extends CreateUserArgs {}
 interface AuthorizeResult {
   user: User
   session: Session
 }
 
 interface IAuthService {
-  createUser(args: CreateUserArgs): Promise<User>
   authorize(args: AuthorizeArgs): Promise<AuthorizeResult>
 }
 
 export class AuthService implements IAuthService {
-  constructor(private userService: UserService, private env: Env) {}
-
-  public async createUser(args: CreateUserArgs): Promise<User> {
-    const existingUser = await this.userService.getByEmail(args.email)
-
-    if (existingUser) {
-      throw new Conflict('Email already in use')
-    }
-
-    return User.query().insertAndFetch(args)
-  }
+  constructor(private env: Env) {}
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
     const user = await User.query().findOne({ email: args.email })

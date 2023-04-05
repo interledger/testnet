@@ -42,14 +42,15 @@ export const createContainer = (config: Env): Container<Bindings> => {
   // Authenication Modules
   container.register('authService', async () => {
     const env = await container.resolve('env')
-    const userService = await container.resolve('userService')
-    return new AuthService(userService, env)
+    return new AuthService(env)
   })
+
   container.register('authController', async () => {
     const logger = await container.resolve('logger')
     const authService = await container.resolve('authService')
+    const userService = await container.resolve('userService')
 
-    return new AuthController(authService, logger)
+    return new AuthController(authService, userService, logger)
   })
 
   return container
