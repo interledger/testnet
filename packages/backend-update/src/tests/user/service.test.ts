@@ -1,0 +1,53 @@
+import { createContainer } from '@/index'
+import { Bindings } from '@/app'
+import { env } from '@/config/env'
+import { Container } from '@/container'
+import { createApp, TestApp } from '../app'
+import { Knex } from 'knex'
+import { truncateTables } from '../tables'
+import { faker } from '@faker-js/faker'
+import type { UserService } from '@/user/service'
+
+describe('User Service', (): void => {
+  let bindings: Container<Bindings>
+  let appContainer: TestApp
+  let knex: Knex
+  let userService: UserService
+
+  const args = {
+    email: faker.internet.email(),
+    password: faker.internet.password()
+  }
+
+  beforeAll(async (): Promise<void> => {
+    bindings = createContainer(env)
+    appContainer = await createApp(bindings)
+    knex = appContainer.knex
+    userService = await bindings.resolve('userService')
+  })
+
+  afterAll(async (): Promise<void> => {
+    appContainer.stop()
+    knex.destroy()
+  })
+
+  afterEach(async (): Promise<void> => {
+    await truncateTables(knex)
+  })
+
+  describe('Create User', (): void => {
+    it('creates a new user', async (): Promise<void> => {
+      await expect(userService.create(args)).resolves.toMatchObject({
+        email: args.email
+      })
+    })
+
+    it('throws an error if the email is already in use', async (): Promise<void> => {
+      await userService.create(args)
+
+      await expect(userService.create(args)).rejects.toThrowError(
+        /Email already in use/
+      )
+    })
+  })
+})
