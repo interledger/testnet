@@ -72,7 +72,7 @@ describe('Authentication Controller', (): void => {
       expect(createSpy).toHaveBeenCalledWith(args)
       expect(next).toHaveBeenCalledTimes(0)
       expect(res.statusCode).toBe(201)
-      expect(req._getJSONData()).toMatchObject({
+      expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'User created successfully'
       })
