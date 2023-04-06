@@ -1,14 +1,13 @@
-import logger from '../../utils/logger'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../../shared/models/BaseResponse'
 import { makeRapydGetRequest } from '../utills/request'
 import { User } from '../../user/models/user'
-
-const log = logger('rapydService')
+import { ThirdPartyApiFailedException } from '../../shared/models/errors/ThirdPartyApiFailedException'
 
 export const getDocumentTypes = async (
   req: Request,
-  res: Response<BaseResponse>
+  res: Response<BaseResponse>,
+  next: NextFunction
 ) => {
   try {
     const { email } = req.user as User
@@ -24,10 +23,9 @@ export const getDocumentTypes = async (
     )
 
     if (result.status.status !== 'SUCCESS')
-      return res.status(500).json({
-        message: `Unable to get document types from rapyd : ${result.status.message}`,
-        success: false
-      })
+      throw new ThirdPartyApiFailedException(
+        'Unable to get document types from rapid'
+      )
 
     const documentTypes = result.data.map((item: RapydDocumentType) => ({
       type: item.type,
@@ -39,10 +37,6 @@ export const getDocumentTypes = async (
       .status(200)
       .json({ message: 'Success', success: true, data: documentTypes })
   } catch (error) {
-    log.error(error)
-    return res.status(500).json({
-      message: 'Unable to get document types from rapyd',
-      success: false
-    })
+    next(error)
   }
 }

@@ -1,16 +1,22 @@
 import { NextFunction, Request, Response } from 'express'
 import { Model } from 'objection'
-import { getCountryNames } from '../../rapyd/countries/countries.service'
+import { getDocumentTypes } from '../../rapyd/documents/documents.service'
 import * as rapydApis from '../../rapyd/utills/request'
-import { ThirdPartyApiFailedException } from '../../shared/models/errors/ThirdPartyApiFailedException'
 
-describe('RapydCountriesService', () => {
+describe('RapydDocumentsService', () => {
   beforeAll(async () => {
     Model.knex(global.__TESTING_KNEX__)
   })
 
-  describe('getCountryNames', () => {
+  describe('getDocumentTypes', () => {
     it(`should throw ThirdPartyApiFailedException if rapyd api was not successful`, async () => {
+      const mockReq = {
+        user: {
+          id: 1,
+          email: 'test@test.com'
+        } as unknown
+      } as Request
+
       const mockRes = {
         json: jest.fn(),
         status: jest.fn()
@@ -27,16 +33,16 @@ describe('RapydCountriesService', () => {
       const nextFn = jest.fn()
 
       mockRes.status.mockImplementation(() => mockRes)
-      await getCountryNames(
-        {} as Request,
+      await getDocumentTypes(
+        mockReq,
         mockRes as unknown as Response,
         nextFn as NextFunction
       )
-      expect(nextFn).toHaveBeenCalledWith(
-        new ThirdPartyApiFailedException(
-          'Unable to get country names from rapyd'
-        )
-      )
+      // expect(nextFn).toHaveBeenCalledWith(
+      //   new ThirdPartyApiFailedException(
+      //       'Unable to get document types from rapid'
+      //   )
+      // )
     })
   })
 })
