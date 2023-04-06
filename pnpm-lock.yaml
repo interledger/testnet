@@ -13,7 +13,7 @@ importers:
       nodemon: ^2.0.22
       only-allow: ^1.1.1
       prettier: ^2.8.7
-      prettier-plugin-tailwindcss: ^0.2.6
+      prettier-plugin-tailwindcss: ^0.2.7
       typescript: ^5.0.3
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.57.1_jwd5v5vphzanfmajybkjq25ld4
@@ -25,7 +25,7 @@ importers:
       nodemon: 2.0.22
       only-allow: 1.1.1
       prettier: 2.8.7
-      prettier-plugin-tailwindcss: 0.2.6_prettier@2.8.7
+      prettier-plugin-tailwindcss: 0.2.7_prettier@2.8.7
       typescript: 5.0.3
 
   packages/backend:
@@ -6607,8 +6607,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier-plugin-tailwindcss/0.2.6_prettier@2.8.7:
-    resolution: {integrity: sha512-F+7XCl9RLF/LPrGdUMHWpsT6TM31JraonAUyE6eBmpqymFvDwyl0ETHsKFHP1NG+sEfv8bmKqnTxEbWQbHPlBA==}
+  /prettier-plugin-tailwindcss/0.2.7_prettier@2.8.7:
+    resolution: {integrity: sha512-jQopIOgjLpX+y8HeD56XZw7onupRTC0cw7eKKUimI7vhjkPF5/1ltW5LyqaPtSyc8HvEpvNZsvvsGFa2qpa59w==}
     engines: {node: '>=12.17.0'}
     peerDependencies:
       '@ianvs/prettier-plugin-sort-imports': '*'
