@@ -35,7 +35,7 @@ describe('User Service', (): void => {
     await truncateTables(knex)
   })
 
-  describe('Create User', (): void => {
+  describe('create', (): void => {
     it('creates a new user', async (): Promise<void> => {
       await expect(userService.create(args)).resolves.toMatchObject({
         email: args.email
@@ -48,6 +48,16 @@ describe('User Service', (): void => {
       await expect(userService.create(args)).rejects.toThrowError(
         /Email already in use/
       )
+    })
+  })
+
+  describe('getById', (): void => {
+    it('can fetch user by id', async (): Promise<void> => {
+      const user = await userService.create(args)
+
+      await expect(userService.getById(user.id)).resolves.toMatchObject({
+        email: args.email
+      })
     })
   })
 })
