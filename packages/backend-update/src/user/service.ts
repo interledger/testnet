@@ -7,7 +7,9 @@ interface CreateUserArgs {
 }
 
 interface IUserService {
+  create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
+  getById(id: string): Promise<User | undefined>
 }
 
 export class UserService implements IUserService {
@@ -23,5 +25,9 @@ export class UserService implements IUserService {
 
   public async getByEmail(email: string): Promise<User | undefined> {
     return User.query().findOne({ email })
+  }
+
+  public async getById(id: string): Promise<User | undefined> {
+    return User.query().findById(id)
   }
 }

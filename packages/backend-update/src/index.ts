@@ -7,6 +7,7 @@ import { logger } from './config/logger'
 import { Container } from './container'
 import { UserService } from './user/service'
 import { UserController } from './user/controller'
+import { SessionService } from './session/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -28,28 +29,32 @@ export const createContainer = (config: Env): Container<Bindings> => {
       'text',
       BigInt
     )
-
     return _knex
   })
+
+  // Session Modules
+  container.register('sessionService', async () => new SessionService())
 
   // User Modules
   container.register('userService', async () => new UserService())
   container.register('userController', async () => {
     const logger = await container.resolve('logger')
-    return new UserController(logger)
+    const userService = await container.resolve('userService')
+    const sessionService = await container.resolve('sessionService')
+    return new UserController(userService, sessionService, logger)
   })
 
   // Authenication Modules
   container.register('authService', async () => {
     const env = await container.resolve('env')
-    return new AuthService(env)
+    const userService = await container.resolve('userService')
+    return new AuthService(userService, env)
   })
 
   container.register('authController', async () => {
     const logger = await container.resolve('logger')
     const authService = await container.resolve('authService')
     const userService = await container.resolve('userService')
-
     return new AuthController(authService, userService, logger)
   })
 

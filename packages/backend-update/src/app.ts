@@ -17,11 +17,13 @@ import { Container } from './container'
 import { Model } from 'objection'
 import { withSession } from './middleware/withSession'
 import { errorHandler } from './middleware/errorHandler'
+import type { SessionService } from './session/service'
 
 export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
+  sessionService: SessionService
   userService: UserService
   userController: UserController
   authService: AuthService

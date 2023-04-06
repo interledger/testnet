@@ -3,6 +3,7 @@ import { Unauthorized } from '@/errors'
 import addSeconds from 'date-fns/addSeconds'
 import { Env } from '@/config/env'
 import { Session } from '@/session/model'
+import type { UserService } from '@/user/service'
 
 interface AuthorizeArgs {
   email: string
@@ -18,10 +19,10 @@ interface IAuthService {
 }
 
 export class AuthService implements IAuthService {
-  constructor(private env: Env) {}
+  constructor(private userService: UserService, private env: Env) {}
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
-    const user = await User.query().findOne({ email: args.email })
+    const user = await this.userService.getByEmail(args.email)
 
     // TODO: Prevent timing attacks
     if (!user) {

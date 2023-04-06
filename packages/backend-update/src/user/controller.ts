@@ -1,8 +1,8 @@
 import { NotFound } from '@/errors'
-import { Session } from '@/session/model'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { User } from './model'
+import type { UserService } from './service'
+import type { SessionService } from '@/session/service'
 
 interface UserProfile {
   email: string
@@ -23,7 +23,11 @@ interface IUserController {
 }
 
 export class UserController implements IUserController {
-  constructor(private logger: Logger) {}
+  constructor(
+    private userService: UserService,
+    private sessionSerice: SessionService,
+    private logger: Logger
+  ) {}
 
   me = async (
     req: Request,
@@ -31,8 +35,8 @@ export class UserController implements IUserController {
     next: NextFunction
   ) => {
     try {
-      const session = await Session.query().findById(req.session.id)
-      const user = await User.query().findById(req.session.user.id)
+      const session = await this.sessionSerice.getById(req.session.id)
+      const user = await this.userService.getById(req.session.user.id)
 
       if (!user || !session) {
         req.session.destroy()
