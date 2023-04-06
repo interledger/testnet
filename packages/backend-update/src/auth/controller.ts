@@ -17,26 +17,27 @@ interface IAuthController {
     next: NextFunction
   ) => Promise<void>
 }
+interface AuthControllerDependencies {
+  authService: AuthService
+  userService: UserService
+  logger: Logger
+}
 
 export class AuthController implements IAuthController {
-  constructor(
-    private authService: AuthService,
-    private userService: UserService,
-    private logger: Logger
-  ) {}
+  constructor(private deps: AuthControllerDependencies) {}
 
   // We use arrow functions to maintain the correct `this` reference
   signUp = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
       const { email, password } = await validate(signUpSchema, req)
 
-      await this.userService.create({ email, password })
+      await this.deps.userService.create({ email, password })
 
       res
         .status(201)
         .json({ success: true, message: 'User created successfully' })
     } catch (e) {
-      this.logger.error(e)
+      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -45,7 +46,7 @@ export class AuthController implements IAuthController {
     try {
       const { email, password } = await validate(logInSchema, req)
 
-      const { user, session } = await this.authService.authorize({
+      const { user, session } = await this.deps.authService.authorize({
         email,
         password
       })
@@ -62,7 +63,7 @@ export class AuthController implements IAuthController {
 
       res.json({ success: true, message: 'Authorized' })
     } catch (e) {
-      this.logger.error(e)
+      this.deps.logger.error(e)
       next(e)
     }
   }

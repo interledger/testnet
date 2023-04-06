@@ -21,13 +21,14 @@ interface IUserController {
     next: NextFunction
   ) => Promise<void>
 }
+interface UserControllerDependencies {
+  userService: UserService
+  sessionService: SessionService
+  logger: Logger
+}
 
 export class UserController implements IUserController {
-  constructor(
-    private userService: UserService,
-    private sessionSerice: SessionService,
-    private logger: Logger
-  ) {}
+  constructor(private deps: UserControllerDependencies) {}
 
   me = async (
     req: Request,
@@ -35,8 +36,8 @@ export class UserController implements IUserController {
     next: NextFunction
   ) => {
     try {
-      const session = await this.sessionSerice.getById(req.session.id)
-      const user = await this.userService.getById(req.session.user.id)
+      const session = await this.deps.sessionService.getById(req.session.id)
+      const user = await this.deps.userService.getById(req.session.user.id)
 
       if (!user || !session) {
         req.session.destroy()
@@ -57,7 +58,7 @@ export class UserController implements IUserController {
         }
       })
     } catch (e) {
-      this.logger.error(e)
+      this.deps.logger.error(e)
       next(e)
     }
   }

@@ -1,8 +1,8 @@
-import { User } from '@/user/model'
+import type { User } from '@/user/model'
 import { Unauthorized } from '@/errors'
 import addSeconds from 'date-fns/addSeconds'
-import { Env } from '@/config/env'
-import { Session } from '@/session/model'
+import type { Env } from '@/config/env'
+import type { Session } from '@/session/model'
 import type { UserService } from '@/user/service'
 
 interface AuthorizeArgs {
@@ -17,12 +17,16 @@ interface AuthorizeResult {
 interface IAuthService {
   authorize(args: AuthorizeArgs): Promise<AuthorizeResult>
 }
+interface AuthServiceDependencies {
+  userService: UserService
+  env: Env
+}
 
 export class AuthService implements IAuthService {
-  constructor(private userService: UserService, private env: Env) {}
+  constructor(private deps: AuthServiceDependencies) {}
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
-    const user = await this.userService.getByEmail(args.email)
+    const user = await this.deps.userService.getByEmail(args.email)
 
     // TODO: Prevent timing attacks
     if (!user) {
@@ -36,7 +40,7 @@ export class AuthService implements IAuthService {
 
     const session = await user.$relatedQuery('sessions').insertGraphAndFetch({
       userId: user.id,
-      expiresAt: addSeconds(new Date(), this.env.COOKIE_TTL)
+      expiresAt: addSeconds(new Date(), this.deps.env.COOKIE_TTL)
     })
 
     return {
