@@ -27,10 +27,10 @@ describe('Authentication Controller', (): void => {
   let authService: AuthService
   let authController: AuthController
   let userService: UserService
-  let request: MockRequest<Request>
-  let response: MockResponse<Response>
+  let req: MockRequest<Request>
+  let res: MockResponse<Response>
 
-  const nextFunction = jest.fn()
+  const next = jest.fn()
   const args = {
     email: faker.internet.email(),
     password: faker.internet.password()
@@ -46,8 +46,8 @@ describe('Authentication Controller', (): void => {
   })
 
   beforeEach(async (): Promise<void> => {
-    response = createResponse()
-    request = createRequest()
+    res = createResponse()
+    req = createRequest()
   })
 
   afterAll(async (): Promise<void> => {
@@ -61,44 +61,44 @@ describe('Authentication Controller', (): void => {
 
   describe('Sign Up', (): void => {
     it('returns status 201 if the user is created', async (): Promise<void> => {
-      request.body = {
+      req.body = {
         ...args,
         confirmPassword: args.password
       }
 
       const createSpy = jest.spyOn(userService, 'create')
-      await authController.signUp(request, response, nextFunction)
+      await authController.signUp(req, res, next)
 
       expect(createSpy).toHaveBeenCalledWith(args)
-      expect(nextFunction).toHaveBeenCalledTimes(0)
-      expect(response.statusCode).toBe(201)
-      expect(response._getJSONData()).toMatchObject({
+      expect(next).toHaveBeenCalledTimes(0)
+      expect(res.statusCode).toBe(201)
+      expect(req._getJSONData()).toMatchObject({
         success: true,
         message: 'User created successfully'
       })
     })
 
     it('returns status 400 if the request body is not valid', async (): Promise<void> => {
-      request.body = {
+      req.body = {
         ...args,
         confirmPassword: 'not-the-same'
       }
 
-      await authController.signUp(request, response, (err) => {
-        nextFunction()
-        errorHandler(err, request, response, nextFunction)
+      await authController.signUp(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
       })
 
-      expect(nextFunction).toHaveBeenCalledTimes(1)
-      expect(response.statusCode).toBe(400)
-      expect(response._getJSONData()).toMatchObject({
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+      expect(res._getJSONData()).toMatchObject({
         success: false,
         message: 'Invalid input'
       })
     })
 
     it('returns status 500 on unexpected error', async (): Promise<void> => {
-      request.body = {
+      req.body = {
         ...args,
         confirmPassword: args.password
       }
@@ -106,15 +106,15 @@ describe('Authentication Controller', (): void => {
       const createSpy = jest
         .spyOn(userService, 'create')
         .mockRejectedValueOnce(new Error('Unexpected error'))
-      await authController.signUp(request, response, (err) => {
-        nextFunction()
-        errorHandler(err, request, response, nextFunction)
+      await authController.signUp(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
       })
 
       expect(createSpy).toHaveBeenCalledTimes(1)
-      expect(nextFunction).toHaveBeenCalledTimes(1)
-      expect(response.statusCode).toBe(500)
-      expect(response._getJSONData()).toMatchObject({
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(500)
+      expect(res._getJSONData()).toMatchObject({
         success: false,
         message: 'Internal Server Error'
       })
@@ -123,67 +123,67 @@ describe('Authentication Controller', (): void => {
 
   describe('Log In', (): void => {
     it('returns status 200 if the user is authorized', async (): Promise<void> => {
-      request.body = {
+      req.body = {
         ...args
       }
 
       const user = await userService.create(args)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
-      await applyMiddleware(withSession, request, response)
-      await authController.logIn(request, response, nextFunction)
+      await applyMiddleware(withSession, req, res)
+      await authController.logIn(req, res, next)
 
       expect(authorizeSpy).toHaveBeenCalledWith(args)
-      expect(nextFunction).toHaveBeenCalledTimes(0)
-      expect(request.session.id).toBeDefined()
-      expect(request.session.user).toMatchObject({
+      expect(next).toHaveBeenCalledTimes(0)
+      expect(req.session.id).toBeDefined()
+      expect(req.session.user).toMatchObject({
         id: user.id,
         email: user.email,
         needsWallet: !user.rapydWalletId,
         needsIDProof: !user.kycId
       })
-      expect(response.statusCode).toBe(200)
-      expect(response._getJSONData()).toMatchObject({
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Authorized'
       })
     })
 
     it('returns status 400 if the request body is not valid', async (): Promise<void> => {
-      request.body = {
+      req.body = {
         ...args,
         email: 'not-an-email'
       }
 
-      await authController.logIn(request, response, (err) => {
-        nextFunction()
-        errorHandler(err, request, response, nextFunction)
+      await authController.logIn(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
       })
 
-      expect(nextFunction).toHaveBeenCalledTimes(1)
-      expect(response.statusCode).toBe(400)
-      expect(response._getJSONData()).toMatchObject({
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+      expect(res._getJSONData()).toMatchObject({
         success: false,
         message: 'Invalid input'
       })
     })
 
     it('returns status 500 on unexpected error', async (): Promise<void> => {
-      request.body = {
+      req.body = {
         ...args
       }
 
       const authorizeSpy = jest
         .spyOn(authService, 'authorize')
         .mockRejectedValueOnce(new Error('Unexpected error'))
-      await authController.logIn(request, response, (err) => {
-        nextFunction()
-        errorHandler(err, request, response, nextFunction)
+      await authController.logIn(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
       })
 
       expect(authorizeSpy).toHaveBeenCalledTimes(1)
-      expect(nextFunction).toHaveBeenCalledTimes(1)
-      expect(response.statusCode).toBe(500)
-      expect(response._getJSONData()).toMatchObject({
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(500)
+      expect(res._getJSONData()).toMatchObject({
         success: false,
         message: 'Internal Server Error'
       })

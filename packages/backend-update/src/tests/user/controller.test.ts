@@ -29,10 +29,10 @@ describe('User Controller', (): void => {
   // let authController: AuthController
   let userService: UserService
   let userController: UserController
-  let request: MockRequest<Request>
-  let response: MockResponse<Response>
+  let req: MockRequest<Request>
+  let res: MockResponse<Response>
 
-  const nextFunction = jest.fn()
+  const next = jest.fn()
   const args = {
     email: faker.internet.email(),
     password: faker.internet.password()
@@ -49,19 +49,19 @@ describe('User Controller', (): void => {
   })
 
   beforeEach(async (): Promise<void> => {
-    response = createResponse()
-    request = createRequest()
+    res = createResponse()
+    req = createRequest()
 
-    request.body = {
+    req.body = {
       ...args
     }
 
     await userService.create(args)
-    await applyMiddleware(withSession, request, response)
+    await applyMiddleware(withSession, req, res)
 
     const { user, session } = await authService.authorize(args)
-    request.session.id = session.id
-    request.session.user = {
+    req.session.id = session.id
+    req.session.user = {
       id: user.id,
       email: user.email,
       needsWallet: !user.rapydWalletId,
@@ -80,9 +80,9 @@ describe('User Controller', (): void => {
 
   describe('me', (): void => {
     it('returns the user information if the session is valid', async (): Promise<void> => {
-      await userController.me(request, response, nextFunction)
-      expect(response.statusCode).toBe(200)
-      expect(response._getJSONData()).toMatchObject({
+      await userController.me(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'User retrieved successfully',
         data: {
@@ -92,25 +92,25 @@ describe('User Controller', (): void => {
     })
 
     it('it returns 404 if the session is not found', async (): Promise<void> => {
-      request.session.id = uuid()
-      await userController.me(request, response, (err) => {
-        nextFunction()
-        errorHandler(err, request, response, nextFunction)
+      req.session.id = uuid()
+      await userController.me(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
       })
-      expect(nextFunction).toHaveBeenCalledTimes(1)
-      expect(response.statusCode).toBe(404)
-      expect(request.session).toEqual({})
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(404)
+      expect(req.session).toEqual({})
     })
 
     it('it returns 404 if the user is not found', async (): Promise<void> => {
-      request.session.user.id = uuid()
-      await userController.me(request, response, (err) => {
-        nextFunction()
-        errorHandler(err, request, response, nextFunction)
+      req.session.user.id = uuid()
+      await userController.me(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
       })
-      expect(nextFunction).toHaveBeenCalledTimes(1)
-      expect(response.statusCode).toBe(404)
-      expect(request.session).toEqual({})
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(404)
+      expect(req.session).toEqual({})
     })
   })
 })
