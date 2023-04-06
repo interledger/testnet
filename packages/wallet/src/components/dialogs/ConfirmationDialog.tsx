@@ -41,7 +41,7 @@ export const ConfirmationDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white py-8 px-4 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white px-4 py-8 shadow-xl">
                 <div className="flex flex-col items-center justify-center px-4">
                   <Warning strokeWidth={2} className="h-16 w-16 text-pink" />
                   <p className="text-center font-semibold text-pink">

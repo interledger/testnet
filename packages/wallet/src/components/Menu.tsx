@@ -107,7 +107,7 @@ export const Menu = () => {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="relative flex w-64 flex-col overflow-hidden rounded-l-3xl bg-white pl-4 pt-5 pb-4">
+              <Dialog.Panel className="relative flex w-64 flex-col overflow-hidden rounded-l-3xl bg-white pb-4 pl-4 pt-5">
                 <button
                   className="ml-auto mr-4 inline-block"
                   type="button"

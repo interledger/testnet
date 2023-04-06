@@ -19,7 +19,7 @@ const Login = () => {
   return (
     <AuthLayout image="Login">
       <HeaderLogo header="Welcome" />
-      <h2 className="mt-10 mb-5 text-xl font-semibold text-green">Login</h2>
+      <h2 className="mb-5 mt-10 text-xl font-semibold text-green">Login</h2>
       <div className="w-2/3">
         <Form
           form={loginForm}
