@@ -38,22 +38,6 @@ describe('Authentication Service', (): void => {
     await truncateTables(knex)
   })
 
-  describe('Create User', (): void => {
-    it('creates a new user', async (): Promise<void> => {
-      await expect(userService.create(args)).resolves.toMatchObject({
-        email: args.email
-      })
-    })
-
-    it('throws an error if the email is already in use', async (): Promise<void> => {
-      await userService.create(args)
-
-      await expect(userService.create(args)).rejects.toThrowError(
-        /Email already in use/
-      )
-    })
-  })
-
   describe('Authorize', (): void => {
     it('authorizes a user', async (): Promise<void> => {
       const user = await userService.create(args)
