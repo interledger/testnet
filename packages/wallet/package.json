@@ -10,7 +10,7 @@
     "@hookform/resolvers": "^3.0.1",
     "class-variance-authority": "^0.5.1",
     "ky": "^0.33.3",
-    "next": "13.2.4",
+    "next": "13.3.0",
     "nprogress": "^0.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -18,8 +18,8 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^13.2.4",
-    "@next/eslint-plugin-next": "^13.2.4",
+    "@next/bundle-analyzer": "^13.3.0",
+    "@next/eslint-plugin-next": "^13.3.0",
     "@tailwindcss/forms": "^0.5.3",
     "@types/node": "^18.14.0",
     "@types/nprogress": "^0.2.0",
