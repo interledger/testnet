@@ -120,7 +120,7 @@ importers:
       '@tailwindcss/forms': ^0.5.3
       '@types/node': ^18.14.0
       '@types/nprogress': ^0.2.0
-      '@types/react': 18.0.33
+      '@types/react': 18.0.35
       '@types/react-dom': 18.0.11
       autoprefixer: ^10.4.14
       class-variance-authority: ^0.5.1
@@ -151,7 +151,7 @@ importers:
       '@tailwindcss/forms': 0.5.3_tailwindcss@3.3.1
       '@types/node': 18.14.0
       '@types/nprogress': 0.2.0
-      '@types/react': 18.0.33
+      '@types/react': 18.0.35
       '@types/react-dom': 18.0.11
       autoprefixer: 10.4.14_postcss@8.4.21
       postcss: 8.4.21
@@ -2146,11 +2146,11 @@ packages:
   /@types/react-dom/18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
     dependencies:
-      '@types/react': 18.0.33
+      '@types/react': 18.0.35
     dev: true
 
-  /@types/react/18.0.33:
-    resolution: {integrity: sha512-sHxzVxeanvQyQ1lr8NSHaj0kDzcNiGpILEVt69g9S31/7PfMvNCKLKcsHw4lYKjs3cGNJjXSP4mYzX43QlnjNA==}
+  /@types/react/18.0.35:
+    resolution: {integrity: sha512-6Laome31HpetaIUGFWl1VQ3mdSImwxtFZ39rh059a1MNnKGqBpC88J6NJ8n/Is3Qx7CefDGLgf/KhN/sYCf7ag==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
