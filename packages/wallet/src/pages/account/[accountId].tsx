@@ -46,7 +46,7 @@ export default function AccountPage({
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <New className="h-7 w-7" />
-            <div className="-space-y-2">
+            <div className="-space-y-2 text-[15px]">
               <p className="font-medium text-green-5 group-hover:text-green-6">
                 Add payment{' '}
               </p>
