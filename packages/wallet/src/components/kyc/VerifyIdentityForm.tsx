@@ -76,7 +76,7 @@ export const VerifyIdentityForm = () => {
                 closeDialog()
                 router.push('/')
               }}
-              content="Your identity has been veryfied."
+              content="Your identity has been verifyed."
               redirect="/"
               redirectText="Go to your account overview"
             />

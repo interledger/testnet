@@ -14,7 +14,7 @@ module.exports = {
       black: twColors.black,
       red: twColors.red,
       blue: {
-        1: '#c0f9ff',
+        1: '#b9f2ff',
         2: '#55b2b0'
       },
       green: {
