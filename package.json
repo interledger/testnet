@@ -42,11 +42,11 @@
     "typescript": "^5.0.4"
   },
   "engines": {
-    "pnpm": "7.31.0",
+    "pnpm": "7.32.0",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@7.31.0"
+  "packageManager": "pnpm@7.32.0"
 }
