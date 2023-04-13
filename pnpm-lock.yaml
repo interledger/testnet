@@ -123,7 +123,7 @@ importers:
       '@types/react': 18.0.35
       '@types/react-dom': 18.0.11
       autoprefixer: ^10.4.14
-      class-variance-authority: ^0.5.1
+      class-variance-authority: ^0.5.2
       ky: ^0.33.3
       next: 13.3.0
       nprogress: ^0.2.0
@@ -137,7 +137,7 @@ importers:
     dependencies:
       '@headlessui/react': 1.7.13_biqbaboplfbrettd7655fr4n2y
       '@hookform/resolvers': 3.0.1_react-hook-form@7.43.9
-      class-variance-authority: 0.5.1_typescript@5.0.4
+      class-variance-authority: 0.5.2_typescript@5.0.4
       ky: 0.33.3
       next: 13.3.0_biqbaboplfbrettd7655fr4n2y
       nprogress: 0.2.0
@@ -3085,8 +3085,8 @@ packages:
     resolution: {integrity: sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==}
     dev: false
 
-  /class-variance-authority/0.5.1_typescript@5.0.4:
-    resolution: {integrity: sha512-J3tAiPbmBhPffsZ6Le3cR4o5hN78XBTst5NwCJJF7hAkZYIDuHQKV03Tb89zMDAxIONmM+DFRooMUCK5nTWpvQ==}
+  /class-variance-authority/0.5.2_typescript@5.0.4:
+    resolution: {integrity: sha512-j7Qqw3NPbs4IpO80gvdACWmVvHiLLo5MECacUBLnJG17CrLpWaQ7/4OaWX6P0IO1j2nvZ7AuSfBS/ImtEUZJGA==}
     peerDependencies:
       typescript: '>= 4.5.5 < 6'
     peerDependenciesMeta:
