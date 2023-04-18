@@ -87,7 +87,7 @@ const rapydTransferLiquidity = async (
   return setTransferResponse
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/*
 const handleSettlementOutOfFunds = async (
   req: RapydTransferRequest,
   settlementWallet: string
@@ -105,6 +105,7 @@ const handleSettlementOutOfFunds = async (
   }
   return await rapydTransferLiquidity(req, true)
 }
+*/
 
 const rapydSetTransferResponse = async (
   req: RapydSetTransferResponseRequest
