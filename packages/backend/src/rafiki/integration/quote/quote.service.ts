@@ -55,24 +55,6 @@ export class QuoteService {
         BigInt(feeStructure.fixed)
 
       receivedQuote.sendAmount.value = (sendAmountValue + fees).toString()
-    } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
-      if (
-        receivedQuote.receiveAmount.assetCode !== feeStructure.asset ||
-        receivedQuote.receiveAmount.assetScale !== feeStructure.scale
-      ) {
-        throw new BadRequestException('Invalid quote receiveAmount asset')
-      }
-      const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
-      const fees =
-        BigInt(
-          Math.floor(Number(receiveAmountValue) * feeStructure.percentage)
-        ) + BigInt(feeStructure.fixed)
-
-      if (receiveAmountValue <= fees) {
-        throw new BadRequestException('Fees exceed quote receiveAmount')
-      }
-
-      receivedQuote.receiveAmount.value = (receiveAmountValue - fees).toString()
     } else {
       throw new BadRequestException('Invalid paymentType')
     }
