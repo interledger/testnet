@@ -64,7 +64,7 @@ services:
       - postgres
 
   backend:
-    image: ghcr.io/interledger/rafiki-backend:latest
+    image: ghcr.io/interledger/rafiki-backend:s2-build-test
     restart: always
     privileged: true
     ports:
