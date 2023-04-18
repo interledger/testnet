@@ -20,7 +20,7 @@ export const PersonalDetailsForm = () => {
   const defaultCountry = USE_TEST_DATA_KYC
     ? { value: 'DK', name: 'Denmark' }
     : undefined
-  const defaultCity = USE_TEST_DATA_KYC ? 'Copenhagnen' : ''
+  const defaultCity = USE_TEST_DATA_KYC ? 'Copenhagen' : ''
   const defaultAddress = USE_TEST_DATA_KYC ? 'Den Lille Havfrue' : ''
   const defaultZIP = USE_TEST_DATA_KYC ? '2100' : ''
 
