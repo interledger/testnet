@@ -18,10 +18,6 @@ export const jwtStrategy = new JWTStrategy(
   async (req: Request, jwtPayload: any, done: any) => {
     const { userId, email, noKyc } = jwtPayload
 
-    // if (Date.now() > exp * 1000) {
-    //   return done(new UnauthorisedException('Access token expired'), false)
-    // }
-
     if (noKyc && req.url !== '/wallet') {
       return done(new UnauthorisedException('Account has no KYC'), false)
     }
