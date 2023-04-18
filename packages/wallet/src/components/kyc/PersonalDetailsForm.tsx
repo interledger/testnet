@@ -16,10 +16,13 @@ export const PersonalDetailsForm = () => {
   const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
 
-  // set default values testing, USA is selected for ID verification
+  // set default values testing, Denmark is selected for ID verification and because it supports multiple currencies
   const defaultCountry = USE_TEST_DATA_KYC
-    ? { value: 'US', name: 'United States of America' }
+    ? { value: 'DK', name: 'Denmark' }
     : undefined
+  const defaultCity = USE_TEST_DATA_KYC ? 'Copenhagnen' : ''
+  const defaultAddress = USE_TEST_DATA_KYC ? 'Den Lille Havfrue' : ''
+  const defaultZIP = USE_TEST_DATA_KYC ? '2100' : ''
 
   const personalDetailsForm = useZodForm({
     schema: personalDetailsSchema
@@ -72,7 +75,7 @@ export const PersonalDetailsForm = () => {
     >
       {USE_TEST_DATA_KYC && (
         <span className="font-semibold text-pink">
-          USA is selected by default for testing purposes!
+          Denmark is selected by default for testing purposes!
         </span>
       )}
       <div className="flex flex-row justify-between">
@@ -104,18 +107,24 @@ export const PersonalDetailsForm = () => {
         {...personalDetailsForm.register('city')}
         error={personalDetailsForm.formState.errors.city?.message}
         label="City"
+        defaultValue={defaultCity}
+        readOnly={USE_TEST_DATA_KYC}
       />
       <Input
         required
         {...personalDetailsForm.register('address')}
         error={personalDetailsForm.formState.errors.address?.message}
         label="Address"
+        defaultValue={defaultAddress}
+        readOnly={USE_TEST_DATA_KYC}
       />
       <Input
         required
         {...personalDetailsForm.register('zip')}
         error={personalDetailsForm.formState.errors.zip?.message}
         label="ZIP Code"
+        defaultValue={defaultZIP}
+        readOnly={USE_TEST_DATA_KYC}
       />
       <Button
         aria-label="Get Wallet Account"
