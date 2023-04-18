@@ -9,8 +9,8 @@
   - "**/*.md"
 
 'type: source':
-  - packages/backend/src/**/*
-  - packages/wallet/src/**/*
+  - packages/wallet-backend/src/**/*
+  - packages/wallet-frontend/src/**/*
 
 'type: test': packages/**/*.test.ts
 
