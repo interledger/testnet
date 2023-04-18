@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { WebHookService } from './webhook.service'
-// import { BaseResponse } from '../../../shared/models/BaseResponse'
 
 export class WebHookController {
   constructor(private webHookService: WebHookService) {}
