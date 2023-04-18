@@ -62,7 +62,7 @@ importers:
       passport: ^0.6.0
       passport-jwt: ^4.0.1
       pg: ^8.10.0
-      testcontainers: ^9.4.0
+      testcontainers: ^9.5.0
       ts-jest: ^29.1.0
       typescript: ^5.0.4
       uuid: ^9.0.0
@@ -87,7 +87,7 @@ importers:
       passport: 0.6.0
       passport-jwt: 4.0.1
       pg: 8.10.0
-      testcontainers: 9.4.0
+      testcontainers: 9.5.0
       ts-jest: 29.1.0_gieofjt2c36jky46375xwdvhkm
       uuid: 9.0.0
       winston: 3.8.2
@@ -7565,8 +7565,8 @@ packages:
       minimatch: 3.1.2
     dev: false
 
-  /testcontainers/9.4.0:
-    resolution: {integrity: sha512-Mg7GMYENWd4U6KavKZ8XUTqYeW7dAJRYxltEmNid+4YcFNanG2qqUhrqIUvW4sZsjuH+kfjtlTUoOaEDavRJYw==}
+  /testcontainers/9.5.0:
+    resolution: {integrity: sha512-XdLZec7CN8/eXfT/A0zR03J2bNIpwLM3O3kLbp1OZPpZTNtjnR1zsdhS688o2qAx5+FS+xZ8nHL+vm3UBMnfHg==}
     engines: {node: '>= 10.16'}
     dependencies:
       '@balena/dockerignore': 1.0.2
