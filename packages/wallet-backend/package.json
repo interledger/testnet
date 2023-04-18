@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "wallet-backend",
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc --build tsconfig.json",
