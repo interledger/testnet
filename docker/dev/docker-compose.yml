@@ -7,7 +7,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testnet
-      # PGPORT: 5433
     ports:
       - '5433:5432'
     restart: unless-stopped
@@ -24,7 +23,7 @@ services:
       dockerfile: ./packages/backend/Dockerfile.dev
     depends_on:
       - postgres
-      - backend
+      - rafiki-backend
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -36,20 +35,19 @@ services:
       RAPYD_API: https://sandboxapi.rapyd.net/v1
       RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
-      OPEN_PAYMENTS_HOST: https://backend:80
-      GRAPHQL_ENDPOINT: http://backend:3001/graphql
+      OPEN_PAYMENTS_HOST: https://rafiki-backend:80
+      GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
     restart: always
     networks:
       - testnet
     ports:
       - '3003:3003'
-      # Map debugger port to local machine's port 9229
-      - '9229:9229'
+      - '9229:9229' # Map debugger port to local machine's port 9229
     container_name: testnet
 
-  # rafiki setup
-  auth:
-    image: ghcr.io/interledger/rafiki-auth:latest
+  # Rafiki
+  rafiki-auth:
+    image: ghcr.io/interledger/rafiki-auth:v1.1.0-alpha
     restart: always
     networks:
       - testnet
@@ -63,7 +61,7 @@ services:
     depends_on:
       - postgres
 
-  backend:
+  rafiki-backend:
     image: ghcr.io/interledger/rafiki-backend:s2-build-test
     restart: always
     privileged: true
@@ -88,10 +86,10 @@ services:
       ILP_ADDRESS: test.rafiki
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
-      PUBLIC_HOST: http://backend
-      OPEN_PAYMENTS_URL: http://backend
+      PUBLIC_HOST: http://rafiki-backend
+      OPEN_PAYMENTS_URL: http://rafiki-backend
       REDIS_URL: redis://redis:6379/0
-      PAYMENT_POINTER_URL: https://backend/.well-known/pay
+      PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # testnet urls - not implemented
       WEBHOOK_URL: http://testnet/webhooks
       PRICES_URL: http://testnet/prices
@@ -99,6 +97,20 @@ services:
     depends_on:
       - postgres
       - redis
+
+  rafiki-frontend:
+    image: ghcr.io/interledger/rafiki-frontend:v1.1.0-alpha
+    depends_on:
+      - rafiki-backend
+    restart: always
+    privileged: true
+    ports:
+      - '3012:3012'
+    networks:
+      - testnet
+    environment:
+      PORT: 3012
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   tigerbeetle:
     image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:a1259a4c1e49b3bab3d4cb61160f47dbfb2599964577a0b9144673de9a3bea9d
