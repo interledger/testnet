@@ -26,7 +26,6 @@ describe('User Controller', (): void => {
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
-  // let authController: AuthController
   let userService: UserService
   let userController: UserController
   let req: MockRequest<Request>
