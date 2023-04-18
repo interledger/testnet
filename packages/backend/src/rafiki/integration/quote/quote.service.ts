@@ -59,8 +59,6 @@ export class QuoteService {
       throw new BadRequestException('Invalid paymentType')
     }
 
-    //* TODO: React on quote create
-
     return receivedQuote
   }
 }
