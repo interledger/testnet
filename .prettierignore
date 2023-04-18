@@ -3,7 +3,6 @@
 public
 generated
 dist
-*.yml
 pnpm-lock.yaml
 *.svg
 Dockerfile

@@ -59,7 +59,7 @@ services:
       PORT: 3007
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://auth:auth@postgres/auth
-      INTROSPECTION_HTTPSIG: "false"
+      INTROSPECTION_HTTPSIG: 'false'
     depends_on:
       - postgres
 
@@ -79,8 +79,8 @@ services:
       CONNECTOR_PORT: 3002
       OPEN_PAYMENTS_PORT: 80
       DATABASE_URL: postgresql://backend:backend@postgres/backend
-      USE_TIGERBEETLE: false 
-      TIGERBEETLE_CLUSTER_ID: 0 
+      USE_TIGERBEETLE: false
+      TIGERBEETLE_CLUSTER_ID: 0
       TIGERBEETLE_REPLICA_ADDRESSES: ''
       NONCE_REDIS_KEY: test
       AUTH_SERVER_GRANT_URL: http://auth:3006
@@ -143,4 +143,5 @@ networks:
 
 volumes:
   pg-data:
+*.yml
   tigerbeetle-data: # named volumes can be managed easier using docker-compose
