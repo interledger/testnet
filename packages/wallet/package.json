@@ -6,7 +6,7 @@
     "start": "PORT=4003 next start"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.13",
+    "@headlessui/react": "^1.7.14",
     "@hookform/resolvers": "^3.0.1",
     "class-variance-authority": "^0.5.2",
     "ky": "^0.33.3",
