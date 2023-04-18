@@ -143,5 +143,4 @@ networks:
 
 volumes:
   pg-data:
-*.yml
   tigerbeetle-data: # named volumes can be managed easier using docker-compose
