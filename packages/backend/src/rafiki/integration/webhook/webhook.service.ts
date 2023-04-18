@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
 
+import env from '../../../config/env'
+import { PaymentPointerModel } from '../../../payment-pointer/payment-pointer.model'
 import {
-  rapydDepositLiquidity,
-  rapydWithdrawLiquidity
+  rapydHoldLiquidity,
+  rapydReleaseLiquidity,
+  rapydTransferLiquidity
 } from '../../../rapyd/wallet'
 import logger from '../../../utils/logger'
-import { PaymentPointerModel } from '../../../payment-pointer/payment-pointer.model'
 import {
   depositLiquidity,
   withdrawLiqudity
@@ -41,18 +43,23 @@ export interface Amount {
 const log = logger('WebHookService')
 
 export class WebHookService {
-  async onWebHook(wh: WebHook): Promise<boolean> {
+  async onWebHook(wh: WebHook): Promise<void> {
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
-        return this.handleOutgoingPaymentCreated(wh)
+        this.handleOutgoingPaymentCreated(wh)
+        break
       case EventType.OutgoingPaymentCompleted:
-        return this.handleOutgoingPaymentCompleted(wh)
+        this.handleOutgoingPaymentCompleted(wh)
+        break
       case EventType.OutgoingPaymentFailed:
-        return this.handleOutgoingPaymentCompletedFailed(wh)
+        this.handleOutgoingPaymentFailed(wh)
+        break
       case EventType.IncomingPaymentCompleted:
-        return this.handleIncomingPaymentCompleted(wh)
+        this.handleIncomingPaymentCompleted(wh)
+        break
       case EventType.IncomingPaymentExpired:
-        return this.handleIncomingPaymentCompletedExpired(wh)
+        this.handleIncomingPaymentExpired(wh)
+        break
       default:
         throw new BadRequestException(`unknown event type, ${wh.type}`)
     }
@@ -61,11 +68,14 @@ export class WebHookService {
   private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
     let ppId = ''
     if (wh.type === EventType.IncomingPaymentCompleted) {
-      console.log(`incoming: ${JSON.stringify(wh)}`)
       ppId = (wh.data.incomingPayment as any).paymentPointerId as string
     }
-    if (wh.type === EventType.OutgoingPaymentCreated) {
-      console.log(`outgoing: ${JSON.stringify(wh)}`)
+    if (
+      [
+        EventType.OutgoingPaymentCreated,
+        EventType.OutgoingPaymentCompleted
+      ].includes(wh.type)
+    ) {
       ppId = (wh.data.payment as any).paymentPointerId as string
     }
 
@@ -87,28 +97,23 @@ export class WebHookService {
   }
 
   private parseAmount(amount: AmountJSON): Amount {
-    return {
-      value: BigInt(amount['value']),
-      assetCode: amount['assetCode'],
-      assetScale: amount['assetScale']
-    }
+    return { ...amount, value: BigInt(amount.value) }
   }
 
   private getAmountFromWebHook(wh: WebHook): Amount {
     let amount
-    if (wh.type === EventType.OutgoingPaymentCreated) {
-      console.log(`amount on created: ${JSON.stringify(wh)} `)
-      const amtSend = this.parseAmount(
+    if (
+      [
+        EventType.OutgoingPaymentCreated,
+        EventType.OutgoingPaymentCompleted
+      ].includes(wh.type)
+    ) {
+      amount = this.parseAmount(
         (wh.data.payment as any).sendAmount as AmountJSON
       )
-      //* maybe store this as transaction data
-      // const amtSent = this.parseAmount(payment['sentAmount'])
-      // const fee = amtSend.value - amtSent.value
-      amount = amtSend
     }
 
     if (wh.type === EventType.IncomingPaymentCompleted) {
-      console.log(`amount on incoming: ${JSON.stringify(wh)} `)
       amount = this.parseAmount(
         (wh.data.incomingPayment as any).receivedAmount as AmountJSON
       )
@@ -121,120 +126,122 @@ export class WebHookService {
     return amount
   }
 
-  amountToNumber(amount: Amount) {
-    return (Number(amount.value) * 10 ** -amount.assetScale).toFixed(
+  private amountToNumber(amount: Amount): number {
+    return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
       amount.assetScale
     )
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
-    //* DOCS:
-    /*
-An Open Payments Incoming Payment was completed, either manually or programmatically, i.e. 
-it does not accept any incoming funds anymore. 
-The Account Servicing Entity SHOULD withdraw all funds received and deposit them
-into the payee's account.
+    const receiverWalletId = await this.getRapydWalletIdFromWebHook(wh)
 
-Action: Withdraw liquidity
-    */
-
-    const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    console.log(
-      `Amount to deposit on incoming payment completed: ${+this.amountToNumber(
-        amount
-      )}`
+    const transferResult = await rapydTransferLiquidity(
+      {
+        amount: this.amountToNumber(amount),
+        currency: amount.assetCode,
+        destination_ewallet: receiverWalletId,
+        source_ewallet: env.RAPYD_SETTLEMENT_EWALLET
+      },
+      true
     )
 
-    const result = await rapydDepositLiquidity({
-      amount: +this.amountToNumber(amount),
-      currency: amount.assetCode,
-      ewallet: rapydWalletId
-    })
-
-    if (result.status.status !== 'SUCCESS') {
-      log.error(
-        result.status.message ||
-          `Unable to deposit into wallet: ${rapydWalletId}`
+    if (transferResult.status?.status !== 'SUCCESS') {
+      transferResult.status?.message && log.error(transferResult.status.message)
+      throw new Error(
+        `Unable to transfer from ${env.RAPYD_SETTLEMENT_EWALLET} into ${receiverWalletId}`
       )
-      return false
     }
 
     await withdrawLiqudity(wh.id)
 
-    log.info(`Succesfully deposited ${amount} into ${rapydWalletId}`)
-    return true
-  }
-
-  private async handleOutgoingPaymentCompleted(wh: WebHook) {
-    //* DOCS:
-    /*
-An Open Payments Outgoing Payment was completed, i.e. it won't send any further funds. 
-The Account Servicing Entity SHOULD withdraw any excess liquidity and deposit it 
-into the payer's account.
-
-Action: Withdraw liquidity
-    */
-
-    log.info(`webhook outgoing payment completed: ${wh.id}`)
-    //TODO:withdraw liquidity (related to the fee)
-
-    console.log(`Withdrawing from rafiki on  outgoing payment completed`)
-    await withdrawLiqudity(wh.id)
-    return true
+    log.info(
+      `Succesfully transfered ${this.amountToNumber(amount)} from ${
+        env.RAPYD_SETTLEMENT_EWALLET
+      } into ${receiverWalletId}`
+    )
   }
 
   private async handleOutgoingPaymentCreated(wh: WebHook) {
-    //* DOCS:
-    /*
-An Open Payments Outgoing Payment has been created. 
-It requires liquidity to be processed. 
-The Account Servicing Entity SHOULD reserve 
-the maximum requisite funds for the payment attempt on the payer's account.
-
-Action: Deposit liquidity
-    */
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    console.log(
-      `Amount to withdraw on outgoing payment created:  ${+this.amountToNumber(
-        amount
-      )}`
-    )
-
-    const result = await rapydWithdrawLiquidity({
-      amount: +this.amountToNumber(amount),
+    const holdResult = await rapydHoldLiquidity({
+      amount: this.amountToNumber(amount),
       currency: amount.assetCode,
       ewallet: rapydWalletId
     })
 
-    if (result.status.status !== 'SUCCESS') {
-      log.error(
-        result.status.message ||
-          `Unable to deposit into wallet: ${rapydWalletId}`
-      )
-      return false
+    if (holdResult.status?.status !== 'SUCCESS') {
+      holdResult.status?.message && log.error(holdResult.status.message)
+      throw new Error(`Unable to hold liquidity on wallet: ${rapydWalletId}`)
     }
     await depositLiquidity(wh.id)
-
-    return true
   }
 
-  async handleOutgoingPaymentCompletedFailed(wh: WebHook) {
-    //* TODO: handleOutgoingPaymentCompletedFailed
-    log.info(wh)
+  private async handleOutgoingPaymentCompleted(wh: WebHook) {
+    const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
+    const amount = this.getAmountFromWebHook(wh)
 
-    // TODO: withdraw remaining liquidity
+    const releaseResult = await rapydReleaseLiquidity({
+      amount: this.amountToNumber(amount),
+      currency: amount.assetCode,
+      ewallet: source_ewallet
+    })
 
-    return true
+    if (releaseResult.status?.status !== 'SUCCESS') {
+      releaseResult.status?.message && log.error(releaseResult.status.message)
+      throw new Error(
+        `Unable to release amount ${this.amountToNumber(
+          amount
+        )} from ${source_ewallet}`
+      )
+    }
+
+    const transferResult = await rapydTransferLiquidity(
+      {
+        amount: this.amountToNumber(amount),
+        currency: amount.assetCode,
+        destination_ewallet: env.RAPYD_SETTLEMENT_EWALLET,
+        source_ewallet
+      },
+      true
+    )
+
+    if (transferResult.status?.status !== 'SUCCESS') {
+      transferResult.status?.message && log.error(transferResult.status.message)
+      throw new Error(
+        `Unable to transfer from ${source_ewallet} into ${env.RAPYD_SETTLEMENT_EWALLET}`
+      )
+    }
+    await withdrawLiqudity(wh.id)
   }
 
-  handleIncomingPaymentCompletedExpired(wh: WebHook) {
-    //* TODO: handleIncomingPaymentCompletedExpired
-    log.info(wh)
+  private async handleOutgoingPaymentFailed(wh: WebHook) {
+    const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
 
-    return true
+    const amount = this.getAmountFromWebHook(wh)
+
+    const releaseResult = await rapydReleaseLiquidity({
+      amount: this.amountToNumber(amount),
+      currency: amount.assetCode,
+      ewallet: source_ewallet
+    })
+
+    if (releaseResult.status?.status !== 'SUCCESS') {
+      releaseResult.status?.message && log.error(releaseResult.status.message)
+      throw new Error(
+        `Unable to release amount ${this.amountToNumber(
+          amount
+        )} from ${source_ewallet}`
+      )
+    }
+
+    await withdrawLiqudity(wh.id)
+  }
+
+  private async handleIncomingPaymentExpired(wh: WebHook) {
+    return this.handleIncomingPaymentCompleted(wh)
   }
 }

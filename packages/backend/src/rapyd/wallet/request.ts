@@ -1,3 +1,4 @@
+import env from '../../config/env'
 import {
   makeRapydGetRequest,
   makeRapydPostRequest,
@@ -37,12 +38,81 @@ const rapydVerifyIdentity = async (req: RapydIdentityRequest) => {
   return await makeRapydPostRequest('identities', JSON.stringify(req))
 }
 
-const rapydWithdrawLiquidity = async (req: RapydWithdrawRequest) => {
-  return await makeRapydPostRequest('account/withdraw', JSON.stringify(req))
-}
-
 const rapydDepositLiquidity = async (req: RapydDepositRequest) => {
   return await makeRapydPostRequest('account/deposit', JSON.stringify(req))
+}
+
+const rapydHoldLiquidity = async (req: RapydHoldRequest) => {
+  return await makeRapydPostRequest('account/balance/hold', JSON.stringify(req))
+}
+
+const rapydReleaseLiquidity = async (req: RapydReleaseRequest) => {
+  return await makeRapydPostRequest(
+    'account/balance/release',
+    JSON.stringify(req)
+  )
+}
+
+const rapydTransferLiquidity = async (
+  req: RapydTransferRequest,
+  withAccept?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> => {
+  if (!withAccept) {
+    return await makeRapydPostRequest('account/transfer', JSON.stringify(req))
+  }
+  const transferResponse = await makeRapydPostRequest(
+    'account/transfer',
+    JSON.stringify(req)
+  )
+  if (transferResponse.status.status !== 'SUCCESS') {
+    if (
+      transferResponse.status.error_code === 'NOT_ENOUGH_FUNDS' &&
+      req.source_ewallet === env.RAPYD_SETTLEMENT_EWALLET
+    ) {
+      // await handleSettlementOutOfFunds(req, env.RAPYD_SETTLEMENT_EWALLET)
+    }
+    throw new Error(transferResponse.status.message)
+  }
+
+  const setTransferResponse = await rapydSetTransferResponse({
+    id: transferResponse.data.id,
+    status: 'accept'
+  })
+
+  if (setTransferResponse.status.status !== 'SUCCESS') {
+    throw new Error(`Unable to set accepted response of wallet transfer`)
+  }
+
+  return setTransferResponse
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const handleSettlementOutOfFunds = async (
+  req: RapydTransferRequest,
+  settlementWallet: string
+) => {
+  const depositResult = await rapydDepositLiquidity({
+    amount: 100000,
+    currency: req.currency,
+    ewallet: settlementWallet
+  })
+
+  if (depositResult.status.status !== 'SUCCESS') {
+    throw new Error(
+      `Unable to automatically refund settlement account upon insufecient funds encountered`
+    )
+  }
+  return await rapydTransferLiquidity(req, true)
+}
+
+const rapydSetTransferResponse = async (
+  req: RapydSetTransferResponseRequest
+) => {
+  return await makeRapydPostRequest(
+    'account/transfer/response',
+    JSON.stringify(req)
+  )
 }
 
 const getAccountsBalance = async (
@@ -54,8 +124,11 @@ const getAccountsBalance = async (
 export {
   createRapydWallet,
   rapydVerifyIdentity,
-  rapydWithdrawLiquidity,
   rapydDepositLiquidity,
+  rapydHoldLiquidity,
+  rapydReleaseLiquidity,
+  rapydTransferLiquidity,
+  rapydSetTransferResponse,
   updateRapydProfile,
   getAccountsBalance
 }

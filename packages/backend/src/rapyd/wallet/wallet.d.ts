@@ -145,4 +145,19 @@ interface RapydWithdrawRequest {
   currency: string
 }
 
+interface RapydTransferRequest {
+  source_ewallet: string
+  amount: number
+  currency: string
+  destination_ewallet: string
+}
+
+interface RapydSetTransferResponseRequest {
+  id: string
+  metadata?: unknown
+  status: 'accept' | 'decline' | 'cancel'
+}
+
 type RapydDepositRequest = RapydWithdrawRequest
+type RapydHoldRequest = RapydWithdrawRequest
+type RapydReleaseRequest = RapydHoldRequest
