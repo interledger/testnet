@@ -50,9 +50,6 @@ services:
   # rafiki setup
   auth:
     image: ghcr.io/interledger/rafiki-auth:latest
-    build:
-      context: ../../rafiki
-      dockerfile: ./packages/auth/Dockerfile
     restart: always
     networks:
       - testnet
@@ -64,13 +61,10 @@ services:
       AUTH_DATABASE_URL: postgresql://auth:auth@postgres/auth
       INTROSPECTION_HTTPSIG: "false"
     depends_on:
-      - tigerbeetle
       - postgres
+
   backend:
     image: ghcr.io/interledger/rafiki-backend:latest
-    build:
-      context: ../../rafiki
-      dockerfile: ./packages/backend/Dockerfile
     restart: always
     privileged: true
     ports:
@@ -85,12 +79,12 @@ services:
       CONNECTOR_PORT: 3002
       OPEN_PAYMENTS_PORT: 80
       DATABASE_URL: postgresql://backend:backend@postgres/backend
-      TIGERBEETLE_CLUSTER_ID: 0
-      # Tigerbeetle will support DNS in future
-      TIGERBEETLE_REPLICA_ADDRESSES: '["10.4.0.50:4343"]'
+      USE_TIGERBEETLE: false 
+      TIGERBEETLE_CLUSTER_ID: 0 
+      TIGERBEETLE_REPLICA_ADDRESSES: ''
       NONCE_REDIS_KEY: test
-      AUTH_SERVER_GRANT_URL: http://auth:3007
-      AUTH_SERVER_INTROSPECTION_URL: http://auth:3007/introspect
+      AUTH_SERVER_GRANT_URL: http://auth:3006
+      AUTH_SERVER_INTROSPECTION_URL: http://auth:3007
       ILP_ADDRESS: test.rafiki
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
@@ -103,18 +97,18 @@ services:
       PRICES_URL: http://testnet/prices
       QUOTE_URL: http://testnet/quotes
     depends_on:
-      - tigerbeetle
       - postgres
       - redis
+
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:621268959801084246679f25416a9451f553fe3697dd4f618f39503322079433
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:a1259a4c1e49b3bab3d4cb61160f47dbfb2599964577a0b9144673de9a3bea9d
     restart: unless-stopped
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
     networks:
       testnet:
-        ipv4_address: 10.4.0.50
+        ipv4_address: 10.5.0.50
     entrypoint:
       - /bin/sh
       - -c
@@ -127,11 +121,12 @@ services:
         set -e
         echo $$DATA_FILE_EXISTS
         if [ "$$DATA_FILE_EXISTS" != 0 ]; then 
-          /opt/beta-beetle/tigerbeetle format --cluster=0 --replica=0 $$DATA_FILE; 
+          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE; 
         fi
-        hostname -I
+        hostname -i
         ls /var/lib/tigerbeetle
-        /opt/beta-beetle/tigerbeetle start --addresses=0.0.0.0:4343 $$DATA_FILE
+        ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
+
   redis:
     image: 'redis:7'
     restart: unless-stopped
@@ -143,8 +138,8 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.4.0.0/24
-          gateway: 10.4.0.1
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1
 
 volumes:
   pg-data:

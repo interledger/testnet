@@ -22,8 +22,7 @@
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint -c '.eslintrc.js' --max-warnings=0 .",
     "lint:fix": "eslint -c '.eslintrc.js' --max-warnings=0 --fix .",
-    "preinstall": "npx only-allow pnpm && pnpm rafiki:build",
-    "rafiki:build": "cd rafiki && pnpm i && pnpm -r build && cd ..",
+    "preinstall": "npx only-allow pnpm",
     "prettier:write": "prettier --config '.prettierrc.js' --write .",
     "prettier:check": "prettier --config '.prettierrc.js' --check .",
     "wallet": "pnpm --filter wallet --"
