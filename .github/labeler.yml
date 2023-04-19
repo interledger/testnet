@@ -1,5 +1,5 @@
-'package: backend': packages/backend/**/*
-'package: wallet': packages/wallet/**/*
+'package: wallet/backend': packages/wallet-backend/**/*
+'package: wallet/frontend': packages/wallet-frontend/**/*
 
 'type: ci':
   - .github/*
@@ -9,8 +9,8 @@
   - "**/*.md"
 
 'type: source':
-  - packages/backend/src/**/*
-  - packages/wallet/src/**/*
+  - packages/wallet-backend/src/**/*
+  - packages/wallet-frontend/src/**/*
 
 'type: test': packages/**/*.test.ts
 

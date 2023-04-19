@@ -6,7 +6,11 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.string().default('development'),
-  DB_URL: z.string().default('postgres://postgres:password@postgres/testnet'),
+  DB_URL: z
+    .string()
+    .default(
+      'postgres://backend_wallet:backend_wallet@postgres/backend_wallet'
+    ),
   JWT_ACCESS_TOKEN_SECRET: z.string().default('AT_SECRET'),
   JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.coerce.number().default(2630000),
   JWT_REFRESH_TOKEN_SECRET: z.string().default('RT_SECRET'),

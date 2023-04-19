@@ -1,20 +1,15 @@
-FROM node:lts-hydrogen
-
-# Set the working directory
-WORKDIR /home/testnet/rafiki
-
-# Install PNPM
-RUN corepack enable
-RUN corepack prepare pnpm@7.32.0 --activate
-
-# Copy lockfile, NVM and NPM configuration to the working directory
-COPY rafiki/pnpm-lock.yaml ./
-
-# Fetch packages from lockfile (https://pnpm.io/cli/fetch#usage-scenario)
-RUN pnpm fetch
+FROM node:lts-slim
 
 # Set the working directory
 WORKDIR /home/testnet
+
+RUN apt-get update && \
+    apt-get install -y python3 build-essential && \
+    apt-get clean
+
+# Install PNPM
+RUN corepack enable
+RUN corepack prepare pnpm@8.3.0 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY pnpm-lock.yaml .nvmrc .npmrc ./
@@ -28,4 +23,4 @@ ADD . ./
 # Install packages from virtual store
 RUN pnpm install -r --offline
 
-CMD ["pnpm", "wallet", "dev"]
+CMD ["pnpm", "wallet-frontend", "dev"]

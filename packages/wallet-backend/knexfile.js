@@ -4,9 +4,9 @@ module.exports = {
     // connection: 'postgres://postgres:password@postgres/testnet',
     connection: {
       host: 'postgres',
-      database: 'testnet',
-      user: 'postgres',
-      password: 'password',
+      database: 'wallet_backend',
+      user: 'wallet_backend',
+      password: 'wallet_backend',
       port: 5432
     },
     pool: {

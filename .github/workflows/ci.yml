@@ -16,32 +16,26 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - uses: ./.github/workflows/setup
       - run: pnpm checks
 
-  wallet:
-    name: Build wallet
+  wallet-frontend:
+    name: Build wallet frontend
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - uses: ./.github/workflows/setup
-      - run: pnpm wallet build
+      - run: pnpm wallet-frontend build
 
-  backend:
-    name: Build backend
+  wallet-backend:
+    name: Build wallet backend
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - uses: ./.github/workflows/setup
-      - run: pnpm backend build
+      - run: pnpm wallet-backend build
 
   test-backend-update:
     name: Test backend update
@@ -49,8 +43,6 @@ jobs:
     needs: checks
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - uses: ./.github/workflows/setup
       - run: pnpm --filter backend-update test
 
@@ -60,7 +52,5 @@ jobs:
     needs: test-backend-update
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - uses: ./.github/workflows/setup
       - run: pnpm --filter backend-update build

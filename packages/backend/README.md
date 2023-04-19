@@ -1,3 +1,0 @@
-# Testnet Backend
-
-WIP
