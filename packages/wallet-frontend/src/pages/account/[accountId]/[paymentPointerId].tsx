@@ -1,4 +1,4 @@
-import { Arrow } from '@/components/icons/Arrow'
+import { Arrow, DIRECTION } from '@/components/icons/Arrow'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { Account, accountService } from '@/lib/api/account'
@@ -48,14 +48,10 @@ export default function TransactionsPage({
               transactions.map((trx) => (
                 <Table.Row key={trx.id}>
                   <Table.Cell className="w-10">
-                    {/*
-                      Having only an arrow that describes the transaction type
-                      can be confusig. 
-                      TODO: Find a better way to display to display transaction type.
-                    */}
                     <Arrow
-                      className="h-4 w-4"
-                      direction={trx.type === 'INCOMING' ? 'right' : 'left'}
+                      direction={
+                        trx.type === 'INCOMING' ? DIRECTION.down : DIRECTION.up
+                      }
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
