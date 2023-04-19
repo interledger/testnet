@@ -1,5 +1,5 @@
-'package: backend': packages/wallet-backend/**/*
-'package: wallet': packages/wallet-frontend/**/*
+'package: wallet/backend': packages/wallet-backend/**/*
+'package: wallet/frontend': packages/wallet-frontend/**/*
 
 'type: ci':
   - .github/*
