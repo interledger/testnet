@@ -34,7 +34,7 @@ module.exports = {
       version: 'detect'
     },
     next: {
-      rootDir: './packages/wallet/src'
+      rootDir: './packages/wallet-frontend/src'
     }
   }
 }

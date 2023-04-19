@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/** 
+ * The content will render inside the `__next` div (not directly in `body`).
+ *
+ * Example:
+ *  <body>
+ *    <div id="__next">
+ *      <!-- CONTENT -->
+ *    </div>
+ *  </body>
+ *
+ * Applying basic styles, since it's blocking some of the `body` classes.
+ */
+#__next {
+  @apply h-full;
+}
+
+#nprogress {
+  @apply pointer-events-none;
+}
+
+#nprogress .bar {
+  @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink;
+}
