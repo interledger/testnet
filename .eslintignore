@@ -5,7 +5,6 @@ node_modules
 /.next
 .env
 .env.*
-/rafiki
 generated
 
 # Ignore PNPM lock file
