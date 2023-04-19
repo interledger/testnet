@@ -16,13 +16,19 @@ export const PersonalDetailsForm = () => {
   const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
 
-  // set default values testing, USA is selected for ID verification
+  // set default values testing, Denmark is selected for ID verification and because it supports multiple currencies
   const defaultCountry = USE_TEST_DATA_KYC
-    ? { value: 'US', name: 'United States of America' }
+    ? { value: 'DK', name: 'Denmark' }
     : undefined
+  const defaultTestValues = {
+    city: 'Copenhagen',
+    address: 'Den Lille Havfrue',
+    zip: '2100'
+  }
 
   const personalDetailsForm = useZodForm({
-    schema: personalDetailsSchema
+    schema: personalDetailsSchema,
+    defaultValues: { ...(USE_TEST_DATA_KYC ? defaultTestValues : {}) }
   })
 
   const getDocuments = async () => {
@@ -72,7 +78,7 @@ export const PersonalDetailsForm = () => {
     >
       {USE_TEST_DATA_KYC && (
         <span className="font-semibold text-pink">
-          USA is selected by default for testing purposes!
+          Denmark is selected by default for testing purposes!
         </span>
       )}
       <div className="flex flex-row justify-between">
@@ -95,7 +101,7 @@ export const PersonalDetailsForm = () => {
         error={personalDetailsForm.formState.errors.country?.message}
         options={countries}
         label="Country"
-        // TESTING => always disabled and USA selected
+        // TESTING => always disabled and Denmark selected
         defaultValue={defaultCountry}
         isDisabled={USE_TEST_DATA_KYC}
       />
@@ -104,18 +110,21 @@ export const PersonalDetailsForm = () => {
         {...personalDetailsForm.register('city')}
         error={personalDetailsForm.formState.errors.city?.message}
         label="City"
+        readOnly={USE_TEST_DATA_KYC}
       />
       <Input
         required
         {...personalDetailsForm.register('address')}
         error={personalDetailsForm.formState.errors.address?.message}
         label="Address"
+        readOnly={USE_TEST_DATA_KYC}
       />
       <Input
         required
         {...personalDetailsForm.register('zip')}
         error={personalDetailsForm.formState.errors.zip?.message}
         label="ZIP Code"
+        readOnly={USE_TEST_DATA_KYC}
       />
       <Button
         aria-label="Get Wallet Account"
