@@ -145,10 +145,10 @@ services:
         ls /var/lib/tigerbeetle
         ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
 
-  signatures:
+  rafiki-local-http-signatures:
     build:
-      context: ../../rafiki
-      dockerfile: ./packages/http-signature-utils/Dockerfile
+      context: ../../
+      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
     volumes:
       - ./temp/:/workspace/temp/
     restart: always
