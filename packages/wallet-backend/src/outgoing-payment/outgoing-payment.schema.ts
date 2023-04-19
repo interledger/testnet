@@ -5,5 +5,6 @@ export const outgoingPaymentSchema = z.object({
   toPaymentPointerUrl: z.string().url().optional(),
   paymentPointerId: z.string().uuid(),
   amount: z.number(),
-  isReceive: z.boolean().default(true)
+  isReceive: z.boolean().default(true),
+  description: z.string().optional()
 })
