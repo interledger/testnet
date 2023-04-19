@@ -1,3 +1,1 @@
-# Testnet Wallet
-
-WIP
+# Wallet Frontend

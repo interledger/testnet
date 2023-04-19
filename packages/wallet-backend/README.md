@@ -1,3 +1,1 @@
-# Testnet Backend
-
-WIP
+# Wallet Backend
