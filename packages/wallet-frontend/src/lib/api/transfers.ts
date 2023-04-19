@@ -12,7 +12,8 @@ export const paySchema = z.object({
   incomingPaymentUrl: z.string().url(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
-  })
+  }),
+  description: z.string()
 })
 
 export const sendSchema = z.object({
@@ -22,7 +23,8 @@ export const sendSchema = z.object({
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
-  isReceive: z.boolean().default(true)
+  isReceive: z.boolean().default(true),
+  description: z.string()
 })
 
 export const requestSchema = z.object({
@@ -30,7 +32,8 @@ export const requestSchema = z.object({
   paymentPointerId: z.string(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
-  })
+  }),
+  description: z.string()
 })
 
 type PayArgs = z.infer<typeof paySchema>
