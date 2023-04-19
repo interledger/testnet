@@ -9,7 +9,7 @@ WORKDIR /home/testnet
 
 # Install PNPM
 RUN corepack enable
-RUN corepack prepare pnpm@7.32.1 --activate
+RUN corepack prepare pnpm@8.3.0 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY pnpm-lock.yaml .nvmrc .npmrc ./
