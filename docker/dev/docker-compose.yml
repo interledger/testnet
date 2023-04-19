@@ -94,9 +94,10 @@ services:
       REDIS_URL: redis://redis:6379/0
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
-      WEBHOOK_URL: http://wallet-backend/rafiki/webhooks
-      PRICES_URL: http://wallet-backend/rafiki/prices
-      QUOTE_URL: http://wallet-backend/rafiki/quotes
+      WEBHOOK_URL: http://wallet-backend:3003/rafiki/webhooks
+      WEBHOOK_TIMEOUT: 60000
+      PRICES_URL: http://wallet-backend:3003/rafiki/prices
+      QUOTE_URL: http://wallet-backend:3003/rafiki/quote
     depends_on:
       - postgres
       - redis
