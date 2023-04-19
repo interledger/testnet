@@ -46,19 +46,19 @@ export class WebHookService {
   async onWebHook(wh: WebHook): Promise<void> {
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
-        this.handleOutgoingPaymentCreated(wh)
+        await this.handleOutgoingPaymentCreated(wh)
         break
       case EventType.OutgoingPaymentCompleted:
-        this.handleOutgoingPaymentCompleted(wh)
+        await this.handleOutgoingPaymentCompleted(wh)
         break
       case EventType.OutgoingPaymentFailed:
-        this.handleOutgoingPaymentFailed(wh)
+        await this.handleOutgoingPaymentFailed(wh)
         break
       case EventType.IncomingPaymentCompleted:
-        this.handleIncomingPaymentCompleted(wh)
+        await this.handleIncomingPaymentCompleted(wh)
         break
       case EventType.IncomingPaymentExpired:
-        this.handleIncomingPaymentExpired(wh)
+        await this.handleIncomingPaymentExpired(wh)
         break
       default:
         throw new BadRequestException(`unknown event type, ${wh.type}`)
