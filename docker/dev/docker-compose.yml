@@ -16,17 +16,18 @@ services:
       - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
     container_name: postgres
 
-  testnet:
+  # Testnet
+  wallet-backend:
     build:
       context: ../..
-      dockerfile: ./packages/backend/Dockerfile.dev
+      dockerfile: ./packages/wallet-backend/Dockerfile.dev
     depends_on:
       - postgres
       - rafiki-backend
     environment:
       NODE_ENV: development
       PORT: 3003
-      DB_URL: postgres://postgres:password@postgres/testnet
+      DB_URL: postgres://postgres:password@postgres/wallet_backend
       JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$$Cj9t$$Ix0TWMYrEnpq$$X
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: 2630000
       JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
@@ -42,7 +43,7 @@ services:
     ports:
       - '3003:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
-    container_name: testnet
+    container_name: wallet-backend
 
   # Rafiki
   rafiki-auth:
@@ -89,10 +90,10 @@ services:
       OPEN_PAYMENTS_URL: http://rafiki-backend
       REDIS_URL: redis://redis:6379/0
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
-      # testnet urls - not implemented
-      WEBHOOK_URL: http://testnet/webhooks
-      PRICES_URL: http://testnet/prices
-      QUOTE_URL: http://testnet/quotes
+      # Testnet urls - not implemented
+      WEBHOOK_URL: http://wallet-backend/webhooks
+      PRICES_URL: http://wallet-backend/prices
+      QUOTE_URL: http://wallet-backend/quotes
     depends_on:
       - postgres
       - redis
