@@ -1,7 +1,11 @@
-FROM node:lts-hydrogen
+FROM node:lts-slim
 
 # Set the working directory
 WORKDIR /home/testnet
+
+RUN apt-get update && \
+    apt-get install -y python3 build-essential && \
+    apt-get clean
 
 # Install PNPM
 RUN corepack enable
