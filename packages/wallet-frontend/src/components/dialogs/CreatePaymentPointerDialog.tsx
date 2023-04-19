@@ -106,7 +106,7 @@ export const CreatePaymentPointerDialog = ({
                         )}
                       />
                       <p className="ml-2 text-sm text-green">
-                        {OPEN_PAYMENTS_HOST}
+                        {OPEN_PAYMENTS_HOST}/
                         {createPaymentPointerForm.watch('paymentPointerName')}
                       </p>
                     </div>
