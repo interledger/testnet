@@ -14,7 +14,7 @@
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "docker:compose": "docker compose -f ./docker/dev/docker-compose.yml",
+    "docker:compose": "docker compose -f ./docker/dev/docker-compose.yml --env-file ./docker/dev/.env.dev",
     "docker:down": "pnpm docker:compose down",
     "dev": "pnpm docker:compose up -d --build && pnpm wallet-frontend dev",
     "dev-backend": "pnpm wallet-backend build && pnpm docker:compose up -d --build && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose up -d --no-deps --build wallet-backend'",
