@@ -1,5 +1,4 @@
 # The default configuration file path is '.github/labeler.yml'
-
 name: Automatic PR Labeler
 
 on:
