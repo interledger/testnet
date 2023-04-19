@@ -32,3 +32,4 @@ The following environment variables can be set.
 | Name     | Description                | Note                                                  |
 | -------- | -------------------------- | ----------------------------------------------------- |
 | KEY_FILE | `/PATH/TO/private-key.pem` | Key file needs to be copied into the docker container |
+| PORT     | 3000                       | Port of the HTTP server                               |
