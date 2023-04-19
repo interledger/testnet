@@ -37,20 +37,20 @@ jobs:
       - uses: ./.github/workflows/setup
       - run: pnpm wallet-backend build
 
-  test-backend-update:
+  test-wallet-backend-update:
     name: Test backend update
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/setup
-      - run: pnpm --filter backend-update test
+      - run: pnpm wallet-backend-update test
 
-  build-backend-update:
+  build-wallet-backend-update:
     name: Build backend update
     runs-on: ubuntu-latest
-    needs: test-backend-update
+    needs: test-wallet-backend-update
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/setup
-      - run: pnpm --filter backend-update build
+      - run: pnpm wallet-backend-update build
