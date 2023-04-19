@@ -20,12 +20,15 @@ export const PersonalDetailsForm = () => {
   const defaultCountry = USE_TEST_DATA_KYC
     ? { value: 'DK', name: 'Denmark' }
     : undefined
-  const defaultCity = USE_TEST_DATA_KYC ? 'Copenhagen' : ''
-  const defaultAddress = USE_TEST_DATA_KYC ? 'Den Lille Havfrue' : ''
-  const defaultZIP = USE_TEST_DATA_KYC ? '2100' : ''
+  const defaultTestValues = {
+    city: 'Copenhagen',
+    address: 'Den Lille Havfrue',
+    zip: '2100'
+  }
 
   const personalDetailsForm = useZodForm({
-    schema: personalDetailsSchema
+    schema: personalDetailsSchema,
+    defaultValues: { ...(USE_TEST_DATA_KYC ? defaultTestValues : {}) }
   })
 
   const getDocuments = async () => {
@@ -98,7 +101,7 @@ export const PersonalDetailsForm = () => {
         error={personalDetailsForm.formState.errors.country?.message}
         options={countries}
         label="Country"
-        // TESTING => always disabled and USA selected
+        // TESTING => always disabled and Denmark selected
         defaultValue={defaultCountry}
         isDisabled={USE_TEST_DATA_KYC}
       />
@@ -107,7 +110,6 @@ export const PersonalDetailsForm = () => {
         {...personalDetailsForm.register('city')}
         error={personalDetailsForm.formState.errors.city?.message}
         label="City"
-        defaultValue={defaultCity}
         readOnly={USE_TEST_DATA_KYC}
       />
       <Input
@@ -115,7 +117,6 @@ export const PersonalDetailsForm = () => {
         {...personalDetailsForm.register('address')}
         error={personalDetailsForm.formState.errors.address?.message}
         label="Address"
-        defaultValue={defaultAddress}
         readOnly={USE_TEST_DATA_KYC}
       />
       <Input
@@ -123,7 +124,6 @@ export const PersonalDetailsForm = () => {
         {...personalDetailsForm.register('zip')}
         error={personalDetailsForm.formState.errors.zip?.message}
         label="ZIP Code"
-        defaultValue={defaultZIP}
         readOnly={USE_TEST_DATA_KYC}
       />
       <Button
