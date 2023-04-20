@@ -1,10 +1,10 @@
 import { Switch } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const TYPES = {
-  pink: { text: 'text-pink', bg: 'bg-pink' },
-  violet: { text: 'text-violet', bg: 'bg-violet' }
+  sent: { text: 'text-pink', bg: 'bg-pink' },
+  received: { text: 'text-violet', bg: 'bg-violet' }
 } as const
 
 type ToggleTypes = keyof typeof TYPES
@@ -12,13 +12,27 @@ type ToggleTypes = keyof typeof TYPES
 type ToggleProps = {
   type: ToggleTypes
   disabled?: boolean
+  onChange?: (value: boolean) => void
 }
 
-export const TogglePayment = ({ type, disabled }: ToggleProps) => {
-  const [enabled, setEnabled] = useState(false)
+// TODO: Look into replacing HeadlessUI with Radix
+export const TogglePayment = ({
+  type,
+  disabled = false,
+  onChange
+}: ToggleProps) => {
+  const value = type !== 'sent'
+  const [enabled, setEnabled] = useState(value)
+
+  useEffect(() => {
+    setEnabled(value)
+  }, [value])
 
   const handleOnChange = () => {
-    setEnabled(!disabled && !enabled)
+    if (!disabled) {
+      setEnabled(!enabled)
+      onChange && onChange(!enabled)
+    }
   }
 
   return (
@@ -27,7 +41,7 @@ export const TogglePayment = ({ type, disabled }: ToggleProps) => {
         <Switch.Label
           className={cx(
             'pr-1',
-            disabled ? 'text-black/40' : `cursor-pointer ${TYPES[type].text}`
+            disabled ? 'text-black/40' : `cursor-pointer text-pink`
           )}
         >
           sent
@@ -37,7 +51,7 @@ export const TogglePayment = ({ type, disabled }: ToggleProps) => {
           onChange={handleOnChange}
           className={cx(
             'relative inline-flex h-5 w-10 items-center rounded-full outline-none',
-            disabled ? 'bg-black/40' : enabled ? 'bg-turqoise' : TYPES[type].bg
+            disabled ? 'bg-black/40' : TYPES[type].bg
           )}
         >
           <span className="sr-only">Choose payment type</span>
@@ -51,7 +65,7 @@ export const TogglePayment = ({ type, disabled }: ToggleProps) => {
         <Switch.Label
           className={cx(
             'pl-1',
-            disabled ? 'text-black/40' : 'cursor-pointer text-turqoise'
+            disabled ? 'text-black/40' : 'cursor-pointer text-violet'
           )}
         >
           received

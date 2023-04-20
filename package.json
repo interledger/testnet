@@ -17,7 +17,7 @@
     "docker:compose": "docker compose -f ./docker/dev/docker-compose.yml",
     "docker:down": "pnpm docker:compose down",
     "dev": "pnpm docker:compose up -d --build && pnpm wallet-frontend dev",
-    "dev-backend": "pnpm wallet-backend build && pnpm docker:compose up -d --build && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose up -d --no-deps --build testnet'",
+    "dev-backend": "pnpm wallet-backend build && pnpm docker:compose up -d --build && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose up -d --no-deps --build wallet-backend'",
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint -c '.eslintrc.js' --max-warnings=0 .",
     "lint:fix": "eslint -c '.eslintrc.js' --max-warnings=0 --fix .",
@@ -41,11 +41,11 @@
     "typescript": "^5.0.4"
   },
   "engines": {
-    "pnpm": "8.3.0",
+    "pnpm": "8.3.1",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@8.3.0"
+  "packageManager": "pnpm@8.3.1"
 }

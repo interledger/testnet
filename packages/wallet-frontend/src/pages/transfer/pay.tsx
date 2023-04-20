@@ -122,7 +122,7 @@ export default function Pay({ accounts }: PayProps) {
             />
           </div>
           <div className="space-y-1">
-            <TogglePayment disabled={true} type="pink" />
+            <TogglePayment disabled={true} type="received" />
             <Input
               required
               {...payForm.register('amount')}
