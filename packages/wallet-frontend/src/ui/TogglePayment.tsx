@@ -21,7 +21,7 @@ export const TogglePayment = ({
   disabled = false,
   onChange
 }: ToggleProps) => {
-  const value = type === 'sent' ? false : true
+  const value = type !== 'sent'
   const [enabled, setEnabled] = useState(value)
 
   useEffect(() => {
