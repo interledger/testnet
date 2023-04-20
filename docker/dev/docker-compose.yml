@@ -53,12 +53,12 @@ services:
     networks:
       - testnet
     ports:
-      - '3007:3007'
+      - '3006:3006'
     environment:
-      PORT: 3007
+      PORT: 3006
+      INTROSPECTION_PORT: 3007
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
-      INTROSPECTION_HTTPSIG: 'false'
     depends_on:
       - postgres
 
@@ -67,6 +67,8 @@ services:
     image: ghcr.io/interledger/rafiki-backend:s2-build-test
     restart: always
     privileged: true
+    volumes:
+      - ./temp/:/workspace/temp/
     ports:
       - '3010:80'
       - '3011:3001'
@@ -74,6 +76,7 @@ services:
       - testnet
     environment:
       NODE_ENV: development
+      PRIVATE_KEY_FILE: ./temp/private-key.pem
       LOG_LEVEL: debug
       ADMIN_PORT: 3001
       CONNECTOR_PORT: 3002
@@ -141,6 +144,18 @@ services:
         hostname -i
         ls /var/lib/tigerbeetle
         ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
+
+  rafiki-local-http-signatures:
+    build:
+      context: ../../
+      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
+    volumes:
+      - ./temp/:/workspace/temp/
+    restart: always
+    ports:
+      - '3040:3000'
+    environment:
+      KEY_FILE: ./temp/private-key.pem
 
   redis:
     image: 'redis:7'
