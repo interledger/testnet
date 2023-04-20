@@ -87,7 +87,7 @@ const createTransfersService = (): TransfersService => ({
             paymentPointerId: args.paymentPointerId,
             toPaymentPointerUrl: args.toPaymentPointerUrl,
             amount: args.amount,
-            isReceive: args.paymentType === 'received' ? true : false
+            isReceive: args.paymentType === 'received'
           }
         })
         .json<SuccessResponse>()
