@@ -42,7 +42,9 @@ export default function TransactionsPage({
       {/* TODO: Filters */}
       <div className="mt-10 flex w-full flex-col space-y-3 md:max-w-2xl">
         <Table>
-          <Table.Head columns={['', 'Date', 'Merchant', 'Status', 'Amount']} />
+          <Table.Head
+            columns={['', 'Date', 'Description', 'Status', 'Amount']}
+          />
           <Table.Body>
             {transactions.length ? (
               transactions.map((trx) => (
