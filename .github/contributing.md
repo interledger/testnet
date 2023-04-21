@@ -60,9 +60,9 @@ This project uses `pnpm`. A list of steps for setting up a [local development en
 
 We use labels to communicate the intention of issues and PRs.
 
-* `package: wallet/*` prefix denotes issues that are partaining the wallet application (frontend and backend);
-* `priority:` prefix denotes pirority of issues.
-* `type:` prefix denotes the type of issues/PRs, ex. type:story represents a bigger issue with subtasks.
+- `package: wallet/*` prefix denotes issues that are partaining the wallet application (frontend and backend);
+- `priority:` prefix denotes pirority of issues.
+- `type:` prefix denotes the type of issues/PRs, ex. type:story represents a bigger issue with subtasks.
 
 Some labels will be automatically assigned to issues/PRs.
 

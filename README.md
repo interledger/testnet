@@ -73,6 +73,7 @@ pnpm dev
 ```
 
 Upon executing the above command, the following will be available
-* Wallet application
-    * Frontend at [http://localhost:4003](http://localhost:4003)
-    * Backend at [http://localhost:3003](http://localhost:3003)
+
+- Wallet application
+  - Frontend at [http://localhost:4003](http://localhost:4003)
+  - Backend at [http://localhost:3003](http://localhost:3003)
