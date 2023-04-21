@@ -17,6 +17,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
+import { Controller } from 'react-hook-form'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -25,7 +26,10 @@ export default function Send({ accounts }: SendProps) {
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const sendForm = useZodForm({
-    schema: sendSchema
+    schema: sendSchema,
+    defaultValues: {
+      paymentType: 'sent'
+    }
   })
 
   const handleAccountOnChange = async () => {
@@ -122,7 +126,26 @@ export default function Send({ accounts }: SendProps) {
             />
           </div>
           <div className="space-y-1">
-            <TogglePayment type="violet" />
+            <Controller
+              name="paymentType"
+              defaultValue="sent"
+              control={sendForm.control}
+              render={({ field: { onChange, value } }) => {
+                return (
+                  <TogglePayment
+                    type={value}
+                    onChange={(newValue) => {
+                      sendForm.setValue(
+                        'paymentType',
+                        newValue ? 'received' : 'sent'
+                      )
+                      onChange(newValue ? 'received' : 'sent')
+                    }}
+                  />
+                )
+              }}
+            />
+            <input type="hidden" {...sendForm.register('paymentType')} />
             <Input
               required
               {...sendForm.register('amount')}
@@ -130,6 +153,7 @@ export default function Send({ accounts }: SendProps) {
               label="Amount"
             />
           </div>
+          <Input {...sendForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"

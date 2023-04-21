@@ -17,7 +17,7 @@ export const createPayment = async (
   next: NextFunction
 ) => {
   try {
-    const { paymentPointerId, amount } = await zParse(
+    const { paymentPointerId, amount, description } = await zParse(
       incomingPaymentSchema,
       req
     )
@@ -42,7 +42,8 @@ export const createPayment = async (
     const transaction = await createIncomingPaymentTransactions(
       paymentPointerId,
       amount * 10 ** asset.scale,
-      asset
+      asset,
+      description
     )
 
     return res.json({
@@ -58,9 +59,15 @@ export const createPayment = async (
 export async function createIncomingPaymentTransactions(
   paymentPointerId: string,
   amount: number,
-  asset: Asset
+  asset: Asset,
+  description?: string
 ): Promise<TransactionModel> {
-  const response = await createIncomingPayment(paymentPointerId, amount, asset)
+  const response = await createIncomingPayment(
+    paymentPointerId,
+    amount,
+    asset,
+    description
+  )
 
   return TransactionModel.query().insert({
     paymentPointerId: paymentPointerId,
@@ -68,6 +75,7 @@ export async function createIncomingPaymentTransactions(
     assetCode: asset.code,
     value: amount,
     type: 'INCOMING',
-    status: 'PENDING'
+    status: 'PENDING',
+    description
   })
 }

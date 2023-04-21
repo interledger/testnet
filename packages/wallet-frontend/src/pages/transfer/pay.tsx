@@ -122,7 +122,7 @@ export default function Pay({ accounts }: PayProps) {
             />
           </div>
           <div className="space-y-1">
-            <TogglePayment disabled={true} type="pink" />
+            <TogglePayment disabled={true} type="received" />
             <Input
               required
               {...payForm.register('amount')}
@@ -130,6 +130,7 @@ export default function Pay({ accounts }: PayProps) {
               label="Amount"
             />
           </div>
+          <Input {...payForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"

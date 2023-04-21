@@ -25,7 +25,8 @@ export const createPayment = async (
       toPaymentPointerUrl,
       paymentPointerId,
       amount,
-      isReceive
+      isReceive,
+      description
     } = await zParse(outgoingPaymentSchema, req)
 
     if (!incomingPaymentUrl && !toPaymentPointerUrl) {
@@ -62,7 +63,8 @@ export const createPayment = async (
       (await createReceiver(
         amount * 10 ** asset.scale,
         asset,
-        toPaymentPointerUrl
+        toPaymentPointerUrl,
+        description
       ))
 
     const quote = await createQuote(
@@ -72,7 +74,11 @@ export const createPayment = async (
       asset,
       isReceive
     )
-    const payment = await createOutgoingPayment(paymentPointerId, quote.id)
+    const payment = await createOutgoingPayment(
+      paymentPointerId,
+      quote.id,
+      description
+    )
 
     const transaction = await TransactionModel.query().insert({
       paymentPointerId: existingPaymentPointer.id,
@@ -80,7 +86,8 @@ export const createPayment = async (
       assetCode: asset.code,
       value: amount * 10 ** asset.scale,
       type: 'OUTGOING',
-      status: 'PENDING'
+      status: 'PENDING',
+      description
     })
 
     return res.json({
@@ -96,7 +103,8 @@ export const createPayment = async (
 async function createReceiver(
   amount: number,
   asset: Asset,
-  paymentPointerUrl = ''
+  paymentPointerUrl = '',
+  description?: string
 ): Promise<string> {
   const existingPaymentPointer = await PaymentPointerModel.query().findOne({
     url: paymentPointerUrl
@@ -108,7 +116,8 @@ async function createReceiver(
   const response = await createIncomingPaymentTransactions(
     existingPaymentPointer.id,
     amount,
-    asset
+    asset,
+    description
   )
 
   return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`

@@ -12,7 +12,9 @@ export const paySchema = z.object({
   incomingPaymentUrl: z.string().url(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
-  })
+  }),
+  description: z.string(),
+  isReceive: z.boolean().default(true)
 })
 
 export const sendSchema = z.object({
@@ -22,7 +24,8 @@ export const sendSchema = z.object({
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
-  isReceive: z.boolean().default(true)
+  description: z.string(),
+  paymentType: z.enum(['sent', 'received'])
 })
 
 export const requestSchema = z.object({
@@ -30,7 +33,8 @@ export const requestSchema = z.object({
   paymentPointerId: z.string(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
-  })
+  }),
+  description: z.string()
 })
 
 type PayArgs = z.infer<typeof paySchema>
@@ -81,7 +85,13 @@ const createTransfersService = (): TransfersService => ({
     try {
       const response = await httpClient
         .post('outgoing-payments', {
-          json: args
+          json: {
+            accountId: args.accountId,
+            paymentPointerId: args.paymentPointerId,
+            toPaymentPointerUrl: args.toPaymentPointerUrl,
+            amount: args.amount,
+            isReceive: args.paymentType === 'received'
+          }
         })
         .json<SuccessResponse>()
       return response
