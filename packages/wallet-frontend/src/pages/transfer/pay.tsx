@@ -17,7 +17,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
-import { useDebounce } from '@/utils/debounce'
+import { useDebounce } from '@/lib/hooks/useDebounce'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
