@@ -1,6 +1,6 @@
 import { SVGProps } from 'react'
 
-export const DIRECTION = {
+const DIRECTION = {
   up: 'up',
   down: 'down'
 } as const

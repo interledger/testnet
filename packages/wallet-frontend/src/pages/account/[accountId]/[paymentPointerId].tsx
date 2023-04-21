@@ -1,4 +1,4 @@
-import { Arrow, DIRECTION } from '@/components/icons/Arrow'
+import { Arrow } from '@/components/icons/Arrow'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { Account, accountService } from '@/lib/api/account'
@@ -49,9 +49,7 @@ export default function TransactionsPage({
                 <Table.Row key={trx.id}>
                   <Table.Cell className="w-10">
                     <Arrow
-                      direction={
-                        trx.type === 'INCOMING' ? DIRECTION.down : DIRECTION.up
-                      }
+                      direction={trx.type === 'INCOMING' ? 'down' : 'up'}
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
