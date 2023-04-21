@@ -50,14 +50,8 @@ export default function TransactionsPage({
               transactions.map((trx) => (
                 <Table.Row key={trx.id}>
                   <Table.Cell className="w-10">
-                    {/*
-                      Having only an arrow that describes the transaction type
-                      can be confusig. 
-                      TODO: Find a better way to display to display transaction type.
-                    */}
                     <Arrow
-                      className="h-4 w-4"
-                      direction={trx.type === 'INCOMING' ? 'right' : 'left'}
+                      direction={trx.type === 'INCOMING' ? 'down' : 'up'}
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
