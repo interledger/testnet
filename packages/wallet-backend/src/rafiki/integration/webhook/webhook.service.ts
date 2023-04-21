@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
 
 import env from '../../../config/env'
