@@ -56,7 +56,7 @@ npm install pnpm -g
 yarn install pnpm -g
 ```
 
-For alternatives methods of installing `pnpm`, you can refer to the [official `pnpm` documentation](https://pnpm.io/installation).
+For alternative methods of installing `pnpm`, you can refer to the [official `pnpm` documentation](https://pnpm.io/installation).
 
 To install dependencies, execute:
 
