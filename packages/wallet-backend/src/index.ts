@@ -13,6 +13,10 @@ import env from './config/env'
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes'
 
+BigInt.prototype.toJSON = function (this: bigint) {
+  return this.toString()
+}
+
 const app: Application = express()
 
 app.disable('X-Powered-By')
