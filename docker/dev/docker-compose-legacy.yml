@@ -117,7 +117,7 @@ services:
     environment:
       PORT: 3012
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
-  
+
   rafiki-local-http-signatures:
     build:
       context: ../../
