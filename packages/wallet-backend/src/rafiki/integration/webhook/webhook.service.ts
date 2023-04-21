@@ -67,6 +67,7 @@ export class WebHookService {
   private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
     let ppId = ''
     if (wh.type === EventType.IncomingPaymentCompleted) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ppId = (wh.data.incomingPayment as any).paymentPointerId as string
     }
     if (
@@ -75,6 +76,7 @@ export class WebHookService {
         EventType.OutgoingPaymentCompleted
       ].includes(wh.type)
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ppId = (wh.data.payment as any).paymentPointerId as string
     }
 
@@ -108,12 +110,14 @@ export class WebHookService {
       ].includes(wh.type)
     ) {
       amount = this.parseAmount(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (wh.data.payment as any).sendAmount as AmountJSON
       )
     }
 
     if (wh.type === EventType.IncomingPaymentCompleted) {
       amount = this.parseAmount(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (wh.data.incomingPayment as any).receivedAmount as AmountJSON
       )
     }
