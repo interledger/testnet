@@ -12,7 +12,6 @@ import {
 } from 'react'
 import { z } from 'zod'
 import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
-import { PencilSquare } from './icons/Pencil'
 import { X } from './icons/X'
 import { PaymentPointer } from '@/lib/api/paymentPointer'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
@@ -92,7 +91,6 @@ export const PaymentPointerCard = ({
       {/* IDEA:
         We can show a tooltip when the user is hovering the `Edit` or `Delete` buttons. 
       */}
-      {isEditing ? (
         <IconButton
           aria-label="delete payment pointer"
           className="test h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
@@ -108,17 +106,6 @@ export const PaymentPointerCard = ({
         >
           <X stroke="currentColor" strokeWidth={3} />
         </IconButton>
-      ) : (
-        <IconButton
-          onClick={() => {
-            setIsEditing(!isEditing)
-          }}
-          aria-label="edit payment pointer"
-          className="h-7 w-7 text-green-7 transition-transform duration-150 hover:scale-[115%] hover:text-green-3"
-        >
-          <PencilSquare />
-        </IconButton>
-      )}
       <div className="flex flex-1 items-center justify-between space-x-2">
         {isEditing ? (
           <Form
