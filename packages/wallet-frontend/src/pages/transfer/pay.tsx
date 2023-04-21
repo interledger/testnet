@@ -14,9 +14,10 @@ import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
+import debounce from '@/utils/debounce'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -24,9 +25,35 @@ export default function Pay({ accounts }: PayProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
+  const [incomingPaymentUrl, setIncomingPaymentUrl] = useState('')
+  const debouncedIncomingPaymentUrl = debounce(incomingPaymentUrl, 1000)
   const payForm = useZodForm({
     schema: paySchema
   })
+
+  useEffect(() => {
+    if (debouncedIncomingPaymentUrl) {
+      const fetchData = async () => {
+        const tempArray = incomingPaymentUrl.split('/')
+        const incomingPaymentId = tempArray[tempArray.length - 1]
+        const response = await transfersService.getIncomingPaymentDetails({
+          id: incomingPaymentId
+        })
+        if (response.success && response.data) {
+          const { amount, description } = response.data
+          payForm.setValue('amount', amount)
+          payForm.trigger('amount')
+          payForm.setValue('description', description)
+          payForm.trigger('description')
+        } else {
+          const { message } = response
+          payForm.setError('root', { message })
+        }
+      }
+
+      fetchData()
+    }
+  }, [debouncedIncomingPaymentUrl, incomingPaymentUrl, payForm])
 
   const handleAccountOnChange = async () => {
     const accountId = payForm.getValues('accountId')
@@ -119,6 +146,8 @@ export default function Pay({ accounts }: PayProps) {
               {...payForm.register('incomingPaymentUrl')}
               error={payForm.formState.errors.incomingPaymentUrl?.message}
               label="Incoming payment URL"
+              value={incomingPaymentUrl}
+              onChange={(e) => setIncomingPaymentUrl(e.target.value)}
             />
           </div>
           <div className="space-y-1">

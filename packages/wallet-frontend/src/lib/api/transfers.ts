@@ -58,10 +58,25 @@ type RequestResult = SuccessResponse<RequestSuccessResponse>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = Promise<RequestResult | RequestError>
 
+type IncomingPaymentDetailsSuccessResponse = {
+  amount: number
+  assetCode: string
+  description: string
+}
+type IncomingPaymentDetailsArgs = { id: string }
+type IncomingPaymentDetailsResult =
+  SuccessResponse<IncomingPaymentDetailsSuccessResponse>
+type IncomingPaymentDetailsResponse = Promise<
+  IncomingPaymentDetailsResult | ErrorResponse
+>
+
 interface TransfersService {
   pay: (args: PayArgs) => Promise<PayResponse>
   send: (args: SendArgs) => Promise<SendResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
+  getIncomingPaymentDetails: (
+    args: IncomingPaymentDetailsArgs
+  ) => Promise<IncomingPaymentDetailsResponse>
 }
 
 const createTransfersService = (): TransfersService => ({
@@ -115,6 +130,24 @@ const createTransfersService = (): TransfersService => ({
       return getError<RequestArgs>(
         error,
         'We could not request the money. Please try again.'
+      )
+    }
+  },
+
+  async getIncomingPaymentDetails(
+    args
+  ): Promise<IncomingPaymentDetailsResponse> {
+    try {
+      const response = await httpClient
+        .get('incoming-payments', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We could not get the details of the incoming payment url. Please make sure the url is correct and try again.'
       )
     }
   }
