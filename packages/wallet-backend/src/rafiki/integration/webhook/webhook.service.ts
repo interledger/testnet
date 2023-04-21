@@ -126,6 +126,9 @@ export class WebHookService {
   }
 
   private amountToNumber(amount: Amount): number {
+    if (amount.assetScale === 1) {
+      return Number(amount.value)
+    }
     return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
       amount.assetScale
     )
