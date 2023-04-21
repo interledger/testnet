@@ -40,7 +40,8 @@ const createIncomingPaymentMutation = gql`
 export async function createIncomingPayment(
   paymentPointerId: string,
   amount: number,
-  asset: Asset
+  asset: Asset,
+  description?: string
 ): Promise<IncomingPayment> {
   const input: CreateIncomingPaymentInput = {
     incomingAmount: {
@@ -48,7 +49,8 @@ export async function createIncomingPayment(
       assetCode: asset.code,
       assetScale: asset.scale
     },
-    paymentPointerId
+    paymentPointerId,
+    description
   }
   const { createIncomingPayment: paymentResponse } =
     await graphqlClient.request<

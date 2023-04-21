@@ -66,11 +66,13 @@ const createOutgoingPaymentMutation = gql`
 
 export async function createOutgoingPayment(
   paymentPointerId: string,
-  quoteId: string
+  quoteId: string,
+  description?: string
 ): Promise<OutgoingPayment> {
   const input: CreateOutgoingPaymentInput = {
     paymentPointerId,
-    quoteId
+    quoteId,
+    description
   }
   const { createOutgoingPayment: paymentResponse } =
     await graphqlClient.request<
