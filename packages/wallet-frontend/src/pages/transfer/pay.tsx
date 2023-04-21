@@ -17,7 +17,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
-import debounce from '@/utils/debounce'
+import { useDebounce } from '@/utils/debounce'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -26,7 +26,7 @@ export default function Pay({ accounts }: PayProps) {
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const [incomingPaymentUrl, setIncomingPaymentUrl] = useState('')
-  const debouncedIncomingPaymentUrl = debounce(incomingPaymentUrl, 1000)
+  const debouncedIncomingPaymentUrl = useDebounce(incomingPaymentUrl, 1000)
   const payForm = useZodForm({
     schema: paySchema
   })
