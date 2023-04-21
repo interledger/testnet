@@ -136,15 +136,17 @@ export class WebHookService {
 
     const amount = this.getAmountFromWebHook(wh)
 
-    const transferResult = await rapydTransferLiquidity(
-      {
-        amount: this.amountToNumber(amount),
-        currency: amount.assetCode,
-        destination_ewallet: receiverWalletId,
-        source_ewallet: env.RAPYD_SETTLEMENT_EWALLET
-      },
-      true
-    )
+    if (this.validateAmount(amount, wh.type) === 0) {
+      await withdrawLiqudity(wh.id)
+      return
+    }
+
+    const transferResult = await rapydTransferLiquidity({
+      amount: this.amountToNumber(amount),
+      currency: amount.assetCode,
+      destination_ewallet: receiverWalletId,
+      source_ewallet: env.RAPYD_SETTLEMENT_EWALLET
+    })
 
     if (transferResult.status?.status !== 'SUCCESS') {
       transferResult.status?.message && log.error(transferResult.status.message)
@@ -156,15 +158,22 @@ export class WebHookService {
     await withdrawLiqudity(wh.id)
 
     log.info(
-      `Succesfully transfered ${this.amountToNumber(amount)} from ${
+      `Succesfully transfered ${this.amountToNumber(
+        amount
+      )} from settlement account ${
         env.RAPYD_SETTLEMENT_EWALLET
-      } into ${receiverWalletId}`
+      } into ${receiverWalletId} `
     )
   }
 
   private async handleOutgoingPaymentCreated(wh: WebHook) {
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    if (this.validateAmount(amount, wh.type) === 0) {
+      await depositLiquidity(wh.id)
+      return
+    }
 
     const holdResult = await rapydHoldLiquidity({
       amount: this.amountToNumber(amount),
@@ -174,18 +183,25 @@ export class WebHookService {
 
     if (holdResult.status?.status !== 'SUCCESS') {
       holdResult.status?.message && log.error(holdResult.status.message)
-      throw new Error(`Unable to hold liquidity on wallet: ${rapydWalletId}`)
+      throw new Error(
+        `Unable to hold liquidity on wallet: ${rapydWalletId} on ${EventType.OutgoingPaymentCreated}`
+      )
     }
     await depositLiquidity(wh.id)
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
     const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
-    const amount = this.getAmountFromWebHook(wh)
+    const sendAmount = this.getAmountFromWebHook(wh)
+
+    if (this.validateAmount(sendAmount, wh.type) === 0) {
+      await withdrawLiqudity(wh.id)
+      return
+    }
 
     const releaseResult = await rapydReleaseLiquidity({
-      amount: this.amountToNumber(amount),
-      currency: amount.assetCode,
+      amount: this.amountToNumber(sendAmount),
+      currency: sendAmount.assetCode,
       ewallet: source_ewallet
     })
 
@@ -193,25 +209,22 @@ export class WebHookService {
       releaseResult.status?.message && log.error(releaseResult.status.message)
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
-          amount
+          sendAmount
         )} from ${source_ewallet}`
       )
     }
 
-    const transferResult = await rapydTransferLiquidity(
-      {
-        amount: this.amountToNumber(amount),
-        currency: amount.assetCode,
-        destination_ewallet: env.RAPYD_SETTLEMENT_EWALLET,
-        source_ewallet
-      },
-      true
-    )
+    const transferResult = await rapydTransferLiquidity({
+      amount: this.amountToNumber(sendAmount),
+      currency: sendAmount.assetCode,
+      destination_ewallet: env.RAPYD_SETTLEMENT_EWALLET,
+      source_ewallet
+    })
 
     if (transferResult.status?.status !== 'SUCCESS') {
       transferResult.status?.message && log.error(transferResult.status.message)
       throw new Error(
-        `Unable to transfer from ${source_ewallet} into ${env.RAPYD_SETTLEMENT_EWALLET}`
+        `Unable to transfer from ${source_ewallet} into settlement account ${env.RAPYD_SETTLEMENT_EWALLET} on ${EventType.OutgoingPaymentCompleted}`
       )
     }
     await withdrawLiqudity(wh.id)
@@ -220,11 +233,16 @@ export class WebHookService {
   private async handleOutgoingPaymentFailed(wh: WebHook) {
     const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
 
-    const amount = this.getAmountFromWebHook(wh)
+    const sendAmount = this.getAmountFromWebHook(wh)
+
+    if (this.validateAmount(sendAmount, wh.type) === 0) {
+      await withdrawLiqudity(wh.id)
+      return
+    }
 
     const releaseResult = await rapydReleaseLiquidity({
-      amount: this.amountToNumber(amount),
-      currency: amount.assetCode,
+      amount: this.amountToNumber(sendAmount),
+      currency: sendAmount.assetCode,
       ewallet: source_ewallet
     })
 
@@ -232,8 +250,31 @@ export class WebHookService {
       releaseResult.status?.message && log.error(releaseResult.status.message)
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
-          amount
-        )} from ${source_ewallet}`
+          sendAmount
+        )} from ${source_ewallet} on ${EventType.OutgoingPaymentFailed}`
+      )
+    }
+
+    const sentAmount = this.parseAmount(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (wh.data.payment as any).sentAmount as AmountJSON
+    )
+    if (!sentAmount.value) {
+      return
+    }
+
+    //* transfer eventual already sent money to the settlement account
+    const transferResult = await rapydTransferLiquidity({
+      amount: this.amountToNumber(sentAmount),
+      currency: sentAmount.assetCode,
+      destination_ewallet: env.RAPYD_SETTLEMENT_EWALLET,
+      source_ewallet
+    })
+
+    if (transferResult.status?.status !== 'SUCCESS') {
+      transferResult.status?.message && log.error(transferResult.status.message)
+      throw new Error(
+        `Unable to transfer already sent amount from ${source_ewallet} into settlement account ${env.RAPYD_SETTLEMENT_EWALLET} on ${EventType.OutgoingPaymentFailed}`
       )
     }
 
@@ -242,5 +283,19 @@ export class WebHookService {
 
   private async handleIncomingPaymentExpired(wh: WebHook) {
     return this.handleIncomingPaymentCompleted(wh)
+  }
+
+  private validateAmount(
+    amount: Amount,
+    eventType: EventType
+  ): number | undefined {
+    if (amount.value !== 0n) {
+      return
+    }
+    log.warn(
+      `${eventType} received with zero value. Skipping Rapyd interaction`
+    )
+
+    return 0
   }
 }

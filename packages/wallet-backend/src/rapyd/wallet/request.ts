@@ -54,13 +54,9 @@ const rapydReleaseLiquidity = async (req: RapydReleaseRequest) => {
 }
 
 const rapydTransferLiquidity = async (
-  req: RapydTransferRequest,
-  withAccept?: boolean
+  req: RapydTransferRequest
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
-  if (!withAccept) {
-    return await makeRapydPostRequest('account/transfer', JSON.stringify(req))
-  }
   const transferResponse = await makeRapydPostRequest(
     'account/transfer',
     JSON.stringify(req)
