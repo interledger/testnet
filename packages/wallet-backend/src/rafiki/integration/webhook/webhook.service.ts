@@ -126,12 +126,11 @@ export class WebHookService {
   }
 
   private amountToNumber(amount: Amount): number {
-    if (amount.assetScale === 1) {
-      return Number(amount.value)
-    }
-    return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
-      amount.assetScale
-    )
+    return amount.assetScale === 1
+      ? Number(amount.value)
+      : +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
+          amount.assetScale
+        )
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
@@ -292,11 +291,11 @@ export class WebHookService {
     amount: Amount,
     eventType: EventType
   ): number | undefined {
-    if (amount.value !== 0n) {
+    if (amount.value > 0n) {
       return
     }
     log.warn(
-      `${eventType} received with zero value. Skipping Rapyd interaction`
+      `${eventType} received with zero or negative value. Skipping Rapyd interaction`
     )
 
     return 0
