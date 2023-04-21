@@ -1,9 +1,4 @@
 import { BadRequestException } from '../../../shared/models/errors/BadRequestException'
-export type Amount = {
-  value: string // bigint
-  assetCode: string
-  assetScale: number
-}
 
 enum PaymentType {
   FixedSend = 'FixedSend',
@@ -17,7 +12,7 @@ export type Quote = {
   receiver: string
   sendAmount: Amount
   receiveAmount: Amount
-  maxPacketAmount: number // bigint
+  maxPacketAmount: bigint
   minExchangeRate: number
   lowEstimatedExchangeRate: number
   highEstimatedExchangeRate: number
@@ -30,6 +25,12 @@ export interface Fees {
   percentage: number
   asset: string
   scale: number
+}
+
+export type Amount = {
+  value: bigint
+  assetCode: string
+  assetScale: number
 }
 
 export class QuoteService {
@@ -54,7 +55,7 @@ export class QuoteService {
         BigInt(Math.floor(Number(sendAmountValue) * feeStructure.percentage)) +
         BigInt(feeStructure.fixed)
 
-      receivedQuote.sendAmount.value = (sendAmountValue + fees).toString()
+      receivedQuote.sendAmount.value = sendAmountValue + fees
     } else {
       throw new BadRequestException('Invalid paymentType')
     }
