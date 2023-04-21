@@ -49,22 +49,22 @@ Rafiki has started to maintain public-facing documentation on [rafiki.dev](https
 A list of issues being tracked across the Interledger ecosystem (including rafiki) is maintained in the [Documentation project](https://github.com/orgs/interledger/projects/5/views/1).
 
 
-## Working in the testnet repository
+## Working in the Testnet repository
 
-This project uses pnpm. A list of steps for setting up a [local development environment](https://github.com/interledger/testnet#local-development-environment) can be found in the Readme.
+This project uses `pnpm`. A list of steps for setting up a [local development environment](https://github.com/interledger/testnet#local-development-environment) can be found in the Readme.
 
-> DO NOT use `npm install`. This will cause the project to spontaneously self-destruct :boom:
+> **Warning**
+> DO NOT use `npm install`. This will cause the project to spontaneously self-destruct :boom:.
 
 ### Labels
 
 We use labels to communicate the intention of issues and PRs.
 
-- `package:wallet` prefix denotes issues that are partaining to the wallet package (NextJS).
-- `package:backend` prefix denotes issues that are partaining to the backend package (Express).
-- `priority:` prefix denotes pirority of issues.
-- `type:` prefix denotes the type of issues/PRs, ex. type:story represents a bigger issue with subtasks.
+* `package: wallet/*` prefix denotes issues that are partaining the wallet application (frontend and backend);
+* `priority:` prefix denotes pirority of issues.
+* `type:` prefix denotes the type of issues/PRs, ex. type:story represents a bigger issue with subtasks.
 
-Some labels will be automatically assigned to Issues/PRs.
+Some labels will be automatically assigned to issues/PRs.
 
 ### Code quality
 
@@ -107,7 +107,7 @@ Prettier config should not be overridden in any packages.
 [Typescript](https://www.staging-typescript.org/) is the chosen language.
 
 ```shell
-./tsconfig.json # config
+./tsconfig.base.json # config
 ```
 
 Typescript config at the root is intended to be a base config that should be extended by
