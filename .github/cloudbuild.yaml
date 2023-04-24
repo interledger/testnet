@@ -1,0 +1,19 @@
+steps:
+- name: 'docker'
+  args: [
+    'compose',
+    '-f', 'docker/dev/docker-compose.yml', 
+    'up', '--build'
+  ]
+
+# - name: 'docker/compose:2.16.0'
+#   args: [
+#     '-p', 'europe-west2.pkg.dev/rafiki-testnet/rafiki-testnet',
+#     '-f', 'docker/dev/docker-compose.yml', 
+#     'up', '--build'
+#   ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['tag', 'rafiki-frontend', 'gcr.io/rafiki-testnet/rafiki-testnet/rafiki-frontend']
+
+images: ['gcr.io/rafiki-testnet/rafiki-testnet/rafiki-frontend']
