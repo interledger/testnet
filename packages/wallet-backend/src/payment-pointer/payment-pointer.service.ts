@@ -96,7 +96,7 @@ export const listPaymentPointers = async (
 
 /**
  * This is a soft delete functionality. The payment pointer will never be
- * deleted. We will change it's `isActive` column to `false` when the user
+ * deleted. We will change its `isActive` column to `false` when the user
  * wants to delete it.
  * */
 export const deletePaymentPointer = async (

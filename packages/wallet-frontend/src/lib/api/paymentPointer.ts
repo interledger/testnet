@@ -69,11 +69,7 @@ type CreatePaymentPointerResponse =
   | CreatePaymentPointerResult
   | CreatePaymentPointerError
 
-type DeletePaymentPointerArgs = { id: string }
-type DeletePaymentPointerError = ErrorResponse<
-  DeletePaymentPointerArgs | undefined
->
-type DeletePaymentPointerResponse = SuccessResponse | DeletePaymentPointerError
+type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
 type GetTransactionsResult = SuccessResponse<Transaction[]>
 type GetTransactionsResponse = GetTransactionsResult | ErrorResponse
@@ -163,7 +159,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<DeletePaymentPointerArgs>(
+      return getError(
         error,
         'We were not able to delete your payment pointer. Please try again.'
       )
