@@ -108,9 +108,6 @@ export const PaymentPointerCard = ({
 
   return (
     <div ref={cardRef} className={cardStyles}>
-      {/* IDEA:
-        We can show a tooltip when the user is hovering the `Edit` or `Delete` buttons. 
-      */}
       <IconButton
         aria-label="delete payment pointer"
         className="test h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
