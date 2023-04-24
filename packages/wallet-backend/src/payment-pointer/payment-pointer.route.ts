@@ -2,6 +2,7 @@ import express from 'express'
 import passport from 'passport'
 import {
   createPaymentPointer,
+  deletePaymentPointer,
   getPaymentPointerById,
   listPaymentPointers
 } from './payment-pointer.service'
@@ -22,4 +23,9 @@ paymentPointerRouter.get(
   '/accounts/:accountId/payment-pointers/:id',
   passport.authenticate('jwt', { session: false }),
   getPaymentPointerById
+)
+paymentPointerRouter.delete(
+  '/payment-pointer/:id',
+  passport.authenticate('jwt', { session: false }),
+  deletePaymentPointer
 )

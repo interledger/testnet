@@ -26,7 +26,7 @@ export const createPayment = async (
     const existingPaymentPointer = await PaymentPointerModel.query().findById(
       paymentPointerId
     )
-    if (!existingPaymentPointer) {
+    if (!existingPaymentPointer || !existingPaymentPointer.isActive) {
       throw new NotFoundException()
     }
 

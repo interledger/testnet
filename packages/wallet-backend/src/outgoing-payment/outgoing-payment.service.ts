@@ -39,7 +39,7 @@ export const createPayment = async (
     const existingPaymentPointer = await PaymentPointerModel.query().findById(
       paymentPointerId
     )
-    if (!existingPaymentPointer) {
+    if (!existingPaymentPointer || !existingPaymentPointer.isActive) {
       throw new BadRequestException('Invalid payment pointer')
     }
 
@@ -50,7 +50,7 @@ export const createPayment = async (
     const balance = await getAccountBalance(userId, assetCode)
 
     if (parseFloat(balance) < amount) {
-      throw new BadRequestException('Not enough founds in account')
+      throw new BadRequestException('Not enough funds in account')
     }
 
     const asset = await getAsset(assetRafikiId)
