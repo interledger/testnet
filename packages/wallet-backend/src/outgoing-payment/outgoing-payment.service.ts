@@ -39,7 +39,7 @@ export const createPayment = async (
     const existingPaymentPointer = await PaymentPointerModel.query().findById(
       paymentPointerId
     )
-    if (!existingPaymentPointer || !existingPaymentPointer.isActive) {
+    if (!existingPaymentPointer || !existingPaymentPointer.active) {
       throw new BadRequestException('Invalid payment pointer')
     }
 

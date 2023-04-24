@@ -40,7 +40,7 @@ export const createPaymentPointer = async (
           paymentPointer.id,
           {
             publicName,
-            isActive: true
+            active: true
           }
         )
       }
@@ -82,7 +82,7 @@ export const listPaymentPointers = async (
 
     const paymentPointers = await PaymentPointerModel.query()
       .where('accountId', account.id)
-      .where('isActive', true)
+      .where('active', true)
 
     return res.json({
       success: true,
@@ -96,7 +96,7 @@ export const listPaymentPointers = async (
 
 /**
  * This is a soft delete functionality. The payment pointer will never be
- * deleted. We will change its `isActive` column to `false` when the user
+ * deleted. We will change its `active` column to `false` when the user
  * wants to delete it.
  * */
 export const deletePaymentPointer = async (
@@ -118,7 +118,7 @@ export const deletePaymentPointer = async (
     // This function throws a NotFoundException.
     await findAccountById(paymentPointer.accountId, userId)
     await PaymentPointerModel.query().findById(id).patch({
-      isActive: false
+      active: false
     })
 
     return res.json({
@@ -145,7 +145,7 @@ export const getPaymentPointerById = async (
     const paymentPointer = await PaymentPointerModel.query()
       .findById(id)
       .where('accountId', accountId)
-      .where('isActive', true)
+      .where('active', true)
 
     if (!paymentPointer) {
       throw new NotFoundException()

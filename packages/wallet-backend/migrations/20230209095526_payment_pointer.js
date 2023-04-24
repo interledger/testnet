@@ -9,7 +9,7 @@ exports.up = function (knex) {
     table.string('publicName').notNullable()
     table.uuid('accountId').notNullable()
     table.foreign('accountId').references('accounts.id')
-    table.boolean('isActive').notNullable().defaultTo(true)
+    table.boolean('active').notNullable().defaultTo(true)
 
     table.timestamps(false, true, true)
   })
