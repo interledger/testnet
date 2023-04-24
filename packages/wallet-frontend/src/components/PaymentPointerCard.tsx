@@ -87,16 +87,20 @@ export const PaymentPointerCard = ({
   const handleDeleteConfirmation = async (id: string) => {
     const response = await paymentPointerService.delete(id)
     if (response.success) {
-        openDialog(<SuccessDialog onClose={closeDialog} content={response.message} />)
-        if(cardRef && cardRef.current) {
-            cardRef.current.remove()
-            return
-        }
-        // This part should never practically reach. The card reference should always
-        // exist, but we want to have a fallback in the event that it does:
-        router.reload()
+      openDialog(
+        <SuccessDialog onClose={closeDialog} content={response.message} />
+      )
+      if (cardRef && cardRef.current) {
+        cardRef.current.remove()
+        return
+      }
+      // This part should never practically reach. The card reference should always
+      // exist, but we want to have a fallback in the event that it does:
+      router.reload()
     } else {
-        openDialog(<ErrorDialog onClose={closeDialog} content={response.message} />)
+      openDialog(
+        <ErrorDialog onClose={closeDialog} content={response.message} />
+      )
     }
   }
 
