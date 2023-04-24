@@ -92,14 +92,17 @@ export const SuccessDialog = ({
                       />
                     </div>
                   )}
-                  <Button
-                    intent="secondary"
-                    aria-label={redirectText ?? 'redirect'}
-                    fullWidth
-                    {...successButtonProps}
-                  >
-                    {redirectText}
-                  </Button>
+                  {(onSuccess || redirect) && (
+                          <Button
+                          intent="secondary"
+                          aria-label={redirectText ?? 'redirect'}
+                          fullWidth
+                          {...successButtonProps}
+                          >
+                          {redirectText}
+                          </Button>
+
+                  )}
                   {!onSuccess && (
                     <Button
                       intent="success"
