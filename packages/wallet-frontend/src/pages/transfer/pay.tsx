@@ -26,34 +26,39 @@ export default function Pay({ accounts }: PayProps) {
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const [incomingPaymentUrl, setIncomingPaymentUrl] = useState('')
-  const debouncedIncomingPaymentUrl = useDebounce(incomingPaymentUrl, 1000)
+  const [debouncedIncomingPaymentUrl, isLoading] = useDebounce(
+    incomingPaymentUrl,
+    1000
+  )
+
   const payForm = useZodForm({
     schema: paySchema
   })
 
+  const fetchData = async () => {
+    const tempArray = incomingPaymentUrl.split('/')
+    const incomingPaymentId = tempArray[tempArray.length - 1]
+    const response = await transfersService.getIncomingPaymentDetails({
+      id: incomingPaymentId
+    })
+    if (response.success && response.data) {
+      const { amount, description } = response.data
+      payForm.setValue('amount', amount)
+      payForm.trigger('amount')
+      payForm.setValue('description', description)
+      payForm.trigger('description')
+    } else {
+      const { message } = response
+      payForm.setError('root', { message })
+    }
+  }
+
   useEffect(() => {
     if (debouncedIncomingPaymentUrl) {
-      const fetchData = async () => {
-        const tempArray = incomingPaymentUrl.split('/')
-        const incomingPaymentId = tempArray[tempArray.length - 1]
-        const response = await transfersService.getIncomingPaymentDetails({
-          id: incomingPaymentId
-        })
-        if (response.success && response.data) {
-          const { amount, description } = response.data
-          payForm.setValue('amount', amount)
-          payForm.trigger('amount')
-          payForm.setValue('description', description)
-          payForm.trigger('description')
-        } else {
-          const { message } = response
-          payForm.setError('root', { message })
-        }
-      }
-
       fetchData()
     }
-  }, [debouncedIncomingPaymentUrl, incomingPaymentUrl, payForm])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedIncomingPaymentUrl])
 
   const handleAccountOnChange = async () => {
     const accountId = payForm.getValues('accountId')
@@ -165,7 +170,7 @@ export default function Pay({ accounts }: PayProps) {
               aria-label="Pay"
               type="submit"
               className="w-24"
-              loading={payForm.formState.isSubmitting}
+              loading={payForm.formState.isSubmitting || isLoading}
             >
               Pay
             </Button>
