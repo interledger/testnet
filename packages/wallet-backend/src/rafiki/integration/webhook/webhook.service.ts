@@ -142,8 +142,7 @@ export class WebHookService {
 
     const amount = this.getAmountFromWebHook(wh)
 
-    if (this.validateAmount(amount, wh.type) === 0) {
-      await withdrawLiqudity(wh.id)
+    if (!this.validateAmount(amount, wh.type)) {
       return
     }
 
@@ -176,8 +175,7 @@ export class WebHookService {
     const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    if (this.validateAmount(amount, wh.type) === 0) {
-      await depositLiquidity(wh.id)
+    if (!this.validateAmount(amount, wh.type)) {
       return
     }
 
@@ -200,8 +198,7 @@ export class WebHookService {
     const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
     const sendAmount = this.getAmountFromWebHook(wh)
 
-    if (this.validateAmount(sendAmount, wh.type) === 0) {
-      await withdrawLiqudity(wh.id)
+    if (!this.validateAmount(sendAmount, wh.type)) {
       return
     }
 
@@ -241,8 +238,7 @@ export class WebHookService {
 
     const sendAmount = this.getAmountFromWebHook(wh)
 
-    if (this.validateAmount(sendAmount, wh.type) === 0) {
-      await withdrawLiqudity(wh.id)
+    if (!this.validateAmount(sendAmount, wh.type)) {
       return
     }
 
@@ -291,17 +287,14 @@ export class WebHookService {
     return this.handleIncomingPaymentCompleted(wh)
   }
 
-  private validateAmount(
-    amount: Amount,
-    eventType: EventType
-  ): number | undefined {
+  private validateAmount(amount: Amount, eventType: EventType): boolean {
     if (amount.value > 0n) {
-      return
+      return true
     }
     log.warn(
       `${eventType} received with zero or negative value. Skipping Rapyd interaction`
     )
 
-    return 0
+    return false
   }
 }
