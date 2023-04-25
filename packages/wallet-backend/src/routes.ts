@@ -11,6 +11,7 @@ import {
 import { assetRouter } from './asset/asset.route'
 import { paymentPointerRouter } from './payment-pointer/payment-pointer.route'
 import { accountRouter } from './account/account.route'
+import { rafikiIntegrationRouter } from './rafiki/integration/rafiki-integration.routes'
 import { incomingPaymentRouter } from './incoming-payment/incoming-payment.route'
 import { outgoingPaymentRouter } from './outgoing-payment/outgoing-payment.route'
 import { transactionsRouter } from './transaction/transaction.route'
@@ -53,16 +54,10 @@ mainRouter.get(
   getDocumentTypes
 )
 
+mainRouter.use('/rafiki', rafikiIntegrationRouter)
+
 mainRouter.get('/countries', getCountryNames)
 mainRouter.get('/documents', getDocumentTypes)
-
-mainRouter.post(
-  '/protected',
-  passport.authenticate('jwt', { session: false }),
-  (_req, res) => {
-    res.status(200).json({ success: true })
-  }
-)
 
 mainRouter.use('/assets', assetRouter)
 mainRouter.use('/accounts', accountRouter)
@@ -75,7 +70,7 @@ mainRouter.use('*', (req: Request, res: Response) => {
   const err = Error(`Requested path ${req.path} not found`)
   res.status(404).send({
     success: false,
-    message: 'Requested path ${req.path} not found',
+    message: `Requested path ${req.path} not found`,
     stack: err.stack
   })
 })

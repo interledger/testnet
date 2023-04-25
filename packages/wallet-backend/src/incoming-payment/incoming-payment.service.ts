@@ -41,7 +41,7 @@ export const createPayment = async (
 
     const transaction = await createIncomingPaymentTransactions(
       paymentPointerId,
-      amount,
+      BigInt(amount * 10 ** asset.scale),
       asset,
       description
     )
@@ -85,15 +85,17 @@ export const getPayment = async (
 
 export async function createIncomingPaymentTransactions(
   paymentPointerId: string,
-  amount: number,
+  amount: bigint | null,
   asset: Asset,
-  description?: string
+  description?: string,
+  expiresAt?: string
 ): Promise<TransactionModel> {
   const response = await createIncomingPayment(
     paymentPointerId,
     amount,
     asset,
-    description
+    description,
+    expiresAt
   )
 
   return TransactionModel.query().insert({

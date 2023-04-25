@@ -7,8 +7,8 @@
       "name": "Attach to Docker Backend",
       "address": "localhost",
       "port": 9229,
-      "localRoot": "${workspaceFolder}/packages/backend",
-      "remoteRoot": "/home/testnet/packages/backend",
+      "localRoot": "${workspaceFolder}/packages/wallet-backend",
+      "remoteRoot": "/home/testnet/packages/wallet-backend",
       "protocol": "inspector"
     }
   ]
