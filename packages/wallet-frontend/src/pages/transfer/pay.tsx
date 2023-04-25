@@ -45,7 +45,6 @@ export default function Pay({ accounts }: PayProps) {
       const { value, description } = response.data
       payForm.setValue('amount', value)
       payForm.setValue('description', description ?? '')
-      payForm.trigger()
     } else {
       const { message } = response
       payForm.setError('root', { message })
