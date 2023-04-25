@@ -4,7 +4,8 @@ import {
   createAccount,
   fundAccount,
   getAccountById,
-  listAccounts
+  listAccounts,
+  withdrawFunds
 } from './account.service'
 
 export const accountRouter = express.Router()
@@ -28,4 +29,9 @@ accountRouter.post(
   '/fund',
   passport.authenticate('jwt', { session: false }),
   fundAccount
+)
+accountRouter.post(
+  '/withdraw',
+  passport.authenticate('jwt', { session: false }),
+  withdrawFunds
 )

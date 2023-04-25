@@ -3,7 +3,8 @@ import { zParse } from '../middlewares/validator'
 import { getAsset } from '../rafiki/request/asset.request'
 import {
   issueVirtualAccount,
-  simulateBankTransferToWallet
+  simulateBankTransferToWallet,
+  withdrawFundsFromWalletAccount
 } from '../rapyd/virtual-accounts'
 import { getAccountsBalance } from '../rapyd/wallet'
 import { BaseResponse } from '../shared/models/BaseResponse'
@@ -13,7 +14,7 @@ import { User } from '../user/models/user'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { formatBalance } from '../utils/helpers'
 import { Account } from './account.model'
-import { accountSchema, fundSchema } from './schemas/account.schema'
+import { accountSchema, accountFundsSchema } from './schemas/account.schema'
 
 export const createAccount = async (
   req: Request,
@@ -190,7 +191,7 @@ export const fundAccount = async (
   next: NextFunction
 ) => {
   try {
-    const { amount, assetCode } = await zParse(fundSchema, req)
+    const { amount, assetCode } = await zParse(accountFundsSchema, req)
 
     const userId = getUserIdFromRequest(req)
     const existingAccount = await Account.query()
@@ -218,6 +219,45 @@ export const fundAccount = async (
     return res.json({
       success: true,
       message: 'Account funded'
+    })
+  } catch (e) {
+    next(e)
+  }
+}
+
+export const withdrawFunds = async (
+  req: Request,
+  res: Response<BaseResponse>,
+  next: NextFunction
+) => {
+  try {
+    const { amount, assetCode } = await zParse(accountFundsSchema, req)
+
+    const userId = getUserIdFromRequest(req)
+    const existingAccount = await Account.query()
+      .where('userId', userId)
+      .where('assetCode', assetCode)
+      .first()
+    if (!existingAccount) {
+      throw new NotFoundException()
+    }
+
+    // withdraw funds from wallet account
+    const result = await withdrawFundsFromWalletAccount({
+      account: existingAccount.id,
+      sum: amount
+    })
+
+    if (result.status.status !== 'SUCCESS') {
+      return res.status(500).json({
+        message: `Unable to withdraw funds from your account: ${result.status.message}`,
+        success: false
+      })
+    }
+
+    return res.json({
+      success: true,
+      message: 'Funds withdrawn'
     })
   } catch (e) {
     next(e)

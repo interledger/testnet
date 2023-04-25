@@ -5,7 +5,7 @@ export const accountSchema = z.object({
   assetRafikiId: z.string().uuid()
 })
 
-export const fundSchema = z.object({
+export const accountFundsSchema = z.object({
   amount: z.coerce
     .number({
       invalid_type_error: 'Amount is not valid',

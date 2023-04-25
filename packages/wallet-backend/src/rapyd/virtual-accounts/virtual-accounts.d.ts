@@ -13,3 +13,8 @@ interface SimulateBankTransferToWalletRequest {
   issued_bank_account: string
   remitter_information?: string
 }
+
+interface WithdrawFundsFromWalletAccountRequest {
+  account: string
+  sum: number
+}

@@ -16,4 +16,17 @@ const simulateBankTransferToWallet = (
   )
 }
 
-export { issueVirtualAccount, simulateBankTransferToWallet }
+const withdrawFundsFromWalletAccount = (
+  withdrawFundsFromWalletAccountRequest: WithdrawFundsFromWalletAccountRequest
+) => {
+  return makeRapydPostRequest(
+    'pos/withdraw',
+    JSON.stringify(withdrawFundsFromWalletAccountRequest)
+  )
+}
+
+export {
+  issueVirtualAccount,
+  simulateBankTransferToWallet,
+  withdrawFundsFromWalletAccount
+}
