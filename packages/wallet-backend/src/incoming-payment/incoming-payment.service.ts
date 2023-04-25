@@ -56,6 +56,33 @@ export const createPayment = async (
   }
 }
 
+export const getPayment = async (
+  req: Request,
+  res: Response<BaseResponse<TransactionModel>>,
+  next: NextFunction
+) => {
+  try {
+    const id = req.params.id
+
+    const transaction = await TransactionModel.query()
+      .where('paymentId', id)
+      .where('status', 'PENDING')
+      .first()
+
+    if (!transaction) {
+      throw new NotFoundException()
+    }
+
+    return res.json({
+      success: true,
+      message: 'Success',
+      data: transaction
+    })
+  } catch (e) {
+    next(e)
+  }
+}
+
 export async function createIncomingPaymentTransactions(
   paymentPointerId: string,
   amount: number,

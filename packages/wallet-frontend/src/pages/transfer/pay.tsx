@@ -38,14 +38,14 @@ export default function Pay({ accounts }: PayProps) {
   const fetchData = async () => {
     const tempArray = incomingPaymentUrl.split('/')
     const incomingPaymentId = tempArray[tempArray.length - 1]
-    const response = await transfersService.getIncomingPaymentDetails({
-      id: incomingPaymentId
-    })
+    const response = await transfersService.getIncomingPaymentDetails(
+      incomingPaymentId
+    )
     if (response.success && response.data) {
-      const { amount, description } = response.data
-      payForm.setValue('amount', amount)
+      const { value, description } = response.data
+      payForm.setValue('amount', value)
       payForm.trigger('amount')
-      payForm.setValue('description', description)
+      payForm.setValue('description', description ?? '')
       payForm.trigger('description')
     } else {
       const { message } = response

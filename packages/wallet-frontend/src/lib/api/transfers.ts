@@ -45,27 +45,21 @@ type SendArgs = z.infer<typeof sendSchema>
 type SendError = ErrorResponse<SendArgs | undefined>
 type SendResponse = Promise<SuccessResponse | SendError>
 
-type RequestSuccessResponse = {
+type TransactionResponse = {
   paymentPointerId: string
   paymentId: string
   assetCode: string
   value: number
   type: string
   status: string
+  description?: string
 }
 type RequestArgs = z.infer<typeof requestSchema>
-type RequestResult = SuccessResponse<RequestSuccessResponse>
+type RequestResult = SuccessResponse<TransactionResponse>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = Promise<RequestResult | RequestError>
 
-type IncomingPaymentDetailsSuccessResponse = {
-  amount: number
-  assetCode: string
-  description: string
-}
-type IncomingPaymentDetailsArgs = { id: string }
-type IncomingPaymentDetailsResult =
-  SuccessResponse<IncomingPaymentDetailsSuccessResponse>
+type IncomingPaymentDetailsResult = SuccessResponse<TransactionResponse>
 type IncomingPaymentDetailsResponse = Promise<
   IncomingPaymentDetailsResult | ErrorResponse
 >
@@ -75,7 +69,7 @@ interface TransfersService {
   send: (args: SendArgs) => Promise<SendResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
   getIncomingPaymentDetails: (
-    args: IncomingPaymentDetailsArgs
+    incomingPaymentId: string
   ) => Promise<IncomingPaymentDetailsResponse>
 }
 
@@ -135,13 +129,11 @@ const createTransfersService = (): TransfersService => ({
   },
 
   async getIncomingPaymentDetails(
-    args
+    incomingPaymentId: string
   ): Promise<IncomingPaymentDetailsResponse> {
     try {
       const response = await httpClient
-        .get('incoming-payments', {
-          json: args
-        })
+        .get(`incoming-payments/${incomingPaymentId}`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
