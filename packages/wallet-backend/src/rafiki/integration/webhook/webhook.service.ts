@@ -12,6 +12,7 @@ import {
   depositLiquidity,
   withdrawLiqudity
 } from '../../request/liquidity.request'
+import { updateTransaction } from '../../../transaction/transaction.service'
 
 export enum EventType {
   IncomingPaymentCompleted = 'incoming_payment.completed',
@@ -24,7 +25,8 @@ export enum EventType {
 export interface WebHook {
   id: string
   type: EventType
-  data: Record<string, unknown>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: Record<string, any>
 }
 
 export interface AmountJSON {
@@ -66,9 +68,13 @@ export class WebHookService {
 
   private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
     let ppId = ''
-    if (wh.type === EventType.IncomingPaymentCompleted) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ppId = (wh.data.incomingPayment as any).paymentPointerId as string
+    if (
+      [
+        EventType.IncomingPaymentCompleted,
+        EventType.IncomingPaymentExpired
+      ].includes(wh.type)
+    ) {
+      ppId = wh.data.incomingPayment.paymentPointerId as string
     }
     if (
       [
@@ -76,8 +82,7 @@ export class WebHookService {
         EventType.OutgoingPaymentCompleted
       ].includes(wh.type)
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ppId = (wh.data.payment as any).paymentPointerId as string
+      ppId = wh.data.payment.paymentPointerId as string
     }
 
     const pp = await PaymentPointerModel.query()
@@ -109,16 +114,17 @@ export class WebHookService {
         EventType.OutgoingPaymentCompleted
       ].includes(wh.type)
     ) {
-      amount = this.parseAmount(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (wh.data.payment as any).sendAmount as AmountJSON
-      )
+      amount = this.parseAmount(wh.data.payment.sendAmount as AmountJSON)
     }
 
-    if (wh.type === EventType.IncomingPaymentCompleted) {
+    if (
+      [
+        EventType.IncomingPaymentCompleted,
+        EventType.IncomingPaymentExpired
+      ].includes(wh.type)
+    ) {
       amount = this.parseAmount(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (wh.data.incomingPayment as any).receivedAmount as AmountJSON
+        wh.data.incomingPayment.receivedAmount as AmountJSON
       )
     }
 
@@ -143,6 +149,12 @@ export class WebHookService {
     const amount = this.getAmountFromWebHook(wh)
 
     if (!this.validateAmount(amount, wh.type)) {
+      if (wh.type === EventType.IncomingPaymentExpired) {
+        await updateTransaction(
+          { paymentId: wh.data.incomingPayment.id },
+          { status: 'EXPIRED' }
+        )
+      }
       return
     }
 
@@ -161,6 +173,11 @@ export class WebHookService {
     }
 
     await withdrawLiqudity(wh.id)
+
+    await updateTransaction(
+      { paymentId: wh.data.incomingPayment.id },
+      { status: 'COMPLETED', value: amount.value }
+    )
 
     log.info(
       `Succesfully transfered ${this.amountToNumber(
@@ -192,6 +209,12 @@ export class WebHookService {
       )
     }
     await depositLiquidity(wh.id)
+
+    log.info(
+      `Succesfully held ${this.amountToNumber(
+        amount
+      )} in ${rapydWalletId}  on ${EventType.OutgoingPaymentCreated}`
+    )
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
@@ -231,6 +254,19 @@ export class WebHookService {
       )
     }
     await withdrawLiqudity(wh.id)
+
+    await updateTransaction(
+      { paymentId: wh.data.payment.id },
+      { status: 'COMPLETED', value: sendAmount.value }
+    )
+
+    log.info(
+      `Succesfully transfered ${this.amountToNumber(
+        sendAmount
+      )} from ${source_ewallet} to settlement account on ${
+        EventType.OutgoingPaymentCompleted
+      }`
+    )
   }
 
   private async handleOutgoingPaymentFailed(wh: WebHook) {
@@ -257,9 +293,13 @@ export class WebHookService {
       )
     }
 
+    await updateTransaction(
+      { paymentId: wh.data.payment.id },
+      { status: 'FAILED', value: 0n }
+    )
+
     const sentAmount = this.parseAmount(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (wh.data.payment as any).sentAmount as AmountJSON
+      wh.data.payment.sentAmount as AmountJSON
     )
     if (!sentAmount.value) {
       return
@@ -281,6 +321,11 @@ export class WebHookService {
     }
 
     await withdrawLiqudity(wh.id)
+
+    await updateTransaction(
+      { paymentId: wh.data.payment.id },
+      { status: 'COMPLETED', value: sentAmount.value }
+    )
   }
 
   private async handleIncomingPaymentExpired(wh: WebHook) {

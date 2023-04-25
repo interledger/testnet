@@ -61,18 +61,18 @@ export const createPayment = async (
     const paymentUrl: string =
       incomingPaymentUrl ||
       (await createReceiver(
-        amount * 10 ** asset.scale,
+        isReceive ? BigInt(amount * 10 ** asset.scale) : null,
         asset,
         toPaymentPointerUrl,
-        description
+        description,
+        new Date(Date.now() + 1000 * 60).toISOString()
       ))
 
     const quote = await createQuote(
       paymentPointerId,
       paymentUrl,
-      amount * 10 ** asset.scale,
       asset,
-      isReceive
+      isReceive ? undefined : BigInt(amount * 10 ** asset.scale)
     )
     const payment = await createOutgoingPayment(
       paymentPointerId,
@@ -84,7 +84,7 @@ export const createPayment = async (
       paymentPointerId: existingPaymentPointer.id,
       paymentId: payment.id,
       assetCode: asset.code,
-      value: amount * 10 ** asset.scale,
+      value: BigInt(amount * 10 ** asset.scale),
       type: 'OUTGOING',
       status: 'PENDING',
       description
@@ -101,10 +101,11 @@ export const createPayment = async (
 }
 
 async function createReceiver(
-  amount: number,
+  amount: bigint | null,
   asset: Asset,
   paymentPointerUrl = '',
-  description?: string
+  description?: string,
+  expiresAt?: string
 ): Promise<string> {
   const existingPaymentPointer = await PaymentPointerModel.query().findOne({
     url: paymentPointerUrl
@@ -117,7 +118,8 @@ async function createReceiver(
     existingPaymentPointer.id,
     amount,
     asset,
-    description
+    description,
+    expiresAt
   )
 
   return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`

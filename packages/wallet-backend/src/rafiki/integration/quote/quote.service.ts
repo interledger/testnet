@@ -64,11 +64,7 @@ export class QuoteService {
       const fees =
         BigInt(
           Math.floor(Number(receiveAmountValue) * feeStructure.percentage)
-        ) +
-        BigInt(
-          feeStructure.fixed *
-            Math.pow(10, receivedQuote.receiveAmount.assetScale)
-        )
+        ) + BigInt(feeStructure.fixed)
 
       if (receiveAmountValue <= fees) {
         throw new BadRequestException('Fees exceed quote receiveAmount')
