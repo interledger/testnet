@@ -21,9 +21,12 @@ export const createAccountSchema = z.object({
   name: z
     .string()
     .min(3, { message: 'Accout name should be at least 3 characters long' }),
-  assetRafikiId: z
-    .string({ required_error: 'Please select an asset for your account' })
-    .uuid()
+  asset: z.object({
+    value: z
+      .string({ required_error: 'Please select an asset for your account' })
+      .uuid(),
+    label: z.string().min(1)
+  })
 })
 
 export type Account = {
@@ -39,7 +42,7 @@ type GetAccountResponse = GetAccountResult | ErrorResponse
 type ListAccountsResult = SuccessResponse<Account[]>
 type ListAccountsResponse = Promise<ListAccountsResult | ErrorResponse>
 
-type CreateAccountArgs = z.infer<typeof createAccountSchema>
+type CreateAccountArgs = z.infer<typeof createAccountSchema> 
 type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
 type CreateAccountResponse = Promise<CreateAccountResult | CreateAccountError>
@@ -90,7 +93,10 @@ const createAccountService = (): AccountService => ({
     try {
       const response = await httpClient
         .post('accounts', {
-          json: args
+          json: {
+              name: args.name,
+              assetRafikiId: args.asset.value
+          }
         })
         .json<CreateAccountResult>()
       return response

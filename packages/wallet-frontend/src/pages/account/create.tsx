@@ -6,7 +6,7 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { Select, type SelectOption } from '@/ui/forms/Select'
+import { type SelectOption } from '@/ui/forms/Select'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -14,6 +14,8 @@ import type {
 import { accountService, createAccountSchema } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
+import { Controller } from 'react-hook-form'
+import { SelectTest } from '@/ui/forms/BetterSelect'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -22,7 +24,11 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
   const createAccountForm = useZodForm({
     schema: createAccountSchema
   })
-
+  const options = assets.map((a) => ({
+    value: a.value,
+    label: a.name
+  }))
+  console.log(createAccountForm.formState.errors);
   return (
     <AppLayout>
       <PageHeader title="Create a new account" />
@@ -62,14 +68,28 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           error={createAccountForm.formState?.errors?.name?.message}
           {...createAccountForm.register('name')}
         />
-        <Select
-          name="assetRafikiId"
-          setValue={createAccountForm.setValue}
-          defaultValue={assets[0]}
-          error={createAccountForm.formState.errors.assetRafikiId?.message}
-          options={assets}
-          label="Asset"
+        <Controller
+          name="asset"
+          control={createAccountForm.control}
+          render={({ field: { value } }) => (
+            <SelectTest<{ label: string; value: string }> 
+              options={options}
+              value={value}
+              onChange={(event) => {
+                if (event) {
+                  createAccountForm.setValue(
+                    'asset',
+                    { ...event },
+                    {
+                      shouldDirty: true
+                    }
+                  )
+                }
+              }}
+            />
+          )}
         />
+        {createAccountForm.formState.errors.asset?.message}
         <Button
           type="submit"
           aria-label="create account"
