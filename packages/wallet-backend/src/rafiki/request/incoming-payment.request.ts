@@ -39,18 +39,22 @@ const createIncomingPaymentMutation = gql`
 
 export async function createIncomingPayment(
   paymentPointerId: string,
-  amount: number,
+  amount: bigint | null,
   asset: Asset,
-  description?: string
+  description?: string,
+  expiresAt?: string
 ): Promise<IncomingPayment> {
   const input: CreateIncomingPaymentInput = {
-    incomingAmount: {
-      value: amount as unknown as bigint,
-      assetCode: asset.code,
-      assetScale: asset.scale
-    },
     paymentPointerId,
-    description
+    description,
+    expiresAt,
+    ...(amount && {
+      incomingAmount: {
+        value: amount as unknown as bigint,
+        assetCode: asset.code,
+        assetScale: asset.scale
+      }
+    })
   }
   const { createIncomingPayment: paymentResponse } =
     await graphqlClient.request<

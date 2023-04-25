@@ -807,6 +807,19 @@ export type GetAssetQueryVariables = Exact<{
 
 export type GetAssetQuery = { __typename?: 'Query', asset?: { __typename?: 'Asset', code: string, createdAt: string, id: string, scale: number, withdrawalThreshold?: bigint | null } | null };
 
+export type WithdrawLiquidityMutationVariables = Exact<{
+  eventId: Scalars['String'];
+}>;
+
+
+export type WithdrawLiquidityMutation = { __typename?: 'Mutation', withdrawEventLiquidity?: { __typename?: 'LiquidityMutationResponse', code: string, success: boolean, message: string, error?: LiquidityError | null } | null };
+
+export type DepositLiquidityMutationVariables = Exact<{
+  eventId: Scalars['String'];
+}>;
+
+
+export type DepositLiquidityMutation = { __typename?: 'Mutation', depositEventLiquidity?: { __typename?: 'LiquidityMutationResponse', code: string, success: boolean, message: string, error?: LiquidityError | null } | null };
 export type CreateIncomingPaymentMutationVariables = Exact<{
   input: CreateIncomingPaymentInput;
 }>;
