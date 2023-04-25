@@ -81,7 +81,3 @@ export async function createIncomingPaymentTransactions(
     description
   })
 }
-
-//* caz 2 tranzactie:
-
-//* incoming payment created

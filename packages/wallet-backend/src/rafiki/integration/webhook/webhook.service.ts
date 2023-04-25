@@ -136,11 +136,9 @@ export class WebHookService {
   }
 
   private amountToNumber(amount: Amount): number {
-    return amount.assetScale === 1
-      ? Number(amount.value)
-      : +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
-          amount.assetScale
-        )
+    return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
+      amount.assetScale
+    )
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
