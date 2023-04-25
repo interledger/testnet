@@ -6,12 +6,10 @@ import {
   type SuccessResponse
 } from '../httpClient'
 
-export const fundAccountSchema = z.object({
+export const accountFundsSchema = z.object({
   accountId: z.string().uuid(),
   amount: z.coerce
-    .number({
-      invalid_type_error: 'Please enter a valid amount'
-    })
+    .number({ invalid_type_error: 'Please enter a valid amount' })
     .min(1, { message: 'Please enter an amount' })
     .positive(),
   assetCode: z.string()
@@ -44,15 +42,20 @@ type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
 type CreateAccountResponse = Promise<CreateAccountResult | CreateAccountError>
 
-type FundAccountArgs = z.infer<typeof fundAccountSchema>
+type FundAccountArgs = z.infer<typeof accountFundsSchema>
 type FundAccountError = ErrorResponse<FundAccountArgs | undefined>
 type FundAccountResponse = Promise<SuccessResponse | FundAccountError>
+
+type WithdrawFundsArgs = z.infer<typeof accountFundsSchema>
+type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
+type WithdrawFundsResponse = Promise<SuccessResponse | WithdrawFundsError>
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (cookies?: string) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
+  withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -114,6 +117,22 @@ const createAccountService = (): AccountService => ({
       return getError<FundAccountArgs>(
         error,
         'We were not able to fund your account. Please try again.'
+      )
+    }
+  },
+
+  async withdraw(args: WithdrawFundsArgs): Promise<WithdrawFundsResponse> {
+    try {
+      const response = await httpClient
+        .post('accounts/withdraw', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<WithdrawFundsArgs>(
+        error,
+        'We were not able to withdraw the funds. Please try again.'
       )
     }
   }
