@@ -4,7 +4,7 @@
 
 ## What is Testnet?
 
-Testnet is an open source test application for Rafiki. In other words, a Rafiki Playground.
+Testnet is an open-source test application for Rafiki. In other words, a Rafiki Playground.
 It wants to use all of the functionalities of Rafiki and put the advantages of it to the real test.
 
 Testnet is made up (or will be made up in the near future) of several components, including wallet application,
@@ -16,13 +16,13 @@ Rafiki is an open source package that exposes a comprehensive set of
 Interledger APIs. It's intended to be run by wallet providers, allowing them to
 offer Interledger functionality to their users.
 
-### New to interledger?
+### New to Interledger?
 
 Never heard of Interledger before, or you would like to learn more? Here are some good places to start:
 
-- [Good first issues](https://github.com/interledger/rafiki/contribute)
+- [Good first issues](https://github.com/interledger/testnet/contribute)
 - [Interledger Explainer Video](https://twitter.com/Interledger/status/1567916000074678272)
-- [Interledger Website](https://interledger.org/)
+- [Interledger Website](https://interledger.org/rfcs/0027-interledger-protocol-4/)
 - [Payment pointers](https://paymentpointers.org/)
 - [Web monetization](https://webmonetization.org/)
 
@@ -32,7 +32,7 @@ Please read the [contribution guidelines](.github/contributing.md) before submit
 
 ## Local Development Environment
 
-### Prequisites
+### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [NVM](https://github.com/nvm-sh/nvm)
@@ -56,9 +56,9 @@ npm install pnpm -g
 yarn install pnpm -g
 ```
 
-For other alternatives on how to install `pnpm`, you can see the [official documentation](https://pnpm.io/installation) from `pnpm`.
+For alternative methods of installing `pnpm`, you can refer to the [official `pnpm` documentation](https://pnpm.io/installation).
 
-To Install dependencies run:
+To install dependencies, execute:
 
 ```sh
 pnpm i
@@ -66,14 +66,14 @@ pnpm i
 
 ### Local Playground
 
-From the root of the project:
+Navigate to the project's root directory and execute:
 
 ```sh
-# This will start both the wallet and backend application
 pnpm dev
 ```
 
-After running the command above you will have:
+Upon executing the above command, the following will be available
 
-- Wallet frontend available on http://localhost:4003/
-- Wallet backend avaiable on http://localhost:3003/
+- Wallet application
+  - Frontend at [http://localhost:4003](http://localhost:4003)
+  - Backend at [http://localhost:3003](http://localhost:3003)
