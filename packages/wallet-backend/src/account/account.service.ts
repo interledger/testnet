@@ -250,7 +250,7 @@ export const withdrawFunds = async (
 
     if (result.status.status !== 'SUCCESS') {
       return res.status(500).json({
-        message: `Unable to withdraw funds from your account: ${result.status.message}`,
+        message: `Unable to withdraw funds from your account. ${result.status.message}`,
         success: false
       })
     }

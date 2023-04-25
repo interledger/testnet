@@ -19,10 +19,8 @@ const simulateBankTransferToWallet = (
 const withdrawFundsFromWalletAccount = (
   withdrawFundsFromWalletAccountRequest: WithdrawFundsFromWalletAccountRequest
 ) => {
-  return makeRapydPostRequest(
-    'pos/withdraw',
-    JSON.stringify(withdrawFundsFromWalletAccountRequest)
-  )
+  const { account, sum } = withdrawFundsFromWalletAccountRequest
+  return makeRapydPostRequest(`pos/withdraw/${account}/${sum}`, '')
 }
 
 export {
