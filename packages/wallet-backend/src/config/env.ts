@@ -18,6 +18,7 @@ const envSchema = z.object({
   RAPYD_API: z.string(),
   RAPYD_ACCESS_KEY: z.string(),
   RAPYD_SECRET_KEY: z.string(),
+  RAPYD_SETTLEMENT_EWALLET: z.string(),
   GRAPHQL_ENDPOINT: z.string().url(),
   OPEN_PAYMENTS_HOST: z.string().url()
 })

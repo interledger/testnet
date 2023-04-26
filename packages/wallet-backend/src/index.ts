@@ -13,6 +13,10 @@ import env from './config/env'
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes'
 
+BigInt.prototype.toJSON = function (this: bigint) {
+  return this.toString()
+}
+
 const app: Application = express()
 
 app.disable('X-Powered-By')
@@ -27,7 +31,7 @@ app.use(express.json({ limit: '25mb' }))
 app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 app.use(cookieParser())
 
-const knex = Knex(config[env.NODE_ENV || 'development'])
+export const knex = Knex(config[env.NODE_ENV || 'development'])
 
 Model.knex(knex)
 ;(async () => {
