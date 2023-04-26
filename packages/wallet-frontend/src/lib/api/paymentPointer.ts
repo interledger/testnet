@@ -69,6 +69,8 @@ type CreatePaymentPointerResponse =
   | CreatePaymentPointerResult
   | CreatePaymentPointerError
 
+type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
+
 type GetTransactionsResult = SuccessResponse<Transaction[]>
 type GetTransactionsResponse = GetTransactionsResult | ErrorResponse
 
@@ -86,6 +88,7 @@ interface PaymentPointerService {
     accountId: string,
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
+  delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
   getTransactions: (
     accountId: string,
     paymentPointerId: string,
@@ -143,6 +146,22 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError<CreatePaymentPointerArgs>(
         error,
         'We were not able to create your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async delete(
+    paymentPointerId: string
+  ): Promise<DeletePaymentPointerResponse> {
+    try {
+      const response = await httpClient
+        .delete(`payment-pointer/${paymentPointerId}`)
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to delete your payment pointer. Please try again.'
       )
     }
   },
