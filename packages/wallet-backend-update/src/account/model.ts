@@ -1,4 +1,4 @@
-import { PaymentPointer } from '@/payment-pointer/model'
+import { PaymentPointer } from '@/paymentPointer/model'
 import { BaseModel } from '@/shared/model'
 import { User } from '@/user/model'
 import { Model } from 'objection'

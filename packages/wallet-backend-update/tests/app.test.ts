@@ -1,8 +1,8 @@
 import axios, { AxiosError } from 'axios'
-import { createContainer } from '@/index'
+import { createContainer } from '@/createContainer'
 import type { Bindings } from '@/app'
 import { env } from '@/config/env'
-import type { Container } from '@/container'
+import type { Container } from '@/shared/container'
 import { createApp, TestApp } from './app'
 import type { Knex } from 'knex'
 
@@ -22,7 +22,7 @@ describe('Application', (): void => {
     knex.destroy()
   })
 
-  it('returns status 415 if the content type is not application/json', async (): Promise<void> => {
+  it('should return status 415 if the content type is not application/json', async (): Promise<void> => {
     try {
       await axios.get(`http://localhost:${appContainer.port}/`, {
         headers: {
@@ -34,7 +34,7 @@ describe('Application', (): void => {
     }
   })
 
-  it('returns status 404 if the route does not exist', async (): Promise<void> => {
+  it('should return status 404 if the route does not exist', async (): Promise<void> => {
     try {
       await axios.post(`http://localhost:${appContainer.port}/`, {
         json: {

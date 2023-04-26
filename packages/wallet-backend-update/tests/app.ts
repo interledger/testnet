@@ -1,6 +1,6 @@
 import { start } from '@/index'
 import { App, Bindings } from '@/app'
-import { Container } from '@/container'
+import { Container } from '@/shared/container'
 import { Knex } from 'knex'
 
 export interface TestApp {

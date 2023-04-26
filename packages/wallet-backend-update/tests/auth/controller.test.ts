@@ -1,7 +1,7 @@
-import { createContainer } from '@/index'
+import { createContainer } from '@/createContainer'
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { Container } from '@/container'
+import { Container } from '@/shared/container'
 import { createApp, TestApp } from '../app'
 import { Knex } from 'knex'
 import { truncateTables } from '../tables'
@@ -60,7 +60,7 @@ describe('Authentication Controller', (): void => {
   })
 
   describe('Sign Up', (): void => {
-    it('returns status 201 if the user is created', async (): Promise<void> => {
+    it('should return status 201 if the user is created', async (): Promise<void> => {
       req.body = {
         ...args,
         confirmPassword: args.password
@@ -78,7 +78,7 @@ describe('Authentication Controller', (): void => {
       })
     })
 
-    it('returns status 400 if the request body is not valid', async (): Promise<void> => {
+    it('should return status 400 if the request body is not valid', async (): Promise<void> => {
       req.body = {
         ...args,
         confirmPassword: 'not-the-same'
@@ -97,7 +97,7 @@ describe('Authentication Controller', (): void => {
       })
     })
 
-    it('returns status 500 on unexpected error', async (): Promise<void> => {
+    it('should return status 500 on unexpected error', async (): Promise<void> => {
       req.body = {
         ...args,
         confirmPassword: args.password
@@ -122,7 +122,7 @@ describe('Authentication Controller', (): void => {
   })
 
   describe('Log In', (): void => {
-    it('returns status 200 if the user is authorized', async (): Promise<void> => {
+    it('should return status 200 if the user is authorized', async (): Promise<void> => {
       req.body = {
         ...args
       }
@@ -148,7 +148,7 @@ describe('Authentication Controller', (): void => {
       })
     })
 
-    it('returns status 400 if the request body is not valid', async (): Promise<void> => {
+    it('should return status 400 if the request body is not valid', async (): Promise<void> => {
       req.body = {
         ...args,
         email: 'not-an-email'
@@ -167,7 +167,7 @@ describe('Authentication Controller', (): void => {
       })
     })
 
-    it('returns status 500 on unexpected error', async (): Promise<void> => {
+    it('should return status 500 on unexpected error', async (): Promise<void> => {
       req.body = {
         ...args
       }

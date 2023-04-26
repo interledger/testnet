@@ -33,8 +33,6 @@ declare global {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-
   export interface CustomResponse<
     TData = undefined,
     TBody = BaseResponseBody<TData>

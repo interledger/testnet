@@ -1,7 +1,7 @@
-import { createContainer } from '@/index'
+import { createContainer } from '@/createContainer'
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { Container } from '@/container'
+import { Container } from '@/shared/container'
 import { createApp, TestApp } from '../app'
 import { Knex } from 'knex'
 import { truncateTables } from '../tables'
@@ -39,7 +39,7 @@ describe('Authentication Service', (): void => {
   })
 
   describe('Authorize', (): void => {
-    it('authorizes a user', async (): Promise<void> => {
+    it('should authorize a user', async (): Promise<void> => {
       const user = await userService.create(args)
 
       await expect(authService.authorize(args)).resolves.toMatchObject({
@@ -53,13 +53,13 @@ describe('Authentication Service', (): void => {
       })
     })
 
-    it('throws an error if the user does not exist', async (): Promise<void> => {
+    it('should throw an error if the user does not exist', async (): Promise<void> => {
       await expect(authService.authorize(args)).rejects.toThrowError(
         /Invalid credentials/
       )
     })
 
-    it('throws an error if the password is invalid', async (): Promise<void> => {
+    it('should throw an error if the password is invalid', async (): Promise<void> => {
       await userService.create(args)
 
       await expect(

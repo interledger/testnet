@@ -1,7 +1,7 @@
-import { createContainer } from '@/index'
+import { createContainer } from '@/createContainer'
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { Container } from '@/container'
+import { Container } from '@/shared/container'
 import { createApp, TestApp } from '../app'
 import { Knex } from 'knex'
 import { truncateTables } from '../tables'
@@ -12,7 +12,6 @@ import {
   MockRequest,
   MockResponse
 } from 'node-mocks-http'
-// import type { AuthController } from '@/auth/controller'
 import type { AuthService } from '@/auth/service'
 import { errorHandler } from '@/middleware/errorHandler'
 import { faker } from '@faker-js/faker'
@@ -42,7 +41,6 @@ describe('User Controller', (): void => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
-    // authController = await bindings.resolve('authController')
     userService = await bindings.resolve('userService')
     userController = await bindings.resolve('userController')
   })
@@ -78,7 +76,7 @@ describe('User Controller', (): void => {
   })
 
   describe('me', (): void => {
-    it('returns the user information if the session is valid', async (): Promise<void> => {
+    it('should return the user information if the session is valid', async (): Promise<void> => {
       await userController.me(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
@@ -90,7 +88,7 @@ describe('User Controller', (): void => {
       })
     })
 
-    it('it returns 404 if the session is not found', async (): Promise<void> => {
+    it('should return 404 if the session is not found', async (): Promise<void> => {
       req.session.id = uuid()
       await userController.me(req, res, (err) => {
         next()
@@ -101,7 +99,7 @@ describe('User Controller', (): void => {
       expect(req.session).toEqual({})
     })
 
-    it('it returns 404 if the user is not found', async (): Promise<void> => {
+    it('should return 404 if the user is not found', async (): Promise<void> => {
       req.session.user.id = uuid()
       await userController.me(req, res, (err) => {
         next()

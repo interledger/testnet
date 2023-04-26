@@ -1,7 +1,7 @@
-import { createContainer } from '@/index'
+import { createContainer } from '@/createContainer'
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { Container } from '@/container'
+import { Container } from '@/shared/container'
 import { createApp, TestApp } from '../app'
 import { Knex } from 'knex'
 import { truncateTables } from '../tables'
@@ -36,13 +36,13 @@ describe('User Service', (): void => {
   })
 
   describe('create', (): void => {
-    it('creates a new user', async (): Promise<void> => {
+    it('should create a new user', async (): Promise<void> => {
       await expect(userService.create(args)).resolves.toMatchObject({
         email: args.email
       })
     })
 
-    it('throws an error if the email is already in use', async (): Promise<void> => {
+    it('should throw an error if the email is already in use', async (): Promise<void> => {
       await userService.create(args)
 
       await expect(userService.create(args)).rejects.toThrowError(
@@ -52,7 +52,7 @@ describe('User Service', (): void => {
   })
 
   describe('getById', (): void => {
-    it('can fetch user by id', async (): Promise<void> => {
+    it('should fetch an user by id', async (): Promise<void> => {
       const user = await userService.create(args)
 
       await expect(userService.getById(user.id)).resolves.toMatchObject({
