@@ -41,9 +41,8 @@ const createIncomingPaymentMutation = gql`
 export async function createQuote(
   paymentPointerId: string,
   receiver: string,
-  amount: number,
   asset: Asset,
-  isReceive: boolean
+  amount?: bigint
 ): Promise<Quote> {
   const value = {
     value: amount as unknown as bigint,
@@ -56,9 +55,7 @@ export async function createQuote(
     receiver
   }
 
-  if (isReceive) {
-    input.receiveAmount = value
-  } else {
+  if (amount) {
     input.sendAmount = value
   }
 
