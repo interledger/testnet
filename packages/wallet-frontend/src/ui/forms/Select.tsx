@@ -13,7 +13,7 @@ import { FieldError } from './FieldError'
 
 export type SelectOption = {
   value: string
-  name: string
+  label: string
 }
 
 type SelectProps<T extends FieldValues> = {

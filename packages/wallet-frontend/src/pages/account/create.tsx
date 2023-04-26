@@ -24,11 +24,7 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
   const createAccountForm = useZodForm({
     schema: createAccountSchema
   })
-  const options = assets.map((a) => ({
-    value: a.value,
-    label: a.name
-  }))
-  console.log(createAccountForm.formState.errors);
+
   return (
     <AppLayout>
       <PageHeader title="Create a new account" />
@@ -72,14 +68,14 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           name="asset"
           control={createAccountForm.control}
           render={({ field: { value } }) => (
-            <SelectTest<{ label: string; value: string }> 
-              options={options}
+            <SelectTest<SelectOption>
+              options={assets}
               value={value}
-              onChange={(event) => {
-                if (event) {
+              onChange={(option) => {
+                if (option) {
                   createAccountForm.setValue(
                     'asset',
-                    { ...event },
+                    { ...option },
                     {
                       shouldDirty: true
                     }
@@ -115,8 +111,8 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = response.data?.map((asset) => ({
-    name: asset.code,
-    value: asset.id
+    value: asset.id,
+    label: asset.code
   }))
 
   return {
