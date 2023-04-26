@@ -6,7 +6,7 @@ import {
 } from '../utills/request'
 
 // TODO: Abstract interface for different Rapyd responses
-interface RapydGetAccoutBalanceResponse {
+interface RapydGetAccountsResponse {
   status: {
     error_code: string
     status: string
@@ -111,9 +111,9 @@ const rapydSetTransferResponse = async (
   )
 }
 
-const getAccountsBalance = async (
+const getRapydAccountsList = async (
   walletId: string
-): Promise<RapydGetAccoutBalanceResponse> => {
+): Promise<RapydGetAccountsResponse> => {
   return makeRapydGetRequest(`user/${walletId}/accounts`)
 }
 
@@ -126,5 +126,5 @@ export {
   rapydTransferLiquidity,
   rapydSetTransferResponse,
   updateRapydProfile,
-  getAccountsBalance
+  getRapydAccountsList
 }

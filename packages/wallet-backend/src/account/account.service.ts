@@ -2,11 +2,14 @@ import { NextFunction, Request, Response } from 'express'
 import { zParse } from '../middlewares/validator'
 import { getAsset } from '../rafiki/request/asset.request'
 import {
+  completePayout,
+  getPayoutMethodTypes,
+  getPayoutTypeRequiredFields,
   issueVirtualAccount,
   simulateBankTransferToWallet,
   withdrawFundsFromWalletAccount
 } from '../rapyd/virtual-accounts'
-import { getAccountsBalance } from '../rapyd/wallet'
+import { getRapydAccountsList } from '../rapyd/wallet'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { ConflictException } from '../shared/models/errors/ConflictException'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
@@ -70,29 +73,29 @@ export const createAccount = async (
 
     // save virtual bank account number to database
     const virtualAccount = result.data
-
     const account = await Account.query().insert({
       name,
       userId,
       assetCode: asset.code,
       assetRafikiId,
-      rapydAccountId: virtualAccount.id
+      rapydVirtualBankAccountId: virtualAccount.id
     })
 
     await simulateBankTransferToWallet({
       amount: 0,
       currency: account.assetCode,
-      issued_bank_account: account.rapydAccountId
+      issued_bank_account: account.rapydVirtualBankAccountId
     })
 
     if (!user || !user.rapydEWalletId) {
       throw new NotFoundException()
     }
 
-    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
+    const rapydAccounts = await getRapydAccountsList(user.rapydEWalletId)
     account.balance = formatBalance(
-      accountsBalance.data.find((acc) => acc.currency === account.assetCode)
-        ?.balance ?? 0
+      rapydAccounts.data.find(
+        (rapydAccount) => rapydAccount.currency === account.assetCode
+      )?.balance ?? 0
     )
 
     return res.json({
@@ -120,11 +123,11 @@ export const listAccounts = async (
       throw new NotFoundException()
     }
 
-    const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
+    const rapydAccounts = await getRapydAccountsList(user.rapydEWalletId)
 
     accounts.forEach((acc) => {
       acc.balance = formatBalance(
-        accountsBalance.data.find(
+        rapydAccounts.data.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
         )?.balance ?? 0
       )
@@ -164,9 +167,11 @@ export async function getAccountBalance(
     throw new NotFoundException()
   }
 
-  const accountsBalance = await getAccountsBalance(user.rapydEWalletId)
+  const rapydAccounts = await getRapydAccountsList(user.rapydEWalletId)
   return formatBalance(
-    accountsBalance.data.find((acc) => acc.currency === assetCode)?.balance ?? 0
+    rapydAccounts.data.find(
+      (rapydAccount) => rapydAccount.currency === assetCode
+    )?.balance ?? 0
   )
 }
 
@@ -206,7 +211,7 @@ export const fundAccount = async (
     const result = await simulateBankTransferToWallet({
       amount: amount,
       currency: assetCode,
-      issued_bank_account: existingAccount.rapydAccountId
+      issued_bank_account: existingAccount.rapydVirtualBankAccountId
     })
 
     if (result.status.status !== 'SUCCESS') {
@@ -242,15 +247,75 @@ export const withdrawFunds = async (
       throw new NotFoundException()
     }
 
-    // withdraw funds from wallet account
-    const result = await withdrawFundsFromWalletAccount({
-      account: existingAccount.id,
-      sum: amount
+    // get list of payout method types for currency
+    const payoutType = await getPayoutMethodTypes({
+      currency: assetCode
     })
 
-    if (result.status.status !== 'SUCCESS') {
+    if (
+      payoutType.status.status !== 'SUCCESS' &&
+      payoutType.data[0] === undefined
+    ) {
       return res.status(500).json({
-        message: `Unable to withdraw funds from your account. ${result.status.message}`,
+        message: `Unable to withdraw funds from your account. ${payoutType.status.message}`,
+        success: false
+      })
+    }
+
+    const user = await User.query().findById(userId)
+    if (!user) {
+      throw new NotFoundException()
+    }
+
+    const payoutMethodType = payoutType.data[0].payout_method_type
+    // get payout type required fields, will be needed in production
+    const payoutRequiredFields = await getPayoutTypeRequiredFields({
+      payout_method_type: payoutMethodType ?? '',
+      country: user.country ?? '',
+      currency: assetCode,
+      payout_amount: amount
+    })
+
+    if (payoutRequiredFields.status.status !== 'SUCCESS') {
+      return res.status(500).json({
+        message: `Unable to withdraw funds from your account. ${payoutRequiredFields.status.message}`,
+        success: false
+      })
+    }
+
+    // withdraw funds/create payout from wallet account into bank account
+    const userDetails = {
+      name: `${user.firstName} ${user.lastName}`,
+      address: user.address ?? ''
+    }
+    const payout = await withdrawFundsFromWalletAccount({
+      beneficiary: userDetails,
+      payout_amount: amount,
+      payout_currency: assetCode,
+      ewallet: user.rapydEWalletId ?? '',
+      sender: userDetails,
+      sender_country: user.country ?? '',
+      sender_currency: assetCode,
+      beneficiary_entity_type: 'individual',
+      sender_entity_type: 'individual',
+      payout_method_type: payoutMethodType
+    })
+
+    if (payout.status.status !== 'SUCCESS') {
+      return res.status(500).json({
+        message: `Unable to withdraw funds from your account. ${payout.status.message}`,
+        success: false
+      })
+    }
+
+    // complete third party/bank payout
+    const completePayoutResponse = await completePayout({
+      payout: payout.data.id,
+      amount: amount
+    })
+    if (completePayoutResponse.status.status !== 'SUCCESS') {
+      return res.status(500).json({
+        message: `Unable to withdraw funds from your account. ${completePayoutResponse.status.message}`,
         success: false
       })
     }

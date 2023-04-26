@@ -10,7 +10,7 @@ export class Account extends Model {
   assetRafikiId!: string
   assetCode!: string
   userId!: string
-  rapydAccountId!: string
+  rapydVirtualBankAccountId!: string
   paymentPointers?: Array<PaymentPointerModel>
   user!: User
   balance!: string

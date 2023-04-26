@@ -1,4 +1,4 @@
-import { makeRapydPostRequest } from '../utills/request'
+import { makeRapydGetRequest, makeRapydPostRequest } from '../utills/request'
 
 const issueVirtualAccount = (virtualAccountRequest: VirtualAccountRequest) => {
   return makeRapydPostRequest(
@@ -16,15 +16,46 @@ const simulateBankTransferToWallet = (
   )
 }
 
+const getPayoutMethodTypes = (
+  payoutMethodTypesRequest: PayoutMethodTypesRequest
+) => {
+  return makeRapydGetRequest(
+    `payouts/supported_types?payout_currency=${payoutMethodTypesRequest.currency}&limit=1`
+  )
+}
+
+const getPayoutTypeRequiredFields = (
+  payoutTypeRequiredFieldsRequest: PayoutMethodRequiredFieldsRequest
+) => {
+  const { payout_method_type, country, currency, payout_amount } =
+    payoutTypeRequiredFieldsRequest
+  return makeRapydGetRequest(
+    `payout_methods/${payout_method_type}/required_fields?sender_country=${country}&sender_currency=${currency}&beneficiary_country=${country}&payout_currency=${currency}&sender_entity_type=individual&beneficiary_entity_type=individual&payout_amount=${payout_amount}`
+  )
+}
+
 const withdrawFundsFromWalletAccount = (
   withdrawFundsFromWalletAccountRequest: WithdrawFundsFromWalletAccountRequest
 ) => {
-  const { account, sum } = withdrawFundsFromWalletAccountRequest
-  return makeRapydPostRequest(`pos/withdraw/${account}/${sum}`, '')
+  return makeRapydPostRequest(
+    'payouts',
+    JSON.stringify(withdrawFundsFromWalletAccountRequest)
+  )
+}
+
+const completePayout = (completePayoutRequest: CompletePayoutRequest) => {
+  const { payout, amount } = completePayoutRequest
+  return makeRapydPostRequest(
+    `payouts/complete/${payout}/${amount}`,
+    JSON.stringify(completePayoutRequest)
+  )
 }
 
 export {
   issueVirtualAccount,
   simulateBankTransferToWallet,
-  withdrawFundsFromWalletAccount
+  getPayoutMethodTypes,
+  getPayoutTypeRequiredFields,
+  withdrawFundsFromWalletAccount,
+  completePayout
 }

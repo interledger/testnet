@@ -45,7 +45,6 @@ const getRapydRequestHeader = (method: string, url: string, body: string) => {
 
 const makeRapydGetRequest = async (url: string) => {
   const headers = getRapydRequestHeader('get', url, '')
-
   try {
     const res = await axios.get(`${env.RAPYD_API}/${url}`, {
       headers
