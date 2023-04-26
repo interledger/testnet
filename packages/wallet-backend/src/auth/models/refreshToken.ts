@@ -20,7 +20,7 @@ export class RefreshToken extends Model {
   }
 
   static expiresInToExpiresAt(expiresIn: number): Date {
-    return new Date(Date.now() + expiresIn ?? 0 * 1000)
+    return new Date(Date.now() + (expiresIn ?? 0) * 1000)
   }
 
   static async verify(token: string): Promise<RefreshToken> {

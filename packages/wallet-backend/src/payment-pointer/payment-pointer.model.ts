@@ -9,9 +9,10 @@ export class PaymentPointerModel extends Model {
   accountId!: string
   url!: string
   active!: boolean
+  account!: Account
 
   static relationMappings = () => ({
-    user: {
+    account: {
       relation: Model.BelongsToOneRelation,
       modelClass: Account,
       join: {

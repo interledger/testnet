@@ -3,6 +3,7 @@ import { BaseResponse } from '../shared/models/BaseResponse'
 import { TransactionModel } from './transaction.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
+import { PartialModelObject } from 'objection'
 
 export const listTransactions = async (
   req: Request,
@@ -23,5 +24,17 @@ export const listTransactions = async (
     return res.json({ success: true, message: 'Success', data: transactions })
   } catch (e) {
     next(e)
+  }
+}
+
+export const updateTransaction = async (
+  where: PartialModelObject<TransactionModel>,
+  update: PartialModelObject<TransactionModel>
+) => {
+  try {
+    console.log(`Updating transaction with: ${JSON.stringify(update)}`)
+    return await TransactionModel.query().where(where).update(update)
+  } catch (e) {
+    console.log(`Update transaction error:`, e)
   }
 }
