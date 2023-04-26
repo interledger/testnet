@@ -130,13 +130,13 @@ export default function Request({ accounts }: RequestProps) {
               label="Payment Pointer"
             />
           </div>
-
           <Input
             required
             {...requestForm.register('amount')}
             error={requestForm.formState.errors.amount?.message}
             label="Amount"
           />
+          <Input {...requestForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"

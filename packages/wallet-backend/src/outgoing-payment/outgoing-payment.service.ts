@@ -25,7 +25,8 @@ export const createPayment = async (
       toPaymentPointerUrl,
       paymentPointerId,
       amount,
-      isReceive
+      isReceive,
+      description
     } = await zParse(outgoingPaymentSchema, req)
 
     if (!incomingPaymentUrl && !toPaymentPointerUrl) {
@@ -59,24 +60,34 @@ export const createPayment = async (
 
     const paymentUrl: string =
       incomingPaymentUrl ||
-      (await createReceiver(amount, asset, toPaymentPointerUrl))
+      (await createReceiver(
+        isReceive ? BigInt(amount * 10 ** asset.scale) : null,
+        asset,
+        toPaymentPointerUrl,
+        description,
+        new Date(Date.now() + 1000 * 60).toISOString()
+      ))
 
     const quote = await createQuote(
       paymentPointerId,
       paymentUrl,
-      amount,
       asset,
-      isReceive
+      isReceive ? undefined : BigInt(amount * 10 ** asset.scale)
     )
-    const payment = await createOutgoingPayment(paymentPointerId, quote.id)
+    const payment = await createOutgoingPayment(
+      paymentPointerId,
+      quote.id,
+      description
+    )
 
     const transaction = await TransactionModel.query().insert({
       paymentPointerId: existingPaymentPointer.id,
       paymentId: payment.id,
       assetCode: asset.code,
-      value: amount,
+      value: BigInt(amount * 10 ** asset.scale),
       type: 'OUTGOING',
-      status: 'PENDING'
+      status: 'PENDING',
+      description
     })
 
     return res.json({
@@ -90,9 +101,11 @@ export const createPayment = async (
 }
 
 async function createReceiver(
-  amount: number,
+  amount: bigint | null,
   asset: Asset,
-  paymentPointerUrl = ''
+  paymentPointerUrl = '',
+  description?: string,
+  expiresAt?: string
 ): Promise<string> {
   const existingPaymentPointer = await PaymentPointerModel.query().findOne({
     url: paymentPointerUrl
@@ -104,7 +117,9 @@ async function createReceiver(
   const response = await createIncomingPaymentTransactions(
     existingPaymentPointer.id,
     amount,
-    asset
+    asset,
+    description,
+    expiresAt
   )
 
   return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`

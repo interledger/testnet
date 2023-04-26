@@ -42,20 +42,16 @@ export default function TransactionsPage({
       {/* TODO: Filters */}
       <div className="mt-10 flex w-full flex-col space-y-3 md:max-w-2xl">
         <Table>
-          <Table.Head columns={['', 'Date', 'Merchant', 'Status', 'Amount']} />
+          <Table.Head
+            columns={['', 'Date', 'Description', 'Status', 'Amount']}
+          />
           <Table.Body>
             {transactions.length ? (
               transactions.map((trx) => (
                 <Table.Row key={trx.id}>
                   <Table.Cell className="w-10">
-                    {/*
-                      Having only an arrow that describes the transaction type
-                      can be confusig. 
-                      TODO: Find a better way to display to display transaction type.
-                    */}
                     <Arrow
-                      className="h-4 w-4"
-                      direction={trx.type === 'INCOMING' ? 'right' : 'left'}
+                      direction={trx.type === 'INCOMING' ? 'down' : 'up'}
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">

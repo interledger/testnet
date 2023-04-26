@@ -1,5 +1,6 @@
 import bcryptjs from 'bcryptjs'
 import { Model } from 'objection'
+import { Account } from '../../account/account.model'
 import { RefreshToken } from '../../auth/models/refreshToken'
 
 export class User extends Model {
@@ -16,6 +17,7 @@ export class User extends Model {
   rapydEWalletId?: string
   rapydContactId?: string
   refreshTokens?: Array<RefreshToken>
+  accounts?: Array<Account>
 
   async $beforeInsert() {
     this.password = await bcryptjs.hash(this.password, 10)
@@ -33,6 +35,14 @@ export class User extends Model {
         join: {
           from: 'users.id',
           to: 'refreshTokens.userId'
+        }
+      },
+      accounts: {
+        relation: Model.HasManyRelation,
+        modelClass: Account,
+        join: {
+          from: 'users.id',
+          to: 'accounts.userId'
         }
       }
     }

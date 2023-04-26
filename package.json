@@ -16,7 +16,7 @@
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "dev": "pnpm docker:compose:legacy up -d --build && pnpm wallet-frontend dev",
     "dev:update": "pnpm docker:compose up -d --build && pnpm wallet-frontend dev",
-    "dev:backend:legacy": "pnpm wallet-backend build && pnpm docker:compose:legacy up -d --build && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose up -d --no-deps --build wallet-backend'",
+    "dev:backend:legacy": "pnpm wallet-backend build && pnpm dev && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose:legacy up -d --no-deps --build wallet-backend'",
     "docker:compose": "docker compose -f ./docker/dev/docker-compose.yml",
     "docker:down": "pnpm docker:compose down",
     "docker:compose:legacy": "docker compose -f ./docker/dev/docker-compose-legacy.yml",
@@ -32,15 +32,15 @@
     "wallet-frontend": "pnpm --filter wallet-frontend --"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
-    "@typescript-eslint/parser": "^5.59.0",
-    "eslint": "^8.38.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "nodemon": "^2.0.22",
     "only-allow": "^1.1.1",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.7",
     "typescript": "^5.0.4"
   },

@@ -153,6 +153,7 @@ export default function Send({ accounts }: SendProps) {
               label="Amount"
             />
           </div>
+          <Input {...sendForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"

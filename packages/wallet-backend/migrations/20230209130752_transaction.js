@@ -16,9 +16,11 @@ exports.up = function (knex) {
     table.foreign('paymentPointerId').references('paymentPointers.id')
 
     table.string('assetCode').notNullable()
-    table.float('value').notNullable()
+    table.bigint('value')
     table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
-    table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED']).notNullable()
+    table
+      .enum('status', ['PENDING', 'COMPLETED', 'EXPIRED', 'FAILED'])
+      .notNullable()
 
     table.timestamps(false, true, true)
   })
