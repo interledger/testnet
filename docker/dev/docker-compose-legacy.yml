@@ -97,7 +97,7 @@ services:
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend/webhooks
-      PRICES_URL: http://wallet-backend/prices
+      EXCHANGE_RATES_URL: http://wallet-backend/rates
       QUOTE_URL: http://wallet-backend/quotes
     depends_on:
       - postgres
