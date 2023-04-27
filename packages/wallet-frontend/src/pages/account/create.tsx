@@ -15,7 +15,7 @@ import { accountService, createAccountSchema } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
-import { SelectTest } from '@/ui/forms/BetterSelect'
+import { Select } from '@/ui/forms/Select'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -68,7 +68,7 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           name="asset"
           control={createAccountForm.control}
           render={({ field: { value } }) => (
-            <SelectTest<SelectOption>
+            <Select<SelectOption>
               options={assets}
               value={value}
               onChange={(option) => {

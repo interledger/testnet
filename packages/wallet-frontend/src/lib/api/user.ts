@@ -33,7 +33,10 @@ export const loginSchema = z.object({
 export const personalDetailsSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' }),
-  country: z.string(),
+  country: z.object({
+      value: z.string().length(2),
+      label: z.string().min(1)
+  }),
   city: z.string().min(1, { message: 'City is required' }),
   address: z.string().min(1, { message: 'Address is required' }),
   zip: z.string().min(1, { message: 'ZIP code is required' })
@@ -180,7 +183,10 @@ const createUserService = (): UserService => ({
     try {
       const response = await httpClient
         .post('wallet', {
-          json: args
+          json: {
+              ...args,
+              country: args.country.value
+          }
         })
         .json<SuccessResponse>()
       return response
