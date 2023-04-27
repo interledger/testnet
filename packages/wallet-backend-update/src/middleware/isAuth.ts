@@ -14,6 +14,13 @@ export const isAuth = async (
       req.session.destroy()
       throw new Unauthorized('Unauthorized')
     }
+
+    if (
+      req.url !== '/wallet' &&
+      (session.user.needsWallet || session.user.needsIDProof)
+    ) {
+      throw new Unauthorized('Unauthorized')
+    }
   } catch (e) {
     next(e)
   }

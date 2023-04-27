@@ -1,15 +1,10 @@
-import { NotFound } from '@/errors'
+import { Unauthorized } from '@/errors'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import type { UserService } from './service'
 import type { SessionService } from '@/session/service'
 
-interface UserProfile {
-  email: string
-  lastName?: string
-  firstName?: string
-  address?: string
-  country?: string
+interface UserFlags {
   needsWallet: boolean
   needsIDProof: boolean
 }
@@ -17,7 +12,7 @@ interface UserProfile {
 interface IUserController {
   me: (
     req: Request,
-    res: CustomResponse<UserProfile>,
+    res: CustomResponse<UserFlags>,
     next: NextFunction
   ) => Promise<void>
 }
@@ -32,27 +27,21 @@ export class UserController implements IUserController {
 
   me = async (
     req: Request,
-    res: CustomResponse<UserProfile>,
+    res: CustomResponse<UserFlags>,
     next: NextFunction
   ) => {
     try {
-      const session = await this.deps.sessionService.getById(req.session.id)
       const user = await this.deps.userService.getById(req.session.user.id)
 
-      if (!user || !session) {
+      if (!user) {
         req.session.destroy()
-        throw new NotFound('User not found')
+        throw new Unauthorized('Unauthorized')
       }
 
       res.json({
         success: true,
         message: 'User retrieved successfully',
         data: {
-          email: user.email,
-          address: user.address,
-          country: user.country,
-          firstName: user.firstName,
-          lastName: user.lastName,
           needsWallet: !user.rapydWalletId,
           needsIDProof: !user.kycId
         }

@@ -18,6 +18,7 @@ import { Model } from 'objection'
 import { withSession } from './middleware/withSession'
 import { errorHandler } from './middleware/errorHandler'
 import type { SessionService } from './session/service'
+import { isAuth } from './middleware/isAuth'
 
 export interface Bindings {
   env: Env
@@ -88,12 +89,13 @@ export class App {
       }
     })
 
-    // Me Endpoint
-    router.get('/me', userController.me)
 
     // Auth Routes
     router.post('/auth/sign-up', authController.signUp)
     router.post('/auth/log-in', authController.logIn)
+
+    // Me Endpoint
+    router.get('/me', isAuth, userController.me)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
