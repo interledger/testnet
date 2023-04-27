@@ -9,6 +9,7 @@ exports.up = function (knex) {
     table.string('publicName').notNullable()
     table.uuid('accountId').notNullable()
     table.foreign('accountId').references('accounts.id')
+    table.boolean('active').notNullable().defaultTo(true)
 
     table.timestamps(false, true, true)
   })
@@ -19,5 +20,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTable('payment_pointers')
+  return knex.schema.dropTable('paymentPointers')
 }

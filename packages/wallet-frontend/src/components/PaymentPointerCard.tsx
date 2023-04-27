@@ -12,11 +12,13 @@ import {
 } from 'react'
 import { z } from 'zod'
 import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
-import { PencilSquare } from './icons/Pencil'
 import { X } from './icons/X'
-import { PaymentPointer } from '@/lib/api/paymentPointer'
+import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
+import { SuccessDialog } from './dialogs/SuccessDialog'
+import { ErrorDialog } from './dialogs/ErrorDialog'
+import { useRouter } from 'next/router'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
@@ -70,6 +72,7 @@ const paymentPointerSchema = z.object({
 export const PaymentPointerCard = ({
   paymentPointer
 }: PaymentPointerCardProps) => {
+  const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
   const [isEditing, setIsEditing] = useState(false)
   const form = useZodForm({
@@ -81,44 +84,45 @@ export const PaymentPointerCard = ({
 
   const cardRef = useRef<HTMLDivElement>(null)
 
-  const handleDeleteConfirmation = () => {
-    console.log('deletion confirmed')
+  const handleDeleteConfirmation = async (id: string) => {
+    const response = await paymentPointerService.delete(id)
+    if (response.success) {
+      openDialog(
+        <SuccessDialog onClose={closeDialog} content={response.message} />
+      )
+      if (cardRef && cardRef.current) {
+        cardRef.current.remove()
+        return
+      }
+      // This part should never practically reach. The card reference should always
+      // exist, but we want to have a fallback in the event that it does:
+      router.reload()
+    } else {
+      openDialog(
+        <ErrorDialog onClose={closeDialog} content={response.message} />
+      )
+    }
   }
 
   useOnClickOutside(cardRef, () => setIsEditing(false))
 
   return (
     <div ref={cardRef} className={cardStyles}>
-      {/* IDEA:
-        We can show a tooltip when the user is hovering the `Edit` or `Delete` buttons. 
-      */}
-      {isEditing ? (
-        <IconButton
-          aria-label="delete payment pointer"
-          className="test h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
-          onClick={() =>
-            openDialog(
-              <ConfirmationDialog
-                confirmText="Delete payment pointer"
-                onConfirm={handleDeleteConfirmation}
-                onClose={closeDialog}
-              />
-            )
-          }
-        >
-          <X stroke="currentColor" strokeWidth={3} />
-        </IconButton>
-      ) : (
-        <IconButton
-          onClick={() => {
-            setIsEditing(!isEditing)
-          }}
-          aria-label="edit payment pointer"
-          className="h-7 w-7 text-green-7 transition-transform duration-150 hover:scale-[115%] hover:text-green-3"
-        >
-          <PencilSquare />
-        </IconButton>
-      )}
+      <IconButton
+        aria-label="delete payment pointer"
+        className="test h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
+        onClick={() =>
+          openDialog(
+            <ConfirmationDialog
+              confirmText="Delete payment pointer"
+              onConfirm={() => handleDeleteConfirmation(paymentPointer.id)}
+              onClose={closeDialog}
+            />
+          )
+        }
+      >
+        <X stroke="currentColor" strokeWidth={3} />
+      </IconButton>
       <div className="flex flex-1 items-center justify-between space-x-2">
         {isEditing ? (
           <Form
