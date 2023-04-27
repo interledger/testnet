@@ -30,6 +30,7 @@ export type Account = {
   id: string
   name: string
   assetCode: string
+  assetRafikiId: string
   balance: string
 }
 

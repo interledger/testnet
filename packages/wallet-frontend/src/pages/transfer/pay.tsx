@@ -13,15 +13,17 @@ import { accountService } from '@/lib/api/account'
 import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { getObjectKeys } from '@/utils/helpers'
+import { getObjectKeys, transformAmount } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useDebounce } from '@/lib/hooks/useDebounce'
+import { assetService } from '@/lib/api/asset'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function Pay({ accounts }: PayProps) {
+  let scale = 2
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
@@ -43,7 +45,7 @@ export default function Pay({ accounts }: PayProps) {
     )
     if (response.success && response.data) {
       const { value, description } = response.data
-      payForm.setValue('amount', value)
+      payForm.setValue('amount', transformAmount(value, scale))
       payForm.setValue('description', description ?? '')
     } else {
       const { message } = response
@@ -65,6 +67,16 @@ export default function Pay({ accounts }: PayProps) {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
+
+    if (selectedAccount?.assetRafikiId) {
+      const assetResponse = await assetService.get(
+        selectedAccount?.assetRafikiId
+      )
+      if (assetResponse.success && assetResponse.data) {
+        scale = assetResponse.data.scale
+      }
+    }
+
     setBalance(
       selectedAccount
         ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
@@ -197,7 +209,11 @@ export default function Pay({ accounts }: PayProps) {
   )
 }
 
-type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
+type SelectAccountOption = SelectOption & {
+  balance: string
+  assetCode: string
+  assetRafikiId: string
+}
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
@@ -221,7 +237,8 @@ export const getServerSideProps: GetServerSideProps<{
     name: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,
-    assetCode: account.assetCode
+    assetCode: account.assetCode,
+    assetRafikiId: account.assetRafikiId
   }))
 
   return {

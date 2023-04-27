@@ -13,7 +13,7 @@ export class TransactionModel extends Model {
   status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
 
   static relationMappings = () => ({
-    user: {
+    paymentPointer: {
       relation: Model.BelongsToOneRelation,
       modelClass: TransactionModel,
       join: {

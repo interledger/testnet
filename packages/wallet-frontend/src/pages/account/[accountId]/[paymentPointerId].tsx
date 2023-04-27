@@ -15,6 +15,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
+import { assetService } from '@/lib/api/asset'
 
 type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -137,6 +138,15 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  const assetResponse = await assetService.get(
+    accountResponse.data.assetRafikiId
+  )
+  if (!assetResponse.success || !assetResponse.data) {
+    return {
+      notFound: true
+    }
+  }
+
   const transactions = transactionsResponse.data.map((trx) => ({
     ...trx,
     createdAt: new Date(trx.createdAt).toLocaleDateString('default', {
@@ -144,7 +154,7 @@ export const getServerSideProps: GetServerSideProps<{
       month: 'short',
       year: 'numeric'
     }),
-    value: formatAmount(trx.value)
+    value: formatAmount(trx.value, assetResponse.data?.scale)
   }))
 
   return {
