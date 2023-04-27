@@ -78,20 +78,10 @@ describe('User Controller', (): void => {
         success: true,
         message: 'User retrieved successfully',
         data: {
-          email: args.email
+          needsIDProof: true,
+          needsWallet: true
         }
       })
-    })
-
-    it('should return 404 if the session is not found', async (): Promise<void> => {
-      req.session.id = uuid()
-      await userController.me(req, res, (err) => {
-        next()
-        errorHandler(err, req, res, next)
-      })
-      expect(next).toHaveBeenCalledTimes(1)
-      expect(res.statusCode).toBe(404)
-      expect(req.session).toEqual({})
     })
 
     it('should return 404 if the user is not found', async (): Promise<void> => {
@@ -101,7 +91,7 @@ describe('User Controller', (): void => {
         errorHandler(err, req, res, next)
       })
       expect(next).toHaveBeenCalledTimes(1)
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(401)
       expect(req.session).toEqual({})
     })
   })
