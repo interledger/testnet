@@ -99,7 +99,7 @@ services:
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/rafiki/webhooks
       WEBHOOK_TIMEOUT: 60000
-      EXCHANGE_RATES_URL: http://wallet-backend:3003/rafiki/prices
+      EXCHANGE_RATES_URL: http://wallet-backend:3003/rafiki/rates
       QUOTE_URL: http://wallet-backend:3003/rafiki/quote
     depends_on:
       - postgres
