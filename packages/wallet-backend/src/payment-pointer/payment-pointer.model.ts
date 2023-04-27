@@ -8,6 +8,7 @@ export class PaymentPointerModel extends Model {
   publicName!: string
   accountId!: string
   url!: string
+  active!: boolean
   account!: Account
 
   static relationMappings = () => ({

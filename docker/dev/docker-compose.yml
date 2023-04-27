@@ -48,7 +48,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.1.0-alpha
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
     restart: always
     networks:
       - testnet
@@ -64,7 +64,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:s2-build-test
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
     restart: always
     privileged: true
     volumes:
@@ -98,7 +98,7 @@ services:
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/rafiki/webhooks
       WEBHOOK_TIMEOUT: 60000
-      PRICES_URL: http://wallet-backend:3003/rafiki/prices
+      EXCHANGE_RATES_URL: http://wallet-backend:3003/rafiki/prices
       QUOTE_URL: http://wallet-backend:3003/rafiki/quote
     depends_on:
       - postgres
@@ -106,7 +106,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.1.0-alpha
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.1
     depends_on:
       - rafiki-backend
     restart: always
@@ -120,7 +120,7 @@ services:
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:a1259a4c1e49b3bab3d4cb61160f47dbfb2599964577a0b9144673de9a3bea9d
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:3e2954cba78e17db42013e56fd9850a6047f7caa6f30dd7c46ff932c809af10c
     restart: unless-stopped
     privileged: true
     volumes:
