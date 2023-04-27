@@ -6,8 +6,8 @@ import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
 import type { AuthService } from '@/auth/service'
-import { faker } from '@faker-js/faker'
 import type { UserService } from '@/user/service'
+import { mockLogInRequest } from '../mocks'
 
 describe('Authentication Service', (): void => {
   let bindings: Container<Bindings>
@@ -15,11 +15,6 @@ describe('Authentication Service', (): void => {
   let knex: Knex
   let authService: AuthService
   let userService: UserService
-
-  const args = {
-    email: faker.internet.email(),
-    password: faker.internet.password()
-  }
 
   beforeAll(async (): Promise<void> => {
     bindings = createContainer(env)
@@ -40,6 +35,7 @@ describe('Authentication Service', (): void => {
 
   describe('Authorize', (): void => {
     it('should authorize a user', async (): Promise<void> => {
+      const args = mockLogInRequest()
       const user = await userService.create(args)
 
       await expect(authService.authorize(args)).resolves.toMatchObject({
@@ -54,12 +50,13 @@ describe('Authentication Service', (): void => {
     })
 
     it('should throw an error if the user does not exist', async (): Promise<void> => {
-      await expect(authService.authorize(args)).rejects.toThrowError(
+      await expect(authService.authorize(mockLogInRequest())).rejects.toThrowError(
         /Invalid credentials/
       )
     })
 
     it('should throw an error if the password is invalid', async (): Promise<void> => {
+        const args = mockLogInRequest()
       await userService.create(args)
 
       await expect(

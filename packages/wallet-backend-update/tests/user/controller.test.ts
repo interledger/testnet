@@ -14,11 +14,11 @@ import {
 } from 'node-mocks-http'
 import type { AuthService } from '@/auth/service'
 import { errorHandler } from '@/middleware/errorHandler'
-import { faker } from '@faker-js/faker'
 import { applyMiddleware, uuid } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import type { UserController } from '@/user/controller'
+import { mockLogInRequest } from '../mocks'
 
 describe('User Controller', (): void => {
   let bindings: Container<Bindings>
@@ -31,10 +31,7 @@ describe('User Controller', (): void => {
   let res: MockResponse<Response>
 
   const next = jest.fn()
-  const args = {
-    email: faker.internet.email(),
-    password: faker.internet.password()
-  }
+  const args = mockLogInRequest()
 
   beforeAll(async (): Promise<void> => {
     bindings = createContainer(env)
@@ -49,9 +46,7 @@ describe('User Controller', (): void => {
     res = createResponse()
     req = createRequest()
 
-    req.body = {
-      ...args
-    }
+    req.body = args
 
     await userService.create(args)
     await applyMiddleware(withSession, req, res)

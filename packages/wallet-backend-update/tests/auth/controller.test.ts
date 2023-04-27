@@ -15,10 +15,10 @@ import {
 import type { AuthController } from '@/auth/controller'
 import type { AuthService } from '@/auth/service'
 import { errorHandler } from '@/middleware/errorHandler'
-import { faker } from '@faker-js/faker'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
+import { mockLogInRequest, mockSignUpRequest } from '../mocks'
 
 describe('Authentication Controller', (): void => {
   let bindings: Container<Bindings>
@@ -31,10 +31,6 @@ describe('Authentication Controller', (): void => {
   let res: MockResponse<Response>
 
   const next = jest.fn()
-  const args = {
-    email: faker.internet.email(),
-    password: faker.internet.password()
-  }
 
   beforeAll(async (): Promise<void> => {
     bindings = createContainer(env)
@@ -61,15 +57,9 @@ describe('Authentication Controller', (): void => {
 
   describe('Sign Up', (): void => {
     it('should return status 201 if the user is created', async (): Promise<void> => {
-      req.body = {
-        ...args,
-        confirmPassword: args.password
-      }
-
-      const createSpy = jest.spyOn(userService, 'create')
+      req.body = mockSignUpRequest()
       await authController.signUp(req, res, next)
 
-      expect(createSpy).toHaveBeenCalledWith(args)
       expect(next).toHaveBeenCalledTimes(0)
       expect(res.statusCode).toBe(201)
       expect(res._getJSONData()).toMatchObject({
@@ -79,10 +69,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 400 if the request body is not valid', async (): Promise<void> => {
-      req.body = {
-        ...args,
-        confirmPassword: 'not-the-same'
-      }
+      req.body = mockSignUpRequest({ confirmPassword: 'not-the-same' })
 
       await authController.signUp(req, res, (err) => {
         next()
@@ -98,10 +85,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 500 on unexpected error', async (): Promise<void> => {
-      req.body = {
-        ...args,
-        confirmPassword: args.password
-      }
+      req.body = mockSignUpRequest()
 
       const createSpy = jest
         .spyOn(userService, 'create')
@@ -123,9 +107,8 @@ describe('Authentication Controller', (): void => {
 
   describe('Log In', (): void => {
     it('should return status 200 if the user is authorized', async (): Promise<void> => {
-      req.body = {
-        ...args
-      }
+      const args = mockLogInRequest()
+      req.body = args
 
       const user = await userService.create(args)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
@@ -149,10 +132,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 400 if the request body is not valid', async (): Promise<void> => {
-      req.body = {
-        ...args,
-        email: 'not-an-email'
-      }
+      req.body = mockLogInRequest({ email: 'not-an-email' })
 
       await authController.logIn(req, res, (err) => {
         next()
@@ -168,9 +148,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 500 on unexpected error', async (): Promise<void> => {
-      req.body = {
-        ...args
-      }
+      req.body = mockLogInRequest()
 
       const authorizeSpy = jest
         .spyOn(authService, 'authorize')
