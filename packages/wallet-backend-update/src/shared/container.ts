@@ -3,7 +3,7 @@ type Resolver<T> = () => Promise<T>
 export class Container<T> {
   private resolvers: Map<keyof T, Resolver<T[keyof T]>> = new Map()
 
-  public register<K extends keyof T>(
+  private register<K extends keyof T>(
     alias: K,
     resolver: Resolver<T[K]>,
     singleton = true
@@ -14,6 +14,13 @@ export class Container<T> {
     } else {
       this.resolvers.set(alias, resolver)
     }
+  }
+
+  public singleton<K extends keyof T>(
+    alias: K,
+    resolver: Resolver<T[K]>
+  ): void {
+    this.register(alias, resolver, true)
   }
 
   public transient<K extends keyof T>(

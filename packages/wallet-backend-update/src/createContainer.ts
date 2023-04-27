@@ -11,9 +11,9 @@ import { UserService } from './user/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
-  container.register('env', async () => config)
-  container.register('logger', async () => logger)
-  container.register('knex', async () => {
+  container.singleton('env', async () => config)
+  container.singleton('logger', async () => logger)
+  container.singleton('knex', async () => {
     const env = await container.resolve('env')
     const _knex = knex({
       client: 'postgresql',
@@ -33,11 +33,11 @@ export const createContainer = (config: Env): Container<Bindings> => {
   })
 
   // Session Modules
-  container.register('sessionService', async () => new SessionService())
+  container.singleton('sessionService', async () => new SessionService())
 
   // User Modules
-  container.register('userService', async () => new UserService())
-  container.register(
+  container.singleton('userService', async () => new UserService())
+  container.singleton(
     'userController',
     async () =>
       new UserController({
@@ -48,7 +48,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   // Auth Modules
-  container.register(
+  container.singleton(
     'authService',
     async () =>
       new AuthService({
@@ -57,7 +57,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  container.register(
+  container.singleton(
     'authController',
     async () =>
       new AuthController({
