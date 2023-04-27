@@ -2,9 +2,9 @@ import { createContainer } from '@/createContainer'
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
 import { Container } from '@/shared/container'
-import { createApp, TestApp } from '../app'
+import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
-import { truncateTables } from '../tables'
+import { truncateTables } from '@/tests/tables'
 import { Request, Response } from 'express'
 import {
   createRequest,
