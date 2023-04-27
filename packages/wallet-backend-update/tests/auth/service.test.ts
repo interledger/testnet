@@ -50,13 +50,13 @@ describe('Authentication Service', (): void => {
     })
 
     it('should throw an error if the user does not exist', async (): Promise<void> => {
-      await expect(authService.authorize(mockLogInRequest())).rejects.toThrowError(
-        /Invalid credentials/
-      )
+      await expect(
+        authService.authorize(mockLogInRequest())
+      ).rejects.toThrowError(/Invalid credentials/)
     })
 
     it('should throw an error if the password is invalid', async (): Promise<void> => {
-        const args = mockLogInRequest()
+      const args = mockLogInRequest()
       await userService.create(args)
 
       await expect(
