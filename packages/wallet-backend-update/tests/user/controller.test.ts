@@ -15,7 +15,7 @@ import {
 import type { AuthService } from '@/auth/service'
 import { errorHandler } from '@/middleware/errorHandler'
 import { faker } from '@faker-js/faker'
-import { applyMiddleware, uuid } from '../utils'
+import { applyMiddleware, uuid } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import type { UserController } from '@/user/controller'
