@@ -89,7 +89,6 @@ export class App {
       }
     })
 
-
     // Auth Routes
     router.post('/auth/sign-up', authController.signUp)
     router.post('/auth/log-in', authController.logIn)
