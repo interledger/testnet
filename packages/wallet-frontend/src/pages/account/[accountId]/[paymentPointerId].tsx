@@ -139,7 +139,8 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assetResponse = await assetService.get(
-    accountResponse.data.assetRafikiId
+    accountResponse.data.assetRafikiId,
+    ctx.req.headers.cookie
   )
   if (!assetResponse.success || !assetResponse.data) {
     return {

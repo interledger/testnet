@@ -1,4 +1,5 @@
 import { Model } from 'objection'
+import { PaymentPointerModel } from '../payment-pointer/payment-pointer.model'
 
 export class TransactionModel extends Model {
   static tableName = 'transactions'
@@ -15,7 +16,7 @@ export class TransactionModel extends Model {
   static relationMappings = () => ({
     paymentPointer: {
       relation: Model.BelongsToOneRelation,
-      modelClass: TransactionModel,
+      modelClass: PaymentPointerModel,
       join: {
         from: 'transactions.paymentPointerId',
         to: 'paymentPointers.id'
