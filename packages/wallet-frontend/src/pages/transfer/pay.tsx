@@ -17,6 +17,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
+import { Controller } from 'react-hook-form'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -28,8 +29,7 @@ export default function Pay({ accounts }: PayProps) {
     schema: paySchema
   })
 
-  const handleAccountOnChange = async () => {
-    const accountId = payForm.getValues('accountId')
+  const fetchPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
@@ -38,28 +38,29 @@ export default function Pay({ accounts }: PayProps) {
         ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
         : ''
     )
-    const paymentPointerResponse = await paymentPointerService.list(
-      payForm.getValues('accountId')
-    )
 
-    if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
+    payForm.resetField('paymentPointerId', {
+      defaultValue: null
+    })
+
+    const paymentPointersResponse = await paymentPointerService.list(accountId)
+    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
       setPaymentPointers([])
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again"
+          content="Could not load payment pointers. Please try again!"
         />
       )
       return
     }
 
-    const paymentPointers = paymentPointerResponse.data.map(
+    const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        name: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
         value: paymentPointer.id
       })
     )
-
     setPaymentPointers(paymentPointers)
   }
 
@@ -71,7 +72,6 @@ export default function Pay({ accounts }: PayProps) {
           form={payForm}
           onSubmit={async (data) => {
             const response = await transfersService.pay(data)
-
             if (response.success) {
               openDialog(
                 <SuccessDialog
@@ -85,31 +85,45 @@ export default function Pay({ accounts }: PayProps) {
             } else {
               const { errors, message } = response
               payForm.setError('root', { message })
-
               if (errors) {
-                getObjectKeys(errors).map((field) =>
+                getObjectKeys(errors).map((field) => {
                   payForm.setError(field, { message: errors[field] })
-                )
+                })
               }
             }
           }}
         >
           <div className="space-y-1">
             <Badge size="fixed" text="from" />
-            <Select
-              name="accountId"
-              setValue={payForm.setValue}
-              error={payForm.formState.errors.accountId?.message}
+            <Select<SelectOption>
               options={accounts}
-              onChange={handleAccountOnChange}
-              label="Account"
+              placeholder="Select account..."
+              isSearchable={false}
+              onChange={(option) => {
+                if (option) {
+                  fetchPaymentPointers(option.value)
+                }
+              }}
             />
-            <Select
+            <Controller
               name="paymentPointerId"
-              setValue={payForm.setValue}
-              error={payForm.formState.errors.paymentPointerId?.message}
-              options={paymentPointers}
-              label="Payment Pointer"
+              control={payForm.control}
+              render={({ field: { value } }) => (
+                <Select<SelectOption>
+                  options={paymentPointers}
+                  aria-invalid={
+                    payForm.formState.errors.paymentPointerId ? 'true' : 'false'
+                  }
+                  error={payForm.formState.errors.paymentPointerId?.message}
+                  placeholder="Select payment pointer..."
+                  value={value}
+                  onChange={(option) => {
+                    if (option) {
+                      payForm.setValue('paymentPointerId', { ...option })
+                    }
+                  }}
+                />
+              )}
             />
           </div>
           <div className="space-y-1">
@@ -167,28 +181,21 @@ type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
-  const [accountsResponse] = await Promise.all([
-    accountService.list(ctx.req.headers.cookie)
-  ])
-
-  if (!accountsResponse.success) {
+  const response = await accountService.list(ctx.req.headers.cookie)
+  if (!response.success) {
     return {
       notFound: true
     }
   }
 
-  if (!accountsResponse.data) {
-    return {
-      notFound: true
-    }
-  }
-
-  const accounts = accountsResponse.data.map((account) => ({
-    name: `${account.name} (${account.assetCode})`,
-    value: account.id,
-    balance: account.balance,
-    assetCode: account.assetCode
-  }))
+  const accounts = response.data
+    ? response.data.map((account) => ({
+        label: `${account.name} (${account.assetCode})`,
+        value: account.id,
+        balance: account.balance,
+        assetCode: account.assetCode
+      }))
+    : []
 
   return {
     props: {

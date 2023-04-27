@@ -7,8 +7,10 @@ import {
 } from '../httpClient'
 
 export const paySchema = z.object({
-  accountId: z.string().uuid(),
-  paymentPointerId: z.string(),
+  paymentPointerId: z.object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+  }).nullable(),
   incomingPaymentUrl: z.string().url(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
