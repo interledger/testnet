@@ -111,24 +111,26 @@ export default function Send({ accounts }: SendProps) {
               }}
             />
             <Controller
-                name="paymentPointerId"
-                control={sendForm.control}
-                render={({ field: { value } }) => (
-                    <Select<SelectOption>
-                        options={paymentPointers}
-                        aria-invalid={
-                            sendForm.formState.errors.paymentPointerId ? 'true' : 'false'
-                        }
-                        error={sendForm.formState.errors.paymentPointerId?.message}
-                        placeholder="Select payment pointer..."
-                        value={value}
-                        onChange={(option) => {
-                            if(option) {
-                                sendForm.setValue('paymentPointerId', { ...option })
-                            }
-                        }}
-                    />
-                )}
+              name="paymentPointerId"
+              control={sendForm.control}
+              render={({ field: { value } }) => (
+                <Select<SelectOption>
+                  options={paymentPointers}
+                  aria-invalid={
+                    sendForm.formState.errors.paymentPointerId
+                      ? 'true'
+                      : 'false'
+                  }
+                  error={sendForm.formState.errors.paymentPointerId?.message}
+                  placeholder="Select payment pointer..."
+                  value={value}
+                  onChange={(option) => {
+                    if (option) {
+                      sendForm.setValue('paymentPointerId', { ...option })
+                    }
+                  }}
+                />
+              )}
             />
           </div>
           <div className="space-y-1">

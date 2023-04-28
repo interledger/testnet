@@ -123,24 +123,26 @@ export default function Request({ accounts }: RequestProps) {
               }}
             />
             <Controller
-                name="paymentPointerId"
-                control={requestForm.control}
-                render={({ field: { value } }) => (
-                    <Select<SelectOption>
-                        options={paymentPointers}
-                        aria-invalid={
-                            requestForm.formState.errors.paymentPointerId ? 'true' : 'false'
-                        }
-                        error={requestForm.formState.errors.paymentPointerId?.message}
-                        placeholder="Select payment pointer..."
-                        value={value}
-                        onChange={(option) => {
-                            if(option) {
-                                requestForm.setValue('paymentPointerId', { ...option })
-                            }
-                        }}
-                    />
-                )}
+              name="paymentPointerId"
+              control={requestForm.control}
+              render={({ field: { value } }) => (
+                <Select<SelectOption>
+                  options={paymentPointers}
+                  aria-invalid={
+                    requestForm.formState.errors.paymentPointerId
+                      ? 'true'
+                      : 'false'
+                  }
+                  error={requestForm.formState.errors.paymentPointerId?.message}
+                  placeholder="Select payment pointer..."
+                  value={value}
+                  onChange={(option) => {
+                    if (option) {
+                      requestForm.setValue('paymentPointerId', { ...option })
+                    }
+                  }}
+                />
+              )}
             />
           </div>
           <Input

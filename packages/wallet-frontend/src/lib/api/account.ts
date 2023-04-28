@@ -42,7 +42,7 @@ type GetAccountResponse = GetAccountResult | ErrorResponse
 type ListAccountsResult = SuccessResponse<Account[]>
 type ListAccountsResponse = Promise<ListAccountsResult | ErrorResponse>
 
-type CreateAccountArgs = z.infer<typeof createAccountSchema> 
+type CreateAccountArgs = z.infer<typeof createAccountSchema>
 type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
 type CreateAccountResponse = Promise<CreateAccountResult | CreateAccountError>
@@ -94,8 +94,8 @@ const createAccountService = (): AccountService => ({
       const response = await httpClient
         .post('accounts', {
           json: {
-              name: args.name,
-              assetRafikiId: args.asset.value
+            name: args.name,
+            assetRafikiId: args.asset.value
           }
         })
         .json<CreateAccountResult>()
