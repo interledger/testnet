@@ -7,15 +7,14 @@ function useDebounce<T>(value: T, delay: number) {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    if (value !== '' && lastValue !== value) {
+    if (value !== '' && lastValue.current !== value) {
       setIsLoading(true)
       const handler = setTimeout(() => {
-        setIsLoading(false)
         setDebouncedValue(value)
+        setIsLoading(false)
       }, delay)
 
       return () => {
-        setIsLoading(false)
         clearTimeout(handler)
       }
     }

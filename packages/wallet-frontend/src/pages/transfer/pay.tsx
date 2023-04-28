@@ -14,11 +14,11 @@ import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys, transformAmount } from '@/utils/helpers'
-import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useDebounce } from '@/lib/hooks/useDebounce'
 import { assetService } from '@/lib/api/asset'
+import { SetStateAction, useEffect, useState } from 'react'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -45,13 +45,12 @@ export default function Pay({ accounts }: PayProps) {
     )
     if (response.success && response.data) {
       const { value, description } = response.data
+      payForm.clearErrors('root')
       payForm.setValue('amount', transformAmount(value, scale))
       payForm.setValue('description', description ?? '')
     } else {
       const { message } = response
       payForm.setError('root', { message })
-      payForm.setValue('amount', 0)
-      payForm.setValue('description', '')
     }
   }
 
@@ -164,7 +163,7 @@ export default function Pay({ accounts }: PayProps) {
               error={payForm.formState.errors.incomingPaymentUrl?.message}
               label="Incoming payment URL"
               value={incomingPaymentUrl}
-              onChange={(e) => setIncomingPaymentUrl(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string> } }) => setIncomingPaymentUrl(e.target.value)}
             />
           </div>
           <div className="space-y-1">

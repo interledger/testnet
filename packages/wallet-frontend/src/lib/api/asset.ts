@@ -14,13 +14,14 @@ export type Asset = {
 }
 
 type ListAssetsResult = SuccessResponse<Asset[]>
-type GetAssetResult = SuccessResponse<Asset>
 type ListAssetsResponse = ListAssetsResult | ErrorResponse
-type GetAssetsResponse = GetAssetResult | ErrorResponse
+
+type GetAssetResult = SuccessResponse<Asset>
+type GetAssetResponse = GetAssetResult | ErrorResponse
 
 interface AssetService {
   list: (cookies?: string) => Promise<ListAssetsResponse>
-  get: (id: string, cookies?: string) => Promise<GetAssetsResponse>
+  get: (id: string, cookies?: string) => Promise<GetAssetResponse>
 }
 
 const createAssetService = (): AssetService => ({
@@ -39,7 +40,7 @@ const createAssetService = (): AssetService => ({
     }
   },
 
-  async get(id, cookies): Promise<GetAssetsResponse> {
+  async get(id, cookies): Promise<GetAssetResponse> {
     try {
       return await httpClient
         .get(`assets/${id}`, {
@@ -49,7 +50,7 @@ const createAssetService = (): AssetService => ({
         })
         .json<GetAssetResult>()
     } catch (error) {
-      return getError(error, 'Unable to fetch assets.')
+      return getError(error, 'Unable to fetch asset.')
     }
   }
 })
