@@ -17,21 +17,22 @@ services:
       - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
   # Testnet
-  wallet-backend-update:
-    container_name: wallet-backend-update
+  wallet-backend:
+    container_name: wallet-backend
     build:
       context: ../..
-      dockerfile: ./packages/wallet-backend-update/Dockerfile.dev
+      dockerfile: ./packages/wallet-backend/Dockerfile.dev
     depends_on:
       - postgres
       - rafiki-backend
     environment:
       NODE_ENV: development
       PORT: 3003
-      DATABASE_URL: postgres://wallet_backend_update:wallet_backend_update@postgres/wallet_backend_update
-      COOKIE_NAME: testnet.cookie
-      COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
-      COOKIE_TTL: 2630000
+      DB_URL: postgres://wallet_backend:wallet_backend@postgres/wallet_backend
+      JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$$Cj9t$$Ix0TWMYrEnpq$$X
+      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 2630000
+      JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
+      JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
       RAPYD_API: https://sandboxapi.rapyd.net/v1
       RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
       RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
@@ -68,7 +69,7 @@ services:
     restart: always
     privileged: true
     volumes:
-      - ./temp/:/workspace/temp/
+      - ./temp/:/workspace/temp
     ports:
       - '3010:80'
       - '3011:3001'
@@ -97,7 +98,6 @@ services:
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/rafiki/webhooks
-      WEBHOOK_TIMEOUT: 60000
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rafiki/rates
       QUOTE_URL: http://wallet-backend:3003/rafiki/quote
     depends_on:
@@ -118,6 +118,18 @@ services:
     environment:
       PORT: 3012
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
+
+  rafiki-local-http-signatures:
+    build:
+      context: ../../
+      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
+    volumes:
+      - ./temp/:/workspace/temp/
+    restart: always
+    ports:
+      - '3040:3000'
+    environment:
+      KEY_FILE: ./temp/private-key.pem
 
   tigerbeetle:
     image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:3e2954cba78e17db42013e56fd9850a6047f7caa6f30dd7c46ff932c809af10c
@@ -145,18 +157,6 @@ services:
         hostname -i
         ls /var/lib/tigerbeetle
         ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
-
-  rafiki-local-http-signatures:
-    build:
-      context: ../../
-      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
-    volumes:
-      - ./temp/:/workspace/temp/
-    restart: always
-    ports:
-      - '3040:3000'
-    environment:
-      KEY_FILE: ./temp/private-key.pem
 
   redis:
     image: 'redis:7'
