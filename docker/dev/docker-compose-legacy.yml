@@ -35,6 +35,7 @@ services:
       JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
       RAPYD_API: https://sandboxapi.rapyd.net/v1
       RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
+      RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
