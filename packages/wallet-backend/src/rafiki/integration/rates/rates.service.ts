@@ -1,5 +1,5 @@
-export class PricesService {
-  getPrices() {
+export class RatesService {
+  getRates() {
     return {
       base: 'USD',
       rates: {
