@@ -44,7 +44,6 @@ export const PersonalDetailsForm = () => {
     getCountries()
   }, [])
 
-  console.log(personalDetailsForm.formState.errors)
   return (
     <Form
       form={personalDetailsForm}
