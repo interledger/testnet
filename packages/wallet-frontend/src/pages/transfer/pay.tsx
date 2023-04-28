@@ -13,17 +13,15 @@ import { accountService } from '@/lib/api/account'
 import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { getObjectKeys, transformAmount } from '@/utils/helpers'
+import { getObjectKeys } from '@/utils/helpers'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useDebounce } from '@/lib/hooks/useDebounce'
-import { assetService } from '@/lib/api/asset'
 import { SetStateAction, useEffect, useState } from 'react'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 export default function Pay({ accounts }: PayProps) {
-  let scale = 2
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
@@ -46,7 +44,7 @@ export default function Pay({ accounts }: PayProps) {
     if (response.success && response.data) {
       const { value, description } = response.data
       payForm.clearErrors('root')
-      payForm.setValue('amount', transformAmount(value, scale))
+      payForm.setValue('amount', value)
       payForm.setValue('description', description ?? '')
     } else {
       const { message } = response
@@ -66,15 +64,6 @@ export default function Pay({ accounts }: PayProps) {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
-
-    if (selectedAccount?.assetRafikiId) {
-      const assetResponse = await assetService.get(
-        selectedAccount?.assetRafikiId
-      )
-      if (assetResponse.success && assetResponse.data) {
-        scale = assetResponse.data.scale
-      }
-    }
 
     setBalance(
       selectedAccount
@@ -163,7 +152,9 @@ export default function Pay({ accounts }: PayProps) {
               error={payForm.formState.errors.incomingPaymentUrl?.message}
               label="Incoming payment URL"
               value={incomingPaymentUrl}
-              onChange={(e: { target: { value: SetStateAction<string> } }) => setIncomingPaymentUrl(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string> } }) =>
+                setIncomingPaymentUrl(e.target.value)
+              }
             />
           </div>
           <div className="space-y-1">

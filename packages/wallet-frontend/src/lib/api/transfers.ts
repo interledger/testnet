@@ -54,12 +54,17 @@ type Transaction = {
   status: string
   description?: string
 }
+
+type PaymentDetails = {
+  description?: string
+  value: number
+}
 type RequestArgs = z.infer<typeof requestSchema>
 type RequestResult = SuccessResponse<Transaction>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = Promise<RequestResult | RequestError>
 
-type IncomingPaymentDetailsResult = SuccessResponse<Transaction>
+type IncomingPaymentDetailsResult = SuccessResponse<PaymentDetails>
 type IncomingPaymentDetailsResponse = Promise<
   IncomingPaymentDetailsResult | ErrorResponse
 >

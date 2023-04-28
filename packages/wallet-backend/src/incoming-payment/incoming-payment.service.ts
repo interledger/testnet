@@ -10,6 +10,12 @@ import { TransactionModel } from '../transaction/transaction.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
 import { Asset } from '../rafiki/generated/graphql'
+import { transformAmount } from '../utils/helpers'
+
+interface PaymentDetails {
+  value: number
+  description?: string
+}
 
 export const createPayment = async (
   req: Request,
@@ -58,7 +64,7 @@ export const createPayment = async (
 
 export const getPayment = async (
   req: Request,
-  res: Response<BaseResponse<TransactionModel>>,
+  res: Response<BaseResponse<PaymentDetails>>,
   next: NextFunction
 ) => {
   try {
@@ -68,15 +74,26 @@ export const getPayment = async (
       .where('paymentId', id)
       .where('status', 'PENDING')
       .first()
+      .withGraphFetched({ paymentPointer: { account: true } })
 
     if (!transaction) {
+      throw new NotFoundException()
+    }
+
+    const asset = await getAsset(
+      transaction.paymentPointer?.account.assetRafikiId
+    )
+    if (!asset) {
       throw new NotFoundException()
     }
 
     return res.json({
       success: true,
       message: 'Success',
-      data: transaction
+      data: {
+        description: transaction.description,
+        value: transformAmount(transaction.value ?? 0, asset.scale)
+      }
     })
   } catch (e) {
     next(e)
