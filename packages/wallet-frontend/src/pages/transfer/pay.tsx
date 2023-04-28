@@ -29,7 +29,7 @@ export default function Pay({ accounts }: PayProps) {
     schema: paySchema
   })
 
-  const fetchPaymentPointers = async (accountId: string) => {
+  const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
@@ -101,7 +101,7 @@ export default function Pay({ accounts }: PayProps) {
               isSearchable={false}
               onChange={(option) => {
                 if (option) {
-                  fetchPaymentPointers(option.value)
+                  getPaymentPointers(option.value)
                 }
               }}
             />
