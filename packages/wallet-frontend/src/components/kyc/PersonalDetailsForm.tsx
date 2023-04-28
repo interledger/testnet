@@ -4,7 +4,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { USE_TEST_DATA_KYC } from '@/utils/constants'
 import { fetchCountries, fetchDocuments, getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
@@ -102,21 +102,15 @@ export const PersonalDetailsForm = () => {
           <Select<SelectOption>
             options={countries}
             value={value}
+            error={personalDetailsForm.formState.errors.country?.message}
             onChange={(option) => {
               if (option) {
-                personalDetailsForm.setValue(
-                  'country',
-                  { ...option },
-                  {
-                    shouldDirty: true
-                  }
-                )
+                personalDetailsForm.setValue('country', { ...option })
               }
             }}
           />
         )}
       />
-      {personalDetailsForm.formState.errors.country?.message}
       <Input
         required
         {...personalDetailsForm.register('city')}

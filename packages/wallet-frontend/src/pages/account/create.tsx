@@ -6,7 +6,7 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { type SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -15,10 +15,8 @@ import { accountService, createAccountSchema } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
-import { Select } from '@/ui/forms/Select'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
-
 export default function CreateAccount({ assets }: CreateAccountProps) {
   const [openDialog, closeDialog] = useDialog()
   const createAccountForm = useZodForm({
@@ -32,7 +30,6 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
         form={createAccountForm}
         onSubmit={async (data) => {
           const response = await accountService.create(data)
-
           if (response.success) {
             openDialog(
               <SuccessDialog
@@ -70,22 +67,17 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           render={({ field: { value } }) => (
             <Select<SelectOption>
               options={assets}
+              error={createAccountForm.formState.errors.asset?.message}
               value={value}
               onChange={(option) => {
                 if (option) {
-                  createAccountForm.setValue(
-                    'asset',
-                    { ...option },
-                    {
-                      shouldDirty: true
-                    }
-                  )
+                  createAccountForm.setValue('asset', { ...option })
                 }
               }}
             />
           )}
         />
-        {createAccountForm.formState.errors.asset?.message}
+        {}
         <Button
           type="submit"
           aria-label="create account"

@@ -10,7 +10,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
@@ -18,8 +18,7 @@ import { useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 
-type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
-
+type SelectPaymentPointerOption = SelectOption & { url: string }
 function getIncomingPaymentUrl(
   paymentId: string,
   paymentPointers: SelectPaymentPointerOption[],
@@ -32,7 +31,7 @@ function getIncomingPaymentUrl(
   }/incoming-payments/${paymentId}`
 }
 
-type SelectPaymentPointerOption = SelectOption & { url: string }
+type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 export default function Request({ accounts }: RequestProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<

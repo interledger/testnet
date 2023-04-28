@@ -104,7 +104,7 @@ export const Select = <
             ),
           singleValue: () => 'mx-0.5',
           valueContainer: () => 'py-0.5 px-2',
-          placeholder: () => 'text-black/70'
+          placeholder: () => 'mx-0.5 text-black/70'
         }}
         className={className}
         id={id}

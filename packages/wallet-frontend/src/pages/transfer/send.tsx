@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
@@ -64,7 +64,6 @@ export default function Send({ accounts }: SendProps) {
         value: paymentPointer.id
       })
     )
-
     setPaymentPointers(paymentPointers)
   }
 
@@ -76,7 +75,6 @@ export default function Send({ accounts }: SendProps) {
           form={sendForm}
           onSubmit={async (data) => {
             const response = await transfersService.send(data)
-
             if (response.success) {
               openDialog(
                 <SuccessDialog
