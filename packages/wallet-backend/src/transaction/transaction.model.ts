@@ -11,6 +11,8 @@ export class TransactionModel extends Model {
   value!: bigint | null
   type!: 'INCOMING' | 'OUTGOING'
   status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
+  updatedAt!: string
+  createdAt!: string
 
   static relationMappings = () => ({
     user: {
