@@ -129,7 +129,6 @@ export const PaymentPointerCard = ({
             className="w-full"
             form={form}
             onSubmit={(data) => {
-              console.log(data)
               setIsEditing(false)
             }}
             stack="h"

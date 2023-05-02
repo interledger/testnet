@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { Input } from '@/ui/forms/Input'
+import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -16,8 +16,8 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
-import { useDebounce } from '@/lib/hooks/useDebounce'
-import { SetStateAction, useEffect, useState } from 'react'
+import { Controller } from 'react-hook-form'
+import { useState } from 'react'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -25,17 +25,18 @@ export default function Pay({ accounts }: PayProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
-  const [incomingPaymentUrl, setIncomingPaymentUrl] = useState('')
-  const [debouncedIncomingPaymentUrl, isLoading] = useDebounce(
-    incomingPaymentUrl,
-    1000
-  )
 
   const payForm = useZodForm({
-    schema: paySchema
+    schema: paySchema,
+    defaultValues: {
+      incomingPaymentUrl: ''
+    }
   })
 
-  const fetchData = async () => {
+  const fetchData = async (incomingPaymentUrl: string) => {
+    if (incomingPaymentUrl === '') {
+      return
+    }
     const tempArray = incomingPaymentUrl.split('/')
     const incomingPaymentId = tempArray[tempArray.length - 1]
     const response = await transfersService.getIncomingPaymentDetails(
@@ -46,18 +47,12 @@ export default function Pay({ accounts }: PayProps) {
       payForm.clearErrors('root')
       payForm.setValue('amount', value)
       payForm.setValue('description', description ?? '')
+      payForm.setValue('incomingPaymentUrl', incomingPaymentUrl)
     } else {
       const { message } = response
       payForm.setError('root', { message })
     }
   }
-
-  useEffect(() => {
-    if (debouncedIncomingPaymentUrl) {
-      fetchData()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedIncomingPaymentUrl])
 
   const handleAccountOnChange = async () => {
     const accountId = payForm.getValues('accountId')
@@ -146,15 +141,20 @@ export default function Pay({ accounts }: PayProps) {
           </div>
           <div className="space-y-1">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              {...payForm.register('incomingPaymentUrl')}
-              error={payForm.formState.errors.incomingPaymentUrl?.message}
-              label="Incoming payment URL"
-              value={incomingPaymentUrl}
-              onChange={(e: { target: { value: SetStateAction<string> } }) =>
-                setIncomingPaymentUrl(e.target.value)
-              }
+            <Controller
+              name="incomingPaymentUrl"
+              control={payForm.control}
+              render={({ field: { value } }) => {
+                return (
+                  <DebouncedInput
+                    required
+                    error={payForm.formState.errors.incomingPaymentUrl?.message}
+                    label="Incoming payment URL"
+                    value={value}
+                    onChange={fetchData}
+                  />
+                )
+              }}
             />
           </div>
           <div className="space-y-1">
@@ -172,7 +172,7 @@ export default function Pay({ accounts }: PayProps) {
               aria-label="Pay"
               type="submit"
               className="w-24"
-              loading={payForm.formState.isSubmitting || isLoading}
+              loading={payForm.formState.isSubmitting}
             >
               Pay
             </Button>

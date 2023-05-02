@@ -1,8 +1,9 @@
-import { forwardRef, useId } from 'react'
+import { ChangeEvent, forwardRef, useEffect, useId, useState } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
 
 import { Label } from './Label'
 import { FieldError } from './FieldError'
+import { useDebounce } from '@/lib/hooks/useDebounce'
 
 type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'className'> & {
   label?: string
@@ -30,5 +31,32 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     )
   }
 )
+
+type DebouncedInputProps = Omit<InputProps, 'onChange'> & {
+  value: string
+  delay?: number
+  onChange: (value: string) => void
+}
+
+export const DebouncedInput = ({
+  value,
+  onChange,
+  delay = 500,
+  ...props
+}: DebouncedInputProps) => {
+  const [inputValue, setInputValue] = useState(value)
+  const [debouncedValue] = useDebounce(inputValue, delay)
+
+  useEffect(() => {
+    onChange(debouncedValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue])
+
+  const handleOnchange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value)
+  }
+
+  return <Input value={inputValue} onChange={handleOnchange} {...props} />
+}
 
 Input.displayName = 'Input'
