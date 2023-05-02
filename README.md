@@ -36,6 +36,7 @@ Please read the [contribution guidelines](.github/contributing.md) before submit
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [NVM](https://github.com/nvm-sh/nvm)
+- [Rapyd](https://www.rapyd.net) account in Sandbox mode
 
 ### Environment Setup
 
@@ -65,6 +66,8 @@ pnpm i
 ```
 
 ### Local Playground
+
+Go to the `.env.example` file and make a copy of it named `.env` file. Copy the Access Keys from your Rapyd Sandbox account into `.env` file.
 
 Navigate to the project's root directory and execute:
 
