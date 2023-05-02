@@ -102,6 +102,7 @@ export const PersonalDetailsForm = () => {
           <Select<SelectOption>
             options={countries}
             value={value}
+            isDisabled={USE_TEST_DATA_KYC}
             error={personalDetailsForm.formState.errors.country?.message}
             onChange={(option) => {
               if (option) {

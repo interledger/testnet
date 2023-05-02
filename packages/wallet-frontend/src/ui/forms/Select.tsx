@@ -85,7 +85,7 @@ export const Select = <
           control: ({ isDisabled, isFocused }) =>
             cx(
               'rounded-xl shadow-md border',
-              isDisabled ? 'bg-black/5' : 'bg-white',
+              isDisabled ? 'bg-gray-200' : 'bg-white',
               isFocused ? 'border-green-3' : 'border-turqoise'
             ),
           dropdownIndicator: () => 'p-2',
