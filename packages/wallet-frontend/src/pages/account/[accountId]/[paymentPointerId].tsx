@@ -137,12 +137,15 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  console.log(transactionsResponse.data)
   const transactions = transactionsResponse.data.map((trx) => ({
     ...trx,
     createdAt: new Date(trx.createdAt).toLocaleDateString('default', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     }),
     value: formatAmount(trx.value)
   }))
