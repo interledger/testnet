@@ -11,7 +11,7 @@ export const Label = ({ htmlFor, children, ...props }: LabelProps) => {
   return (
     <label
       htmlFor={htmlFor}
-      className="absolute -top-1 left-3 block py-1 text-sm font-light text-turqoise transition-all peer-placeholder-shown:top-1.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-turqoise peer-focus:-top-1 peer-focus:text-sm peer-focus:text-green-3"
+      className="text-md block font-medium leading-6 text-green-3"
       {...props}
     >
       {children}
