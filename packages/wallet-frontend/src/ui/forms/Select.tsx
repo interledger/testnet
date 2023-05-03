@@ -101,7 +101,8 @@ export const Select = <
             ),
           dropdownIndicator: () => 'p-2',
           input: () => 'm-0.5 py-0.5 text-neutral-800',
-          menu: () => 'bg-white border border-green-3 rounded-md my-1 shadow-md',
+          menu: () =>
+            'bg-white border border-green-3 rounded-md my-1 shadow-md',
           menuList: () => '',
           noOptionsMessage: () => 'text-neutral-400 py-2 px-3',
           option: ({ isFocused, isSelected }) =>
