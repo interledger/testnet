@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
@@ -32,8 +32,7 @@ export default function Send({ accounts }: SendProps) {
     }
   })
 
-  const handleAccountOnChange = async () => {
-    const accountId = sendForm.getValues('accountId')
+  const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
@@ -42,11 +41,13 @@ export default function Send({ accounts }: SendProps) {
         ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
         : ''
     )
-    const paymentPointerResponse = await paymentPointerService.list(
-      sendForm.getValues('accountId')
-    )
 
-    if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
+    sendForm.resetField('paymentPointerId', {
+      defaultValue: null
+    })
+
+    const paymentPointersResponse = await paymentPointerService.list(accountId)
+    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
       setPaymentPointers([])
       openDialog(
         <ErrorDialog
@@ -57,13 +58,12 @@ export default function Send({ accounts }: SendProps) {
       return
     }
 
-    const paymentPointers = paymentPointerResponse.data.map(
+    const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        name: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
         value: paymentPointer.id
       })
     )
-
     setPaymentPointers(paymentPointers)
   }
 
@@ -75,7 +75,6 @@ export default function Send({ accounts }: SendProps) {
           form={sendForm}
           onSubmit={async (data) => {
             const response = await transfersService.send(data)
-
             if (response.success) {
               openDialog(
                 <SuccessDialog
@@ -101,19 +100,35 @@ export default function Send({ accounts }: SendProps) {
           <div className="space-y-1">
             <Badge size="fixed" text="from" />
             <Select
-              name="accountId"
-              setValue={sendForm.setValue}
-              error={sendForm.formState.errors.accountId?.message}
+              placeholder="Select account..."
               options={accounts}
-              onChange={handleAccountOnChange}
-              label="Account"
+              onChange={(option) => {
+                if (option) {
+                  getPaymentPointers(option.value)
+                }
+              }}
             />
-            <Select
+            <Controller
               name="paymentPointerId"
-              setValue={sendForm.setValue}
-              error={sendForm.formState.errors.paymentPointerId?.message}
-              options={paymentPointers}
-              label="Payment Pointer"
+              control={sendForm.control}
+              render={({ field: { value } }) => (
+                <Select<SelectOption>
+                  options={paymentPointers}
+                  aria-invalid={
+                    sendForm.formState.errors.paymentPointerId
+                      ? 'true'
+                      : 'false'
+                  }
+                  error={sendForm.formState.errors.paymentPointerId?.message}
+                  placeholder="Select payment pointer..."
+                  value={value}
+                  onChange={(option) => {
+                    if (option) {
+                      sendForm.setValue('paymentPointerId', { ...option })
+                    }
+                  }}
+                />
+              )}
             />
           </div>
           <div className="space-y-1">
@@ -207,7 +222,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const accounts = accountsResponse.data.map((account) => ({
-    name: `${account.name} (${account.assetCode})`,
+    label: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,
     assetCode: account.assetCode

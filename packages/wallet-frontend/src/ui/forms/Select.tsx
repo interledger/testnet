@@ -1,116 +1,117 @@
 import { Play } from '@/components/icons/Play'
-import { Listbox } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
-import { useEffect, useState } from 'react'
-import type {
-  FieldPath,
-  FieldValues,
-  Path,
-  PathValue,
-  UseFormSetValue
-} from 'react-hook-form'
+import { useId } from 'react'
+import ReactSelect, { DropdownIndicatorProps, components } from 'react-select'
+import type { GroupBase, InputProps, Props } from 'react-select'
 import { FieldError } from './FieldError'
+
+declare module 'react-select/dist/declarations/src/Select' {
+  export interface Props<
+    Option,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    IsMulti extends boolean,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    Group extends GroupBase<Option>
+  > {
+    error?: string
+  }
+}
+
+const Input = <
+  Option,
+  IsMulti extends boolean,
+  Group extends GroupBase<Option>
+>({
+  inputClassName,
+  ...props
+}: InputProps<Option, IsMulti, Group>) => {
+  return (
+    <components.Input
+      inputClassName={cx(
+        'focus:ring-0 focus:ring-offset-0 border border-turqoise text-black',
+        inputClassName
+      )}
+      {...props}
+    />
+  )
+}
+
+const DropdownIndicator = <
+  Option,
+  IsMulti extends boolean,
+  Group extends GroupBase<Option>
+>(
+  props: DropdownIndicatorProps<Option, IsMulti, Group>
+) => {
+  return (
+    <components.DropdownIndicator {...props}>
+      <Play className="h-4 w-4 rotate-90" />
+    </components.DropdownIndicator>
+  )
+}
 
 export type SelectOption = {
   value: string
-  name: string
+  label: string
 }
 
-type SelectProps<T extends FieldValues> = {
-  name: FieldPath<T>
-  setValue: UseFormSetValue<T>
-  onChange?: () => void
-  defaultValue?: SelectOption
-  options: SelectOption[]
-  label?: string
-  placeholder?: string
-  error?: string
-  isDisabled?: boolean
-}
+export type SelectProps<
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>
+> = Props<Option, IsMulti, Group>
 
-export const Select = <T extends FieldValues>({
-  name,
-  setValue,
-  onChange,
-  defaultValue,
-  options,
-  label,
-  placeholder,
+export const Select = <
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>({
+  className,
   error,
-  isDisabled
-}: SelectProps<T>) => {
-  const [selected, setSelected] = useState<SelectOption | null>(
-    defaultValue ?? null
-  )
-
-  /**
-   * TODO(@raducristianpopa): There might be a better way to do this
-   * https://react-hook-form.com/ts#UseControllerProps
-   */
-  useEffect(() => {
-    if (selected) {
-      setValue(name, selected.value as PathValue<T, Path<T>>)
-      if (onChange) onChange()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, name, setValue])
-
+  ...props
+}: SelectProps<Option, IsMulti, Group>) => {
+  const id = useId()
   return (
-    <div>
-      <Listbox
-        name={name}
-        value={selected}
-        onChange={setSelected}
-        disabled={isDisabled ?? false}
-      >
-        {({ open }) => (
-          <div className="relative">
-            <Listbox.Button className="peer relative block w-full rounded-xl border border-turqoise bg-white px-3 pb-1 pt-4 text-left shadow-md outline-none transition-colors duration-150 focus:border-green-3 focus:outline-none focus:ring-0">
-              <span className="block truncate">
-                {selected
-                  ? selected.name
-                  : placeholder ?? 'Please select an option'}
-              </span>
-              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <Play
-                  className={cx(
-                    'h-4 w-4 transition-transform',
-                    open ? 'rotate-90' : 'rotate-180'
-                  )}
-                />
-              </span>
-            </Listbox.Button>
-            <Listbox.Label
-              className={cx(
-                'absolute -top-1 left-3 block py-1 text-sm font-light transition-colors',
-                open ? 'text-green-3' : 'text-turqoise'
-              )}
-            >
-              {label}
-            </Listbox.Label>
-
-            <Listbox.Options className="absolute z-10 mt-3 max-h-32 w-full overflow-y-auto overscroll-contain rounded-md border border-green-3 bg-white">
-              {options.map((option) => (
-                <Listbox.Option
-                  key={option.value}
-                  className={({ selected }) =>
-                    cx(
-                      'relative flex items-center p-2 first:rounded-t-md last:rounded-b-md',
-                      selected
-                        ? 'bg-green-3 text-white'
-                        : 'text-green-3 hover:bg-green-3/50 hover:text-white'
-                    )
-                  }
-                  value={option}
-                >
-                  <span className="block truncate">{option.name}</span>
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-            <FieldError error={error} />
-          </div>
-        )}
-      </Listbox>
-    </div>
+    <>
+      <ReactSelect
+        unstyled
+        components={{
+          ...components,
+          IndicatorSeparator: () => null,
+          Input,
+          DropdownIndicator
+        }}
+        classNames={{
+          control: ({ isDisabled, isFocused }) =>
+            cx(
+              'rounded-xl shadow-md border',
+              isDisabled ? 'bg-gray-200' : 'bg-white',
+              isFocused ? 'border-green-3' : 'border-turqoise'
+            ),
+          dropdownIndicator: () => 'p-2',
+          input: () => 'm-0.5 py-0.5 text-neutral-800',
+          menu: () => 'bg-white border border-green-3 rounded my-1 shadow-md',
+          menuList: () => '',
+          noOptionsMessage: () => 'text-neutral-400 py-2 px-3',
+          option: ({ isFocused, isSelected }) =>
+            cx(
+              'py-2 px-3',
+              isSelected
+                ? 'bg-green-3 text-white'
+                : isFocused
+                ? 'bg-green-3/50 text-white'
+                : ''
+            ),
+          singleValue: () => 'mx-0.5',
+          valueContainer: () => 'py-0.5 px-2',
+          placeholder: () => 'mx-0.5 text-black/70'
+        }}
+        className={className}
+        id={id}
+        instanceId={id}
+        {...props}
+      />
+      <FieldError error={error} />
+    </>
   )
 }

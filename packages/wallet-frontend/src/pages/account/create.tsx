@@ -14,9 +14,9 @@ import type {
 import { accountService, createAccountSchema } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
+import { Controller } from 'react-hook-form'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
-
 export default function CreateAccount({ assets }: CreateAccountProps) {
   const [openDialog, closeDialog] = useDialog()
   const createAccountForm = useZodForm({
@@ -30,7 +30,6 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
         form={createAccountForm}
         onSubmit={async (data) => {
           const response = await accountService.create(data)
-
           if (response.success) {
             openDialog(
               <SuccessDialog
@@ -62,14 +61,23 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           error={createAccountForm.formState?.errors?.name?.message}
           {...createAccountForm.register('name')}
         />
-        <Select
-          name="assetRafikiId"
-          setValue={createAccountForm.setValue}
-          defaultValue={assets[0]}
-          error={createAccountForm.formState.errors.assetRafikiId?.message}
-          options={assets}
-          label="Asset"
+        <Controller
+          name="asset"
+          control={createAccountForm.control}
+          render={({ field: { value } }) => (
+            <Select<SelectOption>
+              options={assets}
+              error={createAccountForm.formState.errors.asset?.message}
+              value={value}
+              onChange={(option) => {
+                if (option) {
+                  createAccountForm.setValue('asset', { ...option })
+                }
+              }}
+            />
+          )}
         />
+        {}
         <Button
           type="submit"
           aria-label="create account"
@@ -95,8 +103,8 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = response.data?.map((asset) => ({
-    name: asset.code,
-    value: asset.id
+    value: asset.id,
+    label: asset.code
   }))
 
   return {
