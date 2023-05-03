@@ -1,21 +1,11 @@
 import { useDialog } from '@/lib/hooks/useDialog'
-import { useOnClickOutside } from '@/lib/hooks/useOnClickOutside'
-import { Form } from '@/ui/forms/Form'
-import { useZodForm } from '@/lib/hooks/useZodForm'
 import { IconButton } from '@/ui/IconButton'
 import { cx } from 'class-variance-authority'
-import {
-  forwardRef,
-  useRef,
-  useState,
-  type ComponentPropsWithoutRef
-} from 'react'
-import { z } from 'zod'
+import { forwardRef, useRef } from 'react'
 import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
 import { X } from './icons/X'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
-import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { SuccessDialog } from './dialogs/SuccessDialog'
 import { ErrorDialog } from './dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
@@ -23,24 +13,6 @@ import { useRouter } from 'next/router'
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
 }
-
-const PaymentPointerInput = forwardRef<
-  HTMLInputElement,
-  ComponentPropsWithoutRef<'input'>
->((props, ref) => {
-  return (
-    <div className="flex w-full items-center rounded-md px-1">
-      <span>{OPEN_PAYMENTS_HOST}</span>
-      <input
-        className="underline outline-none"
-        defaultValue={'test'}
-        ref={ref}
-        {...props}
-      />
-    </div>
-  )
-})
-PaymentPointerInput.displayName = 'PaymentPointerInput'
 
 type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
@@ -65,22 +37,11 @@ const PaymentPointerCardButton = forwardRef<
 })
 PaymentPointerCardButton.displayName = 'PaymentPointerCardButton'
 
-const paymentPointerSchema = z.object({
-  paymentPointer: z.string().min(3)
-})
-
 export const PaymentPointerCard = ({
   paymentPointer
 }: PaymentPointerCardProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
-  const [isEditing, setIsEditing] = useState(false)
-  const form = useZodForm({
-    schema: paymentPointerSchema,
-    defaultValues: {
-      paymentPointer: paymentPointer.url.split('/')[3]
-    }
-  })
 
   const cardRef = useRef<HTMLDivElement>(null)
 
@@ -104,8 +65,6 @@ export const PaymentPointerCard = ({
     }
   }
 
-  useOnClickOutside(cardRef, () => setIsEditing(false))
-
   return (
     <div ref={cardRef} className={cardStyles}>
       <IconButton
@@ -124,38 +83,15 @@ export const PaymentPointerCard = ({
         <X stroke="currentColor" strokeWidth={3} />
       </IconButton>
       <div className="flex flex-1 items-center justify-between space-x-2">
-        {isEditing ? (
-          <Form
-            className="w-full"
-            form={form}
-            onSubmit={() => {
-              setIsEditing(false)
-            }}
-            stack="h"
+        <>
+          <span className="px-1 font-medium">{paymentPointer.url}</span>
+          <PaymentPointerCardButton
+            href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
+            aria-label="view payment pointer"
           >
-            <PaymentPointerInput
-              required
-              autoFocus
-              {...form.register('paymentPointer')}
-            />
-            <PaymentPointerCardButton
-              type="submit"
-              aria-label="update payment pointer"
-            >
-              Save
-            </PaymentPointerCardButton>
-          </Form>
-        ) : (
-          <>
-            <span className="px-1 font-medium">{paymentPointer.url}</span>
-            <PaymentPointerCardButton
-              href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
-              aria-label="view payment pointer"
-            >
-              View
-            </PaymentPointerCardButton>
-          </>
-        )}
+            View
+          </PaymentPointerCardButton>
+        </>
       </div>
     </div>
   )
