@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { Input } from '@/ui/forms/Input'
+import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -26,8 +26,32 @@ export default function Pay({ accounts }: PayProps) {
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const payForm = useZodForm({
-    schema: paySchema
+    schema: paySchema,
+    defaultValues: {
+      incomingPaymentUrl: ''
+    }
   })
+
+  const fetchData = async (incomingPaymentUrl: string) => {
+    if (incomingPaymentUrl === '') {
+      return
+    }
+    const tempArray = incomingPaymentUrl.split('/')
+    const incomingPaymentId = tempArray[tempArray.length - 1]
+    const response = await transfersService.getIncomingPaymentDetails(
+      incomingPaymentId
+    )
+    if (response.success && response.data) {
+      const { value, description } = response.data
+      payForm.clearErrors('root')
+      payForm.setValue('amount', value)
+      payForm.setValue('description', description ?? '')
+      payForm.setValue('incomingPaymentUrl', incomingPaymentUrl)
+    } else {
+      const { message } = response
+      payForm.setError('root', { message })
+    }
+  }
 
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -128,11 +152,20 @@ export default function Pay({ accounts }: PayProps) {
           </div>
           <div className="space-y-1">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              {...payForm.register('incomingPaymentUrl')}
-              error={payForm.formState.errors.incomingPaymentUrl?.message}
-              label="Incoming payment URL"
+            <Controller
+              name="incomingPaymentUrl"
+              control={payForm.control}
+              render={({ field: { value } }) => {
+                return (
+                  <DebouncedInput
+                    required
+                    error={payForm.formState.errors.incomingPaymentUrl?.message}
+                    label="Incoming payment URL"
+                    value={value}
+                    onChange={fetchData}
+                  />
+                )
+              }}
             />
           </div>
           <div className="space-y-1">
@@ -177,7 +210,11 @@ export default function Pay({ accounts }: PayProps) {
   )
 }
 
-type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
+type SelectAccountOption = SelectOption & {
+  balance: string
+  assetCode: string
+  assetRafikiId: string
+}
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
@@ -193,7 +230,8 @@ export const getServerSideProps: GetServerSideProps<{
         label: `${account.name} (${account.assetCode})`,
         value: account.id,
         balance: account.balance,
-        assetCode: account.assetCode
+        assetCode: account.assetCode,
+        assetRafikiId: account.assetRafikiId
       }))
     : []
 
