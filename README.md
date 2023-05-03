@@ -68,11 +68,15 @@ pnpm i
 ### Environment Variables
 
 In order for the local playground to function, it is necessary to configure the environment variables appropriately. You must duplicate the example environment file, `.env.example`, into your local environment file, `.env`.
+
 > **Note**
 > The local environment file (`.env`) is **NOT** tracked in the version control system, and should **NOT** be included in any commits.
 
 Navigate to the project's root directory and enter the following command:
-`sh cp ./docker/dev/.env.example ./docker/dev/.env`
+
+```sh
+cp ./docker/dev/.env.example ./docker/dev/.env
+```
 
 Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
 The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in your Rapyd Sandbox account, under the Developers menu item. The `RAPYD_SETTLEMENT_EWALLET` variable value can be found in your Rapyd Sandbox account details.
