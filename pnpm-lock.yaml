@@ -183,8 +183,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       date-fns:
-        specifier: ^2.29.3
-        version: 2.29.3
+        specifier: ^2.30.0
+        version: 2.30.0
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -3611,9 +3611,11 @@ packages:
     resolution: {integrity: sha512-8YnDaaf7N3k/q5HnTJVuzSyLETjoZjVmHc4AeKAzOvKHEFQKcn64OKBfzHYtE9zGjctNM7V9I0MfnUVLpi7M5g==}
     dev: true
 
-  /date-fns@2.29.3:
-    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+  /date-fns@2.30.0:
+    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
     engines: {node: '>=0.11'}
+    dependencies:
+      '@babel/runtime': 7.21.0
     dev: false
 
   /db-errors@0.2.3:
