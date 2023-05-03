@@ -31,7 +31,7 @@ const Input = <
   return (
     <components.Input
       inputClassName={cx(
-        'focus:ring-0 focus:ring-offset-0 border border-turqoise text-black',
+        'focus:ring-0 focus:ring-offset-0 border m-0.5 py-0.5 border-turqoise text-black',
         inputClassName
       )}
       {...props}
@@ -95,12 +95,12 @@ export const Select = <
         classNames={{
           control: ({ isDisabled, isFocused }) =>
             cx(
-              'rounded-md shadow-md border',
-              isDisabled ? 'bg-gray-200' : 'bg-white',
+              'rounded-md shadow-md border py-0.',
+              isDisabled ? 'bg-gray-50' : 'bg-white',
               isFocused ? 'border-green-3' : 'border-turqoise'
             ),
           dropdownIndicator: () => 'p-2',
-          input: () => 'm-0.5 py-0.5 text-neutral-800',
+          input: () => 'text-neutral-800',
           menu: () =>
             'bg-white border border-green-3 rounded-md my-1 shadow-md',
           menuList: () => '',
@@ -115,7 +115,7 @@ export const Select = <
                 : ''
             ),
           singleValue: () => 'mx-0.5',
-          valueContainer: () => 'py-0.5 px-2',
+          valueContainer: () => 'py-1 px-2',
           placeholder: () => 'mx-0.5 text-black/70'
         }}
         className={className}

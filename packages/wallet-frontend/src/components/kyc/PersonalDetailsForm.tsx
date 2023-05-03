@@ -100,6 +100,8 @@ export const PersonalDetailsForm = () => {
         name="country"
         render={({ field: { value } }) => (
           <Select<SelectOption>
+            required
+            label="Country"
             options={countries}
             value={value}
             isDisabled={USE_TEST_DATA_KYC}

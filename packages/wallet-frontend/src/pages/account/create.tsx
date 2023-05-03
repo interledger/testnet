@@ -56,7 +56,6 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
       >
         <Input
           required
-          placeholder="My Account"
           label="Account name"
           error={createAccountForm.formState?.errors?.name?.message}
           {...createAccountForm.register('name')}

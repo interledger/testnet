@@ -39,7 +39,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ref={ref}
               type={type ?? 'text'}
               className={cx(
-                'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0',
+                'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50',
                 addOn && 'rounded-l-none',
                 trailing && 'rounded-r-none',
                 className

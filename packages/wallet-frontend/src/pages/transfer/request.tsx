@@ -110,11 +110,14 @@ export default function Request({ accounts }: RequestProps) {
             }
           }}
         >
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="to" />
             <Select
+              required
+              label="Account"
               placeholder="Select account..."
               options={accounts}
+              isSearchable={false}
               onChange={(option) => {
                 if (option) {
                   getPaymentPointers(option.value)
@@ -126,6 +129,8 @@ export default function Request({ accounts }: RequestProps) {
               control={requestForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
+                  required
+                  label="Payment pointer"
                   options={paymentPointers}
                   aria-invalid={
                     requestForm.formState.errors.paymentPointerId
@@ -144,13 +149,18 @@ export default function Request({ accounts }: RequestProps) {
               )}
             />
           </div>
-          <Input
-            required
-            {...requestForm.register('amount')}
-            error={requestForm.formState.errors.amount?.message}
-            label="Amount"
-          />
-          <Input {...requestForm.register('description')} label="Description" />
+          <div className="space-y-2">
+            <Input
+              required
+              {...requestForm.register('amount')}
+              error={requestForm.formState.errors.amount?.message}
+              label="Amount"
+            />
+            <Input
+              {...requestForm.register('description')}
+              label="Description"
+            />
+          </div>
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"

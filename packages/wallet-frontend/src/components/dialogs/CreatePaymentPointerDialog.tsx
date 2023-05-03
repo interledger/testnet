@@ -90,9 +90,15 @@ export const CreatePaymentPointerDialog = ({
                       }
                     }}
                   >
-                    <Input value={accountName} label="Account" readOnly />
+                    <Input
+                      disabled={true}
+                      value={accountName}
+                      label="Account"
+                      readOnly
+                    />
                     <div>
                       <Input
+                        addOn={OPEN_PAYMENTS_HOST}
                         required
                         label="Payment Pointer name"
                         error={
@@ -103,10 +109,6 @@ export const CreatePaymentPointerDialog = ({
                           'paymentPointerName'
                         )}
                       />
-                      <p className="ml-2 text-sm text-green">
-                        {OPEN_PAYMENTS_HOST}
-                        {createPaymentPointerForm.watch('paymentPointerName')}
-                      </p>
                     </div>
                     <Input
                       required

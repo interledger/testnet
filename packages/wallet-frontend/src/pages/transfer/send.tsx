@@ -97,11 +97,14 @@ export default function Send({ accounts }: SendProps) {
             }
           }}
         >
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="from" />
             <Select
+              required
+              label="Account"
               placeholder="Select account..."
               options={accounts}
+              isSearchable={false}
               onChange={(option) => {
                 if (option) {
                   getPaymentPointers(option.value)
@@ -113,6 +116,8 @@ export default function Send({ accounts }: SendProps) {
               control={sendForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
+                  required
+                  label="Payment pointer"
                   options={paymentPointers}
                   aria-invalid={
                     sendForm.formState.errors.paymentPointerId
@@ -131,7 +136,7 @@ export default function Send({ accounts }: SendProps) {
               )}
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="to" />
             <Input
               required
@@ -139,36 +144,36 @@ export default function Send({ accounts }: SendProps) {
               error={sendForm.formState.errors.toPaymentPointerUrl?.message}
               label="Payment pointer"
             />
-          </div>
-          <div className="space-y-1">
-            <Controller
-              name="paymentType"
-              defaultValue="sent"
-              control={sendForm.control}
-              render={({ field: { onChange, value } }) => {
-                return (
-                  <TogglePayment
-                    type={value}
-                    onChange={(newValue) => {
-                      sendForm.setValue(
-                        'paymentType',
-                        newValue ? 'received' : 'sent'
-                      )
-                      onChange(newValue ? 'received' : 'sent')
-                    }}
-                  />
-                )
-              }}
-            />
             <input type="hidden" {...sendForm.register('paymentType')} />
             <Input
               required
               {...sendForm.register('amount')}
               error={sendForm.formState.errors.amount?.message}
               label="Amount"
+              labelHint={
+                <Controller
+                  name="paymentType"
+                  defaultValue="sent"
+                  control={sendForm.control}
+                  render={({ field: { onChange, value } }) => {
+                    return (
+                      <TogglePayment
+                        type={value}
+                        onChange={(newValue) => {
+                          sendForm.setValue(
+                            'paymentType',
+                            newValue ? 'received' : 'sent'
+                          )
+                          onChange(newValue ? 'received' : 'sent')
+                        }}
+                      />
+                    )
+                  }}
+                />
+              }
             />
+            <Input {...sendForm.register('description')} label="Description" />
           </div>
-          <Input {...sendForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"
