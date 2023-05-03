@@ -5,16 +5,20 @@ type LabelProps = Omit<
   'className' | 'children'
 > & {
   children: ReactNode
+  hint?: ReactNode
 }
 
-export const Label = ({ htmlFor, children, ...props }: LabelProps) => {
+export const Label = ({ hint, htmlFor, children, ...props }: LabelProps) => {
   return (
-    <label
-      htmlFor={htmlFor}
-      className="text-md block font-medium leading-6 text-green-3"
-      {...props}
-    >
-      {children}
-    </label>
+    <div className="flex justify-between">
+      <label
+        htmlFor={htmlFor}
+        className="text-md block font-medium leading-6 text-green-3"
+        {...props}
+      >
+        {children}
+      </label>
+      {hint ? hint : null}
+    </div>
   )
 }
