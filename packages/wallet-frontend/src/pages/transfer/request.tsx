@@ -10,15 +10,15 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
+import { Controller } from 'react-hook-form'
 
-type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
-
+type SelectPaymentPointerOption = SelectOption & { url: string }
 function getIncomingPaymentUrl(
   paymentId: string,
   paymentPointers: SelectPaymentPointerOption[],
@@ -31,7 +31,7 @@ function getIncomingPaymentUrl(
   }/incoming-payments/${paymentId}`
 }
 
-type SelectPaymentPointerOption = SelectOption & { url: string }
+type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 export default function Request({ accounts }: RequestProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<
@@ -42,8 +42,7 @@ export default function Request({ accounts }: RequestProps) {
     schema: requestSchema
   })
 
-  const handleAccountOnChange = async () => {
-    const accountId = requestForm.getValues('accountId')
+  const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
@@ -52,9 +51,11 @@ export default function Request({ accounts }: RequestProps) {
         ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
         : ''
     )
-    const paymentPointerResponse = await paymentPointerService.list(accountId)
 
-    if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
+    requestForm.resetField('paymentPointerId', { defaultValue: null })
+
+    const paymentPointersResponse = await paymentPointerService.list(accountId)
+    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
       setPaymentPointers([])
       openDialog(
         <ErrorDialog
@@ -65,14 +66,13 @@ export default function Request({ accounts }: RequestProps) {
       return
     }
 
-    const paymentPointers = paymentPointerResponse.data.map(
+    const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        name: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
         value: paymentPointer.id,
         url: paymentPointer.url
       })
     )
-
     setPaymentPointers(paymentPointers)
   }
 
@@ -84,7 +84,6 @@ export default function Request({ accounts }: RequestProps) {
           form={requestForm}
           onSubmit={async (data) => {
             const response = await transfersService.request(data)
-
             if (response.success) {
               openDialog(
                 <SuccessDialog
@@ -92,7 +91,7 @@ export default function Request({ accounts }: RequestProps) {
                   copyToClipboard={getIncomingPaymentUrl(
                     response.data?.paymentId || '',
                     paymentPointers,
-                    requestForm.getValues('paymentPointerId')
+                    requestForm.getValues('paymentPointerId.value')
                   )}
                   title="Funds requested."
                   content="Funds were successfully requested"
@@ -103,7 +102,6 @@ export default function Request({ accounts }: RequestProps) {
             } else {
               const { errors, message } = response
               requestForm.setError('root', { message })
-
               if (errors) {
                 getObjectKeys(errors).map((field) =>
                   requestForm.setError(field, { message: errors[field] })
@@ -115,19 +113,35 @@ export default function Request({ accounts }: RequestProps) {
           <div className="space-y-1">
             <Badge size="fixed" text="to" />
             <Select
-              name="accountId"
-              setValue={requestForm.setValue}
-              error={requestForm.formState.errors.accountId?.message}
+              placeholder="Select account..."
               options={accounts}
-              onChange={handleAccountOnChange}
-              label="Account"
+              onChange={(option) => {
+                if (option) {
+                  getPaymentPointers(option.value)
+                }
+              }}
             />
-            <Select
+            <Controller
               name="paymentPointerId"
-              setValue={requestForm.setValue}
-              error={requestForm.formState.errors.paymentPointerId?.message}
-              options={paymentPointers}
-              label="Payment Pointer"
+              control={requestForm.control}
+              render={({ field: { value } }) => (
+                <Select<SelectOption>
+                  options={paymentPointers}
+                  aria-invalid={
+                    requestForm.formState.errors.paymentPointerId
+                      ? 'true'
+                      : 'false'
+                  }
+                  error={requestForm.formState.errors.paymentPointerId?.message}
+                  placeholder="Select payment pointer..."
+                  value={value}
+                  onChange={(option) => {
+                    if (option) {
+                      requestForm.setValue('paymentPointerId', { ...option })
+                    }
+                  }}
+                />
+              )}
             />
           </div>
           <Input
@@ -190,7 +204,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const accounts = accountsResponse.data.map((account) => ({
-    name: `${account.name} (${account.assetCode})`,
+    label: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,
     assetCode: account.assetCode

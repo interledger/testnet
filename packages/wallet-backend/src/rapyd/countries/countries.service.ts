@@ -19,7 +19,7 @@ export const getCountryNames = async (
       })
 
     const countryNames = result.data.map((item: RapydCountry) => ({
-      name: item.name,
+      label: item.name,
       value: item.iso_alpha2
     }))
 
