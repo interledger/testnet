@@ -4,26 +4,27 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { USE_TEST_DATA_KYC } from '@/utils/constants'
 import { fetchCountries, fetchDocuments, getObjectKeys } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { useKYCFormContext } from './context'
+import { Controller } from 'react-hook-form'
 
 export const PersonalDetailsForm = () => {
   const [openDialog, closeDialog] = useDialog()
   const [countries, setCountries] = useState<SelectOption[]>([])
   const { setTab, setDisabled, setIdTypes } = useKYCFormContext()
 
-  // set default values testing, Denmark is selected for ID verification and because it supports multiple currencies
-  const defaultCountry = USE_TEST_DATA_KYC
-    ? { value: 'DK', name: 'Denmark' }
-    : undefined
   const defaultTestValues = {
     city: 'Copenhagen',
     address: 'Den Lille Havfrue',
-    zip: '2100'
+    zip: '2100',
+    country: {
+      value: 'DK',
+      label: 'Denmark'
+    }
   }
 
   const personalDetailsForm = useZodForm({
@@ -95,15 +96,21 @@ export const PersonalDetailsForm = () => {
           label="Last name"
         />
       </div>
-      <Select
+      <Controller
         name="country"
-        setValue={personalDetailsForm.setValue}
-        error={personalDetailsForm.formState.errors.country?.message}
-        options={countries}
-        label="Country"
-        // TESTING => always disabled and Denmark selected
-        defaultValue={defaultCountry}
-        isDisabled={USE_TEST_DATA_KYC}
+        render={({ field: { value } }) => (
+          <Select<SelectOption>
+            options={countries}
+            value={value}
+            isDisabled={USE_TEST_DATA_KYC}
+            error={personalDetailsForm.formState.errors.country?.message}
+            onChange={(option) => {
+              if (option) {
+                personalDetailsForm.setValue('country', { ...option })
+              }
+            }}
+          />
+        )}
       />
       <Input
         required

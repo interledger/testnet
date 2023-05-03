@@ -153,7 +153,9 @@ export const getServerSideProps: GetServerSideProps<{
     createdAt: new Date(trx.createdAt).toLocaleDateString('default', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     }),
     value: formatAmount(trx.value, assetResponse.data?.scale)
   }))

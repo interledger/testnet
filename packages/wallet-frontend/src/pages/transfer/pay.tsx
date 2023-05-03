@@ -3,8 +3,8 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { DebouncedInput, Input } from '@/ui/forms/Input'
-import { Select, SelectOption } from '@/ui/forms/Select'
+import { Input } from '@/ui/forms/Input'
+import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
@@ -14,10 +14,10 @@ import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
-import { useState } from 'react'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -25,68 +25,42 @@ export default function Pay({ accounts }: PayProps) {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
-
   const payForm = useZodForm({
-    schema: paySchema,
-    defaultValues: {
-      incomingPaymentUrl: ''
-    }
+    schema: paySchema
   })
 
-  const fetchData = async (incomingPaymentUrl: string) => {
-    if (incomingPaymentUrl === '') {
-      return
-    }
-    const tempArray = incomingPaymentUrl.split('/')
-    const incomingPaymentId = tempArray[tempArray.length - 1]
-    const response = await transfersService.getIncomingPaymentDetails(
-      incomingPaymentId
-    )
-    if (response.success && response.data) {
-      const { value, description } = response.data
-      payForm.clearErrors('root')
-      payForm.setValue('amount', value)
-      payForm.setValue('description', description ?? '')
-      payForm.setValue('incomingPaymentUrl', incomingPaymentUrl)
-    } else {
-      const { message } = response
-      payForm.setError('root', { message })
-    }
-  }
-
-  const handleAccountOnChange = async () => {
-    const accountId = payForm.getValues('accountId')
+  const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
-
     setBalance(
       selectedAccount
         ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
         : ''
     )
-    const paymentPointerResponse = await paymentPointerService.list(
-      payForm.getValues('accountId')
-    )
 
-    if (!paymentPointerResponse.success || !paymentPointerResponse.data) {
+    payForm.resetField('paymentPointerId', {
+      defaultValue: null
+    })
+
+    const paymentPointersResponse = await paymentPointerService.list(accountId)
+    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
       setPaymentPointers([])
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again"
+          content="Could not load payment pointers. Please try again!"
         />
       )
       return
     }
 
-    const paymentPointers = paymentPointerResponse.data.map(
+    const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        name: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
         value: paymentPointer.id
       })
     )
-
     setPaymentPointers(paymentPointers)
   }
 
@@ -98,7 +72,6 @@ export default function Pay({ accounts }: PayProps) {
           form={payForm}
           onSubmit={async (data) => {
             const response = await transfersService.pay(data)
-
             if (response.success) {
               openDialog(
                 <SuccessDialog
@@ -112,7 +85,6 @@ export default function Pay({ accounts }: PayProps) {
             } else {
               const { errors, message } = response
               payForm.setError('root', { message })
-
               if (errors) {
                 getObjectKeys(errors).map((field) =>
                   payForm.setError(field, { message: errors[field] })
@@ -123,38 +95,44 @@ export default function Pay({ accounts }: PayProps) {
         >
           <div className="space-y-1">
             <Badge size="fixed" text="from" />
-            <Select
-              name="accountId"
-              setValue={payForm.setValue}
-              error={payForm.formState.errors.accountId?.message}
+            <Select<SelectOption>
               options={accounts}
-              onChange={handleAccountOnChange}
-              label="Account"
+              placeholder="Select account..."
+              isSearchable={false}
+              onChange={(option) => {
+                if (option) {
+                  getPaymentPointers(option.value)
+                }
+              }}
             />
-            <Select
+            <Controller
               name="paymentPointerId"
-              setValue={payForm.setValue}
-              error={payForm.formState.errors.paymentPointerId?.message}
-              options={paymentPointers}
-              label="Payment Pointer"
+              control={payForm.control}
+              render={({ field: { value } }) => (
+                <Select<SelectOption>
+                  options={paymentPointers}
+                  aria-invalid={
+                    payForm.formState.errors.paymentPointerId ? 'true' : 'false'
+                  }
+                  error={payForm.formState.errors.paymentPointerId?.message}
+                  placeholder="Select payment pointer..."
+                  value={value}
+                  onChange={(option) => {
+                    if (option) {
+                      payForm.setValue('paymentPointerId', { ...option })
+                    }
+                  }}
+                />
+              )}
             />
           </div>
           <div className="space-y-1">
             <Badge size="fixed" text="to" />
-            <Controller
-              name="incomingPaymentUrl"
-              control={payForm.control}
-              render={({ field: { value } }) => {
-                return (
-                  <DebouncedInput
-                    required
-                    error={payForm.formState.errors.incomingPaymentUrl?.message}
-                    label="Incoming payment URL"
-                    value={value}
-                    onChange={fetchData}
-                  />
-                )
-              }}
+            <Input
+              required
+              {...payForm.register('incomingPaymentUrl')}
+              error={payForm.formState.errors.incomingPaymentUrl?.message}
+              label="Incoming payment URL"
             />
           </div>
           <div className="space-y-1">
@@ -199,37 +177,25 @@ export default function Pay({ accounts }: PayProps) {
   )
 }
 
-type SelectAccountOption = SelectOption & {
-  balance: string
-  assetCode: string
-  assetRafikiId: string
-}
+type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
-  const [accountsResponse] = await Promise.all([
-    accountService.list(ctx.req.headers.cookie)
-  ])
-
-  if (!accountsResponse.success) {
+  const response = await accountService.list(ctx.req.headers.cookie)
+  if (!response.success) {
     return {
       notFound: true
     }
   }
 
-  if (!accountsResponse.data) {
-    return {
-      notFound: true
-    }
-  }
-
-  const accounts = accountsResponse.data.map((account) => ({
-    name: `${account.name} (${account.assetCode})`,
-    value: account.id,
-    balance: account.balance,
-    assetCode: account.assetCode,
-    assetRafikiId: account.assetRafikiId
-  }))
+  const accounts = response.data
+    ? response.data.map((account) => ({
+        label: `${account.name} (${account.assetCode})`,
+        value: account.id,
+        balance: account.balance,
+        assetCode: account.assetCode
+      }))
+    : []
 
   return {
     props: {

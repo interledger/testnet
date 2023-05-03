@@ -7,8 +7,12 @@ import {
 } from '../httpClient'
 
 export const paySchema = z.object({
-  accountId: z.string().uuid(),
-  paymentPointerId: z.string(),
+  paymentPointerId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable(),
   incomingPaymentUrl: z.string().url().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
@@ -18,8 +22,12 @@ export const paySchema = z.object({
 })
 
 export const sendSchema = z.object({
-  accountId: z.string().uuid(),
-  paymentPointerId: z.string(),
+  paymentPointerId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable(),
   toPaymentPointerUrl: z.string().url().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
@@ -29,8 +37,12 @@ export const sendSchema = z.object({
 })
 
 export const requestSchema = z.object({
-  accountId: z.string().uuid(),
-  paymentPointerId: z.string(),
+  paymentPointerId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
@@ -83,7 +95,12 @@ const createTransfersService = (): TransfersService => ({
     try {
       const response = await httpClient
         .post('outgoing-payments', {
-          json: args
+          json: {
+            ...args,
+            paymentPointerId: args.paymentPointerId
+              ? args.paymentPointerId.value
+              : undefined
+          }
         })
         .json<SuccessResponse>()
       return response
@@ -100,8 +117,9 @@ const createTransfersService = (): TransfersService => ({
       const response = await httpClient
         .post('outgoing-payments', {
           json: {
-            accountId: args.accountId,
-            paymentPointerId: args.paymentPointerId,
+            paymentPointerId: args.paymentPointerId
+              ? args.paymentPointerId.value
+              : undefined,
             toPaymentPointerUrl: args.toPaymentPointerUrl,
             amount: args.amount,
             description: args.description,
@@ -122,7 +140,12 @@ const createTransfersService = (): TransfersService => ({
     try {
       const response = await httpClient
         .post('incoming-payments', {
-          json: args
+          json: {
+            ...args,
+            paymentPointerId: args.paymentPointerId
+              ? args.paymentPointerId.value
+              : undefined
+          }
         })
         .json<SuccessResponse>()
       return response
