@@ -44,7 +44,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 trailing && 'rounded-r-none',
                 className
               )}
-              placeholder={label}
               {...props}
             />
             {trailing ? (
