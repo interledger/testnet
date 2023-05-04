@@ -112,11 +112,11 @@ services:
     restart: always
     privileged: true
     ports:
-      - '35.196.11.156:3012:3012'
+      - '35.196.11.156:3013:3013'
     networks:
       - testnet
     environment:
-      PORT: 3012
+      PORT: 3013
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   rafiki-local-http-signatures:
