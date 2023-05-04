@@ -112,11 +112,11 @@ services:
     restart: always
     privileged: true
     ports:
-      - '35.196.11.156:3013:3013'
+      - '3012:3012'
     networks:
       - testnet
     environment:
-      PORT: 3013
+      PORT: 3012
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   rafiki-local-http-signatures:
@@ -156,7 +156,7 @@ services:
         fi
         hostname -i
         ls /var/lib/tigerbeetle
-        ./tigerbeetle start --addresses=4342 $$DATA_FILE
+        ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
 
   redis:
     image: 'redis:7'
