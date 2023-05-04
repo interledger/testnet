@@ -9,6 +9,7 @@ import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useDialog } from '@/lib/hooks/useDialog'
+import { NextPageWithLayout } from '@/lib/types/app'
 
 import { Link } from '@/ui/Link'
 import type {
@@ -19,13 +20,13 @@ import { z } from 'zod'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function AccountPage({
+const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
   paymentPointers
-}: AccountPageProps) {
+}) => {
   const [openDialog, closeDialog] = useDialog()
   return (
-    <AppLayout>
+    <>
       <div className="text-green">
         <h2 className="text-lg font-light md:text-xl">Balance</h2>
         <p className="text-2xl font-semibold md:text-4xl">
@@ -101,7 +102,7 @@ export default function AccountPage({
           )}
         </div>
       </div>
-    </AppLayout>
+    </>
   )
 }
 
@@ -145,3 +146,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+AccountPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default AccountPage

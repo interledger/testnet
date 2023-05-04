@@ -9,15 +9,16 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
+import { NextPageWithLayout } from '@/lib/types/app'
 
-const Login = () => {
+const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
   const loginForm = useZodForm({
     schema: loginSchema
   })
 
   return (
-    <AuthLayout image="Login">
+    <>
       <HeaderLogo header="Welcome" />
       <h2 className="mb-5 mt-10 text-xl font-semibold text-green">Login</h2>
       <div className="w-2/3">
@@ -83,8 +84,12 @@ const Login = () => {
           Create an account
         </Link>
       </p>
-    </AuthLayout>
+    </>
   )
 }
 
-export default Login
+LoginPage.getLayout = function (page) {
+  return <AuthLayout image="Login">{page}</AuthLayout>
+}
+
+export default LoginPage

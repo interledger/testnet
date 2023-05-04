@@ -17,8 +17,10 @@ import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
+import { NextPageWithLayout } from '@/lib/types/app'
 
 type SelectPaymentPointerOption = SelectOption & { url: string }
+
 function getIncomingPaymentUrl(
   paymentId: string,
   paymentPointers: SelectPaymentPointerOption[],
@@ -32,7 +34,8 @@ function getIncomingPaymentUrl(
 }
 
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
-export default function Request({ accounts }: RequestProps) {
+
+const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<
     SelectPaymentPointerOption[]
@@ -77,7 +80,7 @@ export default function Request({ accounts }: RequestProps) {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="turqoise" balance={balance} />
         <Form
@@ -179,7 +182,7 @@ export default function Request({ accounts }: RequestProps) {
         width={500}
         height={200}
       />
-    </AppLayout>
+    </>
   )
 }
 
@@ -216,3 +219,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+RequestPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default RequestPage
