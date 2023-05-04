@@ -52,11 +52,11 @@ export const DebouncedInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue])
 
-  const handleOnchange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value)
+  const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value.trim())
   }
 
-  return <Input value={inputValue} onChange={handleOnchange} {...props} />
+  return <Input value={inputValue} onChange={handleOnChange} {...props} />
 }
 
 Input.displayName = 'Input'
