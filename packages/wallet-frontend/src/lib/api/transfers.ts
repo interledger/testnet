@@ -86,7 +86,7 @@ interface TransfersService {
   send: (args: SendArgs) => Promise<SendResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
   getIncomingPaymentDetails: (
-    incomingPaymentId: string
+    incomingPaymentUrl: string
   ) => Promise<IncomingPaymentDetailsResponse>
 }
 
@@ -158,17 +158,21 @@ const createTransfersService = (): TransfersService => ({
   },
 
   async getIncomingPaymentDetails(
-    incomingPaymentId: string
+    incomingPaymentUrl: string
   ): Promise<IncomingPaymentDetailsResponse> {
     try {
       const response = await httpClient
-        .get(`incoming-payments/${incomingPaymentId}`)
+        .get('incoming-payments', {
+          json: {
+            incomingPaymentUrl: incomingPaymentUrl
+          }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
       return getError(
         error,
-        'We could not get the details of the incoming payment url. Please make sure the url is correct and try again.'
+        'Something went wrong. Please make sure the url is correct and try again.'
       )
     }
   }

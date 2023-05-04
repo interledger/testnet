@@ -36,10 +36,8 @@ export default function Pay({ accounts }: PayProps) {
     if (incomingPaymentUrl === '') {
       return
     }
-    const tempArray = incomingPaymentUrl.split('/')
-    const incomingPaymentId = tempArray[tempArray.length - 1]
     const response = await transfersService.getIncomingPaymentDetails(
-      incomingPaymentId
+      incomingPaymentUrl
     )
     if (response.success && response.data) {
       const { value, description } = response.data
