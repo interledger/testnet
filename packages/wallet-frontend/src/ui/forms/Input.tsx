@@ -35,7 +35,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 type DebouncedInputProps = Omit<InputProps, 'onChange'> & {
   value: string
   delay?: number
-  onChange: (value: string) => void
+  onChange?: (value: string) => void
 }
 
 export const DebouncedInput = ({
@@ -48,7 +48,9 @@ export const DebouncedInput = ({
   const [debouncedValue] = useDebounce(inputValue, delay)
 
   useEffect(() => {
-    onChange(debouncedValue)
+    if (onChange) {
+      onChange(debouncedValue)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue])
 
