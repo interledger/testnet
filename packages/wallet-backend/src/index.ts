@@ -23,7 +23,7 @@ app.disable('X-Powered-By')
 
 app.use(
   cors({
-    origin: '*',
+    origin: 'http://35.196.11.156',
     credentials: true
   })
 )
