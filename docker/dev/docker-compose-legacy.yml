@@ -16,6 +16,22 @@ services:
       - pg-data:/var/lib/postgresql/data
       - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
+  wallet-frontend:
+    container_name: wallet-frontend
+    build:
+      context: ../..
+      dockerfile: ./packages/wallet-frontend/Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      PORT: 4003
+      NEXT_PUBLIC_BACKEND_URL: http://35.196.11.156:3003
+      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://localhost
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '4003:4003'
+
   # Testnet
   wallet-backend:
     container_name: wallet-backend

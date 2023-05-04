@@ -15,7 +15,7 @@ export type ErrorResponse<T = undefined> = {
 }
 
 export const httpClient = ky.extend({
-  prefixUrl: "http://35.196.11.156:3003",
+  prefixUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
   credentials: 'include',
   headers: {
     'Content-Type': 'application/json'
