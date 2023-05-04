@@ -206,7 +206,7 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 PayPage.getLayout = function (page) {
-    return <AppLayout>{page}</AppLayout>
+  return <AppLayout>{page}</AppLayout>
 }
 
 export default PayPage
