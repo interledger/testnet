@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - '5433:5432'
+      - '0.0.0.0:5433:5432'
     restart: unless-stopped
     networks:
       - testnet
@@ -43,8 +43,8 @@ services:
     networks:
       - testnet
     ports:
-      - '3003:3003'
-      - '9229:9229' # Map debugger port to local machine's port 9229
+      - '0.0.0.0:3003:3003'
+      - '0.0.0.0:9229:9229' # Map debugger port to local machine's port 9229
 
   # Rafiki
   rafiki-auth:
@@ -54,7 +54,7 @@ services:
     networks:
       - testnet
     ports:
-      - '3006:3006'
+      - '0.0.0.0:3006:3006'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
@@ -71,8 +71,8 @@ services:
     volumes:
       - ./temp/:/workspace/temp
     ports:
-      - '3010:80'
-      - '3011:3001'
+      - '0.0.0.0:3010:80'
+      - '0.0.0.0:3011:3001'
     networks:
       - testnet
     environment:
@@ -112,7 +112,7 @@ services:
     restart: always
     privileged: true
     ports:
-      - '3012:3012'
+      - '0.0.0.0:3012:3012'
     networks:
       - testnet
     environment:
@@ -127,7 +127,7 @@ services:
       - ./temp/:/workspace/temp/
     restart: always
     ports:
-      - '3040:3000'
+      - '0.0.0.0:3040:3000'
     environment:
       KEY_FILE: ./temp/private-key.pem
 
