@@ -127,7 +127,7 @@ services:
       - ./temp/:/workspace/temp/
     restart: always
     ports:
-      - '35.196.11.156:3040:3000'
+      - '3040:3000'
     environment:
       KEY_FILE: ./temp/private-key.pem
 
