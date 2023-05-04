@@ -4,9 +4,10 @@ import { BadRequestException } from '../shared/models/errors/BadRequestException
 
 export async function zParse<T extends AnyZodObject>(
   schema: T,
-  req: Request
+  req: Request,
+  property: 'body' | 'query' = 'body'
 ): Promise<z.infer<T>> {
-  const res = await schema.safeParseAsync(req.body)
+  const res = await schema.safeParseAsync(req[property])
   if (!res.success) {
     const errors: Record<string, string> = {}
     res.error.issues.forEach((i) => {

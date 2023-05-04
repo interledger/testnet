@@ -23,6 +23,7 @@ exports.up = function (knex) {
       .notNullable()
 
     table.timestamps(false, true, true)
+    table.index(['paymentPointerId', 'createdAt'])
   })
 }
 
