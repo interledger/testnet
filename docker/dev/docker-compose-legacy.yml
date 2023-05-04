@@ -43,8 +43,8 @@ services:
     networks:
       - testnet
     ports:
-      - '35.196.11.156:3003:3003'
-      - '35.196.11.156:9229:9229' # Map debugger port to local machine's port 9229
+      - '3003:3003'
+      - '9229:9229' # Map debugger port to local machine's port 9229
 
   # Rafiki
   rafiki-auth:
@@ -54,7 +54,7 @@ services:
     networks:
       - testnet
     ports:
-      - '35.196.11.156:3006:3006'
+      - '3006:3006'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
@@ -71,8 +71,8 @@ services:
     volumes:
       - ./temp/:/workspace/temp
     ports:
-      - '35.196.11.156:3010:80'
-      - '35.196.11.156:3011:3001'
+      - '3010:80'
+      - '3011:3001'
     networks:
       - testnet
     environment:
@@ -156,7 +156,7 @@ services:
         fi
         hostname -i
         ls /var/lib/tigerbeetle
-        ./tigerbeetle start --addresses=35.196.11.156:4342 $$DATA_FILE
+        ./tigerbeetle start --addresses=4342 $$DATA_FILE
 
   redis:
     image: 'redis:7'
