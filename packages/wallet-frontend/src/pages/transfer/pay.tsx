@@ -43,13 +43,13 @@ export default function Pay({ accounts }: PayProps) {
     )
     if (response.success && response.data) {
       const { value, description } = response.data
-      payForm.clearErrors('root')
+      payForm.clearErrors('incomingPaymentUrl')
       payForm.setValue('amount', value)
       payForm.setValue('description', description ?? '')
       payForm.setValue('incomingPaymentUrl', incomingPaymentUrl)
     } else {
       const { message } = response
-      payForm.setError('root', { message })
+      payForm.setError('incomingPaymentUrl', { message })
     }
   }
 

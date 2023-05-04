@@ -77,7 +77,9 @@ export const getPayment = async (
       .withGraphFetched({ paymentPointer: { account: true } })
 
     if (!transaction) {
-      throw new NotFoundException()
+      throw new NotFoundException(
+        'The provided incoming payment URL could not be found.'
+      )
     }
 
     const asset = await getAsset(
