@@ -72,3 +72,5 @@ export const getServerSideProps: GetServerSideProps<{
 AccountSettingsPage.getLayout = function (page) {
   return <AppLayout>{page}</AppLayout>
 }
+
+export default AccountSettingsPage
