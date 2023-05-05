@@ -139,7 +139,7 @@ function extractUuidFromUrl(url: string): string {
   )?.[0]
 
   if (!id) {
-    throw new Error('Uuid is not present in ulr')
+    throw new Error('Uuid is not present in url')
   }
 
   return id
