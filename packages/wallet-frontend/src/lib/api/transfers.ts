@@ -162,9 +162,9 @@ const createTransfersService = (): TransfersService => ({
   ): Promise<IncomingPaymentDetailsResponse> {
     try {
       const response = await httpClient
-        .get('incoming-payments', {
-          json: {
-            incomingPaymentUrl: incomingPaymentUrl
+        .get('payment-details', {
+          searchParams: {
+            url: incomingPaymentUrl
           }
         })
         .json<SuccessResponse>()

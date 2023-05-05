@@ -11,7 +11,7 @@ incomingPaymentRouter.post(
 )
 
 incomingPaymentRouter.get(
-  '/incoming-payments/:id',
+  '/payment-details',
   passport.authenticate('jwt', { session: false }),
   getPayment
 )

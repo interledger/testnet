@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { zParse } from '../middlewares/validator'
-import { incomingPaymentSchema } from './incoming-payment.schema'
+import {
+  incomingPaymentSchema,
+  paymentDetailsSchema
+} from './incoming-payment.schema'
 import { PaymentPointerModel } from '../payment-pointer/payment-pointer.model'
 import { getAsset } from '../rafiki/request/asset.request'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
@@ -68,7 +71,8 @@ export const getPayment = async (
   next: NextFunction
 ) => {
   try {
-    const id = req.params.id
+    const { url } = await zParse(paymentDetailsSchema, req, 'query')
+    const id = extractUuidFromUrl(url)
 
     const transaction = await TransactionModel.query()
       .where('paymentId', id)
@@ -126,4 +130,17 @@ export async function createIncomingPaymentTransactions(
     status: 'PENDING',
     description
   })
+}
+
+function extractUuidFromUrl(url: string): string {
+  const { pathname } = new URL(url)
+  const id = pathname.match(
+    /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
+  )?.[0]
+
+  if (!id) {
+    throw new Error('Uuid is not present in ulr')
+  }
+
+  return id
 }
