@@ -18,10 +18,11 @@ import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
+import type { NextPageWithLayout } from '@/lib/types/app'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Pay({ accounts }: PayProps) {
+const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
@@ -87,7 +88,7 @@ export default function Pay({ accounts }: PayProps) {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="pink" balance={balance} />
         <Form
@@ -204,7 +205,7 @@ export default function Pay({ accounts }: PayProps) {
         width={500}
         height={200}
       />
-    </AppLayout>
+    </>
   )
 }
 
@@ -239,3 +240,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+PayPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default PayPage

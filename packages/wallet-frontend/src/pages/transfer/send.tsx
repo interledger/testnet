@@ -18,10 +18,11 @@ import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
+import { NextPageWithLayout } from '@/lib/types/app'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Send({ accounts }: SendProps) {
+const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
@@ -68,7 +69,7 @@ export default function Send({ accounts }: SendProps) {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="violet" balance={balance} />
         <Form
@@ -207,7 +208,7 @@ export default function Send({ accounts }: SendProps) {
         width={500}
         height={200}
       />
-    </AppLayout>
+    </>
   )
 }
 
@@ -244,3 +245,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+SendPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default SendPage

@@ -7,6 +7,7 @@ import {
   paymentPointerService,
   TransactionWithFormattedValue
 } from '@/lib/api/paymentPointer'
+import { NextPageWithLayout } from '@/lib/types/app'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
 import { formatAmount } from '@/utils/helpers'
@@ -21,13 +22,13 @@ type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >
 
-export default function TransactionsPage({
+const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   account,
   paymentPointer,
   transactions
-}: TransactionsPageProps) {
+}) => {
   return (
-    <AppLayout>
+    <>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader
           title="Transactions"
@@ -81,7 +82,7 @@ export default function TransactionsPage({
           </Table.Body>
         </Table>
       </div>
-    </AppLayout>
+    </>
   )
 }
 
@@ -168,3 +169,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+TransactionsPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default TransactionsPage

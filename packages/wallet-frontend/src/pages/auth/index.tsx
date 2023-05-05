@@ -1,13 +1,14 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
+import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { Divider } from '@/ui/Divider'
 import { Link } from '@/ui/Link'
 import Image from 'next/image'
 
-export default function Welcome() {
+const WelcomePage: NextPageWithLayout = () => {
   return (
-    <AuthLayout image="Park">
+    <>
       <HeaderLogo header="Welcome" />
       <h2 className="mb-10 mt-5 text-xl font-light text-green md:mt-20">
         Already a customer?
@@ -34,6 +35,12 @@ export default function Welcome() {
           Interledger
         </Link>
       </p>
-    </AuthLayout>
+    </>
   )
 }
+
+WelcomePage.getLayout = function (page) {
+  return <AuthLayout image="Park">{page}</AuthLayout>
+}
+
+export default WelcomePage
