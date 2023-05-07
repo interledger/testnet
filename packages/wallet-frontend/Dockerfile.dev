@@ -23,4 +23,6 @@ ADD . ./
 # Install packages from virtual store
 RUN pnpm install -r --offline
 
-CMD ["pnpm", "wallet-frontend", "dev"]
+RUN pnpm run build
+
+CMD ["pnpm", "wallet-frontend", "start"]

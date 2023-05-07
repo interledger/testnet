@@ -22,10 +22,11 @@ services:
       context: ../..
       dockerfile: ./packages/wallet-frontend/Dockerfile.dev
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 4003
+      NEXT_PUBLIC_USE_TEST_KYC_DATA: 'true'
       NEXT_PUBLIC_BACKEND_URL: http://35.196.11.156:3003
-      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://localhost
+      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://rafiki-backend
     restart: always
     networks:
       - testnet
