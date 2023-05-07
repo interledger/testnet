@@ -25,7 +25,7 @@ RUN pnpm install -r --offline
 
 # RUN pnpm run build
 
-RUN pnpm wallet-frontend build
-CMD ["pnpm", "wallet-frontend", "start"]
+# RUN pnpm wallet-frontend build
+# CMD ["pnpm", "wallet-frontend", "start"]
 
-# CMD ["pnpm", "wallet-frontend", "dev"]
+CMD ["pnpm", "wallet-frontend", "dev"]
