@@ -192,8 +192,8 @@ importers:
         specifier: ^4.9.0
         version: 4.9.0
       helmet:
-        specifier: ^6.1.5
-        version: 6.1.5
+        specifier: ^6.2.0
+        version: 6.2.0
       iron-session:
         specifier: ^6.3.1
         version: 6.3.1(express@4.18.2)
@@ -4666,8 +4666,8 @@ packages:
       tslib: 2.5.0
     dev: true
 
-  /helmet@6.1.5:
-    resolution: {integrity: sha512-UgAvdoG0BhF9vcCh/j0bWtElo2ZHHk6OzC98NLCM6zK03DEVSM0vUAtT7iR+oTo2Mi6sGelAH3tL6B/uUWxV4g==}
+  /helmet@6.2.0:
+    resolution: {integrity: sha512-DWlwuXLLqbrIOltR6tFQXShj/+7Cyp0gLi6uAb8qMdFh/YBBFbKSgQ6nbXmScYd8emMctuthmgIa7tUfo9Rtyg==}
     engines: {node: '>=14.0.0'}
     dev: false
 
