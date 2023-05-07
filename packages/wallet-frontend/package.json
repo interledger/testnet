@@ -2,8 +2,8 @@
   "name": "wallet-frontend",
   "scripts": {
     "dev": "PORT=4003 next dev",
-    "build": "next build",
-    "start": "NEXT_PUBLIC_USE_TEST_KYC_DATA=true NEXT_PUBLIC_BACKEND_URL=http://35.196.11.156:3003 NEXT_PUBLIC_OPEN_PAYMENTS_HOST=http://rafiki-backend PORT=4003 next start"
+    "build": "NEXT_PUBLIC_USE_TEST_KYC_DATA=true NEXT_PUBLIC_BACKEND_URL=http://35.196.11.156:3003 NEXT_PUBLIC_OPEN_PAYMENTS_HOST=http://rafiki-backend next build",
+    "start": "PORT=4003 next start"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.14",
