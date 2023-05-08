@@ -1,16 +1,18 @@
 import '@/styles/main.css'
-import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { Titillium_Web } from 'next/font/google'
 import { AppProvider } from '@/components/providers'
 import { Progress } from '@/ui/Progress'
+import type { AppPropsWithLayout } from '@/lib/types/app'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
-  weight: ['200', '300', '400', '600', '700', '900']
+  weight: ['200', '300', '400', '600', '700', '900'],
+  preload: true
 })
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => page)
   return (
     <>
       <Head>
@@ -27,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
       `}</style>
       <AppProvider>
         <Progress />
-        <Component {...pageProps} />
+        {getLayout(<Component {...pageProps} />)}
       </AppProvider>
     </>
   )

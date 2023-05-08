@@ -14,12 +14,13 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { userService } from '@/lib/api/user'
+import type { NextPageWithLayout } from '@/lib/types/app'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Home({ accounts, user }: HomeProps) {
+const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
   return (
-    <AppLayout>
+    <>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader
           title={`Hello${
@@ -87,7 +88,7 @@ export default function Home({ accounts, user }: HomeProps) {
         )}
       </div>
       <SmallBubbles className="mt-10 block w-full md:hidden" />
-    </AppLayout>
+    </>
   )
 }
 
@@ -117,3 +118,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+HomePage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default HomePage

@@ -2,12 +2,13 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { ApiKeys } from '@/components/settings/ApiKeys'
 import { SettingsTabs } from '@/components/SettingsTabs'
+import { NextPageWithLayout } from '@/lib/types/app'
 import { SmallBubbles } from '@/ui/Bubbles'
 import Image from 'next/image'
 
-export default function Notifications() {
+const DeveloperPage: NextPageWithLayout = () => {
   return (
-    <AppLayout>
+    <>
       <PageHeader title="API Settings" message="Edit API details" />
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
@@ -22,6 +23,12 @@ export default function Notifications() {
         width={400}
         height={100}
       />
-    </AppLayout>
+    </>
   )
 }
+
+DeveloperPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default DeveloperPage

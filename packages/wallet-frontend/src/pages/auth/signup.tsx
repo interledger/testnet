@@ -9,8 +9,9 @@ import { signUpSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { NextPageWithLayout } from '@/lib/types/app'
 
-const SignUp = () => {
+const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
 
   const signUpForm = useZodForm({
@@ -18,7 +19,7 @@ const SignUp = () => {
   })
 
   return (
-    <AuthLayout image="Register">
+    <>
       <HeaderLogo header="Welcome" />
       <h2 className="mb-5 mt-10 text-xl text-green">Create Account</h2>
       <div className="w-2/3">
@@ -85,8 +86,12 @@ const SignUp = () => {
           Log in
         </Link>
       </p>
-    </AuthLayout>
+    </>
   )
 }
 
-export default SignUp
+SignUpPage.getLayout = function (page) {
+  return <AuthLayout image="Register">{page}</AuthLayout>
+}
+
+export default SignUpPage
