@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { Input } from '@/ui/forms/Input'
+import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -139,11 +139,21 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           </div>
           <div className="space-y-2">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              {...sendForm.register('toPaymentPointerUrl')}
-              error={sendForm.formState.errors.toPaymentPointerUrl?.message}
-              label="Payment pointer"
+            <Controller
+              name="toPaymentPointerUrl"
+              control={sendForm.control}
+              render={({ field: { value } }) => {
+                return (
+                  <DebouncedInput
+                    required
+                    error={
+                      sendForm.formState.errors.toPaymentPointerUrl?.message
+                    }
+                    label="Payment pointer"
+                    value={value}
+                  />
+                )
+              }}
             />
             <input type="hidden" {...sendForm.register('paymentType')} />
             <Input

@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { BaseResponse } from '../shared/models/BaseResponse'
 import { zParse } from '../middlewares/validator'
-import { incomingPaymentSchema } from './incoming-payment.schema'
+import {
+  incomingPaymentSchema,
+  paymentDetailsSchema
+} from './incoming-payment.schema'
 import { PaymentPointerModel } from '../payment-pointer/payment-pointer.model'
 import { getAsset } from '../rafiki/request/asset.request'
 import { NotFoundException } from '../shared/models/errors/NotFoundException'
@@ -10,6 +13,12 @@ import { TransactionModel } from '../transaction/transaction.model'
 import { getUserIdFromRequest } from '../utils/getUserId'
 import { findAccountById } from '../account/account.service'
 import { Asset } from '../rafiki/generated/graphql'
+import { transformAmount } from '../utils/helpers'
+
+interface PaymentDetails {
+  value: number
+  description?: string
+}
 
 export const createPayment = async (
   req: Request,
@@ -56,6 +65,47 @@ export const createPayment = async (
   }
 }
 
+export const getPayment = async (
+  req: Request,
+  res: Response<BaseResponse<PaymentDetails>>,
+  next: NextFunction
+) => {
+  try {
+    const { url } = await zParse(paymentDetailsSchema, req, 'query')
+    const id = extractUuidFromUrl(url)
+
+    const transaction = await TransactionModel.query()
+      .where('paymentId', id)
+      .where('status', 'PENDING')
+      .first()
+      .withGraphFetched({ paymentPointer: { account: true } })
+
+    if (!transaction) {
+      throw new NotFoundException(
+        'The provided incoming payment URL could not be found.'
+      )
+    }
+
+    const asset = await getAsset(
+      transaction.paymentPointer?.account.assetRafikiId
+    )
+    if (!asset) {
+      throw new NotFoundException()
+    }
+
+    return res.json({
+      success: true,
+      message: 'Success',
+      data: {
+        description: transaction.description,
+        value: transformAmount(transaction.value ?? 0, asset.scale)
+      }
+    })
+  } catch (e) {
+    next(e)
+  }
+}
+
 export async function createIncomingPaymentTransactions(
   paymentPointerId: string,
   amount: bigint | null,
@@ -80,4 +130,17 @@ export async function createIncomingPaymentTransactions(
     status: 'PENDING',
     description
   })
+}
+
+function extractUuidFromUrl(url: string): string {
+  const { pathname } = new URL(url)
+  const id = pathname.match(
+    /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
+  )?.[0]
+
+  if (!id) {
+    throw new Error('Uuid is not present in url')
+  }
+
+  return id
 }
