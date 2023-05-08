@@ -1,13 +1,14 @@
+import { cx } from 'class-variance-authority'
 import { SVGProps } from 'react'
 
-export const Spinner = (props: SVGProps<SVGSVGElement>) => {
+export const Spinner = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 16 16"
-      className="absolute h-5 w-5 animate-spin"
+      className={cx('h-5 w-5 animate-spin', className)}
       {...props}
     >
       <path
