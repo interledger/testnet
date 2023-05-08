@@ -33,6 +33,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     }
   })
 
+  const handleOnChange = (paymentPointer: string) => {
+    if (paymentPointer === '') {
+      return
+    }
+    sendForm.setValue('toPaymentPointerUrl', paymentPointer)
+  }
+
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
@@ -151,6 +158,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                     }
                     label="Payment pointer"
                     value={value}
+                    onChange={handleOnChange}
                   />
                 )
               }}
