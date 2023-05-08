@@ -34,9 +34,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   })
 
   const handleOnChange = (paymentPointer: string) => {
-    if (paymentPointer === '') {
-      return
-    }
     sendForm.setValue('toPaymentPointerUrl', paymentPointer)
   }
 
