@@ -59,7 +59,6 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
       >
         <Input
           required
-          placeholder="My Account"
           label="Account name"
           error={createAccountForm.formState?.errors?.name?.message}
           {...createAccountForm.register('name')}
@@ -70,6 +69,8 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
           render={({ field: { value } }) => (
             <Select<SelectOption>
               options={assets}
+              label="Asset"
+              placeholder="Select asset..."
               error={createAccountForm.formState.errors.asset?.message}
               value={value}
               onChange={(option) => {

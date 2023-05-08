@@ -12,7 +12,7 @@ export const useZodForm = <T extends ZodSchema>({
   ...props
 }: UseZodFormProps<T>) => {
   return useForm({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     criteriaMode: 'all',
     resolver: zodResolver(schema),
     ...props
