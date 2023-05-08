@@ -116,12 +116,14 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
             }
           }}
         >
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="from" />
             <Select<SelectOption>
+              required
+              isSearchable={false}
+              label="Account"
               options={accounts}
               placeholder="Select account..."
-              isSearchable={false}
               onChange={(option) => {
                 if (option) {
                   getPaymentPointers(option.value)
@@ -133,6 +135,8 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
               control={payForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
+                  required
+                  label="Payment pointer"
                   options={paymentPointers}
                   aria-invalid={
                     payForm.formState.errors.paymentPointerId ? 'true' : 'false'
@@ -149,7 +153,7 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
               )}
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="to" />
             <Controller
               name="incomingPaymentUrl"
@@ -166,17 +170,15 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
                 )
               }}
             />
-          </div>
-          <div className="space-y-1">
-            <TogglePayment disabled={true} type="received" />
             <Input
               required
               {...payForm.register('amount')}
               error={payForm.formState.errors.amount?.message}
               label="Amount"
+              labelHint={<TogglePayment disabled={true} type="received" />}
             />
+            <Input {...payForm.register('description')} label="Description" />
           </div>
-          <Input {...payForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"

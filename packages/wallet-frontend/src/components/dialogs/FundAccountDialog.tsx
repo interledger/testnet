@@ -93,6 +93,7 @@ export const FundAccountDialog = ({
                     }}
                   >
                     <Input
+                      disabled={true}
                       value={account.name}
                       error={
                         fundAccountForm.formState.errors.accountId?.message
@@ -105,27 +106,19 @@ export const FundAccountDialog = ({
                       {...fundAccountForm.register('accountId')}
                       value={account.id}
                     />
-                    <div className="flex items-center">
-                      <div className="mr-1 grow">
-                        <Input
-                          required
-                          label="Amount"
-                          defaultValue={0}
-                          error={
-                            fundAccountForm.formState?.errors?.amount?.message
-                          }
-                          {...fundAccountForm.register('amount')}
-                        />
-                      </div>
-                      <span className="mt-1 inline-flex h-11 w-10 items-center justify-center rounded-md border border-turqoise bg-white font-bold text-turqoise">
-                        {account.assetCode}
-                      </span>
-                      <input
-                        type="hidden"
-                        {...fundAccountForm.register('assetCode')}
-                        value={account.assetCode}
-                      />
-                    </div>
+                    <Input
+                      required
+                      label="Amount"
+                      defaultValue={0}
+                      trailing={account.assetCode}
+                      error={fundAccountForm.formState?.errors?.amount?.message}
+                      {...fundAccountForm.register('amount')}
+                    />
+                    <input
+                      type="hidden"
+                      {...fundAccountForm.register('assetCode')}
+                      value={account.assetCode}
+                    />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
                         aria-label="fund account"
