@@ -33,10 +33,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     }
   })
 
-  const handleOnChange = (paymentPointer: string) => {
-    sendForm.setValue('toPaymentPointerUrl', paymentPointer)
-  }
-
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
@@ -146,7 +142,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             <Controller
               name="toPaymentPointerUrl"
               control={sendForm.control}
-              render={({ field: { value } }) => {
+              render={({ field: { value, onChange } }) => {
                 return (
                   <DebouncedInput
                     required
@@ -155,7 +151,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                     }
                     label="Payment pointer"
                     value={value}
-                    onChange={handleOnChange}
+                    onChange={onChange}
                   />
                 )
               }}
