@@ -142,7 +142,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             <Controller
               name="toPaymentPointerUrl"
               control={sendForm.control}
-              render={({ field: { value } }) => {
+              render={({ field: { value, onChange } }) => {
                 return (
                   <DebouncedInput
                     required
@@ -151,6 +151,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                     }
                     label="Payment pointer"
                     value={value}
+                    onChange={onChange}
                   />
                 )
               }}
