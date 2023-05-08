@@ -6,6 +6,7 @@ import {
 } from '@/components/settings/PersonalSettingsForm'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { userService } from '@/lib/api/user'
+import { NextPageWithLayout } from '@/lib/types/app'
 import { SmallBubbles } from '@/ui/Bubbles'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
@@ -14,11 +15,11 @@ type AccountSettingsProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >
 
-export default function AccountSettings({
+const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
   personalDetails
-}: AccountSettingsProps) {
+}) => {
   return (
-    <AppLayout>
+    <>
       <PageHeader title="Personal Settings" message="Edit your details" />
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
@@ -35,7 +36,7 @@ export default function AccountSettings({
         width={400}
         height={100}
       />
-    </AppLayout>
+    </>
   )
 }
 
@@ -67,3 +68,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+AccountSettingsPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default AccountSettingsPage

@@ -15,16 +15,19 @@ import { accountService, createAccountSchema } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
+import { NextPageWithLayout } from '@/lib/types/app'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
-export default function CreateAccount({ assets }: CreateAccountProps) {
+const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
+  assets
+}) => {
   const [openDialog, closeDialog] = useDialog()
   const createAccountForm = useZodForm({
     schema: createAccountSchema
   })
 
   return (
-    <AppLayout>
+    <>
       <PageHeader title="Create a new account" />
       <Form
         form={createAccountForm}
@@ -56,7 +59,6 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
       >
         <Input
           required
-          placeholder="My Account"
           label="Account name"
           error={createAccountForm.formState?.errors?.name?.message}
           {...createAccountForm.register('name')}
@@ -67,6 +69,8 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           render={({ field: { value } }) => (
             <Select<SelectOption>
               options={assets}
+              label="Asset"
+              placeholder="Select asset..."
               error={createAccountForm.formState.errors.asset?.message}
               value={value}
               onChange={(option) => {
@@ -86,7 +90,7 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           Create account
         </Button>
       </Form>
-    </AppLayout>
+    </>
   )
 }
 
@@ -113,3 +117,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+CreateAccountPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default CreateAccountPage

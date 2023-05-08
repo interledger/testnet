@@ -1,9 +1,10 @@
 import { Play } from '@/components/icons/Play'
 import { cx } from 'class-variance-authority'
-import { useId } from 'react'
+import { type ReactNode, useId } from 'react'
 import ReactSelect, { DropdownIndicatorProps, components } from 'react-select'
 import type { GroupBase, InputProps, Props } from 'react-select'
 import { FieldError } from './FieldError'
+import { Label } from './Label'
 
 declare module 'react-select/dist/declarations/src/Select' {
   export interface Props<
@@ -14,6 +15,8 @@ declare module 'react-select/dist/declarations/src/Select' {
     Group extends GroupBase<Option>
   > {
     error?: string
+    label?: string
+    labelHint?: ReactNode
   }
 }
 
@@ -28,7 +31,7 @@ const Input = <
   return (
     <components.Input
       inputClassName={cx(
-        'focus:ring-0 focus:ring-offset-0 border border-turqoise text-black',
+        'focus:ring-0 focus:ring-offset-0 border m-0.5 py-0.5 border-turqoise text-black',
         inputClassName
       )}
       {...props}
@@ -68,11 +71,19 @@ export const Select = <
 >({
   className,
   error,
+  label,
+  labelHint,
   ...props
 }: SelectProps<Option, IsMulti, Group>) => {
   const id = useId()
   return (
-    <>
+    <div className="space-y-1">
+      {label && (
+        <Label htmlFor={id} hint={labelHint}>
+          {label}{' '}
+          {props.required ? <span className="text-red-500">*</span> : null}
+        </Label>
+      )}
       <ReactSelect
         unstyled
         components={{
@@ -84,15 +95,16 @@ export const Select = <
         classNames={{
           control: ({ isDisabled, isFocused }) =>
             cx(
-              'rounded-xl shadow-md border',
-              isDisabled ? 'bg-gray-200' : 'bg-white',
+              'rounded-md shadow-md border',
+              isDisabled ? 'bg-gray-50 text-gray-600' : 'bg-white',
               isFocused ? 'border-green-3' : 'border-turqoise'
             ),
           dropdownIndicator: () => 'p-2',
-          input: () => 'm-0.5 py-0.5 text-neutral-800',
-          menu: () => 'bg-white border border-green-3 rounded my-1 shadow-md',
+          input: () => 'disabled:text-gray-600',
+          menu: () =>
+            'bg-white border border-green-3 rounded-md my-1 shadow-md',
           menuList: () => '',
-          noOptionsMessage: () => 'text-neutral-400 py-2 px-3',
+          noOptionsMessage: () => 'text-gray-600 py-2 px-3',
           option: ({ isFocused, isSelected }) =>
             cx(
               'py-2 px-3',
@@ -103,8 +115,8 @@ export const Select = <
                 : ''
             ),
           singleValue: () => 'mx-0.5',
-          valueContainer: () => 'py-0.5 px-2',
-          placeholder: () => 'mx-0.5 text-black/70'
+          valueContainer: () => 'py-1 px-2',
+          placeholder: () => 'mx-0.5 text-gray-600'
         }}
         className={className}
         id={id}
@@ -112,6 +124,6 @@ export const Select = <
         {...props}
       />
       <FieldError error={error} />
-    </>
+    </div>
   )
 }

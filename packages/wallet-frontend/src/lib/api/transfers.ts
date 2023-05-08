@@ -13,7 +13,7 @@ export const paySchema = z.object({
       label: z.string().min(1)
     })
     .nullable(),
-  incomingPaymentUrl: z.string().url(),
+  incomingPaymentUrl: z.string().url().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
@@ -28,7 +28,7 @@ export const sendSchema = z.object({
       label: z.string().min(1)
     })
     .nullable(),
-  toPaymentPointerUrl: z.string().url(),
+  toPaymentPointerUrl: z.string().url().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
@@ -57,23 +57,37 @@ type SendArgs = z.infer<typeof sendSchema>
 type SendError = ErrorResponse<SendArgs | undefined>
 type SendResponse = Promise<SuccessResponse | SendError>
 
-type RequestSuccessResponse = {
+type Transaction = {
   paymentPointerId: string
   paymentId: string
   assetCode: string
   value: number
   type: string
   status: string
+  description?: string
+}
+
+type PaymentDetails = {
+  description?: string
+  value: number
 }
 type RequestArgs = z.infer<typeof requestSchema>
-type RequestResult = SuccessResponse<RequestSuccessResponse>
+type RequestResult = SuccessResponse<Transaction>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = Promise<RequestResult | RequestError>
+
+type IncomingPaymentDetailsResult = SuccessResponse<PaymentDetails>
+type IncomingPaymentDetailsResponse = Promise<
+  IncomingPaymentDetailsResult | ErrorResponse
+>
 
 interface TransfersService {
   pay: (args: PayArgs) => Promise<PayResponse>
   send: (args: SendArgs) => Promise<SendResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
+  getIncomingPaymentDetails: (
+    incomingPaymentUrl: string
+  ) => Promise<IncomingPaymentDetailsResponse>
 }
 
 const createTransfersService = (): TransfersService => ({
@@ -108,6 +122,7 @@ const createTransfersService = (): TransfersService => ({
               : undefined,
             toPaymentPointerUrl: args.toPaymentPointerUrl,
             amount: args.amount,
+            description: args.description,
             isReceive: args.paymentType === 'received'
           }
         })
@@ -138,6 +153,26 @@ const createTransfersService = (): TransfersService => ({
       return getError<RequestArgs>(
         error,
         'We could not request the money. Please try again.'
+      )
+    }
+  },
+
+  async getIncomingPaymentDetails(
+    incomingPaymentUrl: string
+  ): Promise<IncomingPaymentDetailsResponse> {
+    try {
+      const response = await httpClient
+        .get('payment-details', {
+          searchParams: {
+            url: incomingPaymentUrl
+          }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'Something went wrong. Please make sure the url is correct and try again.'
       )
     }
   }

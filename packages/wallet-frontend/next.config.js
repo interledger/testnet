@@ -12,7 +12,7 @@ const nextConfig = {
     NEXT_PUBLIC_USE_TEST_KYC_DATA:
       process.env.NEXT_PUBLIC_USE_TEST_KYC_DATA || 'true',
     NEXT_PUBLIC_OPEN_PAYMENTS_HOST:
-      process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST || 'http://rafiki-backend/'
+      process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST || '$rafiki-backend/'
   }
 }
 

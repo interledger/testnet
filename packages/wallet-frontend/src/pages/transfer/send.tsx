@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { Input } from '@/ui/forms/Input'
+import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -18,10 +18,11 @@ import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
+import { NextPageWithLayout } from '@/lib/types/app'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Send({ accounts }: SendProps) {
+const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
@@ -68,7 +69,7 @@ export default function Send({ accounts }: SendProps) {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="violet" balance={balance} />
         <Form
@@ -97,11 +98,14 @@ export default function Send({ accounts }: SendProps) {
             }
           }}
         >
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="from" />
             <Select
+              required
+              label="Account"
               placeholder="Select account..."
               options={accounts}
+              isSearchable={false}
               onChange={(option) => {
                 if (option) {
                   getPaymentPointers(option.value)
@@ -113,6 +117,8 @@ export default function Send({ accounts }: SendProps) {
               control={sendForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
+                  required
+                  label="Payment pointer"
                   options={paymentPointers}
                   aria-invalid={
                     sendForm.formState.errors.paymentPointerId
@@ -131,31 +137,20 @@ export default function Send({ accounts }: SendProps) {
               )}
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              {...sendForm.register('toPaymentPointerUrl')}
-              error={sendForm.formState.errors.toPaymentPointerUrl?.message}
-              label="Payment pointer"
-            />
-          </div>
-          <div className="space-y-1">
             <Controller
-              name="paymentType"
-              defaultValue="sent"
+              name="toPaymentPointerUrl"
               control={sendForm.control}
-              render={({ field: { onChange, value } }) => {
+              render={({ field: { value } }) => {
                 return (
-                  <TogglePayment
-                    type={value}
-                    onChange={(newValue) => {
-                      sendForm.setValue(
-                        'paymentType',
-                        newValue ? 'received' : 'sent'
-                      )
-                      onChange(newValue ? 'received' : 'sent')
-                    }}
+                  <DebouncedInput
+                    required
+                    error={
+                      sendForm.formState.errors.toPaymentPointerUrl?.message
+                    }
+                    label="Payment pointer"
+                    value={value}
                   />
                 )
               }}
@@ -166,9 +161,30 @@ export default function Send({ accounts }: SendProps) {
               {...sendForm.register('amount')}
               error={sendForm.formState.errors.amount?.message}
               label="Amount"
+              labelHint={
+                <Controller
+                  name="paymentType"
+                  defaultValue="sent"
+                  control={sendForm.control}
+                  render={({ field: { onChange, value } }) => {
+                    return (
+                      <TogglePayment
+                        type={value}
+                        onChange={(newValue) => {
+                          sendForm.setValue(
+                            'paymentType',
+                            newValue ? 'received' : 'sent'
+                          )
+                          onChange(newValue ? 'received' : 'sent')
+                        }}
+                      />
+                    )
+                  }}
+                />
+              }
             />
+            <Input {...sendForm.register('description')} label="Description" />
           </div>
-          <Input {...sendForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"
@@ -197,7 +213,7 @@ export default function Send({ accounts }: SendProps) {
         width={500}
         height={200}
       />
-    </AppLayout>
+    </>
   )
 }
 
@@ -234,3 +250,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+SendPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default SendPage

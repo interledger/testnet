@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { Input } from '@/ui/forms/Input'
+import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -18,16 +18,39 @@ import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
+import type { NextPageWithLayout } from '@/lib/types/app'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-export default function Pay({ accounts }: PayProps) {
+const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const payForm = useZodForm({
-    schema: paySchema
+    schema: paySchema,
+    defaultValues: {
+      incomingPaymentUrl: ''
+    }
   })
+
+  const fetchData = async (incomingPaymentUrl: string) => {
+    if (incomingPaymentUrl === '') {
+      return
+    }
+    const response = await transfersService.getIncomingPaymentDetails(
+      incomingPaymentUrl
+    )
+    if (response.success && response.data) {
+      const { value, description } = response.data
+      payForm.clearErrors('incomingPaymentUrl')
+      payForm.setValue('amount', value)
+      payForm.setValue('description', description ?? '')
+      payForm.setValue('incomingPaymentUrl', incomingPaymentUrl)
+    } else {
+      const { message } = response
+      payForm.setError('incomingPaymentUrl', { message })
+    }
+  }
 
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -65,7 +88,7 @@ export default function Pay({ accounts }: PayProps) {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col lg:w-2/3">
         <TransferHeader type="pink" balance={balance} />
         <Form
@@ -93,12 +116,14 @@ export default function Pay({ accounts }: PayProps) {
             }
           }}
         >
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="from" />
             <Select<SelectOption>
+              required
+              isSearchable={false}
+              label="Account"
               options={accounts}
               placeholder="Select account..."
-              isSearchable={false}
               onChange={(option) => {
                 if (option) {
                   getPaymentPointers(option.value)
@@ -110,6 +135,8 @@ export default function Pay({ accounts }: PayProps) {
               control={payForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
+                  required
+                  label="Payment pointer"
                   options={paymentPointers}
                   aria-invalid={
                     payForm.formState.errors.paymentPointerId ? 'true' : 'false'
@@ -126,25 +153,32 @@ export default function Pay({ accounts }: PayProps) {
               )}
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              {...payForm.register('incomingPaymentUrl')}
-              error={payForm.formState.errors.incomingPaymentUrl?.message}
-              label="Incoming payment URL"
+            <Controller
+              name="incomingPaymentUrl"
+              control={payForm.control}
+              render={({ field: { value } }) => {
+                return (
+                  <DebouncedInput
+                    required
+                    error={payForm.formState.errors.incomingPaymentUrl?.message}
+                    label="Incoming payment URL"
+                    value={value}
+                    onChange={fetchData}
+                  />
+                )
+              }}
             />
-          </div>
-          <div className="space-y-1">
-            <TogglePayment disabled={true} type="received" />
             <Input
               required
               {...payForm.register('amount')}
               error={payForm.formState.errors.amount?.message}
               label="Amount"
+              labelHint={<TogglePayment disabled={true} type="received" />}
             />
+            <Input {...payForm.register('description')} label="Description" />
           </div>
-          <Input {...payForm.register('description')} label="Description" />
           <div className="flex justify-center py-5">
             <Button
               aria-label="Pay"
@@ -173,11 +207,15 @@ export default function Pay({ accounts }: PayProps) {
         width={500}
         height={200}
       />
-    </AppLayout>
+    </>
   )
 }
 
-type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
+type SelectAccountOption = SelectOption & {
+  balance: string
+  assetCode: string
+  assetRafikiId: string
+}
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
@@ -193,7 +231,8 @@ export const getServerSideProps: GetServerSideProps<{
         label: `${account.name} (${account.assetCode})`,
         value: account.id,
         balance: account.balance,
-        assetCode: account.assetCode
+        assetCode: account.assetCode,
+        assetRafikiId: account.assetRafikiId
       }))
     : []
 
@@ -203,3 +242,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+PayPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default PayPage

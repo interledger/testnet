@@ -7,6 +7,7 @@ import {
   paymentPointerService,
   TransactionWithFormattedValue
 } from '@/lib/api/paymentPointer'
+import { NextPageWithLayout } from '@/lib/types/app'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
 import { formatAmount } from '@/utils/helpers'
@@ -15,18 +16,19 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
+import { assetService } from '@/lib/api/asset'
 
 type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >
 
-export default function TransactionsPage({
+const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   account,
   paymentPointer,
   transactions
-}: TransactionsPageProps) {
+}) => {
   return (
-    <AppLayout>
+    <>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader
           title="Transactions"
@@ -80,7 +82,7 @@ export default function TransactionsPage({
           </Table.Body>
         </Table>
       </div>
-    </AppLayout>
+    </>
   )
 }
 
@@ -137,6 +139,16 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  const assetResponse = await assetService.get(
+    accountResponse.data.assetRafikiId,
+    ctx.req.headers.cookie
+  )
+  if (!assetResponse.success || !assetResponse.data) {
+    return {
+      notFound: true
+    }
+  }
+
   const transactions = transactionsResponse.data.map((trx) => ({
     ...trx,
     createdAt: new Date(trx.createdAt).toLocaleDateString('default', {
@@ -146,7 +158,7 @@ export const getServerSideProps: GetServerSideProps<{
       hour: '2-digit',
       minute: '2-digit'
     }),
-    value: formatAmount(trx.value)
+    value: formatAmount(trx.value, assetResponse.data?.scale)
   }))
 
   return {
@@ -157,3 +169,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 }
+
+TransactionsPage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
+}
+
+export default TransactionsPage

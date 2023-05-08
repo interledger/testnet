@@ -10,7 +10,7 @@
     "date-fns": "^2.30.0",
     "express": "^4.18.2",
     "hash-wasm": "^4.9.0",
-    "helmet": "^6.1.5",
+    "helmet": "^7.0.0",
     "iron-session": "^6.3.1",
     "knex": "^2.4.2",
     "objection": "^3.0.1",

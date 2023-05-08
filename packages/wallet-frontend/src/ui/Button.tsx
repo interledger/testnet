@@ -72,7 +72,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cx(className, buttonStyles({ intent, size, fullWidth }))}
         {...props}
       >
-        {loading && <Spinner />}
+        {loading && (
+          <span className="absolute">
+            <Spinner />
+          </span>
+        )}
         <div className={cx(loading ? 'invisible' : 'visible')}>{children}</div>
       </ButtonOrLink>
     )
