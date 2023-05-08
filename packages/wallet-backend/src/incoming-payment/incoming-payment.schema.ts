@@ -5,6 +5,7 @@ export const incomingPaymentSchema = z.object({
   amount: z.number().positive(),
   description: z.string().optional()
 })
+
 export const paymentDetailsSchema = z.object({
   url: z
     .string()
