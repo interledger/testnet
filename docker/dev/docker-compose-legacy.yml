@@ -26,7 +26,7 @@ services:
       PORT: 4003
       NEXT_PUBLIC_USE_TEST_KYC_DATA: 'true'
       NEXT_PUBLIC_BACKEND_URL: http://35.196.11.156:3003
-      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: $rafiki-money
+      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://rafiki-backend
     restart: always
     networks:
       - testnet
@@ -55,7 +55,7 @@ services:
       RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://rafiki-backend
-      GRAPHQL_ENDPOINT: http://35.196.11.156:3001/graphql
+      GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
     restart: always
     networks:
       - testnet
@@ -104,8 +104,8 @@ services:
       TIGERBEETLE_CLUSTER_ID: 0
       TIGERBEETLE_REPLICA_ADDRESSES: ''
       NONCE_REDIS_KEY: test
-      AUTH_SERVER_GRANT_URL: http://35.196.11.156:3006
-      AUTH_SERVER_INTROSPECTION_URL: http://35.196.11.156:3007
+      AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
+      AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
       ILP_ADDRESS: test.net
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
@@ -114,9 +114,9 @@ services:
       REDIS_URL: redis://redis:6379/0
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
-      WEBHOOK_URL: http://35.196.11.156:3003/rafiki/webhooks
-      EXCHANGE_RATES_URL: http://35.196.11.156:3003/rafiki/rates
-      QUOTE_URL: http://35.196.11.156:3003/rafiki/quote
+      WEBHOOK_URL: http://wallet-backend:3003/rafiki/webhooks
+      EXCHANGE_RATES_URL: http://wallet-backend:3003/rafiki/rates
+      QUOTE_URL: http://wallet-backend:3003/rafiki/quote
     depends_on:
       - postgres
       - redis
@@ -134,7 +134,7 @@ services:
       - testnet
     environment:
       PORT: 3012
-      GRAPHQL_URL: http://35.196.11.156:3001/graphql
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   rafiki-local-http-signatures:
     build:
