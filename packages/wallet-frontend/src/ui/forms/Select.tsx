@@ -95,16 +95,16 @@ export const Select = <
         classNames={{
           control: ({ isDisabled, isFocused }) =>
             cx(
-              'rounded-md shadow-md border py-0.',
-              isDisabled ? 'bg-gray-50' : 'bg-white',
+              'rounded-md shadow-md border',
+              isDisabled ? 'bg-gray-50 text-gray-600' : 'bg-white',
               isFocused ? 'border-green-3' : 'border-turqoise'
             ),
           dropdownIndicator: () => 'p-2',
-          input: () => 'text-neutral-800',
+          input: () => 'disabled:text-gray-600',
           menu: () =>
             'bg-white border border-green-3 rounded-md my-1 shadow-md',
           menuList: () => '',
-          noOptionsMessage: () => 'text-neutral-400 py-2 px-3',
+          noOptionsMessage: () => 'text-gray-600 py-2 px-3',
           option: ({ isFocused, isSelected }) =>
             cx(
               'py-2 px-3',
@@ -116,7 +116,7 @@ export const Select = <
             ),
           singleValue: () => 'mx-0.5',
           valueContainer: () => 'py-1 px-2',
-          placeholder: () => 'mx-0.5 text-black/70'
+          placeholder: () => 'mx-0.5 text-gray-600'
         }}
         className={className}
         id={id}

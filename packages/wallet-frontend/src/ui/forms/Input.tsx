@@ -29,7 +29,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <div className="mt-1 flex rounded-md shadow-sm">
             {addOn ? (
-              <span className="inline-flex items-center rounded-l-md border border-r-0 border-turqoise bg-gray-50 px-3 text-black/50 sm:text-sm">
+              <span className="inline-flex items-center rounded-l-md border border-r-0 border-turqoise bg-gray-50 px-3 text-gray-600 sm:text-sm">
                 {addOn}
               </span>
             ) : null}
@@ -38,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ref={ref}
               type={type ?? 'text'}
               className={cx(
-                'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50',
+                'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
                 addOn && 'rounded-l-none',
                 trailing && 'rounded-r-none',
                 className
@@ -46,7 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               {...props}
             />
             {trailing ? (
-              <span className="inline-flex items-center rounded-r-md border border-l-0 border-turqoise bg-gray-50 px-3 text-black/50 sm:text-sm">
+              <span className="inline-flex items-center rounded-r-md border border-l-0 border-turqoise bg-gray-50 px-3 text-gray-600 sm:text-sm">
                 {trailing}
               </span>
             ) : null}

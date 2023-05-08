@@ -66,6 +66,8 @@ export default function CreateAccount({ assets }: CreateAccountProps) {
           render={({ field: { value } }) => (
             <Select<SelectOption>
               options={assets}
+              label="Asset"
+              placeholder="Select asset..."
               error={createAccountForm.formState.errors.asset?.message}
               value={value}
               onChange={(option) => {
