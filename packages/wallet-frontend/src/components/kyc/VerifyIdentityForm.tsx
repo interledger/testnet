@@ -73,11 +73,13 @@ export const VerifyIdentityForm = () => {
           openDialog(
             <SuccessDialog
               onClose={() => {
+                router.reload()
                 closeDialog()
-                router.push('/')
               }}
-              content="Your identity has been verifyed."
-              redirect="/"
+              onSuccess={() => {
+                router.reload()
+              }}
+              content="Your identity has been verified."
               redirectText="Go to your account overview"
             />
           )
