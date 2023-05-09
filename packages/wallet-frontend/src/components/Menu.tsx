@@ -127,7 +127,6 @@ export const Menu = () => {
                                   <Icon className="h-8 w-8 text-green-3" />
                                   <span className="flex-1">{name}</span>
                                 </div>
-
                                 <Chevron
                                   className="h-6 w-6 transition-transform duration-100"
                                   direction={open ? 'down' : 'left'}
@@ -139,6 +138,7 @@ export const Menu = () => {
                                     key={children.name}
                                     as={Link}
                                     href={children.href}
+                                    onClick={() => setSidebarIsOpen(false)}
                                     className="flex items-center space-x-4 pl-12 text-lg font-light text-green"
                                   >
                                     {children.name}
@@ -152,6 +152,7 @@ export const Menu = () => {
                         <Link
                           key={name}
                           href={href}
+                          onClick={() => setSidebarIsOpen(false)}
                           className="flex items-center space-x-4 text-xl text-green"
                         >
                           <Icon className="h-8 w-8 text-green-3" />

@@ -20,6 +20,7 @@ export const ApiKeys = () => {
           <CopyButton
             value="MY_SUPER_SECRET_API_KEY_1"
             aria-label="copy api key"
+            className="mt-auto"
           />
         </div>
         <div className="flex items-center space-x-10">
@@ -34,6 +35,7 @@ export const ApiKeys = () => {
           <CopyButton
             value="MY_SUPER_SECRET_API_KEY_2"
             aria-label="copy api key"
+            className="mt-auto"
           />
         </div>
       </div>

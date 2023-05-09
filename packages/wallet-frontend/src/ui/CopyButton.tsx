@@ -31,9 +31,9 @@ export const CopyButton = ({ value, ...props }: CopyButtonProps) => {
     >
       <span className="sr-only">Copy</span>
       {isCopied ? (
-        <ClipboardCheck className="m-0.5 h-8 w-8" />
+        <ClipboardCheck className="m-0.5 h-7 w-7" />
       ) : (
-        <Clipboard className="m-0.5 h-8 w-8" />
+        <Clipboard className="m-0.5 h-7 w-7" />
       )}
     </Button>
   )
