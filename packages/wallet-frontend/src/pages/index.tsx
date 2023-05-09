@@ -62,10 +62,10 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
           </Link>
           <Link
             href="/account/create"
-            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white text-center shadow-md hover:border-green-6"
           >
             <New className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
+            <span className="font-medium leading-5 text-green-5 group-hover:text-green-6">
               New account
             </span>
           </Link>

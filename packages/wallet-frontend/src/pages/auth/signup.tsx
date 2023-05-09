@@ -22,7 +22,7 @@ const SignUpPage: NextPageWithLayout = () => {
     <>
       <HeaderLogo header="Welcome" />
       <h2 className="mb-5 mt-10 text-xl text-green">Create Account</h2>
-      <div className="w-2/3">
+      <div className="z-10 w-2/3">
         <Form
           form={signUpForm}
           onSubmit={async (data) => {
