@@ -20,7 +20,7 @@ services:
     container_name: wallet-frontend
     build:
       context: ../..
-      dockerfile: ./packages/wallet-frontend/Dockerfile.dev
+      dockerfile: ./packages/wallet-frontend/Dockerfile-GCP.dev
     environment:
       NODE_ENV: development
       PORT: 4003
