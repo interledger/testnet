@@ -14,7 +14,7 @@
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "my-dev": "pnpm docker:compose:legacy up -d --build",
+    "run-gcp": "pnpm docker:compose:legacy up -d --build",
     "dev": "pnpm docker:compose:legacy up -d --build && pnpm wallet-frontend dev",
     "dev:update": "pnpm docker:compose up -d --build && pnpm wallet-frontend dev",
     "dev:backend:legacy": "pnpm wallet-backend build && pnpm dev && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose:legacy up -d --no-deps --build wallet-backend'",

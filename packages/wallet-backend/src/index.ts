@@ -23,7 +23,7 @@ app.disable('X-Powered-By')
 
 app.use(
   cors({
-    origin: 'http://35.196.11.156',
+    origin: ['http://localhost:4003', 'http://35.196.11.156'],
     credentials: true
   })
 )
