@@ -3,7 +3,8 @@
   "scripts": {
     "start": "node -r tsconfig-paths/register dist/index.js",
     "build": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "jest --passWithNoTests --maxWorkers=75%"
+    "test": "jest --passWithNoTests --maxWorkers=75%",
+    "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -18,7 +19,9 @@
     "uuid": "^9.0.0",
     "winston": "^3.8.2",
     "zod": "^3.21.4",
-    "crypto-js": "^4.1.1"
+    "crypto-js": "^4.1.1",
+    "graphql": "^16.6.0",
+    "graphql-request": "^6.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
@@ -32,6 +35,9 @@
     "ts-jest": "^29.1.0",
     "tsc-alias": "^1.8.6",
     "typescript": "^5.0.4",
-    "@types/crypto-js": "^4.1.1"
+    "@types/crypto-js": "^4.1.1",
+    "@graphql-codegen/cli": "^3.3.1",
+    "@graphql-codegen/typescript": "^3.0.4",
+    "@graphql-codegen/typescript-operations": "^3.0.4"
   }
 }

@@ -19,11 +19,13 @@ import { withSession } from './middleware/withSession'
 import { errorHandler } from './middleware/errorHandler'
 import type { SessionService } from './session/service'
 import { isAuth } from './middleware/isAuth'
+import { GraphQLClient } from 'graphql-request'
 
 export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
+  gqlClient: GraphQLClient
   sessionService: SessionService
   userService: UserService
   userController: UserController

@@ -31,6 +31,7 @@ export class AccountService implements IAccountService {
     }
 
     // const asset = await getAsset(assetRafikiId)
+    //! TODO: find out what this asset is
     const asset: any = {}
 
     if (!asset) {

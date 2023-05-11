@@ -8,6 +8,7 @@ import { logger } from './config/logger'
 import { SessionService } from './session/service'
 import { UserController } from './user/controller'
 import { UserService } from './user/service'
+import { GraphQLClient } from 'graphql-request'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -31,6 +32,13 @@ export const createContainer = (config: Env): Container<Bindings> => {
     )
     return _knex
   })
+
+  //GraphqlClient
+  container.singleton(
+    'gqlClient',
+    async () =>
+      new GraphQLClient((await container.resolve('env')).GRAPHQL_ENDPOINT)
+  )
 
   // Session Modules
   container.singleton('sessionService', async () => new SessionService())
