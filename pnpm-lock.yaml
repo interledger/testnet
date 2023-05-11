@@ -182,6 +182,9 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0
+      crypto-js:
+        specifier: ^4.1.1
+        version: 4.1.1
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
@@ -219,6 +222,9 @@ importers:
       '@faker-js/faker':
         specifier: ^7.6.0
         version: 7.6.0
+      '@types/crypto-js':
+        specifier: ^4.1.1
+        version: 4.1.1
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.17
