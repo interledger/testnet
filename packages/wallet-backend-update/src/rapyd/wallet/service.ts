@@ -7,14 +7,14 @@ import { NotFound } from '../../errors'
 import { User } from '../../user/model'
 import { RapydClient } from '../rapyd-client'
 
-interface WalletServiceDependencies {
+interface RapydWalletServiceDependencies {
   env: Env
   rapyd: RapydClient
   logger: Logger
 }
 
-export class WalletService {
-  constructor(private deps: WalletServiceDependencies) {}
+export class RapydWalletService {
+  constructor(private deps: RapydWalletServiceDependencies) {}
 
   public async createWallet(
     firstName: string,

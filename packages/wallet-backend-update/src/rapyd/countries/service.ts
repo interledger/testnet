@@ -2,13 +2,13 @@
 import { Logger } from 'winston'
 import { RapydClient } from '../rapyd-client'
 
-interface CountriesServiceDependencies {
+interface RapydCountriesServiceDependencies {
   rapyd: RapydClient
   logger: Logger
 }
 
-export class CountriesService {
-  constructor(private deps: CountriesServiceDependencies) {}
+export class RapydCountriesService {
+  constructor(private deps: RapydCountriesServiceDependencies) {}
 
   public async getCountryNames() {
     const countriesResponse = await this.deps.rapyd.getCountryNames()

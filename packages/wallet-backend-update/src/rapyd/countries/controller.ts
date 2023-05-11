@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
-import { CountriesService } from './service'
 import { NextFunction, Request } from 'express'
+import { RapydCountriesService } from './service'
 
 interface IRapydCountriesController {
   getCountryNames: (
@@ -11,7 +11,7 @@ interface IRapydCountriesController {
 }
 interface RapydCountriesDependencies {
   logger: Logger
-  countriesService: CountriesService
+  rapydCountriesService: RapydCountriesService
 }
 
 export class RapydCountriesController implements IRapydCountriesController {
@@ -24,7 +24,7 @@ export class RapydCountriesController implements IRapydCountriesController {
   ) {
     try {
       const countryNamesResult =
-        await this.deps.countriesService.getCountryNames()
+        await this.deps.rapydCountriesService.getCountryNames()
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: countryNamesResult })

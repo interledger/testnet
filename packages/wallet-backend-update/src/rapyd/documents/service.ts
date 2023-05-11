@@ -3,13 +3,13 @@ import { Logger } from 'winston'
 import { RapydClient } from '../rapyd-client'
 import { User } from '../../user/model'
 
-interface DocumentsServiceDependencies {
+interface RapyddocumentsServiceDependencies {
   rapyd: RapydClient
   logger: Logger
 }
 
-export class DocumentsService {
-  constructor(private deps: DocumentsServiceDependencies) {}
+export class RapyddocumentsService {
+  constructor(private deps: RapyddocumentsServiceDependencies) {}
 
   public async getDocumentTypes(userId: string) {
     const user = await User.query().findById(userId)

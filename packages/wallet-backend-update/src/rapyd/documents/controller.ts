@@ -2,7 +2,7 @@
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { User } from '../../user/model'
-import { DocumentsService } from './service'
+import { RapyddocumentsService } from './service'
 
 interface IRapydDocumentsController {
   getDocumentTypes: (
@@ -13,7 +13,7 @@ interface IRapydDocumentsController {
 }
 interface RapydDocumentsDependencies {
   logger: Logger
-  documentsService: DocumentsService
+  rapydDocumentsService: RapyddocumentsService
 }
 
 export class RapydDocumentsController implements IRapydDocumentsController {
@@ -28,7 +28,7 @@ export class RapydDocumentsController implements IRapydDocumentsController {
       const { id: userId } = (req as any).user as User
 
       const documentTypesResult =
-        await this.deps.documentsService.getDocumentTypes(userId)
+        await this.deps.rapydDocumentsService.getDocumentTypes(userId)
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: documentTypesResult })
