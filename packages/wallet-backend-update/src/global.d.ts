@@ -1,4 +1,4 @@
-import type { Response } from 'express'
+import type { Response, Request } from 'express'
 import type { IronSession } from 'iron-session'
 
 declare module 'iron-session' {
@@ -39,4 +39,10 @@ declare global {
   > extends Response {
     json: Send<TBody, this>
   }
+
+  type ControllerFunction<T = undefined> = (
+    req: Request,
+    res: CustomResponse<T>,
+    next: NextFunction
+  ) => Promise<void>
 }

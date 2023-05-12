@@ -1,33 +1,14 @@
-import { NotFound, Unauthorized } from '@/errors'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '../shared/validate'
-import { accountSchema } from './schemas/account.schema'
 import { AccountService } from './service'
-import { fundSchema } from './schemas/fund.schema'
-import { Account } from './model'
+import { accountSchema, fundSchema } from './validation'
 
 interface IAccountController {
-  createAccount: (
-    req: Request,
-    res: CustomResponse<any>,
-    next: NextFunction
-  ) => Promise<void>
-  listAccounts: (
-    req: Request,
-    res: CustomResponse<any>,
-    next: NextFunction
-  ) => Promise<void>
-  getAccountById: (
-    req: Request,
-    res: CustomResponse<any>,
-    next: NextFunction
-  ) => Promise<void>
-  fundAccount: (
-    req: Request,
-    res: CustomResponse<any>,
-    next: NextFunction
-  ) => Promise<void>
+  createAccount: ControllerFunction
+  listAccounts: ControllerFunction
+  getAccountById: ControllerFunction
+  fundAccount: ControllerFunction
 }
 interface AccountControllerDependencies {
   accountService: AccountService

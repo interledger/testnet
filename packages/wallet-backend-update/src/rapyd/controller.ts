@@ -1,37 +1,59 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
-import { WalletService } from './service'
-import { User } from '../../user/model'
-import { validate } from '../../shared/validate'
-import { walletSchema } from './schemas/wallet.schema'
-import { kycSchema } from './schemas/kyc.schema'
-import { profileSchema } from './schemas/profile.schema'
+import { NextFunction, Request } from 'express'
+import { Logger } from 'winston'
+import { validate } from '../shared/validate'
+import { User } from '../user/model'
+import { RapydService } from './service'
+import { kycSchema, profileSchema, walletSchema } from './validation'
 
-interface IRapydWalletController {
-  createWallet: (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => Promise<void>
-  verifyIdentity: (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => Promise<void>
-  updateProfile: (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => Promise<void>
+interface IRapydController {
+  getCountryNames: ControllerFunction
+  getDocumentTypes: ControllerFunction
+  createWallet: ControllerFunction
+  verifyIdentity: ControllerFunction
+  updateProfile: ControllerFunction
 }
-interface RapydWalletControllerDependencies {
+interface RapydControllerDependencies {
   logger: Logger
-  walletService: WalletService
+  rapydService: RapydService
 }
 
-export class RapydWalletController implements IRapydWalletController {
-  constructor(private deps: RapydWalletControllerDependencies) {}
+export class RapydController implements IRapydController {
+  constructor(private deps: RapydControllerDependencies) {}
+
+  public async getCountryNames(
+    _: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) {
+    try {
+      const countryNamesResult = await this.deps.rapydService.getCountryNames()
+      res
+        .status(200)
+        .json({ success: true, message: 'SUCCESS', data: countryNamesResult })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  public async getDocumentTypes(
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) {
+    try {
+      const { id: userId } = (req as any).user as User
+
+      const documentTypesResult = await this.deps.rapydService.getDocumentTypes(
+        userId
+      )
+      res
+        .status(200)
+        .json({ success: true, message: 'SUCCESS', data: documentTypesResult })
+    } catch (e) {
+      next(e)
+    }
+  }
 
   public async createWallet(
     req: Request,
@@ -44,7 +66,7 @@ export class RapydWalletController implements IRapydWalletController {
       const { firstName, lastName, address, city, country, zip, phone } =
         await validate(walletSchema, req)
 
-      const createWalletResponse = this.deps.walletService.createWallet(
+      const createWalletResponse = this.deps.rapydService.createWallet(
         firstName,
         lastName,
         address,
@@ -84,7 +106,7 @@ export class RapydWalletController implements IRapydWalletController {
         backSideImageType
       } = await validate(kycSchema, req)
 
-      const verifyIdentityResponse = this.deps.walletService.verifyIdentity(
+      const verifyIdentityResponse = this.deps.rapydService.verifyIdentity(
         userId,
         documentType,
         frontSideImage,
@@ -115,7 +137,7 @@ export class RapydWalletController implements IRapydWalletController {
     try {
       const { firstName, lastName } = await validate(profileSchema, req)
 
-      const updateProfileResponse = await this.deps.walletService.updateProfile(
+      const updateProfileResponse = await this.deps.rapydService.updateProfile(
         userId,
         firstName,
         lastName

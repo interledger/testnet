@@ -1,26 +1,21 @@
+import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
-import { Container } from './shared/container'
+import { AccountController } from './account/controller'
+import { AccountService } from './account/service'
 import { Bindings } from './app'
+import { AssetController } from './asset/controller'
 import { AuthController } from './auth/controller'
 import { AuthService } from './auth/service'
 import { Env } from './config/env'
 import { logger } from './config/logger'
+import { RafikiClient } from './rafiki/rafiki-client'
+import { RapydClient } from './rapyd/rapyd-client'
 import { SessionService } from './session/service'
+import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import { UserService } from './user/service'
-import { GraphQLClient } from 'graphql-request'
-import { RapydClient } from './rapyd/rapyd-client'
-import { RapydWalletService } from './rapyd/wallet/service'
-import { RapydWalletController } from './rapyd/wallet/controller'
-import { RapydCountriesService } from './rapyd/countries/service'
-import { RapydCountriesController } from './rapyd/countries/controller'
-import { RapyddocumentsService } from './rapyd/documents/service'
-import { RapydDocumentsController } from './rapyd/documents/controller'
-import { Asset } from './rafiki/generated/graphql'
-import { AssetController } from './asset/controller'
-import { RafikiClient } from './rafiki/rafiki-client'
-import { AccountService } from './account/service'
-import { AccountController } from './account/controller'
+import { RapydService } from './rapyd/service'
+import { RapydController } from './rapyd/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -99,57 +94,20 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton(
-    'rapydWalletService',
+    'rapydService',
     async () =>
-      new RapydWalletService({
-        env: await container.resolve('env'),
+      new RapydService({
         logger: await container.resolve('logger'),
         rapyd: await container.resolve('rapydClient')
       })
   )
 
   container.singleton(
-    'rapydWalletController',
+    'rapydController',
     async () =>
-      new RapydWalletController({
+      new RapydController({
         logger: await container.resolve('logger'),
-        walletService: await container.resolve('rapydWalletService')
-      })
-  )
-
-  container.singleton(
-    'rapydCountriesService',
-    async () =>
-      new RapydCountriesService({
-        logger: await container.resolve('logger'),
-        rapyd: await container.resolve('rapydClient')
-      })
-  )
-
-  container.singleton(
-    'rapydCountriesController',
-    async () =>
-      new RapydCountriesController({
-        logger: await container.resolve('logger'),
-        rapydCountriesService: await container.resolve('rapydCountriesService')
-      })
-  )
-
-  container.singleton(
-    'rapydDocumentsService',
-    async () =>
-      new RapyddocumentsService({
-        logger: await container.resolve('logger'),
-        rapyd: await container.resolve('rapydClient')
-      })
-  )
-
-  container.singleton(
-    'rapydDocumentsController',
-    async () =>
-      new RapydDocumentsController({
-        logger: await container.resolve('logger'),
-        rapydDocumentsService: await container.resolve('rapydDocumentsService')
+        rapydService: await container.resolve('rapydService')
       })
   )
 

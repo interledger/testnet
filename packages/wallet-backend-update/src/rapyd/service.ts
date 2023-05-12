@@ -1,20 +1,58 @@
-// interface IAuthService {
-
-import crypto from 'crypto'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from 'winston'
-import { Env } from '../../config/env'
-import { NotFound } from '../../errors'
-import { User } from '../../user/model'
-import { RapydClient } from '../rapyd-client'
+import { User } from '../user/model'
+import { RapydClient } from './rapyd-client'
+import { NotFound } from '../errors'
+import crypto from 'crypto'
 
-interface RapydWalletServiceDependencies {
-  env: Env
+interface RapydServiceDependencies {
   rapyd: RapydClient
   logger: Logger
 }
 
-export class RapydWalletService {
-  constructor(private deps: RapydWalletServiceDependencies) {}
+export class RapydService {
+  constructor(private deps: RapydServiceDependencies) {}
+
+  public async getDocumentTypes(userId: string) {
+    const user = await User.query().findById(userId)
+
+    if (!user) throw new Error(`user doesn't exist`)
+
+    const country = user.country
+    if (!country) throw new Error('User has no country')
+
+    const documentTypesResponse = await this.deps.rapyd.getDocumentTypes(
+      country
+    )
+
+    if ((documentTypesResponse as any).status.status !== 'SUCCESS') {
+      //! Throw
+      throw new Error(
+        `Unable to get document types from rapyd : ${documentTypesResponse.status.message}`
+      )
+    }
+
+    return documentTypesResponse.data.map((item: RapydDocumentType) => ({
+      type: item.type,
+      name: item.name,
+      isBackRequired: item.is_back_required
+    }))
+  }
+
+  public async getCountryNames() {
+    const countriesResponse = await this.deps.rapyd.getCountryNames()
+
+    if ((countriesResponse as any).status.status !== 'SUCCESS') {
+      //! Thorw
+      throw new Error()
+    }
+    const countryNames = countriesResponse.data.map((i: RapydCountry) => ({
+      label: i.name,
+      value: i.iso_alpha2
+    }))
+
+    return countryNames
+  }
 
   public async createWallet(
     firstName: string,

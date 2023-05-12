@@ -4,33 +4,29 @@ import express, {
   type NextFunction,
   type Request
 } from 'express'
-import { Server } from 'http'
+import { GraphQLClient } from 'graphql-request'
 import helmet from 'helmet'
+import { Server } from 'http'
 import type { Knex } from 'knex'
+import { Model } from 'objection'
 import type { Logger } from 'winston'
+import { AccountController } from './account/controller'
+import { AccountService } from './account/service'
+import { AssetController } from './asset/controller'
 import type { AuthController } from './auth/controller'
 import type { AuthService } from './auth/service'
 import type { Env } from './config/env'
-import type { UserService } from './user/service'
-import { Container } from './shared/container'
-import { Model } from 'objection'
-import { withSession } from './middleware/withSession'
 import { errorHandler } from './middleware/errorHandler'
-import type { SessionService } from './session/service'
 import { isAuth } from './middleware/isAuth'
-import { GraphQLClient } from 'graphql-request'
-import { RapydClient } from './rapyd/rapyd-client'
-import { RapydCountriesService } from './rapyd/countries/service'
-import { RapydCountriesController } from './rapyd/countries/controller'
-import { UserController } from './user/controller'
-import { RapydDocumentsController } from './rapyd/documents/controller'
-import { RapydWalletController } from './rapyd/wallet/controller'
-import { RapydWalletService } from './rapyd/wallet/service'
-import { RapyddocumentsService } from './rapyd/documents/service'
-import { AssetController } from './asset/controller'
+import { withSession } from './middleware/withSession'
 import { RafikiClient } from './rafiki/rafiki-client'
-import { AccountService } from './account/service'
-import { AccountController } from './account/controller'
+import { RapydController } from './rapyd/controller'
+import { RapydClient } from './rapyd/rapyd-client'
+import { RapydService } from './rapyd/service'
+import type { SessionService } from './session/service'
+import { Container } from './shared/container'
+import { UserController } from './user/controller'
+import type { UserService } from './user/service'
 
 export interface Bindings {
   env: Env
@@ -39,17 +35,12 @@ export interface Bindings {
   gqlClient: GraphQLClient
   rapydClient: RapydClient
   rafikiClient: RafikiClient
-  rapydCountriesService: RapydCountriesService
-  rapydDocumentsService: RapyddocumentsService
-  rapydWalletService: RapydWalletService
+  rapydService: RapydService
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
 
-  rapydCountriesController: RapydCountriesController
-  rapydDocumentsController: RapydDocumentsController
-  rapydWalletController: RapydWalletController
-
+  rapydController: RapydController
   userController: UserController
   authService: AuthService
   authController: AuthController

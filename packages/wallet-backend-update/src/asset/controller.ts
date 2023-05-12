@@ -1,21 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextFunction } from 'express'
+import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { NotFound } from '../errors'
 import { Asset } from '../rafiki/generated/graphql'
 import { RafikiClient } from '../rafiki/rafiki-client'
 
 interface IAssetController {
-  list: (
-    req: Request,
-    res: CustomResponse<Asset[]>,
-    next: NextFunction
-  ) => Promise<void>
-  getById: (
-    req: Request,
-    res: CustomResponse<Asset>,
-    next: NextFunction
-  ) => Promise<void>
+  list: ControllerFunction<Asset[]>
+  getById: ControllerFunction<Asset>
 }
 interface AssetControllerDependencies {
   logger: Logger

@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+export const accountSchema = z.object({
+  name: z.string(),
+  assetRafikiId: z.string().uuid()
+})
+
 export const fundSchema = z.object({
   amount: z.coerce
     .number({
