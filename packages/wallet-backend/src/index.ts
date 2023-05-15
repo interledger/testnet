@@ -52,7 +52,7 @@ app.use(passport.initialize())
 
 passport.use(jwtStrategy)
 
-app.use(mainRouter)
+app.use("/api", mainRouter)
 
 app.use(errorHandler)
 
