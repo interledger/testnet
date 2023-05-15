@@ -25,7 +25,7 @@ services:
       NODE_ENV: development
       PORT: 4003
       NEXT_PUBLIC_USE_TEST_KYC_DATA: 'true'
-      NEXT_PUBLIC_BACKEND_URL: http://35.196.11.156:3003
+      NEXT_PUBLIC_BACKEND_URL: https://rafiki.money/api
       NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://rafiki-backend
     restart: always
     networks:
@@ -114,9 +114,9 @@ services:
       REDIS_URL: redis://redis:6379/0
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
-      WEBHOOK_URL: http://35.196.11.156:3003/rafiki/webhooks
-      EXCHANGE_RATES_URL: http://35.196.11.156:3003/rafiki/rates
-      QUOTE_URL: http://35.196.11.156:3003/rafiki/quote
+      WEBHOOK_URL: https://rafiki.money/api/rafiki/webhooks
+      EXCHANGE_RATES_URL: https://rafiki.money/api/rafiki/rates
+      QUOTE_URL: https://rafiki.money/api/rafiki/quote
     depends_on:
       - postgres
       - redis
