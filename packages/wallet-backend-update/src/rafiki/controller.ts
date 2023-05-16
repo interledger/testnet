@@ -35,4 +35,14 @@ export class RafikiController implements IRafikiController {
       next(e)
     }
   }
+
+  onWebHook = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const wh = req.body
+      await this.deps.rafikiService.onWebHook(wh)
+      res.status(200).send()
+    } catch (e) {
+      next(e)
+    }
+  }
 }
