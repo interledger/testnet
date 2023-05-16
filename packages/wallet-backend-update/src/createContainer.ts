@@ -140,6 +140,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new AccountService({
         logger: await container.resolve('logger'),
+        rafiki: await container.resolve('rafikiClient'),
         rapyd: await container.resolve('rapydClient')
       })
   )

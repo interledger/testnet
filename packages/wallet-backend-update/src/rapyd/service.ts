@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from 'winston'
-import { User } from '../user/model'
+import { User } from '@/user/model'
 import { RapydClient } from './rapyd-client'
-import { NotFound } from '../errors'
+import { NotFound } from '@/errors'
 import crypto from 'crypto'
 
 interface RapydServiceDependencies {
@@ -48,7 +47,7 @@ export class RapydService {
       country
     )
 
-    if ((documentTypesResponse as any).status.status !== 'SUCCESS') {
+    if (documentTypesResponse.data.status !== 'SUCCESS') {
       //! Throw
       throw new Error(
         `Unable to get document types from rapyd : ${documentTypesResponse.status.message}`
@@ -65,16 +64,14 @@ export class RapydService {
   public async getCountryNames() {
     const countriesResponse = await this.deps.rapyd.getCountryNames()
 
-    if ((countriesResponse as any).status.status !== 'SUCCESS') {
+    if (countriesResponse.data.status !== 'SUCCESS') {
       //! Thorw
       throw new Error()
     }
-    const countryNames = countriesResponse.data.map((i: RapydCountry) => ({
+    return countriesResponse.data.map((i: RapydCountry) => ({
       label: i.name,
       value: i.iso_alpha2
     }))
-
-    return countryNames
   }
 
   public async createWallet(params: CreateWalletParams) {
@@ -162,11 +159,9 @@ export class RapydService {
 
       if (result.status.status !== 'SUCCESS')
         //! Throw
-        throw new Error()
-      // return res.status(500).json({
-      //   message: `Unable to send kyc documents : ${result.status.message}`,
-      //   success: false
-      // })
+        throw new Error(
+          `Unable to send kyc documents : ${result.status.message}`
+        )
 
       return result.data
     } catch (error) {
@@ -192,11 +187,7 @@ export class RapydService {
 
       if (result.status.status !== 'SUCCESS')
         //! Throw
-        throw new Error()
-      // return res.status(500).json({
-      //   message: `Unable to update profile : ${result.status.message}`,
-      //   success: false
-      // })
+        throw new Error(`Unable to update profile : ${result.status.message}`)
 
       user = await User.query().patchAndFetchById(userId, {
         firstName: firstName,
@@ -208,12 +199,8 @@ export class RapydService {
 
       return result.data
     } catch (error) {
-      //!Throw
-      throw new Error()
-      //   log.error(error)
-      //   return res
-      //     .status(500)
-      //     .json({ message: 'Unable to update profile', success: false })
+      this.deps.logger.error(error)
+      throw new Error('Unable to update profile')
     }
   }
 }

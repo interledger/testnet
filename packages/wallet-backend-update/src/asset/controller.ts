@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
-import { NotFound } from '../errors'
-import { Asset } from '../rafiki/generated/graphql'
-import { RafikiClient } from '../rafiki/rafiki-client'
+import { NotFound } from '@/errors'
+import { Asset } from '@/rafiki/generated/graphql'
+import { RafikiClient } from '@/rafiki/rafiki-client'
 
 interface IAssetController {
   list: ControllerFunction<Asset[]>
@@ -16,11 +15,12 @@ interface AssetControllerDependencies {
 
 export class AssetController implements IAssetController {
   constructor(private deps: AssetControllerDependencies) {}
-  public async list(
+
+  list = async (
     _req: Request,
     res: CustomResponse<Asset[]>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const assets = await this.deps.rafikiClient.listAssets()
       res.json({ success: true, message: 'Success', data: assets })
@@ -29,16 +29,13 @@ export class AssetController implements IAssetController {
     }
   }
 
-  public async getById(
+  getById = async (
     req: Request,
     res: CustomResponse<Asset>,
     next: NextFunction
-  ) {
+  ) => {
     try {
-      //! TODO: change  req.params.id
-      const asset = await this.deps.rafikiClient.getAssetById(
-        (req as any).params.id
-      )
+      const asset = await this.deps.rafikiClient.getAssetById(req.params.id)
 
       if (!asset) {
         throw new NotFound()

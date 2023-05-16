@@ -1,15 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { Quote, RafikiService } from './service'
+import { Quote, RafikiService, Rates } from './service'
 
 interface IRafikiController {
   createQuote: (
     req: Request,
-    res: CustomResponse<Quote>,
+    res: Response<Quote>,
     next: NextFunction
-  ) => Promise<any>
-  //   getById: ControllerFunction<Asset>
+  ) => Promise<void>
+  getRates: (
+    req: Request,
+    res: Response<Rates>,
+    next: NextFunction
+  ) => Promise<void>
 }
 interface RafikiControllerDependencies {
   logger: Logger
@@ -18,17 +21,21 @@ interface RafikiControllerDependencies {
 
 export class RafikiController implements IRafikiController {
   constructor(private deps: RafikiControllerDependencies) {}
-  public async createQuote(req: Request, res: Response, next: NextFunction) {
+  createQuote = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const receivedQuote = req.body
       const result = await this.deps.rafikiService.createQuote(receivedQuote)
-      return res.status(201).json(result)
+      res.status(201).json(result)
     } catch (e) {
       next(e)
     }
   }
 
-  public async getRates(_req: Request, res: Response, next: NextFunction) {
+  getRates = async (
+    _req: Request,
+    res: Response<Rates>,
+    next: NextFunction
+  ) => {
     try {
       res.status(200).json(this.deps.rafikiService.getRates())
     } catch (e) {

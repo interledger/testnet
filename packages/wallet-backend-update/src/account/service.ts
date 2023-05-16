@@ -1,16 +1,22 @@
 import { Conflict, NotFound } from '@/errors'
 import { Account } from './model'
-import { User } from '../user/model'
-import { RapydClient } from '../rapyd/rapyd-client'
+import { User } from '@/user/model'
+import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
-import { formatBalance } from '../utils/helpers'
+import { formatBalance } from '@/utils/helpers'
+import { RafikiClient } from '@/rafiki/rafiki-client'
 
 interface IAccountService {
-  createAccount: (userId: string, name: string, assetId: string) => Promise<any>
+  createAccount: (
+    userId: string,
+    name: string,
+    assetId: string
+  ) => Promise<Account>
 }
 
 interface CountriesServiceDependencies {
   rapyd: RapydClient
+  rafiki: RafikiClient
   logger: Logger
 }
 
@@ -21,7 +27,7 @@ export class AccountService implements IAccountService {
     userId: string,
     name: string,
     assetId: string
-  ): Promise<any> {
+  ): Promise<Account> {
     const existingAccount = await Account.query()
       .where('userId', userId)
       .where('name', name)
@@ -30,18 +36,18 @@ export class AccountService implements IAccountService {
       throw new Conflict(`An account with the name '${name}' already exists`)
     }
 
-    // const asset = await getAsset(assetRafikiId)
-    //! TODO: find out what this asset is
-    const asset: any = {}
+    const asset = await this.deps.rafiki.getAssetById(assetId)
 
     if (!asset) {
       throw new NotFound()
     }
-    const existingAsset = await Account.query()
+
+    const existingAssetAccount = await Account.query()
       .where('assetCode', asset.code)
       .where('userId', userId)
       .first()
-    if (existingAsset) {
+
+    if (existingAssetAccount) {
       throw new Conflict(
         `An account with the same asset ${asset.code} already exists`
       )
@@ -60,12 +66,9 @@ export class AccountService implements IAccountService {
     })
 
     if (result.status.status !== 'SUCCESS') {
-      //! Throw
-      throw new Error()
-      //   return res.status(500).json({
-      //     message: `Unable to issue virtal account to ewallet: ${result.status.message}`,
-      //     success: false
-      //   })
+      throw new Error(
+        `Unable to issue virtal account to ewallet: ${result.status.message}`
+      )
     }
 
     // save virtual bank account number to database
@@ -100,7 +103,7 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async getAccounts(userId: string): Promise<any> {
+  public async getAccounts(userId: string): Promise<Account[]> {
     const accounts = await Account.query().where('userId', userId)
 
     const user = await User.query().findById(userId)
@@ -124,7 +127,10 @@ export class AccountService implements IAccountService {
     return accounts
   }
 
-  public async getAccountById(userId: string, accountId: string): Promise<any> {
+  public async getAccountById(
+    userId: string,
+    accountId: string
+  ): Promise<Account> {
     const account = await Account.query()
       .findById(accountId)
       .where('userId', userId)
@@ -174,21 +180,9 @@ export class AccountService implements IAccountService {
     })
 
     if (result.status.status !== 'SUCCESS') {
-      //! Throw error
-      throw new Error()
-      // return res.status(500).json({
-      //   message: `Unable to fund your account: ${result.status.message}`,
-      //   success: false
-      // })
+      throw new Error(`Unable to fund your account: ${result.status.message}`)
     }
 
     return result
   }
 }
-
-/*
-
-try {
-   
-
-*/

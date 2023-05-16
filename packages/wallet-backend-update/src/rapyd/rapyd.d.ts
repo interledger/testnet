@@ -111,6 +111,7 @@ interface RapydWallet {
   accounts?: Array<RapydAccount>
   category?: 'collect' | 'disburse' | 'card_authorization' | 'general'
   contact?: RapydWalletContact
+  contacts?: RapydWalletContact[]
   email?: string
   ewallet_reference_id?: string
   first_name?: string

@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from 'winston'
-import { Env } from '../config/env'
+import { Env } from '@/config/env'
 import {
   createAssetMutation,
   getAssetQuery,
@@ -33,9 +32,8 @@ import {
   WithdrawLiquidityMutation,
   WithdrawLiquidityMutationVariables
 } from './generated/graphql'
-import { GraphQLClient } from 'graphql-request'
 import { createIncomingPaymentMutation } from './request/incoming-payment.request'
-import { BadRequest } from '../errors'
+import { BadRequest } from '@/errors'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
@@ -43,11 +41,12 @@ import {
 import { graphqlClient } from '..'
 import { createOutgoingPaymentMutation } from './request/outgoing-payment.request'
 import { createPaymentPointerMutation } from './request/payment-pointer.request'
+import { GraphQLClient } from 'graphql-request'
 
 interface IRafikiClient {
-  createAsset(code: string, scale: number): Promise<any>
-  listAssets(): Promise<any>
-  getAssetById(id: string): Promise<any>
+  createAsset(code: string, scale: number): Promise<Asset>
+  listAssets(): Promise<Asset[]>
+  getAssetById(id: string): Promise<Asset>
 }
 
 interface RafikiClientDependencies {
@@ -69,7 +68,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error('Data was empty')
     }
 
-    return response.createAsset.asset
+    return response.createAsset.asset as Asset
   }
 
   public async listAssets() {
@@ -78,7 +77,7 @@ export class RafikiClient implements IRafikiClient {
       GetAssetsQueryVariables
     >(getAssetsQuery, {})
 
-    return response.assets.edges.map((el: { node: any }) => el.node)
+    return response.assets.edges.map((el: { node: Asset }) => el.node)
   }
 
   public async getAssetById(id: string) {
@@ -87,7 +86,7 @@ export class RafikiClient implements IRafikiClient {
       GetAssetQueryVariables
     >(getAssetQuery, { id })
 
-    return response.asset
+    return response.asset as Asset
   }
 
   public async createIncomingPayment(

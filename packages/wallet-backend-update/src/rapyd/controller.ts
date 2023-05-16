@@ -1,15 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
-import { validate } from '../shared/validate'
-import { User } from '../user/model'
+import { validate } from '@/shared/validate'
 import { RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 
 interface IRapydController {
   getCountryNames: ControllerFunction
   getDocumentTypes: ControllerFunction
-  createWallet: ControllerFunction
+  createWallet: ControllerFunction<RapydWallet>
   verifyIdentity: ControllerFunction
   updateProfile: ControllerFunction
 }
@@ -21,11 +19,11 @@ interface RapydControllerDependencies {
 export class RapydController implements IRapydController {
   constructor(private deps: RapydControllerDependencies) {}
 
-  public async getCountryNames(
+  getCountryNames = async (
     _: Request,
     res: CustomResponse,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const countryNamesResult = await this.deps.rapydService.getCountryNames()
       res
@@ -36,13 +34,13 @@ export class RapydController implements IRapydController {
     }
   }
 
-  public async getDocumentTypes(
+  getDocumentTypes = async (
     req: Request,
     res: CustomResponse,
     next: NextFunction
-  ) {
+  ) => {
     try {
-      const { id: userId } = (req as any).user as User
+      const { id: userId } = req.session.user
 
       const documentTypesResult = await this.deps.rapydService.getDocumentTypes(
         userId
@@ -55,18 +53,19 @@ export class RapydController implements IRapydController {
     }
   }
 
-  public async createWallet(
+  createWallet = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse<RapydWallet>,
     next: NextFunction
-  ) {
-    const { id, email } = (req as any).user as User
+  ) => {
+    const { id, email } = req.session.user
 
     try {
-      const { firstName, lastName, address, city, country, zip, phone } =
-        await validate(walletSchema, req)
+      const {
+        body: { firstName, lastName, address, city, country, zip, phone }
+      } = await validate(walletSchema, req)
 
-      const createWalletResponse = this.deps.rapydService.createWallet({
+      const createWalletResponse = await this.deps.rapydService.createWallet({
         firstName,
         lastName,
         address,
@@ -88,34 +87,37 @@ export class RapydController implements IRapydController {
     }
   }
 
-  public async verifyIdentity(
+  verifyIdentity = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse,
     next: NextFunction
-  ) {
-    const { id: userId } = (req as any).user as User
+  ) => {
+    const { id: userId } = req.session.user
 
     try {
       const {
-        documentType,
-        frontSideImage,
-        frontSideImageType,
-        faceImage,
-        faceImageType,
-        backSideImage,
-        backSideImageType
+        body: {
+          documentType,
+          frontSideImage,
+          frontSideImageType,
+          faceImage,
+          faceImageType,
+          backSideImage,
+          backSideImageType
+        }
       } = await validate(kycSchema, req)
 
-      const verifyIdentityResponse = this.deps.rapydService.verifyIdentity({
-        userId,
-        documentType,
-        frontSideImage,
-        frontSideImageType,
-        faceImage,
-        faceImageType,
-        backSideImage,
-        backSideImageType
-      })
+      const verifyIdentityResponse =
+        await this.deps.rapydService.verifyIdentity({
+          userId,
+          documentType,
+          frontSideImage,
+          frontSideImageType,
+          faceImage,
+          faceImageType,
+          backSideImage,
+          backSideImageType
+        })
 
       res.status(200).json({
         success: true,
@@ -127,15 +129,17 @@ export class RapydController implements IRapydController {
     }
   }
 
-  public async updateProfile(
+  updateProfile = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse,
     next: NextFunction
-  ) {
-    const { id: userId } = (req as any).user as User
+  ) => {
+    const { id: userId } = req.session.user
 
     try {
-      const { firstName, lastName } = await validate(profileSchema, req)
+      const {
+        body: { firstName, lastName }
+      } = await validate(profileSchema, req)
 
       const updateProfileResponse = await this.deps.rapydService.updateProfile(
         userId,

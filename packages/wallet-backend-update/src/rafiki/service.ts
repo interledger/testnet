@@ -71,6 +71,11 @@ interface RafikiServiceDependencies {
   rafikiClient: RafikiClient
 }
 
+export type Rates = {
+  base: string
+  rates: Record<string, number>
+}
+
 export class RafikiService implements IRafikiService {
   constructor(private deps: RafikiServiceDependencies) {}
 
@@ -432,7 +437,7 @@ export class RafikiService implements IRafikiService {
     return receivedQuote
   }
 
-  public getRates() {
+  public getRates(): Rates {
     return {
       base: 'USD',
       rates: {
@@ -442,10 +447,3 @@ export class RafikiService implements IRafikiService {
     }
   }
 }
-
-/*
-
-try {
-   
-
-*/

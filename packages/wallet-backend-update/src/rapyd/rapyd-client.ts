@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import crypto from 'crypto-js'
 import { Logger } from 'winston'
-import { Env } from '../config/env'
+import { Env } from '@/config/env'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<AxiosResponse>
@@ -119,7 +119,7 @@ export class RapydClient implements IRapydClient {
       currency: req.currency,
       ewallet: settlementWallet
     })
-  
+
     if (depositResult.status.status !== 'SUCCESS') {
       throw new Error(
         `Unable to automatically refund settlement account upon insufecient funds encountered`

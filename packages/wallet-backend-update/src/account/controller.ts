@@ -1,13 +1,14 @@
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { validate } from '../shared/validate'
+import { validate } from '@/shared/validate'
 import { AccountService } from './service'
 import { accountSchema, fundSchema } from './validation'
+import { Account } from '@/account/model'
 
 interface IAccountController {
-  createAccount: ControllerFunction
-  listAccounts: ControllerFunction
-  getAccountById: ControllerFunction
+  createAccount: ControllerFunction<Account>
+  listAccounts: ControllerFunction<Account[]>
+  getAccountById: ControllerFunction<Account>
   fundAccount: ControllerFunction
 }
 interface AccountControllerDependencies {
@@ -18,17 +19,16 @@ interface AccountControllerDependencies {
 export class AccountController implements IAccountController {
   constructor(private deps: AccountControllerDependencies) {}
 
-  public async createAccount(
+  createAccount = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse<Account>,
     next: NextFunction
-  ): Promise<void> {
+  ) => {
     try {
-      const userId = (req as any).user.id
-      const { name, assetRafikiId: assetId } = await validate(
-        accountSchema,
-        req
-      )
+      const userId = req.session.user.id
+      const {
+        body: { name, assetRafikiId: assetId }
+      } = await validate(accountSchema, req)
 
       const createAccountResult = await this.deps.accountService.createAccount(
         userId,
@@ -43,12 +43,12 @@ export class AccountController implements IAccountController {
     }
   }
 
-  public async listAccounts(
+  listAccounts = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse<Account[]>,
     next: NextFunction
-  ): Promise<void> {
-    const userId = (req as any).user.id
+  ) => {
+    const userId = req.session.user.id
 
     try {
       const getAccountsResult = await this.deps.accountService.getAccounts(
@@ -63,15 +63,14 @@ export class AccountController implements IAccountController {
     }
   }
 
-  public async getAccountById(
+  getAccountById = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse<Account>,
     next: NextFunction
-  ): Promise<void> {
-    const userId = (req as any).user.id
+  ) => {
+    const userId = req.session.user.id
+    const accountId = req.params.id
 
-    //! TODO: Find out where to get this from, in old code this was req.params.id
-    const accountId = ''
     try {
       const getAccountsResult = await this.deps.accountService.getAccountById(
         userId,
@@ -86,15 +85,17 @@ export class AccountController implements IAccountController {
     }
   }
 
-  public async fundAccount(
+  fundAccount = async (
     req: Request,
-    res: CustomResponse<any>,
+    res: CustomResponse,
     next: NextFunction
-  ): Promise<void> {
+  ) => {
     try {
-      const { amount, assetCode } = await validate(fundSchema, req)
+      const {
+        body: { amount, assetCode }
+      } = await validate(fundSchema, req)
 
-      const userId = (req as any).user.id
+      const userId = req.session.user.id
 
       await this.deps.accountService.fundAccount(userId, amount, assetCode)
 
