@@ -66,7 +66,7 @@ export class RapydController implements IRapydController {
       const { firstName, lastName, address, city, country, zip, phone } =
         await validate(walletSchema, req)
 
-      const createWalletResponse = this.deps.rapydService.createWallet(
+      const createWalletResponse = this.deps.rapydService.createWallet({
         firstName,
         lastName,
         address,
@@ -76,7 +76,7 @@ export class RapydController implements IRapydController {
         email,
         id,
         phone
-      )
+      })
 
       res.status(200).json({
         success: true,
@@ -106,7 +106,7 @@ export class RapydController implements IRapydController {
         backSideImageType
       } = await validate(kycSchema, req)
 
-      const verifyIdentityResponse = this.deps.rapydService.verifyIdentity(
+      const verifyIdentityResponse = this.deps.rapydService.verifyIdentity({
         userId,
         documentType,
         frontSideImage,
@@ -115,7 +115,7 @@ export class RapydController implements IRapydController {
         faceImageType,
         backSideImage,
         backSideImageType
-      )
+      })
 
       res.status(200).json({
         success: true,

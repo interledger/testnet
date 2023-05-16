@@ -10,6 +10,29 @@ interface RapydServiceDependencies {
   logger: Logger
 }
 
+type VerifyIdentityParams = {
+  userId: string
+  documentType: string
+  frontSideImage: string
+  frontSideImageType: string
+  faceImage: string
+  faceImageType: string
+  backSideImage?: string
+  backSideImageType?: string
+}
+
+type CreateWalletParams = {
+  firstName: string
+  lastName: string
+  address: string
+  city: string
+  country: string
+  zip: string
+  email: string
+  id: string
+  phone?: string
+}
+
 export class RapydService {
   constructor(private deps: RapydServiceDependencies) {}
 
@@ -54,43 +77,33 @@ export class RapydService {
     return countryNames
   }
 
-  public async createWallet(
-    firstName: string,
-    lastName: string,
-    address: string,
-    city: string,
-    country: string,
-    zip: string,
-    email: string,
-    id: string,
-    phone?: string
-  ) {
+  public async createWallet(params: CreateWalletParams) {
     const randomIdentifier = crypto
       .randomBytes(8)
       .toString('base64')
       .slice(0, 8)
-    const rapydReferenceId = `${firstName}-${lastName}-${randomIdentifier}`
+    const rapydReferenceId = `${params.firstName}-${params.lastName}-${randomIdentifier}`
 
     const result = await this.deps.rapyd.createWallet({
-      first_name: firstName,
-      last_name: lastName,
-      email,
+      first_name: params.firstName,
+      last_name: params.lastName,
+      email: params.email,
       ewallet_reference_id: rapydReferenceId,
-      phone_number: phone,
+      phone_number: params.phone,
       type: 'person',
       contact: {
-        phone_number: phone,
-        email,
-        first_name: firstName,
-        last_name: lastName,
+        phone_number: params.phone,
+        email: params.email,
+        first_name: params.firstName,
+        last_name: params.lastName,
         contact_type: 'personal',
         address: {
-          name: `${firstName} ${lastName}`,
-          line_1: address,
-          city,
-          country,
-          zip,
-          phone_number: phone
+          name: `${params.firstName} ${params.lastName}`,
+          line_1: params.address,
+          city: params.city,
+          country: params.country,
+          zip: params.zip,
+          phone_number: params.phone
         }
       }
     })
@@ -102,11 +115,11 @@ export class RapydService {
     }
 
     const eWallet = result.data
-    const user = await User.query().patchAndFetchById(id, {
-      firstName: firstName,
-      lastName: lastName,
-      address: `${address}, ${city}, ${zip}`,
-      country,
+    const user = await User.query().patchAndFetchById(params.id, {
+      firstName: params.firstName,
+      lastName: params.lastName,
+      address: `${params.address}, ${params.city}, ${params.zip}`,
+      country: params.country,
       rapydReferenceId: rapydReferenceId,
       rapydWalletId: eWallet?.id,
       rapydContactId: eWallet?.contacts?.data[0]?.id
@@ -125,18 +138,9 @@ export class RapydService {
     return eWallet
   }
 
-  public async verifyIdentity(
-    userId: string,
-    documentType: string,
-    frontSideImage: string,
-    frontSideImageType: string,
-    faceImage: string,
-    faceImageType: string,
-    backSideImage?: string,
-    backSideImageType?: string
-  ) {
+  public async verifyIdentity(params: VerifyIdentityParams) {
     try {
-      const user = await User.query().findById(userId)
+      const user = await User.query().findById(params.userId)
       if (!user) throw new Error(`user doesn't exist`)
 
       const country = user.country
@@ -146,13 +150,13 @@ export class RapydService {
         reference_id: user.rapydReferenceId,
         ewallet: user.rapydWalletId,
         country,
-        document_type: documentType,
-        front_side_image: frontSideImage,
-        front_side_image_mime_type: frontSideImageType,
-        face_image: faceImage,
-        face_image_mime_type: faceImageType,
-        back_side_image: backSideImage,
-        back_side_image_mime_type: backSideImageType
+        document_type: params.documentType,
+        front_side_image: params.frontSideImage,
+        front_side_image_mime_type: params.frontSideImageType,
+        face_image: params.faceImage,
+        face_image_mime_type: params.faceImageType,
+        back_side_image: params.backSideImage,
+        back_side_image_mime_type: params.backSideImageType
       }
       const result = await this.deps.rapyd.verifyIdentity(values)
 
