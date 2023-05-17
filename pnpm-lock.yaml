@@ -129,8 +129,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@faker-js/faker':
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^8.0.1
+        version: 8.0.1
       '@graphql-codegen/cli':
         specifier: ^3.3.1
         version: 3.3.1(@babel/core@7.21.0)(@types/node@18.14.0)(graphql@16.6.0)
@@ -217,8 +217,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@faker-js/faker':
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^8.0.1
+        version: 8.0.1
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.17
@@ -1150,8 +1150,8 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@faker-js/faker@8.0.0:
-    resolution: {integrity: sha512-XDR8sApuf78GHx8mLXl3KL/q7eB52A963UGejVbdbj3OZtfGlNwp0J78b7apVzqRi0GF8l9g3eSkkaL2UmU9Aw==}
+  /@faker-js/faker@8.0.1:
+    resolution: {integrity: sha512-kbh5MenpTN9U0B4QcOI1NoTPlZHniSYQ3BHbhAnPjJGAmmFqxoxTE4sGdpy7ZOO9038DPGCuhXyMkjOr05uVwA==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
     dev: true
 
