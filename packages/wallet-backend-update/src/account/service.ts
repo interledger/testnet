@@ -5,6 +5,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { formatBalance } from '@/utils/helpers'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { NotFoundException } from '../../../wallet-backend/src/shared/models/errors/NotFoundException'
 
 interface IAccountService {
   createAccount: (
@@ -184,5 +185,20 @@ export class AccountService implements IAccountService {
     }
 
     return result
+  }
+
+  findAccountById = async (
+    accountId: string,
+    userId: string
+  ): Promise<Account> => {
+    const account = await Account.query()
+      .findById(accountId)
+      .where('userId', userId)
+
+    if (!account) {
+      throw new NotFoundException()
+    }
+
+    return account
   }
 }

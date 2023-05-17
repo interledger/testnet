@@ -16,6 +16,8 @@ import { UserController } from './user/controller'
 import { UserService } from './user/service'
 import { RapydService } from './rapyd/service'
 import { RapydController } from './rapyd/controller'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { PaymentPointerController } from '@/paymentPointer/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -151,6 +153,26 @@ export const createContainer = (config: Env): Container<Bindings> => {
       new AccountController({
         logger: await container.resolve('logger'),
         accountService: await container.resolve('accountService')
+      })
+  )
+
+  //* PaymentPointer
+  container.singleton(
+    'paymentPointerService',
+    async () =>
+      new PaymentPointerService({
+        env: await container.resolve('env'),
+        rafikiClient: await container.resolve('rafikiClient'),
+        accountService: await container.resolve('accountService')
+      })
+  )
+
+  container.singleton(
+    'paymentPointerController',
+    async () =>
+      new PaymentPointerController({
+        logger: await container.resolve('logger'),
+        paymentPointerService: await container.resolve('paymentPointerService')
       })
   )
 

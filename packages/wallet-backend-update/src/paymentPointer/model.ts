@@ -5,11 +5,12 @@ import { Account } from '@/account/model'
 export class PaymentPointer extends BaseModel {
   static tableName = 'paymentPointers'
 
-  public publicName!: string
-  public readonly id!: string
-  public readonly url!: string
-  public readonly accountId!: string
-  public Account!: Account
+  publicName!: string
+  readonly id!: string
+  readonly url!: string
+  readonly accountId!: string
+  active!: boolean
+  Account!: Account
 
   static relationMappings = () => ({
     account: {

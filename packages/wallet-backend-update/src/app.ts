@@ -27,6 +27,8 @@ import type { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
+import { PaymentPointerController } from '@/paymentPointer/controller'
+import { PaymentPointerService } from '@/paymentPointer/service'
 
 export interface Bindings {
   env: Env
@@ -46,6 +48,8 @@ export interface Bindings {
   authController: AuthController
   assetController: AssetController
   accountController: AccountController
+  paymentPointerController: PaymentPointerController
+  paymentPointerService: PaymentPointerService
 }
 
 export class App {
@@ -88,6 +92,9 @@ export class App {
     const env = await this.container.resolve('env')
     const authController = await this.container.resolve('authController')
     const userController = await this.container.resolve('userController')
+    const paymentPointerController = await this.container.resolve(
+      'paymentPointerController'
+    )
 
     app.use(helmet())
     app.use(express.json())
@@ -112,6 +119,28 @@ export class App {
 
     // Me Endpoint
     router.get('/me', isAuth, userController.me)
+
+    // payment pointer routes
+    router.post(
+      '/accounts/:accountId/payment-pointers',
+      isAuth,
+      paymentPointerController.create
+    )
+    router.get(
+      '/accounts/:accountId/payment-pointers',
+      isAuth,
+      paymentPointerController.list
+    )
+    router.get(
+      '/accounts/:accountId/payment-pointers/:id',
+      isAuth,
+      paymentPointerController.getById
+    )
+    router.delete(
+      '/payment-pointer/:id',
+      isAuth,
+      paymentPointerController.softDelete
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
