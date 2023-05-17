@@ -1,10 +1,11 @@
+import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
 import { Switch } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useState, useEffect } from 'react'
 
 const TYPES = {
-  sent: { text: 'text-pink', bg: 'bg-pink' },
-  received: { text: 'text-violet', bg: 'bg-violet' }
+  send: { text: 'text-pink', bg: 'bg-pink' },
+  receive: { text: 'text-violet', bg: 'bg-violet' }
 } as const
 
 type ToggleTypes = keyof typeof TYPES
@@ -21,7 +22,7 @@ export const TogglePayment = ({
   disabled = false,
   onChange
 }: ToggleProps) => {
-  const value = type !== 'sent'
+  const value = type !== PAYMENT_SEND
   const [enabled, setEnabled] = useState(value)
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export const TogglePayment = ({
             disabled ? 'text-black/40' : `cursor-pointer text-pink`
           )}
         >
-          sent
+          {PAYMENT_SEND}
         </Switch.Label>
         <Switch
           checked={enabled || disabled}
@@ -68,7 +69,7 @@ export const TogglePayment = ({
             disabled ? 'text-black/40' : 'cursor-pointer text-violet'
           )}
         >
-          received
+          {PAYMENT_RECEIVE}
         </Switch.Label>
       </div>
     </Switch.Group>

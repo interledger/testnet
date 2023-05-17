@@ -19,6 +19,7 @@ import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import type { NextPageWithLayout } from '@/lib/types/app'
+import { PAYMENT_RECEIVE } from '@/utils/constants'
 
 type PayProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -175,7 +176,9 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
               {...payForm.register('amount')}
               error={payForm.formState.errors.amount?.message}
               label="Amount"
-              labelHint={<TogglePayment disabled={true} type="received" />}
+              labelHint={
+                <TogglePayment disabled={true} type={PAYMENT_RECEIVE} />
+              }
             />
             <Input {...payForm.register('description')} label="Description" />
           </div>
