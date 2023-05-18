@@ -41,6 +41,7 @@ export const appendAccessTokenToCookie = (
   res.cookie('AccessToken', token, {
     httpOnly: true,
     secure: true,
+    sameSite: 'none',
     maxAge: expiresIn * 1000
   })
 }
@@ -52,6 +53,8 @@ const appendRefreshTokenToCookie = (
 ) => {
   res.cookie('RefreshToken', token, {
     httpOnly: true,
+    secure: true,
+    sameSite: 'none',
     maxAge: expiresIn * 1000
   })
 }
