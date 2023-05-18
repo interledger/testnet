@@ -2,7 +2,7 @@
   "name": "wallet-frontend",
   "scripts": {
     "dev": "PORT=4003 next dev",
-    "build": "NEXT_PUBLIC_BACKEND_URL=https://rafiki.money/api next build",
+    "build": "next build",
     "start": "PORT=4003 next start"
   },
   "dependencies": {

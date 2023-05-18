@@ -27,10 +27,7 @@ app.use(
       'http://localhost:4003',
       'http://35.196.11.156',
       'https://35.196.11.156',
-      'http://rafiki.money',
-      'http://www.rafiki.money',
-      'https://rafiki.money',
-      'https://www.rafiki.money',
+      'https://rafiki.money'
     ],
     credentials: true
   })
@@ -52,7 +49,7 @@ app.use(passport.initialize())
 
 passport.use(jwtStrategy)
 
-app.use("/api", mainRouter)
+app.use(mainRouter)
 
 app.use(errorHandler)
 
