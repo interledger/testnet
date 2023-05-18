@@ -40,6 +40,7 @@ export const appendAccessTokenToCookie = (
 ) => {
   res.cookie('AccessToken', token, {
     httpOnly: true,
+    secure: true,
     maxAge: expiresIn * 1000
   })
 }
