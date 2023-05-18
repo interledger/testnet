@@ -9,6 +9,7 @@ export const SESSION_OPTIONS: IronSessionOptions = {
   cookieOptions: {
     secure: env.NODE_ENV === 'production',
     sameSite: 'none',
+    domain: 'rafiki.money',
     httpOnly: true
   },
   ttl: env.COOKIE_TTL

@@ -9,10 +9,8 @@ import { Model } from 'objection'
 import passport from 'passport'
 import { jwtStrategy } from './auth/jwtStrategy'
 import env from './config/env'
-
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes'
-import { Domain } from 'domain'
 
 BigInt.prototype.toJSON = function (this: bigint) {
   return this.toString()
