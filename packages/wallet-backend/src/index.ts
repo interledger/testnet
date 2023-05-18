@@ -23,7 +23,15 @@ app.disable('X-Powered-By')
 
 app.use(
   cors({
-    origin: ['http://localhost:4003', 'http://35.196.11.156'],
+    origin: [
+      'http://localhost:4003',
+      'http://35.196.11.156',
+      'https://35.196.11.156',
+      'http://rafiki.money',
+      'http://www.rafiki.money',
+      'https://rafiki.money',
+      'https://www.rafiki.money',
+    ],
     credentials: true
   })
 )
@@ -44,7 +52,7 @@ app.use(passport.initialize())
 
 passport.use(jwtStrategy)
 
-app.use(mainRouter)
+app.use("/api", mainRouter)
 
 app.use(errorHandler)
 
