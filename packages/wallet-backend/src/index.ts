@@ -12,6 +12,7 @@ import env from './config/env'
 
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes'
+import { Domain } from 'domain'
 
 BigInt.prototype.toJSON = function (this: bigint) {
   return this.toString()
@@ -34,12 +35,12 @@ app.use(
 )
 app.use(express.json({ limit: '25mb' }))
 app.use(express.urlencoded({ extended: true, limit: '25mb' }))
-// app.use(cookieParser())
-app.use(cookieParser(null, {
-  domain: 'rafiki.money',
-  sameSite: 'none',
-  secure: true
-}));
+app.use(cookieParser())
+
+  
+
+
+
 
 export const knex = Knex(config[env.NODE_ENV || 'development'])
 

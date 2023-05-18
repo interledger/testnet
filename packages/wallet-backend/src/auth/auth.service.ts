@@ -42,6 +42,8 @@ export const appendAccessTokenToCookie = (
     httpOnly: true,
     secure: true,
     sameSite: 'none',
+    domain: 'rafiki.money',
+    
     maxAge: expiresIn * 1000
   })
 }
@@ -55,6 +57,8 @@ const appendRefreshTokenToCookie = (
     httpOnly: true,
     secure: true,
     sameSite: 'none',
+    domain: 'rafiki.money',
+
     maxAge: expiresIn * 1000
   })
 }
