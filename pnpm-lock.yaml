@@ -96,7 +96,7 @@ importers:
         version: 9.0.0
       knex:
         specifier: ^2.4.2
-        version: 2.4.2(pg@8.10.0)
+        version: 2.4.2(pg@8.11.0)
       objection:
         specifier: ^3.0.1
         version: 3.0.1(knex@2.4.2)
@@ -107,8 +107,8 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       pg:
-        specifier: ^8.10.0
-        version: 8.10.0
+        specifier: ^8.11.0
+        version: 8.11.0
       testcontainers:
         specifier: ^9.8.0
         version: 9.8.0
@@ -199,13 +199,13 @@ importers:
         version: 6.3.1(express@4.18.2)
       knex:
         specifier: ^2.4.2
-        version: 2.4.2(pg@8.10.0)
+        version: 2.4.2(pg@8.11.0)
       objection:
         specifier: ^3.0.1
         version: 3.0.1(knex@2.4.2)
       pg:
-        specifier: ^8.10.0
-        version: 8.10.0
+        specifier: ^8.11.0
+        version: 8.11.0
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
@@ -5670,7 +5670,7 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
 
-  /knex@2.4.2(pg@8.10.0):
+  /knex@2.4.2(pg@8.11.0):
     resolution: {integrity: sha512-tMI1M7a+xwHhPxjbl/H9K1kHX+VncEYcvCx5K00M16bWvpYPKAZd6QrCu68PtHAdIZNQPWZn0GVhqVBEthGWCg==}
     engines: {node: '>=12'}
     hasBin: true
@@ -5707,7 +5707,7 @@ packages:
       getopts: 2.3.0
       interpret: 2.2.0
       lodash: 4.17.21
-      pg: 8.10.0
+      pg: 8.11.0
       pg-connection-string: 2.5.0
       rechoir: 0.8.0
       resolve-from: 5.0.0
@@ -6349,7 +6349,7 @@ packages:
     dependencies:
       ajv: 8.12.0
       db-errors: 0.2.3
-      knex: 2.4.2(pg@8.10.0)
+      knex: 2.4.2(pg@8.11.0)
     dev: false
 
   /on-finished@2.4.1:
@@ -6582,8 +6582,18 @@ packages:
     resolution: {integrity: sha512-KG8UEiEVkR3wGEb4m5yZkVCzigAD+cVEJck2CzYZO37ZGJfctvVptVO192MwrtPhzONn6go8ylnOdMhKqi4nfg==}
     dev: false
 
+  /pg-cloudflare@1.1.0:
+    resolution: {integrity: sha512-tGM8/s6frwuAIyRcJ6nWcIvd3+3NmUKIs6OjviIm1HPPFEt5MzQDOTBQyhPWg/m0kCl95M6gA1JaIXtS8KovOA==}
+    requiresBuild: true
+    dev: false
+    optional: true
+
   /pg-connection-string@2.5.0:
     resolution: {integrity: sha512-r5o/V/ORTA6TmUnyWZR9nCj1klXCO2CEKNRlVuJptZe85QuhFayC7WeMic7ndayT5IRIR0S0xFxFi2ousartlQ==}
+    dev: false
+
+  /pg-connection-string@2.6.0:
+    resolution: {integrity: sha512-x14ibktcwlHKoHxx9X3uTVW9zIGR41ZB6QNhHb21OPNdCCO3NaRnpJuwKIQSR4u+Yqjx4HCvy7Hh7VSy1U4dGg==}
     dev: false
 
   /pg-int8@1.0.1:
@@ -6591,12 +6601,12 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: false
 
-  /pg-pool@3.6.0(pg@8.10.0):
+  /pg-pool@3.6.0(pg@8.11.0):
     resolution: {integrity: sha512-clFRf2ksqd+F497kWFyM21tMjeikn60oGDmqMT8UBrynEwVEX/5R5xd2sdvdo1cZCFlguORNpVuqxIj+aK4cfQ==}
     peerDependencies:
       pg: '>=8.0'
     dependencies:
-      pg: 8.10.0
+      pg: 8.11.0
     dev: false
 
   /pg-protocol@1.6.0:
@@ -6614,8 +6624,8 @@ packages:
       postgres-interval: 1.2.0
     dev: false
 
-  /pg@8.10.0:
-    resolution: {integrity: sha512-ke7o7qSTMb47iwzOSaZMfeR7xToFdkE71ifIipOAAaLIM0DYzfOAXlgFFmYUIE2BcJtvnVlGCID84ZzCegE8CQ==}
+  /pg@8.11.0:
+    resolution: {integrity: sha512-meLUVPn2TWgJyLmy7el3fQQVwft4gU5NGyvV0XbD41iU9Jbg8lCH4zexhIkihDzVHJStlt6r088G6/fWeNjhXA==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
       pg-native: '>=3.0.1'
@@ -6625,11 +6635,13 @@ packages:
     dependencies:
       buffer-writer: 2.0.0
       packet-reader: 1.0.0
-      pg-connection-string: 2.5.0
-      pg-pool: 3.6.0(pg@8.10.0)
+      pg-connection-string: 2.6.0
+      pg-pool: 3.6.0(pg@8.11.0)
       pg-protocol: 1.6.0
       pg-types: 2.2.0
       pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.1.0
     dev: false
 
   /pgpass@1.0.5:
