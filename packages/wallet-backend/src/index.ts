@@ -22,23 +22,13 @@ app.disable('X-Powered-By')
 
 app.use(
   cors({
-    origin: [
-      'http://localhost:4003',
-      'http://35.196.11.156',
-      'https://35.196.11.156',
-      'https://rafiki.money'
-    ],
+    origin: ['http://localhost:4003', 'https://rafiki.money'],
     credentials: true
   })
 )
 app.use(express.json({ limit: '25mb' }))
 app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 app.use(cookieParser())
-
-  
-
-
-
 
 export const knex = Knex(config[env.NODE_ENV || 'development'])
 

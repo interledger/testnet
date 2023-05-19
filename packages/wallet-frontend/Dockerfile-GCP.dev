@@ -23,6 +23,8 @@ ADD . ./
 # Install packages from virtual store
 RUN pnpm install -r --offline
 
+ENV NEXT_PUBLIC_BACKEND_URL=https://api.rafiki.money
+
 RUN pnpm wallet-frontend build
 
 CMD ["pnpm", "wallet-frontend", "start"]
