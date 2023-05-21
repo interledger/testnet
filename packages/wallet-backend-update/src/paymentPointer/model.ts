@@ -1,7 +1,6 @@
 import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
 import { Account } from '@/account/model'
-
 export class PaymentPointer extends BaseModel {
   static tableName = 'paymentPointers'
 
@@ -10,7 +9,7 @@ export class PaymentPointer extends BaseModel {
   readonly url!: string
   readonly accountId!: string
   active!: boolean
-  Account!: Account
+  account!: Account
 
   static relationMappings = () => ({
     account: {

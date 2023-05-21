@@ -29,6 +29,12 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { PaymentPointerController } from '@/paymentPointer/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { TransactionController } from '@/transaction/controller'
+import { TransactionService } from '@/transaction/service'
+import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { OutgoingPaymentController } from '@/outgoingPayment/controller'
+import { OutgoingPaymentService } from '@/outgoingPayment/service'
 
 export interface Bindings {
   env: Env
@@ -50,6 +56,12 @@ export interface Bindings {
   accountController: AccountController
   paymentPointerController: PaymentPointerController
   paymentPointerService: PaymentPointerService
+  transactionController: TransactionController
+  transactionService: TransactionService
+  incomingPaymentController: IncomingPaymentController
+  incomingPaymentService: IncomingPaymentService
+  outgoingPaymentController: OutgoingPaymentController
+  outgoingPaymentService: OutgoingPaymentService
 }
 
 export class App {
@@ -94,6 +106,15 @@ export class App {
     const userController = await this.container.resolve('userController')
     const paymentPointerController = await this.container.resolve(
       'paymentPointerController'
+    )
+    const transactionController = await this.container.resolve(
+      'transactionController'
+    )
+    const incomingPaymentController = await this.container.resolve(
+      'incomingPaymentController'
+    )
+    const outgoingPaymentController = await this.container.resolve(
+      'outgoingPaymentController'
     )
 
     app.use(helmet())
@@ -141,6 +162,24 @@ export class App {
       isAuth,
       paymentPointerController.softDelete
     )
+
+    // transactions routes
+    router.get(
+      '/accounts/:accountId/payment-pointers/:paymentPointerId/transactions',
+      isAuth,
+      transactionController.list
+    )
+
+    // incoming payment routes
+    router.post('/incoming-payments', isAuth, incomingPaymentController.create)
+    router.get(
+      '/payment-details',
+      isAuth,
+      incomingPaymentController.getPaymentDetailsByUrl
+    )
+
+    // outgoing payment routes
+    router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

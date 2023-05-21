@@ -101,12 +101,10 @@ export class PaymentPointerController implements IPaymentPointerController {
 
       await this.deps.paymentPointerService.softDelete(userId, id)
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: 'Payment pointer was successfully deleted'
-        })
+      res.status(200).json({
+        success: true,
+        message: 'Payment pointer was successfully deleted'
+      })
     } catch (e) {
       next(e)
     }

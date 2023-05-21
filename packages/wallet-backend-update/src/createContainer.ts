@@ -18,6 +18,12 @@ import { RapydService } from './rapyd/service'
 import { RapydController } from './rapyd/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { PaymentPointerController } from '@/paymentPointer/controller'
+import { TransactionService } from '@/transaction/service'
+import { TransactionController } from '@/transaction/controller'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -173,6 +179,67 @@ export const createContainer = (config: Env): Container<Bindings> => {
       new PaymentPointerController({
         logger: await container.resolve('logger'),
         paymentPointerService: await container.resolve('paymentPointerService')
+      })
+  )
+
+  //* Transactions
+  container.singleton(
+    'transactionService',
+    async () =>
+      new TransactionService({
+        accountService: await container.resolve('accountService'),
+        logger: await container.resolve('logger')
+      })
+  )
+
+  container.singleton(
+    'transactionController',
+    async () =>
+      new TransactionController({
+        transactionService: await container.resolve('transactionService')
+      })
+  )
+
+  //* Incoming payment
+  container.singleton(
+    'incomingPaymentService',
+    async () =>
+      new IncomingPaymentService({
+        accountService: await container.resolve('accountService'),
+        rafikiClient: await container.resolve('rafikiClient')
+      })
+  )
+
+  container.singleton(
+    'incomingPaymentController',
+    async () =>
+      new IncomingPaymentController({
+        incomingPaymentService: await container.resolve(
+          'incomingPaymentService'
+        )
+      })
+  )
+
+  //* Outgoing payment
+  container.singleton(
+    'outgoingPaymentService',
+    async () =>
+      new OutgoingPaymentService({
+        accountService: await container.resolve('accountService'),
+        rafikiClient: await container.resolve('rafikiClient'),
+        incomingPaymentService: await container.resolve(
+          'incomingPaymentService'
+        )
+      })
+  )
+
+  container.singleton(
+    'outgoingPaymentController',
+    async () =>
+      new OutgoingPaymentController({
+        outgoingPaymentService: await container.resolve(
+          'outgoingPaymentService'
+        )
       })
   )
 

@@ -145,10 +145,7 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  private async getAccountBalance(
-    userId: string,
-    assetCode: string
-  ): Promise<bigint> {
+  async getAccountBalance(userId: string, assetCode: string): Promise<bigint> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.rapydWalletId) {
