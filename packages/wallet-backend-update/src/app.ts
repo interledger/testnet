@@ -116,6 +116,9 @@ export class App {
     const outgoingPaymentController = await this.container.resolve(
       'outgoingPaymentController'
     )
+    const rapydController = await this.container.resolve('rapydController')
+    const assetController = await this.container.resolve('assetController')
+    const accountController = await this.container.resolve('accountController')
 
     app.use(helmet())
     app.use(express.json())
@@ -180,6 +183,24 @@ export class App {
 
     // outgoing payment routes
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
+
+    // rapyd routes
+    router.get('/countries', rapydController.getCountryNames)
+    router.get('/documents', rapydController.getDocumentTypes)
+    router.post('/wallet', isAuth, rapydController.createWallet)
+    router.post('/updateProfile', isAuth, rapydController.updateProfile)
+    router.post('/verify', isAuth, rapydController.verifyIdentity)
+    router.get('/documents', isAuth, rapydController.getDocumentTypes)
+
+    // asset
+    router.get('assets', isAuth, assetController.list)
+    router.get('assets/:id', isAuth, assetController.getById)
+
+    // account
+    router.post('accounts', isAuth, accountController.createAccount)
+    router.get('accounts', isAuth, accountController.listAccounts)
+    router.get('accounts/:id', isAuth, accountController.getAccountById)
+    router.post('accounts/fund', isAuth, accountController.fundAccount)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

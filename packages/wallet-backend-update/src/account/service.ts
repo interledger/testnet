@@ -5,7 +5,6 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { formatBalance } from '@/utils/helpers'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { NotFoundException } from '../../../wallet-backend/src/shared/models/errors/NotFoundException'
 
 interface IAccountService {
   createAccount: (
@@ -193,7 +192,7 @@ export class AccountService implements IAccountService {
       .where('userId', userId)
 
     if (!account) {
-      throw new NotFoundException()
+      throw new NotFound()
     }
 
     return account

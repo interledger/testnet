@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Logger } from 'winston'
-import { BadRequestException } from '../../../wallet-backend/src/shared/models/errors/BadRequestException'
-import { Env } from '../config/env'
-import { RapydClient } from '../rapyd/rapyd-client'
+import { Env } from '@/config/env'
+import { RapydClient } from '@/rapyd/rapyd-client'
 import { RafikiClient } from './rafiki-client'
+import { BadRequest } from '@/errors'
+import { PaymentPointer } from '@/paymentPointer/model'
+import { TransactionService } from '@/transaction/service'
 
 export enum EventType {
   IncomingPaymentCompleted = 'incoming_payment.completed',
@@ -69,6 +71,7 @@ interface RafikiServiceDependencies {
   env: Env
   logger: Logger
   rafikiClient: RafikiClient
+  transactionService: TransactionService
 }
 
 export type Rates = {
@@ -97,7 +100,7 @@ export class RafikiService implements IRafikiService {
         await this.handleIncomingPaymentExpired(wh)
         break
       default:
-        throw new BadRequestException(`unknown event type, ${wh.type}`)
+        throw new BadRequest(`unknown event type, ${wh.type}`)
     }
   }
 
@@ -120,26 +123,19 @@ export class RafikiService implements IRafikiService {
       ppId = wh.data.payment.paymentPointerId as string
     }
 
-    //! TODO: uncomment after PaymentPointer is integrated
-
-    // const pp = await PaymentPointerModel.query()
-    //   .findById(ppId)
-    //   .withGraphFetched('account.user')
-    // if (!pp) {
-    //   throw new BadRequestException('Invalid payment pointer')
-    // }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pp: any = {}
-
-    const user = pp.account.user
-    if (!user || !user.rapydEWalletId) {
-      throw new BadRequestException(
-        'No user associated to the provided payment pointer'
-      )
+    const pp = await PaymentPointer.query()
+      .findById(ppId)
+      .withGraphFetched('account.user')
+    if (!pp) {
+      throw new BadRequest('Invalid payment pointer')
     }
 
-    return user.rapydEWalletId
+    const user = pp.account.user
+    if (!user || !user.rapydWalletId) {
+      throw new BadRequest('No user associated to the provided payment pointer')
+    }
+
+    return user.rapydWalletId
   }
 
   private parseAmount(amount: AmountJSON): Amount {
@@ -169,7 +165,7 @@ export class RafikiService implements IRafikiService {
     }
 
     if (!amount) {
-      throw new BadRequestException('Unable to extract amount from webhook')
+      throw new BadRequest('Unable to extract amount from webhook')
     }
 
     return amount
@@ -186,16 +182,15 @@ export class RafikiService implements IRafikiService {
 
     const amount = this.getAmountFromWebHook(wh)
 
-    //! Todo: Uncomment when transactions are integrated
-    // if (!this.validateAmount(amount, wh.type)) {
-    //   if (wh.type === EventType.IncomingPaymentExpired) {
-    //     await updateTransaction(
-    //       { paymentId: wh.data.incomingPayment.id },
-    //       { status: 'EXPIRED' }
-    //     )
-    //   }
-    //   return
-    // }
+    if (!this.validateAmount(amount, wh.type)) {
+      if (wh.type === EventType.IncomingPaymentExpired) {
+        await this.deps.transactionService.updateTransaction(
+          { paymentId: wh.data.incomingPayment.id },
+          { status: 'EXPIRED' }
+        )
+      }
+      return
+    }
 
     const transferResult = await this.deps.rapydClient.transferLiquidity({
       amount: this.amountToNumber(amount),
@@ -214,11 +209,10 @@ export class RafikiService implements IRafikiService {
 
     await this.deps.rafikiClient.withdrawLiqudity(wh.id)
 
-    //! Todo: Uncomment when transactions are integrated
-    // await updateTransaction(
-    //   { paymentId: wh.data.incomingPayment.id },
-    //   { status: 'COMPLETED', value: amount.value }
-    // )
+    await this.deps.transactionService.updateTransaction(
+      { paymentId: wh.data.incomingPayment.id },
+      { status: 'COMPLETED', value: amount.value }
+    )
 
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
@@ -299,11 +293,10 @@ export class RafikiService implements IRafikiService {
     }
     await this.deps.rafikiClient.withdrawLiqudity(wh.id)
 
-    //! Todo: Uncomment when transactions are integrated
-    // await updateTransaction(
-    //   { paymentId: wh.data.payment.id },
-    //   { status: 'COMPLETED', value: sendAmount.value }
-    // )
+    await this.deps.transactionService.updateTransaction(
+      { paymentId: wh.data.payment.id },
+      { status: 'COMPLETED', value: sendAmount.value }
+    )
 
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
@@ -339,12 +332,10 @@ export class RafikiService implements IRafikiService {
       )
     }
 
-    //! TODO: Uncomment when transactions are integrated
-
-    // await updateTransaction(
-    //   { paymentId: wh.data.payment.id },
-    //   { status: 'FAILED', value: 0n }
-    // )
+    await this.deps.transactionService.updateTransaction(
+      { paymentId: wh.data.payment.id },
+      { status: 'FAILED', value: 0n }
+    )
 
     const sentAmount = this.parseAmount(
       wh.data.payment.sentAmount as AmountJSON
@@ -371,11 +362,10 @@ export class RafikiService implements IRafikiService {
 
     await this.deps.rafikiClient.withdrawLiqudity(wh.id)
 
-    //! TODO: Uncomment when transactions are integrated
-    // await updateTransaction(
-    //   { paymentId: wh.data.payment.id },
-    //   { status: 'COMPLETED', value: sentAmount.value }
-    // )
+    await this.deps.transactionService.updateTransaction(
+      { paymentId: wh.data.payment.id },
+      { status: 'COMPLETED', value: sentAmount.value }
+    )
   }
 
   private async handleIncomingPaymentExpired(wh: WebHook) {
@@ -406,7 +396,7 @@ export class RafikiService implements IRafikiService {
         receivedQuote.sendAmount.assetCode !== feeStructure.asset ||
         receivedQuote.sendAmount.assetScale !== feeStructure.scale
       ) {
-        throw new BadRequestException('Invalid quote sendAmount asset')
+        throw new BadRequest('Invalid quote sendAmount asset')
       }
       const sendAmountValue = BigInt(receivedQuote.sendAmount.value)
       const fees =
@@ -417,7 +407,7 @@ export class RafikiService implements IRafikiService {
       receivedQuote.sendAmount.value = sendAmountValue + fees
     } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
       if (receivedQuote.receiveAmount.assetCode !== feeStructure.asset) {
-        throw new BadRequestException('Invalid quote receiveAmount asset')
+        throw new BadRequest('Invalid quote receiveAmount asset')
       }
       const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
       const fees =
@@ -426,12 +416,12 @@ export class RafikiService implements IRafikiService {
         ) + BigInt(feeStructure.fixed)
 
       if (receiveAmountValue <= fees) {
-        throw new BadRequestException('Fees exceed quote receiveAmount')
+        throw new BadRequest('Fees exceed quote receiveAmount')
       }
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
     } else {
-      throw new BadRequestException('Invalid paymentType')
+      throw new BadRequest('Invalid paymentType')
     }
 
     return receivedQuote
