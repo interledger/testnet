@@ -47,7 +47,6 @@ export interface Bindings {
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
-
   rapydController: RapydController
   userController: UserController
   authService: AuthService

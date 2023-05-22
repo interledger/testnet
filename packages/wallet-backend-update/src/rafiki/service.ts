@@ -35,7 +35,7 @@ export interface Amount {
   assetScale: number
 }
 
-enum PaymentType {
+export enum PaymentType {
   FixedSend = 'FixedSend',
   FixedDelivery = 'FixedDelivery'
 }

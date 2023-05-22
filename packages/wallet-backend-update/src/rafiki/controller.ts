@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
 import { Quote, RafikiService, Rates } from './service'
+import { validate } from '../shared/validate'
+import { quoteSchmea, webhookSchema } from './validation'
 
 interface IRafikiController {
   createQuote: (
@@ -23,8 +25,8 @@ export class RafikiController implements IRafikiController {
   constructor(private deps: RafikiControllerDependencies) {}
   createQuote = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const receivedQuote = req.body
-      const result = await this.deps.rafikiService.createQuote(receivedQuote)
+      const { body } = await validate(quoteSchmea, req)
+      const result = await this.deps.rafikiService.createQuote(body)
       res.status(201).json(result)
     } catch (e) {
       next(e)
@@ -45,8 +47,9 @@ export class RafikiController implements IRafikiController {
 
   onWebHook = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const wh = req.body
-      await this.deps.rafikiService.onWebHook(wh)
+      const wh = await validate(webhookSchema, req)
+
+      await this.deps.rafikiService.onWebHook(wh.body)
       res.status(200).send()
     } catch (e) {
       next(e)

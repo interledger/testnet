@@ -12,6 +12,14 @@ interface IAccountService {
     name: string,
     assetId: string
   ) => Promise<Account>
+  getAccounts: (userId: string) => Promise<Account[]>
+  getAccountById: (userId: string, accountId: string) => Promise<Account>
+  getAccountBalance: (userId: string, assetCode: string) => Promise<bigint>
+  fundAccount: (
+    userId: string,
+    amount: number,
+    assetCode: string
+  ) => Promise<any>
 }
 
 interface CountriesServiceDependencies {
@@ -183,7 +191,7 @@ export class AccountService implements IAccountService {
     return result
   }
 
-  findAccountById = async (
+  public findAccountById = async (
     accountId: string,
     userId: string
   ): Promise<Account> => {
