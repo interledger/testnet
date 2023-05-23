@@ -76,7 +76,7 @@ services:
       PORT: 3006
       INTROSPECTION_PORT: 3007
       NODE_ENV: development
-      AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL}
     depends_on:
       - postgres
 
@@ -107,7 +107,7 @@ services:
       AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
       AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
       ILP_ADDRESS: test.net
-      STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
+      STREAM_SECRET: ${RAFIKI_STREAM_SECRET}
       ADMIN_KEY: admin
       PUBLIC_HOST: http://rafiki-backend
       OPEN_PAYMENTS_URL: http://rafiki-backend
