@@ -43,12 +43,12 @@ services:
       - postgres
       - rafiki-backend
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3003
-      DB_URL: postgres://wallet_backend:wallet_backend@postgres/wallet_backend
-      JWT_ACCESS_TOKEN_SECRET: u3uakiThYILFEewwhlHkepwMLM@Ikbj1LA!JQeeVyVEn$$Cj9t$$Ix0TWMYrEnpq$$X
+      DB_URL: ${WALLET_BACKEND_DB_URL}
+      JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET}
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: 2630000
-      JWT_REFRESH_TOKEN_SECRET: 9s5PLg3X3dKLR8zwHk6RhrJHRGfhzrFHEMWaAtxgxyMNrCkmucywS7CCDYuWc4Kj
+      JWT_REFRESH_TOKEN_SECRET: ${JWT_REFRESH_TOKEN_SECRET}
       JWT_REFRESH_TOKEN_EXPIRATION_TIME: 2630000
       RAPYD_API: https://sandboxapi.rapyd.net/v1
       RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
@@ -99,7 +99,7 @@ services:
       ADMIN_PORT: 3001
       CONNECTOR_PORT: 3002
       OPEN_PAYMENTS_PORT: 80
-      DATABASE_URL: postgresql://rafiki_backend:rafiki_backend@postgres/rafiki_backend
+      DATABASE_URL: ${RAFIKI_BACKEND_DB_URL}
       USE_TIGERBEETLE: false
       TIGERBEETLE_CLUSTER_ID: 0
       TIGERBEETLE_REPLICA_ADDRESSES: ''
