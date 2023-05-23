@@ -43,7 +43,7 @@ services:
       - postgres
       - rafiki-backend
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3003
       DB_URL: ${WALLET_BACKEND_DB_URL}
       JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET}
