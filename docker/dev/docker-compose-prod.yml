@@ -16,6 +16,23 @@ services:
       - pg-data:/var/lib/postgresql/data
       - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
+  wallet-frontend:
+    container_name: wallet-frontend
+    build:
+      context: ../..
+      dockerfile: ./packages/wallet-frontend/Dockerfile-Prod.dev
+    environment:
+      NODE_ENV: development
+      PORT: 4003
+      NEXT_PUBLIC_USE_TEST_KYC_DATA: 'true'
+      NEXT_PUBLIC_BACKEND_URL: https://api.rafiki.money
+      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: https://ilp.rafiki.money
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '4003:4003'
+
   # Testnet
   wallet-backend:
     container_name: wallet-backend
@@ -24,6 +41,7 @@ services:
       dockerfile: ./packages/wallet-backend/Dockerfile.dev
     depends_on:
       - postgres
+      - rafiki-backend
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -36,14 +54,126 @@ services:
       RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
       RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
-      OPEN_PAYMENTS_HOST: https://temp.money
-      GRAPHQL_ENDPOINT: https://temp.money
+      OPEN_PAYMENTS_HOST: https://ilp.rafiki.money
+      GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
     restart: always
     networks:
       - testnet
     ports:
       - '3003:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
+
+  # Rafiki
+  rafiki-auth:
+    container_name: rafiki-auth
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3006:3006'
+    environment:
+      PORT: 3006
+      INTROSPECTION_PORT: 3007
+      NODE_ENV: development
+      AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
+    depends_on:
+      - postgres
+
+  rafiki-backend:
+    container_name: rafiki-backend
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    restart: always
+    privileged: true
+    volumes:
+      - ./temp/:/workspace/temp
+    ports:
+      - '3010:80'
+      - '3011:3001'
+    networks:
+      - testnet
+    environment:
+      NODE_ENV: development
+      PRIVATE_KEY_FILE: ./temp/private-key.pem
+      LOG_LEVEL: debug
+      ADMIN_PORT: 3001
+      CONNECTOR_PORT: 3002
+      OPEN_PAYMENTS_PORT: 80
+      DATABASE_URL: ${RAFIKI_BACKEND_DB_URL}
+      USE_TIGERBEETLE: false
+      TIGERBEETLE_CLUSTER_ID: 0
+      TIGERBEETLE_REPLICA_ADDRESSES: ''
+      NONCE_REDIS_KEY: test
+      AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
+      AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
+      ILP_ADDRESS: test.net
+      STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
+      ADMIN_KEY: admin
+      PUBLIC_HOST: http://rafiki-backend
+      OPEN_PAYMENTS_URL: http://rafiki-backend
+      REDIS_URL: redis://redis:6379/0
+      PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
+      # Testnet urls - not implemented
+      WEBHOOK_URL: https://api.rafiki.money/rafiki/webhooks
+      EXCHANGE_RATES_URL: https://api.rafiki.money/rafiki/rates
+      QUOTE_URL: https://api.rafiki.money/rafiki/quote
+    depends_on:
+      - postgres
+      - redis
+
+  rafiki-frontend:
+    container_name: rafiki-frontend
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.1
+    depends_on:
+      - rafiki-backend
+    restart: always
+    privileged: true
+    ports:
+      - '3012:3012'
+    networks:
+      - testnet
+    environment:
+      PORT: 3012
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
+
+  rafiki-local-http-signatures:
+    build:
+      context: ../../
+      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
+    volumes:
+      - ./temp/:/workspace/temp/
+    restart: always
+    ports:
+      - '3040:3000'
+    environment:
+      KEY_FILE: ./temp/private-key.pem
+
+  tigerbeetle:
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:3e2954cba78e17db42013e56fd9850a6047f7caa6f30dd7c46ff932c809af10c
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - tigerbeetle-data:/var/lib/tigerbeetle
+    networks:
+      testnet:
+        ipv4_address: 10.5.0.50
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -ex
+        DATA_FILE=/var/lib/tigerbeetle/cluster_0_replica_0.tigerbeetle
+        set +e
+        ls $$DATA_FILE
+        DATA_FILE_EXISTS="$$?"
+        set -e
+        echo $$DATA_FILE_EXISTS
+        if [ "$$DATA_FILE_EXISTS" != 0 ]; then 
+          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE; 
+        fi
+        hostname -i
+        ls /var/lib/tigerbeetle
+        ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
 
   redis:
     image: 'redis:7'
@@ -61,3 +191,4 @@ networks:
 
 volumes:
   pg-data:
+  tigerbeetle-data: # named volumes can be managed easier using docker-compose
