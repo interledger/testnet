@@ -34,6 +34,7 @@ import type { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
+import cors from 'cors'
 
 export interface Bindings {
   env: Env
@@ -117,6 +118,12 @@ export class App {
     const assetController = await this.container.resolve('assetController')
     const accountController = await this.container.resolve('accountController')
 
+    app.use(
+      cors({
+        origin: 'http://localhost:4003',
+        credentials: true
+      })
+    )
     app.use(helmet())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))

@@ -61,9 +61,6 @@ importers:
 
   packages/wallet-backend:
     dependencies:
-      '@types/cors':
-        specifier: ^2.8.13
-        version: 2.8.13
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -146,6 +143,9 @@ importers:
       '@types/cookie-parser':
         specifier: ^1.4.3
         version: 1.4.3
+      '@types/cors':
+        specifier: ^2.8.13
+        version: 2.8.13
       '@types/crypto-js':
         specifier: ^4.1.1
         version: 4.1.1
@@ -182,6 +182,9 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       crypto-js:
         specifier: ^4.1.1
         version: 4.1.1
@@ -237,6 +240,9 @@ importers:
       '@graphql-codegen/typescript-operations':
         specifier: ^3.0.4
         version: 3.0.4(graphql@16.6.0)
+      '@types/cors':
+        specifier: ^2.8.13
+        version: 2.8.13
       '@types/crypto-js':
         specifier: ^4.1.1
         version: 4.1.1
@@ -2261,7 +2267,7 @@ packages:
     resolution: {integrity: sha512-RG8AStHlUiV5ysZQKq97copd2UmVYw3/pRMLefISZ3S1hK104Cwm7iLQ3fTKx+lsUH2CE8FlLaYeEA2LSeqYUA==}
     dependencies:
       '@types/node': 18.14.0
-    dev: false
+    dev: true
 
   /@types/crypto-js@4.1.1:
     resolution: {integrity: sha512-BG7fQKZ689HIoc5h+6D2Dgq1fABRa0RbBWKBd9SP/MVRVXROflpm5fhwyATX5duFmbStzyzyycPB8qUYKDH3NA==}

@@ -8,7 +8,6 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@types/cors": "^2.8.13",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -47,6 +46,7 @@
     "@types/passport-jwt": "^3.0.8",
     "@types/uuid": "^9.0.1",
     "axios": "^1.4.0",
+    "@types/cors": "^2.8.13",
     "typescript": "^5.0.4"
   }
 }
