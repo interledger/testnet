@@ -9,7 +9,6 @@ import { Model } from 'objection'
 import passport from 'passport'
 import { jwtStrategy } from './auth/jwtStrategy'
 import env from './config/env'
-
 import { errorHandler } from './middlewares/errorHandler'
 import { mainRouter } from './routes'
 
@@ -23,7 +22,10 @@ app.disable('X-Powered-By')
 
 app.use(
   cors({
-    origin: 'http://localhost:4003',
+    origin: [
+      'http://localhost:4003',
+      `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+    ],
     credentials: true
   })
 )

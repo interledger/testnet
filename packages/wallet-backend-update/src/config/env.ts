@@ -17,7 +17,8 @@ const envSchema = z.object({
   RAPYD_ACCESS_KEY: z.string().default('RAPYD_ACCESS_KEY'),
   RAPYD_SECRET_KEY: z.string().default('RAPYD_SECRET_KEY'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://backend:3001/graphql'),
-  OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80')
+  OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
+  RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost:4003')
 })
 
 export type Env = z.infer<typeof envSchema>

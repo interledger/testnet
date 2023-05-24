@@ -39,7 +39,10 @@ export const appendAccessTokenToCookie = (
   expiresIn: number
 ) => {
   res.cookie('AccessToken', token, {
-    httpOnly: true,
+    httpOnly: env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'none',
+    domain: env.RAFIKI_MONEY_FRONTEND_HOST,
     maxAge: expiresIn * 1000
   })
 }
@@ -50,7 +53,10 @@ const appendRefreshTokenToCookie = (
   expiresIn: number
 ) => {
   res.cookie('RefreshToken', token, {
-    httpOnly: true,
+    httpOnly: env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'none',
+    domain: env.RAFIKI_MONEY_FRONTEND_HOST,
     maxAge: expiresIn * 1000
   })
 }
