@@ -104,7 +104,7 @@ services:
       TIGERBEETLE_CLUSTER_ID: 0
       TIGERBEETLE_REPLICA_ADDRESSES: ''
       NONCE_REDIS_KEY: test
-      AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
+      AUTH_SERVER_GRANT_URL: https://auth.rafiki.money
       AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
       ILP_ADDRESS: test.net
       STREAM_SECRET: ${RAFIKI_STREAM_SECRET}
