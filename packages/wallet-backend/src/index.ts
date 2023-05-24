@@ -22,7 +22,10 @@ app.disable('X-Powered-By')
 
 app.use(
   cors({
-    origin: ['http://localhost:4003', 'https://rafiki.money'],
+    origin: [
+      'http://localhost:4003',
+      `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+    ],
     credentials: true
   })
 )

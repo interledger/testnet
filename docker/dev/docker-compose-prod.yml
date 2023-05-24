@@ -56,6 +56,7 @@ services:
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://ilp.rafiki.money
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
+      RAFIKI_MONEY_FRONTEND_HOST: rafiki.money
     restart: always
     networks:
       - testnet

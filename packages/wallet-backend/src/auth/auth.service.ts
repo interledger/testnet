@@ -42,7 +42,7 @@ export const appendAccessTokenToCookie = (
     httpOnly: env.NODE_ENV === 'production',
     secure: env.NODE_ENV === 'production',
     sameSite: 'none',
-    domain: env.NODE_ENV === 'production' ? 'rafiki.money' : 'localhost:4003',
+    domain: env.RAFIKI_MONEY_FRONTEND_HOST,
     maxAge: expiresIn * 1000
   })
 }
@@ -56,7 +56,7 @@ const appendRefreshTokenToCookie = (
     httpOnly: env.NODE_ENV === 'production',
     secure: env.NODE_ENV === 'production',
     sameSite: 'none',
-    domain: env.NODE_ENV === 'production' ? 'rafiki.money' : 'localhost:4003',
+    domain: env.RAFIKI_MONEY_FRONTEND_HOST,
     maxAge: expiresIn * 1000
   })
 }
