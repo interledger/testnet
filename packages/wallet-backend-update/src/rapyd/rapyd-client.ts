@@ -27,7 +27,7 @@ interface IRapydClient {
   ): Promise<AxiosResponse<RapydResponse<RapydSetTransferResponse>>>
   getAccountsBalance(
     walletId: string
-  ): Promise<AxiosResponse<RapydResponse<RapydGetAccoutBalanceResponse>>>
+  ): Promise<AxiosResponse<RapydResponse<RapydAccountBalance[]>>>
   getDocumentTypes(
     country: string
   ): Promise<AxiosResponse<RapydResponse<RapydDocumentType[]>>>
@@ -131,7 +131,7 @@ export class RapydClient implements IRapydClient {
 
   public getAccountsBalance(
     walletId: string
-  ): Promise<AxiosResponse<RapydResponse<RapydGetAccoutBalanceResponse>>> {
+  ): Promise<AxiosResponse<RapydResponse<RapydAccountBalance[]>>> {
     return this.get(`user/${walletId}/accounts`)
   }
 

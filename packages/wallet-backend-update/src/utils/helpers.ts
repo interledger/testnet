@@ -1,8 +1,11 @@
-export const formatBalance = (value: bigint | number, scale = 2): bigint => {
+export const formatBalance = (
+  value: bigint | number,
+  scale: number
+): bigint => {
   return BigInt(transformAmount(value, scale).toFixed(2))
 }
 
-export const transformAmount = (value: bigint | number, scale = 2) => {
+export const transformAmount = (value: bigint | number, scale: number) => {
   return Number(BigInt(value) / BigInt(10 ** scale))
 }
 

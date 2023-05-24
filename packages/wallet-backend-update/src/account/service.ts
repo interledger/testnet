@@ -104,8 +104,10 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
     account.balance = formatBalance(
-      accountsBalance.data.find((acc) => acc.currency === account.assetCode)
-        ?.balance ?? 0
+      accountsBalance.data.data.find(
+        (acc) => acc.currency === account.assetCode
+      )?.balance ?? 0,
+      2
     )
 
     return account
@@ -126,9 +128,10 @@ export class AccountService implements IAccountService {
 
     accounts.forEach((acc) => {
       acc.balance = formatBalance(
-        accountsBalance.data.find(
+        accountsBalance.data.data.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
-        )?.balance ?? 0
+        )?.balance ?? 0,
+        2
       )
     })
 
@@ -163,8 +166,9 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
     return formatBalance(
-      accountsBalance.data.find((acc) => acc.currency === assetCode)?.balance ??
-        0
+      accountsBalance.data.data.find((acc) => acc.currency === assetCode)
+        ?.balance ?? 0,
+      2
     )
   }
 

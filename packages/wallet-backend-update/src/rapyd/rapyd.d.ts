@@ -265,24 +265,16 @@ interface RapydSetTransferResponseRequest {
   status: 'accept' | 'decline' | 'cancel'
 }
 
-interface RapydGetAccoutBalanceResponse {
-  status: {
-    error_code: string
-    status: string
-    message: string
-    response_code: string
-  }
-  data: {
-    id: string
-    currency: string
-    alias: string
-    balance: number
-    received_balance: number
-    on_hold_balance: number
-    reserve_balance: number
-    limits: null
-    limit: null
-  }[]
+interface RapydAccountBalance {
+  id: string
+  currency: string
+  alias: string
+  balance: number
+  received_balance: number
+  on_hold_balance: number
+  reserve_balance: number
+  limits: null
+  limit: null
 }
 
 type RapydDepositRequest = RapydWithdrawRequest
