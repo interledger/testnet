@@ -48,13 +48,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return _knex
   })
 
-  //GraphqlClient
-  container.singleton(
-    'gqlClient',
-    async () =>
-      new GraphQLClient((await container.resolve('env')).GRAPHQL_ENDPOINT)
-  )
-
   // Session Modules
   container.singleton('sessionService', async () => new SessionService())
 
@@ -121,15 +114,14 @@ export const createContainer = (config: Env): Container<Bindings> => {
 
   //*RAFIKI
 
-  container.singleton(
-    'rafikiClient',
-    async () =>
-      new RafikiClient({
-        env: await container.resolve('env'),
-        gqlClient: await container.resolve('gqlClient'),
-        logger: await container.resolve('logger')
-      })
-  )
+  container.singleton('rafikiClient', async () => {
+    const env = await container.resolve('env')
+    return new RafikiClient({
+      env: env,
+      gqlClient: new GraphQLClient(env.GRAPHQL_ENDPOINT),
+      logger: await container.resolve('logger')
+    })
+  })
 
   //* Asset
 

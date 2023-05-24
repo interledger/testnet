@@ -40,7 +40,6 @@ export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
-  gqlClient: GraphQLClient
   rapydClient: RapydClient
   rafikiClient: RafikiClient
   rapydService: RapydService
