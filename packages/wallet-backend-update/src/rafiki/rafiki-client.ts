@@ -38,7 +38,6 @@ import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
 } from './request/liquidity.request'
-import { graphqlClient } from '..'
 import { createOutgoingPaymentMutation } from './request/outgoing-payment.request'
 import { createPaymentPointerMutation } from './request/payment-pointer.request'
 import { GraphQLClient } from 'graphql-request'
@@ -172,7 +171,7 @@ export class RafikiClient implements IRafikiClient {
       description
     }
     const { createOutgoingPayment: paymentResponse } =
-      await graphqlClient.request<
+      await this.deps.gqlClient.request<
         CreateOutgoingPaymentMutation,
         CreateOutgoingPaymentMutationVariables
       >(createOutgoingPaymentMutation, {
@@ -196,7 +195,7 @@ export class RafikiClient implements IRafikiClient {
     //! build the url where this is called
     //`${env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
   ) {
-    const response = await graphqlClient.request<
+    const response = await this.deps.gqlClient.request<
       CreatePaymentPointerMutation,
       CreatePaymentPointerMutationVariables
     >(createPaymentPointerMutation, {
@@ -238,7 +237,7 @@ export class RafikiClient implements IRafikiClient {
       input.sendAmount = value
     }
 
-    const { createQuote } = await graphqlClient.request<
+    const { createQuote } = await this.deps.gqlClient.request<
       CreateQuoteMutation,
       CreateQuoteMutationVariables
     >(createIncomingPaymentMutation, {
