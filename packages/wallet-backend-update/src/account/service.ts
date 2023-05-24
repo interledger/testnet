@@ -107,7 +107,7 @@ export class AccountService implements IAccountService {
       accountsBalance.data.data.find(
         (acc) => acc.currency === account.assetCode
       )?.balance ?? 0,
-      2
+      account.assetScale
     )
 
     return account
@@ -131,7 +131,7 @@ export class AccountService implements IAccountService {
         accountsBalance.data.data.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
         )?.balance ?? 0,
-        2
+        acc.assetScale
       )
     })
 
