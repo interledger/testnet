@@ -103,7 +103,6 @@ export class RapydClient implements IRapydClient {
 
   public async transferLiquidity(
     req: RapydTransferRequest
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<AxiosResponse<RapydResponse<RapydSetTransferResponse>>> {
     const transferResponse = await this.post(
       'account/transfer',
@@ -123,8 +122,7 @@ export class RapydClient implements IRapydClient {
       id: transferResponse.data.id,
       status: 'accept'
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((setTransferResponse.status as any).status !== 'SUCCESS') {
+    if (setTransferResponse.data.status.status !== 'SUCCESS') {
       throw new Error(`Unable to set accepted response of wallet transfer`)
     }
 
@@ -133,7 +131,7 @@ export class RapydClient implements IRapydClient {
 
   public getAccountsBalance(
     walletId: string
-  ): Promise<RapydGetAccoutBalanceResponse> {
+  ): Promise<AxiosResponse<RapydResponse<RapydGetAccoutBalanceResponse>>> {
     return this.get(`user/${walletId}/accounts`)
   }
 

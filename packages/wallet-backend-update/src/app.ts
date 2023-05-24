@@ -1,10 +1,17 @@
+import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { OutgoingPaymentController } from '@/outgoingPayment/controller'
+import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { PaymentPointerController } from '@/paymentPointer/controller'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { TransactionController } from '@/transaction/controller'
+import { TransactionService } from '@/transaction/service'
 import express, {
   Router,
   type Express,
   type NextFunction,
   type Request
 } from 'express'
-import { GraphQLClient } from 'graphql-request'
 import helmet from 'helmet'
 import { Server } from 'http'
 import type { Knex } from 'knex'
@@ -27,14 +34,6 @@ import type { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
-import { PaymentPointerController } from '@/paymentPointer/controller'
-import { PaymentPointerService } from '@/paymentPointer/service'
-import { TransactionController } from '@/transaction/controller'
-import { TransactionService } from '@/transaction/service'
-import { IncomingPaymentController } from '@/incomingPayment/controller'
-import { IncomingPaymentService } from '@/incomingPayment/service'
-import { OutgoingPaymentController } from '@/outgoingPayment/controller'
-import { OutgoingPaymentService } from '@/outgoingPayment/service'
 
 export interface Bindings {
   env: Env
