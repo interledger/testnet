@@ -73,14 +73,14 @@ export class AccountService implements IAccountService {
       ewallet: user.rapydWalletId ?? ''
     })
 
-    if (result.status.status !== 'SUCCESS') {
+    if (result.data.status.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to issue virtal account to ewallet: ${result.status.message}`
+        `Unable to issue virtal account to ewallet: ${result.data.status.message}`
       )
     }
 
     // save virtual bank account number to database
-    const virtualAccount = result.data
+    const virtualAccount = result.data.data
 
     const account = await Account.query().insert({
       name,
@@ -184,8 +184,10 @@ export class AccountService implements IAccountService {
       issued_bank_account: existingAccount.virtualAccountId
     })
 
-    if (result.status.status !== 'SUCCESS') {
-      throw new Error(`Unable to fund your account: ${result.status.message}`)
+    if (result.data.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to fund your account: ${result.data.status.message}`
+      )
     }
 
     return result

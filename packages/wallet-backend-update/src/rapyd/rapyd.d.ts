@@ -1,3 +1,16 @@
+interface RapydResponse<T> {
+  status: Status
+  data: T
+}
+
+interface Status {
+  error_code: string
+  status: string
+  message: string
+  response_code: string
+  operation_id: string
+}
+
 interface RapydBusinessDetail {
   id?: string
   address?: RapydAddress
@@ -111,7 +124,7 @@ interface RapydWallet {
   accounts?: Array<RapydAccount>
   category?: 'collect' | 'disburse' | 'card_authorization' | 'general'
   contact?: RapydWalletContact
-  contacts?: RapydWalletContact[]
+  contacts?: RapydWalletContacts
   email?: string
   ewallet_reference_id?: string
   first_name?: string
@@ -138,12 +151,42 @@ interface VirtualAccountRequest {
   metadata?: string
 }
 
+interface BankAccount {
+  beneficiary_name: string
+  address: string
+  country_iso: string
+  iban: string
+  bic: string
+}
+
+interface Transaction {
+  id: string
+  amount: number
+  currency: string
+  created_at: number
+}
+
+interface VirtualAccountResponse {
+  id: string
+  merchant_reference_id: string
+  ewallet: string
+  bank_account: BankAccount
+  metadata?: { merchant_defined: boolean }
+  status: 'ACT' | 'DIS'
+  description?: string
+  funding_instructions: unknown | null
+  currency: string
+  transactions: Transaction[]
+}
+
 interface SimulateBankTransferToWalletRequest {
   amount: number
   currency: string
   issued_bank_account: string
   remitter_information?: string
 }
+
+type SimulateBankTransferToWalletResponse = VirtualAccountResponse
 
 interface RapydDocumentType {
   country?: string
@@ -162,6 +205,11 @@ interface RapydCountry {
   currency_name?: string
   currency_sign?: string
   phone_code?: string
+}
+
+interface RapydIdentityResponse {
+  id: string
+  reference_id: string
 }
 
 interface RapydIdentityRequest {
@@ -188,6 +236,27 @@ interface RapydTransferRequest {
   amount: number
   currency: string
   destination_ewallet: string
+}
+
+interface RapydSetTransferResponse {
+  id: string
+  status: string
+  amount: number
+  currency_code: string
+  destination_phone_number: string | null
+  destination_ewallet_id: string
+  destination_transaction_id: string
+  source_ewallet_id: string
+  source_transaction_id: string
+  transfer_response_at: number
+  created_at: number
+  metadata?: {
+    merchant_defined: boolean
+  }
+  response_metadata?: {
+    merchant_defined: string
+  }
+  expiration: number
 }
 
 interface RapydSetTransferResponseRequest {
@@ -217,5 +286,30 @@ interface RapydGetAccoutBalanceResponse {
 }
 
 type RapydDepositRequest = RapydWithdrawRequest
+interface RapydDepositResponse {
+  id: string
+  account_id: string
+  phone_number: string
+  amount: number
+  currency: string
+  balance_type: string
+  metadata?: unknown
+}
+
 type RapydHoldRequest = RapydWithdrawRequest
+interface RapydHoldResponse {
+  id: string
+  source_transaction_id: string
+  destination_transaction_id: string
+  source_user_profile_id: string
+  destination_user_profile_id: string
+  source_account_id: string
+  destination_account_id: string
+  source_balance_type: string
+  destination_balance_type: string
+  currency_code: string
+  amount: number
+}
+
 type RapydReleaseRequest = RapydHoldRequest
+type RapydReleaseResponse = RapydHoldResponse

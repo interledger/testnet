@@ -4,14 +4,34 @@ import { Logger } from 'winston'
 import { Env } from '@/config/env'
 
 interface IRapydClient {
-  createWallet(wallet: RapydWallet): Promise<AxiosResponse>
-  updateProfile(profile: RapydProfile): Promise<AxiosResponse>
-  verifyIdentity(req: RapydIdentityRequest): Promise<AxiosResponse>
-  depositLiquidity(req: RapydDepositRequest): Promise<AxiosResponse>
-  holdLiquidity(req: RapydHoldRequest): Promise<AxiosResponse>
-  releaseLiquidity(req: RapydReleaseRequest): Promise<AxiosResponse>
-  transferLiquidity(req: RapydTransferRequest): Promise<AxiosResponse>
-  getAccountsBalance(walletId: string): Promise<RapydGetAccoutBalanceResponse>
+  createWallet(
+    wallet: RapydWallet
+  ): Promise<AxiosResponse<RapydResponse<RapydWallet>>>
+  updateProfile(
+    profile: RapydProfile
+  ): Promise<AxiosResponse<RapydResponse<RapydWallet>>>
+  verifyIdentity(
+    req: RapydIdentityRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydIdentityResponse>>>
+  depositLiquidity(
+    req: RapydDepositRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydDepositResponse>>>
+  holdLiquidity(
+    req: RapydHoldRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydHoldResponse>>>
+  releaseLiquidity(
+    req: RapydReleaseRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydReleaseResponse>>>
+  transferLiquidity(
+    req: RapydTransferRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydSetTransferResponse>>>
+  getAccountsBalance(
+    walletId: string
+  ): Promise<AxiosResponse<RapydResponse<RapydGetAccoutBalanceResponse>>>
+  getDocumentTypes(
+    country: string
+  ): Promise<AxiosResponse<RapydResponse<RapydDocumentType[]>>>
+  getCountryNames(): Promise<AxiosResponse<RapydResponse<RapydCountry[]>>>
 }
 
 interface RapydClientDependencies {
@@ -22,41 +42,59 @@ interface RapydClientDependencies {
 export class RapydClient implements IRapydClient {
   constructor(private deps: RapydClientDependencies) {}
 
-  public createWallet(wallet: RapydWallet) {
+  public createWallet(
+    wallet: RapydWallet
+  ): Promise<AxiosResponse<RapydResponse<RapydWallet>>> {
     return this.post('user', JSON.stringify(wallet))
   }
 
-  public updateProfile(profile: RapydProfile) {
+  public updateProfile(
+    profile: RapydProfile
+  ): Promise<AxiosResponse<RapydResponse<RapydWallet>>> {
     return this.put('user', JSON.stringify(profile))
   }
 
-  public verifyIdentity(req: RapydIdentityRequest) {
+  public verifyIdentity(
+    req: RapydIdentityRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydIdentityResponse>>> {
     return this.post('identities', JSON.stringify(req))
   }
 
-  public depositLiquidity(req: RapydDepositRequest) {
+  public depositLiquidity(
+    req: RapydDepositRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydDepositResponse>>> {
     return this.post('account/deposit', JSON.stringify(req))
   }
 
-  public holdLiquidity(req: RapydHoldRequest) {
+  public holdLiquidity(
+    req: RapydHoldRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydHoldResponse>>> {
     return this.post('account/balance/hold', JSON.stringify(req))
   }
 
-  public releaseLiquidity(req: RapydReleaseRequest) {
+  public releaseLiquidity(
+    req: RapydReleaseRequest
+  ): Promise<AxiosResponse<RapydResponse<RapydReleaseResponse>>> {
     return this.post('account/balance/release', JSON.stringify(req))
   }
 
-  public getDocumentTypes(country: string) {
+  public getDocumentTypes(
+    country: string
+  ): Promise<AxiosResponse<RapydResponse<RapydDocumentType[]>>> {
     return this.get(`identities/types?country=${country}`)
   }
 
-  public issueVirtualAccount(req: VirtualAccountRequest) {
+  public issueVirtualAccount(
+    req: VirtualAccountRequest
+  ): Promise<AxiosResponse<RapydResponse<VirtualAccountResponse>>> {
     return this.post('issuing/bankaccounts', JSON.stringify(req))
   }
 
   public simulateBankTransferToWallet(
     req: SimulateBankTransferToWalletRequest
-  ) {
+  ): Promise<
+    AxiosResponse<RapydResponse<SimulateBankTransferToWalletResponse>>
+  > {
     return this.post(
       'issuing/bankaccounts/bankaccounttransfertobankaccount',
       JSON.stringify(req)
@@ -66,7 +104,7 @@ export class RapydClient implements IRapydClient {
   public async transferLiquidity(
     req: RapydTransferRequest
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Promise<AxiosResponse> {
+  ): Promise<AxiosResponse<RapydResponse<RapydSetTransferResponse>>> {
     const transferResponse = await this.post(
       'account/transfer',
       JSON.stringify(req)
@@ -99,13 +137,15 @@ export class RapydClient implements IRapydClient {
     return this.get(`user/${walletId}/accounts`)
   }
 
-  public getCountryNames(): Promise<AxiosResponse> {
+  public getCountryNames(): Promise<
+    AxiosResponse<RapydResponse<RapydCountry[]>>
+  > {
     return this.get('data/countries')
   }
 
   private setTransferResponse(
     req: RapydSetTransferResponseRequest
-  ): Promise<AxiosResponse> {
+  ): Promise<AxiosResponse<RapydResponse<RapydSetTransferResponse>>> {
     return this.post('account/transfer/response', JSON.stringify(req))
   }
 

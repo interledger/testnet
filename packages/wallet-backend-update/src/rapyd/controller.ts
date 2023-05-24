@@ -5,11 +5,11 @@ import { RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 
 interface IRapydController {
-  getCountryNames: ControllerFunction
-  getDocumentTypes: ControllerFunction
+  getCountryNames: ControllerFunction<{ label?: string; value?: string }[]>
+  getDocumentTypes: ControllerFunction<RapydDocumentType[]>
   createWallet: ControllerFunction<RapydWallet>
-  verifyIdentity: ControllerFunction
-  updateProfile: ControllerFunction
+  verifyIdentity: ControllerFunction<RapydIdentityResponse>
+  updateProfile: ControllerFunction<RapydWallet>
 }
 interface RapydControllerDependencies {
   logger: Logger
@@ -19,9 +19,9 @@ interface RapydControllerDependencies {
 export class RapydController implements IRapydController {
   constructor(private deps: RapydControllerDependencies) {}
 
-  getCountryNames = async (
+  public getCountryNames = async (
     _: Request,
-    res: CustomResponse,
+    res: CustomResponse<{ label?: string; value?: string }[]>,
     next: NextFunction
   ) => {
     try {
@@ -34,9 +34,9 @@ export class RapydController implements IRapydController {
     }
   }
 
-  getDocumentTypes = async (
+  public getDocumentTypes = async (
     req: Request,
-    res: CustomResponse,
+    res: CustomResponse<RapydDocumentType[]>,
     next: NextFunction
   ) => {
     try {
@@ -53,7 +53,7 @@ export class RapydController implements IRapydController {
     }
   }
 
-  createWallet = async (
+  public createWallet = async (
     req: Request,
     res: CustomResponse<RapydWallet>,
     next: NextFunction
@@ -87,9 +87,9 @@ export class RapydController implements IRapydController {
     }
   }
 
-  verifyIdentity = async (
+  public verifyIdentity = async (
     req: Request,
-    res: CustomResponse,
+    res: CustomResponse<RapydIdentityResponse>,
     next: NextFunction
   ) => {
     const { id: userId } = req.session.user
@@ -129,9 +129,9 @@ export class RapydController implements IRapydController {
     }
   }
 
-  updateProfile = async (
+  public updateProfile = async (
     req: Request,
-    res: CustomResponse,
+    res: CustomResponse<RapydWallet>,
     next: NextFunction
   ) => {
     const { id: userId } = req.session.user
@@ -152,7 +152,6 @@ export class RapydController implements IRapydController {
         message: 'Wallet created succesfully',
         data: updateProfileResponse
       })
-      return updateProfileResponse
     } catch (e) {
       next(e)
     }

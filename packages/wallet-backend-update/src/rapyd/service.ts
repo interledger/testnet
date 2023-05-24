@@ -47,14 +47,14 @@ export class RapydService {
       country
     )
 
-    if (documentTypesResponse.data.status !== 'SUCCESS') {
+    if (documentTypesResponse.data.status.status !== 'SUCCESS') {
       //! Throw
       throw new Error(
-        `Unable to get document types from rapyd : ${documentTypesResponse.status.message}`
+        `Unable to get document types from rapyd : ${documentTypesResponse.data.status.message}`
       )
     }
 
-    return documentTypesResponse.data.map((item: RapydDocumentType) => ({
+    return documentTypesResponse.data.data.map((item: RapydDocumentType) => ({
       type: item.type,
       name: item.name,
       isBackRequired: item.is_back_required
@@ -64,11 +64,11 @@ export class RapydService {
   public async getCountryNames() {
     const countriesResponse = await this.deps.rapyd.getCountryNames()
 
-    if (countriesResponse.data.status !== 'SUCCESS') {
+    if (countriesResponse.data.status.status !== 'SUCCESS') {
       //! Thorw
       throw new Error()
     }
-    return countriesResponse.data.map((i: RapydCountry) => ({
+    return countriesResponse.data.data.map((i: RapydCountry) => ({
       label: i.name,
       value: i.iso_alpha2
     }))
@@ -105,13 +105,13 @@ export class RapydService {
       }
     })
 
-    if (result.status.status !== 'SUCCESS') {
+    if (result.data.status.status !== 'SUCCESS') {
       //!THROW
       // this.deps.logger
       // throw new InternalServerError()
     }
 
-    const eWallet = result.data
+    const eWallet = result.data.data
     const user = await User.query().patchAndFetchById(params.id, {
       firstName: params.firstName,
       lastName: params.lastName,
@@ -119,7 +119,7 @@ export class RapydService {
       country: params.country,
       rapydReferenceId: rapydReferenceId,
       rapydWalletId: eWallet?.id,
-      rapydContactId: eWallet?.contacts?.data[0]?.id
+      rapydContactId: eWallet?.contacts?.data?.[0]?.id
     })
 
     if (!user) throw new NotFound()
@@ -135,7 +135,9 @@ export class RapydService {
     return eWallet
   }
 
-  public async verifyIdentity(params: VerifyIdentityParams) {
+  public async verifyIdentity(
+    params: VerifyIdentityParams
+  ): Promise<RapydIdentityResponse> {
     try {
       const user = await User.query().findById(params.userId)
       if (!user) throw new Error(`user doesn't exist`)
@@ -157,13 +159,13 @@ export class RapydService {
       }
       const result = await this.deps.rapyd.verifyIdentity(values)
 
-      if (result.status.status !== 'SUCCESS')
+      if (result.data.status.status !== 'SUCCESS')
         //! Throw
         throw new Error(
-          `Unable to send kyc documents : ${result.status.message}`
+          `Unable to send kyc documents : ${result.data.status.message}`
         )
 
-      return result.data
+      return result.data.data
     } catch (error) {
       //! Throw
       throw new Error()
@@ -174,7 +176,7 @@ export class RapydService {
     userId: string,
     firstName: string,
     lastName: string
-  ) {
+  ): Promise<RapydWallet> {
     try {
       let user = await User.query().findById(userId)
       if (!user) throw new Error(`user doesn't exist`)
@@ -185,9 +187,11 @@ export class RapydService {
         ewallet: user.rapydWalletId
       })
 
-      if (result.status.status !== 'SUCCESS')
+      if (result.data.status.status !== 'SUCCESS')
         //! Throw
-        throw new Error(`Unable to update profile : ${result.status.message}`)
+        throw new Error(
+          `Unable to update profile : ${result.data.status.message}`
+        )
 
       user = await User.query().patchAndFetchById(userId, {
         firstName: firstName,
@@ -197,7 +201,7 @@ export class RapydService {
 
       if (!user) throw new NotFound()
 
-      return result.data
+      return result.data.data
     } catch (error) {
       this.deps.logger.error(error)
       throw new Error('Unable to update profile')

@@ -237,9 +237,9 @@ export class RafikiService implements IRafikiService {
       ewallet: rapydWalletId
     })
 
-    if (holdResult.status?.status !== 'SUCCESS') {
-      holdResult.status?.message &&
-        this.deps.logger.error(holdResult.status.message)
+    if (holdResult.data.status?.status !== 'SUCCESS') {
+      holdResult.data.status?.message &&
+        this.deps.logger.error(holdResult.data.status.message)
       throw new Error(
         `Unable to hold liquidity on wallet: ${rapydWalletId} on ${EventType.OutgoingPaymentCreated}`
       )
@@ -267,9 +267,9 @@ export class RafikiService implements IRafikiService {
       ewallet: source_ewallet
     })
 
-    if (releaseResult.status?.status !== 'SUCCESS') {
-      releaseResult.status?.message &&
-        this.deps.logger.error(releaseResult.status.message)
+    if (releaseResult.data.status?.status !== 'SUCCESS') {
+      releaseResult.data.status?.message &&
+        this.deps.logger.error(releaseResult.data.status.message)
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
           sendAmount
@@ -322,9 +322,9 @@ export class RafikiService implements IRafikiService {
       ewallet: source_ewallet
     })
 
-    if (releaseResult.status?.status !== 'SUCCESS') {
-      releaseResult.status?.message &&
-        this.deps.logger.error(releaseResult.status.message)
+    if (releaseResult.data.status?.status !== 'SUCCESS') {
+      releaseResult.data.status?.message &&
+        this.deps.logger.error(releaseResult.data.status.message)
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
           sendAmount
