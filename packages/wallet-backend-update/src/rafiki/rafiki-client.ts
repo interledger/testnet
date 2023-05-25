@@ -203,8 +203,6 @@ export class RafikiClient implements IRafikiClient {
     publicName: string,
     assetId: string,
     url: string
-    //! build the url where this is called
-    //`${env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
   ) {
     const response = await this.deps.gqlClient.request<
       CreatePaymentPointerMutation,
