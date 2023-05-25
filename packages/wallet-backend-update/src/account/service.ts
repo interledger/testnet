@@ -73,14 +73,14 @@ export class AccountService implements IAccountService {
       ewallet: user.rapydWalletId ?? ''
     })
 
-    if (result.data.status.status !== 'SUCCESS') {
+    if (result.status?.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to issue virtal account to ewallet: ${result.data.status.message}`
+        `Unable to issue virtal account to ewallet: ${result.status?.message}`
       )
     }
 
     // save virtual bank account number to database
-    const virtualAccount = result.data.data
+    const virtualAccount = result.data
 
     const account = await Account.query().insert({
       name,
@@ -104,9 +104,8 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
     account.balance = formatBalance(
-      accountsBalance.data.data.find(
-        (acc) => acc.currency === account.assetCode
-      )?.balance ?? 0,
+      accountsBalance.data?.find((acc) => acc.currency === account.assetCode)
+        ?.balance ?? 0,
       account.assetScale
     )
 
@@ -128,7 +127,7 @@ export class AccountService implements IAccountService {
 
     accounts.forEach((acc) => {
       acc.balance = formatBalance(
-        accountsBalance.data.data.find(
+        accountsBalance.data?.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
         )?.balance ?? 0,
         acc.assetScale
@@ -166,7 +165,7 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
     return formatBalance(
-      accountsBalance.data.data.find((acc) => acc.currency === assetCode)
+      accountsBalance.data?.find((acc) => acc.currency === assetCode)
         ?.balance ?? 0,
       2
     )

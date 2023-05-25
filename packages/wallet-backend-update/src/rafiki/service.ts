@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { RapydClient } from '@/rapyd/rapyd-client'
@@ -64,6 +62,8 @@ export interface Fees {
 
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
+  getRates: () => Rates
+  onWebHook: (wh: WebHook) => Promise<void>
 }
 
 interface RafikiServiceDependencies {
@@ -82,7 +82,7 @@ export type Rates = {
 export class RafikiService implements IRafikiService {
   constructor(private deps: RafikiServiceDependencies) {}
 
-  async onWebHook(wh: WebHook): Promise<void> {
+  public async onWebHook(wh: WebHook): Promise<void> {
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -199,11 +199,13 @@ export class RafikiService implements IRafikiService {
       source_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET
     })
 
-    if ((transferResult as any).status?.status !== 'SUCCESS') {
-      ;(transferResult as any).status?.message &&
-        this.deps.logger.error((transferResult as any).status.message)
+    if (transferResult.status?.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to transfer from ${this.deps.env.RAPYD_SETTLEMENT_EWALLET} into ${receiverWalletId}`
+        `Unable to transfer from ${
+          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        } into ${receiverWalletId} error message: ${
+          transferResult.status?.message || 'unknown'
+        }`
       )
     }
 
@@ -237,11 +239,11 @@ export class RafikiService implements IRafikiService {
       ewallet: rapydWalletId
     })
 
-    if (holdResult.data.status?.status !== 'SUCCESS') {
-      holdResult.data.status?.message &&
-        this.deps.logger.error(holdResult.data.status.message)
+    if (holdResult.status?.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to hold liquidity on wallet: ${rapydWalletId} on ${EventType.OutgoingPaymentCreated}`
+        `Unable to hold liquidity on wallet: ${rapydWalletId} on ${
+          EventType.OutgoingPaymentCreated
+        } error message: ${holdResult.status?.message || 'unknown'}`
       )
     }
     await this.deps.rafikiClient.depositLiquidity(wh.id)
@@ -267,9 +269,9 @@ export class RafikiService implements IRafikiService {
       ewallet: source_ewallet
     })
 
-    if (releaseResult.data.status?.status !== 'SUCCESS') {
-      releaseResult.data.status?.message &&
-        this.deps.logger.error(releaseResult.data.status.message)
+    if (releaseResult.status?.status !== 'SUCCESS') {
+      releaseResult.status?.message &&
+        this.deps.logger.error(releaseResult.status.message)
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
           sendAmount
@@ -284,11 +286,13 @@ export class RafikiService implements IRafikiService {
       source_ewallet
     })
 
-    if ((transferResult as any).status?.status !== 'SUCCESS') {
-      ;(transferResult as any).status?.message &&
-        this.deps.logger.error((transferResult as any).status.message)
+    if (transferResult.status?.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to transfer from ${source_ewallet} into settlement account ${this.deps.env.RAPYD_SETTLEMENT_EWALLET} on ${EventType.OutgoingPaymentCompleted}`
+        `Unable to transfer from ${source_ewallet} into settlement account ${
+          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        } on ${EventType.OutgoingPaymentCompleted} error message: ${
+          transferResult.status.message || 'unknown'
+        }`
       )
     }
     await this.deps.rafikiClient.withdrawLiqudity(wh.id)
@@ -322,13 +326,13 @@ export class RafikiService implements IRafikiService {
       ewallet: source_ewallet
     })
 
-    if (releaseResult.data.status?.status !== 'SUCCESS') {
-      releaseResult.data.status?.message &&
-        this.deps.logger.error(releaseResult.data.status.message)
+    if (releaseResult.status?.status !== 'SUCCESS') {
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
           sendAmount
-        )} from ${source_ewallet} on ${EventType.OutgoingPaymentFailed}`
+        )} from ${source_ewallet} on ${
+          EventType.OutgoingPaymentFailed
+        }  error message:  ${releaseResult.status?.message || 'unknown'}`
       )
     }
 
@@ -352,11 +356,13 @@ export class RafikiService implements IRafikiService {
       source_ewallet
     })
 
-    if ((transferResult as any).status?.status !== 'SUCCESS') {
-      ;(transferResult as any).status?.message &&
-        this.deps.logger.error((transferResult as any).status.message)
+    if (transferResult.status?.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to transfer already sent amount from ${source_ewallet} into settlement account ${this.deps.env.RAPYD_SETTLEMENT_EWALLET} on ${EventType.OutgoingPaymentFailed}`
+        `Unable to transfer already sent amount from ${source_ewallet} into settlement account ${
+          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        } on ${EventType.OutgoingPaymentFailed} error message: ${
+          transferResult.status?.message || 'unknown'
+        }`
       )
     }
 

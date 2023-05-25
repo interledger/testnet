@@ -5,11 +5,7 @@ import { validate } from '../shared/validate'
 import { quoteSchmea, webhookSchema } from './validation'
 
 interface IRafikiController {
-  createQuote: (
-    req: Request,
-    res: Response<Quote>,
-    next: NextFunction
-  ) => Promise<void>
+  createQuote: ControllerFunction<Quote>
   getRates: (
     req: Request,
     res: Response<Rates>,

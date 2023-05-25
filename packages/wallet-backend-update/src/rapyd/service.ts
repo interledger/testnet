@@ -32,7 +32,28 @@ type CreateWalletParams = {
   phone?: string
 }
 
-export class RapydService {
+export type LabelValue = {
+  label?: string
+  value?: string
+}
+
+export interface IRapydService {
+  getDocumentTypes: (
+    userId: string
+  ) => Promise<Pick<RapydDocumentType, 'is_back_required' | 'name' | 'type'>[]>
+  getCountryNames: () => Promise<LabelValue[]>
+  createWallet: (createWalletParams: CreateWalletParams) => Promise<RapydWallet>
+  verifyIdentity: (
+    verifyIdentityParams: VerifyIdentityParams
+  ) => Promise<RapydIdentityResponse>
+  updateProfile: (
+    userId: string,
+    firstName: string,
+    lastName: string
+  ) => Promise<RapydWallet>
+}
+
+export class RapydService implements IRapydService {
   constructor(private deps: RapydServiceDependencies) {}
 
   public async getDocumentTypes(userId: string) {
@@ -47,13 +68,13 @@ export class RapydService {
       country
     )
 
-    if (documentTypesResponse.data.status.status !== 'SUCCESS') {
+    if (documentTypesResponse.status.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to get document types from rapyd : ${documentTypesResponse.data.status.message}`
+        `Unable to get document types from rapyd : ${documentTypesResponse.status.message}`
       )
     }
 
-    return documentTypesResponse.data.data.map((item: RapydDocumentType) => ({
+    return documentTypesResponse.data.map((item: RapydDocumentType) => ({
       type: item.type,
       name: item.name,
       isBackRequired: item.is_back_required
@@ -63,12 +84,12 @@ export class RapydService {
   public async getCountryNames() {
     const countriesResponse = await this.deps.rapyd.getCountryNames()
 
-    if (countriesResponse.data.status.status !== 'SUCCESS') {
+    if (countriesResponse.status.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to retrieve country names from rapyd, ${countriesResponse.data.status.message}`
+        `Unable to retrieve country names from rapyd, ${countriesResponse.status.message}`
       )
     }
-    return countriesResponse.data.data.map((i: RapydCountry) => ({
+    return countriesResponse.data.map((i: RapydCountry) => ({
       label: i.name,
       value: i.iso_alpha2
     }))
@@ -105,13 +126,11 @@ export class RapydService {
       }
     })
 
-    if (result.data.status.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to create wallet, ${result?.data?.status?.message}`
-      )
+    if (result.status.status !== 'SUCCESS') {
+      throw new Error(`Unable to create wallet, ${result?.status?.message}`)
     }
 
-    const eWallet = result.data.data
+    const eWallet = result.data
     const user = await User.query().patchAndFetchById(params.id, {
       firstName: params.firstName,
       lastName: params.lastName,
@@ -123,14 +142,6 @@ export class RapydService {
     })
 
     if (!user) throw new NotFound('User does not exist')
-
-    //! Need to update the kyc info of the user.
-    /*
- const { accessToken: newAccessToken, expiresIn: accessTokenExpiresIn } =
-      generateJWT(user)
-    appendAccessTokenToCookie(res, newAccessToken, accessTokenExpiresIn)
-
-    */
 
     return eWallet
   }
@@ -158,12 +169,10 @@ export class RapydService {
     }
     const result = await this.deps.rapyd.verifyIdentity(values)
 
-    if (result.data.status.status !== 'SUCCESS')
-      throw new Error(
-        `Unable to send kyc documents : ${result.data.status.message}`
-      )
+    if (result.status.status !== 'SUCCESS')
+      throw new Error(`Unable to send kyc documents : ${result.status.message}`)
 
-    return result.data.data
+    return result.data
   }
 
   public async updateProfile(
@@ -180,10 +189,8 @@ export class RapydService {
       ewallet: user.rapydWalletId
     })
 
-    if (result.data.status.status !== 'SUCCESS')
-      throw new Error(
-        `Unable to update profile : ${result.data.status.message}`
-      )
+    if (result.status.status !== 'SUCCESS')
+      throw new Error(`Unable to update profile : ${result.status.message}`)
 
     user = await User.query().patchAndFetchById(userId, {
       firstName: firstName,
@@ -191,6 +198,6 @@ export class RapydService {
       rapydReferenceId: user.rapydReferenceId
     })
 
-    return result.data.data
+    return result.data
   }
 }

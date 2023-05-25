@@ -77,6 +77,14 @@ export class RapydController implements IRapydController {
         phone
       })
 
+      req.session.user = {
+        ...req.session.user,
+        needsWallet: false,
+        needsIDProof: false
+      }
+
+      await req.session.save()
+
       res.status(200).json({
         success: true,
         message: 'Wallet created succesfully',
