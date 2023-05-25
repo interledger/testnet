@@ -1,3 +1,4 @@
+import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
 import { z } from 'zod'
 import {
   getError,
@@ -33,7 +34,7 @@ export const sendSchema = z.object({
     invalid_type_error: 'Please enter a valid amount'
   }),
   description: z.string(),
-  paymentType: z.enum(['sent', 'received'])
+  paymentType: z.enum([PAYMENT_SEND, PAYMENT_RECEIVE])
 })
 
 export const requestSchema = z.object({
@@ -123,7 +124,7 @@ const createTransfersService = (): TransfersService => ({
             toPaymentPointerUrl: args.toPaymentPointerUrl,
             amount: args.amount,
             description: args.description,
-            isReceive: args.paymentType === 'received'
+            isReceive: args.paymentType === PAYMENT_RECEIVE
           }
         })
         .json<SuccessResponse>()

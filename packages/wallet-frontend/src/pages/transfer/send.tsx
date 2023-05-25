@@ -19,6 +19,7 @@ import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -29,7 +30,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
-      paymentType: 'sent'
+      paymentType: PAYMENT_SEND
     }
   })
 
@@ -165,7 +166,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               labelHint={
                 <Controller
                   name="paymentType"
-                  defaultValue="sent"
+                  defaultValue={PAYMENT_SEND}
                   control={sendForm.control}
                   render={({ field: { onChange, value } }) => {
                     return (
@@ -174,9 +175,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                         onChange={(newValue) => {
                           sendForm.setValue(
                             'paymentType',
-                            newValue ? 'received' : 'sent'
+                            newValue ? PAYMENT_RECEIVE : PAYMENT_SEND
                           )
-                          onChange(newValue ? 'received' : 'sent')
+                          onChange(newValue ? PAYMENT_RECEIVE : PAYMENT_SEND)
                         }}
                       />
                     )
