@@ -231,6 +231,21 @@ importers:
       '@faker-js/faker':
         specifier: ^8.0.1
         version: 8.0.1
+      '@graphql-codegen/cli':
+        specifier: ^3.3.1
+        version: 3.3.1(@babel/core@7.21.0)(@types/node@18.14.0)(graphql@16.6.0)
+      '@graphql-codegen/typescript':
+        specifier: ^3.0.4
+        version: 3.0.4(graphql@16.6.0)
+      '@graphql-codegen/typescript-operations':
+        specifier: ^3.0.4
+        version: 3.0.4(graphql@16.6.0)
+      '@types/cors':
+        specifier: ^2.8.13
+        version: 2.8.13
+      '@types/crypto-js':
+        specifier: ^4.1.1
+        version: 4.1.1
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.17
@@ -1208,7 +1223,7 @@ packages:
       graphql-config: 4.5.0(@types/node@18.14.0)(graphql@16.6.0)
       inquirer: 8.2.5
       is-glob: 4.0.3
-      jiti: 1.17.2
+      jiti: 1.18.2
       json-to-pretty-yaml: 1.2.2
       listr2: 4.0.5
       log-symbols: 4.1.0
@@ -5557,11 +5572,6 @@ packages:
 
   /jiti@1.17.1:
     resolution: {integrity: sha512-NZIITw8uZQFuzQimqjUxIrIcEdxYDFIe/0xYfIlVXTkiBjjyBEvgasj5bb0/cHtPRD/NziPbT312sFrkI5ALpw==}
-    hasBin: true
-    dev: true
-
-  /jiti@1.17.2:
-    resolution: {integrity: sha512-Xf0nU8+8wuiQpLcqdb2HRyHqYwGk2Pd+F7kstyp20ZuqTyCmB9dqpX2NxaxFc1kovraa2bG6c1RL3W7XfapiZg==}
     hasBin: true
     dev: true
 
