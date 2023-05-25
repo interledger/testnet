@@ -33,6 +33,15 @@ interface RapydClientDependencies {
   env: Env
 }
 
+type CalculateSignatureParams = {
+  httpMethod: string
+  url: string
+  salt: string
+  accessKey: string
+  secretKey: string
+  body: string
+}
+
 export class RapydClient implements IRapydClient {
   constructor(private deps: RapydClientDependencies) {}
 
@@ -192,21 +201,20 @@ export class RapydClient implements IRapydClient {
     return this.request<T>('put', url, body)
   }
 
-  private calcSignature(
-    httpMethod: string,
-    url: string,
-    salt: string,
-    accessKey: string,
-    secretKey: string,
-    body: string
-  ): string {
+  private calcSignature(params: CalculateSignatureParams): string {
     const timestamp: string = (
       Math.floor(new Date().getTime() / 1000) - 10
     ).toString()
     const toSign: string =
-      httpMethod + url + salt + timestamp + accessKey + secretKey + body
+      params.httpMethod +
+      params.url +
+      params.salt +
+      timestamp +
+      params.accessKey +
+      params.secretKey +
+      params.body
     const signature = crypto.enc.Hex.stringify(
-      crypto.HmacSHA256(toSign, secretKey)
+      crypto.HmacSHA256(toSign, params.secretKey)
     )
     return crypto.enc.Base64.stringify(crypto.enc.Utf8.parse(signature))
   }
@@ -215,14 +223,14 @@ export class RapydClient implements IRapydClient {
     const salt = crypto.lib.WordArray.random(12).toString()
     const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString()
 
-    const signature = this.calcSignature(
-      method,
-      `/v1/${url}`,
+    const signature = this.calcSignature({
+      httpMethod: method,
+      url: `/v1/${url}`,
       salt,
-      this.deps.env.RAPYD_ACCESS_KEY,
-      this.deps.env.RAPYD_SECRET_KEY,
+      accessKey: this.deps.env.RAPYD_ACCESS_KEY,
+      secretKey: this.deps.env.RAPYD_SECRET_KEY,
       body
-    )
+    })
 
     return {
       'Content-Type': 'application/json',

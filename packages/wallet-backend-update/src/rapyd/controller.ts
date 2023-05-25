@@ -1,11 +1,11 @@
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { validate } from '@/shared/validate'
-import { RapydService } from './service'
+import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 
 interface IRapydController {
-  getCountryNames: ControllerFunction<{ label?: string; value?: string }[]>
+  getCountryNames: ControllerFunction<Options[]>
   getDocumentTypes: ControllerFunction<RapydDocumentType[]>
   createWallet: ControllerFunction<RapydWallet>
   verifyIdentity: ControllerFunction<RapydIdentityResponse>
@@ -21,7 +21,7 @@ export class RapydController implements IRapydController {
 
   public getCountryNames = async (
     _: Request,
-    res: CustomResponse<{ label?: string; value?: string }[]>,
+    res: CustomResponse<Options[]>,
     next: NextFunction
   ) => {
     try {

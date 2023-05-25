@@ -32,7 +32,7 @@ type CreateWalletParams = {
   phone?: string
 }
 
-export type LabelValue = {
+export type Options = {
   label?: string
   value?: string
 }
@@ -41,7 +41,7 @@ export interface IRapydService {
   getDocumentTypes: (
     userId: string
   ) => Promise<Pick<RapydDocumentType, 'is_back_required' | 'name' | 'type'>[]>
-  getCountryNames: () => Promise<LabelValue[]>
+  getCountryNames: () => Promise<Options[]>
   createWallet: (createWalletParams: CreateWalletParams) => Promise<RapydWallet>
   verifyIdentity: (
     verifyIdentityParams: VerifyIdentityParams

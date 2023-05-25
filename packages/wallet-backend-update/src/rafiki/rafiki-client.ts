@@ -54,6 +54,21 @@ interface RafikiClientDependencies {
   gqlClient: GraphQLClient
 }
 
+type CreateIncomingPaymentParams = {
+  paymentPointerId: string
+  amount: bigint | null
+  asset: Asset
+  description?: string
+  expiresAt?: string
+}
+
+type CreateQuoteParams = {
+  paymentPointerId: string
+  receiver: string
+  asset: Asset
+  amount?: bigint
+}
+
 export class RafikiClient implements IRafikiClient {
   constructor(private deps: RafikiClientDependencies) {}
 
@@ -89,21 +104,17 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async createIncomingPayment(
-    paymentPointerId: string,
-    amount: bigint | null,
-    asset: Asset,
-    description?: string,
-    expiresAt?: string
+    params: CreateIncomingPaymentParams
   ): Promise<IncomingPayment> {
     const input: CreateIncomingPaymentInput = {
-      paymentPointerId,
-      description,
-      expiresAt,
-      ...(amount && {
+      paymentPointerId: params.paymentPointerId,
+      description: params.description,
+      expiresAt: params.expiresAt,
+      ...(params.amount && {
         incomingAmount: {
-          value: amount as unknown as bigint,
-          assetCode: asset.code,
-          assetScale: asset.scale
+          value: params.amount as unknown as bigint,
+          assetCode: params.asset.code,
+          assetScale: params.asset.scale
         }
       })
     }
@@ -216,24 +227,19 @@ export class RafikiClient implements IRafikiClient {
     return response.createPaymentPointer.paymentPointer
   }
 
-  public async createQuote(
-    paymentPointerId: string,
-    receiver: string,
-    asset: Asset,
-    amount?: bigint
-  ): Promise<Quote> {
+  public async createQuote(params: CreateQuoteParams): Promise<Quote> {
     const value = {
-      value: amount as unknown as bigint,
-      assetCode: asset.code,
-      assetScale: asset.scale
+      value: params.amount as unknown as bigint,
+      assetCode: params.asset.code,
+      assetScale: params.asset.scale
     }
 
     const input: CreateQuoteInput = {
-      paymentPointerId,
-      receiver
+      paymentPointerId: params.paymentPointerId,
+      receiver: params.receiver
     }
 
-    if (amount) {
+    if (params.amount) {
       input.sendAmount = value
     }
 
