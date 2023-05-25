@@ -88,7 +88,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 type DebouncedInputProps = Omit<InputProps, 'onChange'> & {
   value: string
   delay?: number
-  onChange?: (value: string) => void
+  onChange?: (value: string) => void | Promise<void>
 }
 
 export const DebouncedInput = ({
