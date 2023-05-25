@@ -78,12 +78,12 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
         new Date(Date.now() + 1000 * 60).toISOString()
       ))
 
-    const quote = await this.deps.rafikiClient.createQuote(
+    const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId,
-      paymentUrl,
+      receiver: paymentUrl,
       asset,
-      isReceive ? undefined : BigInt(amount * 10 ** asset.scale)
-    )
+      amount: isReceive ? undefined : BigInt(amount * 10 ** asset.scale)
+    })
     const payment = await this.deps.rafikiClient.createOutgoingPayment(
       paymentPointerId,
       quote.id,

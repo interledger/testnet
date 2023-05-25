@@ -97,13 +97,13 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     description?: string,
     expiresAt?: string
   ): Promise<Transaction> {
-    const response = await this.deps.rafikiClient.createIncomingPayment(
-      paymentPointerId,
+    const response = await this.deps.rafikiClient.createIncomingPayment({
       amount,
       asset,
       description,
-      expiresAt
-    )
+      expiresAt,
+      paymentPointerId
+    })
 
     return Transaction.query().insert({
       paymentPointerId: paymentPointerId,
