@@ -112,10 +112,8 @@ export class RapydClient implements IRapydClient {
 
   public simulateBankTransferToWallet(
     req: SimulateBankTransferToWalletRequest
-  ): Promise<
-    AxiosResponse<RapydResponse<SimulateBankTransferToWalletResponse>>
-  > {
-    return this.post(
+  ): Promise<RapydResponse<SimulateBankTransferToWalletResponse>> {
+    return this.post<RapydResponse<SimulateBankTransferToWalletResponse>>(
       'issuing/bankaccounts/bankaccounttransfertobankaccount',
       JSON.stringify(req)
     )

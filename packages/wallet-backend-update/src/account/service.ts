@@ -19,7 +19,7 @@ interface IAccountService {
     userId: string,
     amount: number,
     assetCode: string
-  ) => Promise<any>
+  ) => Promise<RapydResponse<VirtualAccountResponse>>
 }
 
 interface CountriesServiceDependencies {
@@ -187,10 +187,8 @@ export class AccountService implements IAccountService {
       issued_bank_account: existingAccount.virtualAccountId
     })
 
-    if (result.data.status.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to fund your account: ${result.data.status.message}`
-      )
+    if (result.status?.status !== 'SUCCESS') {
+      throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
 
     return result
