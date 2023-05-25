@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import axios, { AxiosError } from 'axios'
 import crypto from 'crypto-js'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
