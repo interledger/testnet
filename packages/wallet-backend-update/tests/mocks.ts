@@ -4,21 +4,25 @@ import z from 'zod'
 
 type LogInRequest = z.infer<typeof logInSchema>
 export const mockLogInRequest = (
-  overrides?: Partial<LogInRequest>
+  overrides?: Partial<LogInRequest['body']>
 ): LogInRequest => ({
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-  ...overrides
+  body: {
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    ...overrides
+  }
 })
 
 type SignUpRequest = z.infer<typeof signUpSchema>
 export const mockSignUpRequest = (
-  overrides?: Partial<SignUpRequest>
+  overrides?: Partial<SignUpRequest['body']>
 ): SignUpRequest => {
   const result = mockLogInRequest()
   return {
-    ...result,
-    confirmPassword: result.password,
-    ...overrides
+    body: {
+      ...result.body,
+      confirmPassword: result.body.password,
+      ...overrides
+    }
   }
 }

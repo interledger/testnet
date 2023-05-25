@@ -48,10 +48,10 @@ describe('User Controller', (): void => {
 
     req.body = args
 
-    await userService.create(args)
+    await userService.create(args.body)
     await applyMiddleware(withSession, req, res)
 
-    const { user, session } = await authService.authorize(args)
+    const { user, session } = await authService.authorize(args.body)
     req.session.id = session.id
     req.session.user = {
       id: user.id,

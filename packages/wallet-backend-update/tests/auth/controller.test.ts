@@ -69,7 +69,9 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 400 if the request body is not valid', async (): Promise<void> => {
-      req.body = mockSignUpRequest({ confirmPassword: 'not-the-same' })
+      req.body = mockSignUpRequest({
+        confirmPassword: 'not-the-same'
+      })
 
       await authController.signUp(req, res, (err) => {
         next()
@@ -110,7 +112,7 @@ describe('Authentication Controller', (): void => {
       const args = mockLogInRequest()
       req.body = args
 
-      const user = await userService.create(args)
+      const user = await userService.create(args.body)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
       await applyMiddleware(withSession, req, res)
       await authController.logIn(req, res, next)

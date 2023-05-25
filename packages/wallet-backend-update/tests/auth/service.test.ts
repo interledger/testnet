@@ -36,9 +36,9 @@ describe('Authentication Service', (): void => {
   describe('Authorize', (): void => {
     it('should authorize a user', async (): Promise<void> => {
       const args = mockLogInRequest()
-      const user = await userService.create(args)
+      const user = await userService.create(args.body)
 
-      await expect(authService.authorize(args)).resolves.toMatchObject({
+      await expect(authService.authorize(args.body)).resolves.toMatchObject({
         session: {
           userId: user.id
         },
@@ -51,16 +51,16 @@ describe('Authentication Service', (): void => {
 
     it('should throw an error if the user does not exist', async (): Promise<void> => {
       await expect(
-        authService.authorize(mockLogInRequest())
+        authService.authorize(mockLogInRequest().body)
       ).rejects.toThrowError(/Invalid credentials/)
     })
 
     it('should throw an error if the password is invalid', async (): Promise<void> => {
       const args = mockLogInRequest()
-      await userService.create(args)
+      await userService.create(args.body)
 
       await expect(
-        authService.authorize({ ...args, password: 'invalid' })
+        authService.authorize({ ...args.body, password: 'invalid' })
       ).rejects.toThrowError(/Invalid credentials/)
     })
   })
