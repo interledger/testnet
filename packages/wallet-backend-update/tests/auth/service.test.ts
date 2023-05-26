@@ -35,10 +35,10 @@ describe('Authentication Service', (): void => {
 
   describe('Authorize', (): void => {
     it('should authorize a user', async (): Promise<void> => {
-      const args = mockLogInRequest()
-      const user = await userService.create(args.body)
+      const args = mockLogInRequest().body
+      const user = await userService.create(args)
 
-      await expect(authService.authorize(args.body)).resolves.toMatchObject({
+      await expect(authService.authorize(args)).resolves.toMatchObject({
         session: {
           userId: user.id
         },
@@ -56,11 +56,11 @@ describe('Authentication Service', (): void => {
     })
 
     it('should throw an error if the password is invalid', async (): Promise<void> => {
-      const args = mockLogInRequest()
-      await userService.create(args.body)
+      const args = mockLogInRequest().body
+      await userService.create(args)
 
       await expect(
-        authService.authorize({ ...args.body, password: 'invalid' })
+        authService.authorize({ ...args, password: 'invalid' })
       ).rejects.toThrowError(/Invalid credentials/)
     })
   })

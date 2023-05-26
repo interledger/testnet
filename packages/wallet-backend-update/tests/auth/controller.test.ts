@@ -57,7 +57,7 @@ describe('Authentication Controller', (): void => {
 
   describe('Sign Up', (): void => {
     it('should return status 201 if the user is created', async (): Promise<void> => {
-      req.body = mockSignUpRequest()
+      req.body = mockSignUpRequest().body
       await authController.signUp(req, res, next)
 
       expect(next).toHaveBeenCalledTimes(0)
@@ -71,7 +71,7 @@ describe('Authentication Controller', (): void => {
     it('should return status 400 if the request body is not valid', async (): Promise<void> => {
       req.body = mockSignUpRequest({
         confirmPassword: 'not-the-same'
-      })
+      }).body
 
       await authController.signUp(req, res, (err) => {
         next()
@@ -87,7 +87,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 500 on unexpected error', async (): Promise<void> => {
-      req.body = mockSignUpRequest()
+      req.body = mockSignUpRequest().body
 
       const createSpy = jest
         .spyOn(userService, 'create')
@@ -109,15 +109,15 @@ describe('Authentication Controller', (): void => {
 
   describe('Log In', (): void => {
     it('should return status 200 if the user is authorized', async (): Promise<void> => {
-      const args = mockLogInRequest()
-      req.body = args
+      const body = mockLogInRequest().body
+      req.body = body
 
-      const user = await userService.create(args.body)
+      const user = await userService.create(body)
       const authorizeSpy = jest.spyOn(authService, 'authorize')
       await applyMiddleware(withSession, req, res)
       await authController.logIn(req, res, next)
 
-      expect(authorizeSpy).toHaveBeenCalledWith(args)
+      expect(authorizeSpy).toHaveBeenCalledWith(body)
       expect(next).toHaveBeenCalledTimes(0)
       expect(req.session.id).toBeDefined()
       expect(req.session.user).toMatchObject({
@@ -134,7 +134,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 400 if the request body is not valid', async (): Promise<void> => {
-      req.body = mockLogInRequest({ email: 'not-an-email' })
+      req.body = mockLogInRequest({ email: 'not-an-email' }).body
 
       await authController.logIn(req, res, (err) => {
         next()
@@ -150,7 +150,7 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return status 500 on unexpected error', async (): Promise<void> => {
-      req.body = mockLogInRequest()
+      req.body = mockLogInRequest().body
 
       const authorizeSpy = jest
         .spyOn(authService, 'authorize')
