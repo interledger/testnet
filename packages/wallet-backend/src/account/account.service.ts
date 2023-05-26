@@ -44,7 +44,7 @@ export const createAccount = async (
       .first()
     if (existingAsset) {
       throw new ConflictException(
-        `An account with the same asset ${asset.code} already exists`
+        `You can only have one account per asset. ${asset.code} account already exists`
       )
     }
 

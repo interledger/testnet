@@ -188,6 +188,40 @@ interface SimulateBankTransferToWalletRequest {
 
 type SimulateBankTransferToWalletResponse = VirtualAccountResponse
 
+interface PayoutMethodResponse {
+  payout_method_type: string
+  name: string
+  payout_currencies: string
+}
+
+interface WithdrawFundsFromAccountRequest {
+  beneficiary: { name: string; address: string }
+  payout_amount: number
+  payout_currency: string
+  ewallet: string
+  sender: { name: string; address: string }
+  sender_country: string
+  sender_currency: string
+  beneficiary_entity_type: string
+  sender_entity_type: string
+  payout_method_type: string
+}
+
+interface WithdrawFundsFromAccountResponse {
+  id: string
+  payout_method_type: string
+  sender_amount: number
+  sender_currency: string
+  status: string
+}
+
+interface CompletePayoutRequest {
+  payout: string
+  amount: number
+}
+
+type CompletePayoutResponse = WithdrawFundsFromAccountResponse
+
 interface RapydDocumentType {
   country?: string
   type?: string

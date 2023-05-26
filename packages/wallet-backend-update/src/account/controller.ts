@@ -2,7 +2,7 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { AccountService } from './service'
-import { accountSchema, fundSchema } from './validation'
+import { accountSchema, fundSchema, withdrawFundsSchema } from './validation'
 import { Account } from '@/account/model'
 
 interface IAccountController {
@@ -10,6 +10,7 @@ interface IAccountController {
   listAccounts: ControllerFunction<Account[]>
   getAccountById: ControllerFunction<Account>
   fundAccount: ControllerFunction
+  withdrawFunds: ControllerFunction
 }
 interface AccountControllerDependencies {
   accountService: AccountService
@@ -100,6 +101,26 @@ export class AccountController implements IAccountController {
       await this.deps.accountService.fundAccount(userId, amount, assetCode)
 
       res.status(200).json({ success: true, message: 'Account funded' })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  withdrawFunds = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { amount, assetCode }
+      } = await validate(withdrawFundsSchema, req)
+
+      const userId = req.session.user.id
+
+      await this.deps.accountService.withdrawFunds(userId, amount, assetCode)
+
+      res.status(200).json({ success: true, message: 'Funds withdrawn' })
     } catch (e) {
       next(e)
     }

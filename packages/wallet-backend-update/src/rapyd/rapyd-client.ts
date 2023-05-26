@@ -26,6 +26,21 @@ interface IRapydClient {
   ): Promise<RapydResponse<RapydAccountBalance[]>>
   getDocumentTypes(country: string): Promise<RapydResponse<RapydDocumentType[]>>
   getCountryNames(): Promise<RapydResponse<RapydCountry[]>>
+  issueVirtualAccount(
+    req: VirtualAccountRequest
+  ): Promise<RapydResponse<VirtualAccountResponse>>
+  simulateBankTransferToWallet(
+    req: SimulateBankTransferToWalletRequest
+  ): Promise<RapydResponse<SimulateBankTransferToWalletResponse>>
+  getPayoutMethodTypes(
+    assetCode: string
+  ): Promise<RapydResponse<PayoutMethodResponse[]>>
+  withdrawFundsFromAccount(
+    req: WithdrawFundsFromAccountRequest
+  ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>>
+  completePayout(
+    req: CompletePayoutRequest
+  ): Promise<RapydResponse<CompletePayoutResponse>>
 }
 
 interface RapydClientDependencies {
@@ -115,6 +130,29 @@ export class RapydClient implements IRapydClient {
   ): Promise<RapydResponse<SimulateBankTransferToWalletResponse>> {
     return this.post<RapydResponse<SimulateBankTransferToWalletResponse>>(
       'issuing/bankaccounts/bankaccounttransfertobankaccount',
+      JSON.stringify(req)
+    )
+  }
+
+  public getPayoutMethodTypes(
+    assetCode: string
+  ): Promise<RapydResponse<PayoutMethodResponse[]>> {
+    return this.get(
+      `payouts/supported_types?payout_currency=${assetCode}&limit=1`
+    )
+  }
+
+  public withdrawFundsFromAccount(
+    req: WithdrawFundsFromAccountRequest
+  ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>> {
+    return this.post('payouts', JSON.stringify(req))
+  }
+
+  public completePayout(
+    req: CompletePayoutRequest
+  ): Promise<RapydResponse<CompletePayoutResponse>> {
+    return this.post(
+      `payouts/complete/${req.payout}/${req.amount}`,
       JSON.stringify(req)
     )
   }

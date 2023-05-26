@@ -7,7 +7,7 @@ export const accountSchema = z.object({
   })
 })
 
-export const fundSchema = z.object({
+const fundsObject = {
   body: z.object({
     amount: z.coerce
       .number({
@@ -17,4 +17,6 @@ export const fundSchema = z.object({
       .positive(),
     assetCode: z.string()
   })
-})
+}
+export const fundSchema = z.object(fundsObject)
+export const withdrawFundsSchema = z.object(fundsObject)
