@@ -5,7 +5,7 @@ import { BadRequest } from '@/errors'
 export async function validate<
   T extends AnyZodObject | ZodEffects<AnyZodObject>
 >(schema: T, req: Request): Promise<z.infer<T>> {
-  const res = await schema.safeParseAsync(req.body)
+  const res = await schema.safeParseAsync(req)
   if (!res.success) {
     const errors: Record<string, string> = {}
     res.error.issues.forEach((i) => {

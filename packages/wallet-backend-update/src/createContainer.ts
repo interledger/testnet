@@ -1,13 +1,29 @@
+import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
-import { Container } from './shared/container'
+import { AccountController } from './account/controller'
+import { AccountService } from './account/service'
 import { Bindings } from './app'
+import { AssetController } from './asset/controller'
 import { AuthController } from './auth/controller'
 import { AuthService } from './auth/service'
 import { Env } from './config/env'
 import { logger } from './config/logger'
+import { RafikiClient } from './rafiki/rafiki-client'
+import { RapydClient } from './rapyd/rapyd-client'
 import { SessionService } from './session/service'
+import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import { UserService } from './user/service'
+import { RapydService } from './rapyd/service'
+import { RapydController } from './rapyd/controller'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { PaymentPointerController } from '@/paymentPointer/controller'
+import { TransactionService } from '@/transaction/service'
+import { TransactionController } from '@/transaction/controller'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -64,6 +80,158 @@ export const createContainer = (config: Env): Container<Bindings> => {
         authService: await container.resolve('authService'),
         logger: await container.resolve('logger'),
         userService: await container.resolve('userService')
+      })
+  )
+
+  //* RAPYD
+
+  container.singleton(
+    'rapydClient',
+    async () =>
+      new RapydClient({
+        logger: await container.resolve('logger'),
+        env: await container.resolve('env')
+      })
+  )
+
+  container.singleton(
+    'rapydService',
+    async () =>
+      new RapydService({
+        logger: await container.resolve('logger'),
+        rapyd: await container.resolve('rapydClient')
+      })
+  )
+
+  container.singleton(
+    'rapydController',
+    async () =>
+      new RapydController({
+        logger: await container.resolve('logger'),
+        rapydService: await container.resolve('rapydService')
+      })
+  )
+
+  //*RAFIKI
+
+  container.singleton('rafikiClient', async () => {
+    const env = await container.resolve('env')
+    return new RafikiClient({
+      env: env,
+      gqlClient: new GraphQLClient(env.GRAPHQL_ENDPOINT),
+      logger: await container.resolve('logger')
+    })
+  })
+
+  //* Asset
+
+  container.singleton(
+    'assetController',
+    async () =>
+      new AssetController({
+        rafikiClient: await container.resolve('rafikiClient'),
+        logger: await container.resolve('logger')
+      })
+  )
+
+  //* Account
+  container.singleton(
+    'accountService',
+    async () =>
+      new AccountService({
+        logger: await container.resolve('logger'),
+        rafiki: await container.resolve('rafikiClient'),
+        rapyd: await container.resolve('rapydClient')
+      })
+  )
+
+  container.singleton(
+    'accountController',
+    async () =>
+      new AccountController({
+        logger: await container.resolve('logger'),
+        accountService: await container.resolve('accountService')
+      })
+  )
+
+  //* PaymentPointer
+  container.singleton(
+    'paymentPointerService',
+    async () =>
+      new PaymentPointerService({
+        env: await container.resolve('env'),
+        rafikiClient: await container.resolve('rafikiClient'),
+        accountService: await container.resolve('accountService')
+      })
+  )
+
+  container.singleton(
+    'paymentPointerController',
+    async () =>
+      new PaymentPointerController({
+        logger: await container.resolve('logger'),
+        paymentPointerService: await container.resolve('paymentPointerService')
+      })
+  )
+
+  //* Transactions
+  container.singleton(
+    'transactionService',
+    async () =>
+      new TransactionService({
+        accountService: await container.resolve('accountService'),
+        logger: await container.resolve('logger')
+      })
+  )
+
+  container.singleton(
+    'transactionController',
+    async () =>
+      new TransactionController({
+        transactionService: await container.resolve('transactionService')
+      })
+  )
+
+  //* Incoming payment
+  container.singleton(
+    'incomingPaymentService',
+    async () =>
+      new IncomingPaymentService({
+        accountService: await container.resolve('accountService'),
+        rafikiClient: await container.resolve('rafikiClient')
+      })
+  )
+
+  container.singleton(
+    'incomingPaymentController',
+    async () =>
+      new IncomingPaymentController({
+        incomingPaymentService: await container.resolve(
+          'incomingPaymentService'
+        )
+      })
+  )
+
+  //* Outgoing payment
+  container.singleton(
+    'outgoingPaymentService',
+    async () =>
+      new OutgoingPaymentService({
+        accountService: await container.resolve('accountService'),
+        rafikiClient: await container.resolve('rafikiClient'),
+        incomingPaymentService: await container.resolve(
+          'incomingPaymentService'
+        )
+      })
+  )
+
+  container.singleton(
+    'outgoingPaymentController',
+    async () =>
+      new OutgoingPaymentController({
+        outgoingPaymentService: await container.resolve(
+          'outgoingPaymentService'
+        )
       })
   )
 

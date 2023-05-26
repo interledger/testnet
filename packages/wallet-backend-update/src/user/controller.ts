@@ -10,11 +10,7 @@ interface UserFlags {
 }
 
 interface IUserController {
-  me: (
-    req: Request,
-    res: CustomResponse<UserFlags>,
-    next: NextFunction
-  ) => Promise<void>
+  me: ControllerFunction<UserFlags>
 }
 interface UserControllerDependencies {
   userService: UserService
