@@ -135,7 +135,7 @@ const createUserService = (): UserService => ({
   async signUp(args): Promise<SignUpResponse> {
     try {
       const response = await httpClient
-        .post('auth/signup', {
+        .post('signup', {
           json: args
         })
         .json<SuccessResponse>()
@@ -151,7 +151,7 @@ const createUserService = (): UserService => ({
   async login(args): Promise<LoginResponse> {
     try {
       const response = await httpClient
-        .post('auth/login', {
+        .post('login', {
           json: args
         })
         .json<SuccessResponse>()

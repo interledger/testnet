@@ -144,8 +144,8 @@ export class App {
     })
 
     // Auth Routes
-    router.post('/auth/sign-up', authController.signUp)
-    router.post('/auth/log-in', authController.logIn)
+    router.post('/signup', authController.signUp)
+    router.post('/login', authController.logIn)
 
     // Me Endpoint
     router.get('/me', isAuth, userController.me)
