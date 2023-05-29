@@ -11,10 +11,16 @@ export const getObjectKeys = Object.keys as <T extends object>(
 ) => Array<keyof T>
 
 // Gets list of countries from Rapyd
-export const fetchCountries = async (): Promise<SelectOption[]> => {
+export const fetchCountries = async (
+  cookies?: string
+): Promise<SelectOption[]> => {
   try {
     const response = await httpClient
-      .get('countries')
+      .get('countries', {
+        headers: {
+          ...(cookies ? { Cookie: cookies } : {})
+        }
+      })
       .json<SuccessResponse<SelectOption[]>>()
     return response?.data ?? []
   } catch (error) {
@@ -23,18 +29,22 @@ export const fetchCountries = async (): Promise<SelectOption[]> => {
   }
 }
 
-type DocumentType = {
+export type Document = {
   type: string
   name: string
   isBackRequired: boolean
 }
 
-// Gets list of approoved documents by countries from Rapyd
-export const fetchDocuments = async (): Promise<DocumentType[]> => {
+// Gets list of approved documents by countries from Rapyd
+export const fetchDocuments = async (cookies?: string): Promise<Document[]> => {
   try {
     const response = await httpClient
-      .get('documents')
-      .json<SuccessResponse<DocumentType[]>>()
+      .get('documents', {
+        headers: {
+          ...(cookies ? { Cookie: cookies } : {})
+        }
+      })
+      .json<SuccessResponse<Document[]>>()
     return response?.data ?? []
   } catch (error) {
     console.log(error)
