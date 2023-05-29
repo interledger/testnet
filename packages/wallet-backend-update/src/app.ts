@@ -135,7 +135,7 @@ export class App {
 
     // Only allow JSON
     router.use('*', (req: Request, res: CustomResponse, next: NextFunction) => {
-      if (req.is('application/json')) {
+      if (req.headers['content-type'] === 'application/json') {
         next()
       } else {
         res.status(415).json({
@@ -150,7 +150,7 @@ export class App {
     router.post('/login', authController.logIn)
 
     // Me Endpoint
-    router.get('/me', isAuth, userController.me)
+    router.get('/me', userController.me)
 
     // payment pointer routes
     router.post(
