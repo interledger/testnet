@@ -96,7 +96,8 @@ export type UserData = {
   firstName: string
   lastName: string
   address: string
-  noKyc: boolean
+  needsWallet: boolean
+  needsIDProof: boolean
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
