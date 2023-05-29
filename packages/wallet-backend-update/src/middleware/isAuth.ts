@@ -1,23 +1,22 @@
 import { Unauthorized } from '@/errors'
 import type { NextFunction, Request, Response } from 'express'
-import { getIronSession } from 'iron-session'
-import { SESSION_OPTIONS } from './withSession'
+
+const KYCRoutes = ['/wallet', '/verify', '/countries', '/documents']
 
 export const isAuth = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const session = await getIronSession(req, res, SESSION_OPTIONS)
   try {
-    if (!session.id || !session.user) {
+    if (!req.session.id || !req.session.user) {
       req.session.destroy()
       throw new Unauthorized('Unauthorized')
     }
-
+    console.log(KYCRoutes.includes(req.url))
     if (
-      req.url !== '/wallet' &&
-      (session.user.needsWallet || session.user.needsIDProof)
+      !KYCRoutes.includes(req.url) &&
+      (req.session.user.needsWallet || req.session.user.needsIDProof)
     ) {
       throw new Unauthorized('Unauthorized')
     }
