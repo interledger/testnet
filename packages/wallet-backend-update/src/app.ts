@@ -193,22 +193,21 @@ export class App {
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // rapyd routes
-    router.get('/countries', rapydController.getCountryNames)
-    router.get('/documents', rapydController.getDocumentTypes)
+    router.get('/countries', isAuth, rapydController.getCountryNames)
+    router.get('/documents', isAuth, rapydController.getDocumentTypes)
     router.post('/wallet', isAuth, rapydController.createWallet)
     router.post('/updateProfile', isAuth, rapydController.updateProfile)
     router.post('/verify', isAuth, rapydController.verifyIdentity)
-    router.get('/documents', isAuth, rapydController.getDocumentTypes)
 
     // asset
-    router.get('assets', isAuth, assetController.list)
-    router.get('assets/:id', isAuth, assetController.getById)
+    router.get('/assets', isAuth, assetController.list)
+    router.get('/assets/:id', isAuth, assetController.getById)
 
     // account
-    router.post('accounts', isAuth, accountController.createAccount)
-    router.get('accounts', isAuth, accountController.listAccounts)
-    router.get('accounts/:id', isAuth, accountController.getAccountById)
-    router.post('accounts/fund', isAuth, accountController.fundAccount)
+    router.post('/accounts', isAuth, accountController.createAccount)
+    router.get('/accounts', isAuth, accountController.listAccounts)
+    router.get('/accounts/:id', isAuth, accountController.getAccountById)
+    router.post('/accounts/fund', isAuth, accountController.fundAccount)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
