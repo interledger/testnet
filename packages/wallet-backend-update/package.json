@@ -17,11 +17,11 @@
     "objection": "^3.0.1",
     "pg": "^8.11.0",
     "uuid": "^9.0.0",
-    "winston": "^3.8.2",
+    "winston": "^3.9.0",
     "zod": "^3.21.4",
     "crypto-js": "^4.1.1",
     "graphql": "^16.6.0",
-    "graphql-request": "^6.0.0",
+    "graphql-request": "^6.1.0",
     "cors": "^2.8.5"
   },
   "devDependencies": {
