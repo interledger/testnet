@@ -3,6 +3,7 @@ import { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
+import { User } from '@/user/model'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -40,6 +41,9 @@ export class RapydController implements IRapydController {
     next: NextFunction
   ) => {
     try {
+      req.session.user.needsIDProof = false
+      await req.session.save()
+      console.log(req.session)
       const { id: userId } = req.session.user
 
       const documentTypesResult = await this.deps.rapydService.getDocumentTypes(
@@ -77,12 +81,7 @@ export class RapydController implements IRapydController {
         phone
       })
 
-      req.session.user = {
-        ...req.session.user,
-        needsWallet: false,
-        needsIDProof: false
-      }
-
+      req.session.user.needsWallet = false
       await req.session.save()
 
       res.status(200).json({
@@ -126,6 +125,13 @@ export class RapydController implements IRapydController {
           backSideImage,
           backSideImageType
         })
+
+      await User.query()
+        .findById(userId)
+        .patch({ kycId: verifyIdentityResponse.id })
+
+      req.session.user.needsIDProof = false
+      await req.session.save()
 
       res.status(200).json({
         success: true,
