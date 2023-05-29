@@ -30,6 +30,11 @@ export class UserController implements IUserController {
     next: NextFunction
   ) => {
     try {
+      if (!req.session.id || !req.session.user) {
+        req.session.destroy()
+        throw new Unauthorized('Unauthorized')
+      }
+
       const user = await this.deps.userService.getById(req.session.user.id)
 
       if (!user) {
