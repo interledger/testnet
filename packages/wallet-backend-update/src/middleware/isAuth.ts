@@ -13,7 +13,7 @@ export const isAuth = async (
       req.session.destroy()
       throw new Unauthorized('Unauthorized')
     }
-    console.log(KYCRoutes.includes(req.url))
+
     if (
       !KYCRoutes.includes(req.url) &&
       (req.session.user.needsWallet || req.session.user.needsIDProof)

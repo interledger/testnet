@@ -41,9 +41,6 @@ export class RapydController implements IRapydController {
     next: NextFunction
   ) => {
     try {
-      req.session.user.needsIDProof = false
-      await req.session.save()
-      console.log(req.session)
       const { id: userId } = req.session.user
 
       const documentTypesResult = await this.deps.rapydService.getDocumentTypes(

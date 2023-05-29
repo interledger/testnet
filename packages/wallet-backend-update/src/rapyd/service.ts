@@ -58,7 +58,6 @@ export class RapydService implements IRapydService {
 
   public async getDocumentTypes(userId: string) {
     const user = await User.query().findById(userId)
-    console.log(user)
 
     if (!user) throw new Error(`User does not exist`)
 
@@ -169,7 +168,7 @@ export class RapydService implements IRapydService {
       back_side_image_mime_type: params.backSideImageType
     }
     const result = await this.deps.rapyd.verifyIdentity(values)
-    console.log(result)
+
     if (result.status.status !== 'SUCCESS')
       throw new Error(`Unable to send kyc documents : ${result.status.message}`)
 
