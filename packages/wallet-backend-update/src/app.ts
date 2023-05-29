@@ -118,13 +118,15 @@ export class App {
     const assetController = await this.container.resolve('assetController')
     const accountController = await this.container.resolve('accountController')
 
-    cors({
-      origin: [
-        'http://localhost:4003',
-        `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
-      ],
-      credentials: true
-    })
+    app.use(
+      cors({
+        origin: [
+          'http://localhost:4003',
+          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+        ],
+        credentials: true
+      })
+    )
 
     app.use(helmet())
     app.use(express.json())

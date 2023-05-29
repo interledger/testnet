@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest) {
   // Because this is not going to run in the browser, we have to explictly pass
   // the cookies.
   const response = await userService.me(
-    `RefreshToken=${req.cookies.get('RefreshToken')?.value}`
+    `testnet.cookie=${req.cookies.get('testnet.cookie')?.value}`
   )
 
   // Success TRUE - the user is logged in
