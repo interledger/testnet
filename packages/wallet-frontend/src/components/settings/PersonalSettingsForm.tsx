@@ -3,30 +3,21 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useState } from 'react'
-import { profileSchema, userService } from '@/lib/api/user'
+import { User, profileSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
 
-export type PersonalDetailsProps = {
-  firstName: string
-  lastName: string
-  address: string
-  email: string
-}
-
 type PersonalSettingsFormProps = {
-  personalDetails: PersonalDetailsProps
+  user: User
 }
 
-export const PersonalSettingsForm = ({
-  personalDetails
-}: PersonalSettingsFormProps) => {
+export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
   const [isReadOnly, setIsReadOnly] = useState(true)
   const [openDialog, closeDialog] = useDialog()
   const profileForm = useZodForm({
     schema: profileSchema,
-    defaultValues: personalDetails
+    defaultValues: user
   })
 
   return (
@@ -118,7 +109,7 @@ export const PersonalSettingsForm = ({
           label="Address"
           placeholder="Address"
           disabled
-          value={personalDetails.address}
+          value={user.address}
         />
       </div>
       <div>
@@ -127,7 +118,7 @@ export const PersonalSettingsForm = ({
           label="Email"
           disabled
           placeholder="Address"
-          value={personalDetails.email}
+          value={user.email}
         />
       </div>
     </>
