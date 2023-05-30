@@ -6,20 +6,24 @@ import { Logger } from 'winston'
 import { formatBalance } from '@/utils/helpers'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 
+type CreateAccountArgs = {
+  userId: string
+  name: string
+  assetId: string
+}
+
+type FundAccountArgs = {
+  userId: string
+  amount: number
+  assetCode: string
+}
+
 interface IAccountService {
-  createAccount: (
-    userId: string,
-    name: string,
-    assetId: string
-  ) => Promise<Account>
+  createAccount: (args: CreateAccountArgs) => Promise<Account>
   getAccounts: (userId: string) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
   getAccountBalance: (userId: string, assetCode: string) => Promise<bigint>
-  fundAccount: (
-    userId: string,
-    amount: number,
-    assetCode: string
-  ) => Promise<RapydResponse<VirtualAccountResponse>>
+  fundAccount: (args: FundAccountArgs) => Promise<void>
 }
 
 interface CountriesServiceDependencies {
@@ -31,20 +35,18 @@ interface CountriesServiceDependencies {
 export class AccountService implements IAccountService {
   constructor(private deps: CountriesServiceDependencies) {}
 
-  public async createAccount(
-    userId: string,
-    name: string,
-    assetId: string
-  ): Promise<Account> {
+  public async createAccount(args: CreateAccountArgs): Promise<Account> {
     const existingAccount = await Account.query()
-      .where('userId', userId)
-      .where('name', name)
+      .where('userId', args.userId)
+      .where('name', args.name)
       .first()
     if (existingAccount) {
-      throw new Conflict(`An account with the name '${name}' already exists`)
+      throw new Conflict(
+        `An account with the name '${args.name}' already exists`
+      )
     }
 
-    const asset = await this.deps.rafiki.getAssetById(assetId)
+    const asset = await this.deps.rafiki.getAssetById(args.assetId)
 
     if (!asset) {
       throw new NotFound()
@@ -52,7 +54,7 @@ export class AccountService implements IAccountService {
 
     const existingAssetAccount = await Account.query()
       .where('assetCode', asset.code)
-      .where('userId', userId)
+      .where('userId', args.userId)
       .first()
 
     if (existingAssetAccount) {
@@ -62,7 +64,7 @@ export class AccountService implements IAccountService {
     }
 
     // issue virtual account to wallet
-    const user = await User.query().findById(userId)
+    const user = await User.query().findById(args.userId)
     if (!user) {
       throw new NotFound()
     }
@@ -83,10 +85,10 @@ export class AccountService implements IAccountService {
     const virtualAccount = result.data
 
     const account = await Account.query().insert({
-      name,
-      userId,
+      name: args.name,
+      userId: args.userId,
       assetCode: asset.code,
-      assetId,
+      assetId: args.assetId,
       virtualAccountId: virtualAccount.id
     })
 
@@ -171,10 +173,10 @@ export class AccountService implements IAccountService {
     )
   }
 
-  public async fundAccount(userId: string, amount: number, assetCode: string) {
+  public async fundAccount(args: FundAccountArgs): Promise<void> {
     const existingAccount = await Account.query()
-      .where('userId', userId)
-      .where('assetCode', assetCode)
+      .where('userId', args.userId)
+      .where('assetCode', args.assetCode)
       .first()
     if (!existingAccount) {
       throw new NotFound()
@@ -182,16 +184,14 @@ export class AccountService implements IAccountService {
 
     // fund amount to wallet account
     const result = await this.deps.rapyd.simulateBankTransferToWallet({
-      amount: amount,
-      currency: assetCode,
+      amount: args.amount,
+      currency: args.assetCode,
       issued_bank_account: existingAccount.virtualAccountId
     })
 
     if (result.status?.status !== 'SUCCESS') {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
-
-    return result
   }
 
   public findAccountById = async (

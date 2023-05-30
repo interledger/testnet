@@ -11,7 +11,7 @@ exports.up = function (knex) {
     table.foreign('userId').references('users.id').onDelete('CASCADE')
 
     table.string('assetId').notNullable()
-    table.specificType('assetCode', 'char(8)').notNullable() // ISO 4217 — Currency codes
+    table.specificType('assetCode', 'char(3)').notNullable() // ISO 4217 — Currency codes
     table.integer('assetScale').notNullable()
     table.bigint('balance').notNullable().defaultTo(0n)
 
