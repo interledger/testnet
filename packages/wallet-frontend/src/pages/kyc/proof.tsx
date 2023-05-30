@@ -1,7 +1,11 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import AuthLayout from '@/components/layouts/AuthLayout'
-import { userService, verifyIdentitySchema } from '@/lib/api/user'
+import {
+  userService,
+  verifyIdentitySchema,
+  type Document
+} from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -10,7 +14,7 @@ import { FieldError } from '@/ui/forms/FieldError'
 import { FileUpload } from '@/ui/forms/FileUpload'
 import { Form } from '@/ui/forms/Form'
 import { USE_TEST_DATA_KYC } from '@/utils/constants'
-import { type Document, fetchDocuments, getObjectKeys } from '@/utils/helpers'
+import { getObjectKeys } from '@/utils/helpers'
 import { testImageVerifyIdentity, testImageType } from '@/utils/mocks'
 import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
@@ -270,7 +274,7 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
 export const getServerSideProps: GetServerSideProps<{
   documents: Document[]
 }> = async (ctx) => {
-  const documents = await fetchDocuments(ctx.req.headers.cookie)
+  const documents = await userService.getDocuments(ctx.req.headers.cookie)
   return {
     props: {
       documents

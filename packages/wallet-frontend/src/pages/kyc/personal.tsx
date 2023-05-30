@@ -10,7 +10,7 @@ import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { Select, SelectOption } from '@/ui/forms/Select'
 import { USE_TEST_DATA_KYC } from '@/utils/constants'
-import { fetchCountries, getObjectKeys } from '@/utils/helpers'
+import { getObjectKeys } from '@/utils/helpers'
 import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { Controller } from 'react-hook-form'
@@ -150,7 +150,7 @@ const PersonalDetailsPage: NextPageWithLayout<PersonalDetailsProps> = ({
 export const getServerSideProps: GetServerSideProps<{
   countries: SelectOption[]
 }> = async (ctx) => {
-  const countries = await fetchCountries(ctx.req.headers.cookie)
+  const countries = await userService.getCountries(ctx.req.headers.cookie)
   return {
     props: {
       countries
