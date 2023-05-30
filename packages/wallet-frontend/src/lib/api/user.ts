@@ -6,6 +6,7 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
+import { SelectOption } from '@/ui/forms/Select'
 
 export const signUpSchema = z
   .object({
@@ -96,7 +97,14 @@ export type UserData = {
   firstName: string
   lastName: string
   address: string
-  noKyc: boolean
+  needsWallet: boolean
+  needsIDProof: boolean
+}
+
+export type Document = {
+  type: string
+  name: string
+  isBackRequired: boolean
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
@@ -129,6 +137,8 @@ interface UserService {
   createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
   verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
   updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
+  getDocuments: (cookies?: string) => Promise<Document[]>
+  getCountries: (cookies?: string) => Promise<SelectOption[]>
 }
 
 const createUserService = (): UserService => ({
@@ -229,6 +239,38 @@ const createUserService = (): UserService => ({
         error,
         'Something went wrong while updating your profile. Please try again.'
       )
+    }
+  },
+
+  async getDocuments(cookies) {
+    try {
+      const response = await httpClient
+        .get('documents', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<SuccessResponse<Document[]>>()
+      return response?.data ?? []
+    } catch (error) {
+      console.log(error)
+      return []
+    }
+  },
+
+  async getCountries(cookies) {
+    try {
+      const response = await httpClient
+        .get('countries', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<SuccessResponse<SelectOption[]>>()
+      return response?.data ?? []
+    } catch (error) {
+      console.log(error)
+      return []
     }
   }
 })

@@ -248,7 +248,7 @@ export class RapydClient implements IRapydClient {
     try {
       const res = await axios<T>({
         method,
-        url,
+        url: `${this.deps.env.RAPYD_API}/${url}`,
         ...(body && { data: body }),
         headers
       })
