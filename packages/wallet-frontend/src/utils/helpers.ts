@@ -7,10 +7,42 @@ export const getObjectKeys = Object.keys as <T extends object>(
   obj: T
 ) => Array<keyof T>
 
-export const formatAmount = (value: number, scale = 2) => {
-  return transformAmount(value, scale).toFixed(scale)
+export type FormattedAmount = {
+  amount: string
+  symbol: string
 }
 
-export const transformAmount = (value: number, scale = 2) => {
-  return value * 10 ** -scale
+export const getCurrencySymbol = (assetCode: string): string => {
+  return new Intl.NumberFormat('en-US', {
+    currency: assetCode,
+    style: 'currency',
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0
+  })
+    .format(0)
+    .replace(/0/g, '')
+    .trim()
+}
+
+type FormatAmountArgs = {
+  value: number | string
+  assetCode: string
+  assetScale: number
+}
+
+export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
+  const { value, assetCode, assetScale } = args
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: assetCode,
+    maximumFractionDigits: assetScale,
+    minimumFractionDigits: assetScale
+  })
+  const amount = formatter.format(Number(value))
+  const symbol = getCurrencySymbol(assetCode)
+
+  return {
+    amount,
+    symbol
+  }
 }
