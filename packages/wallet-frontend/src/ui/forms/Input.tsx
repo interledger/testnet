@@ -49,7 +49,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <div className="mt-1 flex rounded-md shadow-sm">
             {addOn ? (
-              <span className="inline-flex items-center whitespace-pre rounded-l-md border border-r-0 border-turqoise bg-gray-50 px-3 text-gray-600 sm:text-sm">
+              <span className="inline-flex items-center whitespace-pre rounded-l-md border border-r-0 border-turqoise bg-gray-50 px-3 text-gray-600">
                 {addOn}
               </span>
             ) : null}
@@ -73,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ) : null}
             </div>
             {trailing ? (
-              <span className="inline-flex items-center whitespace-pre rounded-r-md border border-l-0 border-turqoise bg-gray-50 px-3 text-gray-600 sm:text-sm">
+              <span className="inline-flex items-center whitespace-pre rounded-r-md border border-l-0 border-turqoise bg-gray-50 px-3 text-gray-600">
                 {trailing}
               </span>
             ) : null}

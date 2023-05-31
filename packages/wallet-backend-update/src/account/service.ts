@@ -3,28 +3,28 @@ import { Account } from './model'
 import { User } from '@/user/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
-import { formatBalance } from '@/utils/helpers'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { transformBalance } from '@/utils/helpers'
+
+type CreateAccountArgs = {
+  userId: string
+  name: string
+  assetId: string
+}
+
+type FundWithdrawAccountArgs = {
+  userId: string
+  amount: number
+  assetCode: string
+}
 
 interface IAccountService {
-  createAccount: (
-    userId: string,
-    name: string,
-    assetId: string
-  ) => Promise<Account>
+  createAccount: (args: CreateAccountArgs) => Promise<Account>
   getAccounts: (userId: string) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
-  getAccountBalance: (userId: string, assetCode: string) => Promise<bigint>
-  fundAccount: (
-    userId: string,
-    amount: number,
-    assetCode: string
-  ) => Promise<RapydResponse<VirtualAccountResponse>>
-  withdrawFunds: (
-    userId: string,
-    amount: number,
-    assetCode: string
-  ) => Promise<RapydResponse<CompletePayoutResponse>>
+  getAccountBalance: (userId: string, assetCode: string) => Promise<number>
+  fundAccount: (args: FundWithdrawAccountArgs) => Promise<void>
+  withdrawFunds: (args: FundWithdrawAccountArgs) => Promise<void>
 }
 
 interface CountriesServiceDependencies {
@@ -36,20 +36,18 @@ interface CountriesServiceDependencies {
 export class AccountService implements IAccountService {
   constructor(private deps: CountriesServiceDependencies) {}
 
-  public async createAccount(
-    userId: string,
-    name: string,
-    assetId: string
-  ): Promise<Account> {
+  public async createAccount(args: CreateAccountArgs): Promise<Account> {
     const existingAccount = await Account.query()
-      .where('userId', userId)
-      .where('name', name)
+      .where('userId', args.userId)
+      .where('name', args.name)
       .first()
     if (existingAccount) {
-      throw new Conflict(`An account with the name '${name}' already exists`)
+      throw new Conflict(
+        `An account with the name '${args.name}' already exists`
+      )
     }
 
-    const asset = await this.deps.rafiki.getAssetById(assetId)
+    const asset = await this.deps.rafiki.getAssetById(args.assetId)
 
     if (!asset) {
       throw new NotFound()
@@ -57,7 +55,7 @@ export class AccountService implements IAccountService {
 
     const existingAssetAccount = await Account.query()
       .where('assetCode', asset.code)
-      .where('userId', userId)
+      .where('userId', args.userId)
       .first()
 
     if (existingAssetAccount) {
@@ -67,7 +65,7 @@ export class AccountService implements IAccountService {
     }
 
     // issue virtual account to wallet
-    const user = await User.query().findById(userId)
+    const user = await User.query().findById(args.userId)
     if (!user) {
       throw new NotFound()
     }
@@ -88,10 +86,11 @@ export class AccountService implements IAccountService {
     const virtualAccount = result.data
 
     const account = await Account.query().insert({
-      name,
-      userId,
+      name: args.name,
+      userId: args.userId,
       assetCode: asset.code,
-      assetId,
+      assetId: args.assetId,
+      assetScale: asset.scale,
       virtualAccountId: virtualAccount.id
     })
 
@@ -108,10 +107,11 @@ export class AccountService implements IAccountService {
     const accountsBalance = await this.deps.rapyd.getAccountsBalance(
       user.rapydWalletId
     )
-    account.balance = formatBalance(
+
+    account.balance = transformBalance(
       accountsBalance.data?.find((acc) => acc.currency === account.assetCode)
         ?.balance ?? 0,
-      account.assetScale
+      asset.scale
     )
 
     return account
@@ -131,7 +131,7 @@ export class AccountService implements IAccountService {
     )
 
     accounts.forEach((acc) => {
-      acc.balance = formatBalance(
+      acc.balance = transformBalance(
         accountsBalance.data?.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
         )?.balance ?? 0,
@@ -154,12 +154,15 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    account.balance = await this.getAccountBalance(userId, account.assetCode)
+    account.balance = transformBalance(
+      await this.getAccountBalance(userId, account.assetCode),
+      account.assetScale
+    )
 
     return account
   }
 
-  async getAccountBalance(userId: string, assetCode: string): Promise<bigint> {
+  async getAccountBalance(userId: string, assetCode: string): Promise<number> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.rapydWalletId) {
@@ -169,17 +172,16 @@ export class AccountService implements IAccountService {
     const accountsBalance = await this.deps.rapyd.getAccountsBalance(
       user.rapydWalletId
     )
-    return formatBalance(
+    return (
       accountsBalance.data?.find((acc) => acc.currency === assetCode)
-        ?.balance ?? 0,
-      2
+        ?.balance ?? 0
     )
   }
 
-  public async fundAccount(userId: string, amount: number, assetCode: string) {
+  public async fundAccount(args: FundWithdrawAccountArgs): Promise<void> {
     const existingAccount = await Account.query()
-      .where('userId', userId)
-      .where('assetCode', assetCode)
+      .where('userId', args.userId)
+      .where('assetCode', args.assetCode)
       .first()
     if (!existingAccount) {
       throw new NotFound()
@@ -187,33 +189,29 @@ export class AccountService implements IAccountService {
 
     // fund amount to wallet account
     const result = await this.deps.rapyd.simulateBankTransferToWallet({
-      amount: amount,
-      currency: assetCode,
+      amount: args.amount,
+      currency: args.assetCode,
       issued_bank_account: existingAccount.virtualAccountId
     })
 
     if (result.status?.status !== 'SUCCESS') {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
-
-    return result
   }
 
-  public async withdrawFunds(
-    userId: string,
-    amount: number,
-    assetCode: string
-  ) {
+  public async withdrawFunds(args: FundWithdrawAccountArgs): Promise<void> {
     const existingAccount = await Account.query()
-      .where('userId', userId)
-      .where('assetCode', assetCode)
+      .where('userId', args.userId)
+      .where('assetCode', args.assetCode)
       .first()
     if (!existingAccount) {
       throw new NotFound()
     }
 
     // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
-    const payoutType = await this.deps.rapyd.getPayoutMethodTypes(assetCode)
+    const payoutType = await this.deps.rapyd.getPayoutMethodTypes(
+      args.assetCode
+    )
 
     if (payoutType.status.status !== 'SUCCESS') {
       throw new Error(
@@ -221,7 +219,7 @@ export class AccountService implements IAccountService {
       )
     }
 
-    const user = await User.query().findById(userId)
+    const user = await User.query().findById(args.userId)
     if (!user || !user.rapydWalletId) {
       throw new NotFound()
     }
@@ -233,12 +231,12 @@ export class AccountService implements IAccountService {
     }
     const payout = await this.deps.rapyd.withdrawFundsFromAccount({
       beneficiary: userDetails,
-      payout_amount: amount,
-      payout_currency: assetCode,
+      payout_amount: args.amount,
+      payout_currency: args.assetCode,
       ewallet: user.rapydWalletId ?? '',
       sender: userDetails,
       sender_country: user.country ?? '',
-      sender_currency: assetCode,
+      sender_currency: args.assetCode,
       beneficiary_entity_type: 'individual',
       sender_entity_type: 'individual',
       payout_method_type: payoutType.data[0].payout_method_type
@@ -253,7 +251,7 @@ export class AccountService implements IAccountService {
     // complete third party/bank payout
     const completePayoutResponse = await this.deps.rapyd.completePayout({
       payout: payout.data.id,
-      amount: amount
+      amount: args.amount
     })
 
     if (completePayoutResponse.status.status !== 'SUCCESS') {
@@ -261,8 +259,6 @@ export class AccountService implements IAccountService {
         `Unable to withdraw funds from your account: ${completePayoutResponse.status.message}`
       )
     }
-
-    return completePayoutResponse
   }
 
   public findAccountById = async (

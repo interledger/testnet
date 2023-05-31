@@ -14,10 +14,12 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 
 import { Link } from '@/ui/Link'
+import { formatAmount } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
 } from 'next/types'
+import { useMemo } from 'react'
 import { z } from 'zod'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
@@ -27,12 +29,22 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   paymentPointers
 }) => {
   const [openDialog, closeDialog] = useDialog()
+  const formattedAmount = useMemo(
+    () =>
+      formatAmount({
+        value: account.balance,
+        assetCode: account.assetCode,
+        assetScale: account.assetScale
+      }),
+    [account]
+  )
+
   return (
     <>
       <div className="text-green">
         <h2 className="text-lg font-light md:text-xl">Balance</h2>
         <p className="text-2xl font-semibold md:text-4xl">
-          {account.balance} {account.assetCode}
+          {formattedAmount.amount}
         </p>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
@@ -99,8 +111,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </div>
         <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
           <span className="font-semibold text-green">{account.name}</span>
-          <span className="inline-flex h-8 w-10 items-center justify-center rounded-md bg-white font-bold mix-blend-screen">
-            {account.assetCode}
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
+            {formattedAmount.symbol}
           </span>
         </div>
         <div className="flex flex-col">

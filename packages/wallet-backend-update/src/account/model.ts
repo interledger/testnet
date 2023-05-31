@@ -4,7 +4,7 @@ import { User } from '@/user/model'
 import { Model } from 'objection'
 
 export class Account extends BaseModel {
-  static tableName = 'users'
+  static tableName = 'accounts'
 
   public name!: string
   public balance!: bigint

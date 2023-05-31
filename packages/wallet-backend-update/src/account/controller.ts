@@ -28,14 +28,15 @@ export class AccountController implements IAccountController {
     try {
       const userId = req.session.user.id
       const {
-        body: { name, assetRafikiId: assetId }
+        body: { name, assetId }
       } = await validate(accountSchema, req)
 
-      const createAccountResult = await this.deps.accountService.createAccount(
+      const createAccountResult = await this.deps.accountService.createAccount({
         userId,
         name,
         assetId
-      )
+      })
+
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: createAccountResult })
@@ -98,7 +99,7 @@ export class AccountController implements IAccountController {
 
       const userId = req.session.user.id
 
-      await this.deps.accountService.fundAccount(userId, amount, assetCode)
+      await this.deps.accountService.fundAccount({ userId, amount, assetCode })
 
       res.status(200).json({ success: true, message: 'Account funded' })
     } catch (e) {

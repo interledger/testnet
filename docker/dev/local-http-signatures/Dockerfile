@@ -7,7 +7,7 @@ RUN apt install -y curl xz-utils python3 build-essential
 
 # version in curl is not the version used. Dependent on the last command
 RUN corepack enable
-RUN corepack prepare pnpm@7.25.1 --activate
+RUN corepack prepare pnpm@8.6.0 --activate
 
 # pnpm fetch does require only lockfile
 COPY pnpm-lock.yaml ./
