@@ -43,7 +43,7 @@ export interface Transaction {
   description: string
   paymentPointerId: string
   assetCode: string
-  value: number
+  value: string
   type: TransactionType
   status: TransactionStatus
   createdAt: string
