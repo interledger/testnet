@@ -92,7 +92,7 @@ export const verifyIdentitySchema = z
     }
   )
 
-export type UserData = {
+export type User = {
   email: string
   firstName: string
   lastName: string
@@ -109,26 +109,26 @@ export type Document = {
 
 type SignUpArgs = z.infer<typeof signUpSchema>
 type SignUpError = ErrorResponse<SignUpArgs | undefined>
-type SignUpResponse = Promise<SuccessResponse | SignUpError>
+type SignUpResponse = SuccessResponse | SignUpError
 
 type LoginArgs = z.infer<typeof loginSchema>
 type LoginError = ErrorResponse<LoginArgs | undefined>
-type LoginResponse = Promise<SuccessResponse | LoginError>
+type LoginResponse = SuccessResponse | LoginError
 
-type MeResult = SuccessResponse<UserData>
-type MeResponse = Promise<MeResult | ErrorResponse>
+type MeResult = SuccessResponse<User>
+type MeResponse = MeResult | ErrorResponse
 
 type CreateWalletArgs = z.infer<typeof personalDetailsSchema>
 type CreateWalletError = ErrorResponse<CreateWalletArgs | undefined>
-type CreateWalletResponse = Promise<SuccessResponse | CreateWalletError>
+type CreateWalletResponse = SuccessResponse | CreateWalletError
 
 type VerifyIdentityArgs = z.infer<typeof verifyIdentitySchema>
 type VerifyIdentityError = ErrorResponse<VerifyIdentityArgs | undefined>
-type VerifyIdentityResponse = Promise<SuccessResponse | VerifyIdentityError>
+type VerifyIdentityResponse = SuccessResponse | VerifyIdentityError
 
 type ProfileArgs = z.infer<typeof profileSchema>
 type ProfileError = ErrorResponse<ProfileArgs | undefined>
-type ProfileResponse = Promise<SuccessResponse | ProfileError>
+type ProfileResponse = SuccessResponse | ProfileError
 
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
@@ -142,7 +142,7 @@ interface UserService {
 }
 
 const createUserService = (): UserService => ({
-  async signUp(args): Promise<SignUpResponse> {
+  async signUp(args) {
     try {
       const response = await httpClient
         .post('signup', {
@@ -158,7 +158,7 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async login(args): Promise<LoginResponse> {
+  async login(args) {
     try {
       const response = await httpClient
         .post('login', {
@@ -174,7 +174,7 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async me(cookies): Promise<MeResponse> {
+  async me(cookies) {
     try {
       const response = await httpClient
         .get('me', {
@@ -189,7 +189,7 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async createWallet(args: CreateWalletArgs): Promise<CreateWalletResponse> {
+  async createWallet(args) {
     try {
       const response = await httpClient
         .post('wallet', {
@@ -208,9 +208,7 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async verifyIdentity(
-    args: VerifyIdentityArgs
-  ): Promise<VerifyIdentityResponse> {
+  async verifyIdentity(args) {
     try {
       const response = await httpClient
         .post('verify', {
@@ -226,7 +224,7 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async updateProfile(args: ProfileArgs): Promise<ProfileResponse> {
+  async updateProfile(args) {
     try {
       const response = await httpClient
         .post('updateProfile', {
@@ -275,4 +273,5 @@ const createUserService = (): UserService => ({
   }
 })
 
-export const userService = createUserService()
+const userService = createUserService()
+export { userService }
