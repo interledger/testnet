@@ -4,6 +4,7 @@ import { User } from '@/user/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { transformBalance } from '@/utils/helpers'
 
 type CreateAccountArgs = {
   userId: string
@@ -21,7 +22,7 @@ interface IAccountService {
   createAccount: (args: CreateAccountArgs) => Promise<Account>
   getAccounts: (userId: string) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
-  getAccountBalance: (userId: string, assetCode: string) => Promise<bigint>
+  getAccountBalance: (userId: string, assetCode: string) => Promise<number>
   fundAccount: (args: FundAccountArgs) => Promise<void>
 }
 
@@ -106,9 +107,10 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
 
-    account.balance = BigInt(
+    account.balance = transformBalance(
       accountsBalance.data?.find((acc) => acc.currency === account.assetCode)
-        ?.balance ?? 0
+        ?.balance ?? 0,
+      asset.scale
     )
 
     return account
@@ -128,10 +130,11 @@ export class AccountService implements IAccountService {
     )
 
     accounts.forEach((acc) => {
-      acc.balance = BigInt(
+      acc.balance = transformBalance(
         accountsBalance.data?.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
-        )?.balance ?? 0
+        )?.balance ?? 0,
+        acc.assetScale
       )
     })
 
@@ -150,12 +153,15 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    account.balance = await this.getAccountBalance(userId, account.assetCode)
+    account.balance = transformBalance(
+      await this.getAccountBalance(userId, account.assetCode),
+      account.assetScale
+    )
 
     return account
   }
 
-  async getAccountBalance(userId: string, assetCode: string): Promise<bigint> {
+  async getAccountBalance(userId: string, assetCode: string): Promise<number> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.rapydWalletId) {
@@ -165,7 +171,7 @@ export class AccountService implements IAccountService {
     const accountsBalance = await this.deps.rapyd.getAccountsBalance(
       user.rapydWalletId
     )
-    return BigInt(
+    return (
       accountsBalance.data?.find((acc) => acc.currency === assetCode)
         ?.balance ?? 0
     )

@@ -25,7 +25,7 @@ export const getCurrencySymbol = (assetCode: string): string => {
 }
 
 type FormatAmountArgs = {
-  value: number | string
+  value: string
   assetCode: string
   assetScale: number
 }
@@ -38,7 +38,8 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
     maximumFractionDigits: assetScale,
     minimumFractionDigits: assetScale
   })
-  const amount = formatter.format(Number(value))
+
+  const amount = formatter.format(Number(`${value}e-${assetScale}`))
   const symbol = getCurrencySymbol(assetCode)
 
   return {
