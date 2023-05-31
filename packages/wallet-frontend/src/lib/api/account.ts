@@ -33,7 +33,8 @@ export type Account = {
   id: string
   name: string
   assetCode: string
-  assetRafikiId: string
+  assetScale: number
+  assetId: string
   balance: string
 }
 
@@ -41,16 +42,16 @@ type GetAccountResult = SuccessResponse<Account>
 type GetAccountResponse = GetAccountResult | ErrorResponse
 
 type ListAccountsResult = SuccessResponse<Account[]>
-type ListAccountsResponse = Promise<ListAccountsResult | ErrorResponse>
+type ListAccountsResponse = ListAccountsResult | ErrorResponse
 
 type CreateAccountArgs = z.infer<typeof createAccountSchema>
 type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
-type CreateAccountResponse = Promise<CreateAccountResult | CreateAccountError>
+type CreateAccountResponse = CreateAccountResult | CreateAccountError
 
 type FundAccountArgs = z.infer<typeof fundAccountSchema>
 type FundAccountError = ErrorResponse<FundAccountArgs | undefined>
-type FundAccountResponse = Promise<SuccessResponse | FundAccountError>
+type FundAccountResponse = SuccessResponse | FundAccountError
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
@@ -60,7 +61,7 @@ interface AccountService {
 }
 
 const createAccountService = (): AccountService => ({
-  async get(accountId, cookies): Promise<GetAccountResponse> {
+  async get(accountId, cookies) {
     try {
       const response = await httpClient
         .get(`accounts/${accountId}`, {
@@ -75,7 +76,7 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async list(cookies): Promise<ListAccountsResponse> {
+  async list(cookies) {
     try {
       const response = await httpClient
         .get('accounts', {
@@ -90,13 +91,13 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async create(args): Promise<CreateAccountResponse> {
+  async create(args) {
     try {
       const response = await httpClient
         .post('accounts', {
           json: {
             name: args.name,
-            assetRafikiId: args.asset.value
+            assetId: args.asset.value
           }
         })
         .json<CreateAccountResult>()
@@ -109,7 +110,7 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async fund(args: FundAccountArgs): Promise<FundAccountResponse> {
+  async fund(args) {
     try {
       const response = await httpClient
         .post('accounts/fund', {
@@ -126,4 +127,5 @@ const createAccountService = (): AccountService => ({
   }
 })
 
-export const accountService = createAccountService()
+const accountService = createAccountService()
+export { accountService }

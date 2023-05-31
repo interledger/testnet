@@ -217,7 +217,7 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
 type SelectAccountOption = SelectOption & {
   balance: string
   assetCode: string
-  assetRafikiId: string
+  assetId: string
 }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
@@ -235,7 +235,7 @@ export const getServerSideProps: GetServerSideProps<{
         value: account.id,
         balance: account.balance,
         assetCode: account.assetCode,
-        assetRafikiId: account.assetRafikiId
+        assetId: account.assetId
       }))
     : []
 

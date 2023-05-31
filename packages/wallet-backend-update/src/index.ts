@@ -2,6 +2,10 @@ import { App } from './app'
 import { env } from './config/env'
 import { createContainer } from './createContainer'
 
+BigInt.prototype.toJSON = function (this: bigint) {
+  return this.toString()
+}
+
 const container = createContainer(env)
 
 const app = new App(container)

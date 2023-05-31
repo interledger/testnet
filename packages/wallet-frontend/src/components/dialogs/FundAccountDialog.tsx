@@ -6,7 +6,7 @@ import { Button } from '@/ui/Button'
 import { Account, accountService, fundAccountSchema } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
-import { getObjectKeys } from '@/utils/helpers'
+import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
@@ -110,7 +110,7 @@ export const FundAccountDialog = ({
                       required
                       label="Amount"
                       defaultValue={0}
-                      trailing={account.assetCode}
+                      addOn={getCurrencySymbol(account.assetCode)}
                       error={fundAccountForm.formState?.errors?.amount?.message}
                       {...fundAccountForm.register('amount')}
                     />
