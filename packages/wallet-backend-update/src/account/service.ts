@@ -3,7 +3,6 @@ import { Account } from './model'
 import { User } from '@/user/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
-import { formatBalance } from '@/utils/helpers'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 
 type CreateAccountArgs = {
@@ -89,6 +88,7 @@ export class AccountService implements IAccountService {
       userId: args.userId,
       assetCode: asset.code,
       assetId: args.assetId,
+      assetScale: asset.scale,
       virtualAccountId: virtualAccount.id
     })
 
@@ -105,10 +105,10 @@ export class AccountService implements IAccountService {
     const accountsBalance = await this.deps.rapyd.getAccountsBalance(
       user.rapydWalletId
     )
-    account.balance = formatBalance(
+
+    account.balance = BigInt(
       accountsBalance.data?.find((acc) => acc.currency === account.assetCode)
-        ?.balance ?? 0,
-      account.assetScale
+        ?.balance ?? 0
     )
 
     return account
@@ -128,11 +128,10 @@ export class AccountService implements IAccountService {
     )
 
     accounts.forEach((acc) => {
-      acc.balance = formatBalance(
+      acc.balance = BigInt(
         accountsBalance.data?.find(
           (rapydAccount) => rapydAccount.currency === acc.assetCode
-        )?.balance ?? 0,
-        acc.assetScale
+        )?.balance ?? 0
       )
     })
 
@@ -166,10 +165,9 @@ export class AccountService implements IAccountService {
     const accountsBalance = await this.deps.rapyd.getAccountsBalance(
       user.rapydWalletId
     )
-    return formatBalance(
+    return BigInt(
       accountsBalance.data?.find((acc) => acc.currency === assetCode)
-        ?.balance ?? 0,
-      2
+        ?.balance ?? 0
     )
   }
 
