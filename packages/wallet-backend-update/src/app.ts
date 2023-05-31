@@ -208,6 +208,7 @@ export class App {
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
+    router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
