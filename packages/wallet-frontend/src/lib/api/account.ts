@@ -33,6 +33,7 @@ export type Account = {
   id: string
   name: string
   assetCode: string
+  assetScale: number
   assetId: string
   balance: string
 }
