@@ -57,7 +57,7 @@ type FundAccountResponse = SuccessResponse | FundAccountError
 
 type WithdrawFundsArgs = z.infer<typeof withdrawFundsSchema>
 type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
-type WithdrawFundsResponse = Promise<SuccessResponse | WithdrawFundsError>
+type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
@@ -133,7 +133,7 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async withdraw(args: WithdrawFundsArgs): Promise<WithdrawFundsResponse> {
+  async withdraw(args) {
     try {
       const response = await httpClient
         .post('accounts/withdraw', {

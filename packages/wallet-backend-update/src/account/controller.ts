@@ -119,7 +119,11 @@ export class AccountController implements IAccountController {
 
       const userId = req.session.user.id
 
-      await this.deps.accountService.withdrawFunds(userId, amount, assetCode)
+      await this.deps.accountService.withdrawFunds({
+        userId,
+        amount,
+        assetCode
+      })
 
       res.status(200).json({ success: true, message: 'Funds withdrawn' })
     } catch (e) {

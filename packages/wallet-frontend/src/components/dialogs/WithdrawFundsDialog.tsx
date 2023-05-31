@@ -6,7 +6,7 @@ import { Button } from '@/ui/Button'
 import { Account, accountService, withdrawFundsSchema } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
-import { getObjectKeys } from '@/utils/helpers'
+import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
@@ -61,7 +61,7 @@ export const WithdrawFundsDialog = ({
                   <Form
                     form={withdrawFundsForm}
                     onSubmit={async (data) => {
-                      const response = await accountService.fund(data)
+                      const response = await accountService.withdraw(data)
 
                       if (!response) {
                         openDialog(
@@ -110,7 +110,7 @@ export const WithdrawFundsDialog = ({
                       required
                       label="Amount"
                       defaultValue={0}
-                      trailing={account.assetCode}
+                      addOn={getCurrencySymbol(account.assetCode)}
                       error={
                         withdrawFundsForm.formState?.errors?.amount?.message
                       }
