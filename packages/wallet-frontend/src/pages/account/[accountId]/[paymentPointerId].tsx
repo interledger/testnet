@@ -10,7 +10,6 @@ import {
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
-import { formatAmount } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -140,7 +139,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assetResponse = await assetService.get(
-    accountResponse.data.assetRafikiId,
+    accountResponse.data.assetId,
     ctx.req.headers.cookie
   )
   if (!assetResponse.success || !assetResponse.data) {
@@ -157,8 +156,7 @@ export const getServerSideProps: GetServerSideProps<{
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }),
-    value: formatAmount(trx.value, assetResponse.data?.scale)
+    })
   }))
 
   return {
