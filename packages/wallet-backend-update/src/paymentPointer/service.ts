@@ -102,6 +102,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       .findById(id)
       .where('accountId', accountId)
       .where('active', true)
+      .withGraphFetched('transactions')
 
     if (!paymentPointer) {
       throw new NotFound()

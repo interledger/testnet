@@ -17,13 +17,6 @@ export const createPaymentPointerSchema = z.object({
   })
 })
 
-export type PaymentPointer = {
-  id: string
-  url: string
-  publicName: string
-  accountId: string
-}
-
 const TRANSACTION_TYPE = {
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING'
@@ -36,8 +29,7 @@ const TRANSACTION_STATUS = {
   REJECTED: 'REJECTED'
 } as const
 type TransactionStatus = keyof typeof TRANSACTION_STATUS
-
-export interface Transaction {
+interface Transaction {
   id: string
   paymentId: string
   description: string
@@ -49,11 +41,16 @@ export interface Transaction {
   createdAt: string
   updatedAt: string
 }
-export interface TransactionWithFormattedValue
-  extends Omit<Transaction, 'value'> {
-  value: string
+
+export type PaymentPointer = {
+  id: string
+  url: string
+  publicName: string
+  accountId: string
+  transactions: Transaction[]
 }
 
+type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
@@ -71,13 +68,9 @@ type CreatePaymentPointerResponse =
 
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
-type GetTransactionsResult = SuccessResponse<Transaction[]>
-type GetTransactionsResponse = GetTransactionsResult | ErrorResponse
-
 interface PaymentPointerService {
   get: (
-    accountId: string,
-    paymentPointerId: string,
+    args: GetPaymentPointerArgs,
     cookies?: string
   ) => Promise<GetPaymentPointerResponse>
   list: (
@@ -89,26 +82,20 @@ interface PaymentPointerService {
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
   delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
-  getTransactions: (
-    accountId: string,
-    paymentPointerId: string,
-    cookies?: string
-  ) => Promise<GetTransactionsResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
-  async get(
-    accountId,
-    paymentPointerId,
-    cookies
-  ): Promise<GetPaymentPointerResponse> {
+  async get(args, cookies) {
     try {
       const response = await httpClient
-        .get(`accounts/${accountId}/payment-pointers/${paymentPointerId}`, {
-          headers: {
-            ...(cookies ? { Cookie: cookies } : {})
+        .get(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}`,
+          {
+            headers: {
+              ...(cookies ? { Cookie: cookies } : {})
+            }
           }
-        })
+        )
         .json<GetPaymentPointerResult>()
       return response
     } catch (error) {
@@ -162,31 +149,6 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError(
         error,
         'We were not able to delete your payment pointer. Please try again.'
-      )
-    }
-  },
-
-  async getTransactions(
-    accountId,
-    paymentPointerId,
-    cookies
-  ): Promise<GetTransactionsResponse> {
-    try {
-      const response = await httpClient
-        .get(
-          `accounts/${accountId}/payment-pointers/${paymentPointerId}/transactions`,
-          {
-            headers: {
-              ...(cookies ? { Cookie: cookies } : {})
-            }
-          }
-        )
-        .json<GetTransactionsResult>()
-      return response
-    } catch (error) {
-      return getError(
-        error,
-        'We were not able to create your payment pointer. Please try again.'
       )
     }
   }
