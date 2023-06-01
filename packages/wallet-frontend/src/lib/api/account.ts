@@ -5,6 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { PaymentPointer } from './paymentPointer'
 
 export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
@@ -36,6 +37,7 @@ export type Account = {
   assetScale: number
   assetId: string
   balance: string
+  paymentPointers: PaymentPointer[]
 }
 
 type GetAccountResult = SuccessResponse<Account>

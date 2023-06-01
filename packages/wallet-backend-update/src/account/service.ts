@@ -148,6 +148,7 @@ export class AccountService implements IAccountService {
     const account = await Account.query()
       .findById(accountId)
       .where('userId', userId)
+      .withGraphFetched('paymentPointers')
 
     if (!account) {
       throw new NotFound()
