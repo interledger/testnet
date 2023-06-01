@@ -54,6 +54,9 @@ type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
+type ListPaymentPointerResult = SuccessResponse<PaymentPointer[]>
+type ListPaymentPointerResponse = ListPaymentPointerResult | ErrorResponse
+
 type CreatePaymentPointerArgs = z.infer<typeof createPaymentPointerSchema>
 type CreatePaymentPointerResult = SuccessResponse<PaymentPointer>
 type CreatePaymentPointerError = ErrorResponse<
@@ -70,6 +73,10 @@ interface PaymentPointerService {
     args: GetPaymentPointerArgs,
     cookies?: string
   ) => Promise<GetPaymentPointerResponse>
+  list: (
+    accountId: string,
+    cookies?: string
+  ) => Promise<ListPaymentPointerResponse>
   create: (
     accountId: string,
     args: CreatePaymentPointerArgs
@@ -96,6 +103,21 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         error,
         'We were not able to fetch information about the payment pointer. Please try again.'
       )
+    }
+  },
+
+  async list(accountId, cookies): Promise<ListPaymentPointerResponse> {
+    try {
+      const response = await httpClient
+        .get(`accounts/${accountId}/payment-pointers`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<ListPaymentPointerResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to fetch payment pointers.')
     }
   },
 
