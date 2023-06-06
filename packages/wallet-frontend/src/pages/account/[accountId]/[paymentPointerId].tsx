@@ -15,7 +15,6 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { assetService } from '@/lib/api/asset'
 
 type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -133,16 +132,6 @@ export const getServerSideProps: GetServerSideProps<{
     !paymentPointerResponse.data ||
     !transactionsResponse.data
   ) {
-    return {
-      notFound: true
-    }
-  }
-
-  const assetResponse = await assetService.get(
-    accountResponse.data.assetId,
-    ctx.req.headers.cookie
-  )
-  if (!assetResponse.success || !assetResponse.data) {
     return {
       notFound: true
     }
