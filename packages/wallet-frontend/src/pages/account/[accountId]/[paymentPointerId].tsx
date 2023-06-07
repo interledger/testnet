@@ -2,7 +2,11 @@ import { Arrow } from '@/components/icons/Arrow'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { Account, accountService } from '@/lib/api/account'
-import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
+import {
+  PaymentPointer,
+  Transaction,
+  paymentPointerService
+} from '@/lib/api/paymentPointer'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
@@ -19,7 +23,8 @@ type TransactionsPageProps = InferGetServerSidePropsType<
 
 const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   account,
-  paymentPointer
+  paymentPointer,
+  transactions
 }) => {
   return (
     <>
@@ -42,8 +47,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             columns={['', 'Date', 'Description', 'Status', 'Amount']}
           />
           <Table.Body>
-            {paymentPointer.transactions.length ? (
-              paymentPointer.transactions.map((trx) => (
+            {transactions.length ? (
+              transactions.map((trx) => (
                 <Table.Row key={trx.id}>
                   <Table.Cell className="w-10">
                     <Arrow
@@ -88,6 +93,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointer: PaymentPointer
+  transactions: Transaction[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -97,24 +103,40 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse, paymentPointerResponse] = await Promise.all([
-    accountService.get(result.data.accountId, ctx.req.headers.cookie),
-    paymentPointerService.get(
-      {
-        accountId: result.data.accountId,
-        paymentPointerId: result.data.paymentPointerId
-      },
-      ctx.req.headers.cookie
-    )
-  ])
+  const [accountResponse, paymentPointerResponse, transactionsResponse] =
+    await Promise.all([
+      accountService.get(result.data.accountId, ctx.req.headers.cookie),
+      paymentPointerService.get(
+        {
+          accountId: result.data.accountId,
+          paymentPointerId: result.data.paymentPointerId
+        },
+        ctx.req.headers.cookie
+      ),
+      paymentPointerService.listTransactions(
+        {
+          accountId: result.data.accountId,
+          paymentPointerId: result.data.paymentPointerId
+        },
+        ctx.req.headers.cookie
+      )
+    ])
 
-  if (!accountResponse.success || !paymentPointerResponse.success) {
+  if (
+    !accountResponse.success ||
+    !paymentPointerResponse.success ||
+    !transactionsResponse.success
+  ) {
     return {
       notFound: true
     }
   }
 
-  if (!accountResponse.data || !paymentPointerResponse.data) {
+  if (
+    !accountResponse.data ||
+    !paymentPointerResponse.data ||
+    !transactionsResponse.data
+  ) {
     return {
       notFound: true
     }
@@ -125,7 +147,8 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       account: accountResponse.data,
-      paymentPointer: paymentPointerResponse.data
+      paymentPointer: paymentPointerResponse.data,
+      transactions: transactionsResponse.data
     }
   }
 }

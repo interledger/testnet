@@ -29,7 +29,7 @@ const TRANSACTION_STATUS = {
   REJECTED: 'REJECTED'
 } as const
 type TransactionStatus = keyof typeof TRANSACTION_STATUS
-interface Transaction {
+export interface Transaction {
   id: string
   paymentId: string
   description: string
@@ -47,7 +47,6 @@ export type PaymentPointer = {
   url: string
   publicName: string
   accountId: string
-  transactions: Transaction[]
 }
 
 type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
@@ -68,6 +67,10 @@ type CreatePaymentPointerResponse =
 
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
+type ListTransactionsArgs = { accountId: string; paymentPointerId: string }
+type ListTransactionsResult = SuccessResponse<Transaction[]>
+type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
+
 interface PaymentPointerService {
   get: (
     args: GetPaymentPointerArgs,
@@ -82,6 +85,10 @@ interface PaymentPointerService {
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
   delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
+  listTransactions: (
+    args: ListTransactionsArgs,
+    cookies?: string
+  ) => Promise<ListTransactionsResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -149,6 +156,27 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError(
         error,
         'We were not able to delete your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async listTransactions(args, cookies): Promise<ListTransactionsResponse> {
+    try {
+      const response = await httpClient
+        .get(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/transactions`,
+          {
+            headers: {
+              ...(cookies ? { Cookie: cookies } : {})
+            }
+          }
+        )
+        .json<ListTransactionsResult>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to create your payment pointer. Please try again.'
       )
     }
   }

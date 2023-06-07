@@ -7,6 +7,7 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
+import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 
@@ -21,7 +22,10 @@ import { z } from 'zod'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const AccountPage: NextPageWithLayout<AccountPageProps> = ({ account }) => {
+const AccountPage: NextPageWithLayout<AccountPageProps> = ({
+  account,
+  paymentPointers
+}) => {
   const [openDialog, closeDialog] = useDialog()
   const formattedAmount = useMemo(
     () =>
@@ -96,8 +100,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({ account }) => {
           </span>
         </div>
         <div className="flex flex-col">
-          {account.paymentPointers.length > 0 ? (
-            account.paymentPointers.map((paymentPointer) => (
+          {paymentPointers.length > 0 ? (
+            paymentPointers.map((paymentPointer) => (
               <PaymentPointerCard
                 key={paymentPointer.id}
                 paymentPointer={paymentPointer}
@@ -120,6 +124,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
+  paymentPointers: PaymentPointer[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -129,25 +134,27 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse] = await Promise.all([
-    accountService.get(result.data.accountId, ctx.req.headers.cookie)
+  const [accountResponse, paymentPointersResponse] = await Promise.all([
+    accountService.get(result.data.accountId, ctx.req.headers.cookie),
+    paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
   ])
 
-  if (!accountResponse.success) {
+  if (!accountResponse.success || !paymentPointersResponse.success) {
     return {
       notFound: true
     }
   }
 
-  if (!accountResponse.data) {
+  if (!accountResponse.data || !paymentPointersResponse.data) {
     return {
       notFound: true
     }
   }
-  console.log(accountResponse.data)
+
   return {
     props: {
-      account: accountResponse.data
+      account: accountResponse.data,
+      paymentPointers: paymentPointersResponse.data
     }
   }
 }
