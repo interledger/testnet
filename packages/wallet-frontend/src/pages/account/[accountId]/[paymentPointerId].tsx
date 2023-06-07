@@ -142,8 +142,6 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  console.log(paymentPointerResponse.data)
-
   return {
     props: {
       account: accountResponse.data,

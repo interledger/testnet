@@ -201,7 +201,6 @@ export class App {
 
     // asset
     router.get('/assets', isAuth, assetController.list)
-    router.get('/assets/:id', isAuth, assetController.getById)
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)
