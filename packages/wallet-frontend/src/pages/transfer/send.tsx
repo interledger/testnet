@@ -140,23 +140,14 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           </div>
           <div className="space-y-2">
             <Badge size="fixed" text="to" />
-            <Controller
-              name="toPaymentPointerUrl"
-              control={sendForm.control}
-              render={({ field: { value, onChange } }) => {
-                return (
-                  <DebouncedInput
-                    required
-                    error={
-                      sendForm.formState.errors.toPaymentPointerUrl?.message
-                    }
-                    label="Payment pointer"
-                    value={value}
-                    onChange={onChange}
-                  />
-                )
-              }}
+
+            <Input
+              required
+              error={sendForm.formState.errors.toPaymentPointerUrl?.message}
+              label="Payment pointer"
+              {...sendForm.register('toPaymentPointerUrl')}
             />
+
             <input type="hidden" {...sendForm.register('paymentType')} />
             <Input
               required

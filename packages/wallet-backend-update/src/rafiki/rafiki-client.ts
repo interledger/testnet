@@ -41,6 +41,7 @@ import {
 import { createOutgoingPaymentMutation } from './request/outgoing-payment.request'
 import { createPaymentPointerMutation } from './request/payment-pointer.request'
 import { GraphQLClient } from 'graphql-request'
+import { createQuoteMutation } from './request/quote.request'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -244,7 +245,7 @@ export class RafikiClient implements IRafikiClient {
     const { createQuote } = await this.deps.gqlClient.request<
       CreateQuoteMutation,
       CreateQuoteMutationVariables
-    >(createIncomingPaymentMutation, {
+    >(createQuoteMutation, {
       input
     })
 
