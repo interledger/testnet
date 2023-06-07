@@ -6,7 +6,7 @@
     "start": "PORT=4003 next start"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.14",
+    "@headlessui/react": "^1.7.15",
     "@hookform/resolvers": "^3.1.0",
     "class-variance-authority": "^0.6.0",
     "ky": "^0.33.3",
@@ -14,7 +14,7 @@
     "nprogress": "^0.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.44.2",
+    "react-hook-form": "^7.44.3",
     "react-select": "^5.7.3",
     "zod": "^3.21.4"
   },
@@ -24,7 +24,7 @@
     "@tailwindcss/forms": "^0.5.3",
     "@types/node": "^18.14.0",
     "@types/nprogress": "^0.2.0",
-    "@types/react": "18.2.7",
+    "@types/react": "18.2.8",
     "@types/react-dom": "18.2.4",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
