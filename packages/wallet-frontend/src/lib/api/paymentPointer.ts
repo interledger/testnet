@@ -17,13 +17,6 @@ export const createPaymentPointerSchema = z.object({
   })
 })
 
-export type PaymentPointer = {
-  id: string
-  url: string
-  publicName: string
-  accountId: string
-}
-
 const TRANSACTION_TYPE = {
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING'
@@ -36,7 +29,6 @@ const TRANSACTION_STATUS = {
   REJECTED: 'REJECTED'
 } as const
 type TransactionStatus = keyof typeof TRANSACTION_STATUS
-
 export interface Transaction {
   id: string
   paymentId: string
@@ -49,11 +41,15 @@ export interface Transaction {
   createdAt: string
   updatedAt: string
 }
-export interface TransactionWithFormattedValue
-  extends Omit<Transaction, 'value'> {
-  value: string
+
+export type PaymentPointer = {
+  id: string
+  url: string
+  publicName: string
+  accountId: string
 }
 
+type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
@@ -71,13 +67,13 @@ type CreatePaymentPointerResponse =
 
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
-type GetTransactionsResult = SuccessResponse<Transaction[]>
-type GetTransactionsResponse = GetTransactionsResult | ErrorResponse
+type ListTransactionsArgs = { accountId: string; paymentPointerId: string }
+type ListTransactionsResult = SuccessResponse<Transaction[]>
+type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
 
 interface PaymentPointerService {
   get: (
-    accountId: string,
-    paymentPointerId: string,
+    args: GetPaymentPointerArgs,
     cookies?: string
   ) => Promise<GetPaymentPointerResponse>
   list: (
@@ -89,26 +85,24 @@ interface PaymentPointerService {
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
   delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
-  getTransactions: (
-    accountId: string,
-    paymentPointerId: string,
+  listTransactions: (
+    args: ListTransactionsArgs,
     cookies?: string
-  ) => Promise<GetTransactionsResponse>
+  ) => Promise<ListTransactionsResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
-  async get(
-    accountId,
-    paymentPointerId,
-    cookies
-  ): Promise<GetPaymentPointerResponse> {
+  async get(args, cookies) {
     try {
       const response = await httpClient
-        .get(`accounts/${accountId}/payment-pointers/${paymentPointerId}`, {
-          headers: {
-            ...(cookies ? { Cookie: cookies } : {})
+        .get(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}`,
+          {
+            headers: {
+              ...(cookies ? { Cookie: cookies } : {})
+            }
           }
-        })
+        )
         .json<GetPaymentPointerResult>()
       return response
     } catch (error) {
@@ -166,22 +160,18 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     }
   },
 
-  async getTransactions(
-    accountId,
-    paymentPointerId,
-    cookies
-  ): Promise<GetTransactionsResponse> {
+  async listTransactions(args, cookies): Promise<ListTransactionsResponse> {
     try {
       const response = await httpClient
         .get(
-          `accounts/${accountId}/payment-pointers/${paymentPointerId}/transactions`,
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/transactions`,
           {
             headers: {
               ...(cookies ? { Cookie: cookies } : {})
             }
           }
         )
-        .json<GetTransactionsResult>()
+        .json<ListTransactionsResult>()
       return response
     } catch (error) {
       return getError(
@@ -192,4 +182,5 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   }
 })
 
-export const paymentPointerService = createPaymentPointerService()
+const paymentPointerService = createPaymentPointerService()
+export { paymentPointerService }

@@ -14,6 +14,7 @@ export class Account extends BaseModel {
   public readonly assetScale!: number
   public readonly userId!: string
   public user!: User
+  public paymentPointers!: Array<PaymentPointer>
 
   static relationMappings = () => ({
     user: {

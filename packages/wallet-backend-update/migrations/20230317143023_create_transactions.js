@@ -4,7 +4,7 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('transactions', (table) => {
-    table.uuid('id').notNullable().primary()
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.uuid('paymentId').notNullable()
     table.string('description')
 
