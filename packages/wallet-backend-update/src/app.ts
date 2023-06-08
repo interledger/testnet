@@ -6,12 +6,7 @@ import { PaymentPointerController } from '@/paymentPointer/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
-import express, {
-  Router,
-  type Express,
-  type NextFunction,
-  type Request
-} from 'express'
+import express, { Router, type Express, type Request } from 'express'
 import helmet from 'helmet'
 import { Server } from 'http'
 import type { Knex } from 'knex'
@@ -35,6 +30,8 @@ import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import cors from 'cors'
+import { RafikiController } from './rafiki/controller'
+import { RafikiService } from './rafiki/service'
 
 export interface Bindings {
   env: Env
@@ -42,6 +39,8 @@ export interface Bindings {
   knex: Knex
   rapydClient: RapydClient
   rafikiClient: RafikiClient
+  rafikiService: RafikiService
+  rafikiController: RafikiController
   rapydService: RapydService
   sessionService: SessionService
   userService: UserService
@@ -117,6 +116,7 @@ export class App {
     const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const accountController = await this.container.resolve('accountController')
+    const rafikiController = await this.container.resolve('rafikiController')
 
     app.use(
       cors({
@@ -133,17 +133,17 @@ export class App {
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
 
-    // Only allow JSON
-    router.use('*', (req: Request, res: CustomResponse, next: NextFunction) => {
-      if (req.headers['content-type'] === 'application/json') {
-        next()
-      } else {
-        res.status(415).json({
-          success: false,
-          message: "Only 'application/json' content type is supported"
-        })
-      }
-    })
+    // // Only allow JSON
+    // router.use('*', (req: Request, res: CustomResponse, next: NextFunction) => {
+    //   if (req.headers['content-type'] === 'application/json') {
+    //     next()
+    //   } else {
+    //     res.status(415).json({
+    //       success: false,
+    //       message: "Only 'application/json' content type is supported"
+    //     })
+    //   }
+    // })
 
     // Auth Routes
     router.post('/signup', authController.signUp)
@@ -207,6 +207,10 @@ export class App {
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
+
+    router.get('/rates', rafikiController.getRates)
+    router.post('/quote', rafikiController.createQuote)
+    router.post('/webhooks', rafikiController.onWebHook)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

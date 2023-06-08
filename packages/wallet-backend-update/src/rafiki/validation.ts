@@ -15,18 +15,24 @@ export const amountSchema = z.object({
   assetScale: z.number()
 })
 
+const quoteAmountSchema = z.object({
+  value: z.coerce.bigint(),
+  assetCode: z.string(),
+  assetScale: z.number()
+})
+
 export const quoteSchmea = z.object({
   body: z.object({
     id: z.string(),
     paymentType: z.nativeEnum(PaymentType),
     paymentPointerId: z.string(),
     receiver: z.string(),
-    sendAmount: amountSchema,
-    receiveAmount: amountSchema,
-    maxPacketAmount: z.bigint(),
-    minExchangeRate: z.number(),
-    lowEstimatedExchangeRate: z.number(),
-    highEstimatedExchangeRate: z.number(),
+    sendAmount: quoteAmountSchema,
+    receiveAmount: quoteAmountSchema,
+    maxPacketAmount: z.bigint().optional(),
+    minExchangeRate: z.number().optional(),
+    lowEstimatedExchangeRate: z.number().optional(),
+    highEstimatedExchangeRate: z.number().optional(),
     createdAt: z.string(),
     expiresAt: z.string()
   })
