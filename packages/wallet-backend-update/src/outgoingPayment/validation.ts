@@ -13,10 +13,6 @@ export const outgoingPaymentSchema = z.object({
 
 export const acceptQuoteSchema = z.object({
   body: z.object({
-    paymentPointerId: z.string().uuid(),
-    quoteId: z.string(),
-    assetCode: z.string(),
-    value: z.bigint(),
-    description: z.string().optional()
+    quoteId: z.string()
   })
 })

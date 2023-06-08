@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const createIncomingPaymentMutation = gql`
+export const createQuoteMutation = gql`
   mutation CreateQuoteMutation($input: CreateQuoteInput!) {
     createQuote(input: $input) {
       code
@@ -29,3 +29,31 @@ export const createIncomingPaymentMutation = gql`
     }
   }
 `
+
+export const getQuoteQuery = gql`
+  query GetQuoteQuery($quoteId: String!) {
+    quote(id: $quoteId) {
+      id
+      paymentPointerId
+      receiver
+      sendAmount {
+        value
+        assetCode
+        assetScale
+      }
+      receiveAmount {
+        value
+        assetCode
+        assetScale
+      }
+      maxPacketAmount
+      minExchangeRate
+      lowEstimatedExchangeRate
+      highEstimatedExchangeRate
+      createdAt
+      expiresAt
+    }
+  }
+`
+
+console.log(getQuoteQuery)

@@ -62,7 +62,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     )
   }
 
-  async getPaymentDetailsByUrl(url: string) {
+  async getPaymentDetailsByUrl(url: string): Promise<PaymentDetails> {
     const id = extractUuidFromUrl(url)
 
     const transaction = await Transaction.query()
@@ -86,7 +86,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     return {
       description: transaction.description,
-      value: transformAmount(transaction.value ?? 0, asset.scale)
+      value: transformAmount(transaction.value ?? 0, asset.scale),
+      assetCode: transaction.assetCode
     }
   }
 

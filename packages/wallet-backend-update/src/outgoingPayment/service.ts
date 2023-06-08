@@ -25,13 +25,13 @@ interface OutgoingServiceDependencies {
   incomingPaymentService: IncomingPaymentService
 }
 
-type AcceptQuoteParams = {
-  paymentPointerId: string
-  quoteId: string
-  assetCode: string
-  value: bigint
-  description?: string
-}
+// type AcceptQuoteParams = {
+//   paymentPointerId: string
+//   quoteId: string
+//   assetCode: string
+//   value: bigint
+//   description?: string
+// }
 
 export class OutgoingPaymentService implements IOutgoingPaymentService {
   constructor(private deps: OutgoingServiceDependencies) {}
@@ -99,11 +99,25 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     return { ...quote, assetCode, value, description }
   }
 
-  async acceptQuote(
-    acceptQuoteParams: AcceptQuoteParams
-  ): Promise<Transaction> {
-    const { paymentPointerId, quoteId, assetCode, value, description } =
-      acceptQuoteParams
+  async acceptQuote(quoteId: string): Promise<Transaction> {
+    const quote = await this.deps.rafikiClient.getQuote(quoteId)
+
+    const paymentPointerId = quote.paymentPointerId
+    const amount = quote.receiveAmount
+
+    let description
+    let assetCode = quote.receiveAmount.assetCode
+    let value = quote.receiveAmount.value
+
+    if (!amount) {
+      const incomingPayment =
+        await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
+          quote.receiver
+        )
+      description = incomingPayment.description
+      assetCode = incomingPayment.assetCode
+      value = BigInt(incomingPayment.value)
+    }
 
     const payment = await this.deps.rafikiClient.createOutgoingPayment(
       paymentPointerId,

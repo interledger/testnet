@@ -26,6 +26,8 @@ import {
   GetAssetQueryVariables,
   GetAssetsQuery,
   GetAssetsQueryVariables,
+  GetQuoteQuery,
+  GetQuoteQueryVariables,
   IncomingPayment,
   OutgoingPayment,
   Quote,
@@ -33,7 +35,7 @@ import {
   WithdrawLiquidityMutationVariables
 } from './generated/graphql'
 import { createIncomingPaymentMutation } from './request/incoming-payment.request'
-import { BadRequest } from '@/errors'
+import { BadRequest, NotFound } from '@/errors'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
@@ -41,6 +43,7 @@ import {
 import { createOutgoingPaymentMutation } from './request/outgoing-payment.request'
 import { createPaymentPointerMutation } from './request/payment-pointer.request'
 import { GraphQLClient } from 'graphql-request'
+import { createQuoteMutation, getQuoteQuery } from './request/quote.request'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -244,7 +247,7 @@ export class RafikiClient implements IRafikiClient {
     const { createQuote } = await this.deps.gqlClient.request<
       CreateQuoteMutation,
       CreateQuoteMutationVariables
-    >(createIncomingPaymentMutation, {
+    >(createQuoteMutation, {
       input
     })
 
@@ -253,5 +256,18 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return createQuote.quote
+  }
+
+  public async getQuote(quoteId: string) {
+    const getQuote = await this.deps.gqlClient.request<
+      GetQuoteQuery,
+      GetQuoteQueryVariables
+    >(getQuoteQuery, { quoteId })
+
+    if (!getQuote.quote) {
+      throw new NotFound(`Quote not found`)
+    }
+
+    return getQuote.quote
   }
 }

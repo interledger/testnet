@@ -42,7 +42,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
         }
       } = await validate(outgoingPaymentSchema, req)
 
-      const transaction = await this.deps.outgoingPaymentService.create(
+      const quote = await this.deps.outgoingPaymentService.create(
         userId,
         paymentPointerId,
         amount,
@@ -51,9 +51,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
         toPaymentPointerUrl,
         description
       )
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', data: transaction })
+      res.status(200).json({ success: true, message: 'SUCCESS', data: quote })
     } catch (e) {
       next(e)
     }
@@ -65,11 +63,14 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
     next: NextFunction
   ) => {
     try {
-      const { body } = await validate(acceptQuoteSchema, req)
+      const {
+        body: { quoteId }
+      } = await validate(acceptQuoteSchema, req)
 
       const transaction = await this.deps.outgoingPaymentService.acceptQuote(
-        body
+        quoteId
       )
+
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: transaction })

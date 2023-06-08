@@ -8,7 +8,7 @@ import {
 import { gql } from 'graphql-request'
 import { graphqlClient } from '../graphqlClient'
 
-const createIncomingPaymentMutation = gql`
+const createQuoteMutation = gql`
   mutation CreateQuoteMutation($input: CreateQuoteInput!) {
     createQuote(input: $input) {
       code
@@ -62,7 +62,7 @@ export async function createQuote(
   const { createQuote } = await graphqlClient.request<
     CreateQuoteMutation,
     CreateQuoteMutationVariables
-  >(createIncomingPaymentMutation, {
+  >(createQuoteMutation, {
     input
   })
 
