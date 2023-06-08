@@ -31,7 +31,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
           description
         }
       } = await validate(outgoingPaymentSchema, req)
-      console.log(req.body)
+
       const transaction = await this.deps.outgoingPaymentService.create(
         userId,
         paymentPointerId,

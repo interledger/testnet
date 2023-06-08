@@ -25,13 +25,10 @@ export class RafikiController implements IRafikiController {
   constructor(private deps: RafikiControllerDependencies) {}
   createQuote = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req)
-      console.log(req.body)
       const { body } = await validate(quoteSchmea, req)
       const result = await this.deps.rafikiService.createQuote(body)
       res.status(201).json(result)
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }

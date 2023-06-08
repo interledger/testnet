@@ -15,7 +15,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { formatDate } from '@/utils/helpers'
+import { formatAmount, formatDate } from '@/utils/helpers'
 
 type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -67,7 +67,13 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     />
                   </Table.Cell>
                   <Table.Cell>
-                    {trx.value} {trx.assetCode}
+                    {
+                      formatAmount({
+                        value: trx.value ?? 0,
+                        assetCode: trx.assetCode,
+                        assetScale: account.assetScale
+                      }).amount
+                    }
                   </Table.Cell>
                 </Table.Row>
               ))

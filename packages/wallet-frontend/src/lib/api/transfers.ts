@@ -6,6 +6,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { Transaction } from './paymentPointer'
 
 export const paySchema = z.object({
   paymentPointerId: z
@@ -50,37 +51,28 @@ export const requestSchema = z.object({
   description: z.string()
 })
 
-type PayArgs = z.infer<typeof paySchema>
-type PayError = ErrorResponse<PayArgs | undefined>
-type PayResponse = Promise<SuccessResponse | PayError>
-
-type SendArgs = z.infer<typeof sendSchema>
-type SendError = ErrorResponse<SendArgs | undefined>
-type SendResponse = Promise<SuccessResponse | SendError>
-
-type Transaction = {
-  paymentPointerId: string
-  paymentId: string
-  assetCode: string
-  value: number
-  type: string
-  status: string
-  description?: string
-}
-
 type PaymentDetails = {
   description?: string
   value: number
 }
+
+type PayArgs = z.infer<typeof paySchema>
+type PayError = ErrorResponse<PayArgs | undefined>
+type PayResponse = SuccessResponse | PayError
+
+type SendArgs = z.infer<typeof sendSchema>
+type SendError = ErrorResponse<SendArgs | undefined>
+type SendResponse = SuccessResponse | SendError
+
 type RequestArgs = z.infer<typeof requestSchema>
 type RequestResult = SuccessResponse<Transaction>
 type RequestError = ErrorResponse<RequestArgs | undefined>
-type RequestResponse = Promise<RequestResult | RequestError>
+type RequestResponse = RequestResult | RequestError
 
 type IncomingPaymentDetailsResult = SuccessResponse<PaymentDetails>
-type IncomingPaymentDetailsResponse = Promise<
-  IncomingPaymentDetailsResult | ErrorResponse
->
+type IncomingPaymentDetailsResponse =
+  | IncomingPaymentDetailsResult
+  | ErrorResponse
 
 interface TransfersService {
   pay: (args: PayArgs) => Promise<PayResponse>
@@ -92,7 +84,7 @@ interface TransfersService {
 }
 
 const createTransfersService = (): TransfersService => ({
-  async pay(args): Promise<PayResponse> {
+  async pay(args) {
     try {
       const response = await httpClient
         .post('outgoing-payments', {
@@ -113,7 +105,7 @@ const createTransfersService = (): TransfersService => ({
     }
   },
 
-  async send(args): Promise<SendResponse> {
+  async send(args) {
     try {
       const response = await httpClient
         .post('outgoing-payments', {
@@ -137,7 +129,7 @@ const createTransfersService = (): TransfersService => ({
     }
   },
 
-  async request(args): Promise<RequestResponse> {
+  async request(args) {
     try {
       const response = await httpClient
         .post('incoming-payments', {
@@ -158,9 +150,7 @@ const createTransfersService = (): TransfersService => ({
     }
   },
 
-  async getIncomingPaymentDetails(
-    incomingPaymentUrl: string
-  ): Promise<IncomingPaymentDetailsResponse> {
+  async getIncomingPaymentDetails(incomingPaymentUrl) {
     try {
       const response = await httpClient
         .get('payment-details', {

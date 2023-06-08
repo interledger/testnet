@@ -13,7 +13,7 @@ import { accountService } from '@/lib/api/account'
 import { paySchema, transfersService } from '@/lib/api/transfers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { getObjectKeys } from '@/utils/helpers'
+import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
@@ -59,7 +59,11 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
     )
     setBalance(
       selectedAccount
-        ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
+        ? formatAmount({
+            value: selectedAccount.balance,
+            assetCode: selectedAccount.assetCode,
+            assetScale: selectedAccount.assetScale
+          }).amount
         : ''
     )
 
@@ -217,7 +221,7 @@ const PayPage: NextPageWithLayout<PayProps> = ({ accounts }) => {
 type SelectAccountOption = SelectOption & {
   balance: string
   assetCode: string
-  assetId: string
+  assetScale: number
 }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
@@ -235,7 +239,7 @@ export const getServerSideProps: GetServerSideProps<{
         value: account.id,
         balance: account.balance,
         assetCode: account.assetCode,
-        assetId: account.assetId
+        assetScale: account.assetScale
       }))
     : []
 
