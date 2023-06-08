@@ -1,10 +1,11 @@
-import { Transaction } from '@/transaction/model'
 import { AccountService } from '@/account/service'
-import { RafikiClient } from '@/rafiki/rafiki-client'
 import { BadRequest, NotFound } from '@/errors'
+import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset } from '@/rafiki/generated/graphql'
-import { IncomingPaymentService } from '@/incomingPayment/service'
+import { RafikiClient } from '@/rafiki/rafiki-client'
+import { Transaction } from '@/transaction/model'
+import { CreateOutgoingPaymentResponse } from './controller'
 
 interface IOutgoingPaymentService {
   create: (
@@ -15,13 +16,21 @@ interface IOutgoingPaymentService {
     incomingPaymentUrl?: string,
     toPaymentPointerUrl?: string,
     description?: string
-  ) => Promise<Transaction>
+  ) => Promise<CreateOutgoingPaymentResponse>
 }
 
 interface OutgoingServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
+}
+
+type AcceptQuoteParams = {
+  paymentPointerId: string
+  quoteId: string
+  assetCode: string
+  value: bigint
+  description?: string
 }
 
 export class OutgoingPaymentService implements IOutgoingPaymentService {
@@ -35,7 +44,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     incomingPaymentUrl?: string,
     toPaymentPointerUrl?: string,
     description?: string
-  ): Promise<Transaction> {
+  ): Promise<CreateOutgoingPaymentResponse> {
     if (!incomingPaymentUrl && !toPaymentPointerUrl) {
       throw new BadRequest(
         'incomingPaymentUrl or toPaymentPointerUrl should be defined'
@@ -68,10 +77,12 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       throw new NotFound()
     }
 
+    const value = BigInt(amount * 10 ** asset.scale)
+
     const paymentUrl: string =
       incomingPaymentUrl ||
       (await this.createReceiver(
-        isReceive ? BigInt(amount * 10 ** asset.scale) : null,
+        isReceive ? value : null,
         asset,
         toPaymentPointerUrl,
         description,
@@ -82,19 +93,29 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       paymentPointerId,
       receiver: paymentUrl,
       asset,
-      amount: isReceive ? undefined : BigInt(amount * 10 ** asset.scale)
+      amount: isReceive ? undefined : value
     })
+
+    return { ...quote, assetCode, value, description }
+  }
+
+  async acceptQuote(
+    acceptQuoteParams: AcceptQuoteParams
+  ): Promise<Transaction> {
+    const { paymentPointerId, quoteId, assetCode, value, description } =
+      acceptQuoteParams
+
     const payment = await this.deps.rafikiClient.createOutgoingPayment(
       paymentPointerId,
-      quote.id,
+      quoteId,
       description
     )
 
     return Transaction.query().insert({
-      paymentPointerId: existingPaymentPointer.id,
+      paymentPointerId: paymentPointerId,
       paymentId: payment.id,
-      assetCode: asset.code,
-      value: BigInt(amount * 10 ** asset.scale),
+      assetCode,
+      value: value,
       type: 'OUTGOING',
       status: 'PENDING',
       description
