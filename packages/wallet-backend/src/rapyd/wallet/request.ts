@@ -75,7 +75,7 @@ const rapydTransferLiquidity = async (
     id: transferResponse.data.id,
     status: 'accept'
   })
-  console.log(setTransferResponse)
+
   if (setTransferResponse.status.status !== 'SUCCESS') {
     throw new Error(`Unable to set accepted response of wallet transfer`)
   }

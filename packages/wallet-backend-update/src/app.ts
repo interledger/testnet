@@ -133,18 +133,6 @@ export class App {
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
 
-    // // Only allow JSON
-    // router.use('*', (req: Request, res: CustomResponse, next: NextFunction) => {
-    //   if (req.headers['content-type'] === 'application/json') {
-    //     next()
-    //   } else {
-    //     res.status(415).json({
-    //       success: false,
-    //       message: "Only 'application/json' content type is supported"
-    //     })
-    //   }
-    // })
-
     // Auth Routes
     router.post('/signup', authController.signUp)
     router.post('/login', authController.logIn)
