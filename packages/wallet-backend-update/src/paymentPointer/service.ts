@@ -3,6 +3,7 @@ import { PaymentPointer } from './model'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import crypto from 'crypto'
 
 interface IPaymentPointerService {
   create: (
@@ -131,5 +132,42 @@ export class PaymentPointerService implements IPaymentPointerService {
     await PaymentPointer.query().findById(id).patch({
       active: false
     })
+  }
+
+  async generateKeyPair(
+    userId: string,
+    id: string
+  ): Promise<{ privateKey: string; publicKey: string }> {
+    const paymentPointer = await PaymentPointer.query().findById(id)
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
+
+    // Check if the user owns the payment pointer.
+    // This function throws a NotFoundException.
+    await this.deps.accountService.findAccountById(
+      paymentPointer.accountId,
+      userId
+    )
+
+    // Generate the key pair
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048, // Key size in bits
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem' // You can also use 'der' format if needed
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem' // You can also use 'der' format if needed
+      }
+    })
+
+    await PaymentPointer.query().findById(id).patch({
+      publicKey
+    })
+
+    return { privateKey, publicKey }
   }
 }

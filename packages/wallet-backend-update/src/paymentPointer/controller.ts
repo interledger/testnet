@@ -16,6 +16,11 @@ interface PaymentPointerControllerDependencies {
   logger: Logger
 }
 
+interface KeyPair {
+  publicKey: string
+  privateKey: string
+}
+
 export class PaymentPointerController implements IPaymentPointerController {
   constructor(private deps: PaymentPointerControllerDependencies) {}
 
@@ -104,6 +109,50 @@ export class PaymentPointerController implements IPaymentPointerController {
       res.status(200).json({
         success: true,
         message: 'Payment pointer was successfully deleted'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  generateKey = async (
+    req: Request,
+    res: CustomResponse<KeyPair>,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { id } = req.params
+
+      const { privateKey, publicKey } =
+        await this.deps.paymentPointerService.generateKeyPair(userId, id)
+
+      res.status(200).json({
+        success: true,
+        message: 'Payment pointer was successfully deleted',
+        data: { publicKey, privateKey }
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  registerKey = async (
+    req: Request,
+    res: CustomResponse<KeyPair>,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { id } = req.params
+
+      const { privateKey, publicKey } =
+        await this.deps.paymentPointerService.generateKeyPair(userId, id)
+
+      res.status(200).json({
+        success: true,
+        message: 'Payment pointer was successfully deleted',
+        data: { publicKey, privateKey }
       })
     } catch (e) {
       next(e)
