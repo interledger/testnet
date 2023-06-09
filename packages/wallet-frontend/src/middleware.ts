@@ -46,6 +46,10 @@ export async function middleware(req: NextRequest) {
     ) {
       return NextResponse.redirect(new URL('/', req.url))
     }
+
+    if (isPublic) {
+      return NextResponse.redirect(new URL('/', req.url))
+    }
   } else {
     // If the user is not logged in and tries to access a private resource,
     // redirect to auth page.

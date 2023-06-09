@@ -139,7 +139,8 @@ export class RapydClient implements IRapydClient {
       id: transferResponse.data.id,
       status: 'accept'
     })
-    if (setTransferResponse.data.status !== 'SUCCESS') {
+
+    if (setTransferResponse.status.status !== 'SUCCESS') {
       throw new Error(`Unable to set accepted response of wallet transfer`)
     }
 

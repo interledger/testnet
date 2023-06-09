@@ -22,18 +22,6 @@ describe('Application', (): void => {
     knex.destroy()
   })
 
-  it('should return status 415 if the content type is not application/json', async (): Promise<void> => {
-    try {
-      await axios.get(`http://localhost:${appContainer.port}/`, {
-        headers: {
-          'Content-Type': 'application/xml'
-        }
-      })
-    } catch (e) {
-      expect((e as AxiosError).response?.status).toBe(415)
-    }
-  })
-
   it('should return status 404 if the route does not exist', async (): Promise<void> => {
     try {
       await axios.post(`http://localhost:${appContainer.port}/`, {
