@@ -1,12 +1,12 @@
-export const formatBalance = (
+export const transformAmount = (
   value: bigint | number,
   scale: number
-): bigint => {
-  return BigInt(transformAmount(value, scale).toFixed(2))
+): number => {
+  return Number(BigInt(value) / BigInt(10 ** scale))
 }
 
-export const transformAmount = (value: bigint | number, scale: number) => {
-  return Number(BigInt(value) / BigInt(10 ** scale))
+export const transformBalance = (value: number, scale: number): bigint => {
+  return BigInt(Math.floor(value * 10 ** scale))
 }
 
 export function extractUuidFromUrl(url: string): string {

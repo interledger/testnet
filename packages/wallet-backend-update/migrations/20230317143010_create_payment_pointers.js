@@ -10,6 +10,7 @@ exports.up = function (knex) {
 
     table.uuid('accountId').notNullable()
     table.foreign('accountId').references('accounts.id').onDelete('CASCADE')
+    table.boolean('active').notNullable().defaultTo(true)
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

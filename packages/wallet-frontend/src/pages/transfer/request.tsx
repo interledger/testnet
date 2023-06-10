@@ -9,7 +9,7 @@ import { TransferHeader } from '@/components/TransferHeader'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { getObjectKeys } from '@/utils/helpers'
+import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
@@ -51,7 +51,11 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     )
     setBalance(
       selectedAccount
-        ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
+        ? formatAmount({
+            value: selectedAccount.balance,
+            assetCode: selectedAccount.assetCode,
+            assetScale: selectedAccount.assetScale
+          }).amount
         : ''
     )
 
@@ -196,7 +200,11 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   )
 }
 
-type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
+type SelectAccountOption = SelectOption & {
+  balance: string
+  assetCode: string
+  assetScale: number
+}
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
@@ -220,7 +228,8 @@ export const getServerSideProps: GetServerSideProps<{
     label: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,
-    assetCode: account.assetCode
+    assetCode: account.assetCode,
+    assetScale: account.assetScale
   }))
 
   return {
