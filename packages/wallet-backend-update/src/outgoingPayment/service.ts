@@ -116,7 +116,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
         )
       description = incomingPayment.description
       assetCode = incomingPayment.assetCode
-      value = BigInt(incomingPayment.value)
+      value = value ?? BigInt(incomingPayment.value)
     }
 
     const payment = await this.deps.rafikiClient.createOutgoingPayment(
