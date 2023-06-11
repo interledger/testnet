@@ -35,6 +35,8 @@ import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import cors from 'cors'
+import { RafikiAuthService } from '@/rafikiAuth/service'
+import { GrantController } from '@/grant/controller'
 
 export interface Bindings {
   env: Env
@@ -60,6 +62,8 @@ export interface Bindings {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentController: OutgoingPaymentController
   outgoingPaymentService: OutgoingPaymentService
+  rafikiAuthService: RafikiAuthService
+  grantController: GrantController
 }
 
 export class App {
@@ -116,6 +120,7 @@ export class App {
     )
     const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
+    const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
 
     cors({
@@ -199,14 +204,18 @@ export class App {
     router.get('/documents', isAuth, rapydController.getDocumentTypes)
 
     // asset
-    router.get('assets', isAuth, assetController.list)
-    router.get('assets/:id', isAuth, assetController.getById)
+    router.get('/assets', isAuth, assetController.list)
+    router.get('/assets/:id', isAuth, assetController.getById)
+
+    // grant
+    router.get('/grants', isAuth, grantController.list)
+    router.delete('/grants/:id', isAuth, grantController.revoke)
 
     // account
-    router.post('accounts', isAuth, accountController.createAccount)
-    router.get('accounts', isAuth, accountController.listAccounts)
-    router.get('accounts/:id', isAuth, accountController.getAccountById)
-    router.post('accounts/fund', isAuth, accountController.fundAccount)
+    router.post('/accounts', isAuth, accountController.createAccount)
+    router.get('/accounts', isAuth, accountController.listAccounts)
+    router.get('/accounts/:id', isAuth, accountController.getAccountById)
+    router.post('/accounts/fund', isAuth, accountController.fundAccount)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

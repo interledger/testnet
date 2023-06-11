@@ -24,6 +24,8 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
+import { RafikiAuthService } from '@/rafikiAuth/service'
+import { GrantController } from '@/grant/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -119,6 +121,17 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return new RafikiClient({
       env: env,
       gqlClient: new GraphQLClient(env.GRAPHQL_ENDPOINT),
+      logger: await container.resolve('logger')
+    })
+  })
+
+  //*RAFIKI AUTH
+
+  container.singleton('rafikiAuthService', async () => {
+    const env = await container.resolve('env')
+    return new RafikiAuthService({
+      env: env,
+      gqlClient: new GraphQLClient(env.AUTH_GRAPHQL_ENDPOINT),
       logger: await container.resolve('logger')
     })
   })
@@ -232,6 +245,14 @@ export const createContainer = (config: Env): Container<Bindings> => {
         outgoingPaymentService: await container.resolve(
           'outgoingPaymentService'
         )
+      })
+  )
+
+  container.singleton(
+    'grantController',
+    async () =>
+      new GrantController({
+        rafikiAuthService: await container.resolve('rafikiAuthService')
       })
   )
 

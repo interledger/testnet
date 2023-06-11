@@ -4,7 +4,8 @@
     "start": "node -r tsconfig-paths/register dist/index.js",
     "build": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "jest --passWithNoTests --maxWorkers=75%",
-    "generate": "graphql-codegen --config codegen.yml"
+    "generate": "graphql-codegen --config codegen.yml",
+    "generate:auth": "graphql-codegen --config codegen-auth.yml"
   },
   "dependencies": {
     "axios": "^1.4.0",

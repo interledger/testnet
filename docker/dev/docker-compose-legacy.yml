@@ -55,9 +55,11 @@ services:
       - testnet
     ports:
       - '3006:3006'
+      - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
+      ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
     depends_on:
