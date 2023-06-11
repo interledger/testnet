@@ -2,7 +2,7 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { PaymentPointerService } from './service'
-import { paymentPointerSchema } from './validation'
+import { paymentPointerSchema, registerKeySchema } from './validation'
 import { PaymentPointer } from '@/paymentPointer/model'
 
 interface IPaymentPointerController {
@@ -116,20 +116,17 @@ export class PaymentPointerController implements IPaymentPointerController {
   }
 
   generateKey = async (
-    req: Request,
+    _: Request,
     res: CustomResponse<KeyPair>,
     next: NextFunction
   ) => {
     try {
-      const userId = req.session.user.id
-      const { id } = req.params
-
       const { privateKey, publicKey } =
-        await this.deps.paymentPointerService.generateKeyPair(userId, id)
+        await this.deps.paymentPointerService.generateKeyPair()
 
       res.status(200).json({
         success: true,
-        message: 'Payment pointer was successfully deleted',
+        message: 'Key pair is successfully created',
         data: { publicKey, privateKey }
       })
     } catch (e) {
@@ -139,20 +136,25 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   registerKey = async (
     req: Request,
-    res: CustomResponse<KeyPair>,
+    res: CustomResponse,
     next: NextFunction
   ) => {
     try {
       const userId = req.session.user.id
-      const { id } = req.params
 
-      const { privateKey, publicKey } =
-        await this.deps.paymentPointerService.generateKeyPair(userId, id)
+      const {
+        body: { paymentPointerId, publicKey }
+      } = await validate(registerKeySchema, req)
+
+      await this.deps.paymentPointerService.registerKey(
+        userId,
+        paymentPointerId,
+        publicKey
+      )
 
       res.status(200).json({
         success: true,
-        message: 'Payment pointer was successfully deleted',
-        data: { publicKey, privateKey }
+        message: 'Public key is successfully registered'
       })
     } catch (e) {
       next(e)

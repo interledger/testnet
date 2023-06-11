@@ -845,5 +845,10 @@ export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
 
+export type CreatePaymentPointerKeyMutationVariables = Exact<{
+  input: CreatePaymentPointerKeyInput;
+}>;
+
+export type CreatePaymentPointerKeyMutation = { __typename?: 'Mutation', createPaymentPointerKey: { __typename?: 'CreatePaymentPointerKeyMutationResponse', code: string, success: boolean, message: string, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, paymentPointerId: string, revoked: boolean, jwk?: { __typename?: 'jwk', alg: "EdDSA", crv: "Ed25519", kid: string, kty: "OKP", x: string } } | null } };
 
 export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
