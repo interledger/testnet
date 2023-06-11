@@ -172,6 +172,14 @@ export class App {
       paymentPointerController.softDelete
     )
 
+    router.post(
+      '/payment-pointer/key',
+      isAuth,
+      paymentPointerController.registerKey
+    )
+
+    router.get('/settings/generate-key', paymentPointerController.generateKey)
+
     // transactions routes
     router.get(
       '/accounts/:accountId/payment-pointers/:paymentPointerId/transactions',
