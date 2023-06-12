@@ -1,4 +1,7 @@
-export const transformAmount = (amount: string | bigint, scale: number): string => {
+export const transformAmount = (
+  amount: string | bigint,
+  scale: number
+): string => {
   const value = BigInt(amount)
   const divisor = BigInt(10 ** scale)
 
