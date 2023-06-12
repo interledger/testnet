@@ -10,6 +10,7 @@ type SuccessDialogProps = DialogProps & {
   redirect?: string
   redirectText?: string
   copyToClipboard?: string
+  isOnboarding?: boolean
 }
 
 export const SuccessDialog = ({
@@ -19,7 +20,8 @@ export const SuccessDialog = ({
   content,
   redirect,
   redirectText,
-  copyToClipboard
+  copyToClipboard,
+  isOnboarding
 }: SuccessDialogProps) => {
   const successButtonProps: {
     href?: string
@@ -31,7 +33,8 @@ export const SuccessDialog = ({
       onClose()
     }
   }
-  if (onSuccess) {
+  // if param isOnboarding is boolean we need to keep the href of the button
+  if (onSuccess && typeof isOnboarding === undefined) {
     delete successButtonProps.href
   }
 
@@ -94,6 +97,7 @@ export const SuccessDialog = ({
                   )}
                   {(onSuccess || redirect) && (
                     <Button
+                      id="redirectButtonSuccess"
                       intent="secondary"
                       aria-label={redirectText ?? 'redirect'}
                       fullWidth
@@ -102,7 +106,7 @@ export const SuccessDialog = ({
                       {redirectText}
                     </Button>
                   )}
-                  {!onSuccess && (
+                  {(!onSuccess || !isOnboarding) && (
                     <Button
                       intent="success"
                       aria-label="close dialog"

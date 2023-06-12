@@ -9,9 +9,11 @@ import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
 import { SuccessDialog } from './dialogs/SuccessDialog'
 import { ErrorDialog } from './dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
+  idOnboarding?: string
 }
 
 type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
@@ -22,6 +24,7 @@ const PaymentPointerCardButton = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   PaymentPointerCardButtonProps
 >(({ className, children, ...props }, ref) => {
+  const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
   return (
     <ButtonOrLink
       ref={ref}
@@ -29,6 +32,11 @@ const PaymentPointerCardButton = forwardRef<
         className,
         'inline-flex items-center justify-center rounded-md px-2 font-medium text-white hover:shadow-md'
       )}
+      onClick={() => {
+        if (isUserFirstTime) {
+          setRunOnboarding(false)
+        }
+      }}
       {...props}
     >
       {children}
@@ -38,7 +46,8 @@ const PaymentPointerCardButton = forwardRef<
 PaymentPointerCardButton.displayName = 'PaymentPointerCardButton'
 
 export const PaymentPointerCard = ({
-  paymentPointer
+  paymentPointer,
+  idOnboarding
 }: PaymentPointerCardProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
@@ -88,6 +97,7 @@ export const PaymentPointerCard = ({
           <PaymentPointerCardButton
             href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
             aria-label="view payment pointer"
+            id={idOnboarding}
           >
             View
           </PaymentPointerCardButton>

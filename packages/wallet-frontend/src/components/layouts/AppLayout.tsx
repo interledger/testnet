@@ -1,15 +1,29 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { Menu } from '@/components/Menu'
 import { Bubbles } from '@/ui/Bubbles'
+import dynamic from 'next/dynamic'
+import { useOnboardingContext } from '@/lib/context/onboarding'
+const Onboarding = dynamic(() => import('@/components/onboarding/Onboarding'), {
+  ssr: false
+})
 
 type AppLayoutProps = {
   children: ReactNode
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
+  const { isUserFirstTime, setIsUserFirstTime } = useOnboardingContext()
+
+  useEffect(() => {
+    setIsUserFirstTime(
+      window.localStorage.getItem('isUserFirstTimeOnTestnet') === 'true'
+    )
+  }, [])
+
   return (
     <>
       <Menu />
+      {isUserFirstTime && <Onboarding />}
       <div className="flex flex-1 flex-col pt-20 md:pl-60 md:pt-0">
         <main className="flex-1">
           <div className="py-7 md:py-10">

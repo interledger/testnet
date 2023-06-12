@@ -8,6 +8,7 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { PaymentPointerCard } from '@/components/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 
@@ -18,6 +19,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { useMemo } from 'react'
+import { useEffect } from 'react'
 import { z } from 'zod'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
@@ -36,6 +38,21 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       }),
     [account]
   )
+  
+  const { isUserFirstTime, setRunOnboarding, setStepIndex, stepIndex } =
+    useOnboardingContext()
+
+  useEffect(() => {
+    if (isUserFirstTime) {
+      // TODO test this without exact index
+      if (stepIndex === 3 || stepIndex === 11) {
+        setTimeout(() => {
+          setStepIndex(stepIndex + 1)
+          setRunOnboarding(true)
+        }, 500)
+      }
+    }
+  }, [])
 
   return (
     <>
@@ -48,14 +65,18 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">
           <button
-            onClick={() =>
+            id="paymentPointer"
+            onClick={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
+              }
               openDialog(
                 <CreatePaymentPointerDialog
                   accountName={account.name}
                   onClose={closeDialog}
                 />
               )
-            }
+            }}
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <New className="h-7 w-7" />
@@ -69,11 +90,15 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             </div>
           </button>
           <Link
-            onClick={() =>
+            id="fund"
+            onClick={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
+              }
               openDialog(
                 <FundAccountDialog account={account} onClose={closeDialog} />
               )
-            }
+            }}
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Request className="h-8 w-8" />
@@ -101,10 +126,15 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </div>
         <div className="flex flex-col">
           {paymentPointers.length > 0 ? (
-            paymentPointers.map((paymentPointer) => (
+            paymentPointers.map((paymentPointer, index) => (
               <PaymentPointerCard
                 key={paymentPointer.id}
                 paymentPointer={paymentPointer}
+                idOnboarding={
+                  account.assetCode === 'USD' && index === 0
+                    ? `viewTransactions`
+                    : ''
+                }
               />
             ))
           ) : (

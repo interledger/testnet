@@ -16,20 +16,39 @@ import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { useOnboardingContext } from '@/lib/context/onboarding'
+import { useEffect } from 'react'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
   assets
 }) => {
   const [openDialog, closeDialog] = useDialog()
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
+  const defaultValue = {
+    asset: assets.find((asset) => asset.label === 'USD')
+  }
+
   const createAccountForm = useZodForm({
-    schema: createAccountSchema
+    schema: createAccountSchema,
+    defaultValues: { ...(isUserFirstTime ? defaultValue : {}) }
   })
+
+  useEffect(() => {
+    if (isUserFirstTime) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 300)
+    }
+  }, [])
 
   return (
     <>
       <PageHeader title="Create a new account" />
       <Form
+        id="createAccountForm"
         form={createAccountForm}
         onSubmit={async (data) => {
           const response = await accountService.create(data)
@@ -37,12 +56,23 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
             openDialog(
               <SuccessDialog
                 onClose={closeDialog}
+                onSuccess={() => {
+                  if (isUserFirstTime) {
+                    setRunOnboarding(false)
+                    closeDialog()
+                  }
+                }}
                 title="Account created."
                 content="Your account was successfully created."
                 redirect={`/account/${response.data?.id}`}
                 redirectText="View account"
+                isOnboarding={isUserFirstTime}
               />
             )
+            if (isUserFirstTime) {
+              setStepIndex(stepIndex + 1)
+              setRunOnboarding(true)
+            }
             createAccountForm.reset()
           } else {
             const { errors, message } = response

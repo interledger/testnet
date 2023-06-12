@@ -14,12 +14,17 @@ import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
+import {
+  INTERLEDGER_PAYMENT_POINTER,
+  PAYMENT_RECEIVE,
+  PAYMENT_SEND
+} from '@/utils/constants'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -27,12 +32,25 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
+
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
-      paymentType: PAYMENT_SEND
+      paymentType: PAYMENT_SEND,
+      toPaymentPointerUrl: isUserFirstTime ? INTERLEDGER_PAYMENT_POINTER : ''
     }
   })
+
+  useEffect(() => {
+    if (isUserFirstTime) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
+    }
+  }, [])
 
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -85,12 +103,23 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               openDialog(
                 <SuccessDialog
                   onClose={closeDialog}
+                  onSuccess={() => {
+                    if (isUserFirstTime) {
+                      setRunOnboarding(false)
+                      closeDialog()
+                    }
+                  }}
                   title="Funds sent."
                   content="Funds were successfully sent."
                   redirect={`/`}
                   redirectText="Go to your accounts"
+                  isOnboarding={isUserFirstTime}
                 />
               )
+              if (isUserFirstTime) {
+                setStepIndex(stepIndex + 1)
+                setRunOnboarding(true)
+              }
             } else {
               const { errors, message } = response
               sendForm.setError('root', { message })
