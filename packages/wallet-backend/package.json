@@ -44,7 +44,7 @@
     "@types/node": "^18.14.0",
     "@types/passport": "^1.0.12",
     "@types/passport-jwt": "^3.0.8",
-    "@types/uuid": "^9.0.1",
+    "@types/uuid": "^9.0.2",
     "axios": "^1.4.0",
     "@types/cors": "^2.8.13",
     "typescript": "^5.0.4"
