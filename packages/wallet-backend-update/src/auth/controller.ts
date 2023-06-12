@@ -6,16 +6,8 @@ import { logInSchema, signUpSchema } from './validation'
 import { UserService } from '@/user/service'
 
 interface IAuthController {
-  signUp: (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => Promise<void>
-  logIn: (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => Promise<void>
+  signUp: ControllerFunction
+  logIn: ControllerFunction
 }
 interface AuthControllerDependencies {
   authService: AuthService
@@ -29,7 +21,9 @@ export class AuthController implements IAuthController {
   // We use arrow functions to maintain the correct `this` reference
   signUp = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
-      const { email, password } = await validate(signUpSchema, req)
+      const {
+        body: { email, password }
+      } = await validate(signUpSchema, req)
 
       await this.deps.userService.create({ email, password })
 
@@ -44,7 +38,9 @@ export class AuthController implements IAuthController {
 
   logIn = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
-      const { email, password } = await validate(logInSchema, req)
+      const {
+        body: { email, password }
+      } = await validate(logInSchema, req)
 
       const { user, session } = await this.deps.authService.authorize({
         email,

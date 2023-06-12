@@ -3,6 +3,7 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import type { UserService } from './service'
 import type { SessionService } from '@/session/service'
+import type { User } from './model'
 
 interface UserFlags {
   needsWallet: boolean
@@ -10,11 +11,7 @@ interface UserFlags {
 }
 
 interface IUserController {
-  me: (
-    req: Request,
-    res: CustomResponse<UserFlags>,
-    next: NextFunction
-  ) => Promise<void>
+  me: ControllerFunction<UserFlags>
 }
 interface UserControllerDependencies {
   userService: UserService
@@ -27,10 +24,17 @@ export class UserController implements IUserController {
 
   me = async (
     req: Request,
-    res: CustomResponse<UserFlags>,
+    res: CustomResponse<
+      Pick<User, 'email' | 'firstName' | 'lastName' | 'address'> & UserFlags
+    >,
     next: NextFunction
   ) => {
     try {
+      if (!req.session.id || !req.session.user) {
+        req.session.destroy()
+        throw new Unauthorized('Unauthorized')
+      }
+
       const user = await this.deps.userService.getById(req.session.user.id)
 
       if (!user) {
@@ -42,6 +46,10 @@ export class UserController implements IUserController {
         success: true,
         message: 'User retrieved successfully',
         data: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          address: user.address,
           needsWallet: !user.rapydWalletId,
           needsIDProof: !user.kycId
         }

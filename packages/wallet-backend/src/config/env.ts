@@ -20,7 +20,8 @@ const envSchema = z.object({
   RAPYD_SECRET_KEY: z.string(),
   RAPYD_SETTLEMENT_EWALLET: z.string(),
   GRAPHQL_ENDPOINT: z.string().url(),
-  OPEN_PAYMENTS_HOST: z.string().url()
+  OPEN_PAYMENTS_HOST: z.string().url(),
+  RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost')
 })
 
 type ENV = z.infer<typeof envSchema>

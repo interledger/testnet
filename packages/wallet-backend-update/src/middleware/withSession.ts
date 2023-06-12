@@ -8,7 +8,8 @@ export const SESSION_OPTIONS: IronSessionOptions = {
   cookieName: env.COOKIE_NAME,
   cookieOptions: {
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: env.RAFIKI_MONEY_FRONTEND_HOST,
     httpOnly: true
   },
   ttl: env.COOKIE_TTL

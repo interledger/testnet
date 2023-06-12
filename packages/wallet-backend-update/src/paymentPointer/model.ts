@@ -1,15 +1,17 @@
 import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
 import { Account } from '@/account/model'
-
+import { Transaction } from '@/transaction/model'
 export class PaymentPointer extends BaseModel {
   static tableName = 'paymentPointers'
 
-  public publicName!: string
-  public readonly id!: string
-  public readonly url!: string
-  public readonly accountId!: string
-  public Account!: Account
+  publicName!: string
+  readonly id!: string
+  readonly url!: string
+  readonly accountId!: string
+  active!: boolean
+  account!: Account
+  transacions!: Array<Transaction>
 
   static relationMappings = () => ({
     account: {
@@ -18,6 +20,15 @@ export class PaymentPointer extends BaseModel {
       join: {
         from: 'paymentPointers.accountId',
         to: 'accounts.id'
+      }
+    },
+
+    transactions: {
+      relation: Model.HasManyRelation,
+      modelClass: Transaction,
+      join: {
+        from: 'paymentPointers.id',
+        to: 'transactions.paymentPointerId'
       }
     }
   })

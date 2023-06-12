@@ -4,7 +4,7 @@
  */
 exports.up = function (knex) {
   return knex.schema.createTable('transactions', (table) => {
-    table.uuid('id').notNullable().primary()
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.uuid('paymentId').notNullable()
     table.string('description')
 
@@ -12,7 +12,7 @@ exports.up = function (knex) {
     table.foreign('paymentPointerId').references('paymentPointers.id')
 
     table.string('assetCode').notNullable()
-    table.bigint('value').notNullable()
+    table.bigint('value')
 
     table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
     table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED']).notNullable()

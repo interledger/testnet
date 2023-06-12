@@ -31,7 +31,7 @@ describe('User Controller', (): void => {
   let res: MockResponse<Response>
 
   const next = jest.fn()
-  const args = mockLogInRequest()
+  const args = mockLogInRequest().body
 
   beforeAll(async (): Promise<void> => {
     bindings = createContainer(env)

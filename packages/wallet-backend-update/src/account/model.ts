@@ -4,7 +4,7 @@ import { User } from '@/user/model'
 import { Model } from 'objection'
 
 export class Account extends BaseModel {
-  static tableName = 'users'
+  static tableName = 'accounts'
 
   public name!: string
   public balance!: bigint
@@ -14,6 +14,7 @@ export class Account extends BaseModel {
   public readonly assetScale!: number
   public readonly userId!: string
   public user!: User
+  public paymentPointers!: Array<PaymentPointer>
 
   static relationMappings = () => ({
     user: {

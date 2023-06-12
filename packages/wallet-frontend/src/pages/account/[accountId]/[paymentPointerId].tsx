@@ -4,19 +4,18 @@ import { PageHeader } from '@/components/PageHeader'
 import { Account, accountService } from '@/lib/api/account'
 import {
   PaymentPointer,
-  paymentPointerService,
-  TransactionWithFormattedValue
+  Transaction,
+  paymentPointerService
 } from '@/lib/api/paymentPointer'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Table } from '@/ui/Table'
-import { formatAmount } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { assetService } from '@/lib/api/asset'
+import { formatAmount, formatDate } from '@/utils/helpers'
 
 type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -57,7 +56,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
-                    {trx.createdAt}
+                    {formatDate(trx.createdAt)}
                   </Table.Cell>
                   <Table.Cell>{trx.description ?? 'No description'}</Table.Cell>
                   <Table.Cell>
@@ -68,7 +67,13 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     />
                   </Table.Cell>
                   <Table.Cell>
-                    {trx.value} {trx.assetCode}
+                    {
+                      formatAmount({
+                        value: trx.value ?? 0,
+                        assetCode: trx.assetCode,
+                        assetScale: account.assetScale
+                      }).amount
+                    }
                   </Table.Cell>
                 </Table.Row>
               ))
@@ -94,7 +99,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointer: PaymentPointer
-  transactions: TransactionWithFormattedValue[]
+  transactions: Transaction[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -108,13 +113,17 @@ export const getServerSideProps: GetServerSideProps<{
     await Promise.all([
       accountService.get(result.data.accountId, ctx.req.headers.cookie),
       paymentPointerService.get(
-        result.data.accountId,
-        result.data.paymentPointerId,
+        {
+          accountId: result.data.accountId,
+          paymentPointerId: result.data.paymentPointerId
+        },
         ctx.req.headers.cookie
       ),
-      paymentPointerService.getTransactions(
-        result.data.accountId,
-        result.data.paymentPointerId,
+      paymentPointerService.listTransactions(
+        {
+          accountId: result.data.accountId,
+          paymentPointerId: result.data.paymentPointerId
+        },
         ctx.req.headers.cookie
       )
     ])
@@ -139,33 +148,11 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const assetResponse = await assetService.get(
-    accountResponse.data.assetRafikiId,
-    ctx.req.headers.cookie
-  )
-  if (!assetResponse.success || !assetResponse.data) {
-    return {
-      notFound: true
-    }
-  }
-
-  const transactions = transactionsResponse.data.map((trx) => ({
-    ...trx,
-    createdAt: new Date(trx.createdAt).toLocaleDateString('default', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }),
-    value: formatAmount(trx.value, assetResponse.data?.scale)
-  }))
-
   return {
     props: {
       account: accountResponse.data,
       paymentPointer: paymentPointerResponse.data,
-      transactions
+      transactions: transactionsResponse.data
     }
   }
 }
