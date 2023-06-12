@@ -17,7 +17,6 @@ type FundsArgs = {
   amount: number
   assetCode: string
 }
-
 type FundAccountArgs = FundsArgs
 type WithdrawFundsArgs = FundsArgs
 
