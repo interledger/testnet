@@ -1,8 +1,11 @@
-export const transformAmount = (
-  value: bigint | number,
-  scale: number
-): number => {
-  return Number(BigInt(value) / BigInt(10 ** scale))
+export function transformAmount(amount: string | bigint, scale: number) {
+  const value = BigInt(amount)
+  const divisor = BigInt(10 ** scale)
+
+  const integerPart = (value / divisor).toString()
+  const fractionalPart = (value % divisor).toString().padStart(scale, '0')
+
+  return `${integerPart}.${fractionalPart}`
 }
 
 export const transformBalance = (value: number, scale: number): bigint => {
