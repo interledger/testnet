@@ -35,6 +35,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
         }, 500)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

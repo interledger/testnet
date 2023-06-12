@@ -50,6 +50,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setRunOnboarding(true)
       }, 500)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getPaymentPointers = async (accountId: string) => {

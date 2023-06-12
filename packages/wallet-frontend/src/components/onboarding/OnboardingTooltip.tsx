@@ -24,7 +24,7 @@ export const OnboardingTooltip = ({
         <div className="pb-4">{step.content}</div>
         {index === 0 && (
           <div className="text-center">
-            <Button {...primaryProps}>Let's go</Button>
+            <Button {...primaryProps}>Let&apos;s go</Button>
           </div>
         )}
         {(index === 2 ||

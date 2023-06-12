@@ -27,8 +27,8 @@ export const Dollar = (props: SVGProps<SVGSVGElement>) => {
           y2="20.6503"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_967_493"
@@ -38,8 +38,8 @@ export const Dollar = (props: SVGProps<SVGSVGElement>) => {
           y2="20.6804"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
       </defs>
     </svg>

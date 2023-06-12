@@ -27,8 +27,8 @@ export const HomeRooftop = (props: SVGProps<SVGSVGElement>) => {
           y2="8.9002"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_967_519"
@@ -38,8 +38,8 @@ export const HomeRooftop = (props: SVGProps<SVGSVGElement>) => {
           y2="24.7306"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
       </defs>
     </svg>

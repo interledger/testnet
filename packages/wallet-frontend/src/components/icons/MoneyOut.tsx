@@ -39,8 +39,8 @@ export const MoneyOut = (props: SVGProps<SVGSVGElement>) => {
           y2="6.57027"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_967_445"
@@ -50,8 +50,8 @@ export const MoneyOut = (props: SVGProps<SVGSVGElement>) => {
           y2="26.8005"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_967_445"
@@ -61,8 +61,8 @@ export const MoneyOut = (props: SVGProps<SVGSVGElement>) => {
           y2="27.6305"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_967_445"
@@ -72,8 +72,8 @@ export const MoneyOut = (props: SVGProps<SVGSVGElement>) => {
           y2="28.4502"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
         <linearGradient
           id="paint4_linear_967_445"
@@ -83,8 +83,8 @@ export const MoneyOut = (props: SVGProps<SVGSVGElement>) => {
           y2="25.9903"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
       </defs>
     </svg>

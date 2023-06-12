@@ -23,8 +23,8 @@ export const PersonDoc = (props: SVGProps<SVGSVGElement>) => {
           y2="24.9102"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8ED7C6" />
-          <stop offset="1" stop-color="#56ADAB" />
+          <stop stopColor="#8ED7C6" />
+          <stop offset="1" stopColor="#56ADAB" />
         </linearGradient>
       </defs>
     </svg>

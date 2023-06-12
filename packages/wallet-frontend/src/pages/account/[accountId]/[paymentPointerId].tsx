@@ -38,6 +38,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         setRunOnboarding(true)
       }, 500)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
