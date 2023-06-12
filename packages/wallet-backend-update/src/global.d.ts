@@ -45,4 +45,8 @@ declare global {
     res: CustomResponse<T>,
     next: NextFunction
   ) => Promise<void>
+
+  interface BigInt {
+    toJSON(): string
+  }
 }

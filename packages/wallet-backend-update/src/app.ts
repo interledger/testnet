@@ -6,12 +6,7 @@ import { PaymentPointerController } from '@/paymentPointer/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
-import express, {
-  Router,
-  type Express,
-  type NextFunction,
-  type Request
-} from 'express'
+import express, { Router, type Express, type Request } from 'express'
 import helmet from 'helmet'
 import { Server } from 'http'
 import type { Knex } from 'knex'
@@ -35,6 +30,8 @@ import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import cors from 'cors'
+import { RafikiController } from './rafiki/controller'
+import { RafikiService } from './rafiki/service'
 
 export interface Bindings {
   env: Env
@@ -42,6 +39,8 @@ export interface Bindings {
   knex: Knex
   rapydClient: RapydClient
   rafikiClient: RafikiClient
+  rafikiService: RafikiService
+  rafikiController: RafikiController
   rapydService: RapydService
   sessionService: SessionService
   userService: UserService
@@ -117,38 +116,29 @@ export class App {
     const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const accountController = await this.container.resolve('accountController')
+    const rafikiController = await this.container.resolve('rafikiController')
 
-    cors({
-      origin: [
-        'http://localhost:4003',
-        `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
-      ],
-      credentials: true
-    })
+    app.use(
+      cors({
+        origin: [
+          'http://localhost:4003',
+          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+        ],
+        credentials: true
+      })
+    )
 
     app.use(helmet())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
 
-    // Only allow JSON
-    router.use('*', (req: Request, res: CustomResponse, next: NextFunction) => {
-      if (req.is('application/json')) {
-        next()
-      } else {
-        res.status(415).json({
-          success: false,
-          message: "Only 'application/json' content type is supported"
-        })
-      }
-    })
-
     // Auth Routes
     router.post('/signup', authController.signUp)
     router.post('/login', authController.logIn)
 
     // Me Endpoint
-    router.get('/me', isAuth, userController.me)
+    router.get('/me', userController.me)
 
     // payment pointer routes
     router.post(
@@ -191,22 +181,24 @@ export class App {
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // rapyd routes
-    router.get('/countries', rapydController.getCountryNames)
-    router.get('/documents', rapydController.getDocumentTypes)
+    router.get('/countries', isAuth, rapydController.getCountryNames)
+    router.get('/documents', isAuth, rapydController.getDocumentTypes)
     router.post('/wallet', isAuth, rapydController.createWallet)
     router.post('/updateProfile', isAuth, rapydController.updateProfile)
     router.post('/verify', isAuth, rapydController.verifyIdentity)
-    router.get('/documents', isAuth, rapydController.getDocumentTypes)
 
     // asset
-    router.get('assets', isAuth, assetController.list)
-    router.get('assets/:id', isAuth, assetController.getById)
+    router.get('/assets', isAuth, assetController.list)
 
     // account
-    router.post('accounts', isAuth, accountController.createAccount)
-    router.get('accounts', isAuth, accountController.listAccounts)
-    router.get('accounts/:id', isAuth, accountController.getAccountById)
-    router.post('accounts/fund', isAuth, accountController.fundAccount)
+    router.post('/accounts', isAuth, accountController.createAccount)
+    router.get('/accounts', isAuth, accountController.listAccounts)
+    router.get('/accounts/:id', isAuth, accountController.getAccountById)
+    router.post('/accounts/fund', isAuth, accountController.fundAccount)
+
+    router.get('/rates', rafikiController.getRates)
+    router.post('/quote', rafikiController.createQuote)
+    router.post('/webhooks', rafikiController.onWebHook)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

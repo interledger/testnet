@@ -17,8 +17,12 @@ export type ErrorResponse<T = undefined> = {
 export const httpClient = ky.extend({
   prefixUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
   credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json'
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        request.headers.set('Content-Type', 'application/json')
+      }
+    ]
   }
 })
 
