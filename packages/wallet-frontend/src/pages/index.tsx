@@ -1,6 +1,5 @@
 import { AccountCard } from '@/components/AccountCard'
 import { New } from '@/components/icons/New'
-import { Pay } from '@/components/icons/Pay'
 import { Request } from '@/components/icons/Request'
 import { Send } from '@/components/icons/Send'
 import { AppLayout } from '@/components/layouts/AppLayout'
