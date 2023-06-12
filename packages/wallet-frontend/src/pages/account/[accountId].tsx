@@ -38,7 +38,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       }),
     [account]
   )
-  
+
   const { isUserFirstTime, setRunOnboarding, setStepIndex, stepIndex } =
     useOnboardingContext()
 

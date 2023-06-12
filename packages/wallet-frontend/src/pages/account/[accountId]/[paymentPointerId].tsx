@@ -31,14 +31,14 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
 
-  if (isUserFirstTime) {
-    useEffect(() => {
+  useEffect(() => {
+    if (isUserFirstTime) {
       setTimeout(() => {
         setStepIndex(stepIndex + 1)
         setRunOnboarding(true)
       }, 500)
-    }, [])
-  }
+    }
+  }, [])
 
   return (
     <>
