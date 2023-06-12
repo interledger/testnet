@@ -32,9 +32,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
-    "@graphql-codegen/cli": "^3.3.1",
-    "@graphql-codegen/typescript": "^3.0.4",
-    "@graphql-codegen/typescript-operations": "^3.0.4",
+    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/typescript": "^4.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/crypto-js": "^4.1.1",
@@ -44,7 +44,7 @@
     "@types/node": "^18.14.0",
     "@types/passport": "^1.0.12",
     "@types/passport-jwt": "^3.0.8",
-    "@types/uuid": "^9.0.1",
+    "@types/uuid": "^9.0.2",
     "axios": "^1.4.0",
     "@types/cors": "^2.8.13",
     "typescript": "^5.0.4"

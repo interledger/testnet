@@ -179,6 +179,11 @@ export class App {
 
     // outgoing payment routes
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
+    router.post(
+      '/outgoing-payments/accept',
+      isAuth,
+      outgoingPaymentController.acceptQuote
+    )
 
     // rapyd routes
     router.get('/countries', isAuth, rapydController.getCountryNames)
