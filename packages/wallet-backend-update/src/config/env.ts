@@ -6,7 +6,7 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .default(
-      'postgres://postgres:password@localhost:5433/testnet-backend-update'
+      'postgres://postgres:password@localhost:5433/wallet_backend_update'
     ),
   COOKIE_NAME: z.string().default('testnet.cookie'),
   COOKIE_PASSWORD: z
@@ -16,10 +16,10 @@ const envSchema = z.object({
   RAPYD_API: z.string().default('https://sandboxapi.rapyd.net/v1'),
   RAPYD_ACCESS_KEY: z.string().default('RAPYD_ACCESS_KEY'),
   RAPYD_SECRET_KEY: z.string().default('RAPYD_SECRET_KEY'),
-  GRAPHQL_ENDPOINT: z.string().url().default('http://backend:3001/graphql'),
+  GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
   RAPYD_SETTLEMENT_EWALLET: z.string().default('default_ewallet'),
-  RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost:4003')
+  RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost')
 })
 
 export type Env = z.infer<typeof envSchema>

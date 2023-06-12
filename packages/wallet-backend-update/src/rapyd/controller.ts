@@ -3,13 +3,14 @@ import { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
+import { User } from '@/user/model'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
   getDocumentTypes: ControllerFunction<RapydDocumentType[]>
   createWallet: ControllerFunction<RapydWallet>
   verifyIdentity: ControllerFunction<RapydIdentityResponse>
-  updateProfile: ControllerFunction<RapydWallet>
+  updateProfile: ControllerFunction
 }
 interface RapydControllerDependencies {
   logger: Logger
@@ -77,12 +78,7 @@ export class RapydController implements IRapydController {
         phone
       })
 
-      req.session.user = {
-        ...req.session.user,
-        needsWallet: false,
-        needsIDProof: false
-      }
-
+      req.session.user.needsWallet = false
       await req.session.save()
 
       res.status(200).json({
@@ -127,6 +123,13 @@ export class RapydController implements IRapydController {
           backSideImageType
         })
 
+      await User.query()
+        .findById(userId)
+        .patch({ kycId: verifyIdentityResponse.id })
+
+      req.session.user.needsIDProof = false
+      await req.session.save()
+
       res.status(200).json({
         success: true,
         message: 'Wallet created succesfully',
@@ -139,7 +142,7 @@ export class RapydController implements IRapydController {
 
   public updateProfile = async (
     req: Request,
-    res: CustomResponse<RapydWallet>,
+    res: CustomResponse,
     next: NextFunction
   ) => {
     const { id: userId } = req.session.user
@@ -149,16 +152,11 @@ export class RapydController implements IRapydController {
         body: { firstName, lastName }
       } = await validate(profileSchema, req)
 
-      const updateProfileResponse = await this.deps.rapydService.updateProfile(
-        userId,
-        firstName,
-        lastName
-      )
+      await this.deps.rapydService.updateProfile(userId, firstName, lastName)
 
       res.status(200).json({
         success: true,
-        message: 'Wallet created succesfully',
-        data: updateProfileResponse
+        message: 'Profile updated succesfully'
       })
     } catch (e) {
       next(e)

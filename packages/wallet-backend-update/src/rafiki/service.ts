@@ -45,10 +45,10 @@ export type Quote = {
   receiver: string
   sendAmount: Amount
   receiveAmount: Amount
-  maxPacketAmount: bigint
-  minExchangeRate: number
-  lowEstimatedExchangeRate: number
-  highEstimatedExchangeRate: number
+  maxPacketAmount?: bigint
+  minExchangeRate?: number
+  lowEstimatedExchangeRate?: number
+  highEstimatedExchangeRate?: number
   createdAt: string
   expiresAt: string
 }

@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { DebouncedInput, Input } from '@/ui/forms/Input'
+import { Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -12,7 +12,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { getObjectKeys } from '@/utils/helpers'
+import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
@@ -40,7 +40,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     )
     setBalance(
       selectedAccount
-        ? `${selectedAccount.balance} ${selectedAccount.assetCode}`
+        ? formatAmount({
+            value: selectedAccount.balance,
+            assetCode: selectedAccount.assetCode,
+            assetScale: selectedAccount.assetScale
+          }).amount
         : ''
     )
 
@@ -140,22 +144,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           </div>
           <div className="space-y-2">
             <Badge size="fixed" text="to" />
-            <Controller
-              name="toPaymentPointerUrl"
-              control={sendForm.control}
-              render={({ field: { value, onChange } }) => {
-                return (
-                  <DebouncedInput
-                    required
-                    error={
-                      sendForm.formState.errors.toPaymentPointerUrl?.message
-                    }
-                    label="Payment pointer"
-                    value={value}
-                    onChange={onChange}
-                  />
-                )
-              }}
+            <Input
+              required
+              error={sendForm.formState.errors.toPaymentPointerUrl?.message}
+              label="Payment pointer"
+              {...sendForm.register('toPaymentPointerUrl')}
             />
             <input type="hidden" {...sendForm.register('paymentType')} />
             <Input
@@ -219,7 +212,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   )
 }
 
-type SelectAccountOption = SelectOption & { balance: string; assetCode: string }
+type SelectAccountOption = SelectOption & {
+  balance: string
+  assetCode: string
+  assetScale: number
+}
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {
@@ -243,7 +240,8 @@ export const getServerSideProps: GetServerSideProps<{
     label: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,
-    assetCode: account.assetCode
+    assetCode: account.assetCode,
+    assetScale: account.assetScale
   }))
 
   return {

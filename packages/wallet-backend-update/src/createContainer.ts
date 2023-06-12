@@ -24,6 +24,8 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
+import { RafikiController } from './rafiki/controller'
+import { RafikiService } from './rafiki/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -111,8 +113,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
         rapydService: await container.resolve('rapydService')
       })
   )
-
-  //*RAFIKI
 
   container.singleton('rafikiClient', async () => {
     const env = await container.resolve('env')
@@ -234,6 +234,31 @@ export const createContainer = (config: Env): Container<Bindings> => {
         )
       })
   )
+
+  //*RAFIKI
+
+  container.singleton('rafikiService', async () => {
+    const rapydClient = await container.resolve('rapydClient')
+    const env = await container.resolve('env')
+    const logger = await container.resolve('logger')
+    const rafikiClient = await container.resolve('rafikiClient')
+    const transactionService = await container.resolve('transactionService')
+
+    return new RafikiService({
+      rafikiClient,
+      rapydClient,
+      env,
+      logger,
+      transactionService
+    })
+  })
+
+  container.singleton('rafikiController', async () => {
+    const logger = await container.resolve('logger')
+    const rafikiService = await container.resolve('rafikiService')
+
+    return new RafikiController({ logger, rafikiService })
+  })
 
   return container
 }

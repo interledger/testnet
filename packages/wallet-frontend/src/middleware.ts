@@ -11,29 +11,43 @@ const isPublicPath = (path: string) => {
 const publicPaths = ['/auth*']
 
 export async function middleware(req: NextRequest) {
-  // Skip checks in dev environment
-  // if (process.env.NODE_ENV === 'development') {
-  //   return NextResponse.next()
-  // }
-
   const isPublic = isPublicPath(req.nextUrl.pathname)
+  const nextPage = req.nextUrl.searchParams.get('next')
 
   // Because this is not going to run in the browser, we have to explictly pass
   // the cookies.
   const response = await userService.me(
-    `RefreshToken=${req.cookies.get('RefreshToken')?.value}`
+    `testnet.cookie=${req.cookies.get('testnet.cookie')?.value}`
   )
 
   // Success TRUE - the user is logged in
   if (response.success) {
     // If the user is logged in and has not completed KYC, redirect to KYC page.
-    if (response.data?.noKyc && req.nextUrl.pathname !== '/kyc') {
-      return NextResponse.redirect(new URL('/kyc', req.url))
+    if (
+      response.data?.needsWallet &&
+      req.nextUrl.pathname !== '/kyc/personal'
+    ) {
+      const url = new URL('/kyc/personal', req.url)
+      url.searchParams.append('next', 'proof')
+      return NextResponse.redirect(url)
+    }
+
+    if (response.data?.needsIDProof && req.nextUrl.pathname !== '/kyc/proof') {
+      if (nextPage !== 'proof')
+        return NextResponse.redirect(new URL('/kyc/proof', req.url))
     }
 
     // If KYC is completed and the user tries to navigate to the page, redirect
     // to homepage.
-    if (!response.data?.noKyc && req.nextUrl.pathname === '/kyc') {
+    if (
+      !response.data?.needsIDProof &&
+      !response.data?.needsWallet &&
+      req.nextUrl.pathname.startsWith('/kyc')
+    ) {
+      return NextResponse.redirect(new URL('/', req.url))
+    }
+
+    if (isPublic) {
       return NextResponse.redirect(new URL('/', req.url))
     }
   } else {

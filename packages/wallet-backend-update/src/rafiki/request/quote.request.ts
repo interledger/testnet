@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const createIncomingPaymentMutation = gql`
+export const createQuoteMutation = gql`
   mutation CreateQuoteMutation($input: CreateQuoteInput!) {
     createQuote(input: $input) {
       code

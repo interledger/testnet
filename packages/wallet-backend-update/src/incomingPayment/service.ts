@@ -86,7 +86,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     return {
       description: transaction.description,
-      value: transformAmount(transaction.value ?? 0, asset.scale)
+      value: parseFloat(transformAmount(transaction.value ?? 0n, asset.scale))
     }
   }
 

@@ -59,7 +59,7 @@ export class RapydService implements IRapydService {
   public async getDocumentTypes(userId: string) {
     const user = await User.query().findById(userId)
 
-    if (!user) throw new Error(`user doesn't exist`)
+    if (!user) throw new Error(`User does not exist`)
 
     const country = user.country
     if (!country) throw new Error('User has no country')
