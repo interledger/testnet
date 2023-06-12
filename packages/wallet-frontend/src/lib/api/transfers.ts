@@ -23,6 +23,21 @@ export const paySchema = z.object({
   isReceive: z.boolean().default(true)
 })
 
+export const merged = z.object({
+  paymentPointerId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable(),
+  receiver: z.string().url().trim(),
+  amount: z.coerce.number({
+    invalid_type_error: 'Please enter a valid amount'
+  }),
+  description: z.string(),
+  paymentType: z.enum([PAYMENT_SEND, PAYMENT_RECEIVE])
+})
+
 export const sendSchema = z.object({
   paymentPointerId: z
     .object({
@@ -60,7 +75,7 @@ type PayArgs = z.infer<typeof paySchema>
 type PayError = ErrorResponse<PayArgs | undefined>
 type PayResponse = SuccessResponse | PayError
 
-type SendArgs = z.infer<typeof sendSchema>
+type SendArgs = z.infer<typeof merged>
 type SendError = ErrorResponse<SendArgs | undefined>
 type SendResponse = SuccessResponse | SendError
 
@@ -113,7 +128,7 @@ const createTransfersService = (): TransfersService => ({
             paymentPointerId: args.paymentPointerId
               ? args.paymentPointerId.value
               : undefined,
-            toPaymentPointerUrl: args.toPaymentPointerUrl,
+            receiver: args.receiver,
             amount: args.amount,
             description: args.description,
             isReceive: args.paymentType === PAYMENT_RECEIVE

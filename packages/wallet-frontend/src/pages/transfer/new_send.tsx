@@ -10,7 +10,7 @@ import { TransferHeader } from '@/components/TransferHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
-import { sendSchema, transfersService } from '@/lib/api/transfers'
+import { merged, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -29,10 +29,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [balance, setBalance] = useState('')
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
   const sendForm = useZodForm({
-    schema: sendSchema,
+    schema: merged,
     defaultValues: {
       paymentType: PAYMENT_SEND,
-      toPaymentPointerUrl: ''
+      receiver: ''
     }
   })
 
@@ -78,19 +78,19 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       const response = await transfersService.getIncomingPaymentDetails(url)
 
       if (response.success && response.data) {
-        sendForm.clearErrors('toPaymentPointerUrl')
+        sendForm.clearErrors('receiver')
         sendForm.setValue('paymentType', 'receive')
         sendForm.setValue('amount', response.data.value)
         sendForm.setValue('description', response.data.description ?? '')
         setIsToggleDisabled(true)
       } else {
-        sendForm.setError('toPaymentPointerUrl', { message: response.message })
+        sendForm.setError('receiver', { message: response.message })
       }
     }
 
-    if(isToggleDisabled) setIsToggleDisabled(false)
+    if (isToggleDisabled) setIsToggleDisabled(false)
 
-    sendForm.setValue('toPaymentPointerUrl', url)
+    sendForm.setValue('receiver', url)
   }
 
   return (
@@ -165,15 +165,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           <div className="space-y-2">
             <Badge size="fixed" text="to" />
             <Controller
-              name="toPaymentPointerUrl"
+              name="receiver"
               control={sendForm.control}
               render={({ field: { value } }) => {
                 return (
                   <DebouncedInput
                     required
-                    error={
-                      sendForm.formState.errors.toPaymentPointerUrl?.message
-                    }
+                    error={sendForm.formState.errors.receiver?.message}
                     label="Payment pointer"
                     value={value}
                     onChange={onPaymentPointerChange}
