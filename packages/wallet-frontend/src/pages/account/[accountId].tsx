@@ -1,7 +1,9 @@
 import { CreatePaymentPointerDialog } from '@/components/dialogs/CreatePaymentPointerDialog'
 import { FundAccountDialog } from '@/components/dialogs/FundAccountDialog'
+import { WithdrawFundsDialog } from '@/components/dialogs/WithdrawFundsDialog'
 import { Exchange } from '@/components/icons/Exchange'
 import { New } from '@/components/icons/New'
+import { Pay } from '@/components/icons/Pay'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
 
@@ -79,6 +81,20 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             <Request className="h-8 w-8" />
             <span className="font-medium text-green-5 group-hover:text-green-6">
               Fund
+            </span>
+          </Link>
+          <Link
+            id="withdraw"
+            onClick={() =>
+              openDialog(
+                <WithdrawFundsDialog account={account} onClose={closeDialog} />
+              )
+            }
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
+            <Pay className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Withdraw
             </span>
           </Link>
           <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">

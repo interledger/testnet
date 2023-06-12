@@ -69,7 +69,7 @@ export const PaymentPointerCard = ({
     <div ref={cardRef} className={cardStyles}>
       <IconButton
         aria-label="delete payment pointer"
-        className="test h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
+        className="h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
         onClick={() =>
           openDialog(
             <ConfirmationDialog

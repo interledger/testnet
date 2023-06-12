@@ -6,7 +6,7 @@ import {
   type SuccessResponse
 } from '../httpClient'
 
-export const fundAccountSchema = z.object({
+const accountFundsObject = {
   accountId: z.string().uuid(),
   amount: z.coerce
     .number({
@@ -15,7 +15,10 @@ export const fundAccountSchema = z.object({
     .min(1, { message: 'Please enter an amount' })
     .positive(),
   assetCode: z.string()
-})
+}
+
+export const fundAccountSchema = z.object(accountFundsObject)
+export const withdrawFundsSchema = z.object(accountFundsObject)
 
 export const createAccountSchema = z.object({
   name: z
@@ -53,11 +56,16 @@ type FundAccountArgs = z.infer<typeof fundAccountSchema>
 type FundAccountError = ErrorResponse<FundAccountArgs | undefined>
 type FundAccountResponse = SuccessResponse | FundAccountError
 
+type WithdrawFundsArgs = z.infer<typeof withdrawFundsSchema>
+type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
+type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
+
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (cookies?: string) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
+  withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -122,6 +130,22 @@ const createAccountService = (): AccountService => ({
       return getError<FundAccountArgs>(
         error,
         'We were not able to fund your account. Please try again.'
+      )
+    }
+  },
+
+  async withdraw(args) {
+    try {
+      const response = await httpClient
+        .post('accounts/withdraw', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<WithdrawFundsArgs>(
+        error,
+        'We were not able to withdraw the funds. Please try again.'
       )
     }
   }

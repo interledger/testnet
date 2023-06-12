@@ -12,11 +12,14 @@ type CreateAccountArgs = {
   assetId: string
 }
 
-type FundAccountArgs = {
+type FundsArgs = {
   userId: string
   amount: number
   assetCode: string
 }
+
+type FundAccountArgs = FundsArgs
+type WithdrawFundsArgs = FundsArgs
 
 interface IAccountService {
   createAccount: (args: CreateAccountArgs) => Promise<Account>
@@ -24,6 +27,7 @@ interface IAccountService {
   getAccountById: (userId: string, accountId: string) => Promise<Account>
   getAccountBalance: (userId: string, assetCode: string) => Promise<number>
   fundAccount: (args: FundAccountArgs) => Promise<void>
+  withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
 interface CountriesServiceDependencies {
@@ -59,7 +63,7 @@ export class AccountService implements IAccountService {
 
     if (existingAssetAccount) {
       throw new Conflict(
-        `An account with the same asset ${asset.code} already exists`
+        `You can only have one account per asset. ${asset.code} account already exists`
       )
     }
 
@@ -195,6 +199,68 @@ export class AccountService implements IAccountService {
 
     if (result.status?.status !== 'SUCCESS') {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
+    }
+  }
+
+  public async withdrawFunds(args: FundAccountArgs): Promise<void> {
+    const existingAccount = await Account.query()
+      .where('userId', args.userId)
+      .where('assetCode', args.assetCode)
+      .first()
+    if (!existingAccount) {
+      throw new NotFound()
+    }
+
+    // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
+    const payoutType = await this.deps.rapyd.getPayoutMethodTypes(
+      args.assetCode
+    )
+
+    if (payoutType.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${payoutType.status.message}`
+      )
+    }
+
+    const user = await User.query().findById(args.userId)
+    if (!user || !user.rapydWalletId) {
+      throw new NotFound()
+    }
+
+    // withdraw funds/create payout from wallet account into bank account
+    const userDetails = {
+      name: `${user.firstName} ${user.lastName}`,
+      address: user.address ?? ''
+    }
+    const payout = await this.deps.rapyd.withdrawFundsFromAccount({
+      beneficiary: userDetails,
+      payout_amount: args.amount,
+      payout_currency: args.assetCode,
+      ewallet: user.rapydWalletId ?? '',
+      sender: userDetails,
+      sender_country: user.country ?? '',
+      sender_currency: args.assetCode,
+      beneficiary_entity_type: 'individual',
+      sender_entity_type: 'individual',
+      payout_method_type: payoutType.data[0].payout_method_type
+    })
+
+    if (payout.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${payout.status.message}`
+      )
+    }
+
+    // complete third party/bank payout
+    const completePayoutResponse = await this.deps.rapyd.completePayout({
+      payout: payout.data.id,
+      amount: args.amount
+    })
+
+    if (completePayoutResponse.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${completePayoutResponse.status.message}`
+      )
     }
   }
 
