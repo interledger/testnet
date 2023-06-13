@@ -142,7 +142,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   const transactions = transactionsResponse.data?.map((trx) => ({
     ...trx,
-    createAt: formatDate(trx.createdAt),
+    createdAt: formatDate(trx.createdAt),
     value: formatAmount({
       value: trx.value,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
