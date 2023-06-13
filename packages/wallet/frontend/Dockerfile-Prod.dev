@@ -26,6 +26,6 @@ RUN pnpm install -r --offline
 ENV NEXT_PUBLIC_BACKEND_URL=https://api.rafiki.money
 ENV NEXT_PUBLIC_OPEN_PAYMENTS_HOST=https://ilp.rafiki.money
 
-RUN pnpm wallet-frontend build
+RUN pnpm wallet:frontend build
 
-CMD ["pnpm", "wallet-frontend", "start"]
+CMD ["pnpm", "wallet:frontend", "start"]
