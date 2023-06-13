@@ -202,17 +202,11 @@ export class AccountService implements IAccountService {
   }
 
   public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
-    const existingAccount = await Account.query()
-      .where('userId', args.userId)
-      .where('id', args.accountId)
-      .first()
-    if (!existingAccount) {
-      throw new NotFound()
-    }
+    const account = await this.findAccountById(args.accountId, args.userId)
 
     // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
     const payoutType = await this.deps.rapyd.getPayoutMethodTypes(
-      existingAccount.assetCode
+      account.assetCode
     )
 
     if (payoutType.status.status !== 'SUCCESS') {
@@ -234,11 +228,11 @@ export class AccountService implements IAccountService {
     const withdrawFunds = await this.deps.rapyd.withdrawFundsFromAccount({
       beneficiary: userDetails,
       payout_amount: args.amount,
-      payout_currency: existingAccount.assetCode,
+      payout_currency: account.assetCode,
       ewallet: user.rapydWalletId ?? '',
       sender: userDetails,
       sender_country: user.country ?? '',
-      sender_currency: existingAccount.assetCode,
+      sender_currency: account.assetCode,
       beneficiary_entity_type: 'individual',
       sender_entity_type: 'individual',
       payout_method_type: payoutType.data[0].payout_method_type
