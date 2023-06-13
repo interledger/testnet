@@ -9,7 +9,3 @@ ALTER DATABASE rafiki_backend OWNER TO rafiki_backend;
 CREATE USER wallet_backend WITH PASSWORD 'wallet_backend';
 CREATE DATABASE wallet_backend;
 ALTER DATABASE wallet_backend OWNER TO wallet_backend;
-
-CREATE USER wallet_backend_update WITH PASSWORD 'wallet_backend_update';
-CREATE DATABASE wallet_backend_update;
-ALTER DATABASE wallet_backend_update OWNER TO wallet_backend_update;
