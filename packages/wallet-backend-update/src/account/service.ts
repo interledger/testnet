@@ -201,7 +201,7 @@ export class AccountService implements IAccountService {
     }
   }
 
-  public async withdrawFunds(args: FundAccountArgs): Promise<void> {
+  public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
     const existingAccount = await Account.query()
       .where('userId', args.userId)
       .where('assetCode', args.assetCode)
