@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
-import { Account, accountService, fundAccountSchema } from '@/lib/api/account'
+import { Account, accountService, withdrawFundsSchema } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
 import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
@@ -11,18 +11,18 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
 
-type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
+type WithdrawFundsDialogDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account
 }
 
-export const FundAccountDialog = ({
+export const WithdrawFundsDialog = ({
   onClose,
   account
-}: FundAccountDialogProps) => {
+}: WithdrawFundsDialogDialogProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
-  const fundAccountForm = useZodForm({
-    schema: fundAccountSchema
+  const withdrawFundsForm = useZodForm({
+    schema: withdrawFundsSchema
   })
 
   return (
@@ -55,19 +55,19 @@ export const FundAccountDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Fund Account
+                  Withdraw Funds
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
-                    form={fundAccountForm}
+                    form={withdrawFundsForm}
                     onSubmit={async (data) => {
-                      const response = await accountService.fund(data)
+                      const response = await accountService.withdraw(data)
 
                       if (!response) {
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Fund Account failed. Please try again"
+                            content="Withdrawal failed. Please try again"
                           />
                         )
                         return
@@ -81,13 +81,13 @@ export const FundAccountDialog = ({
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            fundAccountForm.setError(field, {
+                            withdrawFundsForm.setError(field, {
                               message: errors[field]
                             })
                           )
                         }
                         if (message) {
-                          fundAccountForm.setError('root', { message })
+                          withdrawFundsForm.setError('root', { message })
                         }
                       }
                     }}
@@ -96,30 +96,32 @@ export const FundAccountDialog = ({
                       disabled={true}
                       value={account.name}
                       error={
-                        fundAccountForm.formState.errors.accountId?.message
+                        withdrawFundsForm.formState.errors.accountId?.message
                       }
                       label="Account"
                       readOnly
                     />
                     <input
                       type="hidden"
-                      {...fundAccountForm.register('accountId')}
+                      {...withdrawFundsForm.register('accountId')}
                       value={account.id}
                     />
                     <Input
                       required
                       label="Amount"
                       addOn={getCurrencySymbol(account.assetCode)}
-                      error={fundAccountForm.formState?.errors?.amount?.message}
-                      {...fundAccountForm.register('amount')}
+                      error={
+                        withdrawFundsForm.formState?.errors?.amount?.message
+                      }
+                      {...withdrawFundsForm.register('amount')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
-                        aria-label="fund account"
+                        aria-label="withdraw funds"
                         type="submit"
-                        loading={fundAccountForm.formState.isSubmitting}
+                        loading={withdrawFundsForm.formState.isSubmitting}
                       >
-                        Fund
+                        Withdraw
                       </Button>
                       <Button
                         intent="outline"
