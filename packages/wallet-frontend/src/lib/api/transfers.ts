@@ -38,6 +38,10 @@ export const sendSchema = z.object({
   paymentType: z.enum([PAYMENT_SEND, PAYMENT_RECEIVE])
 })
 
+export const acceptQuoteSchema = z.object({
+  quoteId: z.string().uuid()
+})
+
 export const requestSchema = z.object({
   paymentPointerId: z
     .object({
@@ -56,13 +60,30 @@ type PaymentDetails = {
   value: number
 }
 
+type AmountProps = {
+  assetCode: string
+  assetScale: number
+  value: string
+}
+
+export interface Quote {
+  id: string
+  receiveAmount: AmountProps
+  sendAmount: AmountProps
+}
+
 type PayArgs = z.infer<typeof paySchema>
 type PayError = ErrorResponse<PayArgs | undefined>
 type PayResponse = SuccessResponse | PayError
 
 type SendArgs = z.infer<typeof sendSchema>
+type QuoteResult = SuccessResponse<Quote>
 type SendError = ErrorResponse<SendArgs | undefined>
-type SendResponse = SuccessResponse | SendError
+type SendResponse = QuoteResult | SendError
+
+type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
+type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
+type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
 
 type RequestArgs = z.infer<typeof requestSchema>
 type RequestResult = SuccessResponse<Transaction>
@@ -77,6 +98,7 @@ type IncomingPaymentDetailsResponse =
 interface TransfersService {
   pay: (args: PayArgs) => Promise<PayResponse>
   send: (args: SendArgs) => Promise<SendResponse>
+  acceptQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
   getIncomingPaymentDetails: (
     incomingPaymentUrl: string
@@ -123,6 +145,24 @@ const createTransfersService = (): TransfersService => ({
       return response
     } catch (error) {
       return getError<SendArgs>(
+        error,
+        'We could not fetch your quote. Please try again.'
+      )
+    }
+  },
+
+  async acceptQuote(args) {
+    try {
+      const response = await httpClient
+        .post('outgoing-payments/accept', {
+          json: {
+            quoteId: args.quoteId
+          }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<AcceptQuoteArgs>(
         error,
         'We could not send the money. Please try again.'
       )
