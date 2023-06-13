@@ -1,5 +1,5 @@
 # The default configuration file path is '.github/labeler.yml'
-name: Automatic PR Labeler
+name: Labeler 
 
 on:
   pull_request_target:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   label: 
-    name: PR Triage
+    name: Triage
     runs-on: ubuntu-latest
     permissions:
       contents: read
