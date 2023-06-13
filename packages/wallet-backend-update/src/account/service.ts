@@ -204,38 +204,16 @@ export class AccountService implements IAccountService {
   public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
     const account = await this.findAccountById(args.accountId, args.userId)
 
-    // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
-    const payoutType = await this.deps.rapyd.getPayoutMethodTypes(
-      account.assetCode
-    )
-
-    if (payoutType.status.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to withdraw funds from your account: ${payoutType.status.message}`
-      )
-    }
-
     const user = await User.query().findById(args.userId)
     if (!user || !user.rapydWalletId) {
       throw new NotFound()
     }
 
-    // withdraw funds/create payout from wallet account into bank account
-    const userDetails = {
-      name: `${user.firstName} ${user.lastName}`,
-      address: user.address ?? ''
-    }
+    // simulate withdraw funds to a bank account
     const withdrawFunds = await this.deps.rapyd.withdrawFundsFromAccount({
-      beneficiary: userDetails,
-      payout_amount: args.amount,
-      payout_currency: account.assetCode,
-      ewallet: user.rapydWalletId ?? '',
-      sender: userDetails,
-      sender_country: user.country ?? '',
-      sender_currency: account.assetCode,
-      beneficiary_entity_type: 'individual',
-      sender_entity_type: 'individual',
-      payout_method_type: payoutType.data[0].payout_method_type
+      assetCode: account.assetCode,
+      amount: args.amount,
+      user: user
     })
 
     if (withdrawFunds.status.status !== 'SUCCESS') {

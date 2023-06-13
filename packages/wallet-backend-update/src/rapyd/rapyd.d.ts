@@ -312,19 +312,6 @@ interface PayoutMethodResponse {
   payout_currencies: string
 }
 
-interface WithdrawFundsFromAccountRequest {
-  beneficiary: { name: string; address: string }
-  payout_amount: number
-  payout_currency: string
-  ewallet: string
-  sender: { name: string; address: string }
-  sender_country: string
-  sender_currency: string
-  beneficiary_entity_type: string
-  sender_entity_type: string
-  payout_method_type: string
-}
-
 interface WithdrawFundsFromAccountResponse {
   id: string
   payout_method_type: string
