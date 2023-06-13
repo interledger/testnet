@@ -5,6 +5,7 @@ import { BadRequest, NotFound } from '@/errors'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset } from '@/rafiki/generated/graphql'
 import { IncomingPaymentService } from '@/incomingPayment/service'
+import { incomingPaymentRegexp } from '@/utils/helpers'
 
 interface IOutgoingPaymentService {
   create: (
@@ -12,8 +13,7 @@ interface IOutgoingPaymentService {
     paymentPointerId: string,
     amount: number,
     isReceive: boolean,
-    incomingPaymentUrl?: string,
-    toPaymentPointerUrl?: string,
+    receiver: string,
     description?: string
   ) => Promise<Transaction>
 }
@@ -32,19 +32,13 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     paymentPointerId: string,
     amount: number,
     isReceive: boolean,
-    incomingPaymentUrl?: string,
-    toPaymentPointerUrl?: string,
+    receiver: string,
     description?: string
   ): Promise<Transaction> {
-    if (!incomingPaymentUrl && !toPaymentPointerUrl) {
-      throw new BadRequest(
-        'incomingPaymentUrl or toPaymentPointerUrl should be defined'
-      )
-    }
-
     const existingPaymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
     )
+
     if (!existingPaymentPointer || !existingPaymentPointer.active) {
       throw new BadRequest('Invalid payment pointer')
     }
@@ -68,15 +62,16 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       throw new NotFound()
     }
 
-    const paymentUrl: string =
-      incomingPaymentUrl ||
-      (await this.createReceiver(
+    let paymentUrl = receiver
+    if (!incomingPaymentRegexp.test(receiver)) {
+      paymentUrl = await this.createReceiver(
         isReceive ? BigInt(amount * 10 ** asset.scale) : null,
         asset,
-        toPaymentPointerUrl,
+        receiver,
         description,
         new Date(Date.now() + 1000 * 60).toISOString()
-      ))
+      )
+    }
 
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId,

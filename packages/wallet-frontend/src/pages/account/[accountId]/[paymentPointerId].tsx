@@ -56,7 +56,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     />
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
-                    {formatDate(trx.createdAt)}
+                    {trx.createdAt}
                   </Table.Cell>
                   <Table.Cell>{trx.description ?? 'No description'}</Table.Cell>
                   <Table.Cell>
@@ -66,15 +66,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       text={trx.status}
                     />
                   </Table.Cell>
-                  <Table.Cell>
-                    {
-                      formatAmount({
-                        value: trx.value ?? 0,
-                        assetCode: trx.assetCode,
-                        assetScale: account.assetScale
-                      }).amount
-                    }
-                  </Table.Cell>
+                  <Table.Cell>{trx.value}</Table.Cell>
                 </Table.Row>
               ))
             ) : (
@@ -148,11 +140,23 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  const transactions = transactionsResponse.data?.map((trx) => ({
+    ...trx,
+    createdAt: formatDate(trx.createdAt),
+    value: formatAmount({
+      value: trx.value,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      assetCode: accountResponse.data!.assetCode,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      assetScale: accountResponse.data!.assetScale
+    }).amount
+  }))
+
   return {
     props: {
       account: accountResponse.data,
       paymentPointer: paymentPointerResponse.data,
-      transactions: transactionsResponse.data
+      transactions
     }
   }
 }

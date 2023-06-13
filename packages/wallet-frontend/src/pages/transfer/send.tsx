@@ -3,7 +3,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
-import { Input } from '@/ui/forms/Input'
+import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
@@ -27,10 +27,12 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
+  const [isToggleDisabled, setIsToggleDisabled] = useState(false)
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
-      paymentType: PAYMENT_SEND
+      paymentType: PAYMENT_SEND,
+      receiver: ''
     }
   })
 
@@ -71,6 +73,28 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       })
     )
     setPaymentPointers(paymentPointers)
+  }
+
+  const onPaymentPointerChange = async (url: string): Promise<void> => {
+    if (url === '') return
+
+    if (url.includes('/incoming-payments/')) {
+      const response = await transfersService.getIncomingPaymentDetails(url)
+
+      if (response.success && response.data) {
+        sendForm.clearErrors('receiver')
+        sendForm.setValue('paymentType', 'receive')
+        sendForm.setValue('amount', response.data.value)
+        sendForm.setValue('description', response.data.description ?? '')
+        setIsToggleDisabled(true)
+      } else {
+        sendForm.setError('receiver', { message: response.message })
+      }
+    }
+
+    if (isToggleDisabled) setIsToggleDisabled(false)
+
+    sendForm.setValue('receiver', url)
   }
 
   return (
@@ -144,11 +168,20 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           </div>
           <div className="space-y-2">
             <Badge size="fixed" text="to" />
-            <Input
-              required
-              error={sendForm.formState.errors.toPaymentPointerUrl?.message}
-              label="Payment pointer"
-              {...sendForm.register('toPaymentPointerUrl')}
+            <Controller
+              name="receiver"
+              control={sendForm.control}
+              render={({ field: { value } }) => {
+                return (
+                  <DebouncedInput
+                    required
+                    error={sendForm.formState.errors.receiver?.message}
+                    label="Payment pointer"
+                    value={value}
+                    onChange={onPaymentPointerChange}
+                  />
+                )
+              }}
             />
             <input type="hidden" {...sendForm.register('paymentType')} />
             <Input
@@ -165,12 +198,18 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                     return (
                       <TogglePayment
                         type={value}
+                        disabled={isToggleDisabled}
                         onChange={(newValue) => {
-                          sendForm.setValue(
-                            'paymentType',
-                            newValue ? PAYMENT_RECEIVE : PAYMENT_SEND
-                          )
-                          onChange(newValue ? PAYMENT_RECEIVE : PAYMENT_SEND)
+                          if (isToggleDisabled) {
+                            sendForm.setValue('paymentType', PAYMENT_RECEIVE)
+                            onChange(PAYMENT_RECEIVE)
+                          } else {
+                            sendForm.setValue(
+                              'paymentType',
+                              newValue ? PAYMENT_RECEIVE : PAYMENT_SEND
+                            )
+                            onChange(newValue ? PAYMENT_RECEIVE : PAYMENT_SEND)
+                          }
                         }}
                       />
                     )
