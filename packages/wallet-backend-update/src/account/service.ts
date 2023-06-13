@@ -15,8 +15,10 @@ type CreateAccountArgs = {
 type FundAccountArgs = {
   userId: string
   amount: number
-  assetCode: string
+  accountId: string
 }
+
+type WithdrawFundsArgs = FundAccountArgs
 
 interface IAccountService {
   createAccount: (args: CreateAccountArgs) => Promise<Account>
@@ -24,6 +26,7 @@ interface IAccountService {
   getAccountById: (userId: string, accountId: string) => Promise<Account>
   getAccountBalance: (userId: string, assetCode: string) => Promise<number>
   fundAccount: (args: FundAccountArgs) => Promise<void>
+  withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
 interface CountriesServiceDependencies {
@@ -59,7 +62,7 @@ export class AccountService implements IAccountService {
 
     if (existingAssetAccount) {
       throw new Conflict(
-        `An account with the same asset ${asset.code} already exists`
+        `You can only have one account per asset. ${asset.code} account already exists`
       )
     }
 
@@ -180,7 +183,7 @@ export class AccountService implements IAccountService {
   public async fundAccount(args: FundAccountArgs): Promise<void> {
     const existingAccount = await Account.query()
       .where('userId', args.userId)
-      .where('assetCode', args.assetCode)
+      .where('id', args.accountId)
       .first()
     if (!existingAccount) {
       throw new NotFound()
@@ -189,12 +192,34 @@ export class AccountService implements IAccountService {
     // fund amount to wallet account
     const result = await this.deps.rapyd.simulateBankTransferToWallet({
       amount: args.amount,
-      currency: args.assetCode,
+      currency: existingAccount.assetCode,
       issued_bank_account: existingAccount.virtualAccountId
     })
 
     if (result.status?.status !== 'SUCCESS') {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
+    }
+  }
+
+  public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
+    const account = await this.findAccountById(args.accountId, args.userId)
+
+    const user = await User.query().findById(args.userId)
+    if (!user || !user.rapydWalletId) {
+      throw new NotFound()
+    }
+
+    // simulate withdraw funds to a bank account
+    const withdrawFunds = await this.deps.rapyd.withdrawFundsFromAccount({
+      assetCode: account.assetCode,
+      amount: args.amount,
+      user: user
+    })
+
+    if (withdrawFunds.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${withdrawFunds.status.message}`
+      )
     }
   }
 

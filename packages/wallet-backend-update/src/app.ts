@@ -200,6 +200,7 @@ export class App {
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
+    router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
     router.get('/rates', rafikiController.getRates)
     router.post('/quote', rafikiController.createQuote)

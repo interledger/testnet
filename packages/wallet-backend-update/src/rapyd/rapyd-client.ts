@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios'
 import crypto from 'crypto-js'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
+import { User } from '@/user/model'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>
@@ -26,11 +27,26 @@ interface IRapydClient {
   ): Promise<RapydResponse<RapydAccountBalance[]>>
   getDocumentTypes(country: string): Promise<RapydResponse<RapydDocumentType[]>>
   getCountryNames(): Promise<RapydResponse<RapydCountry[]>>
+  issueVirtualAccount(
+    req: VirtualAccountRequest
+  ): Promise<RapydResponse<VirtualAccountResponse>>
+  simulateBankTransferToWallet(
+    req: SimulateBankTransferToWalletRequest
+  ): Promise<RapydResponse<SimulateBankTransferToWalletResponse>>
+  withdrawFundsFromAccount(
+    args: WithdrawFundsParams
+  ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>>
 }
 
 interface RapydClientDependencies {
   logger: Logger
   env: Env
+}
+
+type WithdrawFundsParams = {
+  assetCode: string
+  amount: number
+  user: User
 }
 
 type CalculateSignatureParams = {
@@ -157,6 +173,78 @@ export class RapydClient implements IRapydClient {
 
   public getCountryNames(): Promise<RapydResponse<RapydCountry[]>> {
     return this.get<RapydResponse<RapydCountry[]>>('data/countries')
+  }
+
+  public async withdrawFundsFromAccount(
+    args: WithdrawFundsParams
+  ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>> {
+    // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
+    const payoutType = await this.getPayoutMethodTypes(args.assetCode)
+
+    if (payoutType.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${payoutType.status.message}`
+      )
+    }
+
+    // withdraw funds/create payout from wallet account into bank account
+    const userDetails = {
+      name: `${args.user.firstName} ${args.user.lastName}`,
+      address: args.user.address ?? ''
+    }
+    const withdrawReq = {
+      beneficiary: userDetails,
+      payout_amount: args.amount,
+      payout_currency: args.assetCode,
+      ewallet: args.user.rapydWalletId ?? '',
+      sender: userDetails,
+      sender_country: args.user.country ?? '',
+      sender_currency: args.assetCode,
+      beneficiary_entity_type: 'individual',
+      sender_entity_type: 'individual',
+      payout_method_type: payoutType.data[0].payout_method_type
+    }
+
+    const payout = await this.post<
+      RapydResponse<WithdrawFundsFromAccountResponse>
+    >('payouts', JSON.stringify(withdrawReq))
+
+    if (payout.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${payout.status.message}`
+      )
+    }
+
+    // complete third party/bank payout
+    const completePayoutResponse = await this.completePayout({
+      payout: payout.data.id,
+      amount: args.amount
+    })
+
+    if (completePayoutResponse.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${completePayoutResponse.status.message}`
+      )
+    }
+
+    return completePayoutResponse
+  }
+
+  private getPayoutMethodTypes(
+    assetCode: string
+  ): Promise<RapydResponse<PayoutMethodResponse[]>> {
+    return this.get(
+      `payouts/supported_types?payout_currency=${assetCode}&limit=1`
+    )
+  }
+
+  private completePayout(
+    req: CompletePayoutRequest
+  ): Promise<RapydResponse<CompletePayoutResponse>> {
+    return this.post(
+      `payouts/complete/${req.payout}/${req.amount}`,
+      JSON.stringify(req)
+    )
   }
 
   private setTransferResponse(
