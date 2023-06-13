@@ -35,10 +35,6 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     receiver: string,
     description?: string
   ): Promise<Transaction> {
-    if (!receiver) {
-      throw new BadRequest('No receiver provided.')
-    }
-
     const existingPaymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
     )
