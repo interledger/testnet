@@ -19,7 +19,7 @@ jobs:
       - run: pnpm checks
 
   build-wallet-frontend:
-    name: \[WALLET\] Build frontend 
+    name: WALLET - Build frontend 
     runs-on: ubuntu-latest
     needs: checks
     steps:
@@ -28,7 +28,7 @@ jobs:
       - run: pnpm wallet/frontend build
 
   build-wallet-backend:
-    name: \[WALLET\] Build backend
+    name: WALLET - Build backend
     runs-on: ubuntu-latest
     needs: checks
     steps:
@@ -37,7 +37,7 @@ jobs:
       - run: pnpm wallet/backend build
       
   test-wallet-backend:
-    name: \[WALLET\] Test backend 
+    name: WALLET - Test backend 
     runs-on: ubuntu-latest
     needs: build-wallet-backend
     steps:
