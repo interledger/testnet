@@ -19,37 +19,28 @@ jobs:
       - run: pnpm checks
 
   build-wallet-frontend:
-    name: Build wallet frontend
+    name: \[WALLET\] Build frontend 
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/setup
-      - run: pnpm wallet-frontend build
+      - run: pnpm wallet/frontend build
 
   build-wallet-backend:
-    name: Build wallet backend
+    name: \[WALLET\] Build backend
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/setup
-      - run: pnpm wallet-backend build
+      - run: pnpm wallet/backend build
       
-  build-wallet-backend-update:
-    name: Build wallet backend update
+  test-wallet-backend:
+    name: \[WALLET\] Test backend 
     runs-on: ubuntu-latest
-    needs: checks
+    needs: build-wallet-backend
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/setup
-      - run: pnpm wallet-backend-update build
-
-  test-wallet-backend-update:
-    name: Test wallet backend update
-    runs-on: ubuntu-latest
-    needs: build-wallet-backend-update
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/setup
-      - run: pnpm wallet-backend-update test
+      - run: pnpm wallet/backend test
