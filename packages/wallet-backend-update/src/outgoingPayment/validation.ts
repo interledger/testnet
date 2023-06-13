@@ -2,8 +2,7 @@ import { z } from 'zod'
 
 export const outgoingPaymentSchema = z.object({
   body: z.object({
-    incomingPaymentUrl: z.string().url().optional(),
-    toPaymentPointerUrl: z.string().url().optional(),
+    receiver: z.string().url(),
     paymentPointerId: z.string().uuid(),
     amount: z.number().positive(),
     isReceive: z.boolean().default(true),

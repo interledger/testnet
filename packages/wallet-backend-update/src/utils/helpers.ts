@@ -27,3 +27,5 @@ export function extractUuidFromUrl(url: string): string {
 
   return id
 }
+export const incomingPaymentRegexp =
+  /\/incoming-payments\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/

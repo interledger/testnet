@@ -8,21 +8,6 @@ import {
 } from '../httpClient'
 import { Transaction } from './paymentPointer'
 
-export const paySchema = z.object({
-  paymentPointerId: z
-    .object({
-      value: z.string().uuid(),
-      label: z.string().min(1)
-    })
-    .nullable(),
-  incomingPaymentUrl: z.string().url().trim(),
-  amount: z.coerce.number({
-    invalid_type_error: 'Please enter a valid amount'
-  }),
-  description: z.string(),
-  isReceive: z.boolean().default(true)
-})
-
 export const sendSchema = z.object({
   paymentPointerId: z
     .object({
@@ -30,7 +15,7 @@ export const sendSchema = z.object({
       label: z.string().min(1)
     })
     .nullable(),
-  toPaymentPointerUrl: z.string().url().trim(),
+  receiver: z.string().url().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
@@ -72,10 +57,6 @@ export interface Quote {
   sendAmount: AmountProps
 }
 
-type PayArgs = z.infer<typeof paySchema>
-type PayError = ErrorResponse<PayArgs | undefined>
-type PayResponse = SuccessResponse | PayError
-
 type SendArgs = z.infer<typeof sendSchema>
 type QuoteResult = SuccessResponse<Quote>
 type SendError = ErrorResponse<SendArgs | undefined>
@@ -96,7 +77,6 @@ type IncomingPaymentDetailsResponse =
   | ErrorResponse
 
 interface TransfersService {
-  pay: (args: PayArgs) => Promise<PayResponse>
   send: (args: SendArgs) => Promise<SendResponse>
   acceptQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
@@ -106,27 +86,6 @@ interface TransfersService {
 }
 
 const createTransfersService = (): TransfersService => ({
-  async pay(args) {
-    try {
-      const response = await httpClient
-        .post('outgoing-payments', {
-          json: {
-            ...args,
-            paymentPointerId: args.paymentPointerId
-              ? args.paymentPointerId.value
-              : undefined
-          }
-        })
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError<PayArgs>(
-        error,
-        'We could not pay the money. Please try again.'
-      )
-    }
-  },
-
   async send(args) {
     try {
       const response = await httpClient
@@ -135,7 +94,7 @@ const createTransfersService = (): TransfersService => ({
             paymentPointerId: args.paymentPointerId
               ? args.paymentPointerId.value
               : undefined,
-            toPaymentPointerUrl: args.toPaymentPointerUrl,
+            receiver: args.receiver,
             amount: args.amount,
             description: args.description,
             isReceive: args.paymentType === PAYMENT_RECEIVE

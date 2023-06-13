@@ -62,6 +62,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
                   addOn && 'rounded-l-none',
                   trailing && 'rounded-r-none',
+                  isLoading && 'pr-10',
                   className
                 )}
                 {...props}
@@ -88,7 +89,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 type DebouncedInputProps = Omit<InputProps, 'onChange'> & {
   value: string
   delay?: number
-  onChange?: (value: string) => void
+  onChange?: (value: string) => void | Promise<void>
 }
 
 export const DebouncedInput = ({

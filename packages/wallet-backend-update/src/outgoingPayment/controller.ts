@@ -32,14 +32,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
     try {
       const userId = req.session.user.id
       const {
-        body: {
-          incomingPaymentUrl,
-          toPaymentPointerUrl,
-          paymentPointerId,
-          amount,
-          isReceive,
-          description
-        }
+        body: { receiver, paymentPointerId, amount, isReceive, description }
       } = await validate(outgoingPaymentSchema, req)
 
       const quote = await this.deps.outgoingPaymentService.create(
@@ -47,8 +40,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
         paymentPointerId,
         amount,
         isReceive,
-        incomingPaymentUrl,
-        toPaymentPointerUrl,
+        receiver,
         description
       )
       res.status(200).json({ success: true, message: 'SUCCESS', data: quote })
