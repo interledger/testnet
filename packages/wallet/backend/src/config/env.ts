@@ -5,9 +5,7 @@ const envSchema = z.object({
   NODE_ENV: z.string().default('development'),
   DATABASE_URL: z
     .string()
-    .default(
-      'postgres://postgres:password@localhost:5433/wallet_backend'
-    ),
+    .default('postgres://postgres:password@localhost:5433/wallet_backend'),
   COOKIE_NAME: z.string().default('testnet.cookie'),
   COOKIE_PASSWORD: z
     .string()
