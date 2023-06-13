@@ -76,7 +76,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     let paymentUrl = receiver
     if (!incomingPaymentRegexp.test(receiver)) {
       paymentUrl = await this.createReceiver(
-        isReceive ? BigInt(amount * 10 ** asset.scale) : null,
+        isReceive ? value : null,
         asset,
         receiver,
         description,
