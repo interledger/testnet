@@ -1,5 +1,5 @@
 # The default configuration file path is '.github/labeler.yml'
-name: Labeler 
+name: Labeler
 
 on:
   pull_request_target:
