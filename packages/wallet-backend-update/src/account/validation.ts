@@ -15,7 +15,7 @@ export const fundSchema = z.object({
         required_error: 'Amount is required'
       })
       .positive(),
-    assetCode: z.string()
+    accountId: z.string().uuid()
   })
 })
 

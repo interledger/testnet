@@ -15,7 +15,7 @@ type CreateAccountArgs = {
 type FundAccountArgs = {
   userId: string
   amount: number
-  assetCode: string
+  accountId: string
 }
 
 type WithdrawFundsArgs = FundAccountArgs
@@ -183,7 +183,7 @@ export class AccountService implements IAccountService {
   public async fundAccount(args: FundAccountArgs): Promise<void> {
     const existingAccount = await Account.query()
       .where('userId', args.userId)
-      .where('assetCode', args.assetCode)
+      .where('id', args.accountId)
       .first()
     if (!existingAccount) {
       throw new NotFound()
@@ -192,7 +192,7 @@ export class AccountService implements IAccountService {
     // fund amount to wallet account
     const result = await this.deps.rapyd.simulateBankTransferToWallet({
       amount: args.amount,
-      currency: args.assetCode,
+      currency: existingAccount.assetCode,
       issued_bank_account: existingAccount.virtualAccountId
     })
 
@@ -204,7 +204,7 @@ export class AccountService implements IAccountService {
   public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
     const existingAccount = await Account.query()
       .where('userId', args.userId)
-      .where('assetCode', args.assetCode)
+      .where('id', args.accountId)
       .first()
     if (!existingAccount) {
       throw new NotFound()
@@ -212,7 +212,7 @@ export class AccountService implements IAccountService {
 
     // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
     const payoutType = await this.deps.rapyd.getPayoutMethodTypes(
-      args.assetCode
+      existingAccount.assetCode
     )
 
     if (payoutType.status.status !== 'SUCCESS') {
@@ -234,11 +234,11 @@ export class AccountService implements IAccountService {
     const payout = await this.deps.rapyd.withdrawFundsFromAccount({
       beneficiary: userDetails,
       payout_amount: args.amount,
-      payout_currency: args.assetCode,
+      payout_currency: existingAccount.assetCode,
       ewallet: user.rapydWalletId ?? '',
       sender: userDetails,
       sender_country: user.country ?? '',
-      sender_currency: args.assetCode,
+      sender_currency: existingAccount.assetCode,
       beneficiary_entity_type: 'individual',
       sender_entity_type: 'individual',
       payout_method_type: payoutType.data[0].payout_method_type

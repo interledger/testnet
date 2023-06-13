@@ -94,12 +94,12 @@ export class AccountController implements IAccountController {
   ) => {
     try {
       const {
-        body: { amount, assetCode }
+        body: { amount, accountId }
       } = await validate(fundSchema, req)
 
       const userId = req.session.user.id
 
-      await this.deps.accountService.fundAccount({ userId, amount, assetCode })
+      await this.deps.accountService.fundAccount({ userId, amount, accountId })
 
       res.status(200).json({ success: true, message: 'Account funded' })
     } catch (e) {
@@ -114,7 +114,7 @@ export class AccountController implements IAccountController {
   ) => {
     try {
       const {
-        body: { amount, assetCode }
+        body: { amount, accountId }
       } = await validate(withdrawFundsSchema, req)
 
       const userId = req.session.user.id
@@ -122,7 +122,7 @@ export class AccountController implements IAccountController {
       await this.deps.accountService.withdrawFunds({
         userId,
         amount,
-        assetCode
+        accountId
       })
 
       res.status(200).json({ success: true, message: 'Funds withdrawn' })

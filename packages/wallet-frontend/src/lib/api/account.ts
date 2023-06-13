@@ -6,15 +6,14 @@ import {
   type SuccessResponse
 } from '../httpClient'
 
-const fundAccountSchema = z.object({
+export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
   amount: z.coerce
     .number({
       invalid_type_error: 'Please enter a valid amount'
     })
     .min(1, { message: 'Please enter an amount' })
-    .positive(),
-  assetCode: z.string()
+    .positive()
 })
 
 export const withdrawFundsSchema = fundAccountSchema

@@ -115,11 +115,6 @@ export const WithdrawFundsDialog = ({
                       }
                       {...withdrawFundsForm.register('amount')}
                     />
-                    <input
-                      type="hidden"
-                      {...withdrawFundsForm.register('assetCode')}
-                      value={account.assetCode}
-                    />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
                         aria-label="withdraw funds"
