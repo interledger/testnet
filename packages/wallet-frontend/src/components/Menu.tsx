@@ -39,10 +39,6 @@ const menuItems: MenuItemProps[] = [
         href: '/transfer/send'
       },
       {
-        name: 'Pay',
-        href: '/transfer/pay'
-      },
-      {
         name: 'Request',
         href: '/transfer/request'
       }
