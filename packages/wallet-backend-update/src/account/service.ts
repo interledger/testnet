@@ -12,13 +12,13 @@ type CreateAccountArgs = {
   assetId: string
 }
 
-type FundsArgs = {
+type FundAccountArgs = {
   userId: string
   amount: number
   assetCode: string
 }
-type FundAccountArgs = FundsArgs
-type WithdrawFundsArgs = FundsArgs
+
+type WithdrawFundsArgs = FundAccountArgs
 
 interface IAccountService {
   createAccount: (args: CreateAccountArgs) => Promise<Account>

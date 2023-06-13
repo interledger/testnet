@@ -6,7 +6,7 @@ import {
   type SuccessResponse
 } from '../httpClient'
 
-const accountFundsObject = {
+const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
   amount: z.coerce
     .number({
@@ -15,10 +15,9 @@ const accountFundsObject = {
     .min(1, { message: 'Please enter an amount' })
     .positive(),
   assetCode: z.string()
-}
+})
 
-export const fundAccountSchema = z.object(accountFundsObject)
-export const withdrawFundsSchema = z.object(accountFundsObject)
+export const withdrawFundsSchema = fundAccountSchema
 
 export const createAccountSchema = z.object({
   name: z
