@@ -1,6 +1,6 @@
 import { SVGProps } from 'react'
 
-export const Pay = (props: SVGProps<SVGSVGElement>) => {
+export const Withdraw = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       width="33"
