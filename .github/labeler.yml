@@ -6,7 +6,7 @@
   - .github/**/*
 
 'type: documentation':
-  - "**/*.md"
+  - '**/*.md'
 
 'type: source':
   - packages/wallet/backend/src/**/*
