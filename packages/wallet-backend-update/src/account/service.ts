@@ -231,7 +231,7 @@ export class AccountService implements IAccountService {
       name: `${user.firstName} ${user.lastName}`,
       address: user.address ?? ''
     }
-    const payout = await this.deps.rapyd.withdrawFundsFromAccount({
+    const withdrawFunds = await this.deps.rapyd.withdrawFundsFromAccount({
       beneficiary: userDetails,
       payout_amount: args.amount,
       payout_currency: existingAccount.assetCode,
@@ -244,21 +244,9 @@ export class AccountService implements IAccountService {
       payout_method_type: payoutType.data[0].payout_method_type
     })
 
-    if (payout.status.status !== 'SUCCESS') {
+    if (withdrawFunds.status.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to withdraw funds from your account: ${payout.status.message}`
-      )
-    }
-
-    // complete third party/bank payout
-    const completePayoutResponse = await this.deps.rapyd.completePayout({
-      payout: payout.data.id,
-      amount: args.amount
-    })
-
-    if (completePayoutResponse.status.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to withdraw funds from your account: ${completePayoutResponse.status.message}`
+        `Unable to withdraw funds from your account: ${withdrawFunds.status.message}`
       )
     }
   }

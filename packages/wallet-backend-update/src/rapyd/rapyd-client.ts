@@ -38,9 +38,6 @@ interface IRapydClient {
   withdrawFundsFromAccount(
     req: WithdrawFundsFromAccountRequest
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>>
-  completePayout(
-    req: CompletePayoutRequest
-  ): Promise<RapydResponse<CompletePayoutResponse>>
 }
 
 interface RapydClientDependencies {
@@ -182,13 +179,35 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public withdrawFundsFromAccount(
+  public async withdrawFundsFromAccount(
     req: WithdrawFundsFromAccountRequest
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>> {
-    return this.post('payouts', JSON.stringify(req))
+    const payout = await this.post<
+      RapydResponse<WithdrawFundsFromAccountResponse>
+    >('payouts', JSON.stringify(req))
+
+    if (payout.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${payout.status.message}`
+      )
+    }
+
+    // complete third party/bank payout
+    const completePayoutResponse = await this.completePayout({
+      payout: payout.data.id,
+      amount: payout.data.sender_amount
+    })
+
+    if (completePayoutResponse.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${completePayoutResponse.status.message}`
+      )
+    }
+
+    return completePayoutResponse
   }
 
-  public completePayout(
+  private completePayout(
     req: CompletePayoutRequest
   ): Promise<RapydResponse<CompletePayoutResponse>> {
     return this.post(
