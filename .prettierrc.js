@@ -15,5 +15,5 @@ module.exports = {
    * https://tailwindcss.com/blog/automatic-class-sorting-with-prettier
    */
   plugins: [require('prettier-plugin-tailwindcss')],
-  tailwindConfig: './packages/wallet-frontend/tailwind.config.js'
+  tailwindConfig: './packages/wallet/frontend/tailwind.config.js'
 }

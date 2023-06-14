@@ -5,10 +5,13 @@ Example:
     - closes (or fixes) #<issue number>
     - closes (or fixes) #<issue number>
 -->
+
 ### Context
+
 - fixes #
 
 <!--
 Short description of what has changed
 -->
+
 ### Changes
