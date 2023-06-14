@@ -5,6 +5,7 @@
 Thank you for contributing to Testnet, a Rafiki Playground :tada:
 
 Before you begin:
+
 - Have you read the [code of conduct](CODE_OF_CONDUCT.md)?
 - Check out the [existing issues](https://github.com/interledger/testnet/issues) & see if we [accept contributions](#types-of-contributions) for your type of issue.
 
@@ -13,7 +14,7 @@ Before you begin:
 - [Types of contributions](#types-of-contributions)
   - [:mega: Discussions](#mega-discussions)
   - [:beetle: Issues](#beetle-issues)
-  - [:hammer\_and\_wrench: Pull requests](#hammer_and_wrench-pull-requests)
+  - [:hammer_and_wrench: Pull requests](#hammer_and_wrench-pull-requests)
   - [:books: Documentation](#books-documentation)
 - [Working in the testnet repository](#working-in-the-testnet-repository)
   - [Labels](#labels)
@@ -25,29 +26,33 @@ Before you begin:
     - [CI](#ci)
 
 ## Types of contributions
-You can contribute to Testnet in several ways. 
+
+You can contribute to Testnet in several ways.
 
 ### :mega: Discussions
+
 Discussions are where we have conversations about Testnet.
 
 If you would like to discuss topics about the broader ecosystem, have a new idea, or want to show off your work - join us in [discussions](https://github.com/interledger/testnet/discussions).
 
 ### :beetle: Issues
+
 We use GitHub issues to track tasks that contributors can help with. We haven't finalized labels yet for contributors to tackle. If you want to help with work related to an issue, please comment on the issue before starting work on it.
 
 If you've found something that needs fixing, search open issues to see if someone else has reported the same thing. If it's something new, open an issue. We'll use the issue to discuss the problem you want to fix.
 
 ### :hammer_and_wrench: Pull requests
+
 Feel free to fork and create a pull request on changes you think you can contribute.
 
 The team will review your pull request as soon as possible.
 
 ### :books: Documentation
+
 The project is new and available Testnet documentation is a work in progress.
 
-Rafiki has started to maintain public-facing documentation on [rafiki.dev](https://github.com/interledger/rafiki.dev). 
+Rafiki has started to maintain public-facing documentation on [rafiki.dev](https://github.com/interledger/rafiki.dev).
 A list of issues being tracked across the Interledger ecosystem (including rafiki) is maintained in the [Documentation project](https://github.com/orgs/interledger/projects/5/views/1).
-
 
 ## Working in the Testnet repository
 
