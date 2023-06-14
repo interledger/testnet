@@ -20,7 +20,7 @@ services:
     container_name: wallet-frontend
     build:
       context: ../..
-      dockerfile: ./packages/wallet-frontend/Dockerfile-Prod.dev
+      dockerfile: ./packages/wallet/frontend/Dockerfile-Prod.dev
     environment:
       NODE_ENV: development
       PORT: 4003
@@ -38,7 +38,7 @@ services:
     container_name: wallet-backend
     build:
       context: ../..
-      dockerfile: ./packages/wallet-backend/Dockerfile.dev
+      dockerfile: ./packages/wallet/backend/Dockerfile.dev
     depends_on:
       - postgres
       - rafiki-backend

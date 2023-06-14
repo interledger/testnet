@@ -17,18 +17,18 @@ services:
       - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
   # Testnet
-  wallet-backend-update:
-    container_name: wallet-backend-update
+  wallet-backend:
+    container_name: wallet-backend
     build:
       context: ../..
-      dockerfile: ./packages/wallet-backend-update/Dockerfile.dev
+      dockerfile: ./packages/wallet/backend/Dockerfile.dev
     depends_on:
       - postgres
       - rafiki-backend
     environment:
       NODE_ENV: development
       PORT: 3003
-      DATABASE_URL: postgres://wallet_backend_update:wallet_backend_update@postgres/wallet_backend_update
+      DATABASE_URL: postgres://wallet_backend:wallet_backend@postgres/wallet_backend
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
       COOKIE_TTL: 2630000
@@ -96,10 +96,10 @@ services:
       REDIS_URL: redis://redis:6379/0
       PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
-      WEBHOOK_URL: http://wallet-backend-update:3003/webhooks
+      WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
-      EXCHANGE_RATES_URL: http://wallet-backend-update:3003/rates
-      QUOTE_URL: http://wallet-backend-update:3003/quote
+      EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
+      QUOTE_URL: http://wallet-backend:3003/quote
     depends_on:
       - postgres
       - redis
