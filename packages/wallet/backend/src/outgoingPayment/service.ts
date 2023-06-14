@@ -98,21 +98,14 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     const quote = await this.deps.rafikiClient.getQuote(quoteId)
 
     const paymentPointerId = quote.paymentPointerId
-    const amount = quote.receiveAmount
-
-    let description
-    let assetCode = quote.receiveAmount.assetCode
-    let value = quote.receiveAmount.value
-
-    if (!amount) {
+    
       const incomingPayment =
         await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
           quote.receiver
         )
-      description = incomingPayment.description
-      assetCode = incomingPayment.assetCode
-      value = value ?? BigInt(incomingPayment.value)
-    }
+      const description = incomingPayment.description
+      const assetCode = incomingPayment.assetCode
+      const value = BigInt(incomingPayment.value)
 
     const payment = await this.deps.rafikiClient.createOutgoingPayment(
       paymentPointerId,
