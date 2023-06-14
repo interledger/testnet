@@ -1,9 +1,9 @@
-name: "Testnet Environment Setup"
-description: "Installs NodeJS, PNPM, dependencies and PNPM restores cache"
+name: 'Testnet Environment Setup'
+description: 'Installs NodeJS, PNPM, dependencies and PNPM restores cache'
 
 runs:
   # composite allows us to bundle multiple workflow steps into a single action
-  using: "composite"
+  using: 'composite'
 
   steps:
     - name: Setup NodeJS
@@ -17,13 +17,13 @@ runs:
         run_install: false
         # we do not need to specify PNPM's version since we have the `packageManager`
         # property set in `package.json`
-    
+
     - name: Get PNPM store path
       id: pnpm-cache
       shell: bash
       run: |
         echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-      
+
     - name: Setup PNPM cache
       uses: actions/cache@v3
       with:
