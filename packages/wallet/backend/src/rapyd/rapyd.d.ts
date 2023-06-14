@@ -305,3 +305,24 @@ interface RapydHoldResponse {
 
 type RapydReleaseRequest = RapydHoldRequest
 type RapydReleaseResponse = RapydHoldResponse
+
+interface PayoutMethodResponse {
+  payout_method_type: string
+  name: string
+  payout_currencies: string
+}
+
+interface WithdrawFundsFromAccountResponse {
+  id: string
+  payout_method_type: string
+  sender_amount: number
+  sender_currency: string
+  status: string
+}
+
+interface CompletePayoutRequest {
+  payout: string
+  amount: number
+}
+
+type CompletePayoutResponse = WithdrawFundsFromAccountResponse
