@@ -4,9 +4,6 @@ import { Input } from '@/ui/forms/Input'
 export const ApiKeys = () => {
   return (
     <>
-      <div className="mb-5">
-        <h3 className="text-2xl text-turqoise">API Keys</h3>
-      </div>
       <div className="flex w-full flex-col space-y-10 px-10">
         <div className="flex items-center space-x-10">
           <div className="flex-1">

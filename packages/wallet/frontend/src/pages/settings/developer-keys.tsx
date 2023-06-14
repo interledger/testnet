@@ -9,7 +9,7 @@ import Image from 'next/image'
 const DeveloperPage: NextPageWithLayout = () => {
   return (
     <>
-      <PageHeader title="API Settings" message="Edit API details" />
+      <PageHeader title="Developer Keys"/>
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <ApiKeys />
