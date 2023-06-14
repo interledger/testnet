@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const TransactionCircle = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="83"
-      height="54"
+      width="43"
+      height="50"
       viewBox="0 0 43 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const PaperPlane = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="140"
-      height="116"
+      width="50"
+      height="50"
       viewBox="0 0 50 46"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

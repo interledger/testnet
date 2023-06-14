@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const Plus = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="73"
-      height="72"
+      width="43"
+      height="50"
       viewBox="0 0 43 42"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

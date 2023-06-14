@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const MoneyOut = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="84"
-      height="62"
+      width="44"
+      height="50"
       viewBox="0 0 44 42"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

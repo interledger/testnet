@@ -67,6 +67,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
             </span>
           </Link>
           <Link
+            id="request"
             href="/transfer/request"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >

@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const Pointer = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="47"
-      height="59"
+      width="37"
+      height="49"
       viewBox="0 0 37 49"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

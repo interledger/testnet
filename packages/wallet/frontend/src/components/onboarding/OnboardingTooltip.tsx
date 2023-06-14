@@ -17,9 +17,9 @@ export const OnboardingTooltip = ({
   return (
     <div
       {...tooltipProps}
-      className="flex max-w-sm flex-row items-center justify-center rounded-lg bg-white p-3 font-semibold text-green"
+      className="flex max-w-xl items-center rounded-lg bg-white p-3 font-semibold text-green"
     >
-      {IconStep && <IconStep className="mr-5" />}
+      {IconStep && <IconStep className="mr-4 w-20" />}
       <div className="flex flex-col items-start">
         <div className="pb-4">{step.content}</div>
         {index === 0 && (

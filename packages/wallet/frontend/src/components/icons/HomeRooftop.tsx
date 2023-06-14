@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const HomeRooftop = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="81"
-      height="81"
+      width="41"
+      height="41"
       viewBox="0 0 41 41"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

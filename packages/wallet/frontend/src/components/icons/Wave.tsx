@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const Wave = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="78"
-      height="77"
+      width="48"
+      height="80"
       viewBox="0 0 48 47"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

@@ -3,8 +3,8 @@ import { SVGProps } from 'react'
 export const Switch = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      width="520"
-      height="114"
+      width="60"
+      height="54"
       viewBox="0 0 60 54"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
