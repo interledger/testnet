@@ -39,7 +39,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     schema: sendSchema,
     defaultValues: {
       paymentType: PAYMENT_SEND,
-      receiver: ''
+      receiver: isUserFirstTime ? INTERLEDGER_PAYMENT_POINTER : ''
     }
   })
 
