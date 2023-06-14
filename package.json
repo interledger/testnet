@@ -18,7 +18,7 @@
     "prod": "pnpm docker:compose:prod up -d --build",
     "dev": "pnpm docker:compose up -d --build && pnpm wallet-frontend dev",
     "dev:backend:legacy": "pnpm wallet-backend build && pnpm dev && nodemon --watch packages/wallet-backend -e ts --exec 'pnpm docker:compose:legacy up -d --no-deps --build wallet-backend'",
-    "dev:backend:update": "pnpm wallet-backend-update build && pnpm dev:update && nodemon --watch packages/wallet-backend-update -e ts --exec 'pnpm docker:compose up -d --no-deps --build wallet-backend-update'",
+    "dev:backend:update": "pnpm wallet-backend-update build && pnpm dev && nodemon --watch packages/wallet-backend-update -e ts --exec 'pnpm docker:compose up -d --no-deps --build wallet-backend-update'",
     "docker:compose": "docker compose -f ./docker/dev/docker-compose.yml",
     "docker:compose:legacy": "docker compose -f ./docker/dev/docker-compose-legacy.yml",
     "docker:down": "pnpm docker:compose down",

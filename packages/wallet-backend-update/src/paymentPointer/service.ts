@@ -188,4 +188,11 @@ export class PaymentPointerService implements IPaymentPointerService {
       paymentPointerId
     )
   }
+  async getAllACcount(): Promise<any>
+  {
+
+    const allAccount = await PaymentPointer.query()
+    
+    return allAccount 
+  }
 }

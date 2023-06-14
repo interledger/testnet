@@ -160,4 +160,21 @@ export class PaymentPointerController implements IPaymentPointerController {
       next(e)
     }
   }
+  getallAccount = async (
+     _: Request,
+    res: CustomResponse<any>,
+    next: NextFunction
+  ) => {
+    try {
+      let allAccount:any = await this.deps.paymentPointerService.getAllACcount()
+       
+     return res.status(200).json({
+        success: true,
+        message: 'successfull' ,
+        data : allAccount
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
 }

@@ -5,6 +5,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
+// import { PaymentPointer } from '@/paymentPointer/model'
 
 type CreateAccountArgs = {
   userId: string
@@ -116,7 +117,7 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async getAccounts(userId: string): Promise<Account[]> {
+  public async getAccounts(userId: string): Promise<any> {
     const accounts = await Account.query().where('userId', userId)
 
     const user = await User.query().findById(userId)
@@ -137,7 +138,19 @@ export class AccountService implements IAccountService {
         acc.assetScale
       )
     })
-
+    // let accountInPaymentpointer
+    // let allAcounts = 
+    // accounts.map(async (value  )=> {
+    //   let accounts = {
+    //     accountId : value.id ,
+    //     paymentPointers : []
+    //   }
+    //    accountInPaymentpointer = await PaymentPointer.query().where('accountId' , value.id)
+    //   let data : any =  []
+    //   accountInPaymentpointer.forEach((value )=> { data.push( { publicKey : "str" , paymentPointerId : value.id})  })
+    //   accounts['paymentPointers'] = data
+    // })
+  
     return accounts
   }
 
@@ -209,7 +222,7 @@ export class AccountService implements IAccountService {
     if (!account) {
       throw new NotFound()
     }
-
     return account
   }
+
 }

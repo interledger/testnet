@@ -101,7 +101,7 @@ export class App {
     const env = await this.container.resolve('env')
     const authController = await this.container.resolve('authController')
     const userController = await this.container.resolve('userController')
-    const paymentPointerController = await this.container.resolve(
+    const paymentPointerController : any = await this.container.resolve(
       'paymentPointerController'
     )
     const transactionController = await this.container.resolve(
@@ -143,7 +143,7 @@ export class App {
     // payment pointer routes
     router.post(
       '/accounts/:accountId/payment-pointers',
-      isAuth,
+      
       paymentPointerController.create
     )
     router.get(
@@ -156,6 +156,7 @@ export class App {
       isAuth,
       paymentPointerController.getById
     )
+
     router.delete(
       '/payment-pointer/:id',
       isAuth,
@@ -164,11 +165,12 @@ export class App {
 
     router.post(
       '/payment-pointer/key',
-      isAuth,
       paymentPointerController.registerKey
     )
 
     router.get('/settings/generate-key', paymentPointerController.generateKey)
+
+    // router.get('/payment-pointer/getAllAccount', paymentPointerController.getallAccount)
 
     // transactions routes
     router.get(
@@ -196,11 +198,11 @@ export class App {
     router.post('/verify', isAuth, rapydController.verifyIdentity)
 
     // asset
-    router.get('/assets', isAuth, assetController.list)
+    router.get('/assets',isAuth, assetController.list)
 
     // account
-    router.post('/accounts', isAuth, accountController.createAccount)
-    router.get('/accounts', isAuth, accountController.listAccounts)
+    router.post('/accounts', accountController.createAccount)
+    router.get('/accounts', accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
 

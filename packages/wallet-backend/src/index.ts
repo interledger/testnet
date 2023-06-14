@@ -48,7 +48,7 @@ passport.use(jwtStrategy)
 
 app.use(mainRouter)
 
-app.use(errorHandler)
+app.use(errorHandler) 
 
 app.listen(env.PORT, (): void => {
   console.log(`🚀 🌑 | Backend listening on ${env.PORT}`)
