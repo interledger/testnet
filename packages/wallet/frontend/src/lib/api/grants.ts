@@ -51,18 +51,17 @@ const createGrantsService = (): GrantsService => ({
   },
 
   async get(grantId, cookies) {
-    return {
-      success: true,
-      message: 'kukac',
-      data: {
-        id: '8e676506-f787-404b-9400-7dde1a2c8eb1',
-        client: 'https://happy-life-bank-backend/accounts/pfry',
-        state: 'GRANTED',
-        createdAt: '2023-06-14T10:35:08.542Z',
-        access: {
-          identifier: 'https://cloud-nine-wallet-backend/accounts/gfranklin'
-        }
-      }
+    try {
+      const response = await httpClient
+        .get(`grants/${grantId}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<GetGrantResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to fetch grant details.')
     }
   },
 
