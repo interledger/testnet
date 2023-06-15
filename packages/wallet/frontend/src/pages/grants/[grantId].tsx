@@ -20,15 +20,15 @@ type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
   const [openDialog, closeDialog] = useDialog()
+  const router = useRouter()
 
   const handleRevokeConfirmation = async (id: string) => {
-    const router = useRouter()
     const response = await grantsService.delete(id)
     if (response.success) {
       openDialog(
         <SuccessDialog onClose={closeDialog} content={response.message} />
       )
-      router.replace(router.asPath)
+      router.reload()
     } else {
       openDialog(
         <ErrorDialog onClose={closeDialog} content={response.message} />
