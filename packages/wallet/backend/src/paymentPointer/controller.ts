@@ -2,7 +2,7 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { PaymentPointerService } from './service'
-import { paymentPointerSchema } from './validation'
+import { paymentPointerSchema, registerKeySchema } from './validation'
 import { PaymentPointer } from '@/paymentPointer/model'
 
 interface IPaymentPointerController {
@@ -14,6 +14,11 @@ interface IPaymentPointerController {
 interface PaymentPointerControllerDependencies {
   paymentPointerService: PaymentPointerService
   logger: Logger
+}
+
+interface KeyPair {
+  publicKey: string
+  privateKey: string
 }
 
 export class PaymentPointerController implements IPaymentPointerController {
@@ -104,6 +109,52 @@ export class PaymentPointerController implements IPaymentPointerController {
       res.status(200).json({
         success: true,
         message: 'Payment pointer was successfully deleted'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  generateKey = async (
+    _: Request,
+    res: CustomResponse<KeyPair>,
+    next: NextFunction
+  ) => {
+    try {
+      const { privateKey, publicKey } =
+        await this.deps.paymentPointerService.generateKeyPair()
+
+      res.status(200).json({
+        success: true,
+        message: 'Key pair is successfully created',
+        data: { publicKey, privateKey }
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  registerKey = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+
+      const {
+        body: { paymentPointerId, publicKey }
+      } = await validate(registerKeySchema, req)
+
+      await this.deps.paymentPointerService.registerKey(
+        userId,
+        paymentPointerId,
+        publicKey
+      )
+
+      res.status(200).json({
+        success: true,
+        message: 'Public key is successfully registered'
       })
     } catch (e) {
       next(e)
