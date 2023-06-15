@@ -1,4 +1,4 @@
-import { AccountCard } from '@/components/AccountCard'
+import { AccountCard } from '@/components/cards/AccountCard'
 import { New } from '@/components/icons/New'
 import { Request } from '@/components/icons/Request'
 import { Send } from '@/components/icons/Send'
