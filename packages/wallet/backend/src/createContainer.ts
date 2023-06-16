@@ -15,8 +15,8 @@ import { AuthController } from './auth/controller'
 import { AuthService } from './auth/service'
 import { Env } from './config/env'
 import { logger } from './config/logger'
-import { OutgoingPaymentService } from './outgoingPayment/outgoing-payment-service'
-import { QuoteService } from './outgoingPayment/quote-service'
+import { OutgoingPaymentService } from './outgoingPayment/service'
+import { QuoteController } from './quote/controller'
 import { RafikiController } from './rafiki/controller'
 import { RafikiClient } from './rafiki/rafiki-client'
 import { RafikiService } from './rafiki/service'
@@ -27,6 +27,7 @@ import { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import { UserService } from './user/service'
+import { QuoteService } from './quote/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -226,6 +227,16 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton(
+    'outgoingPaymentController',
+    async () =>
+      new OutgoingPaymentController({
+        outgoingPaymentService: await container.resolve(
+          'outgoingPaymentService'
+        )
+      })
+  )
+
+  container.singleton(
     'quoteService',
     async () =>
       new QuoteService({
@@ -238,12 +249,9 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton(
-    'outgoingPaymentController',
+    'quoteController',
     async () =>
-      new OutgoingPaymentController({
-        outgoingPaymentService: await container.resolve(
-          'outgoingPaymentService'
-        ),
+      new QuoteController({
         quoteService: await container.resolve('quoteService')
       })
   )

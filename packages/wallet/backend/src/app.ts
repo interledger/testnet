@@ -1,7 +1,7 @@
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
-import { OutgoingPaymentService } from '@/outgoingPayment/outgoing-payment-service'
+import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { PaymentPointerController } from '@/paymentPointer/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { TransactionController } from '@/transaction/controller'
@@ -32,7 +32,8 @@ import type { UserService } from './user/service'
 import cors from 'cors'
 import { RafikiController } from './rafiki/controller'
 import { RafikiService } from './rafiki/service'
-import { QuoteService } from './outgoingPayment/quote-service'
+import { QuoteController } from './quote/controller'
+import { QuoteService } from './quote/service'
 
 export interface Bindings {
   env: Env
@@ -60,6 +61,7 @@ export interface Bindings {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentController: OutgoingPaymentController
   outgoingPaymentService: OutgoingPaymentService
+  quoteController: QuoteController
   quoteService: QuoteService
 }
 
@@ -115,6 +117,8 @@ export class App {
     const outgoingPaymentController = await this.container.resolve(
       'outgoingPaymentController'
     )
+
+    const quoteController = await this.container.resolve('quoteController')
     const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const accountController = await this.container.resolve('accountController')
@@ -180,12 +184,8 @@ export class App {
     )
 
     // outgoing payment routes
-    router.post('/quote', isAuth, outgoingPaymentController.createQuote)
-    router.post(
-      '/outgoing-payments',
-      isAuth,
-      outgoingPaymentController.createOutgoingPayment
-    )
+    router.post('/quote', isAuth, quoteController.create)
+    router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // rapyd routes
     router.get('/countries', isAuth, rapydController.getCountryNames)
