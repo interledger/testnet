@@ -89,7 +89,7 @@ const createTransfersService = (): TransfersService => ({
   async send(args) {
     try {
       const response = await httpClient
-        .post('outgoing-payments', {
+        .post('quotes', {
           json: {
             paymentPointerId: args.paymentPointerId
               ? args.paymentPointerId.value
@@ -113,7 +113,7 @@ const createTransfersService = (): TransfersService => ({
   async acceptQuote(args) {
     try {
       const response = await httpClient
-        .post('outgoing-payments/accept', {
+        .post('outgoing-payments', {
           json: {
             quoteId: args.quoteId
           }
