@@ -1,4 +1,4 @@
-import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { OutgoingPaymentService } from '@/outgoingPayment/outgoing-payment-service'
 import {
   acceptQuoteSchema,
   outgoingPaymentSchema
@@ -7,19 +7,21 @@ import { validate } from '@/shared/validate'
 import { Transaction } from '@/transaction/model'
 import type { NextFunction, Request } from 'express'
 import { Quote } from '../rafiki/generated/graphql'
+import { QuoteService } from './quote-service'
 
 interface IOutgoingPaymentController {
-  create: ControllerFunction<Quote>
-  acceptQuote: ControllerFunction<Transaction>
+  createQuote: ControllerFunction<Quote>
+  createOutgoingPayment: ControllerFunction<Transaction>
 }
 interface OutgoingPaymentControllerDependencies {
   outgoingPaymentService: OutgoingPaymentService
+  quoteService: QuoteService
 }
 
 export class OutgoingPaymentController implements IOutgoingPaymentController {
   constructor(private deps: OutgoingPaymentControllerDependencies) {}
 
-  create = async (
+  createQuote = async (
     req: Request,
     res: CustomResponse<Quote>,
     next: NextFunction
@@ -30,7 +32,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
         body: { receiver, paymentPointerId, amount, isReceive, description }
       } = await validate(outgoingPaymentSchema, req)
 
-      const quote = await this.deps.outgoingPaymentService.create(
+      const quote = await this.deps.quoteService.create(
         userId,
         paymentPointerId,
         amount,
@@ -44,7 +46,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
     }
   }
 
-  acceptQuote = async (
+  createOutgoingPayment = async (
     req: Request,
     res: CustomResponse<Transaction>,
     next: NextFunction
@@ -54,9 +56,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
         body: { quoteId }
       } = await validate(acceptQuoteSchema, req)
 
-      const transaction = await this.deps.outgoingPaymentService.acceptQuote(
-        quoteId
-      )
+      const transaction = await this.deps.outgoingPaymentService.create(quoteId)
 
       res
         .status(200)

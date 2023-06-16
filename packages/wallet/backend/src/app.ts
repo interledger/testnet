@@ -1,7 +1,7 @@
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
-import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { OutgoingPaymentService } from '@/outgoingPayment/outgoing-payment-service'
 import { PaymentPointerController } from '@/paymentPointer/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { TransactionController } from '@/transaction/controller'
@@ -32,6 +32,7 @@ import type { UserService } from './user/service'
 import cors from 'cors'
 import { RafikiController } from './rafiki/controller'
 import { RafikiService } from './rafiki/service'
+import { QuoteService } from './outgoingPayment/quote-service'
 
 export interface Bindings {
   env: Env
@@ -59,6 +60,7 @@ export interface Bindings {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentController: OutgoingPaymentController
   outgoingPaymentService: OutgoingPaymentService
+  quoteService: QuoteService
 }
 
 export class App {
@@ -178,11 +180,11 @@ export class App {
     )
 
     // outgoing payment routes
-    router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
+    router.post('/quote', isAuth, outgoingPaymentController.createQuote)
     router.post(
       '/outgoing-payments/accept',
       isAuth,
-      outgoingPaymentController.acceptQuote
+      outgoingPaymentController.createOutgoingPayment
     )
 
     // rapyd routes

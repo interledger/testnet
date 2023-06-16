@@ -1,3 +1,10 @@
+import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { OutgoingPaymentController } from '@/outgoingPayment/controller'
+import { PaymentPointerController } from '@/paymentPointer/controller'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { TransactionController } from '@/transaction/controller'
+import { TransactionService } from '@/transaction/service'
 import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
 import { AccountController } from './account/controller'
@@ -8,24 +15,18 @@ import { AuthController } from './auth/controller'
 import { AuthService } from './auth/service'
 import { Env } from './config/env'
 import { logger } from './config/logger'
+import { OutgoingPaymentService } from './outgoingPayment/outgoing-payment-service'
+import { QuoteService } from './outgoingPayment/quote-service'
+import { RafikiController } from './rafiki/controller'
 import { RafikiClient } from './rafiki/rafiki-client'
+import { RafikiService } from './rafiki/service'
+import { RapydController } from './rapyd/controller'
 import { RapydClient } from './rapyd/rapyd-client'
+import { RapydService } from './rapyd/service'
 import { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import { UserService } from './user/service'
-import { RapydService } from './rapyd/service'
-import { RapydController } from './rapyd/controller'
-import { PaymentPointerService } from '@/paymentPointer/service'
-import { PaymentPointerController } from '@/paymentPointer/controller'
-import { TransactionService } from '@/transaction/service'
-import { TransactionController } from '@/transaction/controller'
-import { IncomingPaymentService } from '@/incomingPayment/service'
-import { IncomingPaymentController } from '@/incomingPayment/controller'
-import { OutgoingPaymentService } from '@/outgoingPayment/service'
-import { OutgoingPaymentController } from '@/outgoingPayment/controller'
-import { RafikiController } from './rafiki/controller'
-import { RafikiService } from './rafiki/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -217,11 +218,22 @@ export const createContainer = (config: Env): Container<Bindings> => {
     'outgoingPaymentService',
     async () =>
       new OutgoingPaymentService({
-        accountService: await container.resolve('accountService'),
         rafikiClient: await container.resolve('rafikiClient'),
         incomingPaymentService: await container.resolve(
           'incomingPaymentService'
         )
+      })
+  )
+
+  container.singleton(
+    'quoteService',
+    async () =>
+      new QuoteService({
+        accountService: await container.resolve('accountService'),
+        incomingPaymentService: await container.resolve(
+          'incomingPaymentService'
+        ),
+        rafikiClient: await container.resolve('rafikiClient')
       })
   )
 
@@ -231,7 +243,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
       new OutgoingPaymentController({
         outgoingPaymentService: await container.resolve(
           'outgoingPaymentService'
-        )
+        ),
+        quoteService: await container.resolve('quoteService')
       })
   )
 

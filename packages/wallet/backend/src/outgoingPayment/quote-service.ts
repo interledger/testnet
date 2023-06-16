@@ -1,13 +1,12 @@
-import { AccountService } from '@/account/service'
-import { BadRequest, NotFound } from '@/errors'
-import { PaymentPointer } from '@/paymentPointer/model'
-import { Asset, Quote } from '@/rafiki/generated/graphql'
-import { RafikiClient } from '@/rafiki/rafiki-client'
-import { Transaction } from '@/transaction/model'
-import { IncomingPaymentService } from '@/incomingPayment/service'
-import { incomingPaymentRegexp } from '@/utils/helpers'
+import { AccountService } from '../account/service'
+import { BadRequest, NotFound } from '../errors'
+import { IncomingPaymentService } from '../incomingPayment/service'
+import { PaymentPointer } from '../paymentPointer/model'
+import { Asset, Quote } from '../rafiki/generated/graphql'
+import { RafikiClient } from '../rafiki/rafiki-client'
+import { incomingPaymentRegexp } from '../utils/helpers'
 
-interface IOutgoingPaymentService {
+interface IQuoteService {
   create: (
     userId: string,
     paymentPointerId: string,
@@ -16,17 +15,16 @@ interface IOutgoingPaymentService {
     receiver: string,
     description?: string
   ) => Promise<Quote>
-  acceptQuote: (quoteId: string) => Promise<Transaction>
 }
 
-interface OutgoingServiceDependencies {
+interface QuoteServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
 }
 
-export class OutgoingPaymentService implements IOutgoingPaymentService {
-  constructor(private deps: OutgoingServiceDependencies) {}
+export class QuoteService implements IQuoteService {
+  constructor(private deps: QuoteServiceDependencies) {}
 
   async create(
     userId: string,
@@ -81,36 +79,6 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       receiver: paymentUrl,
       asset,
       amount: isReceive ? undefined : value
-    })
-  }
-
-  async acceptQuote(quoteId: string): Promise<Transaction> {
-    const quote = await this.deps.rafikiClient.getQuote(quoteId)
-
-    const paymentPointerId = quote.paymentPointerId
-
-    const incomingPayment =
-      await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
-        quote.receiver
-      )
-    const description = incomingPayment.description
-    const assetCode = incomingPayment.assetCode
-    const value = BigInt(incomingPayment.value)
-
-    const payment = await this.deps.rafikiClient.createOutgoingPayment(
-      paymentPointerId,
-      quoteId,
-      description
-    )
-
-    return Transaction.query().insert({
-      paymentPointerId: paymentPointerId,
-      paymentId: payment.id,
-      assetCode,
-      value: value,
-      type: 'OUTGOING',
-      status: 'PENDING',
-      description
     })
   }
 
