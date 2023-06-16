@@ -114,9 +114,7 @@ const createTransfersService = (): TransfersService => ({
     try {
       const response = await httpClient
         .post('outgoing-payments', {
-          json: {
-            quoteId: args.quoteId
-          }
+          json: args
         })
         .json<SuccessResponse>()
       return response

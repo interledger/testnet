@@ -175,15 +175,8 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async createOutgoingPayment(
-    paymentPointerId: string,
-    quoteId: string,
-    description?: string
+    input: CreateOutgoingPaymentInput
   ): Promise<OutgoingPayment> {
-    const input: CreateOutgoingPaymentInput = {
-      paymentPointerId,
-      quoteId,
-      description
-    }
     const { createOutgoingPayment: paymentResponse } =
       await this.deps.gqlClient.request<
         CreateOutgoingPaymentMutation,

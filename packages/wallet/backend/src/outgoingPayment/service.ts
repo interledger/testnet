@@ -3,7 +3,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 
 interface IOutgoingPaymentService {
-  create: (quoteId: string) => Promise<Transaction>
+  createById: (quoteId: string) => Promise<Transaction>
 }
 
 interface OutgoingServiceDependencies {
@@ -14,8 +14,12 @@ interface OutgoingServiceDependencies {
 export class OutgoingPaymentService implements IOutgoingPaymentService {
   constructor(private deps: OutgoingServiceDependencies) {}
 
-  async create(quoteId: string): Promise<Transaction> {
+  async createById(quoteId: string): Promise<Transaction> {
     const quote = await this.deps.rafikiClient.getQuote(quoteId)
+
+    const value = BigInt(
+      Number(quote.sendAmount.value) * 10 ** quote.sendAmount.assetScale
+    )
 
     const paymentPointerId = quote.paymentPointerId
 
@@ -23,19 +27,19 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
         quote.receiver
       )
-    const { description, assetCode, value } = incomingPayment
+    const { description, assetCode } = incomingPayment
 
-    const payment = await this.deps.rafikiClient.createOutgoingPayment(
+    const payment = await this.deps.rafikiClient.createOutgoingPayment({
       paymentPointerId,
       quoteId,
       description
-    )
+    })
 
     return Transaction.query().insert({
-      paymentPointerId: paymentPointerId,
+      paymentPointerId,
       paymentId: payment.id,
       assetCode,
-      value: BigInt(value),
+      value: value,
       type: 'OUTGOING',
       status: 'PENDING',
       description

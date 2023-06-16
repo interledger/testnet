@@ -55,5 +55,3 @@ export const getQuoteQuery = gql`
     }
   }
 `
-
-console.log(getQuoteQuery)

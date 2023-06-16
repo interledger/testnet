@@ -1,13 +1,13 @@
+import { Quote } from '@/lib/api/transfers'
 import { Button } from '@/ui/Button'
+import { PAYMENT_RECEIVE } from '@/utils/constants'
+import { formatAmount, getFeesValue } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import type { DialogProps } from '@/lib/types/dialog'
 import { Send } from '../icons/Send'
-import { Quote } from '@/lib/api/transfers'
-import { formatAmount, getFeesValue } from '@/utils/helpers'
-import { PAYMENT_RECEIVE } from '@/utils/constants'
 
-type QuoteDialogProps = Pick<DialogProps, 'onClose'> & {
+type QuoteDialogProps = {
+  onClose: () => void
   onAccept: () => void
   quote: Quote
   paymentType: string
@@ -31,7 +31,7 @@ export const QuoteDialog = ({
     assetScale: quote.sendAmount.assetScale
   })
 
-  const feesAmount = getFeesValue(quote.sendAmount, quote.receiveAmount)
+  const fee = getFeesValue(quote.sendAmount, quote.receiveAmount)
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -69,11 +69,11 @@ export const QuoteDialog = ({
                     <br />
                     Fees paid by{' '}
                     {paymentType === PAYMENT_RECEIVE ? 'you' : 'receiver'}:{' '}
-                    {feesAmount.amount}
+                    {fee.amount}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button
-                      aria-label="close dialog"
+                      aria-label="accept quote"
                       onClick={() => {
                         onAccept()
                         onClose()

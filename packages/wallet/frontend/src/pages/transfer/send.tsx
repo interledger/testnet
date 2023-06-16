@@ -104,8 +104,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       openDialog(
         <SuccessDialog
           onClose={closeDialog}
-          title="Funds sent."
-          content="Funds were successfully sent."
+          title="Money sent."
+          content="Money was successfully sent."
           redirect={`/`}
           redirectText="Go to your accounts"
         />
@@ -141,7 +141,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               } else {
                 openDialog(
                   <ErrorDialog
-                    content="Something went wrong while fetching your Qoute. Please try again"
+                    content="Something went wrong while fetching your quote. Please try again"
                     onClose={closeDialog}
                   />
                 )
