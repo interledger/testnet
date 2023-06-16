@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: 'postgres:15'
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - testnet
+    restart: unless-stopped
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+
+  wallet-frontend:
+    build:
+      context: ../..
+      dockerfile: ./packages/wallet/frontend/Dockerfile.prod
+      args:
+        NEXT_PUBLIC_USE_TEST_KYC_DATA: ${NEXT_PUBLIC_USE_TEST_KYC_DATA}
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+        NEXT_PUBLIC_OPEN_PAYMENTS_HOST: ${NEXT_PUBLIC_OPEN_PAYMENTS_HOST}
+    container_name: wallet-frontend
+    ports:
+      - '4003:4003'
+    restart: always
+
+  # Testnet
+  wallet-backend:
+    build:
+      context: ../..
+      dockerfile: ./packages/wallet/backend/Dockerfile.prod
+    container_name: wallet-backend
+    depends_on:
+      - postgres
+      - rafiki-backend
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      COOKIE_NAME: ${COOKIE_NAME}
+      COOKIE_PASSWORD: ${COOKIE_PASSWORD}
+      COOKIE_TTL: ${COOKIE_TTL}
+      RAPYD_API: ${RAPYD_API}
+      RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
+      RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
+      RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
+      OPEN_PAYMENTS_HOST: ${OPEY_PAYMENTS_HOST}
+      GRAPHQL_ENDPOINT: ${GRAPHQL_ENDPOINT}
+    networks:
+      - testnet
+    ports:
+      - '${PORT}:${PORT}'
+    restart: always
+
+  rafiki-auth:
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    container_name: rafiki-auth
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${RAFIKI_AUTH_PORT} #3006
+      INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT} #3007
+      AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL} #postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
+    depends_on:
+      - postgres
+    networks:
+      - testnet
+    ports:
+      - '${RAFIKI_AUTH_PORT}:${RAFIKI_AUTH_PORT}'
+    restart: always
+
+  rafiki-backend:
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    container_name: rafiki-backend
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PRIVATE_KEY_FILE: ${RAFIKI_BACKEND_PRIVATE_KEY_FILE} #./temp/private-key.pem
+      LOG_LEVEL: ${RAFIKI_BACKEND_LOG_LEVEL} #debug
+      ADMIN_PORT: ${RAFIKI_BACKEND_ADMIN_PORT} #3001
+      CONNECTOR_PORT: ${RAFIKI_BACKEND_CONNECTOR_PORT} #3002
+      OPEN_PAYMENTS_PORT: ${RAFIKI_BACKEND_OPEN_PAYMENTS_PORT} #80
+      DATABASE_URL: ${RAFIKI_BACKEND_DATABASE_URL} #postgresql://rafiki_backend:rafiki_backend@postgres/rafiki_backend
+      USE_TIGERBEETLE: ${RAFIKI_BACKEND_USE_TIGERBEETLE} #false
+      TIGERBEETLE_CLUSTER_ID: ${RAFIKI_BACKEND_TIGERBEETLE_CLUSTED_ID} #0
+      TIGERBEETLE_REPLICA_ADDRESSES: ${RAFIKI_BACKEND_REPLICA_ADDRESSES} #''
+      NONCE_REDIS_KEY: ${RAFIKI_BACKEND_NONCE_REDIS_KEY} #test
+      AUTH_SERVER_GRANT_URL: ${RAFIKI_BACKEND_AUTH_SERVER_GRANT_URL} #http://rafiki-auth:3006
+      AUTH_SERVER_INTROSPECTION_URL: ${RAFIKI_BACKEND_AUTH_SERVER_INTROSPECTION_URL} #http://rafiki-auth:3007
+      ILP_ADDRESS: ${RAFIKI_BACKEND_ILP_ADDRESS} #test.net
+      STREAM_SECRET: ${RAFIKI_BACKEND_STREAM_SECRET} #BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
+      ADMIN_KEY: ${RAFIKI_BACKEND_ADMIN_KEY} # admin
+      PUBLIC_HOST: ${RAFIKI_BACKEND_PUBLIC_HOST} #http://rafiki-backend
+      OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL} #http://rafiki-backend
+      REDIS_URL: ${RAFIKI_BACKEND_REDIS_URL} #redis://redis:6379/0
+      PAYMENT_POINTER_URL: ${RAFIKI_BACKEND_PAYMENT_POINTER_URL} #https://rafiki-backend/.well-known/pay
+      WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL} #http://wallet-backend:3003/webhooks
+      WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT} #60000
+      EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL} #http://wallet-backend:3003/rates
+      QUOTE_URL: ${RAFIKI_BACKEND_QUOTE_URL} #http://wallet-backend:3003/quote
+    networks:
+      - testnet
+    ports:
+      - '3010:80'
+      - '3011:3001'
+    privileged: true
+    restart: always
+    volumes:
+      - ../temp/:/workspace/temp/
+
+  rafiki-frontend:
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.1
+    container_name: rafiki-frontend
+    depends_on:
+      - rafiki-backend
+    environment:
+      PORT: ${RAFIKI_FRONTEND_PORT} #3012
+      GRAPHQL_URL: ${RAFIKi_FRONTEND_GRAPHQL_URL} #http://rafiki-backend:3001/graphql
+    networks:
+      - testnet
+    restart: always
+    privileged: true
+    ports:
+      - '3012:3012'
+
+networks:
+  testnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1
+
+volumes:
+  pg-data:

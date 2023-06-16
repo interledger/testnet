@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "PORT=4003 next dev",
     "build": "next build",
-    "start": "PORT=4003 next start"
+    "start": "next start"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.15",

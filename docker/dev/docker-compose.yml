@@ -14,7 +14,7 @@ services:
       - testnet
     volumes:
       - pg-data:/var/lib/postgresql/data
-      - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
   # Testnet
   wallet-backend:
@@ -156,7 +156,7 @@ services:
     ports:
       - '3040:3000'
     environment:
-      KEY_FILE: ./temp/private-key.pem
+      KEY_FILE: ../temp/private-key.pem
 
   redis:
     image: 'redis:7'
