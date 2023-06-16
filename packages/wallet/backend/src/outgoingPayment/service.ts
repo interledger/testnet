@@ -39,7 +39,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       paymentPointerId,
       paymentId: payment.id,
       assetCode,
-      value: value,
+      value,
       type: 'OUTGOING',
       status: 'PENDING',
       description
