@@ -7,14 +7,7 @@ import { RafikiClient } from '../rafiki/rafiki-client'
 import { incomingPaymentRegexp } from '../utils/helpers'
 
 interface IQuoteService {
-  create: (
-    userId: string,
-    paymentPointerId: string,
-    amount: number,
-    isReceive: boolean,
-    receiver: string,
-    description?: string
-  ) => Promise<Quote>
+  create: (params: CreateQuoteParams) => Promise<Quote>
 }
 
 interface QuoteServiceDependencies {
@@ -31,19 +24,21 @@ type CreateReceiverParams = {
   expiresAt?: string
 }
 
+type CreateQuoteParams = {
+  userId: string
+  paymentPointerId: string
+  amount: number
+  isReceive: boolean
+  receiver: string
+  description?: string
+}
+
 export class QuoteService implements IQuoteService {
   constructor(private deps: QuoteServiceDependencies) {}
 
-  async create(
-    userId: string,
-    paymentPointerId: string,
-    amount: number,
-    isReceive: boolean,
-    receiver: string,
-    description?: string
-  ): Promise<Quote> {
+  async create(params: CreateQuoteParams): Promise<Quote> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
-      paymentPointerId
+      params.paymentPointerId
     )
 
     if (!existingPaymentPointer || !existingPaymentPointer.active) {
@@ -53,14 +48,14 @@ export class QuoteService implements IQuoteService {
     const { assetId, assetCode } =
       await this.deps.accountService.findAccountById(
         existingPaymentPointer.accountId,
-        userId
+        params.userId
       )
     const balance = await this.deps.accountService.getAccountBalance(
-      userId,
+      params.userId,
       assetCode
     )
 
-    if (Number(balance) < amount) {
+    if (Number(balance) < params.amount) {
       throw new BadRequest('Not enough funds in account')
     }
 
@@ -69,24 +64,24 @@ export class QuoteService implements IQuoteService {
       throw new NotFound()
     }
 
-    const value = BigInt((amount * 10 ** asset.scale).toFixed())
+    const value = BigInt((params.amount * 10 ** asset.scale).toFixed())
 
-    let paymentUrl = receiver
-    if (!incomingPaymentRegexp.test(receiver)) {
+    let paymentUrl = params.receiver
+    if (!incomingPaymentRegexp.test(params.receiver)) {
       paymentUrl = await this.createReceiver({
-        amount: isReceive ? value : null,
+        amount: params.isReceive ? value : null,
         asset,
-        paymentPointerUrl: receiver,
-        description,
+        paymentPointerUrl: params.receiver,
+        description: params.description,
         expiresAt: new Date(Date.now() + 1000 * 60).toISOString()
       })
     }
 
-    return await this.deps.rafikiClient.createQuote({
-      paymentPointerId,
+    return this.deps.rafikiClient.createQuote({
+      paymentPointerId: params.paymentPointerId,
       receiver: paymentUrl,
       asset,
-      amount: isReceive ? undefined : value
+      amount: params.isReceive ? undefined : value
     })
   }
 

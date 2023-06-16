@@ -25,14 +25,14 @@ export class QuoteController implements IQuoteController {
         body: { receiver, paymentPointerId, amount, isReceive, description }
       } = await validate(quoteSchema, req)
 
-      const quote = await this.deps.quoteService.create(
+      const quote = await this.deps.quoteService.create({
         userId,
         paymentPointerId,
         amount,
         isReceive,
         receiver,
         description
-      )
+      })
       res.status(200).json({ success: true, message: 'SUCCESS', data: quote })
     } catch (e) {
       next(e)
