@@ -143,7 +143,7 @@ export class App {
     // payment pointer routes
     router.post(
       '/accounts/:accountId/payment-pointers',
-      isAuth,
+
       paymentPointerController.create
     )
     router.get(
@@ -188,11 +188,11 @@ export class App {
     router.post('/verify', isAuth, rapydController.verifyIdentity)
 
     // asset
-    router.get('/assets', isAuth, assetController.list)
+    router.get('/assets', assetController.list)
 
     // account
-    router.post('/accounts', isAuth, accountController.createAccount)
-    router.get('/accounts', isAuth, accountController.listAccounts)
+    router.post('/accounts', accountController.createAccount)
+    router.get('/accounts', accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
     router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
@@ -200,6 +200,13 @@ export class App {
     router.get('/rates', rafikiController.getRates)
     router.post('/quote', rafikiController.createQuote)
     router.post('/webhooks', rafikiController.onWebHook)
+
+    //payment-pointer
+    router.post(
+      '/payment-pointer/register-key',
+      paymentPointerController.registerKey
+    )
+    router.get('/settings/generate-key', paymentPointerController.generateKey)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

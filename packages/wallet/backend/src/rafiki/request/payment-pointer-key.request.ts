@@ -6,12 +6,20 @@ export const createPaymentPointerKeyMutation = gql`
   ) {
     createPaymentPointerKey(input: $input) {
       code
-      success
       message
+      success
       paymentPointerKey {
         id
-        url
-        publicName
+        paymentPointerId
+        revoked
+        jwk {
+          alg
+          crv
+          kid
+          kty
+          x
+        }
+        createdAt
       }
     }
   }

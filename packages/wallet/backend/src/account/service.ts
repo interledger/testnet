@@ -5,6 +5,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
+import { PaymentPointer } from '@/paymentPointer/model'
 
 type CreateAccountArgs = {
   userId: string
@@ -48,7 +49,6 @@ export class AccountService implements IAccountService {
         `An account with the name '${args.name}' already exists`
       )
     }
-
     const asset = await this.deps.rafiki.getAssetById(args.assetId)
 
     if (!asset) {
@@ -59,7 +59,6 @@ export class AccountService implements IAccountService {
       .where('assetCode', asset.code)
       .where('userId', args.userId)
       .first()
-
     if (existingAssetAccount) {
       throw new Conflict(
         `You can only have one account per asset. ${asset.code} account already exists`
@@ -83,7 +82,6 @@ export class AccountService implements IAccountService {
         `Unable to issue virtal account to ewallet: ${result.status?.message}`
       )
     }
-
     // save virtual bank account number to database
     const virtualAccount = result.data
 
@@ -95,7 +93,6 @@ export class AccountService implements IAccountService {
       assetScale: asset.scale,
       virtualAccountId: virtualAccount.id
     })
-
     await this.deps.rapyd.simulateBankTransferToWallet({
       amount: 0,
       currency: account.assetCode,
@@ -132,14 +129,18 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
 
-    accounts.forEach((acc) => {
-      acc.balance = transformBalance(
+    for (let i = 0; i < accounts.length; i++) {
+      accounts[i].balance = transformBalance(
         accountsBalance.data?.find(
-          (rapydAccount) => rapydAccount.currency === acc.assetCode
+          (rapydAccount) => rapydAccount.currency === accounts[i].assetCode
         )?.balance ?? 0,
-        acc.assetScale
+        accounts[i].assetScale
       )
-    })
+      accounts[i].paymentPointers = await PaymentPointer.query().where(
+        'accountId',
+        accounts[i].id
+      )
+    }
 
     return accounts
   }

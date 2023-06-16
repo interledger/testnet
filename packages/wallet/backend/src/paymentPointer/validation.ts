@@ -28,3 +28,10 @@ export const paymentPointerSchema = z.object({
       .min(3, { message: 'Public name must be at least 3 characters long' })
   })
 })
+
+export const developerKeySchema = z.object({
+  body: z.object({
+    paymentPointerId: z.string().trim(),
+    privateKey: z.string().trim()
+  })
+})

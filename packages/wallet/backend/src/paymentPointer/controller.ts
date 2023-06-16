@@ -2,8 +2,9 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { PaymentPointerService } from './service'
-import { paymentPointerSchema, registerKeySchema } from './validation'
+import { paymentPointerSchema, developerKeySchema } from './validation'
 import { PaymentPointer } from '@/paymentPointer/model'
+import { KeyObject } from 'crypto'
 
 interface IPaymentPointerController {
   create: ControllerFunction<PaymentPointer>
@@ -17,8 +18,8 @@ interface PaymentPointerControllerDependencies {
 }
 
 interface KeyPair {
-  publicKey: string
-  privateKey: string
+  publicKey: KeyObject
+  privateKey: KeyObject
 }
 
 export class PaymentPointerController implements IPaymentPointerController {
@@ -116,13 +117,22 @@ export class PaymentPointerController implements IPaymentPointerController {
   }
 
   generateKey = async (
-    _: Request,
+    req: Request,
     res: CustomResponse<KeyPair>,
     next: NextFunction
   ) => {
     try {
+      const userId = req.session.user.id
+
+      const {
+        body: { paymentPointerId }
+      } = await validate(developerKeySchema, req)
+
       const { privateKey, publicKey } =
-        await this.deps.paymentPointerService.generateKeyPair()
+        await this.deps.paymentPointerService.generateKeyPair(
+          userId,
+          paymentPointerId
+        )
 
       res.status(200).json({
         success: true,
@@ -143,13 +153,12 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
 
       const {
-        body: { paymentPointerId, publicKey }
-      } = await validate(registerKeySchema, req)
+        body: { paymentPointerId }
+      } = await validate(developerKeySchema, req)
 
       await this.deps.paymentPointerService.registerKey(
         userId,
-        paymentPointerId,
-        publicKey
+        paymentPointerId
       )
 
       res.status(200).json({

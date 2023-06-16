@@ -3,7 +3,7 @@ import { PaymentPointer } from './model'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import crypto from 'crypto'
+import { KeyObject, createPublicKey, generateKeyPairSync } from 'crypto'
 import { Alg, Crv, Kty } from '@/rafiki/generated/graphql'
 
 interface IPaymentPointerService {
@@ -135,29 +135,13 @@ export class PaymentPointerService implements IPaymentPointerService {
     })
   }
 
-  async generateKeyPair(): Promise<{ privateKey: string; publicKey: string }> {
-    // Generate the key pair
-    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
-      modulusLength: 2048, // Key size in bits
-      publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem' // You can also use 'der' format if needed
-      },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem' // You can also use 'der' format if needed
-      }
-    })
-
-    return { privateKey, publicKey }
-  }
-
-  async registerKey(
+  async generateKeyPair(
     userId: string,
-    paymentPointerId: string,
-    publicKey: string
-  ): Promise<void> {
-    const paymentPointer = await PaymentPointer.query().findById(paymentPointerId)
+    paymentPointerId: string
+  ): Promise<{ privateKey: KeyObject; publicKey: KeyObject }> {
+    const paymentPointer = await PaymentPointer.query().findById(
+      paymentPointerId
+    )
 
     if (!paymentPointer) {
       throw new NotFound()
@@ -170,22 +154,64 @@ export class PaymentPointerService implements IPaymentPointerService {
       userId
     )
 
-    const publicKeyValue = publicKey
-      .replace('-----BEGIN PUBLIC KEY-----', '')
-      .replace('-----END PUBLIC KEY-----', '')
-      .replace(/\n/g, '')
+    // Generate the key pair
+    const { privateKey } = generateKeyPairSync('ed25519')
+    const publicKey = createPublicKey(privateKey)
 
-    const jwk = {
-      alg: Alg.EdDsa,
-      crv: Crv.Ed25519,
-      kid: 'your-key-id',
-      kty: Kty.Okp,
-      x: publicKeyValue
+    await PaymentPointer.query()
+      .findById(paymentPointerId)
+      .patch({
+        publicKey: JSON.stringify(publicKey)
+      })
+
+    return { privateKey, publicKey }
+  }
+
+  async registerKey(userId: string, paymentPointerId: string): Promise<void> {
+    const paymentPointer = await PaymentPointer.query().findById(
+      paymentPointerId
+    )
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
+
+    // Check if the user owns the payment pointer.
+    // This function throws a NotFoundException.
+    await this.deps.accountService.findAccountById(
+      paymentPointer.accountId,
+      userId
+    )
+
+    const publicKey: KeyObject = JSON.parse(paymentPointer.publicKey)
+    if (!publicKey) {
+      throw new Error(`publicKey doesnt' exist.`)
     }
 
     await this.deps.rafikiClient.createRafikiPaymentPointerKey(
-      jwk,
-      paymentPointerId
+      this.generateJwk(paymentPointer.accountId, publicKey),
+      paymentPointer.id
     )
+  }
+
+  generateJwk = (keyId: string, publicKey: KeyObject) => {
+    const jwk = publicKey.export({
+      format: 'jwk'
+    })
+    if (jwk.x === undefined) {
+      throw new Error('Failed to derive public key')
+    }
+
+    if (jwk.crv !== 'Ed25519' || jwk.kty !== 'OKP' || !jwk.x) {
+      throw new Error('Key is not EdDSA-Ed25519')
+    }
+
+    return {
+      alg: Alg.EdDsa,
+      kid: keyId,
+      kty: Kty.Okp,
+      crv: Crv.Ed25519,
+      x: jwk.x
+    }
   }
 }

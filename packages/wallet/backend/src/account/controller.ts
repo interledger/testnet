@@ -30,7 +30,6 @@ export class AccountController implements IAccountController {
       const {
         body: { name, assetId }
       } = await validate(accountSchema, req)
-
       const createAccountResult = await this.deps.accountService.createAccount({
         userId,
         name,
@@ -53,13 +52,11 @@ export class AccountController implements IAccountController {
     const userId = req.session.user.id
 
     try {
-      const getAccountsResult = await this.deps.accountService.getAccounts(
-        userId
-      )
+      const accounts = await this.deps.accountService.getAccounts(userId)
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: getAccountsResult })
+        .json({ success: true, message: 'SUCCESS', data: accounts })
     } catch (e) {
       next(e)
     }
