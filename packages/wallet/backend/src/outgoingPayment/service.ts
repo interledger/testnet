@@ -71,7 +71,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       throw new NotFound()
     }
 
-    const value = BigInt(amount * 10 ** asset.scale)
+    const value = BigInt((amount * 10 ** asset.scale).toFixed())
 
     let paymentUrl = receiver
     if (!incomingPaymentRegexp.test(receiver)) {
