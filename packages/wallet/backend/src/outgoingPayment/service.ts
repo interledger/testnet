@@ -3,7 +3,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 
 interface IOutgoingPaymentService {
-  createById: (quoteId: string) => Promise<Transaction>
+  createByQuoteId: (quoteId: string) => Promise<Transaction>
 }
 
 interface OutgoingServiceDependencies {
@@ -14,7 +14,7 @@ interface OutgoingServiceDependencies {
 export class OutgoingPaymentService implements IOutgoingPaymentService {
   constructor(private deps: OutgoingServiceDependencies) {}
 
-  async createById(quoteId: string): Promise<Transaction> {
+  async createByQuoteId(quoteId: string): Promise<Transaction> {
     const quote = await this.deps.rafikiClient.getQuote(quoteId)
 
     const value = BigInt(

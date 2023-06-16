@@ -24,9 +24,8 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
         body: { quoteId }
       } = await validate(outgoingPaymentSchema, req)
 
-      const transaction = await this.deps.outgoingPaymentService.createById(
-        quoteId
-      )
+      const transaction =
+        await this.deps.outgoingPaymentService.createByQuoteId(quoteId)
 
       res
         .status(200)
