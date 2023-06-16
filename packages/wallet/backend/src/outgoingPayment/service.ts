@@ -25,14 +25,6 @@ interface OutgoingServiceDependencies {
   incomingPaymentService: IncomingPaymentService
 }
 
-// type AcceptQuoteParams = {
-//   paymentPointerId: string
-//   quoteId: string
-//   assetCode: string
-//   value: bigint
-//   description?: string
-// }
-
 export class OutgoingPaymentService implements IOutgoingPaymentService {
   constructor(private deps: OutgoingServiceDependencies) {}
 
