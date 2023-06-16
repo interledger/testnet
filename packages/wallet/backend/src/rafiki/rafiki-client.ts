@@ -57,7 +57,7 @@ interface RafikiClientDependencies {
   gqlClient: GraphQLClient
 }
 
-type CreateIncomingPaymentParams = {
+export type CreateIncomingPaymentParams = {
   paymentPointerId: string
   amount: bigint | null
   asset: Asset

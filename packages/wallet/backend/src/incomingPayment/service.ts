@@ -1,11 +1,13 @@
-import { Transaction } from '@/transaction/model'
 import { AccountService } from '@/account/service'
-import { PaymentDetails } from '@/incomingPayment/controller'
-import { RafikiClient } from '@/rafiki/rafiki-client'
-import { PaymentPointer } from '@/paymentPointer/model'
 import { NotFound } from '@/errors'
+import { PaymentDetails } from '@/incomingPayment/controller'
+import { PaymentPointer } from '@/paymentPointer/model'
+import {
+  CreateIncomingPaymentParams,
+  RafikiClient
+} from '@/rafiki/rafiki-client'
+import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
-import { Asset } from '@/rafiki/generated/graphql'
 
 interface IIncomingPaymentService {
   create: (
@@ -16,11 +18,7 @@ interface IIncomingPaymentService {
   ) => Promise<Transaction>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetails>
   createIncomingPaymentTransactions: (
-    paymentPointerId: string,
-    amount: bigint | null,
-    asset: Asset,
-    description?: string,
-    expiresAt?: string
+    params: CreateIncomingPaymentParams
   ) => Promise<Transaction>
 }
 
@@ -54,12 +52,12 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
-    return this.createIncomingPaymentTransactions(
+    return this.createIncomingPaymentTransactions({
       paymentPointerId,
-      BigInt(amount * 10 ** asset.scale),
+      description,
       asset,
-      description
-    )
+      amount: BigInt(amount * 10 ** asset.scale)
+    })
   }
 
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetails> {
@@ -92,28 +90,18 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   }
 
   async createIncomingPaymentTransactions(
-    paymentPointerId: string,
-    amount: bigint | null,
-    asset: Asset,
-    description?: string,
-    expiresAt?: string
+    params: CreateIncomingPaymentParams
   ): Promise<Transaction> {
-    const response = await this.deps.rafikiClient.createIncomingPayment({
-      amount,
-      asset,
-      description,
-      expiresAt,
-      paymentPointerId
-    })
+    const response = await this.deps.rafikiClient.createIncomingPayment(params)
 
     return Transaction.query().insert({
-      paymentPointerId: paymentPointerId,
+      paymentPointerId: params.paymentPointerId,
       paymentId: response.id,
-      assetCode: asset.code,
-      value: amount,
+      assetCode: params.asset.code,
+      value: params.amount,
       type: 'INCOMING',
       status: 'PENDING',
-      description
+      description: params.description
     })
   }
 }

@@ -23,6 +23,14 @@ interface QuoteServiceDependencies {
   incomingPaymentService: IncomingPaymentService
 }
 
+type CreateReceiverParams = {
+  amount: bigint | null
+  asset: Asset
+  paymentPointerUrl: string
+  description?: string
+  expiresAt?: string
+}
+
 export class QuoteService implements IQuoteService {
   constructor(private deps: QuoteServiceDependencies) {}
 
@@ -65,13 +73,13 @@ export class QuoteService implements IQuoteService {
 
     let paymentUrl = receiver
     if (!incomingPaymentRegexp.test(receiver)) {
-      paymentUrl = await this.createReceiver(
-        isReceive ? value : null,
+      paymentUrl = await this.createReceiver({
+        amount: isReceive ? value : null,
         asset,
-        receiver,
+        paymentPointerUrl: receiver,
         description,
-        new Date(Date.now() + 1000 * 60).toISOString()
-      )
+        expiresAt: new Date(Date.now() + 1000 * 60).toISOString()
+      })
     }
 
     return await this.deps.rafikiClient.createQuote({
@@ -82,28 +90,19 @@ export class QuoteService implements IQuoteService {
     })
   }
 
-  private async createReceiver(
-    amount: bigint | null,
-    asset: Asset,
-    paymentPointerUrl = '',
-    description?: string,
-    expiresAt?: string
-  ): Promise<string> {
+  private async createReceiver(params: CreateReceiverParams): Promise<string> {
     const existingPaymentPointer = await PaymentPointer.query().findOne({
-      url: paymentPointerUrl
+      url: params.paymentPointerUrl ?? ''
     })
     if (!existingPaymentPointer) {
       throw new BadRequest('Invalid payment pointer')
     }
 
     const response =
-      await this.deps.incomingPaymentService.createIncomingPaymentTransactions(
-        existingPaymentPointer.id,
-        amount,
-        asset,
-        description,
-        expiresAt
-      )
+      await this.deps.incomingPaymentService.createIncomingPaymentTransactions({
+        ...params,
+        paymentPointerId: existingPaymentPointer.id
+      })
 
     return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
   }
