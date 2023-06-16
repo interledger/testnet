@@ -9,16 +9,11 @@ import type { NextFunction, Request } from 'express'
 import { Quote } from '../rafiki/generated/graphql'
 
 interface IOutgoingPaymentController {
-  create: ControllerFunction<CreateOutgoingPaymentResponse>
+  create: ControllerFunction<Quote>
+  acceptQuote: ControllerFunction<Transaction>
 }
 interface OutgoingPaymentControllerDependencies {
   outgoingPaymentService: OutgoingPaymentService
-}
-
-export type CreateOutgoingPaymentResponse = Quote & {
-  assetCode: string
-  value: bigint
-  description?: string
 }
 
 export class OutgoingPaymentController implements IOutgoingPaymentController {
@@ -26,7 +21,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
 
   create = async (
     req: Request,
-    res: CustomResponse<CreateOutgoingPaymentResponse>,
+    res: CustomResponse<Quote>,
     next: NextFunction
   ) => {
     try {

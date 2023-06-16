@@ -1,10 +1,9 @@
 import { AccountService } from '@/account/service'
 import { BadRequest, NotFound } from '@/errors'
 import { PaymentPointer } from '@/paymentPointer/model'
-import { Asset } from '@/rafiki/generated/graphql'
+import { Asset, Quote } from '@/rafiki/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
-import { CreateOutgoingPaymentResponse } from './controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { incomingPaymentRegexp } from '@/utils/helpers'
 
@@ -16,7 +15,8 @@ interface IOutgoingPaymentService {
     isReceive: boolean,
     receiver: string,
     description?: string
-  ) => Promise<CreateOutgoingPaymentResponse>
+  ) => Promise<Quote>
+  acceptQuote: (quoteId: string) => Promise<Transaction>
 }
 
 interface OutgoingServiceDependencies {
@@ -35,7 +35,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     isReceive: boolean,
     receiver: string,
     description?: string
-  ): Promise<CreateOutgoingPaymentResponse> {
+  ): Promise<Quote> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
     )
@@ -76,14 +76,12 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       )
     }
 
-    const quote = await this.deps.rafikiClient.createQuote({
+    return await this.deps.rafikiClient.createQuote({
       paymentPointerId,
       receiver: paymentUrl,
       asset,
       amount: isReceive ? undefined : value
     })
-
-    return { ...quote, assetCode, value, description }
   }
 
   async acceptQuote(quoteId: string): Promise<Transaction> {
