@@ -64,7 +64,7 @@ export interface Bindings {
 export class App {
   private server!: Server
 
-  constructor(private container: Container<Bindings>) {}
+  constructor(private container: Container<Bindings>) { }
 
   public async startServer(): Promise<void> {
     const express = await this.init()
@@ -191,8 +191,8 @@ export class App {
     router.get('/assets', assetController.list)
 
     // account
-    router.post('/accounts', accountController.createAccount)
-    router.get('/accounts', accountController.listAccounts)
+    router.post('/accounts', isAuth, accountController.createAccount)
+    router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
     router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
