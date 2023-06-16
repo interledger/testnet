@@ -23,9 +23,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
         quote.receiver
       )
-    const description = incomingPayment.description
-    const assetCode = incomingPayment.assetCode
-    const value = BigInt(incomingPayment.value)
+    const { description, assetCode, value } = incomingPayment
 
     const payment = await this.deps.rafikiClient.createOutgoingPayment(
       paymentPointerId,
@@ -37,7 +35,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       paymentPointerId: paymentPointerId,
       paymentId: payment.id,
       assetCode,
-      value: value,
+      value: BigInt(value),
       type: 'OUTGOING',
       status: 'PENDING',
       description
