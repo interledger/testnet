@@ -182,7 +182,7 @@ export class App {
     // outgoing payment routes
     router.post('/quote', isAuth, outgoingPaymentController.createQuote)
     router.post(
-      '/outgoing-payments/accept',
+      '/outgoing-payments',
       isAuth,
       outgoingPaymentController.createOutgoingPayment
     )
