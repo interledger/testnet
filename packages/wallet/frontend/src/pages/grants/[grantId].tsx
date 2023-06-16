@@ -15,6 +15,7 @@ import { ConfirmationDialog } from '@/components/dialogs/ConfirmationDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -37,49 +38,59 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
   }
 
   return (
-    <div className="flex flex-col items-start md:flex-col">
-      <PageHeader title="Grant details" />
-      <div className="my-16 flex flex-col text-xl text-turqoise">
-        <div>
-          <span className="font-semibold">Client:</span>
-          <span className="font-light"> {grant.client}</span>
+    <>
+      <div className="flex flex-col items-start md:flex-col">
+        <PageHeader title="Grant details" />
+        <div className="my-16 flex flex-col space-y-5 text-xl text-green">
+          <div>
+            <span className="font-semibold">Client:</span>
+            <span className="font-light"> {grant.client}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Created at: </span>
+            <span className="font-light">{grant.createdAt}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Payment Pointer access: </span>
+            <span className="font-light">{grant.access.identifier}</span>
+          </div>
+          <div className="flex items-center">
+            <span className="mr-4 font-semibold">State:</span>
+            <Badge
+              intent={getStatusBadgeIntent(grant.state)}
+              size="md"
+              text={grant.state}
+            />
+          </div>
         </div>
-        <div>
-          <span className="font-semibold">Created at: </span>
-          <span className="font-light">{grant.createdAt}</span>
-        </div>
-        <div>
-          <span className="font-semibold">Payment Pointer access: </span>
-          <span className="font-light">{grant.access.identifier}</span>
-        </div>
-        <div className="flex items-center">
-          <span className="mr-4 font-semibold">State:</span>
-          <Badge
-            intent={getStatusBadgeIntent(grant.state)}
-            size="md"
-            text={grant.state}
-          />
-        </div>
+        {grant.state !== 'REVOKED' && (
+          <Button
+            intent="secondary"
+            aria-label="revoke"
+            onClick={() => {
+              openDialog(
+                <ConfirmationDialog
+                  confirmText="Revoke Grant"
+                  warningText="Are you sure you want to revoke this grant?"
+                  onConfirm={() => handleRevokeConfirmation(grant.id)}
+                  onClose={closeDialog}
+                />
+              )
+            }}
+          >
+            Revoke Grant
+          </Button>
+        )}
       </div>
-      {grant.state !== 'REVOKED' && (
-        <Button
-          intent="secondary"
-          aria-label="revoke"
-          onClick={() => {
-            openDialog(
-              <ConfirmationDialog
-                confirmText="Revoke Grant"
-                warningText="Are you sure you want to revoke this grant?"
-                onConfirm={() => handleRevokeConfirmation(grant.id)}
-                onClose={closeDialog}
-              />
-            )
-          }}
-        >
-          Revoke Grant
-        </Button>
-      )}
-    </div>
+      <Image
+        className="mt-28 object-cover"
+        src="/grants.webp"
+        alt="Grants"
+        quality={100}
+        width={700}
+        height={200}
+      />
+    </>
   )
 }
 
