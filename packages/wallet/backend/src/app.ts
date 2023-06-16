@@ -184,7 +184,7 @@ export class App {
     )
 
     // outgoing payment routes
-    router.post('/quote', isAuth, quoteController.create)
+    router.post('/quotes', isAuth, quoteController.create)
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // rapyd routes
