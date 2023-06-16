@@ -127,12 +127,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             const response = await transfersService.send(data)
             if (response.success) {
               if (response.data) {
+                const quoteId = response.data.id
                 openDialog(
                   <QuoteDialog
                     quote={response.data}
                     paymentType={sendForm.getValues().paymentType}
                     onAccept={() => {
-                      handleAcceptQuote(response.data?.id || '')
+                      handleAcceptQuote(quoteId)
                       closeDialog
                     }}
                     onClose={closeDialog}

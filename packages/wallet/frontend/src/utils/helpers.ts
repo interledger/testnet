@@ -62,7 +62,7 @@ export const getFeesValue = (
   send: FormatAmountArgs,
   receive: FormatAmountArgs
 ): FormattedAmount => {
-  const fees = Number(send.value) - Number(receive.value)
+  const fees = BigInt(send.value) - BigInt(receive.value)
   return formatAmount({
     assetCode: send.assetCode,
     assetScale: send.assetScale,
