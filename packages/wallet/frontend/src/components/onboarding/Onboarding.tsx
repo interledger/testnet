@@ -13,6 +13,7 @@ import { PersonDoc } from '../icons/PersonDoc'
 import { Plus } from '../icons/Plus'
 import { Pointer } from '../icons/Pointer'
 import { Switch } from '../icons/Switch'
+import { ThumbsUp } from '../icons/ThumbsUp'
 import { TransactionCircle } from '../icons/TransactionCircle'
 import { Wave } from '../icons/Wave'
 import { OnboardingTooltip } from './OnboardingTooltip'
@@ -95,6 +96,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 9
+    target: '#acceptQuote',
+    content: `Here is your quote. Let's accept it to test sending money.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: ThumbsUp
+  },
+  {
+    // 10
     target: '#redirectButtonSuccess',
     content: `Money sent, let's explore some more.`,
     disableOverlayClose: true,
@@ -102,14 +111,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 10
+    // 11
     target: '#request',
     content: `You can also request money by creating a payment url, and share it with someone. But for now let's see your previous transaction.`,
     disableOverlayClose: true,
     Icon: MoneyCircle
   },
   {
-    // 11
+    // 12
     target: '#usdAccount',
     content: 'Go inside your USD account.',
     disableOverlayClose: true,
@@ -117,7 +126,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Dollar
   },
   {
-    // 12
+    // 13
     target: '#viewTransactions',
     content: `Let's view all your incoming and outgoing transactions.`,
     disableOverlayClose: true,
@@ -125,7 +134,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: TransactionCircle
   },
   {
-    // 13
+    // 14
     target: '#transactionsList',
     content: `That's it folks. Now you are familiar with Testnet. Continue to play around.`,
     disableOverlayClose: true,
@@ -153,7 +162,7 @@ const Onboarding = () => {
     if (status === STATUS.SKIPPED || status === STATUS.FINISHED) {
       handleOnboardingFinished()
     } else if (type === 'step:after' && action === 'next') {
-      if (index === 0 || index === 10) {
+      if (index === 0 || index === 11) {
         setStepIndex(stepIndex + 1)
       } else {
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
@@ -161,12 +170,12 @@ const Onboarding = () => {
       }
 
       // onboarding steps leading back to Home page
-      if (index === 6 || index == 13) {
+      if (index === 6 || index == 14) {
         router.replace('/')
       }
 
       // set onboarding to never be shown again after final step
-      if (index === 13) {
+      if (index === 14) {
         handleOnboardingFinished()
       }
     }

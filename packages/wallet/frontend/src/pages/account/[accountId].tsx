@@ -47,7 +47,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   useEffect(() => {
     if (isUserFirstTime) {
       // TODO test this without exact index
-      if (stepIndex === 3 || stepIndex === 11) {
+      if (stepIndex === 3 || stepIndex === 12) {
         setTimeout(() => {
           setStepIndex(stepIndex + 1)
           setRunOnboarding(true)

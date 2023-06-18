@@ -34,8 +34,8 @@ export const OnboardingTooltip = ({
         {(index === 2 ||
           index === 6 ||
           index === 8 ||
-          index === 10 ||
-          index === 13) && (
+          index === 11 ||
+          index === 14) && (
           <div className="flex items-start text-center">
             <Button {...primaryProps}>
               {isLastStep ? `Let's go Home` : 'OK'}

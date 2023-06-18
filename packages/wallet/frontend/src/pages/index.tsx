@@ -27,7 +27,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
     if (isUserFirstTime) {
       // TODO check without index
 
-      if (stepIndex === 6 || stepIndex === 9) {
+      if (stepIndex === 6 || stepIndex === 10) {
         setTimeout(() => {
           setStepIndex(stepIndex + 1)
           setRunOnboarding(true)
