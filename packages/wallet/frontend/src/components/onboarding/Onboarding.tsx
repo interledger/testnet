@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { SVGProps } from 'react'
-import ReactJoyride, { CallBackProps, Step } from 'react-joyride'
+import ReactJoyride, { CallBackProps, STATUS, Step } from 'react-joyride'
 import { useOnboardingContext } from '../../lib/context/onboarding'
 import { Dollar } from '../icons/Dollar'
 import { HomeRooftop } from '../icons/HomeRooftop'
@@ -143,9 +143,16 @@ const Onboarding = () => {
     setIsUserFirstTime
   } = useOnboardingContext()
 
+  const handleOnboardingFinished = () => {
+    setIsUserFirstTime(false)
+    window.localStorage.removeItem('isUserFirstTimeOnTestnet')
+  }
+
   const handleCallback = (data: CallBackProps) => {
-    const { action, index, type } = data
-    if (type === 'step:after' && action === 'next') {
+    const { action, index, type, status } = data
+    if (status === STATUS.SKIPPED || status === STATUS.FINISHED) {
+      handleOnboardingFinished()
+    } else if (type === 'step:after' && action === 'next') {
       if (index === 0 || index === 10) {
         setStepIndex(stepIndex + 1)
       } else {
@@ -160,8 +167,7 @@ const Onboarding = () => {
 
       // set onboarding to never be shown again after final step
       if (index === 13) {
-        setIsUserFirstTime(false)
-        window.localStorage.removeItem('isUserFirstTimeOnTestnet')
+        handleOnboardingFinished()
       }
     }
   }
