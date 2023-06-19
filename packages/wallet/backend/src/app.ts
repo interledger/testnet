@@ -64,7 +64,7 @@ export interface Bindings {
 export class App {
   private server!: Server
 
-  constructor(private container: Container<Bindings>) { }
+  constructor(private container: Container<Bindings>) {}
 
   public async startServer(): Promise<void> {
     const express = await this.init()
