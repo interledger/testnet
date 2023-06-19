@@ -144,7 +144,7 @@ export const getServerSideProps: GetServerSideProps<{
     ...trx,
     createdAt: formatDate(trx.createdAt),
     value: formatAmount({
-      value: trx.value,
+      value: trx.value ?? 0,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       assetCode: accountResponse.data!.assetCode,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

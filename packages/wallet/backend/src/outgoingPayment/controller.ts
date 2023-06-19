@@ -1,8 +1,8 @@
-import type { NextFunction, Request } from 'express'
+import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
 import { validate } from '@/shared/validate'
 import { Transaction } from '@/transaction/model'
-import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
-import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import type { NextFunction, Request } from 'express'
 
 interface IOutgoingPaymentController {
   create: ControllerFunction<Transaction>
@@ -20,19 +20,13 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
     next: NextFunction
   ) => {
     try {
-      const userId = req.session.user.id
       const {
-        body: { receiver, paymentPointerId, amount, isReceive, description }
+        body: { quoteId }
       } = await validate(outgoingPaymentSchema, req)
 
-      const transaction = await this.deps.outgoingPaymentService.create(
-        userId,
-        paymentPointerId,
-        amount,
-        isReceive,
-        receiver,
-        description
-      )
+      const transaction =
+        await this.deps.outgoingPaymentService.createByQuoteId(quoteId)
+
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: transaction })

@@ -10,6 +10,7 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 export interface PaymentDetails {
   value: number
   description?: string
+  assetCode: string
 }
 
 interface IIncomingPaymentController {
