@@ -58,7 +58,7 @@ export const FundAccountDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Fund Account
+                  Add Money to Account
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
@@ -128,7 +128,7 @@ export const FundAccountDialog = ({
                         type="submit"
                         loading={fundAccountForm.formState.isSubmitting}
                       >
-                        Fund
+                        Add money
                       </Button>
                       <Button
                         intent="outline"
