@@ -5,7 +5,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { NotFound } from '@/errors'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
-import { Asset } from '@/rafiki/generated/graphql'
+import { Asset } from '@/rafiki/backend/generated/graphql'
 
 interface IIncomingPaymentService {
   create: (

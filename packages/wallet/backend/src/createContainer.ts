@@ -26,7 +26,7 @@ import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { RafikiController } from './rafiki/controller'
 import { RafikiService } from './rafiki/service'
-import { RafikiAuthService } from '@/rafikiAuth/service'
+import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {

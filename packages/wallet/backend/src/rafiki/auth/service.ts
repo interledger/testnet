@@ -2,19 +2,23 @@ import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { GraphQLClient } from 'graphql-request'
 import {
+  getGrantByIdQuery,
   getGrantsQuery,
   revokeGrantMutation
-} from '@/rafikiAuth/request/grant.request'
+} from '@/rafiki/auth/request/grant.request'
 import {
+  GetGrantQuery,
+  GetGrantQueryVariables,
   GetGrantsQuery,
   GetGrantsQueryVariables,
   Grant,
   RevokeGrantMutation,
   RevokeGrantMutationVariables
-} from '@/rafikiAuth/generated/graphql'
+} from '@/rafiki/auth/generated/graphql'
 
 interface IRafikiAuthService {
   listGrants(): Promise<Grant[]>
+  getGrantById(id: string): Promise<Grant>
   revokeGrant(id: string): Promise<void>
 }
 
@@ -45,5 +49,14 @@ export class RafikiAuthService implements IRafikiAuthService {
     if (!response.revokeGrant.success) {
       throw new Error(response.revokeGrant.message)
     }
+  }
+
+  async getGrantById(grantId: string) {
+    const response = await this.deps.gqlClient.request<
+      GetGrantQuery,
+      GetGrantQueryVariables
+    >(getGrantByIdQuery, { grantId })
+
+    return response.grant
   }
 }

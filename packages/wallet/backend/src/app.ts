@@ -32,7 +32,7 @@ import type { UserService } from './user/service'
 import cors from 'cors'
 import { RafikiController } from './rafiki/controller'
 import { RafikiService } from './rafiki/service'
-import { RafikiAuthService } from '@/rafikiAuth/service'
+import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 
 export interface Bindings {
@@ -197,6 +197,7 @@ export class App {
 
     // grant
     router.get('/grants', isAuth, grantController.list)
+    router.get('/grants/:id', isAuth, grantController.getById)
     router.delete('/grants/:id', isAuth, grantController.revoke)
 
     // account

@@ -14,13 +14,14 @@ export const getGrantsQuery = gql`
         cursor
         node {
           id
-          identifier
           client
           state
           access {
             id
             identifier
             createdAt
+            actions
+            type
           }
           createdAt
         }
@@ -31,6 +32,24 @@ export const getGrantsQuery = gql`
         hasPreviousPage
         startCursor
       }
+    }
+  }
+`
+
+export const getGrantByIdQuery = gql`
+  query GetGrantQuery($grantId: String!) {
+    grant(id: $grantId) {
+      id
+      client
+      state
+      access {
+        id
+        identifier
+        createdAt
+        actions
+        type
+      }
+      createdAt
     }
   }
 `

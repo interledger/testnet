@@ -49,7 +49,8 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    # TODO: replace local generated image
+    image: auth_grant:latest
     restart: always
     networks:
       - testnet

@@ -1,9 +1,10 @@
 import { NextFunction, Request } from 'express'
-import { RafikiAuthService } from '@/rafikiAuth/service'
-import { Grant } from '@/rafikiAuth/generated/graphql'
+import { RafikiAuthService } from '@/rafiki/auth/service'
+import { Grant } from '@/rafiki/auth/generated/graphql'
 
 interface IGrantController {
   list: ControllerFunction<Grant[]>
+  getById: ControllerFunction<Grant>
   revoke: ControllerFunction<void>
 }
 interface GrantControllerDependencies {
@@ -31,6 +32,22 @@ export class GrantController implements IGrantController {
       await this.deps.rafikiAuthService.revokeGrant(req.params.id)
 
       res.json({ success: true, message: 'Success' })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  getById = async (
+    req: Request,
+    res: CustomResponse<Grant>,
+    next: NextFunction
+  ) => {
+    try {
+      const grant = await this.deps.rafikiAuthService.getGrantById(
+        req.params.id
+      )
+
+      res.json({ success: true, message: 'Success', data: grant })
     } catch (e) {
       next(e)
     }

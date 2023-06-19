@@ -3,7 +3,7 @@ import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { BadRequest, NotFound } from '@/errors'
 import { PaymentPointer } from '@/paymentPointer/model'
-import { Asset } from '@/rafiki/generated/graphql'
+import { Asset } from '@/rafiki/backend/generated/graphql'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { incomingPaymentRegexp } from '@/utils/helpers'
 
