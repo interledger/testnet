@@ -67,7 +67,7 @@ export const WithdrawFundsDialog = ({
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Withdrawal failed. Please try again"
+                            content="Withdrawal failed. Please try again."
                           />
                         )
                         return

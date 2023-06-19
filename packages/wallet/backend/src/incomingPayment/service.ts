@@ -1,9 +1,12 @@
-import { Transaction } from '@/transaction/model'
 import { AccountService } from '@/account/service'
+import { BadRequest, NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
-import { RafikiClient } from '@/rafiki/rafiki-client'
 import { PaymentPointer } from '@/paymentPointer/model'
-import { NotFound } from '@/errors'
+import {
+  CreateIncomingPaymentParams,
+  RafikiClient
+} from '@/rafiki/rafiki-client'
+import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
 import { Asset } from '@/rafiki/backend/generated/graphql'
 
@@ -16,17 +19,21 @@ interface IIncomingPaymentService {
   ) => Promise<Transaction>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetails>
   createIncomingPaymentTransactions: (
-    paymentPointerId: string,
-    amount: bigint | null,
-    asset: Asset,
-    description?: string,
-    expiresAt?: string
+    params: CreateIncomingPaymentParams
   ) => Promise<Transaction>
 }
 
 interface IncomingPaymentServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
+}
+
+type CreateReceiverParams = {
+  amount: bigint | null
+  asset: Asset
+  paymentPointerUrl: string
+  description?: string
+  expiresAt?: string
 }
 
 export class IncomingPaymentService implements IIncomingPaymentService {
@@ -54,15 +61,15 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
-    return this.createIncomingPaymentTransactions(
+    return this.createIncomingPaymentTransactions({
       paymentPointerId,
-      BigInt(amount * 10 ** asset.scale),
+      description,
       asset,
-      description
-    )
+      amount: BigInt(amount * 10 ** asset.scale)
+    })
   }
 
-  async getPaymentDetailsByUrl(url: string) {
+  async getPaymentDetailsByUrl(url: string): Promise<PaymentDetails> {
     const id = extractUuidFromUrl(url)
 
     const transaction = await Transaction.query()
@@ -86,33 +93,40 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     return {
       description: transaction.description,
-      value: parseFloat(transformAmount(transaction.value ?? 0n, asset.scale))
+      value: parseFloat(transformAmount(transaction.value ?? 0n, asset.scale)),
+      assetCode: transaction.assetCode
     }
   }
 
   async createIncomingPaymentTransactions(
-    paymentPointerId: string,
-    amount: bigint | null,
-    asset: Asset,
-    description?: string,
-    expiresAt?: string
+    params: CreateIncomingPaymentParams
   ): Promise<Transaction> {
-    const response = await this.deps.rafikiClient.createIncomingPayment({
-      amount,
-      asset,
-      description,
-      expiresAt,
-      paymentPointerId
-    })
+    const response = await this.deps.rafikiClient.createIncomingPayment(params)
 
     return Transaction.query().insert({
-      paymentPointerId: paymentPointerId,
+      paymentPointerId: params.paymentPointerId,
       paymentId: response.id,
-      assetCode: asset.code,
-      value: amount,
+      assetCode: params.asset.code,
+      value: params.amount,
       type: 'INCOMING',
       status: 'PENDING',
-      description
+      description: params.description
     })
+  }
+
+  public async createReceiver(params: CreateReceiverParams): Promise<string> {
+    const existingPaymentPointer = await PaymentPointer.query().findOne({
+      url: params.paymentPointerUrl ?? ''
+    })
+    if (!existingPaymentPointer) {
+      throw new BadRequest('Invalid payment pointer')
+    }
+
+    const response = await this.createIncomingPaymentTransactions({
+      ...params,
+      paymentPointerId: existingPaymentPointer.id
+    })
+
+    return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
   }
 }

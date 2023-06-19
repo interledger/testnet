@@ -20,6 +20,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
+import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -60,7 +61,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again"
+          content="Could not load payment pointers. Please try again."
         />
       )
       return
@@ -97,6 +98,25 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     sendForm.setValue('receiver', url)
   }
 
+  const handleAcceptQuote = async (id: string) => {
+    const response = await transfersService.acceptQuote({ quoteId: id })
+    if (response.success) {
+      openDialog(
+        <SuccessDialog
+          onClose={closeDialog}
+          title="Money sent."
+          content="Money was successfully sent."
+          redirect={`/`}
+          redirectText="Go to your accounts"
+        />
+      )
+    } else {
+      openDialog(
+        <ErrorDialog onClose={closeDialog} content={response.message} />
+      )
+    }
+  }
+
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
@@ -106,15 +126,27 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           onSubmit={async (data) => {
             const response = await transfersService.send(data)
             if (response.success) {
-              openDialog(
-                <SuccessDialog
-                  onClose={closeDialog}
-                  title="Funds sent."
-                  content="Funds were successfully sent."
-                  redirect={`/`}
-                  redirectText="Go to your accounts"
-                />
-              )
+              if (response.data) {
+                const quoteId = response.data.id
+                openDialog(
+                  <QuoteDialog
+                    quote={response.data}
+                    paymentType={sendForm.getValues().paymentType}
+                    onAccept={() => {
+                      handleAcceptQuote(quoteId)
+                      closeDialog
+                    }}
+                    onClose={closeDialog}
+                  />
+                )
+              } else {
+                openDialog(
+                  <ErrorDialog
+                    content="Something went wrong while fetching your quote. Please try again."
+                    onClose={closeDialog}
+                  />
+                )
+              }
             } else {
               const { errors, message } = response
               sendForm.setError('root', { message })

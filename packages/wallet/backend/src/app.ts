@@ -32,6 +32,8 @@ import type { UserService } from './user/service'
 import cors from 'cors'
 import { RafikiController } from './rafiki/controller'
 import { RafikiService } from './rafiki/service'
+import { QuoteController } from './quote/controller'
+import { QuoteService } from './quote/service'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 
@@ -61,6 +63,8 @@ export interface Bindings {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentController: OutgoingPaymentController
   outgoingPaymentService: OutgoingPaymentService
+  quoteController: QuoteController
+  quoteService: QuoteService
   rafikiAuthService: RafikiAuthService
   grantController: GrantController
 }
@@ -117,6 +121,8 @@ export class App {
     const outgoingPaymentController = await this.container.resolve(
       'outgoingPaymentController'
     )
+
+    const quoteController = await this.container.resolve('quoteController')
     const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const grantController = await this.container.resolve('grantController')
@@ -183,6 +189,7 @@ export class App {
     )
 
     // outgoing payment routes
+    router.post('/quotes', isAuth, quoteController.create)
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // rapyd routes
