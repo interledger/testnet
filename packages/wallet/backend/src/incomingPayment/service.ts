@@ -1,5 +1,5 @@
 import { AccountService } from '@/account/service'
-import { NotFound } from '@/errors'
+import { BadRequest, NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
 import { PaymentPointer } from '@/paymentPointer/model'
 import {
@@ -8,6 +8,7 @@ import {
 } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
+import { Asset } from '../rafiki/generated/graphql'
 
 interface IIncomingPaymentService {
   create: (
@@ -25,6 +26,14 @@ interface IIncomingPaymentService {
 interface IncomingPaymentServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
+}
+
+type CreateReceiverParams = {
+  amount: bigint | null
+  asset: Asset
+  paymentPointerUrl: string
+  description?: string
+  expiresAt?: string
 }
 
 export class IncomingPaymentService implements IIncomingPaymentService {
@@ -103,5 +112,21 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       status: 'PENDING',
       description: params.description
     })
+  }
+
+  public async createReceiver(params: CreateReceiverParams): Promise<string> {
+    const existingPaymentPointer = await PaymentPointer.query().findOne({
+      url: params.paymentPointerUrl ?? ''
+    })
+    if (!existingPaymentPointer) {
+      throw new BadRequest('Invalid payment pointer')
+    }
+
+    const response = await this.createIncomingPaymentTransactions({
+      ...params,
+      paymentPointerId: existingPaymentPointer.id
+    })
+
+    return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
   }
 }

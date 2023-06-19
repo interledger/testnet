@@ -2,7 +2,7 @@ import { AccountService } from '../account/service'
 import { BadRequest, NotFound } from '../errors'
 import { IncomingPaymentService } from '../incomingPayment/service'
 import { PaymentPointer } from '../paymentPointer/model'
-import { Asset, Quote } from '../rafiki/generated/graphql'
+import { Quote } from '../rafiki/generated/graphql'
 import { RafikiClient } from '../rafiki/rafiki-client'
 import { incomingPaymentRegexp } from '../utils/helpers'
 
@@ -14,14 +14,6 @@ interface QuoteServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
-}
-
-type CreateReceiverParams = {
-  amount: bigint | null
-  asset: Asset
-  paymentPointerUrl: string
-  description?: string
-  expiresAt?: string
 }
 
 type CreateQuoteParams = {
@@ -68,7 +60,7 @@ export class QuoteService implements IQuoteService {
 
     let paymentUrl = params.receiver
     if (!incomingPaymentRegexp.test(params.receiver)) {
-      paymentUrl = await this.createReceiver({
+      paymentUrl = await this.deps.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
         asset,
         paymentPointerUrl: params.receiver,
@@ -83,22 +75,5 @@ export class QuoteService implements IQuoteService {
       asset,
       amount: params.isReceive ? undefined : value
     })
-  }
-
-  private async createReceiver(params: CreateReceiverParams): Promise<string> {
-    const existingPaymentPointer = await PaymentPointer.query().findOne({
-      url: params.paymentPointerUrl ?? ''
-    })
-    if (!existingPaymentPointer) {
-      throw new BadRequest('Invalid payment pointer')
-    }
-
-    const response =
-      await this.deps.incomingPaymentService.createIncomingPaymentTransactions({
-        ...params,
-        paymentPointerId: existingPaymentPointer.id
-      })
-
-    return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
   }
 }
