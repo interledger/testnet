@@ -70,7 +70,7 @@ export const FundAccountDialog = ({
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Fund Account failed. Please try again"
+                            content="Fund Account failed. Please try again."
                           />
                         )
                         return

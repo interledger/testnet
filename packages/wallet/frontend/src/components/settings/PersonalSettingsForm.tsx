@@ -34,7 +34,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
             openDialog(
               <ErrorDialog
                 onClose={closeDialog}
-                content="Update profile failed. Please try again"
+                content="Update profile failed. Please try again."
               />
             )
             return

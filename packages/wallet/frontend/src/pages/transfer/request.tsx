@@ -67,7 +67,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again"
+          content="Could not load payment pointers. Please try again."
         />
       )
       return
