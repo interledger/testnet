@@ -58,14 +58,14 @@ export const formatDate = (date: string): string => {
   })
 }
 
-export const getFeesValue = (
+export const getFee = (
   send: FormatAmountArgs,
   receive: FormatAmountArgs
 ): FormattedAmount => {
-  const fees = BigInt(send.value) - BigInt(receive.value)
+  const fee = BigInt(send.value) - BigInt(receive.value)
   return formatAmount({
     assetCode: send.assetCode,
     assetScale: send.assetScale,
-    value: fees.toString()
+    value: fee.toString()
   })
 }

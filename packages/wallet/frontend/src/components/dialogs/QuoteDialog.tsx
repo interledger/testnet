@@ -1,7 +1,7 @@
 import { Quote } from '@/lib/api/transfers'
 import { Button } from '@/ui/Button'
 import { PAYMENT_RECEIVE } from '@/utils/constants'
-import { formatAmount, getFeesValue } from '@/utils/helpers'
+import { formatAmount, getFee } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Send } from '../icons/Send'
@@ -31,7 +31,7 @@ export const QuoteDialog = ({
     assetScale: quote.sendAmount.assetScale
   })
 
-  const fee = getFeesValue(quote.sendAmount, quote.receiveAmount)
+  const fee = getFee(quote.sendAmount, quote.receiveAmount)
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -67,9 +67,9 @@ export const QuoteDialog = ({
                     <br />
                     Receiver gets: {receiveAmount.amount}
                     <br />
-                    Fees paid by{' '}
-                    {paymentType === PAYMENT_RECEIVE ? 'you' : 'receiver'}:{' '}
-                    {fee.amount}
+                    {paymentType === PAYMENT_RECEIVE
+                      ? `You will be charged a fee of ${fee.amount} for this transaction.`
+                      : `The receiver will cover a fee of ${fee.amount} for this transaction.`}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button

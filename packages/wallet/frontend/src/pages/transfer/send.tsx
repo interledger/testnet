@@ -61,7 +61,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again"
+          content="Could not load payment pointers. Please try again."
         />
       )
       return
@@ -142,7 +142,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               } else {
                 openDialog(
                   <ErrorDialog
-                    content="Something went wrong while fetching your quote. Please try again"
+                    content="Something went wrong while fetching your quote. Please try again."
                     onClose={closeDialog}
                   />
                 )
