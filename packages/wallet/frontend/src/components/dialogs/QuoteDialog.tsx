@@ -1,10 +1,11 @@
 import { Quote } from '@/lib/api/transfers'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 import { Button } from '@/ui/Button'
 import { PAYMENT_RECEIVE } from '@/utils/constants'
 import { formatAmount, getFee } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { Send } from '../icons/Send'
+import { PaperPlane } from '../icons/PaperPlane'
 
 type QuoteDialogProps = {
   onClose: () => void
@@ -19,6 +20,7 @@ export const QuoteDialog = ({
   quote,
   paymentType
 }: QuoteDialogProps) => {
+  const { setRunOnboarding, stepIndex, setStepIndex } = useOnboardingContext()
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
     assetCode: quote.receiveAmount.assetCode,
@@ -61,7 +63,7 @@ export const QuoteDialog = ({
             >
               <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white px-4 py-8 shadow-xl">
                 <div className="flex flex-col items-center justify-center px-4">
-                  <Send strokeWidth={2} className="h-16 w-16" />
+                  <PaperPlane strokeWidth={2} className="h-16 w-16" />
                   <p className="text-center font-semibold text-turqoise">
                     You will be deducted: {sendAmount.amount}
                     <br />
@@ -73,10 +75,13 @@ export const QuoteDialog = ({
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button
+                      id="acceptQuote"
                       aria-label="accept quote"
                       onClick={() => {
                         onAccept()
                         onClose()
+                        setRunOnboarding(false)
+                        setStepIndex(stepIndex + 1)
                       }}
                     >
                       Accept Quote

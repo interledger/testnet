@@ -46,13 +46,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      // TODO test this without exact index
-      if (stepIndex === 3 || stepIndex === 12) {
-        setTimeout(() => {
-          setStepIndex(stepIndex + 1)
-          setRunOnboarding(true)
-        }, 500)
-      }
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

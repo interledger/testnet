@@ -89,15 +89,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 8
     target: '#sendReceive',
-    content: `You have a Switch here. When it's on 'send', you are sending money and you don't care about the fees.
-     When it's on 'received', the amount entered will be exactly the one received by the other end, you might end up paying extra for fees.`,
+    content: `You have a Switch here, 'send' means you don't care about the fees, 'received', means you will pay the fees.`,
     disableOverlayClose: true,
     Icon: Switch
   },
   {
     // 9
     target: '#acceptQuote',
-    content: `Here is your quote. Let's accept it to test sending money.`,
+    content: `Here is your quote. Let's accept it to continue sending the money.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: ThumbsUp

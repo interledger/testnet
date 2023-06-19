@@ -25,14 +25,10 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
 
   useEffect(() => {
     if (isUserFirstTime) {
-      // TODO check without index
-
-      if (stepIndex === 6 || stepIndex === 10) {
-        setTimeout(() => {
-          setStepIndex(stepIndex + 1)
-          setRunOnboarding(true)
-        }, 500)
-      }
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

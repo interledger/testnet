@@ -135,7 +135,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         />
       )
       if (isUserFirstTime) {
-        setStepIndex(stepIndex + 1)
         setRunOnboarding(true)
       }
     } else {
@@ -167,6 +166,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                     onClose={closeDialog}
                   />
                 )
+                if (isUserFirstTime) {
+                  setStepIndex(stepIndex + 1)
+                  setRunOnboarding(true)
+                }
               } else {
                 openDialog(
                   <ErrorDialog

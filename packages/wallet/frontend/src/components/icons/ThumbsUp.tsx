@@ -5,7 +5,7 @@ export const ThumbsUp = (props: SVGProps<SVGSVGElement>) => {
     <svg
       width="96"
       height="85"
-      viewBox="0 0 96 85"
+      viewBox="0 0 85 85"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
