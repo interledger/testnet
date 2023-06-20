@@ -1,38 +1,61 @@
-FROM node:lts-slim
+FROM node:18-bullseye-slim as base
 
-# Set the working directory
-WORKDIR /home/testnet
-
-ARG PORT
-ARG NEXT_PUBLIC_BACKEND_URL
-ARG NEXT_PUBLIC_OPEN_PAYMENTS_HOST
-ARG NEXT_PUBLIC_USE_TEST_KYC_DATA
-
-ENV NEXT_PUBLIC_USE_TEST_KYC_DATA=$NEXT_PUBLIC_USE_TEST_KYC_DATA \
-    NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL \
-    NEXT_PUBLIC_OPEN_PAYMENTS_HOST=$NEXT_PUBLIC_OPEN_PAYMENTS_HOST \
-    PORT=$PORT
+WORKDIR /testnet
 
 RUN apt-get update && \
     apt-get install -y python3 build-essential && \
     apt-get clean
 
-# Install PNPM
 RUN corepack enable
 RUN corepack prepare pnpm@8.6.2 --activate
 
-# Copy lockfile, NVM and NPM configuration to the working directory
-COPY pnpm-lock.yaml .nvmrc .npmrc ./
+FROM base AS deps 
 
-# Fetch packages from lockfile (https://pnpm.io/cli/fetch#usage-scenario)
-RUN pnpm fetch
+WORKDIR /testnet
 
-# Add everything to the working directory
-ADD . ./
+ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
+RUN --mount=type=cache,id=pnpm-store,target=/home/testnet/.pnpm-store \
+    pnpm fetch
+RUN pnpm install --frozen-lockfile
 
-# Install packages from virtual store
-RUN pnpm install -r --offline
 
+FROM base AS prod-deps
+
+WORKDIR /testnet
+
+ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
+COPY --from=deps /testnet/node_modules /testnet/node_modules
+COPY --from=deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
+RUN pnpm prune --prod
+
+FROM base AS builder
+
+WORKDIR /testnet
+
+ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+ADD .eslintrc.js tsconfig.base.json ./
+ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
+ADD packages/wallet/frontend/ ./packages/wallet/frontend/
+COPY --from=deps /testnet/node_modules /testnet/node_modules
+COPY --from=deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
+RUN ls -l /testnet/packages/wallet/frontend
 RUN pnpm wallet:frontend build
 
-CMD pnpm wallet:frontend start -p ${PORT}
+FROM base
+
+ARG PORT
+
+
+ENV PORT=$PORT
+
+WORKDIR /testnet
+
+ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
+COPY --from=prod-deps /testnet/node_modules /testnet/node_modules
+COPY --from=prod-deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
+COPY --from=builder /testnet/packages/wallet/frontend/.next /testnet/packages/wallet/frontend/.next
+
+CMD ["pnpm", "wallet:frontend", "start", "-p", "${PORT}"]
