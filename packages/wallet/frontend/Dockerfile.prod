@@ -1,10 +1,12 @@
-FROM node:18-bullseye-slim as base
+FROM node:18-alpine as base
 
 WORKDIR /testnet
 
-RUN apt-get update && \
-    apt-get install -y python3 build-essential && \
-    apt-get clean
+RUN apk add --no-cache --virtual .gyp \
+    libc6-compat \
+    python3 \
+    make \
+    g++
 
 RUN corepack enable
 RUN corepack prepare pnpm@8.6.2 --activate
@@ -13,49 +15,30 @@ FROM base AS deps
 
 WORKDIR /testnet
 
-ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
-ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
-RUN --mount=type=cache,id=pnpm-store,target=/home/testnet/.pnpm-store \
-    pnpm fetch
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
+RUN pnpm fetch
 RUN pnpm install --frozen-lockfile
-
-
-FROM base AS prod-deps
-
-WORKDIR /testnet
-
-ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
-ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
-COPY --from=deps /testnet/node_modules /testnet/node_modules
-COPY --from=deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
-RUN pnpm prune --prod
 
 FROM base AS builder
 
 WORKDIR /testnet
 
-ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
-ADD .eslintrc.js tsconfig.base.json ./
-ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
-ADD packages/wallet/frontend/ ./packages/wallet/frontend/
 COPY --from=deps /testnet/node_modules /testnet/node_modules
 COPY --from=deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
-RUN ls -l /testnet/packages/wallet/frontend
+COPY . .
 RUN pnpm wallet:frontend build
 
-FROM base
-
-ARG PORT
-
-
-ENV PORT=$PORT
+FROM base AS runner
 
 WORKDIR /testnet
 
-ADD package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
-ADD packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
-COPY --from=prod-deps /testnet/node_modules /testnet/node_modules
-COPY --from=prod-deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
-COPY --from=builder /testnet/packages/wallet/frontend/.next /testnet/packages/wallet/frontend/.next
+ARG PORT
 
-CMD ["pnpm", "wallet:frontend", "start", "-p", "${PORT}"]
+ENV NODE_ENV=production
+ENV PORT=$PORT
+
+COPY --from=builder /testnet/packages/wallet/frontend/.next/standalone ./
+COPY --from=builder /testnet/packages/wallet/frontend/.next/static /testnet/packages/wallet/frontend/.next/static
+
+CMD ["node", "packages/wallet/frontend/server.js"]

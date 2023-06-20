@@ -15,6 +15,7 @@ services:
   #     - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
   wallet-frontend:
+    hostname: wallet-frontend
     build:
       context: ../..
       dockerfile: ./packages/wallet/frontend/Dockerfile.prod
