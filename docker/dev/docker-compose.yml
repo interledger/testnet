@@ -68,7 +68,7 @@ services:
     restart: always
     privileged: true
     volumes:
-      - ./temp/:/workspace/temp/
+      - ../temp/:/workspace/temp/
     ports:
       - '3010:80'
       - '3011:3001'
@@ -151,12 +151,12 @@ services:
       context: ../../
       dockerfile: ./docker/dev/local-http-signatures/Dockerfile
     volumes:
-      - ./temp/:/workspace/temp/
+      - ../temp/:/workspace/temp/
     restart: always
     ports:
       - '3040:3000'
     environment:
-      KEY_FILE: ../temp/private-key.pem
+      KEY_FILE: ./temp/private-key.pem
 
   redis:
     image: 'redis:7'
