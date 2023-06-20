@@ -82,7 +82,6 @@ export class RafikiClient implements IRafikiClient {
       CreateAssetMutation,
       CreateAssetMutationVariables
     >(createAssetMutation, { input: { code, scale } })
-    console.log('asset created response ---->', response)
     if (!response.createAsset.success || !response.createAsset.asset) {
       throw new Error('Data was empty')
     }
@@ -243,17 +242,14 @@ export class RafikiClient implements IRafikiClient {
         jwk
       }
     })
-    console.log('response ---->', response)
+
     if (!response.createPaymentPointerKey.success) {
       throw new Error(response.createPaymentPointerKey.message)
     }
     if (!response.createPaymentPointerKey.paymentPointerKey) {
       throw new Error('Unable to fetch created payment pointer key')
     }
-    console.log(
-      'response.createPaymentPointerKey.paymentPointerKey --->',
-      response.createPaymentPointerKey.paymentPointerKey
-    )
+
     return response.createPaymentPointerKey.paymentPointerKey
   }
 

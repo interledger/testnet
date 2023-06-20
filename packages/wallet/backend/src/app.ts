@@ -143,7 +143,7 @@ export class App {
     // payment pointer routes
     router.post(
       '/accounts/:accountId/payment-pointers',
-
+      isAuth,
       paymentPointerController.create
     )
     router.get(
@@ -188,7 +188,7 @@ export class App {
     router.post('/verify', isAuth, rapydController.verifyIdentity)
 
     // asset
-    router.get('/assets', assetController.list)
+    router.get('/assets', isAuth, assetController.list)
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)
@@ -204,9 +204,14 @@ export class App {
     //payment-pointer
     router.post(
       '/payment-pointer/register-key',
+      isAuth,
       paymentPointerController.registerKey
     )
-    router.get('/settings/generate-key', paymentPointerController.generateKey)
+    router.get(
+      '/settings/generate-key',
+      isAuth,
+      paymentPointerController.generateKey
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

@@ -16,7 +16,7 @@ export class Account extends BaseModel {
   public user!: User
   public paymentPointers!: Array<PaymentPointer>
 
-  static relationMappings = {
+  static relationMappings = () => ({
     user: {
       relation: Model.BelongsToOneRelation,
       modelClass: User,
@@ -33,5 +33,5 @@ export class Account extends BaseModel {
         to: 'paymentPointers.accountId'
       }
     }
-  }
+  })
 }

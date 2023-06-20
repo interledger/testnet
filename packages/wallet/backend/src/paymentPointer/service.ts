@@ -135,10 +135,10 @@ export class PaymentPointerService implements IPaymentPointerService {
     })
   }
 
-  async generateKeyPair(
-    userId: string,
-    paymentPointerId: string
-  ): Promise<{ privateKey: KeyObject; publicKey: KeyObject }> {
+  async getPaymentPointerAfterValidation(
+    paymentPointerId: string,
+    userId: string
+  ) {
     const paymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
     )
@@ -154,6 +154,15 @@ export class PaymentPointerService implements IPaymentPointerService {
       userId
     )
 
+    return paymentPointer
+  }
+
+  async generateKeyPair(
+    userId: string,
+    paymentPointerId: string
+  ): Promise<{ privateKey: KeyObject; publicKey: KeyObject }> {
+    await this.getPaymentPointerAfterValidation(paymentPointerId, userId)
+
     // Generate the key pair
     const { privateKey } = generateKeyPairSync('ed25519')
     const publicKey = createPublicKey(privateKey)
@@ -168,18 +177,8 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async registerKey(userId: string, paymentPointerId: string): Promise<void> {
-    const paymentPointer = await PaymentPointer.query().findById(
-      paymentPointerId
-    )
-
-    if (!paymentPointer) {
-      throw new NotFound()
-    }
-
-    // Check if the user owns the payment pointer.
-    // This function throws a NotFoundException.
-    await this.deps.accountService.findAccountById(
-      paymentPointer.accountId,
+    const paymentPointer = await this.getPaymentPointerAfterValidation(
+      paymentPointerId,
       userId
     )
 
