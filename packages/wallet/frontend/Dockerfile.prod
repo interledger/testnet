@@ -2,7 +2,7 @@ FROM node:18-alpine as base
 
 WORKDIR /testnet
 
-RUN apk add --no-cache --virtual .gyp \
+RUN apk add --no-cache \
     libc6-compat \
     python3 \
     make \
@@ -39,6 +39,7 @@ ENV NODE_ENV=production
 ENV PORT=$PORT
 
 COPY --from=builder /testnet/packages/wallet/frontend/.next/standalone ./
+COPY --from=builder /testnet/packages/wallet/frontend/public /testnet/packages/wallet/frontend/public
 COPY --from=builder /testnet/packages/wallet/frontend/.next/static /testnet/packages/wallet/frontend/.next/static
 
 CMD ["node", "packages/wallet/frontend/server.js"]
