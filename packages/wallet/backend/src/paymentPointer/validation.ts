@@ -31,7 +31,6 @@ export const paymentPointerSchema = z.object({
 
 export const developerKeySchema = z.object({
   body: z.object({
-    paymentPointerId: z.string().trim().uuid(),
-    privateKey: z.string().trim()
+    paymentPointerId: z.string().trim().uuid()
   })
 })
