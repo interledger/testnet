@@ -38,7 +38,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
       }}
     >
       <div className="flex aspect-square flex-1 flex-col p-2" id={idOnboarding}>
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-white text-2xl font-semibold mix-blend-screen">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-white text-xl font-semibold mix-blend-screen">
           {formattedAmount.symbol}
         </span>
         <div className="mt-auto text-white">
