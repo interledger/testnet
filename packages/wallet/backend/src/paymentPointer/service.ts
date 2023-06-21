@@ -3,7 +3,7 @@ import { PaymentPointer } from './model'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { KeyObject, createPublicKey, generateKeyPairSync } from 'crypto'
+import { createPublicKey, generateKeyPairSync } from 'crypto'
 import { Alg, Crv, Kty } from '@/rafiki/generated/graphql'
 
 interface IPaymentPointerService {
@@ -160,20 +160,31 @@ export class PaymentPointerService implements IPaymentPointerService {
   async generateKeyPair(
     userId: string,
     paymentPointerId: string
-  ): Promise<{ privateKey: KeyObject; publicKey: KeyObject }> {
+  ): Promise<{ privateKey: string; publicKey: string }> {
     await this.getPaymentPointerAfterValidation(paymentPointerId, userId)
 
     // Generate the key pair
     const { privateKey } = generateKeyPairSync('ed25519')
     const publicKey = createPublicKey(privateKey)
+    const jwk = publicKey.export({
+      format: 'jwk'
+    })
+    const publicKeyPEM = publicKey
+      .export({ type: 'spki', format: 'pem' })
+      .toString()
+    const privateKeyPEM = privateKey
+      .export({ type: 'pkcs8', format: 'pem' })
+      .toString()
 
     await PaymentPointer.query()
       .findById(paymentPointerId)
       .patch({
-        publicKey: JSON.stringify(publicKey)
+        jwk: JSON.stringify(jwk),
+        privateKey: privateKeyPEM,
+        publicKey: publicKeyPEM
       })
 
-    return { privateKey, publicKey }
+    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM }
   }
 
   async registerKey(userId: string, paymentPointerId: string): Promise<void> {
@@ -182,21 +193,20 @@ export class PaymentPointerService implements IPaymentPointerService {
       userId
     )
 
-    const publicKey: KeyObject = JSON.parse(paymentPointer.publicKey)
-    if (!publicKey) {
-      throw new Error(`publicKey doesnt' exist.`)
+    const jwkStr = paymentPointer.jwk
+    if (!jwkStr) {
+      throw new Error(`jwk doesnt' exist.`)
     }
 
     await this.deps.rafikiClient.createRafikiPaymentPointerKey(
-      this.generateJwk(paymentPointer.accountId, publicKey),
+      this.generateJwk(paymentPointer.accountId, jwkStr),
       paymentPointer.id
     )
   }
 
-  generateJwk = (keyId: string, publicKey: KeyObject) => {
-    const jwk = publicKey.export({
-      format: 'jwk'
-    })
+  generateJwk = (keyId: string, jwkStr: string) => {
+    const jwk = JSON.parse(jwkStr)
+
     if (jwk.x === undefined) {
       throw new Error('Failed to derive public key')
     }

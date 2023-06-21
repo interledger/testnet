@@ -4,7 +4,6 @@ import { validate } from '@/shared/validate'
 import { PaymentPointerService } from './service'
 import { paymentPointerSchema, developerKeySchema } from './validation'
 import { PaymentPointer } from '@/paymentPointer/model'
-import { KeyObject } from 'crypto'
 
 interface IPaymentPointerController {
   create: ControllerFunction<PaymentPointer>
@@ -18,8 +17,8 @@ interface PaymentPointerControllerDependencies {
 }
 
 interface KeyPair {
-  publicKey: KeyObject
-  privateKey: KeyObject
+  publicKey: string
+  privateKey: string
 }
 
 export class PaymentPointerController implements IPaymentPointerController {
@@ -137,7 +136,7 @@ export class PaymentPointerController implements IPaymentPointerController {
       res.status(200).json({
         success: true,
         message: 'Key pair is successfully created',
-        data: { publicKey, privateKey }
+        data: { privateKey, publicKey }
       })
     } catch (e) {
       next(e)
