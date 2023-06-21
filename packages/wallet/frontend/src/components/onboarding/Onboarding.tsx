@@ -42,7 +42,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 2
     target: '#createAccountForm',
-    content: 'Add a name and create your USD account.',
+    content: 'Add a name to your USD account.',
     placement: 'center',
     disableOverlayClose: true,
     Icon: Person
@@ -58,7 +58,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 4
     target: '#paymentPointer',
-    content: `Let's add a payment pointer to your USD account.`,
+    content: `Let's add a payment pointer to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Plus
@@ -81,7 +81,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 7
     target: '#send',
-    content: 'Send money using either payment pointer or payment url.',
+    content: 'Send money using either payment pointer or incoming payment url.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: MoneyOut
@@ -135,7 +135,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 14
     target: '#transactionsList',
-    content: `That's it folks. Now you are familiar with Testnet. Continue to play around.`,
+    content: `This is your transaction list for this payment pointer. Now you are familiar with the basics of Testnet. Continue to play around.`,
     disableOverlayClose: true,
     Icon: HomeRooftop
   }
