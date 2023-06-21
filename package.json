@@ -27,8 +27,8 @@
     "prettier:check": "prettier --config '.prettierrc.js' --check .",
     "prod": "pnpm compose:prod up -d --build",
     "prod:down": "pnpm compose:prod down",
-    "wallet:backend": "pnpm --filter wallet/backend --",
-    "wallet:frontend": "pnpm --filter wallet/frontend --"
+    "wallet:backend": "pnpm --filter @wallet/backend --",
+    "wallet:frontend": "pnpm --filter @wallet/frontend --"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.59.11",
