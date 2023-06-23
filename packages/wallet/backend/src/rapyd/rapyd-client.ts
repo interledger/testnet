@@ -1,49 +1,47 @@
+import { Env } from '@/config/env'
+import { User } from '@/user/model'
 import axios, { AxiosError } from 'axios'
 import crypto from 'crypto-js'
 import { Logger } from 'winston'
-import { Env } from '@/config/env'
-import { User } from '@/user/model'
+import { AnyZodObject, ZodEffects, z } from 'zod'
 import {
-  RapydWallet,
-  RapydProfile,
-  RapydIdentityRequest,
-  RapydIdentityResponse,
-  RapydDepositRequest,
-  RapydDepositResponse,
-  RapydHoldRequest,
-  RapydHoldResponse,
-  RapydReleaseRequest,
-  RapydReleaseResponse,
-  RapydTransferRequest,
-  RapydSetTransferResponse,
-  RapydAccountBalance,
-  RapydDocumentType,
-  RapydCountry,
-  VirtualAccountRequest,
-  VirtualAccountResponse,
-  SimulateBankTransferToWalletRequest,
-  SimulateBankTransferToWalletResponse,
-  WithdrawFundsFromAccountResponse,
-  PayoutMethodResponse,
   CompletePayoutRequest,
   CompletePayoutResponse,
-  RapydSetTransferResponseRequest,
-  RapydResponse,
-  RapydWalletSchema,
-  RapydHoldResponseSchema,
-  RapydIdentityResponseSchema,
+  CompletePayoutResponseSchema,
+  PayoutMethodResponse,
+  RapydAccountBalance,
+  RapydCountry,
+  RapydDepositRequest,
+  RapydDepositResponse,
   RapydDepositResponseSchema,
+  RapydDocumentType,
+  RapydHoldRequest,
+  RapydHoldResponse,
+  RapydHoldResponseSchema,
+  RapydIdentityRequest,
+  RapydIdentityResponse,
+  RapydIdentityResponseSchema,
+  RapydProfile,
+  RapydReleaseRequest,
+  RapydReleaseResponse,
   RapydReleaseResponseSchema,
-  RapydDocumentTypeSchema,
-  RapydDocumentsTypeSchema,
-  VirtualAccountResponseSchema,
-  SimulateBankTransferToWalletResponseSchema,
+  RapydResponse,
+  RapydSetTransferResponse,
+  RapydSetTransferResponseRequest,
   RapydSetTransferResponseSchema,
-  WithdrawFundsFromAccountResponseSchema,
-  CompletePayoutResponseSchema
+  RapydTransferRequest,
+  RapydWallet,
+  RapydWalletSchema,
+  SimulateBankTransferToWalletRequest,
+  SimulateBankTransferToWalletResponse,
+  SimulateBankTransferToWalletResponseSchema,
+  VirtualAccountRequest,
+  VirtualAccountResponse,
+  VirtualAccountResponseSchema,
+  WithdrawFundsFromAccountResponse,
+  WithdrawFundsFromAccountResponseSchema
 } from './rapyd'
 import { validateRapydResponse } from './validation'
-import { AnyZodObject, z, ZodEffects } from 'zod'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>
@@ -102,19 +100,19 @@ type CalculateSignatureParams = {
 export class RapydClient implements IRapydClient {
   constructor(private deps: RapydClientDependencies) {}
 
-  public async createWallet(
+  public createWallet(
     wallet: RapydWallet
   ): Promise<RapydResponse<RapydWallet>> {
     return this.post('user', JSON.stringify(wallet), RapydWalletSchema)
   }
 
-  public async updateProfile(
+  public updateProfile(
     profile: RapydProfile
   ): Promise<RapydResponse<RapydWallet>> {
     return this.put('user', JSON.stringify(profile), RapydWalletSchema)
   }
 
-  public async verifyIdentity(
+  public verifyIdentity(
     req: RapydIdentityRequest
   ): Promise<RapydResponse<RapydIdentityResponse>> {
     return this.post(
@@ -124,7 +122,7 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public async depositLiquidity(
+  public depositLiquidity(
     req: RapydDepositRequest
   ): Promise<RapydResponse<RapydDepositResponse>> {
     return this.post(
@@ -134,7 +132,7 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public async holdLiquidity(
+  public holdLiquidity(
     req: RapydHoldRequest
   ): Promise<RapydResponse<RapydHoldResponse>> {
     return this.post(
@@ -144,7 +142,7 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public async releaseLiquidity(
+  public releaseLiquidity(
     req: RapydReleaseRequest
   ): Promise<RapydResponse<RapydReleaseResponse>> {
     return this.post(
@@ -154,7 +152,7 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public async getDocumentTypes(
+  public getDocumentTypes(
     country: string
   ): Promise<RapydResponse<RapydDocumentType[]>> {
     return this.get(
@@ -163,7 +161,7 @@ export class RapydClient implements IRapydClient {
     ) as Promise<RapydResponse<RapydDocumentType[]>>
   }
 
-  public async issueVirtualAccount(
+  public issueVirtualAccount(
     req: VirtualAccountRequest
   ): Promise<RapydResponse<VirtualAccountResponse>> {
     return this.post(
