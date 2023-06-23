@@ -39,8 +39,8 @@ export const walletSchema = z.object({
 
 export async function validateRapydResponse<
   T extends AnyZodObject | ZodEffects<AnyZodObject>
->(schema: T, req: unknown): Promise<z.infer<T>> {
-  const res = await schema.safeParseAsync(req)
+>(schema: T, rapydResponse: unknown): Promise<z.infer<T>> {
+  const res = await schema.safeParseAsync(rapydResponse)
   if (!res.success) {
     const errors: Record<string, string> = {}
     res.error.issues.forEach((i) => {
