@@ -4,6 +4,7 @@ import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 import { User } from '@/user/model'
+import { RapydDocumentType, RapydWallet, RapydIdentityResponse } from './rapyd'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>

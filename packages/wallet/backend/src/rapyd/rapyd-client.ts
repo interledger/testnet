@@ -3,6 +3,47 @@ import crypto from 'crypto-js'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { User } from '@/user/model'
+import {
+  RapydWallet,
+  RapydProfile,
+  RapydIdentityRequest,
+  RapydIdentityResponse,
+  RapydDepositRequest,
+  RapydDepositResponse,
+  RapydHoldRequest,
+  RapydHoldResponse,
+  RapydReleaseRequest,
+  RapydReleaseResponse,
+  RapydTransferRequest,
+  RapydSetTransferResponse,
+  RapydAccountBalance,
+  RapydDocumentType,
+  RapydCountry,
+  VirtualAccountRequest,
+  VirtualAccountResponse,
+  SimulateBankTransferToWalletRequest,
+  SimulateBankTransferToWalletResponse,
+  WithdrawFundsFromAccountResponse,
+  PayoutMethodResponse,
+  CompletePayoutRequest,
+  CompletePayoutResponse,
+  RapydSetTransferResponseRequest,
+  RapydResponse,
+  RapydWalletSchema,
+  RapydHoldResponseSchema,
+  RapydIdentityResponseSchema,
+  RapydDepositResponseSchema,
+  RapydReleaseResponseSchema,
+  RapydDocumentTypeSchema,
+  RapydDocumentsTypeSchema,
+  VirtualAccountResponseSchema,
+  SimulateBankTransferToWalletResponseSchema,
+  RapydSetTransferResponseSchema,
+  WithdrawFundsFromAccountResponseSchema,
+  CompletePayoutResponseSchema
+} from './rapyd'
+import { validateRapydResponse } from './validation'
+import { AnyZodObject, z, ZodEffects } from 'zod'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>
@@ -61,86 +102,95 @@ type CalculateSignatureParams = {
 export class RapydClient implements IRapydClient {
   constructor(private deps: RapydClientDependencies) {}
 
-  public createWallet(
+  public async createWallet(
     wallet: RapydWallet
   ): Promise<RapydResponse<RapydWallet>> {
-    return this.post<RapydResponse<RapydWallet>>('user', JSON.stringify(wallet))
+    return this.post('user', JSON.stringify(wallet), RapydWalletSchema)
   }
 
-  public updateProfile(
+  public async updateProfile(
     profile: RapydProfile
   ): Promise<RapydResponse<RapydWallet>> {
-    return this.put<RapydResponse<RapydWallet>>('user', JSON.stringify(profile))
+    return this.put('user', JSON.stringify(profile), RapydWalletSchema)
   }
 
-  public verifyIdentity(
+  public async verifyIdentity(
     req: RapydIdentityRequest
   ): Promise<RapydResponse<RapydIdentityResponse>> {
-    return this.post<RapydResponse<RapydIdentityResponse>>(
+    return this.post(
       'identities',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      RapydIdentityResponseSchema
     )
   }
 
-  public depositLiquidity(
+  public async depositLiquidity(
     req: RapydDepositRequest
   ): Promise<RapydResponse<RapydDepositResponse>> {
-    return this.post<RapydResponse<RapydDepositResponse>>(
+    return this.post(
       'account/deposit',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      RapydDepositResponseSchema
     )
   }
 
-  public holdLiquidity(
+  public async holdLiquidity(
     req: RapydHoldRequest
   ): Promise<RapydResponse<RapydHoldResponse>> {
-    return this.post<RapydResponse<RapydHoldResponse>>(
+    return this.post(
       'account/balance/hold',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      RapydHoldResponseSchema
     )
   }
 
-  public releaseLiquidity(
+  public async releaseLiquidity(
     req: RapydReleaseRequest
   ): Promise<RapydResponse<RapydReleaseResponse>> {
-    return this.post<RapydResponse<RapydReleaseResponse>>(
+    return this.post(
       'account/balance/release',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      RapydReleaseResponseSchema
     )
   }
 
-  public getDocumentTypes(
+  public async getDocumentTypes(
     country: string
   ): Promise<RapydResponse<RapydDocumentType[]>> {
-    return this.get<RapydResponse<RapydDocumentType[]>>(
+    return this.get(
       `identities/types?country=${country}`
-    )
+      // RapydDocumentsTypeSchema
+    ) as Promise<RapydResponse<RapydDocumentType[]>>
   }
 
-  public issueVirtualAccount(
+  public async issueVirtualAccount(
     req: VirtualAccountRequest
   ): Promise<RapydResponse<VirtualAccountResponse>> {
-    return this.post<RapydResponse<VirtualAccountResponse>>(
+    return this.post(
       'issuing/bankaccounts',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      VirtualAccountResponseSchema
     )
   }
 
   public simulateBankTransferToWallet(
     req: SimulateBankTransferToWalletRequest
   ): Promise<RapydResponse<SimulateBankTransferToWalletResponse>> {
-    return this.post<RapydResponse<SimulateBankTransferToWalletResponse>>(
+    return this.post(
       'issuing/bankaccounts/bankaccounttransfertobankaccount',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      SimulateBankTransferToWalletResponseSchema
     )
   }
 
   public async transferLiquidity(
     req: RapydTransferRequest
   ): Promise<RapydResponse<RapydSetTransferResponse>> {
-    const transferResponse = await this.post<
-      RapydResponse<RapydSetTransferResponse>
-    >('account/transfer', JSON.stringify(req))
+    const transferResponse = await this.post(
+      'account/transfer',
+      JSON.stringify(req),
+      RapydSetTransferResponseSchema
+    )
     if (transferResponse.status.status !== 'SUCCESS') {
       if (
         transferResponse.status.error_code === 'NOT_ENOUGH_FUNDS' &&
@@ -166,13 +216,13 @@ export class RapydClient implements IRapydClient {
   public getAccountsBalance(
     walletId: string
   ): Promise<RapydResponse<RapydAccountBalance[]>> {
-    return this.get<RapydResponse<RapydAccountBalance[]>>(
-      `user/${walletId}/accounts`
-    )
+    return this.get(`user/${walletId}/accounts`) as Promise<
+      RapydResponse<RapydAccountBalance[]>
+    >
   }
 
   public getCountryNames(): Promise<RapydResponse<RapydCountry[]>> {
-    return this.get<RapydResponse<RapydCountry[]>>('data/countries')
+    return this.get('data/countries') as Promise<RapydResponse<RapydCountry[]>>
   }
 
   public async withdrawFundsFromAccount(
@@ -205,9 +255,11 @@ export class RapydClient implements IRapydClient {
       payout_method_type: payoutType.data[0].payout_method_type
     }
 
-    const payout = await this.post<
-      RapydResponse<WithdrawFundsFromAccountResponse>
-    >('payouts', JSON.stringify(withdrawReq))
+    const payout = await this.post(
+      'payouts',
+      JSON.stringify(withdrawReq),
+      WithdrawFundsFromAccountResponseSchema
+    )
 
     if (payout.status.status !== 'SUCCESS') {
       throw new Error(
@@ -235,7 +287,7 @@ export class RapydClient implements IRapydClient {
   ): Promise<RapydResponse<PayoutMethodResponse[]>> {
     return this.get(
       `payouts/supported_types?payout_currency=${assetCode}&limit=1`
-    )
+    ) as Promise<RapydResponse<PayoutMethodResponse[]>>
   }
 
   private completePayout(
@@ -243,16 +295,18 @@ export class RapydClient implements IRapydClient {
   ): Promise<RapydResponse<CompletePayoutResponse>> {
     return this.post(
       `payouts/complete/${req.payout}/${req.amount}`,
-      JSON.stringify(req)
+      JSON.stringify(req),
+      CompletePayoutResponseSchema
     )
   }
 
   private setTransferResponse(
     req: RapydSetTransferResponseRequest
   ): Promise<RapydResponse<RapydSetTransferResponse>> {
-    return this.post<RapydResponse<RapydSetTransferResponse>>(
+    return this.post(
       'account/transfer/response',
-      JSON.stringify(req)
+      JSON.stringify(req),
+      RapydSetTransferResponseSchema
     )
   }
 
@@ -276,16 +330,27 @@ export class RapydClient implements IRapydClient {
   }
   */
 
-  private get<T>(url: string) {
-    return this.request<T>('get', url)
+  private get<T extends AnyZodObject | ZodEffects<AnyZodObject>>(
+    url: string,
+    zodResponseSchema?: T
+  ) {
+    return this.request('get', url, undefined, zodResponseSchema)
   }
 
-  private post<T>(url: string, body: string) {
-    return this.request<T>('post', url, body)
+  private post<T extends AnyZodObject | ZodEffects<AnyZodObject>>(
+    url: string,
+    body: string,
+    zodResponseSchema?: T
+  ) {
+    return this.request<T>('post', url, body, zodResponseSchema)
   }
 
-  private put<T>(url: string, body: string) {
-    return this.request<T>('put', url, body)
+  private put<T extends AnyZodObject | ZodEffects<AnyZodObject>>(
+    url: string,
+    body: string,
+    zodResponseSchema: T
+  ) {
+    return this.request('put', url, body, zodResponseSchema)
   }
 
   private calcSignature(params: CalculateSignatureParams): string {
@@ -328,19 +393,30 @@ export class RapydClient implements IRapydClient {
     }
   }
 
-  private async request<T = unknown>(
+  private async request<
+    T extends AnyZodObject | ZodEffects<AnyZodObject> | z.ZodTypeAny
+  >(
     method: 'get' | 'post' | 'put',
     url: string,
-    body?: string
-  ) {
+    body?: string,
+    zodResponseSchema?: T
+  ): Promise<RapydResponse<z.infer<T>>> {
     const headers = this.getRapydRequestHeader(method, url, body ?? '')
     try {
-      const res = await axios<T>({
+      const res = await axios<z.infer<T>>({
         method,
         url: `${this.deps.env.RAPYD_API}/${url}`,
         ...(body && { data: body }),
         headers
       })
+
+      if (zodResponseSchema) {
+        await validateRapydResponse(
+          zodResponseSchema as AnyZodObject | ZodEffects<AnyZodObject>,
+          res.data
+        )
+      }
+
       return res.data
     } catch (e) {
       if (e instanceof AxiosError) {

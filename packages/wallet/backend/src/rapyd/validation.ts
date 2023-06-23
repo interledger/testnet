@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z, AnyZodObject, ZodEffects } from 'zod'
 
 export const kycSchema = z.object({
   body: z.object({
@@ -36,3 +36,18 @@ export const walletSchema = z.object({
     phone: z.string().optional()
   })
 })
+
+export async function validateRapydResponse<
+  T extends AnyZodObject | ZodEffects<AnyZodObject>
+>(schema: T, req: unknown): Promise<z.infer<T>> {
+  const res = await schema.safeParseAsync(req)
+  if (!res.success) {
+    const errors: Record<string, string> = {}
+    res.error.issues.forEach((i) => {
+      errors[i.path[0]] = i.message
+    })
+
+    throw new Error('Invalid Rapyd Response', errors)
+  }
+  return res.data
+}

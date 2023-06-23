@@ -3,6 +3,12 @@ import { User } from '@/user/model'
 import crypto from 'crypto'
 import { Logger } from 'winston'
 import { RapydClient } from './rapyd-client'
+import {
+  RapydDocumentType,
+  RapydWallet,
+  RapydIdentityResponse,
+  RapydCountry
+} from './rapyd'
 
 interface RapydServiceDependencies {
   rapyd: RapydClient
