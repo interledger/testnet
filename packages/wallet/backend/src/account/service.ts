@@ -5,7 +5,6 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
-import { PaymentPointer } from '@/paymentPointer/model'
 
 type CreateAccountArgs = {
   userId: string
@@ -129,17 +128,27 @@ export class AccountService implements IAccountService {
       user.rapydWalletId
     )
 
-    for (let i = 0; i < accounts.length; i++) {
-      accounts[i].balance = transformBalance(
+    accounts.forEach((acc) => {
+      acc.balance = transformBalance(
         accountsBalance.data?.find(
-          (rapydAccount) => rapydAccount.currency === accounts[i].assetCode
+          (rapydAccount) => rapydAccount.currency === acc.assetCode
         )?.balance ?? 0,
-        accounts[i].assetScale
+        acc.assetScale
       )
-      accounts[i].paymentPointers = await PaymentPointer.query().where(
-        'accountId',
-        accounts[i].id
-      )
+    })
+
+    return accounts
+  }
+
+  public async getAccountsWithGraphFetched(userId: string): Promise<Account[]> {
+    const accounts = await Account.query()
+      .where('userId', userId)
+      .withGraphFetched({ paymentPointers: true })
+
+    const user = await User.query().findById(userId)
+
+    if (!user || !user.rapydWalletId) {
+      throw new NotFound()
     }
 
     return accounts

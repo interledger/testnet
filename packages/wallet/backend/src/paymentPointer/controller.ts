@@ -2,7 +2,7 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { PaymentPointerService } from './service'
-import { paymentPointerSchema, developerKeySchema } from './validation'
+import { paymentPointerSchema } from './validation'
 import { PaymentPointer } from '@/paymentPointer/model'
 
 interface IPaymentPointerController {
@@ -122,14 +122,12 @@ export class PaymentPointerController implements IPaymentPointerController {
   ) => {
     try {
       const userId = req.session.user.id
-
-      const {
-        body: { paymentPointerId }
-      } = await validate(developerKeySchema, req)
+      const { accountId, paymentPointerId } = req.params
 
       const { privateKey, publicKey } =
         await this.deps.paymentPointerService.generateKeyPair(
           userId,
+          accountId,
           paymentPointerId
         )
 
@@ -150,13 +148,11 @@ export class PaymentPointerController implements IPaymentPointerController {
   ) => {
     try {
       const userId = req.session.user.id
-
-      const {
-        body: { paymentPointerId }
-      } = await validate(developerKeySchema, req)
+      const { accountId, paymentPointerId } = req.params
 
       await this.deps.paymentPointerService.registerKey(
         userId,
+        accountId,
         paymentPointerId
       )
 

@@ -62,6 +62,25 @@ export class AccountController implements IAccountController {
     }
   }
 
+  listAccountsWithGraphsFetched = async (
+    req: Request,
+    res: CustomResponse<Account[]>,
+    next: NextFunction
+  ) => {
+    const userId = req.session.user.id
+
+    try {
+      const accounts =
+        await this.deps.accountService.getAccountsWithGraphFetched(userId)
+
+      res
+        .status(200)
+        .json({ success: true, message: 'SUCCESS', data: accounts })
+    } catch (e) {
+      next(e)
+    }
+  }
+
   getAccountById = async (
     req: Request,
     res: CustomResponse<Account>,

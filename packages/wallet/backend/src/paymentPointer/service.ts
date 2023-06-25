@@ -3,8 +3,8 @@ import { PaymentPointer } from './model'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { createPublicKey, generateKeyPairSync } from 'crypto'
 import { Alg, Crv, Kty } from '@/rafiki/generated/graphql'
+import { generateJWK } from '@/utils/jwk'
 
 interface IPaymentPointerService {
   create: (
@@ -136,12 +136,14 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async getPaymentPointerAfterValidation(
-    paymentPointerId: string,
-    userId: string
+    userId: string,
+    accountId: string,
+    paymentPointerId: string
   ) {
-    const paymentPointer = await PaymentPointer.query().findById(
-      paymentPointerId
-    )
+    const paymentPointer = await PaymentPointer.query()
+      .findById(paymentPointerId)
+      .where('accountId', accountId)
+      .where('active', true)
 
     if (!paymentPointer) {
       throw new NotFound()
@@ -159,39 +161,44 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async generateKeyPair(
     userId: string,
+    accountId: string,
     paymentPointerId: string
   ): Promise<{ privateKey: string; publicKey: string }> {
-    await this.getPaymentPointerAfterValidation(paymentPointerId, userId)
+    await this.getPaymentPointerAfterValidation(
+      userId,
+      accountId,
+      paymentPointerId
+    )
 
     // Generate the key pair
-    const { privateKey } = generateKeyPairSync('ed25519')
-    const publicKey = createPublicKey(privateKey)
-    const jwk = publicKey.export({
-      format: 'jwk'
-    })
-    const publicKeyPEM = publicKey
-      .export({ type: 'spki', format: 'pem' })
-      .toString()
-    const privateKeyPEM = privateKey
-      .export({ type: 'pkcs8', format: 'pem' })
-      .toString()
-
+    const { privateKey, publicKey, jwk } = generateJWK()
     await PaymentPointer.query()
       .findById(paymentPointerId)
       .patch({
         jwk: JSON.stringify(jwk),
-        privateKey: privateKeyPEM,
-        publicKey: publicKeyPEM
+        privateKey,
+        publicKey
       })
 
-    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM }
+    return { privateKey, publicKey }
   }
 
-  async registerKey(userId: string, paymentPointerId: string): Promise<void> {
+  async registerKey(
+    userId: string,
+    accountId: string,
+    paymentPointerId: string
+  ): Promise<void> {
     const paymentPointer = await this.getPaymentPointerAfterValidation(
-      paymentPointerId,
-      userId
+      userId,
+      accountId,
+      paymentPointerId
     )
+
+    await this.deps.accountService.findAccountById(accountId, userId)
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
 
     const jwkStr = paymentPointer.jwk
     if (!jwkStr) {
