@@ -1,13 +1,15 @@
 import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
 import { PaymentPointer } from '@/paymentPointer/model'
+import { Account } from '@/account/model'
 export class Transaction extends BaseModel {
   static tableName = 'transactions'
 
   id!: string
   paymentId!: string
   description?: string
-  paymentPointerId!: string
+  paymentPointerId?: string
+  accountId?: string
   assetCode!: string
   value!: bigint | null
   type!: 'INCOMING' | 'OUTGOING'
@@ -21,6 +23,14 @@ export class Transaction extends BaseModel {
       join: {
         from: 'transactions.paymentPointerId',
         to: 'paymentPointers.id'
+      }
+    },
+    account: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: Account,
+      join: {
+        from: 'transactions.accountId',
+        to: 'accounts.id'
       }
     }
   })
