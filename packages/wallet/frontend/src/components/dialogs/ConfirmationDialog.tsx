@@ -6,16 +6,16 @@ import { Warning } from '../icons/Warning'
 
 type ConfirmationDialogProps = Pick<DialogProps, 'onClose'> & {
   onConfirm: () => void
+  titleText?: string
   confirmText?: string
-  warningText?: string
 }
 
 // TODO: Dialog abstraction that can be used to create different type of dialogs
 export const ConfirmationDialog = ({
   onClose,
   onConfirm,
-  confirmText,
-  warningText
+  titleText,
+  confirmText
 }: ConfirmationDialogProps) => {
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -47,13 +47,7 @@ export const ConfirmationDialog = ({
                 <div className="flex flex-col items-center justify-center px-4">
                   <Warning strokeWidth={2} className="h-16 w-16 text-pink" />
                   <p className="text-center font-semibold text-pink">
-                    {warningText ?? (
-                      <>
-                        Please note that this action is not reversible.
-                        <br />
-                        Continue with caution.
-                      </>
-                    )}
+                    {titleText}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button
