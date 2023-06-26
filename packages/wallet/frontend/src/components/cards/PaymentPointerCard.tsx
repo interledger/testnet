@@ -76,8 +76,6 @@ export const PaymentPointerCard = ({
               confirmText="Delete payment pointer"
               onConfirm={() => handleDeleteConfirmation(paymentPointer.id)}
               onClose={closeDialog}
-              titleText="Please note that this action is not reversible. Continue
-              with caution."
             />
           )
         }
