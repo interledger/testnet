@@ -67,7 +67,6 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
                 content="Your account was successfully created."
                 redirect={`/account/${response.data?.id}`}
                 redirectText="View account"
-                isOnboarding={isUserFirstTime}
               />
             )
             if (isUserFirstTime) {

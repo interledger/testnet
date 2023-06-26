@@ -131,7 +131,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           content="Money was successfully sent."
           redirect={`/`}
           redirectText="Go to your accounts"
-          isOnboarding={isUserFirstTime}
         />
       )
       if (isUserFirstTime) {

@@ -4,13 +4,13 @@ import { Fragment } from 'react'
 import { BirdSuccess } from '../icons/Bird'
 import type { DialogProps } from '@/lib/types/dialog'
 import { CopyButton } from '@/ui/CopyButton'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type SuccessDialogProps = DialogProps & {
   onSuccess?: () => void
   redirect?: string
   redirectText?: string
   copyToClipboard?: string
-  isOnboarding?: boolean
 }
 
 export const SuccessDialog = ({
@@ -20,8 +20,7 @@ export const SuccessDialog = ({
   content,
   redirect,
   redirectText,
-  copyToClipboard,
-  isOnboarding
+  copyToClipboard
 }: SuccessDialogProps) => {
   const successButtonProps: {
     href?: string
@@ -33,8 +32,8 @@ export const SuccessDialog = ({
       onClose()
     }
   }
-  // if param isOnboarding is boolean we need to keep the href of the button
-  if (onSuccess && typeof isOnboarding === undefined) {
+  const { isUserFirstTime } = useOnboardingContext()
+  if (onSuccess && !isUserFirstTime) {
     delete successButtonProps.href
   }
 
@@ -106,7 +105,7 @@ export const SuccessDialog = ({
                       {redirectText}
                     </Button>
                   )}
-                  {(!onSuccess || !isOnboarding) && (
+                  {(!onSuccess || !isUserFirstTime) && (
                     <Button
                       intent="success"
                       aria-label="close dialog"
