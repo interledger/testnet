@@ -211,11 +211,11 @@ export const VirtualAccountResponseSchema = z.object({
   bank_account: BankAccountSchema,
   metadata: z
     .object({
-      merchant_defined: z.boolean()
+      merchant_defined: z.boolean().optional()
     })
     .optional(),
   status: z.enum(['ACT', 'DIS']),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   funding_instructions: z.union([z.unknown(), z.null()]),
   currency: z.string(),
   transactions: z.array(TransactionSchema)
@@ -226,9 +226,9 @@ export type VirtualAccountResponse = z.TypeOf<
 >
 
 export const SimulateBankTransferToWalletRequestSchema = z.object({
-  amount: z.number(),
+  amount: z.number().optional(),
   currency: z.string(),
-  issued_bank_account: z.string(),
+  issued_bank_account: z.string().optional(),
   remitter_information: z.string().optional()
 })
 
