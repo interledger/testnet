@@ -120,12 +120,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     if (response.success) {
       openDialog(
         <SuccessDialog
-          onClose={closeDialog}
-          onSuccess={() => {
+          onClose={() => {
             if (isUserFirstTime) {
               setRunOnboarding(false)
-              closeDialog()
             }
+            closeDialog()
           }}
           title="Money sent."
           content="Money was successfully sent."

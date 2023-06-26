@@ -4,7 +4,6 @@ import { Fragment } from 'react'
 import { BirdSuccess } from '../icons/Bird'
 import type { DialogProps } from '@/lib/types/dialog'
 import { CopyButton } from '@/ui/CopyButton'
-import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type SuccessDialogProps = DialogProps & {
   onSuccess?: () => void
@@ -32,8 +31,7 @@ export const SuccessDialog = ({
       onClose()
     }
   }
-  const { isUserFirstTime } = useOnboardingContext()
-  if (onSuccess && !isUserFirstTime) {
+  if (onSuccess) {
     delete successButtonProps.href
   }
 
@@ -105,7 +103,7 @@ export const SuccessDialog = ({
                       {redirectText}
                     </Button>
                   )}
-                  {(!onSuccess || !isUserFirstTime) && (
+                  {!onSuccess && (
                     <Button
                       intent="success"
                       aria-label="close dialog"

@@ -56,12 +56,11 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
           if (response.success) {
             openDialog(
               <SuccessDialog
-                onClose={closeDialog}
-                onSuccess={() => {
+                onClose={() => {
                   if (isUserFirstTime) {
                     setRunOnboarding(false)
-                    closeDialog()
                   }
+                  closeDialog()
                 }}
                 title="Account created."
                 content="Your account was successfully created."
