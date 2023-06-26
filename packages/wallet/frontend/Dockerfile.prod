@@ -1,6 +1,9 @@
-FROM node:18-alpine as base
+FROM node:18-alpine AS base
 
 WORKDIR /testnet
+
+RUN corepack enable
+RUN corepack prepare pnpm@8.6.2 --activate
 
 RUN apk add --no-cache \
     libc6-compat \
@@ -8,35 +11,41 @@ RUN apk add --no-cache \
     make \
     g++
 
-RUN corepack enable
-RUN corepack prepare pnpm@8.6.2 --activate
-
-FROM base AS deps 
-
-WORKDIR /testnet
-
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
 COPY packages/wallet/frontend/package.json ./packages/wallet/frontend/package.json
-RUN pnpm fetch
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile
 
 FROM base AS builder
 
 WORKDIR /testnet
 
-COPY --from=deps /testnet/node_modules /testnet/node_modules
-COPY --from=deps /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
-COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY tsconfig.base.json .eslintrc.js ./
+COPY --from=base /testnet/node_modules /testnet/node_modules
+COPY --from=base /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/wallet/frontend /testnet/packages/wallet/frontend
+
 RUN pnpm wallet:frontend build
 
-FROM base AS runner
+
+FROM node:18-alpine
 
 WORKDIR /testnet
 
 ARG PORT
+ARG NEXT_PUBLIC_USE_TEST_KYC_DATA
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_OPEN_PAYMENTS_HOST
 
 ENV NODE_ENV=production
-ENV PORT=$PORT
+ENV PORT=$PORT \
+    NEXT_PUBLIC_USE_TEST_KYC_DATA=$NEXT_PUBLIC_USE_TEST_KYC_DATA \
+    NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL \
+    NEXT_PUBLIC_OPEN_PAYMENTS_HOST=$NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+
 
 COPY --from=builder /testnet/packages/wallet/frontend/.next/standalone ./
 COPY --from=builder /testnet/packages/wallet/frontend/public /testnet/packages/wallet/frontend/public

@@ -35,6 +35,8 @@ const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
               src={imageSrc}
               alt={image}
               quality={100}
+              priority={true}
+              loading="eager"
             />
           </div>
           <div
