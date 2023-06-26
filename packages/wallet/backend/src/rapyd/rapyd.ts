@@ -322,12 +322,12 @@ export const RapydSetTransferResponseSchema = z.object({
   created_at: z.number(),
   metadata: z
     .object({
-      merchant_defined: z.boolean()
+      merchant_defined: z.boolean().optional()
     })
     .optional(),
   response_metadata: z
     .object({
-      merchant_defined: z.string()
+      merchant_defined: z.string().optional()
     })
     .optional(),
   expiration: z.number()

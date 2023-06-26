@@ -411,7 +411,7 @@ export class RapydClient implements IRapydClient {
       if (zodResponseSchema) {
         await validateRapydResponse(
           zodResponseSchema as AnyZodObject | ZodEffects<AnyZodObject>,
-          res.data
+          res.data.data
         )
       }
 
