@@ -21,8 +21,8 @@ export const OnboardingTooltip = ({
       className="flex max-w-xl items-center rounded-lg bg-white p-3 font-semibold text-green"
     >
       {IconStep && <IconStep className="mr-4 w-20" />}
-      <div className="flex flex-col">
-        <div className="pb-4">{step.content}</div>
+      <div className="flex flex-col justify-center">
+        <div className="pb-2">{step.content}</div>
         {index === 0 && (
           <div className="flex items-center justify-between text-center">
             <Button {...primaryProps}>Let&apos;s go</Button>
