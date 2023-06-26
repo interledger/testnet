@@ -29,7 +29,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       openDialog(
         <SuccessDialog onClose={closeDialog} content={response.message} />
       )
-      router.reload()
+      router.push('/grants')
     } else {
       openDialog(
         <ErrorDialog onClose={closeDialog} content={response.message} />
