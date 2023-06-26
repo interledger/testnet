@@ -76,9 +76,19 @@ export const PaymentPointerCard = ({
 
   return (
     <div ref={cardRef} className={cardStyles}>
+      <div className="flex flex-1 items-center justify-between space-x-2">
+        <span className="px-1 font-medium">{paymentPointer.url}</span>
+        <PaymentPointerCardButton
+          href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
+          aria-label="view payment pointer"
+          id={idOnboarding}
+        >
+          View
+        </PaymentPointerCardButton>
+      </div>
       <IconButton
         aria-label="delete payment pointer"
-        className="h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
+        className="h-7 w-12 justify-end text-red-400 transition-transform duration-150 hover:scale-[115%]"
         onClick={() =>
           openDialog(
             <ConfirmationDialog
@@ -91,18 +101,6 @@ export const PaymentPointerCard = ({
       >
         <X stroke="currentColor" strokeWidth={3} />
       </IconButton>
-      <div className="flex flex-1 items-center justify-between space-x-2">
-        <>
-          <span className="px-1 font-medium">{paymentPointer.url}</span>
-          <PaymentPointerCardButton
-            href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
-            aria-label="view payment pointer"
-            id={idOnboarding}
-          >
-            View
-          </PaymentPointerCardButton>
-        </>
-      </div>
     </div>
   )
 }
