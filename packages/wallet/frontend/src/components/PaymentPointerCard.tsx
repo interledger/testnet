@@ -68,15 +68,13 @@ export const PaymentPointerCard = ({
   return (
     <div ref={cardRef} className={cardStyles}>
       <div className="flex flex-1 items-center justify-between space-x-2">
-        <>
-          <span className="px-1 font-medium">{paymentPointer.url}</span>
-          <PaymentPointerCardButton
-            href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
-            aria-label="view payment pointer"
-          >
-            View
-          </PaymentPointerCardButton>
-        </>
+        <span className="px-1 font-medium">{paymentPointer.url}</span>
+        <PaymentPointerCardButton
+          href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
+          aria-label="view payment pointer"
+        >
+          View
+        </PaymentPointerCardButton>
       </div>
       <IconButton
         aria-label="delete payment pointer"
