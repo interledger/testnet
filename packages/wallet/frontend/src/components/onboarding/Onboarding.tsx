@@ -34,7 +34,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 1
     target: '#newAccount',
-    content: `Let's create your first account.`,
+    content: `You need an account in order to deposit money and start transacting. Let's create your first account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Pointer
@@ -42,7 +42,8 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 2
     target: '#createAccountForm',
-    content: 'Add a name to your USD account.',
+    content:
+      'All accounts need a name, so please add a name for your USD account.',
     placement: 'center',
     disableOverlayClose: true,
     Icon: Person
@@ -58,7 +59,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 4
     target: '#paymentPointer',
-    content: `Let's add a payment pointer to your account.`,
+    content: `In order to send and receive money, all accounts need at least a payment pointer, so let's add a payment pointer to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Plus
@@ -66,7 +67,8 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 5
     target: '#fund',
-    content: `Let's add play money to your account.`,
+    content:
+      'Your balance is currently $0. In order to make your first transaction, you need to add money to your account.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: MoneyHand
@@ -81,7 +83,8 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 7
     target: '#send',
-    content: 'Send money using either payment pointer or incoming payment url.',
+    content:
+      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: MoneyOut
@@ -104,7 +107,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 10
     target: '#redirectButtonSuccess',
-    content: `Money sent, let's explore some more.`,
+    content: `Congratulations, you have made your first Interledger transaction. Now let's explore your account some more.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Pointer
@@ -127,7 +130,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 13
     target: '#viewTransactions',
-    content: `Let's view all your incoming and outgoing transactions.`,
+    content: 'You can view all your incoming and outgoing transactions.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: TransactionCircle

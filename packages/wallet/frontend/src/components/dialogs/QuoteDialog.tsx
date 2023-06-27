@@ -1,7 +1,6 @@
 import { Quote } from '@/lib/api/transfers'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { Button } from '@/ui/Button'
-import { PAYMENT_RECEIVE } from '@/utils/constants'
 import { formatAmount, getFee } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
@@ -11,15 +10,9 @@ type QuoteDialogProps = {
   onClose: () => void
   onAccept: () => void
   quote: Quote
-  paymentType: string
 }
 
-export const QuoteDialog = ({
-  onClose,
-  onAccept,
-  quote,
-  paymentType
-}: QuoteDialogProps) => {
+export const QuoteDialog = ({ onClose, onAccept, quote }: QuoteDialogProps) => {
   const { setRunOnboarding, stepIndex, setStepIndex } = useOnboardingContext()
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
@@ -65,13 +58,11 @@ export const QuoteDialog = ({
                 <div className="flex flex-col items-center justify-center px-4">
                   <PaperPlane strokeWidth={2} className="h-16 w-16" />
                   <p className="text-center font-semibold text-turqoise">
-                    You will be deducted: {sendAmount.amount}
+                    You send exactly: {sendAmount.amount}
                     <br />
-                    Receiver gets: {receiveAmount.amount}
+                    Recepient gets: {receiveAmount.amount}
                     <br />
-                    {paymentType === PAYMENT_RECEIVE
-                      ? `You will be charged a fee of ${fee.amount} for this transaction.`
-                      : `The receiver will cover a fee of ${fee.amount} for this transaction.`}
+                    Fee: {fee.amount}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button
@@ -84,7 +75,7 @@ export const QuoteDialog = ({
                         setStepIndex(stepIndex + 1)
                       }}
                     >
-                      Accept Quote
+                      Send
                     </Button>
                     <Button
                       intent="secondary"

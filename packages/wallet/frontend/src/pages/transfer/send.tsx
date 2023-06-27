@@ -156,7 +156,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 openDialog(
                   <QuoteDialog
                     quote={response.data}
-                    paymentType={sendForm.getValues().paymentType}
                     onAccept={() => {
                       handleAcceptQuote(quoteId)
                       closeDialog
@@ -284,10 +283,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             <Button
               aria-label="Pay"
               type="submit"
-              className="w-24"
+              className="w-30"
               loading={sendForm.formState.isSubmitting}
             >
-              Send
+              Review Payment
             </Button>
           </div>
         </Form>
