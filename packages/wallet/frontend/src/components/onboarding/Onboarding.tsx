@@ -26,7 +26,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 0
     target: 'body',
-    content: `Welcome to Testnet! Let's begin our journey.`,
+    content: `Welcome to Testnet! Testnet is a Rafiki playground, where you can add multiple accounts and make Interledger transactions with play money. Let's begin our journey.`,
     disableOverlayClose: true,
     placement: 'center',
     Icon: Wave
@@ -93,14 +93,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 8
     target: '#sendReceive',
-    content: `You have a Switch here, 'send' means you don't care about the fees, 'received', means you will pay the fees.`,
+    content: `Either you or the receiver will pay some fees: 'send' means that the fee will be substracted from the amount, 'receive' means that the fee will be added to the amount.`,
     disableOverlayClose: true,
     Icon: Switch
   },
   {
     // 9
     target: '#acceptQuote',
-    content: `Here is your quote. Let's accept it to continue sending the money.`,
+    content: `You can review your payment details before sending the money. For now, let's continue the transaction.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: ThumbsUp
@@ -139,7 +139,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 14
     target: '#transactionsList',
-    content: `This is your transaction list for this payment pointer. Now you are familiar with the basics of Testnet. Continue to play around.`,
+    content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Testnet. Continue to play around.`,
     disableOverlayClose: true,
     Icon: HomeRooftop
   }

@@ -16,8 +16,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   useEffect(() => {
     setIsUserFirstTime(
-      true
-      // window.localStorage.getItem('isUserFirstTimeOnTestnet') === 'true'
+      window.localStorage.getItem('isUserFirstTimeOnTestnet') === 'true'
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
