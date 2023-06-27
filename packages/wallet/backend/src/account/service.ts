@@ -201,15 +201,13 @@ export class AccountService implements IAccountService {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
 
+    const asset = await this.deps.rafiki.getAssetById(existingAccount.assetId)
     const transactions = result.data.transactions
     await Transaction.query().insert({
       accountId: existingAccount.id,
       paymentId: transactions[transactions.length - 1].id,
       assetCode: existingAccount.assetCode,
-      value: await this.transformAmountBasedOnAsset(
-        args.amount,
-        existingAccount.assetId
-      ),
+      value: transformBalance(args.amount, asset.scale),
       type: 'INCOMING',
       status: 'COMPLETED',
       description: 'Fund account'
@@ -237,27 +235,16 @@ export class AccountService implements IAccountService {
       )
     }
 
+    const asset = await this.deps.rafiki.getAssetById(account.assetId)
     await Transaction.query().insert({
       accountId: account.id,
       paymentId: withdrawFunds.data.id,
       assetCode: account.assetCode,
-      value: await this.transformAmountBasedOnAsset(
-        args.amount,
-        account.assetId
-      ),
+      value: transformBalance(args.amount, asset.scale),
       type: 'OUTGOING',
       status: 'COMPLETED',
       description: 'Withdraw funds'
     })
-  }
-
-  async transformAmountBasedOnAsset(
-    amount: number,
-    assetId: string
-  ): Promise<bigint> {
-    const asset = await this.deps.rafiki.getAssetById(assetId)
-
-    return BigInt(amount * 10 ** asset.scale)
   }
 
   public findAccountById = async (
