@@ -4,13 +4,13 @@
  */
 exports.up = function (knex) {
   return knex.schema.alterTable('transactions', (table) => {
-    // payment id is changed to string to support saving a link to rapyd transaction
+    // payment id is changed to string to support saving the id of a rapyd transaction
     table.string('paymentId').notNullable().alter()
 
-    // fund/withdraw transactions does not have payment pointer
+    // fund/withdraw transactions are not linked to a payment pointer
     table.uuid('paymentPointerId').nullable().alter()
 
-    // fund/withdraw transactions will be linked to an account
+    // fund/withdraw transactions are linked to an account
     table.uuid('accountId').nullable()
     table.foreign('accountId').references('accounts.id')
   })
