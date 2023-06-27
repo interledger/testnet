@@ -206,7 +206,10 @@ export class AccountService implements IAccountService {
       accountId: existingAccount.id,
       paymentId: transactions[transactions.length - 1].id,
       assetCode: existingAccount.assetCode,
-      value: BigInt(args.amount),
+      value: await this.transformAmountBasedOnAsset(
+        args.amount,
+        existingAccount.assetId
+      ),
       type: 'INCOMING',
       status: 'COMPLETED',
       description: 'Fund account'
@@ -238,11 +241,23 @@ export class AccountService implements IAccountService {
       accountId: account.id,
       paymentId: withdrawFunds.data.id,
       assetCode: account.assetCode,
-      value: BigInt(args.amount),
+      value: await this.transformAmountBasedOnAsset(
+        args.amount,
+        account.assetId
+      ),
       type: 'OUTGOING',
       status: 'COMPLETED',
       description: 'Withdraw funds'
     })
+  }
+
+  async transformAmountBasedOnAsset(
+    amount: number,
+    assetId: string
+  ): Promise<bigint> {
+    const asset = await this.deps.rafiki.getAssetById(assetId)
+
+    return BigInt(amount * 10 ** asset.scale)
   }
 
   public findAccountById = async (

@@ -12,6 +12,7 @@ exports.up = function (knex) {
 
     // fund/withdraw transactions will be linked to an account
     table.uuid('accountId').nullable()
+    table.foreign('accountId').references('accounts.id')
   })
 }
 
