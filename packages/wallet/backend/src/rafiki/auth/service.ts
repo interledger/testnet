@@ -17,7 +17,7 @@ import {
 } from '@/rafiki/auth/generated/graphql'
 
 interface IRafikiAuthService {
-  listGrants(): Promise<Grant[]>
+  listGrants(identifiers: string[]): Promise<Grant[]>
   getGrantById(id: string): Promise<Grant>
   revokeGrant(id: string): Promise<void>
 }
@@ -31,11 +31,15 @@ interface RafikiAuthServiceDependencies {
 export class RafikiAuthService implements IRafikiAuthService {
   constructor(private deps: RafikiAuthServiceDependencies) {}
 
-  async listGrants() {
+  async listGrants(identifiers: string[]) {
+    if (!identifiers.length) {
+      return []
+    }
+
     const response = await this.deps.gqlClient.request<
       GetGrantsQuery,
       GetGrantsQueryVariables
-    >(getGrantsQuery, {})
+    >(getGrantsQuery, { filter: { identifier: { in: identifiers } } })
 
     return response.grants.edges.map((el: { node: Grant }) => el.node)
   }

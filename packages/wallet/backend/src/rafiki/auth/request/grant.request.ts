@@ -6,9 +6,14 @@ export const getGrantsQuery = gql`
     $before: String
     $first: Int
     $last: Int
+    $filter: GrantFilter
   ) {
     grants(
-      input: { after: $after, before: $before, first: $first, last: $last }
+      after: $after
+      before: $before
+      first: $first
+      last: $last
+      filter: $filter
     ) {
       edges {
         cursor
@@ -22,6 +27,20 @@ export const getGrantsQuery = gql`
             createdAt
             actions
             type
+            limits {
+              receiver
+              sendAmount {
+                value
+                assetCode
+                assetScale
+              }
+              receiveAmount {
+                value
+                assetCode
+                assetScale
+              }
+              interval
+            }
           }
           createdAt
         }
@@ -37,7 +56,7 @@ export const getGrantsQuery = gql`
 `
 
 export const getGrantByIdQuery = gql`
-  query GetGrantQuery($grantId: String!) {
+  query GetGrantQuery($grantId: ID!) {
     grant(id: $grantId) {
       id
       client
@@ -48,6 +67,20 @@ export const getGrantByIdQuery = gql`
         createdAt
         actions
         type
+        limits {
+          receiver
+          sendAmount {
+            value
+            assetCode
+            assetScale
+          }
+          receiveAmount {
+            value
+            assetCode
+            assetScale
+          }
+          interval
+        }
       }
       createdAt
     }

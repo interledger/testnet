@@ -1,6 +1,7 @@
 import { NextFunction, Request } from 'express'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { Grant } from '@/rafiki/auth/generated/graphql'
+import { PaymentPointerService } from '@/paymentPointer/service'
 
 interface IGrantController {
   list: ControllerFunction<Grant[]>
@@ -9,18 +10,23 @@ interface IGrantController {
 }
 interface GrantControllerDependencies {
   rafikiAuthService: RafikiAuthService
+  paymentPointerService: PaymentPointerService
 }
 
 export class GrantController implements IGrantController {
   constructor(private deps: GrantControllerDependencies) {}
 
   list = async (
-    _req: Request,
+    req: Request,
     res: CustomResponse<Grant[]>,
     next: NextFunction
   ) => {
     try {
-      const grants = await this.deps.rafikiAuthService.listGrants()
+      const identifiers =
+        await this.deps.paymentPointerService.listIdentifiersByUserId(
+          req.session.user.id
+        )
+      const grants = await this.deps.rafikiAuthService.listGrants(identifiers)
       res.json({ success: true, message: 'Success', data: grants })
     } catch (e) {
       next(e)

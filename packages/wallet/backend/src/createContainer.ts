@@ -298,7 +298,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     'grantController',
     async () =>
       new GrantController({
-        rafikiAuthService: await container.resolve('rafikiAuthService')
+        rafikiAuthService: await container.resolve('rafikiAuthService'),
+        paymentPointerService: await container.resolve('paymentPointerService')
       })
   )
 

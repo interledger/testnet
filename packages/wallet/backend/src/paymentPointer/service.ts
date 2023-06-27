@@ -3,6 +3,7 @@ import { PaymentPointer } from './model'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { Account } from '@/account/model'
 
 interface IPaymentPointerService {
   create: (
@@ -108,6 +109,16 @@ export class PaymentPointerService implements IPaymentPointerService {
     }
 
     return paymentPointer
+  }
+
+  async listIdentifiersByUserId(userId: string): Promise<string[]> {
+    const accounts = await Account.query()
+      .where('userId', userId)
+      .withGraphFetched('paymentPointers')
+
+    return accounts.flatMap((account) =>
+      account.paymentPointers.map(({ url }) => url)
+    )
   }
 
   /**
