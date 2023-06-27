@@ -1,0 +1,42 @@
+FROM node:18-alpine AS base
+
+WORKDIR /testnet
+
+RUN corepack enable
+RUN corepack prepare pnpm@8.6.5 --activate
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/wallet/backend/package.json ./packages/wallet/backend/package.json
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile \
+    | grep -v "cross-device link not permitted\|Falling back to copying packages from store"
+
+FROM base AS builder
+
+WORKDIR /testnet
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json  ./
+COPY packages/wallet/backend ./packages/wallet/backend
+
+RUN pnpm wallet:backend build
+RUN rm -rf ./node_modules ./packages/wallet/backend/node_modules
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile --prod \
+    | grep -v "cross-device link not permitted\|Falling back to copying packages from store"
+
+FROM node:18-alpine AS runner
+
+WORKDIR /testnet
+
+ENV NODE_ENV=production
+
+COPY --from=builder /testnet/node_modules ./node_modules
+COPY --from=builder /testnet/packages/wallet/backend/migrations ./packages/wallet/backend/migrations
+COPY --from=builder /testnet/packages/wallet/backend/node_modules ./packages/wallet/backend/node_modules
+COPY --from=builder /testnet/packages/wallet/backend/dist ./packages/wallet/backend/dist
+
+CMD ["node", "packages/wallet/backend/dist/index.js"]
