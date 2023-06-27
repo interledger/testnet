@@ -22,16 +22,16 @@ WORKDIR /testnet
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY tsconfig.base.json .eslintrc.js ./
-COPY --from=base /testnet/node_modules /testnet/node_modules
-COPY --from=base /testnet/packages/wallet/frontend/node_modules /testnet/packages/wallet/frontend/node_modules
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json .eslintrc.js ./
 COPY packages/wallet/frontend /testnet/packages/wallet/frontend
+
+COPY --from=base /testnet/node_modules ./node_modules
+COPY --from=base /testnet/packages/wallet/frontend/node_modules ./packages/wallet/frontend/node_modules
+
 
 RUN pnpm wallet:frontend build
 
-
-FROM node:18-alpine
+FROM node:18-alpine AS runner
 
 WORKDIR /testnet
 
@@ -46,9 +46,8 @@ ENV PORT=$PORT \
     NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL \
     NEXT_PUBLIC_OPEN_PAYMENTS_HOST=$NEXT_PUBLIC_OPEN_PAYMENTS_HOST
 
-
 COPY --from=builder /testnet/packages/wallet/frontend/.next/standalone ./
-COPY --from=builder /testnet/packages/wallet/frontend/public /testnet/packages/wallet/frontend/public
-COPY --from=builder /testnet/packages/wallet/frontend/.next/static /testnet/packages/wallet/frontend/.next/static
+COPY --from=builder /testnet/packages/wallet/frontend/public ./packages/wallet/frontend/public
+COPY --from=builder /testnet/packages/wallet/frontend/.next/static ./packages/wallet/frontend/.next/static
 
 CMD ["node", "packages/wallet/frontend/server.js"]
