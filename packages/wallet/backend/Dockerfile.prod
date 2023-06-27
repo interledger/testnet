@@ -1,32 +1,45 @@
-FROM node:lts-slim
+FROM node:18-alpine AS base
 
-RUN apt-get update && \
-    apt-get install -y python3 build-essential && \
-    apt-get clean
+WORKDIR /testnet
 
-# Set the working directory
-WORKDIR /home/testnet
-
-# Install PNPM
 RUN corepack enable
 RUN corepack prepare pnpm@8.6.2 --activate
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++
 
-# Copy lockfile, NVM and NPM configuration to the working directory
-COPY pnpm-lock.yaml .nvmrc .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/wallet/backend/package.json ./packages/wallet/backend/package.json
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile \
+    | grep -v "cross-device link not permitted\|Falling back to copying packages from store"
 
-# Fetch packages from lockfile (https://pnpm.io/cli/fetch#usage-scenario)
-RUN pnpm fetch
+FROM base AS builder
 
-# Add everything to the working directory
-ADD . ./
+WORKDIR /testnet
 
-# Install packages from virtual store
-RUN pnpm install -r --offline
-
-# Build backend
+COPY tsconfig.base.json .eslintrc.js ./
+COPY --from=base /testnet/node_modules /testnet/node_modules
+COPY --from=base /testnet/packages/wallet/backend/node_modules /testnet/packages/wallet/backend/node_modules
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/wallet/backend /testnet/packages/wallet/backend
 RUN pnpm wallet:backend build
+RUN rm -rf /testnet/node_modules
+RUN rm -rf /testnet/packages/wallet/backend/node_modules
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile --prod \
+    | grep -v "cross-device link not permitted\|Falling back to copying packages from store"
 
-# Expose debugger port
-EXPOSE 9229
+FROM node:18-alpine AS runner
 
-CMD ["node", "--inspect=0.0.0.0:9229", "./packages/wallet/backend/dist/index.js"]
+WORKDIR /testnet
+
+ENV NODE_ENV=production
+
+COPY --from=builder /testnet/node_modules /testnet/node_modules
+COPY --from=builder /testnet/packages/wallet/backend/migrations /testnet/packages/wallet/backend/migrations
+COPY --from=builder /testnet/packages/wallet/backend/node_modules /testnet/packages/wallet/backend/node_modules
+COPY --from=builder /testnet/packages/wallet/backend/dist /testnet/packages/wallet/backend/dist
+
+CMD ["node", "packages/wallet/backend/dist/index.js"]

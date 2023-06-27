@@ -2,62 +2,62 @@ version: '3.8'
 name: 'testnet'
 
 services:
-  # postgres:
-  #   image: 'postgres:15'
-  #   container_name: postgres
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   networks:
-  #     - testnet
-  #   restart: unless-stopped
-  #   volumes:
-  #     - pg-data:/var/lib/postgresql/data
-  #     - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+  postgres:
+    image: 'postgres:15'
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - testnet
+    restart: unless-stopped
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
-  wallet-frontend:
-    hostname: wallet-frontend
+  # wallet-frontend:
+  #   hostname: wallet-frontend
+  #   build:
+  #     context: ../..
+  #     dockerfile: ./packages/wallet/frontend/Dockerfile.prod
+  #     args:
+  #       PORT: ${WALLET_FRONTEND_PORT}
+  #       NEXT_PUBLIC_USE_TEST_KYC_DATA: ${WALLET_FRONTEND_USE_TEST_KYC_DATA}
+  #       NEXT_PUBLIC_BACKEND_URL: ${WALLET_FRONTEND_BACKEND_URL}
+  #       NEXT_PUBLIC_OPEN_PAYMENTS_HOST: ${WALLET_FRONTEND_OPEN_PAYMENTS_HOST}
+  #   container_name: wallet-frontend
+  #   ports:
+  #     - '${WALLET_FRONTEND_PORT}:${WALLET_FRONTEND_PORT}'
+  #   restart: always
+
+  # Testnet
+  wallet-backend:
     build:
       context: ../..
-      dockerfile: ./packages/wallet/frontend/Dockerfile.prod
-      args:
-        PORT: ${WALLET_FRONTEND_PORT}
-        NEXT_PUBLIC_USE_TEST_KYC_DATA: ${WALLET_FRONTEND_USE_TEST_KYC_DATA}
-        NEXT_PUBLIC_BACKEND_URL: ${WALLET_FRONTEND_BACKEND_URL}
-        NEXT_PUBLIC_OPEN_PAYMENTS_HOST: ${WALLET_FRONTEND_OPEN_PAYMENTS_HOST}
-    container_name: wallet-frontend
+      dockerfile: ./packages/wallet/backend/Dockerfile.prod
+    container_name: wallet-backend
+    depends_on:
+      - postgres
+      # - rafiki-backend
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${WALLET_BACKEND_PORT}
+      DATABASE_URL: ${WALLET_BACKEND_DATABASE_URL}
+      COOKIE_NAME: ${WALLET_BACKEND_COOKIE_NAME}
+      COOKIE_PASSWORD: ${WALLET_BACKEND_COOKIE_PASSWORD}
+      COOKIE_TTL: ${WALLET_BACKEND_COOKIE_TTL}
+      RAPYD_API: ${WALLET_BACKEND_RAPYD_API}
+      RAPYD_ACCESS_KEY: ${WALLET_BACKEND_RAPYD_ACCESS_KEY}
+      RAPYD_SETTLEMENT_EWALLET: ${WALLET_BACKEND_RAPYD_SETTLEMENT_EWALLET}
+      RAPYD_SECRET_KEY: ${WALLET_BACKEND_RAPYD_SECRET_KEY}
+      OPEN_PAYMENTS_HOST: ${WALLET_BACKEND_OPEN_PAYMENTS_HOST}
+      GRAPHQL_ENDPOINT: ${WALLET_BACKEND_GRAPHQL_ENDPOINT}
+      RAFIKI_MONEY_FRONTEND_HOST: ${WALLET_BACKEND_RAFIKI_MONEY_FRONTEND_HOST}
+    networks:
+      - testnet
     ports:
-      - '${WALLET_FRONTEND_PORT}:${WALLET_FRONTEND_PORT}'
+      - '${WALLET_BACKEND_PORT}:${WALLET_BACKEND_PORT}'
     restart: always
-#   # Testnet
-#   wallet-backend:
-#     build:
-#       context: ../..
-#       dockerfile: ./packages/wallet/backend/Dockerfile.prod
-#     container_name: wallet-backend
-#     depends_on:
-#       - postgres
-#       - rafiki-backend
-#     environment:
-#       NODE_ENV: ${NODE_ENV}
-#       PORT: ${WALLET_BACKEND_PORT}
-#       DATABASE_URL: ${WALLET_BACKEND_DATABASE_URL}
-#       COOKIE_NAME: ${WALLET_BACKEND_COOKIE_NAME}
-#       COOKIE_PASSWORD: ${WALLET_BACKEND_COOKIE_PASSWORD}
-#       COOKIE_TTL: ${WALLET_BACKEND_COOKIE_TTL}
-#       RAPYD_API: ${WALLET_BACKEND_RAPYD_API}
-#       RAPYD_ACCESS_KEY: ${WALLET_BACKEND_RAPYD_ACCESS_KEY}
-#       RAPYD_SETTLEMENT_EWALLET: ${WALLET_BACKEND_RAPYD_SETTLEMENT_EWALLET}
-#       RAPYD_SECRET_KEY: ${WALLET_BACKEND_RAPYD_SECRET_KEY}
-#       OPEN_PAYMENTS_HOST: ${WALLET_BACKEND_OPEN_PAYMENTS_HOST}
-#       GRAPHQL_ENDPOINT: ${WALLET_BACKEND_GRAPHQL_ENDPOINT}
-#       RAFIKI_MONEY_FRONTEND_HOST: ${WALLET_BACKEND_RAFIKI_MONEY_FRONTEND_HOST}
-#     networks:
-#       - testnet
-#     ports:
-#       - '${WALLET_BACKEND_PORT}:${WALLET_BACKEND_PORT}'
-#     restart: always
-
 #   rafiki-auth:
 #     image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
 #     container_name: rafiki-auth
@@ -136,13 +136,13 @@ services:
 #     networks:
 #       - testnet
 
-# networks:
-#   testnet:
-#     driver: bridge
-#     ipam:
-#       config:
-#         - subnet: 10.5.0.0/24
-#           gateway: 10.5.0.1
+networks:
+  testnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1
 
-# volumes:
-#   pg-data:
+volumes:
+  pg-data:
