@@ -24,7 +24,7 @@ export const OnboardingTooltip = ({
       <div className="flex flex-col justify-center">
         <div className="pb-2">{step.content}</div>
         {index === 0 && (
-          <div className="flex items-center justify-between text-center">
+          <div className="text-centers flex items-center justify-between text-[11px] sm:text-base">
             <Button {...primaryProps}>Let&apos;s go</Button>
             <Button {...skipProps} intent="outline">
               Skip Onboarding

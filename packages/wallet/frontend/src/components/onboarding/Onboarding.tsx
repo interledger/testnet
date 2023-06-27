@@ -75,9 +75,10 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 6
-    target: '#withdraw',
-    content: `You can also withdraw money here, but for now let's send some money to Interledger.`,
+    target: '#balance',
+    content: 'Congratulations, you have money in your account.',
     disableOverlayClose: true,
+    placement: 'center',
     Icon: PaperPlane
   },
   {

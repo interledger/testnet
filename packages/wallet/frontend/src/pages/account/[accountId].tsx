@@ -56,7 +56,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   return (
     <>
-      <div className="text-green">
+      <div className="text-green" id="balance">
         <h2 className="text-lg font-light md:text-xl">Balance</h2>
         <p className="text-2xl font-semibold md:text-4xl">
           {formattedAmount.amount}
@@ -107,7 +107,6 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             </span>
           </Link>
           <Link
-            id="withdraw"
             onClick={() =>
               openDialog(
                 <WithdrawFundsDialog account={account} onClose={closeDialog} />
