@@ -4,9 +4,7 @@
  */
 exports.up = function (knex) {
   return knex.schema.alterTable('paymentPointers', (table) => {
-    table.string('publicKey')
-    table.string('privateKey')
-    table.string('jwk')
+    table.jsonb('keyIds')
   })
 }
 
@@ -16,8 +14,6 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
   return knex.schema.alterTable('paymentPointers', (table) => {
-    table.dropColumn('publicKey')
-    table.dropColumn('privateKey')
-    table.dropColumn('jwk')
+    table.dropColumn('keyIds')
   })
 }

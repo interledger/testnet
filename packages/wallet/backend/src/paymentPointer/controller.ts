@@ -115,7 +115,7 @@ export class PaymentPointerController implements IPaymentPointerController {
     }
   }
 
-  generateKey = async (
+  registerKey = async (
     req: Request,
     res: CustomResponse<KeyPair>,
     next: NextFunction
@@ -125,7 +125,7 @@ export class PaymentPointerController implements IPaymentPointerController {
       const { accountId, paymentPointerId } = req.params
 
       const { privateKey, publicKey } =
-        await this.deps.paymentPointerService.generateKeyPair(
+        await this.deps.paymentPointerService.registerKey(
           userId,
           accountId,
           paymentPointerId
@@ -133,32 +133,8 @@ export class PaymentPointerController implements IPaymentPointerController {
 
       res.status(200).json({
         success: true,
-        message: 'Key pair is successfully created',
+        message: 'Public key is successfully registered',
         data: { privateKey, publicKey }
-      })
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  registerKey = async (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = req.session.user.id
-      const { accountId, paymentPointerId } = req.params
-
-      await this.deps.paymentPointerService.registerKey(
-        userId,
-        accountId,
-        paymentPointerId
-      )
-
-      res.status(200).json({
-        success: true,
-        message: 'Public key is successfully registered'
       })
     } catch (e) {
       next(e)

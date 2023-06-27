@@ -50,28 +50,15 @@ export class AccountController implements IAccountController {
     next: NextFunction
   ) => {
     const userId = req.session.user.id
+    const shouldGraphFetched = req.query['include'] == 'paymentPointers'
 
     try {
-      const accounts = await this.deps.accountService.getAccounts(userId)
-
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', data: accounts })
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  listAccountsWithGraphsFetched = async (
-    req: Request,
-    res: CustomResponse<Account[]>,
-    next: NextFunction
-  ) => {
-    const userId = req.session.user.id
-
-    try {
-      const accounts =
-        await this.deps.accountService.getAccountsWithGraphFetched(userId)
+      let accounts
+      if (shouldGraphFetched)
+        accounts = await this.deps.accountService.getAccountsWithGraphFetched(
+          userId
+        )
+      else accounts = await this.deps.accountService.getAccounts(userId)
 
       res
         .status(200)

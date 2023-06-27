@@ -65,6 +65,9 @@ importers:
 
   packages/wallet/backend:
     dependencies:
+      '@interledger/http-signature-utils':
+        specifier: 1.0.3
+        version: 1.0.3
       axios:
         specifier: ^1.4.0
         version: 1.4.0

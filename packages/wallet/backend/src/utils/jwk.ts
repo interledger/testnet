@@ -1,21 +1,31 @@
-import { createPublicKey, generateKeyPairSync } from 'crypto'
+import { Alg, Crv, Kty } from '@/rafiki/generated/graphql'
+import { KeyObject, createPublicKey } from 'crypto'
 
-export const generateJWK = () => {
-  const { privateKey } = generateKeyPairSync('ed25519')
-  const publicKey = createPublicKey(privateKey)
-  const jwk = publicKey.export({
+export const generateJwk = (privateKey: KeyObject, keyId: string) => {
+  if (!keyId.trim()) {
+    throw new Error('KeyId cannot be empty')
+  }
+
+  if (!privateKey) {
+    throw new Error('private key cannot be empty')
+  }
+
+  const jwk = createPublicKey(privateKey).export({
     format: 'jwk'
   })
-  const publicKeyPEM = publicKey
-    .export({ type: 'spki', format: 'pem' })
-    .toString()
-  const privateKeyPEM = privateKey
-    .export({ type: 'pkcs8', format: 'pem' })
-    .toString()
+  if (jwk.x === undefined) {
+    throw new Error('Failed to derive public key')
+  }
+
+  if (jwk.crv !== 'Ed25519' || jwk.kty !== 'OKP' || !jwk.x) {
+    throw new Error('Key is not EdDSA-Ed25519')
+  }
 
   return {
-    privateKey: privateKeyPEM,
-    publicKey: publicKeyPEM,
-    jwk
+    alg: Alg.EdDsa,
+    kid: keyId,
+    kty: Kty.Okp,
+    crv: Crv.Ed25519,
+    x: jwk.x
   }
 }

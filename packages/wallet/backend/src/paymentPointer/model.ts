@@ -12,9 +12,7 @@ export class PaymentPointer extends BaseModel {
   active!: boolean
   account!: Account
   transacions!: Array<Transaction>
-  privateKey!: string
-  publicKey!: string
-  jwk!: string
+  keyIds!: string
 
   static relationMappings = () => ({
     account: {
