@@ -66,7 +66,6 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
             <span className="font-semibold">Access type: </span>
             <span className="font-light">
               <Badge
-                key={grant.id}
                 intent={getStatusBadgeIntent(grant.access.type)}
                 size="md"
                 text={grant.access.type}
@@ -85,7 +84,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
             <span className="font-semibold">Access action: </span>
             <span className="font-light">
               {grant.access.actions.map((permission) => (
-                <span>
+                <span key={grant.id}>
                   <Badge
                     intent={getStatusBadgeIntent(permission)}
                     size="md"
