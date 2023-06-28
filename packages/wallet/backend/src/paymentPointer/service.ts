@@ -30,7 +30,7 @@ interface PaymentPointerServiceDependencies {
 }
 
 export class PaymentPointerService implements IPaymentPointerService {
-  constructor(private deps: PaymentPointerServiceDependencies) {}
+  constructor(private deps: PaymentPointerServiceDependencies) { }
 
   async create(
     userId: string,
@@ -140,7 +140,7 @@ export class PaymentPointerService implements IPaymentPointerService {
     userId: string,
     accountId: string,
     paymentPointerId: string
-  ): Promise<{ privateKey: string; publicKey: string }> {
+  ): Promise<{ privateKey: string; publicKey: string, keyId: string }> {
     const paymentPointer = await this.getById(
       userId,
       accountId,
@@ -155,7 +155,9 @@ export class PaymentPointerService implements IPaymentPointerService {
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
     const keyId = uuid()
-    const keyIds = JSON.parse(paymentPointer.keyIds) || []
+    console.log("-----");
+    console.log(paymentPointer.keyIds)
+    const keyIds = paymentPointer.keyIds || []
 
     await this.deps.rafikiClient.createRafikiPaymentPointerKey(
       generateJwk(privateKey, keyId),
@@ -168,6 +170,6 @@ export class PaymentPointerService implements IPaymentPointerService {
         keyIds: JSON.stringify([...keyIds, keyId])
       })
 
-    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM }
+    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId }
   }
 }

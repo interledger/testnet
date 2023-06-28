@@ -19,6 +19,7 @@ interface PaymentPointerControllerDependencies {
 interface KeyPair {
   publicKey: string
   privateKey: string
+  keyId: string
 }
 
 export class PaymentPointerController implements IPaymentPointerController {
@@ -124,7 +125,7 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
       const { accountId, paymentPointerId } = req.params
 
-      const { privateKey, publicKey } =
+      const { privateKey, publicKey, keyId } =
         await this.deps.paymentPointerService.registerKey(
           userId,
           accountId,
@@ -134,7 +135,7 @@ export class PaymentPointerController implements IPaymentPointerController {
       res.status(200).json({
         success: true,
         message: 'Public key is successfully registered',
-        data: { privateKey, publicKey }
+        data: { privateKey, publicKey, keyId }
       })
     } catch (e) {
       next(e)
