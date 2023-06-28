@@ -155,7 +155,10 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       account: accountResponse.data,
-      paymentPointer: paymentPointerResponse.data,
+      paymentPointer: {
+        ...paymentPointerResponse.data,
+        url: paymentPointerResponse.data.url.replace('https://', '$')
+      },
       transactions
     }
   }

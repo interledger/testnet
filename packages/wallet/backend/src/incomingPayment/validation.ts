@@ -12,7 +12,6 @@ export const paymentDetailsSchema = z.object({
   query: z.object({
     url: z
       .string()
-      .url()
       .regex(
         new RegExp(
           /\/[a-z1-9_]*\/incoming-payments\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
@@ -21,5 +20,6 @@ export const paymentDetailsSchema = z.object({
           message: 'Url is not a valid incoming payment url'
         }
       )
+      .transform((val) => val.replace('$', 'https://'))
   })
 })

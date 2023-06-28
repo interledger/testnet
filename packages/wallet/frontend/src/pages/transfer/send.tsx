@@ -69,7 +69,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
 
     const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
+          'https://',
+          '$'
+        )})`,
         value: paymentPointer.id
       })
     )
@@ -208,7 +211,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                   <DebouncedInput
                     required
                     error={sendForm.formState.errors.receiver?.message}
-                    label="Payment pointer"
+                    label="Payment pointer or Incoming payment URL"
                     value={value}
                     onChange={onPaymentPointerChange}
                   />
