@@ -22,8 +22,8 @@ const PERMISSIONS = {
 type Permission = keyof typeof PERMISSIONS
 
 const ACCESS_TYPES = {
-  INCOMING_PAYMENT: 'incoming-payment',
-  OUTGOING_PAYMENT: 'outgoing-payment',
+  INCOMING_PAYMENT: 'incoming payment',
+  OUTGOING_PAYMENT: 'outgoing payment',
   QUOTE: 'quote'
 } as const
 type AccessType = keyof typeof ACCESS_TYPES
@@ -40,12 +40,16 @@ export type Grant = {
   client: string
   state: GrantState
   createdAt: string
-  access: { identifier: string; actions: Permission[]; type: AccessType }
-  limits: {
-    receiver: string
-    sendAmount: PaymentAmount
-    receiveAmount: PaymentAmount
-    interval: string
+  access: {
+    identifier: string
+    actions: Permission[]
+    type: AccessType
+    limits: {
+      receiver: string
+      sendAmount: PaymentAmount
+      receiveAmount: PaymentAmount
+      interval: string
+    }
   }
 }
 

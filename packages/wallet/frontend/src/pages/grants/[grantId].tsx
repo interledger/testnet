@@ -49,18 +49,24 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
           <div>
             <span className="font-semibold">Amount to send: </span>
             <span className="font-light">
-              {grant.limits.sendAmount.formattedAmount}
+              {grant.access.limits.sendAmount.formattedAmount}
             </span>
           </div>
           <div>
             <span className="font-semibold">Amount to receive: </span>
             <span className="font-light">
-              {grant.limits.receiveAmount.formattedAmount}
+              {grant.access.limits.receiveAmount.formattedAmount}
             </span>
           </div>
           <div>
+            <span className="font-semibold">
+              Payment Pointer of the receiver:{' '}
+            </span>
+            <span className="font-light">{grant.access.limits.receiver}</span>
+          </div>
+          <div>
             <span className="font-semibold">Interval between payments: </span>
-            <span className="font-light">{grant.limits.interval}</span>
+            <span className="font-light">{grant.access.limits.interval}</span>
           </div>
           <div>
             <span className="font-semibold">Access type: </span>
@@ -95,12 +101,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
               ))}
             </span>
           </div>
-          <div>
-            <span className="font-semibold">
-              Payment Pointer of the receiver:{' '}
-            </span>
-            <span className="font-light">{grant.limits.receiver}</span>
-          </div>
+
           <div className="flex items-center">
             <span className="mr-4 font-semibold">State:</span>
             <Badge
@@ -168,19 +169,21 @@ export const getServerSideProps: GetServerSideProps<{
 
   grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
 
-  const grantSendAmount = grantResponse.data.limits.sendAmount
-  grantResponse.data.limits.sendAmount.formattedAmount = formatAmount({
+  const grantSendAmount = grantResponse.data.access.limits.sendAmount
+  grantResponse.data.access.limits.sendAmount.formattedAmount = formatAmount({
     value: grantSendAmount.value.toString() ?? 0,
     assetCode: grantSendAmount.assetCode,
     assetScale: grantSendAmount.assetScale
   }).amount
 
-  const grantReceiveAmount = grantResponse.data.limits.receiveAmount
-  grantResponse.data.limits.receiveAmount.formattedAmount = formatAmount({
-    value: grantReceiveAmount.value.toString() ?? 0,
-    assetCode: grantReceiveAmount.assetCode,
-    assetScale: grantReceiveAmount.assetScale
-  }).amount
+  const grantReceiveAmount = grantResponse.data.access.limits.receiveAmount
+  grantResponse.data.access.limits.receiveAmount.formattedAmount = formatAmount(
+    {
+      value: grantReceiveAmount.value.toString() ?? 0,
+      assetCode: grantReceiveAmount.assetCode,
+      assetScale: grantReceiveAmount.assetScale
+    }
+  ).amount
 
   return {
     props: {
