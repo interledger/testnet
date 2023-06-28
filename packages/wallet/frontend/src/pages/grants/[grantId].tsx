@@ -41,7 +41,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     <>
       <div className="flex flex-col items-start md:flex-col">
         <PageHeader title="Grant details" />
-        <div className="my-6 flex flex-col space-y-2 text-lg text-green sm:my-16 sm:space-y-3">
+        <div className="my-6 flex flex-col space-y-2 text-lg text-green sm:my-10 sm:space-y-3">
           <div>
             <span className="font-semibold">Client:</span>
             <span className="font-light"> {grant.client}</span>
@@ -50,9 +50,20 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
             <span className="font-semibold">Created at: </span>
             <span className="font-light">{grant.createdAt}</span>
           </div>
-          <div className="text-xl font-semibold">Access - Permissions</div>
+          <div className="flex items-center">
+            <span className="mr-4 font-semibold">State:</span>
+            <Badge
+              intent={getStatusBadgeIntent(grant.state)}
+              size="md"
+              text={grant.state}
+            />
+          </div>
+          <div className="text-xl font-semibold">Access - Permissions:</div>
           {grant.access.map((accessDetails) => (
-            <div key={grant.id}>
+            <div
+              key={grant.id}
+              className="border-b-2 border-l-0 border-r-0 border-t-0 border-turqoise pb-3"
+            >
               <div>
                 <span className="font-semibold">Amount to send: </span>
                 <span className="font-light">
@@ -112,14 +123,6 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
               </div>
             </div>
           ))}
-          <div className="flex items-center">
-            <span className="mr-4 font-semibold">State:</span>
-            <Badge
-              intent={getStatusBadgeIntent(grant.state)}
-              size="md"
-              text={grant.state}
-            />
-          </div>
         </div>
         {grant.state !== 'REVOKED' && (
           <Button
@@ -179,9 +182,12 @@ export const getServerSideProps: GetServerSideProps<{
 
   grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
 
-  grantResponse.data.access.map((access) => ({
+  grantResponse.data.access = grantResponse.data.access.map((access) => ({
+    ...access,
     limits: {
+      ...access.limits,
       sendAmount: {
+        ...access.limits.sendAmount,
         formattedAmount: formatAmount({
           value: access.limits.sendAmount.value.toString() ?? 0,
           assetCode: access.limits.sendAmount.assetCode,
@@ -189,6 +195,7 @@ export const getServerSideProps: GetServerSideProps<{
         }).amount
       },
       receiveAmount: {
+        ...access.limits.receiveAmount,
         formattedAmount: formatAmount({
           value: access.limits.receiveAmount.value.toString() ?? 0,
           assetCode: access.limits.receiveAmount.assetCode,
