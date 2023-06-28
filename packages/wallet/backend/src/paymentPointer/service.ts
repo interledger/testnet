@@ -30,7 +30,7 @@ interface PaymentPointerServiceDependencies {
 }
 
 export class PaymentPointerService implements IPaymentPointerService {
-  constructor(private deps: PaymentPointerServiceDependencies) { }
+  constructor(private deps: PaymentPointerServiceDependencies) {}
 
   async create(
     userId: string,
@@ -140,7 +140,7 @@ export class PaymentPointerService implements IPaymentPointerService {
     userId: string,
     accountId: string,
     paymentPointerId: string
-  ): Promise<{ privateKey: string; publicKey: string, keyId: string }> {
+  ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
     const paymentPointer = await this.getById(
       userId,
       accountId,
@@ -155,7 +155,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
     const keyId = uuid()
-    console.log("-----");
+    console.log('-----')
     console.log(paymentPointer.keyIds)
     const keyIds = paymentPointer.keyIds || []
 
