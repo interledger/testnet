@@ -77,21 +77,16 @@ export const SuccessDialog = ({
                     </p>
                   </div>
                 </div>
-                <div className="mt-5 grid grid-cols-1 gap-3">
+                <div className="my-5">
                   {copyToClipboard && (
-                    <div>
-                      <p className="mt-2 text-sm font-light text-white">
-                        Incoming payment url (copy to clipboard):
-                      </p>
-                      <p className="mt-2 text-sm font-light text-white">
-                        {copyToClipboard}
-                      </p>
-                      <CopyButton
-                        value={copyToClipboard}
-                        aria-label="copy api key"
-                      />
-                    </div>
+                    <CopyButton
+                      text="Copy incoming payment URL"
+                      value={copyToClipboard}
+                      aria-label="copy api key"
+                    />
                   )}
+                </div>
+                <div className="mt-5 grid grid-cols-1 gap-3">
                   {(onSuccess || redirect) && (
                     <Button
                       id="redirectButtonSuccess"

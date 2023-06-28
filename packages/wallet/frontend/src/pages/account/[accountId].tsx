@@ -194,10 +194,15 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  const paymentPointers = paymentPointersResponse.data.map((pp) => ({
+    ...pp,
+    url: pp.url.replace('https://', '$')
+  }))
+
   return {
     props: {
       account: accountResponse.data,
-      paymentPointers: paymentPointersResponse.data
+      paymentPointers
     }
   }
 }
