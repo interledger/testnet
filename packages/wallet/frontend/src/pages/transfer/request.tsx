@@ -30,7 +30,7 @@ function getIncomingPaymentUrl(
     paymentPointers.find(
       (paymentPointer) => paymentPointer.value === paymentPointerId
     )?.url
-  }/incoming-payments/${paymentId}`
+  }/incoming-payments/${paymentId}`.replace('https://', '$')
 }
 
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
@@ -75,7 +75,10 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
     const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
+          'https://',
+          '$'
+        )})`,
         value: paymentPointer.id,
         url: paymentPointer.url
       })
