@@ -94,6 +94,7 @@ export const SuccessDialog = ({
                   )}
                   {(onSuccess || redirect) && (
                     <Button
+                      id="redirectButtonSuccess"
                       intent="secondary"
                       aria-label={redirectText ?? 'redirect'}
                       fullWidth
