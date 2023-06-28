@@ -120,10 +120,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     'rapydController',
     async () =>
       new RapydController({
-        env: await container.resolve('env'),
         accountService: await container.resolve('accountService'),
         paymentPointerService: await container.resolve('paymentPointerService'),
-        rafikiClient: await container.resolve('rafikiClient'),
         logger: await container.resolve('logger'),
         rapydService: await container.resolve('rapydService')
       })
