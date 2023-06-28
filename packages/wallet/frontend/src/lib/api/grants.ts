@@ -34,23 +34,24 @@ type PaymentAmount = {
   assetScale: number
   formattedAmount?: string
 }
+type Access = {
+  identifier: string
+  actions: Permission[]
+  type: AccessType
+  limits: {
+    receiver: string
+    sendAmount: PaymentAmount
+    receiveAmount: PaymentAmount
+    interval: string
+  }
+}
 
 export type Grant = {
   id: string
   client: string
   state: GrantState
   createdAt: string
-  access: {
-    identifier: string
-    actions: Permission[]
-    type: AccessType
-    limits: {
-      receiver: string
-      sendAmount: PaymentAmount
-      receiveAmount: PaymentAmount
-      interval: string
-    }
-  }
+  access: Access[]
 }
 
 type ListGrantsResult = SuccessResponse<Grant[]>

@@ -47,61 +47,71 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
             <span className="font-light"> {grant.client}</span>
           </div>
           <div>
-            <span className="font-semibold">Amount to send: </span>
-            <span className="font-light">
-              {grant.access.limits.sendAmount.formattedAmount}
-            </span>
-          </div>
-          <div>
-            <span className="font-semibold">Amount to receive: </span>
-            <span className="font-light">
-              {grant.access.limits.receiveAmount.formattedAmount}
-            </span>
-          </div>
-          <div>
-            <span className="font-semibold">
-              Payment Pointer of the receiver:{' '}
-            </span>
-            <span className="font-light">{grant.access.limits.receiver}</span>
-          </div>
-          <div>
-            <span className="font-semibold">Interval between payments: </span>
-            <span className="font-light">{grant.access.limits.interval}</span>
-          </div>
-          <div>
-            <span className="font-semibold">Access type: </span>
-            <span className="font-light">
-              <Badge
-                intent={getStatusBadgeIntent(grant.access.type)}
-                size="md"
-                text={grant.access.type}
-              />
-            </span>
-          </div>
-          <div>
-            <span className="font-semibold">Payment Pointer access: </span>
-            <span className="font-light">{grant.access.identifier}</span>
-          </div>
-          <div>
             <span className="font-semibold">Created at: </span>
             <span className="font-light">{grant.createdAt}</span>
           </div>
-          <div>
-            <span className="font-semibold">Access action: </span>
-            <span className="font-light">
-              {grant.access.actions.map((permission) => (
-                <span key={grant.id}>
-                  <Badge
-                    intent={getStatusBadgeIntent(permission)}
-                    size="md"
-                    text={permission}
-                  />
-                  &nbsp;
+          <div className="text-xl font-semibold">Access - Permissions</div>
+          {grant.access.map((accessDetails) => (
+            <div key={grant.id}>
+              <div>
+                <span className="font-semibold">Amount to send: </span>
+                <span className="font-light">
+                  {accessDetails.limits.sendAmount.formattedAmount}
                 </span>
-              ))}
-            </span>
-          </div>
-
+              </div>
+              <div>
+                <span className="font-semibold">Amount to receive: </span>
+                <span className="font-light">
+                  {accessDetails.limits.receiveAmount.formattedAmount}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold">
+                  Payment Pointer of the receiver:{' '}
+                </span>
+                <span className="font-light">
+                  {accessDetails.limits.receiver}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold">
+                  Interval between payments:{' '}
+                </span>
+                <span className="font-light">
+                  {accessDetails.limits.interval}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold">Access type: </span>
+                <span className="font-light">
+                  <Badge
+                    intent={getStatusBadgeIntent(accessDetails.type)}
+                    size="md"
+                    text={accessDetails.type}
+                  />
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold">Payment Pointer access: </span>
+                <span className="font-light">{accessDetails.identifier}</span>
+              </div>
+              <div>
+                <span className="font-semibold">Access action: </span>
+                <span className="font-light">
+                  {accessDetails.actions.map((permission) => (
+                    <span key={grant.id}>
+                      <Badge
+                        intent={getStatusBadgeIntent(permission)}
+                        size="md"
+                        text={permission}
+                      />
+                      &nbsp;
+                    </span>
+                  ))}
+                </span>
+              </div>
+            </div>
+          ))}
           <div className="flex items-center">
             <span className="mr-4 font-semibold">State:</span>
             <Badge
@@ -169,21 +179,24 @@ export const getServerSideProps: GetServerSideProps<{
 
   grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
 
-  const grantSendAmount = grantResponse.data.access.limits.sendAmount
-  grantResponse.data.access.limits.sendAmount.formattedAmount = formatAmount({
-    value: grantSendAmount.value.toString() ?? 0,
-    assetCode: grantSendAmount.assetCode,
-    assetScale: grantSendAmount.assetScale
-  }).amount
-
-  const grantReceiveAmount = grantResponse.data.access.limits.receiveAmount
-  grantResponse.data.access.limits.receiveAmount.formattedAmount = formatAmount(
-    {
-      value: grantReceiveAmount.value.toString() ?? 0,
-      assetCode: grantReceiveAmount.assetCode,
-      assetScale: grantReceiveAmount.assetScale
+  grantResponse.data.access.map((access) => ({
+    limits: {
+      sendAmount: {
+        formattedAmount: formatAmount({
+          value: access.limits.sendAmount.value.toString() ?? 0,
+          assetCode: access.limits.sendAmount.assetCode,
+          assetScale: access.limits.sendAmount.assetScale
+        }).amount
+      },
+      receiveAmount: {
+        formattedAmount: formatAmount({
+          value: access.limits.receiveAmount.value.toString() ?? 0,
+          assetCode: access.limits.receiveAmount.assetCode,
+          assetScale: access.limits.receiveAmount.assetScale
+        }).amount
+      }
     }
-  ).amount
+  }))
 
   return {
     props: {
