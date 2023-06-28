@@ -4,6 +4,11 @@ import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 import { User } from '@/user/model'
+import { Env } from '@/config/env'
+import { AccountService } from '@/account/service'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { RafikiClient } from '@/rafiki/rafiki-client'
+import { getRandomValues } from 'crypto'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -13,6 +18,10 @@ interface IRapydController {
   updateProfile: ControllerFunction
 }
 interface RapydControllerDependencies {
+  env: Env
+  accountService: AccountService
+  paymentPointerService: PaymentPointerService
+  rafikiClient: RafikiClient
   logger: Logger
   rapydService: RapydService
 }
@@ -80,6 +89,36 @@ export class RapydController implements IRapydController {
 
       req.session.user.needsWallet = false
       await req.session.save()
+
+      if (this.deps.env.NODE_ENV === 'production') {
+        const asset = (await this.deps.rafikiClient.listAssets()).find(
+          (asset) => asset.code === 'EUR' && asset.scale === 2
+        )
+        if (asset) {
+          const account = await this.deps.accountService.createAccount({
+            name: 'EUR Account',
+            userId: id,
+            assetId: asset.id
+          })
+
+          await this.deps.accountService.fundAccount({
+            userId: id,
+            amount: 100,
+            accountId: account.id
+          })
+
+          const typedArray = new Uint32Array(1)
+          getRandomValues(typedArray)
+          const paymentPointerName = typedArray[0].toString(16)
+
+          await this.deps.paymentPointerService.create(
+            id,
+            account.id,
+            paymentPointerName,
+            'Default Payment Pointer'
+          )
+        }
+      }
 
       res.status(200).json({
         success: true,
