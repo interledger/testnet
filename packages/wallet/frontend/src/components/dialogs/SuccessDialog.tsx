@@ -89,6 +89,7 @@ export const SuccessDialog = ({
                 <div className="mt-5 grid grid-cols-1 gap-3">
                   {(onSuccess || redirect) && (
                     <Button
+                      id="redirectButtonSuccess"
                       intent="secondary"
                       aria-label={redirectText ?? 'redirect'}
                       fullWidth

@@ -16,6 +16,8 @@ import type {
 } from 'next/types'
 import { z } from 'zod'
 import { formatAmount, formatDate } from '@/utils/helpers'
+import { useEffect } from 'react'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type TransactionsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -26,6 +28,19 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   paymentPointer,
   transactions
 }) => {
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
+
+  useEffect(() => {
+    if (isUserFirstTime) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
@@ -41,7 +56,10 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         />
       </div>
       {/* TODO: Filters */}
-      <div className="mt-10 flex w-full flex-col space-y-3 md:max-w-2xl">
+      <div
+        className="mt-10 flex w-full flex-col space-y-3 md:max-w-2xl"
+        id="transactionsList"
+      >
         <Table>
           <Table.Head
             columns={['', 'Date', 'Description', 'Status', 'Amount']}

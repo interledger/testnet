@@ -48,6 +48,7 @@ export const TogglePayment = ({
           {PAYMENT_SEND}
         </Switch.Label>
         <Switch
+          id="sendReceive"
           checked={enabled || disabled}
           onChange={handleOnChange}
           className={cx(
