@@ -15,4 +15,4 @@ export const PAYMENT_RECEIVE = 'receive'
 
 // Default ILC Payment Pointer for onboarding
 export const INTERLEDGER_PAYMENT_POINTER =
-  'https://ilp.rafiki.money/interledger'
+  '$ilp.rafiki.money/interledger'
