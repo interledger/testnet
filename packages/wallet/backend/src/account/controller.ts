@@ -50,15 +50,13 @@ export class AccountController implements IAccountController {
     next: NextFunction
   ) => {
     const userId = req.session.user.id
-    const shouldGraphFetched = req.query['include'] == 'paymentPointers'
+    const hasPaymentPointer = req.query['include'] == 'paymentPointers'
 
     try {
-      let accounts
-      if (shouldGraphFetched)
-        accounts = await this.deps.accountService.getAccountsWithGraphFetched(
-          userId
-        )
-      else accounts = await this.deps.accountService.getAccounts(userId)
+      const accounts = await this.deps.accountService.getAccounts(
+        userId,
+        hasPaymentPointer
+      )
 
       res
         .status(200)

@@ -116,40 +116,35 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async getAccounts(userId: string): Promise<Account[]> {
-    const accounts = await Account.query().where('userId', userId)
-
+  public async getAccounts(
+    userId: string,
+    hasPaymentPointer?: boolean
+  ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.rapydWalletId) {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
-      user.rapydWalletId
-    )
+    let query = Account.query().where('userId', userId)
+    if (hasPaymentPointer)
+      query = query.withGraphFetched({ paymentPointers: true })
 
-    accounts.forEach((acc) => {
-      acc.balance = transformBalance(
-        accountsBalance.data?.find(
-          (rapydAccount) => rapydAccount.currency === acc.assetCode
-        )?.balance ?? 0,
-        acc.assetScale
+    const accounts = await query
+
+    if (!hasPaymentPointer) {
+      const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+        user.rapydWalletId
       )
-    })
 
-    return accounts
-  }
-
-  public async getAccountsWithGraphFetched(userId: string): Promise<Account[]> {
-    const accounts = await Account.query()
-      .where('userId', userId)
-      .withGraphFetched({ paymentPointers: true })
-
-    const user = await User.query().findById(userId)
-
-    if (!user || !user.rapydWalletId) {
-      throw new NotFound()
+      accounts.forEach((acc) => {
+        acc.balance = transformBalance(
+          accountsBalance.data?.find(
+            (rapydAccount) => rapydAccount.currency === acc.assetCode
+          )?.balance ?? 0,
+          acc.assetScale
+        )
+      })
     }
 
     return accounts
