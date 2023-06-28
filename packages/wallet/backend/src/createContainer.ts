@@ -52,10 +52,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return _knex
   })
 
-  // Session Modules
   container.singleton('sessionService', async () => new SessionService())
 
-  // User Modules
   container.singleton('userService', async () => new UserService())
   container.singleton(
     'userController',
@@ -67,7 +65,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  // Auth Modules
   container.singleton(
     'authService',
     async () =>
@@ -87,8 +84,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  //* RAPYD
-
   container.singleton(
     'rapydClient',
     async () =>
@@ -107,15 +102,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  container.singleton(
-    'rapydController',
-    async () =>
-      new RapydController({
-        logger: await container.resolve('logger'),
-        rapydService: await container.resolve('rapydService')
-      })
-  )
-
   container.singleton('rafikiClient', async () => {
     const env = await container.resolve('env')
     return new RafikiClient({
@@ -124,8 +110,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       logger: await container.resolve('logger')
     })
   })
-
-  //* Asset
 
   container.singleton(
     'assetController',
@@ -136,7 +120,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  //* Account
   container.singleton(
     'accountService',
     async () =>
@@ -156,7 +139,17 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  //* PaymentPointer
+  container.singleton(
+    'rapydController',
+    async () =>
+      new RapydController({
+        accountService: await container.resolve('accountService'),
+        paymentPointerService: await container.resolve('paymentPointerService'),
+        logger: await container.resolve('logger'),
+        rapydService: await container.resolve('rapydService')
+      })
+  )
+
   container.singleton(
     'paymentPointerService',
     async () =>
@@ -176,7 +169,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  //* Transactions
   container.singleton(
     'transactionService',
     async () =>
@@ -194,7 +186,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  //* Incoming payment
   container.singleton(
     'incomingPaymentService',
     async () =>
@@ -214,7 +205,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  //* Outgoing payment
   container.singleton(
     'outgoingPaymentService',
     async () =>
@@ -255,8 +245,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
         quoteService: await container.resolve('quoteService')
       })
   )
-
-  //*RAFIKI
 
   container.singleton('rafikiService', async () => {
     const rapydClient = await container.resolve('rapydClient')
