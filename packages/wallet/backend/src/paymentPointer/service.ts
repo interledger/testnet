@@ -155,8 +155,6 @@ export class PaymentPointerService implements IPaymentPointerService {
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
     const keyId = uuid()
-    console.log('-----')
-    console.log(paymentPointer.keyIds)
     const keyIds = paymentPointer.keyIds || []
 
     await this.deps.rafikiClient.createRafikiPaymentPointerKey(
