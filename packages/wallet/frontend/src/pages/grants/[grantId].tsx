@@ -7,7 +7,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { formatDate } from '@/utils/helpers'
+import { formatAmount, formatDate } from '@/utils/helpers'
 import { Grant, grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -41,18 +41,65 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     <>
       <div className="flex flex-col items-start md:flex-col">
         <PageHeader title="Grant details" />
-        <div className="my-16 flex flex-col space-y-5 text-xl text-green">
+        <div className="my-6 flex flex-col space-y-2 text-lg text-green sm:my-16 sm:space-y-3">
           <div>
             <span className="font-semibold">Client:</span>
             <span className="font-light"> {grant.client}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Amount to send: </span>
+            <span className="font-light">
+              {grant.limits.sendAmount.formattedAmount}
+            </span>
+          </div>
+          <div>
+            <span className="font-semibold">Amount to receive: </span>
+            <span className="font-light">
+              {grant.limits.receiveAmount.formattedAmount}
+            </span>
+          </div>
+          <div>
+            <span className="font-semibold">Interval between payments: </span>
+            <span className="font-light">{grant.limits.interval}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Access type: </span>
+            <span className="font-light">
+              <Badge
+                intent={getStatusBadgeIntent(grant.access.type)}
+                size="md"
+                text={grant.access.type}
+              />
+            </span>
+          </div>
+          <div>
+            <span className="font-semibold">Payment Pointer access: </span>
+            <span className="font-light">{grant.access.identifier}</span>
           </div>
           <div>
             <span className="font-semibold">Created at: </span>
             <span className="font-light">{grant.createdAt}</span>
           </div>
           <div>
-            <span className="font-semibold">Payment Pointer access: </span>
-            <span className="font-light">{grant.access.identifier}</span>
+            <span className="font-semibold">Access action: </span>
+            <span className="font-light">
+              {grant.access.actions.map((permission) => (
+                <span>
+                  <Badge
+                    intent={getStatusBadgeIntent(permission)}
+                    size="md"
+                    text={permission}
+                  />
+                  &nbsp;
+                </span>
+              ))}
+            </span>
+          </div>
+          <div>
+            <span className="font-semibold">
+              Payment Pointer of the receiver:{' '}
+            </span>
+            <span className="font-light">{grant.limits.receiver}</span>
           </div>
           <div className="flex items-center">
             <span className="mr-4 font-semibold">State:</span>
@@ -83,12 +130,12 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
         )}
       </div>
       <Image
-        className="mt-28 object-cover"
+        className="mt-20 object-cover"
         src="/grants.webp"
         alt="Grants"
         quality={100}
-        width={700}
-        height={200}
+        width={500}
+        height={150}
       />
     </>
   )
@@ -120,6 +167,20 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
+
+  const grantSendAmount = grantResponse.data.limits.sendAmount
+  grantResponse.data.limits.sendAmount.formattedAmount = formatAmount({
+    value: grantSendAmount.value.toString() ?? 0,
+    assetCode: grantSendAmount.assetCode,
+    assetScale: grantSendAmount.assetScale
+  }).amount
+
+  const grantReceiveAmount = grantResponse.data.limits.receiveAmount
+  grantResponse.data.limits.receiveAmount.formattedAmount = formatAmount({
+    value: grantReceiveAmount.value.toString() ?? 0,
+    assetCode: grantReceiveAmount.assetCode,
+    assetScale: grantReceiveAmount.assetScale
+  }).amount
 
   return {
     props: {

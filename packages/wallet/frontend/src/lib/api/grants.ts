@@ -12,12 +12,41 @@ const GRANT_STATE = {
   REVOKED: 'REVOKED'
 } as const
 type GrantState = keyof typeof GRANT_STATE
+
+const PERMISSIONS = {
+  CREATE: 'create',
+  READ: 'read',
+  LIST: 'list',
+  COMPLETE: 'complete'
+} as const
+type Permission = keyof typeof PERMISSIONS
+
+const ACCESS_TYPES = {
+  INCOMING_PAYMENT: 'incoming-payment',
+  OUTGOING_PAYMENT: 'outgoing-payment',
+  QUOTE: 'quote'
+} as const
+type AccessType = keyof typeof ACCESS_TYPES
+
+type PaymentAmount = {
+  value: number
+  assetCode: string
+  assetScale: number
+  formattedAmount?: string
+}
+
 export type Grant = {
   id: string
   client: string
   state: GrantState
   createdAt: string
-  access: { identifier: string }
+  access: { identifier: string; actions: Permission[]; type: AccessType }
+  limits: {
+    receiver: string
+    sendAmount: PaymentAmount
+    receiveAmount: PaymentAmount
+    interval: string
+  }
 }
 
 type ListGrantsResult = SuccessResponse<Grant[]>
