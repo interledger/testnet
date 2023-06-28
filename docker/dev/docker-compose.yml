@@ -14,7 +14,7 @@ services:
       - testnet
     volumes:
       - pg-data:/var/lib/postgresql/data
-      - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
   # Testnet
   wallet-backend:
@@ -68,7 +68,7 @@ services:
     restart: always
     privileged: true
     volumes:
-      - ./temp/:/workspace/temp/
+      - ../temp/:/workspace/temp/
     ports:
       - '3010:80'
       - '3011:3001'
@@ -151,7 +151,7 @@ services:
       context: ../../
       dockerfile: ./docker/dev/local-http-signatures/Dockerfile
     volumes:
-      - ./temp/:/workspace/temp/
+      - ../temp/:/workspace/temp/
     restart: always
     ports:
       - '3040:3000'

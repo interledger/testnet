@@ -26,7 +26,7 @@ services:
       PORT: 4003
       NEXT_PUBLIC_USE_TEST_KYC_DATA: 'true'
       NEXT_PUBLIC_BACKEND_URL: https://api.rafiki.money
-      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: https://ilp.rafiki.money
+      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: https://ilp.rafiki.money/
     restart: always
     networks:
       - testnet

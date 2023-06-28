@@ -21,6 +21,7 @@ type FundAccountArgs = {
 type WithdrawFundsArgs = FundAccountArgs
 
 interface IAccountService {
+  createDefaultAccount: (userId: string) => Promise<Account | undefined>
   createAccount: (args: CreateAccountArgs) => Promise<Account>
   getAccounts: (userId: string) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
@@ -244,6 +245,30 @@ export class AccountService implements IAccountService {
     if (!account) {
       throw new NotFound()
     }
+
+    return account
+  }
+
+  public async createDefaultAccount(
+    userId: string
+  ): Promise<Account | undefined> {
+    const asset = (await this.deps.rafiki.listAssets()).find(
+      (asset) => asset.code === 'EUR' && asset.scale === 2
+    )
+    if (!asset) {
+      return
+    }
+    const account = await this.createAccount({
+      name: 'EUR Account',
+      userId,
+      assetId: asset.id
+    })
+
+    await this.fundAccount({
+      userId,
+      amount: 100,
+      accountId: account.id
+    })
 
     return account
   }

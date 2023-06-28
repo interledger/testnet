@@ -14,12 +14,18 @@ import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
+import {
+  INTERLEDGER_PAYMENT_POINTER,
+  PAYMENT_RECEIVE,
+  PAYMENT_SEND
+} from '@/utils/constants'
+import { useOnboardingContext } from '@/lib/context/onboarding'
+import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -27,14 +33,26 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
       paymentType: PAYMENT_SEND,
-      receiver: ''
+      receiver: isUserFirstTime ? INTERLEDGER_PAYMENT_POINTER : ''
     }
   })
+
+  useEffect(() => {
+    if (isUserFirstTime) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -60,7 +78,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again"
+          content="Could not load payment pointers. Please try again."
         />
       )
       return
@@ -68,7 +86,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
 
     const paymentPointers = paymentPointersResponse.data.map(
       (paymentPointer) => ({
-        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
+        label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
+          'https://',
+          '$'
+        )})`,
         value: paymentPointer.id
       })
     )
@@ -97,6 +118,33 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     sendForm.setValue('receiver', url)
   }
 
+  const handleAcceptQuote = async (id: string) => {
+    const response = await transfersService.acceptQuote({ quoteId: id })
+    if (response.success) {
+      openDialog(
+        <SuccessDialog
+          onClose={() => {
+            if (isUserFirstTime) {
+              setRunOnboarding(false)
+            }
+            closeDialog()
+          }}
+          title="Money sent."
+          content="Money was successfully sent."
+          redirect={`/`}
+          redirectText="Go to your accounts"
+        />
+      )
+      if (isUserFirstTime) {
+        setRunOnboarding(true)
+      }
+    } else {
+      openDialog(
+        <ErrorDialog onClose={closeDialog} content={response.message} />
+      )
+    }
+  }
+
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
@@ -106,15 +154,30 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           onSubmit={async (data) => {
             const response = await transfersService.send(data)
             if (response.success) {
-              openDialog(
-                <SuccessDialog
-                  onClose={closeDialog}
-                  title="Funds sent."
-                  content="Funds were successfully sent."
-                  redirect={`/`}
-                  redirectText="Go to your accounts"
-                />
-              )
+              if (response.data) {
+                const quoteId = response.data.id
+                openDialog(
+                  <QuoteDialog
+                    quote={response.data}
+                    onAccept={() => {
+                      handleAcceptQuote(quoteId)
+                      closeDialog
+                    }}
+                    onClose={closeDialog}
+                  />
+                )
+                if (isUserFirstTime) {
+                  setStepIndex(stepIndex + 1)
+                  setRunOnboarding(true)
+                }
+              } else {
+                openDialog(
+                  <ErrorDialog
+                    content="Something went wrong while fetching your quote. Please try again."
+                    onClose={closeDialog}
+                  />
+                )
+              }
             } else {
               const { errors, message } = response
               sendForm.setError('root', { message })
@@ -176,7 +239,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                   <DebouncedInput
                     required
                     error={sendForm.formState.errors.receiver?.message}
-                    label="Payment pointer"
+                    label="Payment pointer or Incoming payment URL"
                     value={value}
                     onChange={onPaymentPointerChange}
                   />
@@ -223,10 +286,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             <Button
               aria-label="Pay"
               type="submit"
-              className="w-24"
+              className="w-30"
               loading={sendForm.formState.isSubmitting}
             >
-              Send
+              Review Payment
             </Button>
           </div>
         </Form>
