@@ -5,6 +5,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
+import { Transaction } from '@/transaction/model'
 
 type CreateAccountArgs = {
   userId: string
@@ -200,6 +201,18 @@ export class AccountService implements IAccountService {
     if (result.status?.status !== 'SUCCESS') {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
+
+    const asset = await this.deps.rafiki.getAssetById(existingAccount.assetId)
+    const transactions = result.data.transactions
+    await Transaction.query().insert({
+      accountId: existingAccount.id,
+      paymentId: transactions[transactions.length - 1].id,
+      assetCode: existingAccount.assetCode,
+      value: transformBalance(args.amount, asset.scale),
+      type: 'INCOMING',
+      status: 'COMPLETED',
+      description: 'Fund account'
+    })
   }
 
   public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
@@ -222,6 +235,17 @@ export class AccountService implements IAccountService {
         `Unable to withdraw funds from your account: ${withdrawFunds.status.message}`
       )
     }
+
+    const asset = await this.deps.rafiki.getAssetById(account.assetId)
+    await Transaction.query().insert({
+      accountId: account.id,
+      paymentId: withdrawFunds.data.id,
+      assetCode: account.assetCode,
+      value: transformBalance(args.amount, asset.scale),
+      type: 'OUTGOING',
+      status: 'COMPLETED',
+      description: 'Withdraw funds'
+    })
   }
 
   public findAccountById = async (
