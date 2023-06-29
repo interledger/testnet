@@ -20,7 +20,7 @@ import { AssetController } from '@/asset/controller'
 import { mockLogInRequest } from '../mocks'
 // import { RafikiClient } from '@/rafiki/rafiki-client'
 
-describe('User Controller', (): void => {
+describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
