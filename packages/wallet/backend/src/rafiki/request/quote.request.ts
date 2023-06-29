@@ -29,3 +29,29 @@ export const createQuoteMutation = gql`
     }
   }
 `
+
+export const getQuoteQuery = gql`
+  query GetQuoteQuery($quoteId: String!) {
+    quote(id: $quoteId) {
+      id
+      paymentPointerId
+      receiver
+      sendAmount {
+        value
+        assetCode
+        assetScale
+      }
+      receiveAmount {
+        value
+        assetCode
+        assetScale
+      }
+      maxPacketAmount
+      minExchangeRate
+      lowEstimatedExchangeRate
+      highEstimatedExchangeRate
+      createdAt
+      expiresAt
+    }
+  }
+`

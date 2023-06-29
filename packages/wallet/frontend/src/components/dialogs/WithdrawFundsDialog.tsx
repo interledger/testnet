@@ -55,7 +55,7 @@ export const WithdrawFundsDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Withdraw Funds
+                  Withdraw Money
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
@@ -67,7 +67,7 @@ export const WithdrawFundsDialog = ({
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Withdrawal failed. Please try again"
+                            content="Withdrawal failed. Please try again."
                           />
                         )
                         return

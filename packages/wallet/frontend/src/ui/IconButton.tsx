@@ -14,7 +14,7 @@ export const IconButton = ({
     <ButtonOrLink
       className={cx(
         className,
-        'inline-flex cursor-pointer items-center justify-center bg-transparent disabled:cursor-default'
+        'inline-flex cursor-pointer items-center bg-transparent disabled:cursor-default'
       )}
       {...props}
     >

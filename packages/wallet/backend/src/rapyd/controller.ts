@@ -4,6 +4,9 @@ import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 import { User } from '@/user/model'
+import { AccountService } from '@/account/service'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { getRandomValues } from 'crypto'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -13,6 +16,8 @@ interface IRapydController {
   updateProfile: ControllerFunction
 }
 interface RapydControllerDependencies {
+  accountService: AccountService
+  paymentPointerService: PaymentPointerService
   logger: Logger
   rapydService: RapydService
 }
@@ -80,6 +85,21 @@ export class RapydController implements IRapydController {
 
       req.session.user.needsWallet = false
       await req.session.save()
+
+      const defaultAccount =
+        await this.deps.accountService.createDefaultAccount(id)
+      if (defaultAccount) {
+        const typedArray = new Uint32Array(1)
+        getRandomValues(typedArray)
+        const paymentPointerName = typedArray[0].toString(16)
+
+        await this.deps.paymentPointerService.create(
+          id,
+          defaultAccount.id,
+          paymentPointerName,
+          'Default Payment Pointer'
+        )
+      }
 
       res.status(200).json({
         success: true,

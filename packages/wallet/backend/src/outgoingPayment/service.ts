@@ -1,25 +1,12 @@
-import { Transaction } from '@/transaction/model'
-import { AccountService } from '@/account/service'
-import { RafikiClient } from '@/rafiki/rafiki-client'
-import { BadRequest, NotFound } from '@/errors'
-import { PaymentPointer } from '@/paymentPointer/model'
-import { Asset } from '@/rafiki/generated/graphql'
 import { IncomingPaymentService } from '@/incomingPayment/service'
-import { incomingPaymentRegexp } from '@/utils/helpers'
+import { RafikiClient } from '@/rafiki/rafiki-client'
+import { Transaction } from '@/transaction/model'
 
 interface IOutgoingPaymentService {
-  create: (
-    userId: string,
-    paymentPointerId: string,
-    amount: number,
-    isReceive: boolean,
-    receiver: string,
-    description?: string
-  ) => Promise<Transaction>
+  createByQuoteId: (quoteId: string) => Promise<Transaction>
 }
 
 interface OutgoingServiceDependencies {
-  accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
 }
@@ -27,98 +14,32 @@ interface OutgoingServiceDependencies {
 export class OutgoingPaymentService implements IOutgoingPaymentService {
   constructor(private deps: OutgoingServiceDependencies) {}
 
-  async create(
-    userId: string,
-    paymentPointerId: string,
-    amount: number,
-    isReceive: boolean,
-    receiver: string,
-    description?: string
-  ): Promise<Transaction> {
-    const existingPaymentPointer = await PaymentPointer.query().findById(
-      paymentPointerId
-    )
+  async createByQuoteId(quoteId: string): Promise<Transaction> {
+    const quote = await this.deps.rafikiClient.getQuote(quoteId)
 
-    if (!existingPaymentPointer || !existingPaymentPointer.active) {
-      throw new BadRequest('Invalid payment pointer')
-    }
+    const value = quote.sendAmount.value
+    const paymentPointerId = quote.paymentPointerId
 
-    const { assetId, assetCode } =
-      await this.deps.accountService.findAccountById(
-        existingPaymentPointer.accountId,
-        userId
+    const incomingPayment =
+      await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
+        quote.receiver
       )
-    const balance = await this.deps.accountService.getAccountBalance(
-      userId,
-      assetCode
-    )
+    const { description, assetCode } = incomingPayment
 
-    if (Number(balance) < amount) {
-      throw new BadRequest('Not enough funds in account')
-    }
-
-    const asset = await this.deps.rafikiClient.getAssetById(assetId)
-    if (!asset) {
-      throw new NotFound()
-    }
-
-    let paymentUrl = receiver
-    if (!incomingPaymentRegexp.test(receiver)) {
-      paymentUrl = await this.createReceiver(
-        isReceive ? BigInt(amount * 10 ** asset.scale) : null,
-        asset,
-        receiver,
-        description,
-        new Date(Date.now() + 1000 * 60).toISOString()
-      )
-    }
-
-    const quote = await this.deps.rafikiClient.createQuote({
+    const payment = await this.deps.rafikiClient.createOutgoingPayment({
       paymentPointerId,
-      receiver: paymentUrl,
-      asset,
-      amount: isReceive ? undefined : BigInt(amount * 10 ** asset.scale)
-    })
-    const payment = await this.deps.rafikiClient.createOutgoingPayment(
-      paymentPointerId,
-      quote.id,
+      quoteId,
       description
-    )
+    })
 
     return Transaction.query().insert({
-      paymentPointerId: existingPaymentPointer.id,
+      paymentPointerId,
       paymentId: payment.id,
-      assetCode: asset.code,
-      value: BigInt(amount * 10 ** asset.scale),
+      assetCode,
+      value,
       type: 'OUTGOING',
       status: 'PENDING',
       description
     })
-  }
-
-  private async createReceiver(
-    amount: bigint | null,
-    asset: Asset,
-    paymentPointerUrl = '',
-    description?: string,
-    expiresAt?: string
-  ): Promise<string> {
-    const existingPaymentPointer = await PaymentPointer.query().findOne({
-      url: paymentPointerUrl
-    })
-    if (!existingPaymentPointer) {
-      throw new BadRequest('Invalid payment pointer')
-    }
-
-    const response =
-      await this.deps.incomingPaymentService.createIncomingPaymentTransactions(
-        existingPaymentPointer.id,
-        amount,
-        asset,
-        description,
-        expiresAt
-      )
-
-    return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
   }
 }

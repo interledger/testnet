@@ -10,6 +10,7 @@ import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account
@@ -24,6 +25,8 @@ export const FundAccountDialog = ({
   const fundAccountForm = useZodForm({
     schema: fundAccountSchema
   })
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -55,7 +58,7 @@ export const FundAccountDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Fund Account
+                  Add Money to Account
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
@@ -67,7 +70,7 @@ export const FundAccountDialog = ({
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Fund Account failed. Please try again"
+                            content="Fund Account failed. Please try again."
                           />
                         )
                         return
@@ -76,6 +79,12 @@ export const FundAccountDialog = ({
                       if (response.success) {
                         router.replace(router.asPath)
                         closeDialog()
+                        if (isUserFirstTime) {
+                          setTimeout(() => {
+                            setStepIndex(stepIndex + 1)
+                            setRunOnboarding(true)
+                          }, 500)
+                        }
                       } else {
                         const { errors, message } = response
 
@@ -119,7 +128,7 @@ export const FundAccountDialog = ({
                         type="submit"
                         loading={fundAccountForm.formState.isSubmitting}
                       >
-                        Fund
+                        Add money
                       </Button>
                       <Button
                         intent="outline"
