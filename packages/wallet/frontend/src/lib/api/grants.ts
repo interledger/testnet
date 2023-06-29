@@ -13,23 +13,8 @@ const GRANT_STATE = {
 } as const
 type GrantState = keyof typeof GRANT_STATE
 
-const PERMISSIONS = {
-  CREATE: 'create',
-  READ: 'read',
-  LIST: 'list',
-  COMPLETE: 'complete'
-} as const
-type Permission = keyof typeof PERMISSIONS
-
-const ACCESS_TYPES = {
-  INCOMING_PAYMENT: 'incoming-payment',
-  OUTGOING_PAYMENT: 'outgoing-payment',
-  QUOTE: 'quote'
-} as const
-type AccessType = keyof typeof ACCESS_TYPES
-
 type PaymentAmount = {
-  value: number
+  value: string
   assetCode: string
   assetScale: number
   formattedAmount?: string
@@ -38,8 +23,8 @@ type PaymentAmount = {
 type Access = {
   id: string
   identifier: string | null
-  actions: Permission[]
-  type: AccessType
+  actions: string[]
+  type: string
   limits: {
     receiver: string | null
     sendAmount: PaymentAmount | null

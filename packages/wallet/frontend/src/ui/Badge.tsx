@@ -40,24 +40,17 @@ export const getStatusBadgeIntent = (
   switch (status) {
     case 'COMPLETED':
     case 'GRANTED':
-    case 'CREATE':
-    case 'INCOMING_PAYMENT':
       return 'green'
     case 'FAILED':
     case 'EXPIRED':
     case 'REJECTED':
     case 'REVOKED':
-    case 'READ':
-    case 'OUTGOING_PAYMENT':
       return 'pink'
     case 'PENDING':
     case 'PROCESSING':
-    case 'LIST':
       return 'orange'
     case 'FUNDING':
     case 'SENDING':
-    case 'COMPLETE':
-    case 'QUOTE':
       return 'violet'
     default:
       return 'primary'

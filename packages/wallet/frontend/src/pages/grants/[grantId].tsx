@@ -41,7 +41,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     <>
       <div className="flex flex-col items-start md:flex-col">
         <PageHeader title="Grant details" />
-        <div className="my-6 flex flex-col space-y-2 text-lg text-green sm:my-10 sm:space-y-3">
+        <div className="my-6 flex flex-col space-y-2 text-lg text-green sm:my-10">
           <div>
             <span className="font-semibold">Client:</span>
             <span className="font-light"> {grant.client}</span>
@@ -58,12 +58,43 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
               text={grant.state}
             />
           </div>
-          <div className="text-xl font-semibold">Access - Permissions:</div>
+          <div className="border-b-2 border-l-0 border-r-0 border-t-0 border-turqoise pb-3 text-xl font-semibold">
+            Access - Permissions:
+          </div>
           {grant.access.map((accessDetails) => (
             <div
               key={grant.id}
               className="border-b-2 border-l-0 border-r-0 border-t-0 border-turqoise pb-3"
             >
+              <div>
+                <span className="font-semibold">Access type: </span>
+                <span className="text-sm">
+                  {accessDetails.type.toUpperCase()}
+                </span>
+              </div>
+              {accessDetails.identifier && (
+                <div>
+                  <span className="font-semibold">
+                    Payment Pointer access:{' '}
+                  </span>
+                  <span className="font-light">{accessDetails.identifier}</span>
+                </div>
+              )}
+              <div>
+                <div className="flex flex-row items-center">
+                  <span className="font-semibold">Access action: </span>
+                  <div className="ml-2 mr-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
+                  {accessDetails.actions.map((permission) => (
+                    <>
+                      <span key={accessDetails.id} className="text-sm">
+                        {permission.toUpperCase()}
+                      </span>
+                      <div className="ml-2 mr-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
+                    </>
+                  ))}
+                </div>
+              </div>
+
               {accessDetails.limits && (
                 <>
                   {accessDetails.limits.sendAmount && (
@@ -104,36 +135,6 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
                   )}
                 </>
               )}
-
-              <div>
-                <span className="font-semibold">Access type: </span>
-                <span className="font-light">
-                  <Badge
-                    intent={getStatusBadgeIntent(accessDetails.type)}
-                    size="md"
-                    text={accessDetails.type}
-                  />
-                </span>
-              </div>
-              <div>
-                <span className="font-semibold">Payment Pointer access: </span>
-                <span className="font-light">{accessDetails.identifier}</span>
-              </div>
-              <div>
-                <span className="font-semibold">Access action: </span>
-                <span className="font-light">
-                  {accessDetails.actions.map((permission) => (
-                    <span key={grant.id}>
-                      <Badge
-                        intent={getStatusBadgeIntent(permission)}
-                        size="md"
-                        text={permission}
-                      />
-                      &nbsp;
-                    </span>
-                  ))}
-                </span>
-              </div>
             </div>
           ))}
         </div>
@@ -194,12 +195,20 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
-
+  grantResponse.data.client = grantResponse.data.client.replace('https://', '$')
   grantResponse.data.access.map((access) => {
+    access.identifier =
+      access.identifier !== null
+        ? access.identifier.replace('https://', '$')
+        : null
     if (access.limits !== null) {
+      access.limits.receiver = access.limits.receiver
+        ? access.limits.receiver.replace('https://', '$')
+        : access.limits.receiver
+
       if (access.limits.sendAmount !== null) {
         access.limits.sendAmount.formattedAmount = formatAmount({
-          value: access.limits.sendAmount.value.toString() ?? 0,
+          value: access.limits.sendAmount.value ?? 0,
           assetCode: access.limits.sendAmount.assetCode,
           assetScale: access.limits.sendAmount.assetScale
         }).amount
@@ -207,7 +216,7 @@ export const getServerSideProps: GetServerSideProps<{
 
       if (access.limits.receiveAmount !== null) {
         access.limits.receiveAmount.formattedAmount = formatAmount({
-          value: access.limits.receiveAmount.value.toString() ?? 0,
+          value: access.limits.receiveAmount.value ?? 0,
           assetCode: access.limits.receiveAmount.assetCode,
           assetScale: access.limits.receiveAmount.assetScale
         }).amount
