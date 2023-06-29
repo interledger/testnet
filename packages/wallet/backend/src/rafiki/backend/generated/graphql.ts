@@ -7,7 +7,7 @@ export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> =
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string | number; output: string; }
+  ID: { input: string; output: string; }
   String: { input: string; output: string; }
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
@@ -23,6 +23,8 @@ export type AddAssetLiquidityInput = {
   assetId: Scalars['String']['input'];
   /** The id of the transfer. */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
 };
 
 export type AddPeerLiquidityInput = {
@@ -30,6 +32,8 @@ export type AddPeerLiquidityInput = {
   amount: Scalars['BigInt']['input'];
   /** The id of the transfer. */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
   /** The id of the peer to add liquidity. */
   peerId: Scalars['String']['input'];
 };
@@ -63,6 +67,8 @@ export type Asset = Model & {
   createdAt: Scalars['String']['output'];
   /** Asset id */
   id: Scalars['ID']['output'];
+  /** Available liquidity */
+  liquidity?: Maybe<Scalars['BigInt']['output']>;
   /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
   scale: Scalars['UInt8']['output'];
   /** Minimum amount of liquidity that can be withdrawn from the asset */
@@ -73,13 +79,6 @@ export type AssetEdge = {
   __typename?: 'AssetEdge';
   cursor: Scalars['String']['output'];
   node: Asset;
-};
-
-export type AssetInput = {
-  /** [ISO 4217 currency code](https://en.wikipedia.org/wiki/ISO_4217), e.g. `USD` */
-  code: Scalars['String']['input'];
-  /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
-  scale: Scalars['UInt8']['input'];
 };
 
 export type AssetMutationResponse = MutationResponse & {
@@ -99,6 +98,8 @@ export type AssetsConnection = {
 export type CreateAssetInput = {
   /** [ISO 4217 currency code](https://en.wikipedia.org/wiki/ISO_4217), e.g. `USD` */
   code: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
   scale: Scalars['UInt8']['input'];
   /** Minimum amount of liquidity that can be withdrawn from the asset */
@@ -112,6 +113,8 @@ export type CreateAssetLiquidityWithdrawalInput = {
   assetId: Scalars['String']['input'];
   /** The id of the withdrawal. */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
 };
 
 export type CreateIncomingPaymentInput = {
@@ -121,6 +124,8 @@ export type CreateIncomingPaymentInput = {
   expiresAt?: InputMaybe<Scalars['String']['input']>;
   /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
   externalRef?: InputMaybe<Scalars['String']['input']>;
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Maximum amount to be received */
   incomingAmount?: InputMaybe<AmountInput>;
   /** Id of the payment pointer under which the incoming payment will be created */
@@ -132,6 +137,8 @@ export type CreateOutgoingPaymentInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
   externalRef?: InputMaybe<Scalars['String']['input']>;
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Id of the payment pointer under which the outgoing payment will be created */
   paymentPointerId: Scalars['String']['input'];
   /** Id of the corresponding quote for that outgoing payment */
@@ -141,6 +148,8 @@ export type CreateOutgoingPaymentInput = {
 export type CreatePaymentPointerInput = {
   /** Asset of the payment pointer */
   assetId: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Public name associated with the payment pointer */
   publicName?: InputMaybe<Scalars['String']['input']>;
   /** Payment Pointer URL */
@@ -148,6 +157,8 @@ export type CreatePaymentPointerInput = {
 };
 
 export type CreatePaymentPointerKeyInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Public key */
   jwk: JwkInput;
   paymentPointerId: Scalars['String']['input'];
@@ -172,6 +183,8 @@ export type CreatePaymentPointerMutationResponse = MutationResponse & {
 export type CreatePaymentPointerWithdrawalInput = {
   /** The id of the withdrawal. */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
   /** The id of the Open Payments payment pointer to create the withdrawal for. */
   paymentPointerId: Scalars['String']['input'];
 };
@@ -181,6 +194,8 @@ export type CreatePeerInput = {
   assetId: Scalars['String']['input'];
   /** Peering connection details */
   http: HttpInput;
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Maximum packet amount that the peer accepts */
   maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
   /** Peer's internal name */
@@ -194,6 +209,8 @@ export type CreatePeerLiquidityWithdrawalInput = {
   amount: Scalars['BigInt']['input'];
   /** The id of the withdrawal. */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
   /** The id of the peer to create the withdrawal for. */
   peerId: Scalars['String']['input'];
 };
@@ -207,6 +224,8 @@ export type CreatePeerMutationResponse = MutationResponse & {
 };
 
 export type CreateQuoteInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Id of the payment pointer under which the quote will be created */
   paymentPointerId: Scalars['String']['input'];
   /** Amount to receive (fixed receive) */
@@ -224,6 +243,8 @@ export type CreateReceiverInput = {
   expiresAt?: InputMaybe<Scalars['String']['input']>;
   /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
   externalRef?: InputMaybe<Scalars['String']['input']>;
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Maximum amount to be received */
   incomingAmount?: InputMaybe<AmountInput>;
   /** Receiving payment pointer URL */
@@ -242,11 +263,28 @@ export enum Crv {
   Ed25519 = 'Ed25519'
 }
 
+export type DeletePeerInput = {
+  id: Scalars['ID']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type DeletePeerMutationResponse = MutationResponse & {
   __typename?: 'DeletePeerMutationResponse';
   code: Scalars['String']['output'];
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type DepositEventLiquidityInput = {
+  /** The id of the event to deposit into. */
+  eventId: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
+};
+
+export type FilterString = {
+  in: Array<Scalars['String']['input']>;
 };
 
 export type Http = {
@@ -434,6 +472,8 @@ export type Mutation = {
   triggerPaymentPointerEvents: TriggerPaymentPointerEventsMutationResponse;
   /** Update an asset's withdrawal threshold. The withdrawal threshold indicates the MINIMUM amount that can be withdrawn. */
   updateAssetWithdrawalThreshold: AssetMutationResponse;
+  /** Update a payment pointer */
+  updatePaymentPointer: UpdatePaymentPointerMutationResponse;
   /** Update a peer */
   updatePeer: UpdatePeerMutationResponse;
   /** Void liquidity withdrawal. Withdrawals are two-phase commits and are rolled back via this mutation. */
@@ -509,32 +549,37 @@ export type MutationCreateReceiverArgs = {
 
 
 export type MutationDeletePeerArgs = {
-  id: Scalars['String']['input'];
+  input: DeletePeerInput;
 };
 
 
 export type MutationDepositEventLiquidityArgs = {
-  eventId: Scalars['String']['input'];
+  input: DepositEventLiquidityInput;
 };
 
 
 export type MutationPostLiquidityWithdrawalArgs = {
-  withdrawalId: Scalars['String']['input'];
+  input: PostLiquidityWithdrawalInput;
 };
 
 
 export type MutationRevokePaymentPointerKeyArgs = {
-  id: Scalars['String']['input'];
+  input: RevokePaymentPointerKeyInput;
 };
 
 
 export type MutationTriggerPaymentPointerEventsArgs = {
-  limit: Scalars['Int']['input'];
+  input: TriggerPaymentPointerEventsInput;
 };
 
 
 export type MutationUpdateAssetWithdrawalThresholdArgs = {
   input: UpdateAssetInput;
+};
+
+
+export type MutationUpdatePaymentPointerArgs = {
+  input: UpdatePaymentPointerInput;
 };
 
 
@@ -544,12 +589,12 @@ export type MutationUpdatePeerArgs = {
 
 
 export type MutationVoidLiquidityWithdrawalArgs = {
-  withdrawalId: Scalars['String']['input'];
+  input: VoidLiquidityWithdrawalInput;
 };
 
 
 export type MutationWithdrawEventLiquidityArgs = {
-  eventId: Scalars['String']['input'];
+  input: WithdrawEventLiquidityInput;
 };
 
 export type MutationResponse = {
@@ -645,6 +690,8 @@ export type PaymentPointer = Model & {
   publicName?: Maybe<Scalars['String']['output']>;
   /** List of quotes created at this payment pointer */
   quotes?: Maybe<QuoteConnection>;
+  /** Status of the payment pointer */
+  status?: Maybe<PaymentPointerStatus>;
   /** Payment Pointer URL */
   url: Scalars['String']['output'];
 };
@@ -673,6 +720,12 @@ export type PaymentPointerQuotesArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type PaymentPointerEdge = {
+  __typename?: 'PaymentPointerEdge';
+  cursor: Scalars['String']['output'];
+  node: PaymentPointer;
+};
+
 export type PaymentPointerKey = Model & {
   __typename?: 'PaymentPointerKey';
   /** Date-time of creation */
@@ -686,6 +739,13 @@ export type PaymentPointerKey = Model & {
   /** Indicator whether the key has been revoked */
   revoked: Scalars['Boolean']['output'];
 };
+
+export enum PaymentPointerStatus {
+  /** Default status */
+  Active = 'ACTIVE',
+  /** Status after deactivating */
+  Inactive = 'INACTIVE'
+}
 
 export type PaymentPointerWithdrawal = {
   __typename?: 'PaymentPointerWithdrawal';
@@ -706,6 +766,12 @@ export type PaymentPointerWithdrawalMutationResponse = MutationResponse & {
   withdrawal?: Maybe<PaymentPointerWithdrawal>;
 };
 
+export type PaymentPointersConnection = {
+  __typename?: 'PaymentPointersConnection';
+  edges: Array<PaymentPointerEdge>;
+  pageInfo: PageInfo;
+};
+
 export type Peer = Model & {
   __typename?: 'Peer';
   /** Asset of peering relationship */
@@ -716,6 +782,8 @@ export type Peer = Model & {
   http: Http;
   /** Peer id */
   id: Scalars['ID']['output'];
+  /** Available liquidity */
+  liquidity?: Maybe<Scalars['BigInt']['output']>;
   /** Maximum packet amount that the peer accepts */
   maxPacketAmount?: Maybe<Scalars['BigInt']['output']>;
   /** Peer's public name */
@@ -736,22 +804,35 @@ export type PeersConnection = {
   pageInfo: PageInfo;
 };
 
+export type PostLiquidityWithdrawalInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
+  /** The id of the liquidity withdrawal to post. */
+  withdrawalId: Scalars['String']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   /** Fetch an asset */
   asset?: Maybe<Asset>;
   /** Fetch a page of assets. */
   assets: AssetsConnection;
+  /** Fetch an Open Payments incoming payment */
+  incomingPayment?: Maybe<IncomingPayment>;
   /** Fetch an Open Payments outgoing payment */
   outgoingPayment?: Maybe<OutgoingPayment>;
   /** Fetch a payment pointer */
   paymentPointer?: Maybe<PaymentPointer>;
+  /** Fetch a page of payment pointers. */
+  paymentPointers: PaymentPointersConnection;
   /** Fetch a peer */
   peer?: Maybe<Peer>;
   /** Fetch a page of peers. */
   peers: PeersConnection;
   /** Fetch an Open Payments quote */
   quote?: Maybe<Quote>;
+  /** Fetch a page of webhook events */
+  webhookEvents: WebhookEventsConnection;
 };
 
 
@@ -768,6 +849,11 @@ export type QueryAssetsArgs = {
 };
 
 
+export type QueryIncomingPaymentArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type QueryOutgoingPaymentArgs = {
   id: Scalars['String']['input'];
 };
@@ -775,6 +861,14 @@ export type QueryOutgoingPaymentArgs = {
 
 export type QueryPaymentPointerArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPaymentPointersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -793,6 +887,15 @@ export type QueryPeersArgs = {
 
 export type QueryQuoteArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryWebhookEventsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<WebhookEventFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Quote = {
@@ -865,6 +968,13 @@ export type Receiver = {
   updatedAt: Scalars['String']['output'];
 };
 
+export type RevokePaymentPointerKeyInput = {
+  /** Internal id of key */
+  id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type RevokePaymentPointerKeyMutationResponse = MutationResponse & {
   __typename?: 'RevokePaymentPointerKeyMutationResponse';
   code: Scalars['String']['output'];
@@ -880,6 +990,13 @@ export type TransferMutationResponse = MutationResponse & {
   success: Scalars['Boolean']['output'];
 };
 
+export type TriggerPaymentPointerEventsInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Maximum number of events being triggered (n). */
+  limit: Scalars['Int']['input'];
+};
+
 export type TriggerPaymentPointerEventsMutationResponse = MutationResponse & {
   __typename?: 'TriggerPaymentPointerEventsMutationResponse';
   code: Scalars['String']['output'];
@@ -892,8 +1009,29 @@ export type TriggerPaymentPointerEventsMutationResponse = MutationResponse & {
 export type UpdateAssetInput = {
   /** Asset id */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** New minimum amount of liquidity that can be withdrawn from the asset */
   withdrawalThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+};
+
+export type UpdatePaymentPointerInput = {
+  /** ID of payment pointer to update */
+  id: Scalars['ID']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** New public name for payment pointer */
+  publicName?: InputMaybe<Scalars['String']['input']>;
+  /** New status to set the payment pointer to */
+  status?: InputMaybe<PaymentPointerStatus>;
+};
+
+export type UpdatePaymentPointerMutationResponse = MutationResponse & {
+  __typename?: 'UpdatePaymentPointerMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  paymentPointer?: Maybe<PaymentPointer>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type UpdatePeerInput = {
@@ -901,6 +1039,8 @@ export type UpdatePeerInput = {
   http?: InputMaybe<HttpInput>;
   /** Peer id */
   id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** New maximum packet amount that the peer accepts */
   maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
   /** Peer's new public name */
@@ -915,6 +1055,48 @@ export type UpdatePeerMutationResponse = MutationResponse & {
   message: Scalars['String']['output'];
   peer?: Maybe<Peer>;
   success: Scalars['Boolean']['output'];
+};
+
+export type VoidLiquidityWithdrawalInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
+  /** The id of the liquidity withdrawal to void. */
+  withdrawalId: Scalars['String']['input'];
+};
+
+export type WebhookEvent = Model & {
+  __typename?: 'WebhookEvent';
+  /** Date-time of creation */
+  createdAt: Scalars['String']['output'];
+  /** Stringified JSON data */
+  data: Scalars['String']['output'];
+  /** Event id */
+  id: Scalars['ID']['output'];
+  /** Type of event */
+  type: Scalars['String']['output'];
+};
+
+export type WebhookEventFilter = {
+  type?: InputMaybe<FilterString>;
+};
+
+export type WebhookEventsConnection = {
+  __typename?: 'WebhookEventsConnection';
+  edges: Array<WebhookEventsEdge>;
+  pageInfo: PageInfo;
+};
+
+export type WebhookEventsEdge = {
+  __typename?: 'WebhookEventsEdge';
+  cursor: Scalars['String']['output'];
+  node: WebhookEvent;
+};
+
+export type WithdrawEventLiquidityInput = {
+  /** The id of the event to withdraw from. */
+  eventId: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
 };
 
 export type CreateAssetMutationVariables = Exact<{
@@ -950,6 +1132,7 @@ export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createInc
 
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
+  idempotencyKey: Scalars['String']['input'];
 }>;
 
 
@@ -957,6 +1140,7 @@ export type WithdrawLiquidityMutation = { __typename?: 'Mutation', withdrawEvent
 
 export type DepositLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
+  idempotencyKey: Scalars['String']['input'];
 }>;
 
 
@@ -969,6 +1153,13 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 
 export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, description?: string | null, error?: string | null, externalRef?: string | null, id: string, paymentPointerId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
+export type CreatePaymentPointerKeyMutationVariables = Exact<{
+  input: CreatePaymentPointerKeyInput;
+}>;
+
+
+export type CreatePaymentPointerKeyMutation = { __typename?: 'Mutation', createPaymentPointerKey?: { __typename?: 'CreatePaymentPointerKeyMutationResponse', code: string, message: string, success: boolean, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, paymentPointerId: string, revoked: boolean, createdAt: string, jwk: { __typename?: 'Jwk', alg: Alg, crv: Crv, kid: string, kty: Kty, x: string } } | null } | null };
+
 export type CreatePaymentPointerMutationVariables = Exact<{
   input: CreatePaymentPointerInput;
 }>;
@@ -980,11 +1171,6 @@ export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
 
-export type CreatePaymentPointerKeyMutationVariables = Exact<{
-  input: CreatePaymentPointerKeyInput;
-}>;
-
-export type CreatePaymentPointerKeyMutation = { __typename?: 'Mutation', createPaymentPointerKey: { __typename?: 'CreatePaymentPointerKeyMutationResponse', code: string, success: boolean, message: string, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, paymentPointerId: string, revoked: boolean, jwk?: { __typename?: 'jwk', alg: "EdDSA", crv: "Ed25519", kid: string, kty: "OKP", x: string } } | null } };
 
 export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 

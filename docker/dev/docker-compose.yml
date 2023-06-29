@@ -67,7 +67,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-backend:main
     restart: always
     privileged: true
     volumes:

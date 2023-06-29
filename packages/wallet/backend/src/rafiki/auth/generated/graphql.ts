@@ -7,13 +7,13 @@ export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> =
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string | number; output: string; }
+  ID: { input: string; output: string; }
   String: { input: string; output: string; }
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  BigInt: { input: bigint; output: bigint; }
   UInt8: { input: number; output: number; }
-  UInt64: { input: any; output: any; }
 };
 
 export type Access = Model & {
@@ -129,7 +129,7 @@ export type PaymentAmount = {
   assetCode: Scalars['String']['output'];
   /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
   assetScale: Scalars['UInt8']['output'];
-  value: Scalars['UInt64']['output'];
+  value: Scalars['BigInt']['output'];
 };
 
 export type Query = {
@@ -174,14 +174,14 @@ export type GetGrantsQueryVariables = Exact<{
 }>;
 
 
-export type GetGrantsQuery = { __typename?: 'Query', grants: { __typename?: 'GrantsConnection', edges: Array<{ __typename?: 'GrantEdge', cursor: string, node: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, sendAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null } | null }> } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type GetGrantsQuery = { __typename?: 'Query', grants: { __typename?: 'GrantsConnection', edges: Array<{ __typename?: 'GrantEdge', cursor: string, node: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, sendAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null } | null }> } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type GetGrantQueryVariables = Exact<{
   grantId: Scalars['ID']['input'];
 }>;
 
 
-export type GetGrantQuery = { __typename?: 'Query', grant: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, sendAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null } | null }> } };
+export type GetGrantQuery = { __typename?: 'Query', grant: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, sendAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null } | null }> } };
 
 export type RevokeGrantMutationVariables = Exact<{
   grantId: Scalars['String']['input'];

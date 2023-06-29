@@ -45,12 +45,13 @@ import {
 } from './backend/request/liquidity.request'
 import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
 import { createPaymentPointerMutation } from './backend/request/payment-pointer.request'
-import { createPaymentPointerKeyMutation } from './request/payment-pointer-key.request'
+import { createPaymentPointerKeyMutation } from './backend/request/payment-pointer-key.request'
 import { GraphQLClient } from 'graphql-request'
 import {
   createQuoteMutation,
   getQuoteQuery
 } from './backend/request/quote.request'
+import { v4 as uuid } from 'uuid'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -150,7 +151,8 @@ export class RafikiClient implements IRafikiClient {
       WithdrawLiquidityMutation,
       WithdrawLiquidityMutationVariables
     >(withdrawLiquidityMutation, {
-      eventId
+      eventId,
+      idempotencyKey: uuid()
     })
 
     if (!response.withdrawEventLiquidity?.success) {
@@ -168,7 +170,8 @@ export class RafikiClient implements IRafikiClient {
       DepositLiquidityMutation,
       DepositLiquidityMutationVariables
     >(depositLiquidityMutation, {
-      eventId
+      eventId,
+      idempotencyKey: uuid()
     })
 
     if (!response.depositEventLiquidity?.success) {
@@ -241,8 +244,8 @@ export class RafikiClient implements IRafikiClient {
       }
     })
 
-    if (!response.createPaymentPointerKey.success) {
-      throw new Error(response.createPaymentPointerKey.message)
+    if (!response.createPaymentPointerKey?.success) {
+      throw new Error(response.createPaymentPointerKey?.message)
     }
     if (!response.createPaymentPointerKey.paymentPointerKey) {
       throw new Error('Unable to fetch created payment pointer key')
