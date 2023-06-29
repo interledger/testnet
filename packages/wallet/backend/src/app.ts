@@ -180,6 +180,12 @@ export class App {
       transactionController.list
     )
 
+    router.post(
+      '/accounts/:accountId/payment-pointers/:paymentPointerId/register-key',
+      isAuth,
+      paymentPointerController.registerKey
+    )
+
     // incoming payment routes
     router.post('/incoming-payments', isAuth, incomingPaymentController.create)
     router.get(

@@ -17,6 +17,7 @@ import {
   CreateOutgoingPaymentMutationVariables,
   CreatePaymentPointerMutation,
   CreatePaymentPointerMutationVariables,
+  CreatePaymentPointerKeyMutation,
   CreateQuoteInput,
   CreateQuoteMutation,
   CreateQuoteMutationVariables,
@@ -32,7 +33,9 @@ import {
   OutgoingPayment,
   Quote,
   WithdrawLiquidityMutation,
-  WithdrawLiquidityMutationVariables
+  WithdrawLiquidityMutationVariables,
+  CreatePaymentPointerKeyMutationVariables,
+  JwkInput
 } from './backend/generated/graphql'
 import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
 import { BadRequest, NotFound } from '@/errors'
@@ -42,6 +45,7 @@ import {
 } from './backend/request/liquidity.request'
 import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
 import { createPaymentPointerMutation } from './backend/request/payment-pointer.request'
+import { createPaymentPointerKeyMutation } from './request/payment-pointer-key.request'
 import { GraphQLClient } from 'graphql-request'
 import {
   createQuoteMutation,
@@ -83,7 +87,6 @@ export class RafikiClient implements IRafikiClient {
       CreateAssetMutation,
       CreateAssetMutationVariables
     >(createAssetMutation, { input: { code, scale } })
-
     if (!response.createAsset.success || !response.createAsset.asset) {
       throw new Error('Data was empty')
     }
@@ -222,6 +225,30 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return response.createPaymentPointer.paymentPointer
+  }
+
+  public async createRafikiPaymentPointerKey(
+    jwk: JwkInput,
+    paymentPointerId: string
+  ) {
+    const response = await this.deps.gqlClient.request<
+      CreatePaymentPointerKeyMutation,
+      CreatePaymentPointerKeyMutationVariables
+    >(createPaymentPointerKeyMutation, {
+      input: {
+        paymentPointerId,
+        jwk
+      }
+    })
+
+    if (!response.createPaymentPointerKey.success) {
+      throw new Error(response.createPaymentPointerKey.message)
+    }
+    if (!response.createPaymentPointerKey.paymentPointerKey) {
+      throw new Error('Unable to fetch created payment pointer key')
+    }
+
+    return response.createPaymentPointerKey.paymentPointerKey
   }
 
   public async createQuote(params: CreateQuoteParams): Promise<Quote> {
