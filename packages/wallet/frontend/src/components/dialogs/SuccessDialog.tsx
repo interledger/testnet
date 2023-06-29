@@ -80,7 +80,7 @@ export const SuccessDialog = ({
                 <div className="my-5">
                   {copyToClipboard && (
                     <CopyButton
-                      text="Copy incoming payment URL"
+                      ctaText="Copy incoming payment URL"
                       value={copyToClipboard}
                       aria-label="copy api key"
                     />
