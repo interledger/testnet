@@ -50,7 +50,6 @@ export class AccountService implements IAccountService {
         `An account with the name '${args.name}' already exists`
       )
     }
-
     const asset = await this.deps.rafiki.getAssetById(args.assetId)
 
     if (!asset) {
@@ -61,7 +60,6 @@ export class AccountService implements IAccountService {
       .where('assetCode', asset.code)
       .where('userId', args.userId)
       .first()
-
     if (existingAssetAccount) {
       throw new Conflict(
         `You can only have one account per asset. ${asset.code} account already exists`
@@ -85,7 +83,6 @@ export class AccountService implements IAccountService {
         `Unable to issue virtal account to ewallet: ${result.status?.message}`
       )
     }
-
     // save virtual bank account number to database
     const virtualAccount = result.data
 
@@ -97,7 +94,6 @@ export class AccountService implements IAccountService {
       assetScale: asset.scale,
       virtualAccountId: virtualAccount.id
     })
-
     await this.deps.rapyd.simulateBankTransferToWallet({
       amount: 0,
       currency: account.assetCode,
@@ -121,27 +117,36 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async getAccounts(userId: string): Promise<Account[]> {
-    const accounts = await Account.query().where('userId', userId)
-
+  public async getAccounts(
+    userId: string,
+    hasPaymentPointer?: boolean
+  ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.rapydWalletId) {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
-      user.rapydWalletId
-    )
+    let query = Account.query().where('userId', userId)
+    if (hasPaymentPointer)
+      query = query.withGraphFetched({ paymentPointers: true })
 
-    accounts.forEach((acc) => {
-      acc.balance = transformBalance(
-        accountsBalance.data?.find(
-          (rapydAccount) => rapydAccount.currency === acc.assetCode
-        )?.balance ?? 0,
-        acc.assetScale
+    const accounts = await query
+
+    if (!hasPaymentPointer) {
+      const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+        user.rapydWalletId
       )
-    })
+
+      accounts.forEach((acc) => {
+        acc.balance = transformBalance(
+          accountsBalance.data?.find(
+            (rapydAccount) => rapydAccount.currency === acc.assetCode
+          )?.balance ?? 0,
+          acc.assetScale
+        )
+      })
+    }
 
     return accounts
   }
