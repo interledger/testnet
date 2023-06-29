@@ -5,6 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { PaymentPointer } from './paymentPointer'
 
 export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
@@ -37,6 +38,7 @@ export type Account = {
   assetScale: number
   assetId: string
   balance: string
+  paymentPointers: PaymentPointer[]
 }
 
 type GetAccountResult = SuccessResponse<Account>
@@ -60,7 +62,10 @@ type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
-  list: (cookies?: string) => Promise<ListAccountsResponse>
+  list: (
+    cookies?: string,
+    include?: 'paymentPointers'
+  ) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
   withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
@@ -82,10 +87,10 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async list(cookies) {
+  async list(cookies, include) {
     try {
       const response = await httpClient
-        .get('accounts', {
+        .get(`accounts${include ? `?include=${include}` : ``}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }

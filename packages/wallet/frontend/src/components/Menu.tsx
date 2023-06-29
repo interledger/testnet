@@ -59,8 +59,8 @@ const menuItems: MenuItemProps[] = [
         href: '/settings'
       },
       {
-        name: 'Developer',
-        href: '/settings/api'
+        name: 'Developer Keys',
+        href: '/settings/developer-keys'
       }
     ]
   }
