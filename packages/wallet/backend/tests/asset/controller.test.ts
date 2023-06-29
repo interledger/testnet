@@ -17,7 +17,7 @@ import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import { AssetController } from '@/asset/controller'
-import { mockLogInRequest } from '../mocks'
+import { mockListAssets, mockLogInRequest } from '../mocks'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
@@ -71,12 +71,20 @@ describe('Asset Controller', (): void => {
 
   describe('list', (): void => {
     it("should return the user's list of assets (empty)", async (): Promise<void> => {
+      const depsMocked = {
+        rafikiClient: {
+          listAssets: () => mockListAssets
+        }
+      }
+      Reflect.set(assetController, 'deps', depsMocked)
+
       await assetController.list(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         // data: [],
         message: 'Success'
       })
+      console.log(res._getJSONData())
     })
   })
 })
