@@ -22,8 +22,8 @@ const PERMISSIONS = {
 type Permission = keyof typeof PERMISSIONS
 
 const ACCESS_TYPES = {
-  INCOMING_PAYMENT: 'incoming payment',
-  OUTGOING_PAYMENT: 'outgoing payment',
+  INCOMING_PAYMENT: 'incoming-payment',
+  OUTGOING_PAYMENT: 'outgoing-payment',
   QUOTE: 'quote'
 } as const
 type AccessType = keyof typeof ACCESS_TYPES
@@ -34,16 +34,18 @@ type PaymentAmount = {
   assetScale: number
   formattedAmount?: string
 }
+
 type Access = {
-  identifier: string
+  id: string
+  identifier: string | null
   actions: Permission[]
   type: AccessType
   limits: {
-    receiver: string
-    sendAmount: PaymentAmount
-    receiveAmount: PaymentAmount
-    interval: string
-  }
+    receiver: string | null
+    sendAmount: PaymentAmount | null
+    receiveAmount: PaymentAmount | null
+    interval: string | null
+  } | null
 }
 
 export type Grant = {

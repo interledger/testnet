@@ -64,34 +64,47 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
               key={grant.id}
               className="border-b-2 border-l-0 border-r-0 border-t-0 border-turqoise pb-3"
             >
-              <div>
-                <span className="font-semibold">Amount to send: </span>
-                <span className="font-light">
-                  {accessDetails.limits.sendAmount.formattedAmount}
-                </span>
-              </div>
-              <div>
-                <span className="font-semibold">Amount to receive: </span>
-                <span className="font-light">
-                  {accessDetails.limits.receiveAmount.formattedAmount}
-                </span>
-              </div>
-              <div>
-                <span className="font-semibold">
-                  Payment Pointer of the receiver:{' '}
-                </span>
-                <span className="font-light">
-                  {accessDetails.limits.receiver}
-                </span>
-              </div>
-              <div>
-                <span className="font-semibold">
-                  Interval between payments:{' '}
-                </span>
-                <span className="font-light">
-                  {accessDetails.limits.interval}
-                </span>
-              </div>
+              {accessDetails.limits && (
+                <>
+                  {accessDetails.limits.sendAmount && (
+                    <div>
+                      <span className="font-semibold">Amount to send: </span>
+                      <span className="font-light">
+                        {accessDetails.limits.sendAmount.formattedAmount}
+                      </span>
+                    </div>
+                  )}
+                  {accessDetails.limits.receiveAmount && (
+                    <div>
+                      <span className="font-semibold">Amount to receive: </span>
+                      <span className="font-light">
+                        {accessDetails.limits.receiveAmount.formattedAmount}
+                      </span>
+                    </div>
+                  )}
+                  {accessDetails.limits.receiver && (
+                    <div>
+                      <span className="font-semibold">
+                        Payment Pointer of the receiver:{' '}
+                      </span>
+                      <span className="font-light">
+                        {accessDetails.limits.receiver}
+                      </span>
+                    </div>
+                  )}
+                  {accessDetails.limits.interval && (
+                    <div>
+                      <span className="font-semibold">
+                        Interval between payments:{' '}
+                      </span>
+                      <span className="font-light">
+                        {accessDetails.limits.interval}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+
               <div>
                 <span className="font-semibold">Access type: </span>
                 <span className="font-light">
@@ -182,28 +195,25 @@ export const getServerSideProps: GetServerSideProps<{
 
   grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
 
-  grantResponse.data.access = grantResponse.data.access.map((access) => ({
-    ...access,
-    limits: {
-      ...access.limits,
-      sendAmount: {
-        ...access.limits.sendAmount,
-        formattedAmount: formatAmount({
+  grantResponse.data.access.map((access) => {
+    if (access.limits !== null) {
+      if (access.limits.sendAmount !== null) {
+        access.limits.sendAmount.formattedAmount = formatAmount({
           value: access.limits.sendAmount.value.toString() ?? 0,
           assetCode: access.limits.sendAmount.assetCode,
           assetScale: access.limits.sendAmount.assetScale
         }).amount
-      },
-      receiveAmount: {
-        ...access.limits.receiveAmount,
-        formattedAmount: formatAmount({
+      }
+
+      if (access.limits.receiveAmount !== null) {
+        access.limits.receiveAmount.formattedAmount = formatAmount({
           value: access.limits.receiveAmount.value.toString() ?? 0,
           assetCode: access.limits.receiveAmount.assetCode,
           assetScale: access.limits.receiveAmount.assetScale
         }).amount
       }
     }
-  }))
+  })
 
   return {
     props: {
