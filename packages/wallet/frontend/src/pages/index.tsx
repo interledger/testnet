@@ -98,13 +98,11 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
         </div>
         {accounts.length > 0 ? (
           <div className="grid grid-cols-2 gap-6">
-            {accounts.map((account, index) => (
+            {accounts.map((account) => (
               <AccountCard
                 key={account.id}
                 account={account}
-                idOnboarding={
-                  account.assetCode === 'USD' && index === 0 ? 'usdAccount' : ''
-                }
+                idOnboarding={account.assetCode === 'USD' ? 'usdAccount' : ''}
               />
             ))}
           </div>
