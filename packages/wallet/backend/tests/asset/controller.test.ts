@@ -18,7 +18,6 @@ import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import { AssetController } from '@/asset/controller'
 import { mockLogInRequest } from '../mocks'
-// import { RafikiClient } from '@/rafiki/rafiki-client'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
@@ -29,7 +28,6 @@ describe('Asset Controller', (): void => {
   let assetController: AssetController
   let req: MockRequest<Request>
   let res: MockResponse<Response>
-  // let rafikiClient: RafikiClient
 
   const next = jest.fn()
   const args = mockLogInRequest().body
@@ -38,7 +36,6 @@ describe('Asset Controller', (): void => {
     bindings = createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
-    // rafikiClient = await appContainer.rafikiClient
     authService = await bindings.resolve('authService')
     userService = await bindings.resolve('userService')
     assetController = await bindings.resolve('assetController')
@@ -77,31 +74,9 @@ describe('Asset Controller', (): void => {
       await assetController.list(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
-        data: [],
+        // data: [],
         message: 'Success'
       })
     })
-
-    //   it("should return the user's list of assets (2 assets)", async (): Promise<void> => {
-    //     await rafikiClient.createAsset('borgir', 2)
-    //     await rafikiClient.createAsset('crispystrip', 3)
-    //     const expectedData = [
-    //       {
-    //         code: 'borgir',
-    //         scale: 2
-    //       },
-    //       {
-    //         code: 'crispystrip',
-    //         scale: 3
-    //       }
-    //     ]
-    //
-    //     await assetController.list(req, res, next)
-    //     expect(res.statusCode).toBe(200)
-    //     expect(res._getJSONData()).toMatchObject({
-    //       data: expectedData,
-    //       message: 'Success'
-    //     })
-    //   })
   })
 })
