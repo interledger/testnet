@@ -29,7 +29,7 @@ export const getForgotPasswordEmail = (token: string): string => {
              </tr>
                 <tr>
                   <td>
-                    <p style="font-size:16px;line-height:28px;margin:16px 0;margin-bottom:30px">That&#x27s okay, it happens to everyone. Click the button to reset your password.</p>
+                    <p style="font-size:16px;line-height:28px;margin:16px 0;margin-bottom:30px">That&#x27;s okay, it happens to everyone. Click the button to reset your password.</p>
                   </td>
                 </tr>
                 <tr>
