@@ -84,7 +84,6 @@ const DeveloperKeys: NextPageWithLayout<DeveloperKeysProps> = ({
                                     {paymentPointer.keyId ? (
                                       <CopyButton
                                         size="sm"
-                                        
                                         ctaText="Copy"
                                         afterCtaText="Copied"
                                         value={paymentPointer.keyId}
