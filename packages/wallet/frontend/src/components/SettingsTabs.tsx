@@ -8,8 +8,8 @@ const tabs = [
     href: '/settings'
   },
   {
-    name: 'API',
-    href: '/settings/api'
+    name: 'Developer Keys',
+    href: '/settings/developer-keys'
   }
 ]
 

@@ -1,6 +1,7 @@
 import { Clipboard, ClipboardCheck } from '@/components/icons/Clipboard'
 import { useEffect, useState } from 'react'
 import { Button, ButtonProps } from './Button'
+import { cx } from 'class-variance-authority'
 
 function copyToClipboard(value: string) {
   navigator.clipboard.writeText(value)
@@ -8,10 +9,16 @@ function copyToClipboard(value: string) {
 
 type CopyButtonProps = Omit<ButtonProps, 'intent'> & {
   value: string
-  text?: string
+  ctaText?: string
+  afterCtaText?: string
 }
 
-export const CopyButton = ({ value, text, ...props }: CopyButtonProps) => {
+export const CopyButton = ({
+  value,
+  afterCtaText,
+  ctaText,
+  ...props
+}: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false)
 
   useEffect(() => {
@@ -33,11 +40,15 @@ export const CopyButton = ({ value, text, ...props }: CopyButtonProps) => {
       <div className="flex items-center justify-center">
         <span className="sr-only">Copy</span>
         {isCopied ? (
-          <ClipboardCheck className="m-0.5 h-7 w-7" />
+          <ClipboardCheck
+            className={cx('m-0.5', props.size === 'sm' ? 'h-4 w-4' : 'h-7 w-7')}
+          />
         ) : (
-          <Clipboard className="m-0.5 h-7 w-7" />
+          <Clipboard
+            className={cx('m-0.5', props.size === 'sm' ? 'h-4 w-4' : 'h-7 w-7')}
+          />
         )}
-        {text}
+        {afterCtaText && isCopied ? afterCtaText : ctaText}
       </div>
     </Button>
   )
