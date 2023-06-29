@@ -84,7 +84,6 @@ describe('Asset Controller', (): void => {
         // data: [],
         message: 'Success'
       })
-      console.log(res._getJSONData())
     })
   })
 })
