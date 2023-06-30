@@ -43,15 +43,15 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
         <PageHeader title="Grant details" />
         <div className="my-6 flex flex-col space-y-2 text-lg text-green sm:my-10">
           <div>
-            <span className="font-semibold">Client:</span>
-            <span className="font-light"> {grant.client}</span>
+            <span className="font-semibold">Client: </span>
+            <span className="font-light">{grant.client}</span>
           </div>
           <div>
             <span className="font-semibold">Created at: </span>
             <span className="font-light">{grant.createdAt}</span>
           </div>
           <div className="flex items-center">
-            <span className="mr-4 font-semibold">State:</span>
+            <span className="mr-4 font-semibold">State: </span>
             <Badge
               intent={getStatusBadgeIntent(grant.state)}
               size="md"
@@ -91,7 +91,6 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
                   ))}
                 </div>
               </div>
-
               {accessDetails.limits && (
                 <>
                   {accessDetails.limits.sendAmount && (
