@@ -82,12 +82,12 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
                   <span className="font-semibold">Access action: </span>
                   <div className="ml-2 mr-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
                   {accessDetails.actions.map((permission) => (
-                    <>
-                      <span key={accessDetails.id} className="text-sm">
+                    <div key={accessDetails.id} className="flex items-center">
+                      <span className="text-sm">
                         {permission.toUpperCase()}
                       </span>
                       <div className="ml-2 mr-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
-                    </>
+                    </div>
                   ))}
                 </div>
               </div>
