@@ -58,14 +58,11 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
               text={grant.state}
             />
           </div>
-          <div className="border-b-2 border-l-0 border-r-0 border-t-0 border-turqoise pb-3 text-xl font-semibold">
+          <div className="border-b border-b-green-5 pb-3 text-xl font-semibold">
             Access - Permissions:
           </div>
           {grant.access.map((accessDetails) => (
-            <div
-              key={grant.id}
-              className="border-b-2 border-l-0 border-r-0 border-t-0 border-turqoise pb-3"
-            >
+            <div key={grant.id} className="border-b border-b-green-5 pb-3">
               <div>
                 <span className="font-semibold">Access type: </span>
                 <span className="text-sm">
