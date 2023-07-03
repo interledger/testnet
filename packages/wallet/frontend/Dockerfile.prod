@@ -28,6 +28,16 @@ COPY packages/wallet/frontend /testnet/packages/wallet/frontend
 COPY --from=base /testnet/node_modules ./node_modules
 COPY --from=base /testnet/packages/wallet/frontend/node_modules ./packages/wallet/frontend/node_modules
 
+ARG PORT
+ARG NEXT_PUBLIC_USE_TEST_KYC_DATA
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+
+ENV NODE_ENV=production
+ENV PORT=$PORT \
+    NEXT_PUBLIC_USE_TEST_KYC_DATA=$NEXT_PUBLIC_USE_TEST_KYC_DATA \
+    NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL \
+    NEXT_PUBLIC_OPEN_PAYMENTS_HOST=$NEXT_PUBLIC_OPEN_PAYMENTS_HO
 
 RUN pnpm wallet:frontend build
 
