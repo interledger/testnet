@@ -53,12 +53,14 @@ export type Quote = {
   expiresAt: string
 }
 
-export interface Fees {
+type Fee = {
   fixed: number
   percentage: number
-  asset: string
+  // asset: string
   scale: number
 }
+
+export type Fees = Record<string, Fee>
 
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
@@ -391,35 +393,51 @@ export class RafikiService implements IRafikiService {
 
   public async createQuote(receivedQuote: Quote) {
     const feeStructure: Fees = {
-      fixed: 100,
-      percentage: 0.02,
-      asset: 'USD',
-      scale: 2
+      USD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      EUR: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      }
     }
-
+    const actualFee = feeStructure[receivedQuote.sendAmount.assetCode]
     if (receivedQuote.paymentType == PaymentType.FixedDelivery) {
       if (
-        receivedQuote.sendAmount.assetCode !== feeStructure.asset ||
-        receivedQuote.sendAmount.assetScale !== feeStructure.scale
+        feeStructure[receivedQuote.sendAmount.assetCode] &&
+        receivedQuote.sendAmount.assetScale !==
+          feeStructure[receivedQuote.sendAmount.assetCode].scale
       ) {
         throw new BadRequest('Invalid quote sendAmount asset')
       }
+      // if (
+      //   receivedQuote.sendAmount.assetCode !== feeStructure.asset ||
+      //   receivedQuote.sendAmount.assetScale !== feeStructure.scale
+      // ) {
+      //   throw new BadRequest('Invalid quote sendAmount asset')
+      // }
       const sendAmountValue = BigInt(receivedQuote.sendAmount.value)
       const fees =
         // TODO: bigint/float multiplication
-        BigInt(Math.floor(Number(sendAmountValue) * feeStructure.percentage)) +
-        BigInt(feeStructure.fixed)
+        BigInt(Math.floor(Number(sendAmountValue) * actualFee.percentage)) +
+        BigInt(actualFee.fixed)
 
       receivedQuote.sendAmount.value = sendAmountValue + fees
     } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
-      if (receivedQuote.receiveAmount.assetCode !== feeStructure.asset) {
+      if (
+        !Object.keys(feeStructure).includes(
+          receivedQuote.receiveAmount.assetCode
+        )
+      ) {
         throw new BadRequest('Invalid quote receiveAmount asset')
       }
       const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
       const fees =
-        BigInt(
-          Math.floor(Number(receiveAmountValue) * feeStructure.percentage)
-        ) + BigInt(feeStructure.fixed)
+        BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
+        BigInt(actualFee.fixed)
 
       if (receiveAmountValue <= fees) {
         throw new BadRequest('Fees exceed quote receiveAmount')
@@ -437,7 +455,7 @@ export class RafikiService implements IRafikiService {
     return {
       base: 'USD',
       rates: {
-        EUR: 1.1602,
+        EUR: 1,
         ZAR: 17.3782
       }
     }
