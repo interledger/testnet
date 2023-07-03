@@ -123,7 +123,7 @@ services:
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:3e2954cba78e17db42013e56fd9850a6047f7caa6f30dd7c46ff932c809af10c
+    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:b5ae9d77a4738f6b2e54f1cfbe55dcc82ec708f8d40cc18e1d5025c263221d33
     restart: unless-stopped
     privileged: true
     volumes:
