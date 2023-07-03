@@ -34,6 +34,8 @@ import { RafikiController } from './rafiki/controller'
 import { RafikiService } from './rafiki/service'
 import { QuoteController } from './quote/controller'
 import { QuoteService } from './quote/service'
+import { RafikiAuthService } from '@/rafiki/auth/service'
+import { GrantController } from '@/grant/controller'
 
 export interface Bindings {
   env: Env
@@ -63,6 +65,8 @@ export interface Bindings {
   outgoingPaymentService: OutgoingPaymentService
   quoteController: QuoteController
   quoteService: QuoteService
+  rafikiAuthService: RafikiAuthService
+  grantController: GrantController
 }
 
 export class App {
@@ -121,6 +125,7 @@ export class App {
     const quoteController = await this.container.resolve('quoteController')
     const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
+    const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
 
@@ -202,6 +207,11 @@ export class App {
 
     // asset
     router.get('/assets', isAuth, assetController.list)
+
+    // grant
+    router.get('/grants', isAuth, grantController.list)
+    router.get('/grants/:id', isAuth, grantController.getById)
+    router.delete('/grants/:id', isAuth, grantController.revoke)
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)

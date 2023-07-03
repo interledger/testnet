@@ -6,6 +6,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateKeyPairSync } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { generateJwk } from '@/utils/jwk'
+import { Account } from '@/account/model'
 
 interface IPaymentPointerService {
   create: (
@@ -111,6 +112,16 @@ export class PaymentPointerService implements IPaymentPointerService {
     }
 
     return paymentPointer
+  }
+
+  async listIdentifiersByUserId(userId: string): Promise<string[]> {
+    const accounts = await Account.query()
+      .where('userId', userId)
+      .withGraphFetched('paymentPointers')
+
+    return accounts.flatMap((account) =>
+      account.paymentPointers.map(({ url }) => url)
+    )
   }
 
   /**

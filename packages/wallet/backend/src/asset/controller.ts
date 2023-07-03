@@ -1,6 +1,6 @@
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
-import { Asset } from '@/rafiki/generated/graphql'
+import { Asset } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 
 interface IAssetController {

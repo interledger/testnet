@@ -67,15 +67,17 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-auth:main
     restart: always
     networks:
       - testnet
     ports:
       - '3006:3006'
+      - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
+      ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL}
     depends_on:
@@ -83,7 +85,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-backend:main
     restart: always
     privileged: true
     volumes:

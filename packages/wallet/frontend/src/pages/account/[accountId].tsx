@@ -7,7 +7,7 @@ import { Withdraw } from '@/components/icons/Withdraw'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
 
-import { PaymentPointerCard } from '@/components/PaymentPointerCard'
+import { PaymentPointerCard } from '@/components/cards/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useOnboardingContext } from '@/lib/context/onboarding'

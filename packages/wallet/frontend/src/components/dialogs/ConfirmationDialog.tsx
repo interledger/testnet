@@ -6,6 +6,7 @@ import { Warning } from '../icons/Warning'
 
 type ConfirmationDialogProps = Pick<DialogProps, 'onClose'> & {
   onConfirm: () => void
+  message?: string
   confirmText?: string
 }
 
@@ -13,6 +14,7 @@ type ConfirmationDialogProps = Pick<DialogProps, 'onClose'> & {
 export const ConfirmationDialog = ({
   onClose,
   onConfirm,
+  message,
   confirmText
 }: ConfirmationDialogProps) => {
   return (
@@ -45,9 +47,12 @@ export const ConfirmationDialog = ({
                 <div className="flex flex-col items-center justify-center px-4">
                   <Warning strokeWidth={2} className="h-16 w-16 text-pink" />
                   <p className="text-center font-semibold text-pink">
-                    Please note that this action is not reversible.
-                    <br />
-                    Continue with caution.
+                    {message ?? (
+                      <>
+                        Please note that this action is not reversible. Continue
+                        with caution.
+                      </>
+                    )}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button

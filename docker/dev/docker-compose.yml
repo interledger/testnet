@@ -38,6 +38,7 @@ services:
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
+      AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
     restart: always
     networks:
       - testnet
@@ -48,15 +49,17 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-auth:main
     restart: always
     networks:
       - testnet
     ports:
       - '3006:3006'
+      - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
+      ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
     depends_on:
@@ -64,7 +67,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-backend:main
     restart: always
     privileged: true
     volumes:
