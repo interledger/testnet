@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { logInSchema, signUpSchema } from '@/auth/validation'
 import z from 'zod'
+import { Asset } from '@/rafiki/generated/graphql'
 
 type LogInRequest = z.infer<typeof logInSchema>
 export const mockLogInRequest = (
@@ -27,16 +28,16 @@ export const mockSignUpRequest = (
   }
 }
 
-export const mockListAssets = [
+export const mockedListAssets: Array<Asset> = [
   {
-    code: 'borgir',
+    code: 'BRG',
     createdAt: '2023-06-28T14:33:24.675Z',
     id: '9c498723-95fc-418e-becc-012205f8dff6',
     scale: 3,
     withdrawalThreshold: null
   },
   {
-    code: 'crispystrip',
+    code: 'CRS',
     createdAt: '2023-06-28T14:33:24.695Z',
     id: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
     scale: 4,
