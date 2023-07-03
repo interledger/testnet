@@ -121,7 +121,6 @@ describe('Asset Controller', (): void => {
       await accountController.createAccount(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
-        // data: [],
         message: 'SUCCESS',
         data: {
           name

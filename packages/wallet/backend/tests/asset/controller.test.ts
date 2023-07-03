@@ -81,7 +81,6 @@ describe('Asset Controller', (): void => {
       await assetController.list(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
-        // data: [],
         message: 'Success'
       })
     })
