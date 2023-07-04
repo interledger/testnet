@@ -181,4 +181,19 @@ export class PaymentPointerService implements IPaymentPointerService {
 
     return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId }
   }
+
+  async revokeKey(
+    userId: string,
+    accountId: string,
+    paymentPointerId: string
+  ): Promise<void> {
+    const paymentPointer = await this.getById(
+      userId,
+      accountId,
+      paymentPointerId
+    )
+    console.log(paymentPointer)
+    await paymentPointer.$query().patch({ keyIds: JSON.stringify([]) })
+    console.log(paymentPointer)
+  }
 }

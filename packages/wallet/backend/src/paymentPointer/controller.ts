@@ -141,4 +141,25 @@ export class PaymentPointerController implements IPaymentPointerController {
       next(e)
     }
   }
+
+  revokeKey = async (req: Request, res: CustomResponse, next: NextFunction) => {
+    try {
+      const { accountId, paymentPointerId } = req.params
+
+      await this.deps.paymentPointerService.revokeKey(
+        req.session.user.id,
+        accountId,
+        paymentPointerId
+      )
+
+      res.status(200).json({
+        success: true,
+        message: 'Key was successfully revoked'
+      })
+
+    } catch (e) {
+      this.deps.logger.error(e)
+      next(e)
+    }
+  }
 }
