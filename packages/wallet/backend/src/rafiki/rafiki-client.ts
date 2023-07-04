@@ -35,7 +35,8 @@ import {
   WithdrawLiquidityMutation,
   WithdrawLiquidityMutationVariables,
   CreatePaymentPointerKeyMutationVariables,
-  JwkInput
+  JwkInput,
+  QueryAssetsArgs
 } from './backend/generated/graphql'
 import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
 import { BadRequest, NotFound } from '@/errors'
@@ -55,7 +56,7 @@ import { v4 as uuid } from 'uuid'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
-  listAssets(): Promise<Asset[]>
+  listAssets(args?: QueryAssetsArgs): Promise<Asset[]>
   getAssetById(id: string): Promise<Asset>
 }
 
@@ -95,11 +96,11 @@ export class RafikiClient implements IRafikiClient {
     return response.createAsset.asset as Asset
   }
 
-  public async listAssets() {
+  public async listAssets(args?: QueryAssetsArgs) {
     const response = await this.deps.gqlClient.request<
       GetAssetsQuery,
       GetAssetsQueryVariables
-    >(getAssetsQuery, {})
+    >(getAssetsQuery, args ?? {})
 
     return response.assets.edges.map((el: { node: Asset }) => el.node)
   }
