@@ -56,7 +56,7 @@ import { v4 as uuid } from 'uuid'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
-  listAssets(args: QueryAssetsArgs): Promise<Asset[]>
+  listAssets(args?: QueryAssetsArgs): Promise<Asset[]>
   getAssetById(id: string): Promise<Asset>
 }
 
