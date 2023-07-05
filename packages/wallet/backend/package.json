@@ -18,7 +18,7 @@
     "helmet": "^7.0.0",
     "iron-session": "^6.3.1",
     "knex": "^2.4.2",
-    "objection": "^3.0.1",
+    "objection": "^3.0.4",
     "pg": "^8.11.1",
     "uuid": "^9.0.0",
     "winston": "^3.9.0",
