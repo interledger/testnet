@@ -91,14 +91,57 @@ const DeveloperKeys: NextPageWithLayout<DeveloperKeysProps> = ({
                                   </p>
                                   <div className="flex-none py-0.5 text-sm leading-5 text-gray-500">
                                     {paymentPointer.keyIds ? (
-                                      <CopyButton
-                                        size="sm"
-                                        ctaText="Copy"
-                                        afterCtaText="Copied"
-                                        value={paymentPointer.keyIds}
-                                        aria-label="copy key id"
-                                        className="w-20"
-                                      />
+                                      <div className="flex space-x-2">
+                                        <Button
+                                          size="sm"
+                                          aria-label="revoke key"
+                                          onClick={async () => {
+                                            const response =
+                                              await paymentPointerService.revokeKey(
+                                                {
+                                                  accountId:
+                                                    paymentPointer.accountId,
+                                                  paymentPointerId:
+                                                    paymentPointer.id
+                                                }
+                                              )
+
+                                            if (!response.success) {
+                                              openDialog(
+                                                <ErrorDialog
+                                                  onClose={() => {
+                                                    closeDialog()
+                                                  }}
+                                                  content={response.message}
+                                                />
+                                              )
+                                              return
+                                            }
+
+                                            openDialog(
+                                              <SuccessDialog
+                                                title="Success"
+                                                onClose={() => {
+                                                  closeDialog()
+                                                  router.replace(router.asPath)
+                                                }}
+                                                size="lg"
+                                                content={response.message}
+                                              />
+                                            )
+                                          }}
+                                        >
+                                          Revoke key
+                                        </Button>
+                                        <CopyButton
+                                          size="sm"
+                                          ctaText="Copy"
+                                          afterCtaText="Copied"
+                                          value={paymentPointer.keyIds}
+                                          aria-label="copy key id"
+                                          className="w-20"
+                                        />
+                                      </div>
                                     ) : (
                                       <Button
                                         size="sm"
