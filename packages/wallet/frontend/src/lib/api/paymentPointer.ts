@@ -56,6 +56,11 @@ type PaymentPointerKeyDetails = {
   keyId: string
 }
 
+type BasePaymentPointerArgs = {
+  accountId: string
+  paymentPointerId: string
+}
+
 type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
@@ -74,13 +79,16 @@ type CreatePaymentPointerResponse =
 
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
-type ListTransactionsArgs = { accountId: string; paymentPointerId: string }
+type ListTransactionsArgs = BasePaymentPointerArgs
 type ListTransactionsResult = SuccessResponse<Transaction[]>
 type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
 
-type GenerateKeyArgs = { accountId: string; paymentPointerId: string }
+type GenerateKeyArgs = BasePaymentPointerArgs
 type GenerateKeyResult = SuccessResponse<PaymentPointerKeyDetails>
 type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
+
+type RevokeKeyArgs = BasePaymentPointerArgs
+type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
 interface PaymentPointerService {
   get: (
@@ -101,6 +109,7 @@ interface PaymentPointerService {
     cookies?: string
   ) => Promise<ListTransactionsResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
+  revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -205,6 +214,22 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError(
         error,
         'We were not able to generate a key for your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async revokeKey(args) {
+    try {
+      const response = await httpClient
+        .patch(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/revoke-key`
+        )
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to revoke the key. Please try again.'
       )
     }
   }

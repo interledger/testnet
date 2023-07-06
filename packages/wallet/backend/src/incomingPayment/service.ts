@@ -8,7 +8,7 @@ import {
 } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
-import { Asset } from '../rafiki/generated/graphql'
+import { Asset } from '@/rafiki/backend/generated/graphql'
 
 interface IIncomingPaymentService {
   create: (

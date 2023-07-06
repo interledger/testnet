@@ -60,11 +60,12 @@ services:
     restart: always
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-auth:main
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
       PORT: ${RAFIKI_AUTH_PORT}
+      ADMIN_PORT: ${RAFIKI_AUTH_ADMIN_PORT}
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT}
       AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL}
     depends_on:
@@ -73,10 +74,11 @@ services:
       - testnet
     ports:
       - '${RAFIKI_AUTH_PORT}:${RAFIKI_AUTH_PORT}'
+      - '${RAFIKI_AUTH_ADMIN_PORT}:${RAFIKI_AUTH_ADMIN_PORT}'
     restart: always
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-backend:main
     container_name: rafiki-backend
     depends_on:
       - postgres

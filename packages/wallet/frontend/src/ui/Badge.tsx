@@ -39,9 +39,12 @@ export const getStatusBadgeIntent = (
 ): VariantProps<typeof badgeStyles>['intent'] => {
   switch (status) {
     case 'COMPLETED':
+    case 'GRANTED':
       return 'green'
     case 'FAILED':
     case 'EXPIRED':
+    case 'REJECTED':
+    case 'REVOKED':
       return 'pink'
     case 'PENDING':
     case 'PROCESSING':

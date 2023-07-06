@@ -1,4 +1,4 @@
-import { Alg, Crv, Kty } from '@/rafiki/generated/graphql'
+import { Alg, Crv, Kty } from '@/rafiki/backend/generated/graphql'
 import { KeyObject, createPublicKey } from 'crypto'
 
 export const generateJwk = (privateKey: KeyObject, keyId: string) => {
