@@ -26,6 +26,8 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_DIRECTORY }}
             git switch release
-            git pull
+            git pull origin release
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
             pnpm install
             pnpm run prod
