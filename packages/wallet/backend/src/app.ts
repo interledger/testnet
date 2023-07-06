@@ -185,6 +185,9 @@ export class App {
       isAuth,
       paymentPointerController.registerKey
     )
+    router.patch('/accounts/:accountId:/payment-pointers/:paymentPointerId/revoke-key',
+                 isAuth,
+                 paymentPointerController.revokeKey)
 
     // incoming payment routes
     router.post('/incoming-payments', isAuth, incomingPaymentController.create)
