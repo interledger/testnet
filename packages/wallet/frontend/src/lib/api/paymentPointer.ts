@@ -220,10 +220,12 @@ const createPaymentPointerService = (): PaymentPointerService => ({
 
   async revokeKey(args) {
     try {
-        const response = await httpClient.patch(
-          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/register-key`
-        ).json<SuccessResponse>()
-        return response
+      const response = await httpClient
+        .patch(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/revoke-key`
+        )
+        .json<SuccessResponse>()
+      return response
     } catch (error) {
       return getError(
         error,
