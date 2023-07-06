@@ -154,7 +154,7 @@ export class PaymentPointerController implements IPaymentPointerController {
 
       res.status(200).json({
         success: true,
-        message: 'Key was successfully revoked'
+        message: 'Key was successfully revoked.'
       })
     } catch (e) {
       this.deps.logger.error(e)

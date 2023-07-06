@@ -125,7 +125,6 @@ const DeveloperKeys: NextPageWithLayout<DeveloperKeysProps> = ({
                                                   closeDialog()
                                                   router.replace(router.asPath)
                                                 }}
-                                                size="lg"
                                                 content={response.message}
                                               />
                                             )
