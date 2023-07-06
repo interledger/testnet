@@ -129,7 +129,11 @@ export class AccountService implements IAccountService {
 
     let query = Account.query().where('userId', userId)
     if (hasPaymentPointer)
-      query = query.withGraphFetched({ paymentPointers: true })
+      query = query
+        .withGraphFetched({ paymentPointers: true })
+        .modifyGraph('paymentPointers', (builder) => {
+          builder.orderBy('createdAt', 'ASC')
+        })
 
     const accounts = await query
 
