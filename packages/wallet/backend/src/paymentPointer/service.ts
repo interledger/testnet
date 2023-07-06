@@ -193,7 +193,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       paymentPointerId
     )
     console.log(paymentPointer)
-    await paymentPointer.$query().patch({ keyIds: JSON.stringify([]) })
+    await paymentPointer.$query().patch({ keyIds: null })
     console.log(paymentPointer)
   }
 }
