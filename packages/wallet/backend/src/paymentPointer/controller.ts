@@ -156,7 +156,6 @@ export class PaymentPointerController implements IPaymentPointerController {
         success: true,
         message: 'Key was successfully revoked'
       })
-
     } catch (e) {
       this.deps.logger.error(e)
       next(e)
