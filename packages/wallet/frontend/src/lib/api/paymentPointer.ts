@@ -229,7 +229,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     } catch (error) {
       return getError(
         error,
-        'We were not able to revoke the key. Please try again'
+        'We were not able to revoke the key. Please try again.'
       )
     }
   }
