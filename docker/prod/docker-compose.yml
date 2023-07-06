@@ -74,6 +74,7 @@ services:
       - testnet
     ports:
       - '${RAFIKI_AUTH_PORT}:${RAFIKI_AUTH_PORT}'
+      - '${RAFIKI_AUTH_ADMIN_PORT}:${RAFIKI_AUTH_ADMIN_PORT}'
     restart: always
 
   rafiki-backend:
