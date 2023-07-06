@@ -60,7 +60,7 @@ services:
     restart: always
 
   rafiki-auth:
-    image: ghcr.io/interledger/main
+    image: ghcr.io/interledger/rafiki-auth:main
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -78,7 +78,7 @@ services:
     restart: always
 
   rafiki-backend:
-    image: ghcr.io/interledger/main
+    image: ghcr.io/interledger/rafiki-backend:main
     container_name: rafiki-backend
     depends_on:
       - postgres
