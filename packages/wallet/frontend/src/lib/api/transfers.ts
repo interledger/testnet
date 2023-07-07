@@ -15,7 +15,7 @@ export const sendSchema = z.object({
       label: z.string().min(1)
     })
     .nullable(),
-  receiver: z.string().url().trim(),
+  receiver: z.string().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),

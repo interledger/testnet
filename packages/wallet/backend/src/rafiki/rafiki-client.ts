@@ -4,7 +4,7 @@ import {
   createAssetMutation,
   getAssetQuery,
   getAssetsQuery
-} from './request/asset.request'
+} from './backend/request/asset.request'
 import {
   Asset,
   CreateAssetMutation,
@@ -17,6 +17,7 @@ import {
   CreateOutgoingPaymentMutationVariables,
   CreatePaymentPointerMutation,
   CreatePaymentPointerMutationVariables,
+  CreatePaymentPointerKeyMutation,
   CreateQuoteInput,
   CreateQuoteMutation,
   CreateQuoteMutationVariables,
@@ -32,22 +33,30 @@ import {
   OutgoingPayment,
   Quote,
   WithdrawLiquidityMutation,
-  WithdrawLiquidityMutationVariables
-} from './generated/graphql'
-import { createIncomingPaymentMutation } from './request/incoming-payment.request'
+  WithdrawLiquidityMutationVariables,
+  CreatePaymentPointerKeyMutationVariables,
+  JwkInput,
+  QueryAssetsArgs
+} from './backend/generated/graphql'
+import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
 import { BadRequest, NotFound } from '@/errors'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
-} from './request/liquidity.request'
-import { createOutgoingPaymentMutation } from './request/outgoing-payment.request'
-import { createPaymentPointerMutation } from './request/payment-pointer.request'
+} from './backend/request/liquidity.request'
+import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
+import { createPaymentPointerMutation } from './backend/request/payment-pointer.request'
+import { createPaymentPointerKeyMutation } from './backend/request/payment-pointer-key.request'
 import { GraphQLClient } from 'graphql-request'
-import { createQuoteMutation, getQuoteQuery } from './request/quote.request'
+import {
+  createQuoteMutation,
+  getQuoteQuery
+} from './backend/request/quote.request'
+import { v4 as uuid } from 'uuid'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
-  listAssets(): Promise<Asset[]>
+  listAssets(args?: QueryAssetsArgs): Promise<Asset[]>
   getAssetById(id: string): Promise<Asset>
 }
 
@@ -80,7 +89,6 @@ export class RafikiClient implements IRafikiClient {
       CreateAssetMutation,
       CreateAssetMutationVariables
     >(createAssetMutation, { input: { code, scale } })
-
     if (!response.createAsset.success || !response.createAsset.asset) {
       throw new Error('Data was empty')
     }
@@ -88,11 +96,11 @@ export class RafikiClient implements IRafikiClient {
     return response.createAsset.asset as Asset
   }
 
-  public async listAssets() {
+  public async listAssets(args?: QueryAssetsArgs) {
     const response = await this.deps.gqlClient.request<
       GetAssetsQuery,
       GetAssetsQueryVariables
-    >(getAssetsQuery, {})
+    >(getAssetsQuery, args ?? {})
 
     return response.assets.edges.map((el: { node: Asset }) => el.node)
   }
@@ -144,7 +152,8 @@ export class RafikiClient implements IRafikiClient {
       WithdrawLiquidityMutation,
       WithdrawLiquidityMutationVariables
     >(withdrawLiquidityMutation, {
-      eventId
+      eventId,
+      idempotencyKey: uuid()
     })
 
     if (!response.withdrawEventLiquidity?.success) {
@@ -162,7 +171,8 @@ export class RafikiClient implements IRafikiClient {
       DepositLiquidityMutation,
       DepositLiquidityMutationVariables
     >(depositLiquidityMutation, {
-      eventId
+      eventId,
+      idempotencyKey: uuid()
     })
 
     if (!response.depositEventLiquidity?.success) {
@@ -219,6 +229,30 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return response.createPaymentPointer.paymentPointer
+  }
+
+  public async createRafikiPaymentPointerKey(
+    jwk: JwkInput,
+    paymentPointerId: string
+  ) {
+    const response = await this.deps.gqlClient.request<
+      CreatePaymentPointerKeyMutation,
+      CreatePaymentPointerKeyMutationVariables
+    >(createPaymentPointerKeyMutation, {
+      input: {
+        paymentPointerId,
+        jwk
+      }
+    })
+
+    if (!response.createPaymentPointerKey?.success) {
+      throw new Error(response.createPaymentPointerKey?.message)
+    }
+    if (!response.createPaymentPointerKey.paymentPointerKey) {
+      throw new Error('Unable to fetch created payment pointer key')
+    }
+
+    return response.createPaymentPointerKey.paymentPointerKey
   }
 
   public async createQuote(params: CreateQuoteParams): Promise<Quote> {

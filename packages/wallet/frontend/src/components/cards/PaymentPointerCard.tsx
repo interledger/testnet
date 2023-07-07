@@ -2,16 +2,18 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { IconButton } from '@/ui/IconButton'
 import { cx } from 'class-variance-authority'
 import { forwardRef, useRef } from 'react'
-import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
-import { X } from './icons/X'
+import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
+import { X } from '../icons/X'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
-import { SuccessDialog } from './dialogs/SuccessDialog'
-import { ErrorDialog } from './dialogs/ErrorDialog'
+import { SuccessDialog } from '../dialogs/SuccessDialog'
+import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
+  idOnboarding?: string
 }
 
 type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
@@ -22,6 +24,7 @@ const PaymentPointerCardButton = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   PaymentPointerCardButtonProps
 >(({ className, children, ...props }, ref) => {
+  const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
   return (
     <ButtonOrLink
       ref={ref}
@@ -29,6 +32,11 @@ const PaymentPointerCardButton = forwardRef<
         className,
         'inline-flex items-center justify-center rounded-md px-2 font-medium text-white hover:shadow-md'
       )}
+      onClick={() => {
+        if (isUserFirstTime) {
+          setRunOnboarding(false)
+        }
+      }}
       {...props}
     >
       {children}
@@ -38,7 +46,8 @@ const PaymentPointerCardButton = forwardRef<
 PaymentPointerCardButton.displayName = 'PaymentPointerCardButton'
 
 export const PaymentPointerCard = ({
-  paymentPointer
+  paymentPointer,
+  idOnboarding
 }: PaymentPointerCardProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
@@ -67,9 +76,19 @@ export const PaymentPointerCard = ({
 
   return (
     <div ref={cardRef} className={cardStyles}>
+      <div className="flex flex-1 items-center justify-between space-x-2">
+        <span className="px-1 font-medium">{paymentPointer.url}</span>
+        <PaymentPointerCardButton
+          href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
+          aria-label="view payment pointer"
+          id={idOnboarding}
+        >
+          View
+        </PaymentPointerCardButton>
+      </div>
       <IconButton
         aria-label="delete payment pointer"
-        className="h-7 w-7 text-red-400 transition-transform duration-150 hover:scale-[115%]"
+        className="h-7 w-12 justify-end text-red-400 transition-transform duration-150 hover:scale-[115%]"
         onClick={() =>
           openDialog(
             <ConfirmationDialog
@@ -82,22 +101,11 @@ export const PaymentPointerCard = ({
       >
         <X stroke="currentColor" strokeWidth={3} />
       </IconButton>
-      <div className="flex flex-1 items-center justify-between space-x-2">
-        <>
-          <span className="px-1 font-medium">{paymentPointer.url}</span>
-          <PaymentPointerCardButton
-            href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
-            aria-label="view payment pointer"
-          >
-            View
-          </PaymentPointerCardButton>
-        </>
-      </div>
     </div>
   )
 }
 
-const cardStyles = `
+export const cardStyles = `
 flex items-center justify-between border-b border-b-green-4 px-2 py-3
 [&:nth-child(4n+1)_div_a]:bg-green-5 [&:nth-child(4n+1)_div_a:hover]:bg-green-6 
 [&:nth-child(4n+2)_div_a]:bg-violet-1 [&:nth-child(4n+2)_div_a:hover]:bg-violet-2

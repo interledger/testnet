@@ -47,6 +47,18 @@ export type PaymentPointer = {
   url: string
   publicName: string
   accountId: string
+  keyIds: string | null
+}
+
+type PaymentPointerKeyDetails = {
+  privateKey: string
+  publicKey: string
+  keyId: string
+}
+
+type BasePaymentPointerArgs = {
+  accountId: string
+  paymentPointerId: string
 }
 
 type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
@@ -67,9 +79,16 @@ type CreatePaymentPointerResponse =
 
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
-type ListTransactionsArgs = { accountId: string; paymentPointerId: string }
+type ListTransactionsArgs = BasePaymentPointerArgs
 type ListTransactionsResult = SuccessResponse<Transaction[]>
 type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
+
+type GenerateKeyArgs = BasePaymentPointerArgs
+type GenerateKeyResult = SuccessResponse<PaymentPointerKeyDetails>
+type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
+
+type RevokeKeyArgs = BasePaymentPointerArgs
+type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
 interface PaymentPointerService {
   get: (
@@ -89,6 +108,8 @@ interface PaymentPointerService {
     args: ListTransactionsArgs,
     cookies?: string
   ) => Promise<ListTransactionsResponse>
+  generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
+  revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -113,7 +134,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     }
   },
 
-  async list(accountId, cookies): Promise<ListPaymentPointerResponse> {
+  async list(accountId, cookies) {
     try {
       const response = await httpClient
         .get(`accounts/${accountId}/payment-pointers`, {
@@ -128,7 +149,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     }
   },
 
-  async create(accountId, args): Promise<CreatePaymentPointerResponse> {
+  async create(accountId, args) {
     try {
       const response = await httpClient
         .post(`accounts/${accountId}/payment-pointers`, {
@@ -160,7 +181,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     }
   },
 
-  async listTransactions(args, cookies): Promise<ListTransactionsResponse> {
+  async listTransactions(args, cookies) {
     try {
       const response = await httpClient
         .get(
@@ -177,6 +198,38 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError(
         error,
         'We were not able to create your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async generateKey(args) {
+    try {
+      const response = await httpClient
+        .post(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/register-key`
+        )
+        .json<GenerateKeyResult>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to generate a key for your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async revokeKey(args) {
+    try {
+      const response = await httpClient
+        .patch(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/revoke-key`
+        )
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to revoke the key. Please try again.'
       )
     }
   }

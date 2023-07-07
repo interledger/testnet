@@ -1,15 +1,21 @@
 overwrite: true
-schema: http://localhost:3011/graphql
-documents: 'src/**/!(*.d).{ts,tsx}'
+config:
+  omitOperationSuffix: true
+  defaultMapper: Partial<{T}>
+  inputMaybeValue: T | undefined
+  scalars:
+    UInt8: number
+    BigInt: bigint
 generates:
-  src/rafiki/generated/graphql.ts:
+  src/rafiki/backend/generated/graphql.ts:
+    documents: 'src/rafiki/backend/**/!(*.d).{ts,tsx}'
+    schema: http://localhost:3011/graphql
     plugins:
       - 'typescript'
       - 'typescript-operations'
-    config:
-      omitOperationSuffix: true
-      defaultMapper: Partial<{T}>
-      inputMaybeValue: T | undefined
-      scalars:
-        UInt8: number
-        BigInt: bigint
+  src/rafiki/auth/generated/graphql.ts:
+    documents: 'src/rafiki/auth/**/!(*.d).{ts,tsx}'
+    schema: http://localhost:3008/graphql
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'

@@ -1,10 +1,10 @@
-import { AccountService } from '../account/service'
-import { BadRequest, NotFound } from '../errors'
-import { IncomingPaymentService } from '../incomingPayment/service'
-import { PaymentPointer } from '../paymentPointer/model'
-import { Quote } from '../rafiki/generated/graphql'
-import { RafikiClient } from '../rafiki/rafiki-client'
-import { incomingPaymentRegexp } from '../utils/helpers'
+import { AccountService } from '@/account/service'
+import { BadRequest, NotFound } from '@/errors'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { PaymentPointer } from '@/paymentPointer/model'
+import { RafikiClient } from '@/rafiki/rafiki-client'
+import { incomingPaymentRegexp } from '@/utils/helpers'
+import { Quote } from '@/rafiki/backend/generated/graphql'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>

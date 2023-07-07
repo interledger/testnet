@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -26,6 +27,8 @@ export const CreatePaymentPointerDialog = ({
     schema: createPaymentPointerSchema
   })
 
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
   const accountId = router.query.accountId as string
 
   return (
@@ -72,8 +75,14 @@ export const CreatePaymentPointerDialog = ({
                       )
 
                       if (response.success) {
+                        router.replace(router.asPath)
                         onClose()
-                        router.reload()
+                        if (isUserFirstTime) {
+                          setTimeout(() => {
+                            setStepIndex(stepIndex + 1)
+                            setRunOnboarding(true)
+                          }, 1000)
+                        }
                       } else {
                         const { errors, message } = response
                         createPaymentPointerForm.setError('root', {

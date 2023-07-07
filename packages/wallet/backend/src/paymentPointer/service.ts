@@ -3,6 +3,10 @@ import { PaymentPointer } from './model'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { generateKeyPairSync } from 'crypto'
+import { v4 as uuid } from 'uuid'
+import { generateJwk } from '@/utils/jwk'
+import { Account } from '@/account/model'
 
 interface IPaymentPointerService {
   create: (
@@ -110,6 +114,16 @@ export class PaymentPointerService implements IPaymentPointerService {
     return paymentPointer
   }
 
+  async listIdentifiersByUserId(userId: string): Promise<string[]> {
+    const accounts = await Account.query()
+      .where('userId', userId)
+      .withGraphFetched('paymentPointers')
+
+    return accounts.flatMap((account) =>
+      account.paymentPointers.map(({ url }) => url)
+    )
+  }
+
   /**
    * This is a soft delete functionality. The payment pointer will never be
    * deleted. We will change its `active` column to `false` when the user
@@ -131,5 +145,53 @@ export class PaymentPointerService implements IPaymentPointerService {
     await PaymentPointer.query().findById(id).patch({
       active: false
     })
+  }
+
+  async registerKey(
+    userId: string,
+    accountId: string,
+    paymentPointerId: string
+  ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
+    const paymentPointer = await this.getById(
+      userId,
+      accountId,
+      paymentPointerId
+    )
+
+    const { privateKey, publicKey } = generateKeyPairSync('ed25519')
+    const publicKeyPEM = publicKey
+      .export({ type: 'spki', format: 'pem' })
+      .toString()
+    const privateKeyPEM = privateKey
+      .export({ type: 'pkcs8', format: 'pem' })
+      .toString()
+    const keyId = uuid()
+    const keyIds = paymentPointer.keyIds || []
+
+    await this.deps.rafikiClient.createRafikiPaymentPointerKey(
+      generateJwk(privateKey, keyId),
+      paymentPointer.id
+    )
+
+    await PaymentPointer.query()
+      .findById(paymentPointerId)
+      .patch({
+        keyIds: JSON.stringify([...keyIds, keyId])
+      })
+
+    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId }
+  }
+
+  async revokeKey(
+    userId: string,
+    accountId: string,
+    paymentPointerId: string
+  ): Promise<void> {
+    const paymentPointer = await this.getById(
+      userId,
+      accountId,
+      paymentPointerId
+    )
+    await paymentPointer.$query().patch({ keyIds: null })
   }
 }

@@ -14,7 +14,7 @@ services:
       - testnet
     volumes:
       - pg-data:/var/lib/postgresql/data
-      - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
   # Testnet
   wallet-backend:
@@ -38,6 +38,7 @@ services:
       RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
+      AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
     restart: always
     networks:
       - testnet
@@ -48,15 +49,17 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-auth:main
     restart: always
     networks:
       - testnet
     ports:
       - '3006:3006'
+      - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
+      ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
     depends_on:
@@ -64,11 +67,11 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-backend:main
     restart: always
     privileged: true
     volumes:
-      - ./temp/:/workspace/temp/
+      - ../temp/:/workspace/temp/
     ports:
       - '3010:80'
       - '3011:3001'
@@ -120,7 +123,7 @@ services:
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:3e2954cba78e17db42013e56fd9850a6047f7caa6f30dd7c46ff932c809af10c
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.13.38
     restart: unless-stopped
     privileged: true
     volumes:
@@ -151,7 +154,7 @@ services:
       context: ../../
       dockerfile: ./docker/dev/local-http-signatures/Dockerfile
     volumes:
-      - ./temp/:/workspace/temp/
+      - ../temp/:/workspace/temp/
     restart: always
     ports:
       - '3040:3000'
