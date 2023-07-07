@@ -16,7 +16,6 @@ import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import { mockedListAssets, mockLogInRequest } from '../mocks'
-import { Scalars } from '@/rafiki/generated/graphql'
 import { AccountController } from '@/account/controller'
 import { AccountService } from '@/account/service'
 import { User } from '@/user/model'
@@ -54,7 +53,7 @@ describe('Asset Controller', (): void => {
       accountService: await bindings.resolve('accountService'),
 
       rafiki: {
-        getAssetById: (id: Scalars['ID']) =>
+        getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
       },
       rapyd: {
