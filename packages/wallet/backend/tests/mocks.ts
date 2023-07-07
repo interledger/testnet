@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { logInSchema, signUpSchema } from '@/auth/validation'
 import z from 'zod'
-import { Asset } from '@/rafiki/generated/graphql'
 
 type LogInRequest = z.infer<typeof logInSchema>
 export const mockLogInRequest = (
@@ -28,7 +27,7 @@ export const mockSignUpRequest = (
   }
 }
 
-export const mockedListAssets: Array<Asset> = [
+export const mockedListAssets = [
   {
     code: 'BRG',
     createdAt: '2023-06-28T14:33:24.675Z',
