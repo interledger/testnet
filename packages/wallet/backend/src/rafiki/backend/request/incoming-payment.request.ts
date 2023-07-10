@@ -7,9 +7,8 @@ export const createIncomingPaymentMutation = gql`
       message
       payment {
         createdAt
-        description
+        metadata
         expiresAt
-        externalRef
         id
         incomingAmount {
           assetCode

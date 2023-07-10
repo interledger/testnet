@@ -7,9 +7,8 @@ export const createOutgoingPaymentMutation = gql`
       message
       payment {
         createdAt
-        description
+        metadata
         error
-        externalRef
         id
         paymentPointerId
         quote {
