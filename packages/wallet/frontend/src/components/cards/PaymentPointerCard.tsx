@@ -2,12 +2,12 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { IconButton } from '@/ui/IconButton'
 import { cx } from 'class-variance-authority'
 import { forwardRef, useRef } from 'react'
-import { ConfirmationDialog } from './dialogs/ConfirmationDialog'
-import { X } from './icons/X'
+import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
+import { X } from '../icons/X'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
-import { SuccessDialog } from './dialogs/SuccessDialog'
-import { ErrorDialog } from './dialogs/ErrorDialog'
+import { SuccessDialog } from '../dialogs/SuccessDialog'
+import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 
@@ -105,7 +105,7 @@ export const PaymentPointerCard = ({
   )
 }
 
-const cardStyles = `
+export const cardStyles = `
 flex items-center justify-between border-b border-b-green-4 px-2 py-3
 [&:nth-child(4n+1)_div_a]:bg-green-5 [&:nth-child(4n+1)_div_a:hover]:bg-green-6 
 [&:nth-child(4n+2)_div_a]:bg-violet-1 [&:nth-child(4n+2)_div_a:hover]:bg-violet-2

@@ -12,7 +12,7 @@ export class PaymentPointer extends BaseModel {
   active!: boolean
   account!: Account
   transacions!: Array<Transaction>
-  keyIds!: string
+  keyIds!: string | null
 
   static relationMappings = () => ({
     account: {

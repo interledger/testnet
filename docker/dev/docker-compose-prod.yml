@@ -67,15 +67,17 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-auth:main
     restart: always
     networks:
       - testnet
     ports:
       - '3006:3006'
+      - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
+      ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL}
     depends_on:
@@ -83,7 +85,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-backend:main
     restart: always
     privileged: true
     volumes:
@@ -150,7 +152,7 @@ services:
       KEY_FILE: ./temp/private-key.pem
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetledb/tigerbeetle@sha256:3e2954cba78e17db42013e56fd9850a6047f7caa6f30dd7c46ff932c809af10c
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.13.38
     restart: unless-stopped
     privileged: true
     volumes:

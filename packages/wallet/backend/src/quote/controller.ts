@@ -1,8 +1,8 @@
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
-import { Quote } from '../rafiki/generated/graphql'
 import { QuoteService } from './service'
 import { quoteSchema } from './validation'
+import { Quote } from '@/rafiki/backend/generated/graphql'
 
 interface IQuoteController {
   create: ControllerFunction<Quote>
