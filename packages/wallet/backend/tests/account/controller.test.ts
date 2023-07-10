@@ -68,6 +68,13 @@ describe('Asset Controller', (): void => {
         simulateBankTransferToWallet: () => ({
           status: {
             status: 'SUCCESS'
+          },
+          data: {
+            transactions: [
+              {
+                id: 'mocked'
+              }
+            ]
           }
         }),
         withdrawFundsFromAccount: () => ({
