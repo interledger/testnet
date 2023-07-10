@@ -21,7 +21,8 @@ const envSchema = z.object({
     .default('http://rafiki-auth:3008/graphql'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
   RAPYD_SETTLEMENT_EWALLET: z.string().default('default_ewallet'),
-  RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost')
+  RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost'),
+  SENDGRID_API_KEY: z.string().default('SENDGRID_API_KEY'),
 })
 
 export type Env = z.infer<typeof envSchema>
