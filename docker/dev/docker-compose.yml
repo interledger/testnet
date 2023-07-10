@@ -109,7 +109,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.1
+    image: ghcr.io/interledger/rafiki-frontend:main
     depends_on:
       - rafiki-backend
     restart: always
