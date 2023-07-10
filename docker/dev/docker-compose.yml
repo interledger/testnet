@@ -39,6 +39,8 @@ services:
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      FROM_EMAIL: ${FROM_EMAIL}
     restart: always
     networks:
       - testnet
