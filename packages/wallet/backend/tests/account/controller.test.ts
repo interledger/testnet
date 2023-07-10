@@ -80,6 +80,9 @@ describe('Asset Controller', (): void => {
         withdrawFundsFromAccount: () => ({
           status: {
             status: 'SUCCESS'
+          },
+          data: {
+            id: 'mocked'
           }
         }),
         getAccountsBalance: () => ({
