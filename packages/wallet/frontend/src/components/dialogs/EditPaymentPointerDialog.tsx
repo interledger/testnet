@@ -13,6 +13,8 @@ import {
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { SuccessDialog } from './SuccessDialog'
 
 type EditPaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   paymentPointer: PaymentPointer
@@ -22,6 +24,7 @@ export const EditPaymentPointerDialog = ({
   onClose,
   paymentPointer
 }: EditPaymentPointerDialogProps) => {
+  const [openDialog, _] = useDialog()
   const router = useRouter()
   const form = useZodForm({
     schema: updatePaymentPointerSchema,
@@ -75,8 +78,15 @@ export const EditPaymentPointerDialog = ({
                       })
 
                       if (response.success) {
-                        router.replace(router.asPath)
-                        onClose()
+                        openDialog(
+                          <SuccessDialog
+                            content={response.message}
+                            onClose={() => {
+                              router.replace(router.asPath)
+                              onClose()
+                            }}
+                          />
+                        )
                       } else {
                         const { errors, message } = response
                         form.setError('root', {
