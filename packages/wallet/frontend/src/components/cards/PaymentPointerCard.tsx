@@ -152,7 +152,7 @@ const PaymentPointerOptions = ({
                     name="Delete"
                     intent="danger"
                     Icon={Trash}
-                    aria-label="delete payment paymenter"
+                    aria-label="delete payment pointer"
                     action={() =>
                       openDialog(
                         <ConfirmationDialog
