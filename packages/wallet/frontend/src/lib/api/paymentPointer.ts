@@ -17,6 +17,13 @@ export const createPaymentPointerSchema = z.object({
   })
 })
 
+export const updatePaymentPointerSchema = z.object({
+  publicName: z.string().min(3, {
+    message:
+      'The public name of the payment pointer should be at least 3 characters long'
+  })
+})
+
 const TRANSACTION_TYPE = {
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING'
@@ -77,6 +84,15 @@ type CreatePaymentPointerResponse =
   | CreatePaymentPointerResult
   | CreatePaymentPointerError
 
+type UpdatePaymentPointerArgs = z.infer<typeof updatePaymentPointerSchema> & {
+  accountId: string
+  paymentPointerId: string
+}
+type UpdatePaymentPointerError = ErrorResponse<
+  z.infer<typeof updatePaymentPointerSchema> | undefined
+>
+type UpdatePaymentPointerResponse = SuccessResponse | UpdatePaymentPointerError
+
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
 type ListTransactionsArgs = BasePaymentPointerArgs
@@ -103,6 +119,9 @@ interface PaymentPointerService {
     accountId: string,
     args: CreatePaymentPointerArgs
   ) => Promise<CreatePaymentPointerResponse>
+  update: (
+    args: UpdatePaymentPointerArgs
+  ) => Promise<UpdatePaymentPointerResponse>
   delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
   listTransactions: (
     args: ListTransactionsArgs,
@@ -161,6 +180,27 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError<CreatePaymentPointerArgs>(
         error,
         'We were not able to create your payment pointer. Please try again.'
+      )
+    }
+  },
+
+  async update(args) {
+    try {
+      const response = await httpClient
+        .patch(
+          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}`,
+          {
+            json: {
+              publicName: args.publicName
+            }
+          }
+        )
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<UpdatePaymentPointerArgs>(
+        error,
+        'We were not able to update your payment pointer. Please try again.'
       )
     }
   },
