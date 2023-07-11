@@ -19,11 +19,14 @@ interface EmailServiceDependencies {
 
 export class EmailService implements IEmailService {
   private readonly from: string
-  private readonly host: string
+  private readonly baseUrl: string
   constructor(private deps: EmailServiceDependencies) {
     sendgrid.setApiKey(this.deps.env.SENDGRID_API_KEY)
     this.from = this.deps.env.FROM_EMAIL
-    this.host = this.deps.env.RAFIKI_MONEY_FRONTEND_HOST
+    this.baseUrl =
+      this.deps.env.RAFIKI_MONEY_FRONTEND_HOST === 'localhost'
+        ? 'http://localhost:4003'
+        : `https://${host}`
   }
 
   async send(email: EmailArgs): Promise<void> {
@@ -34,8 +37,8 @@ export class EmailService implements IEmailService {
     return this.send({
       from: this.from,
       to,
-      subject: 'rafiki.money - password recovery',
-      html: getForgotPasswordEmail(this.host, token)
+      subject: 'Forgotten Password - rafiki.money',
+      html: getForgotPasswordEmail(this.baseUrl, token)
     })
   }
 }
