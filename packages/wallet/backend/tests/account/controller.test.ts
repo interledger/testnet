@@ -34,7 +34,7 @@ describe('Asset Controller', (): void => {
   let req: MockRequest<Request>
   let res: MockResponse<Response>
   const mockedAsset = mockedListAssets[0]
-  const accountName = 'Hmmpotato'
+  const accountName = 'mocked account name'
   let createdAccount: Account
 
   const next = jest.fn()
