@@ -29,7 +29,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     const payment = await this.deps.rafikiClient.createOutgoingPayment({
       paymentPointerId,
       quoteId,
-      description
+      metadata: { description }
     })
 
     return Transaction.query().insert({
