@@ -23,10 +23,9 @@ export class EmailService implements IEmailService {
   constructor(private deps: EmailServiceDependencies) {
     sendgrid.setApiKey(this.deps.env.SENDGRID_API_KEY)
     this.from = this.deps.env.FROM_EMAIL
+    const host = this.deps.env.RAFIKI_MONEY_FRONTEND_HOST
     this.baseUrl =
-      this.deps.env.RAFIKI_MONEY_FRONTEND_HOST === 'localhost'
-        ? 'http://localhost:4003'
-        : `https://${host}`
+      host === 'localhost' ? 'http://localhost:4003' : `https://${host}`
   }
 
   async send(email: EmailArgs): Promise<void> {
