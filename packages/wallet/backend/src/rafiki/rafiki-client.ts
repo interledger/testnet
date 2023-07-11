@@ -36,7 +36,10 @@ import {
   WithdrawLiquidityMutationVariables,
   CreatePaymentPointerKeyMutationVariables,
   JwkInput,
-  QueryAssetsArgs
+  QueryAssetsArgs,
+  UpdatePaymentPointerInput,
+  UpdatePaymentPointerMutationVariables,
+  UpdatePaymentPointerMutation
 } from './backend/generated/graphql'
 import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
 import { BadRequest, NotFound } from '@/errors'
@@ -45,7 +48,10 @@ import {
   withdrawLiquidityMutation
 } from './backend/request/liquidity.request'
 import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
-import { createPaymentPointerMutation } from './backend/request/payment-pointer.request'
+import {
+  createPaymentPointerMutation,
+  updatePaymentPointerMutation
+} from './backend/request/payment-pointer.request'
 import { createPaymentPointerKeyMutation } from './backend/request/payment-pointer-key.request'
 import { GraphQLClient } from 'graphql-request'
 import {
@@ -231,6 +237,22 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return response.createPaymentPointer.paymentPointer
+  }
+
+  public async updatePaymentPointer(
+    args: UpdatePaymentPointerInput
+  ): Promise<void> {
+    const response = await this.deps.gqlClient.request<
+      UpdatePaymentPointerMutation,
+      UpdatePaymentPointerMutationVariables
+    >(updatePaymentPointerMutation, {
+      input: args
+    })
+
+    if (!response.updatePaymentPointer.success) {
+      throw new Error(response.updatePaymentPointer.message)
+    }
+
   }
 
   public async createRafikiPaymentPointerKey(

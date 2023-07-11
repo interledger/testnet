@@ -167,6 +167,11 @@ export class App {
       isAuth,
       paymentPointerController.getById
     )
+    router.patch(
+      '/accounts/:accountId/payment-pointers/:paymentPointerId',
+      isAuth,
+      paymentPointerController.update
+    )
     router.delete(
       '/payment-pointer/:id',
       isAuth,

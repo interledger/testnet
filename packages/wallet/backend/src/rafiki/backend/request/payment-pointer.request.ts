@@ -14,3 +14,13 @@ export const createPaymentPointerMutation = gql`
     }
   }
 `
+
+export const updatePaymentPointerMutation = gql`
+    mutation UpdatePaymentPointerMutation($input: UpdatePaymentPointerInput!) {
+        updatePaymentPointer(input: $input) {
+            code
+            success
+            message
+        }
+    }
+`
