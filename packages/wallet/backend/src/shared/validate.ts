@@ -9,8 +9,13 @@ export async function validate<
   if (!res.success) {
     const errors: Record<string, string> = {}
     res.error.issues.forEach((i) => {
-      errors[i.path[0]] = i.message
+      if (i.path.length > 1) {
+        errors[i.path[1]] = i.message
+      } else {
+        errors[i.path[0]] = i.message
+      }
     })
+
 
     throw new BadRequest('Invalid input', errors)
   }
