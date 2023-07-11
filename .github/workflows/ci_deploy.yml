@@ -1,0 +1,33 @@
+name: Update rafiki.money with release branch
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: SSH into Compute Engine
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ${{ secrets.PROJECT_DIRECTORY }}
+            git switch release
+            git pull origin release
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            pnpm install
+            pnpm run prod

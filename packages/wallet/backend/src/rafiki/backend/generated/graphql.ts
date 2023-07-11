@@ -13,6 +13,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   BigInt: { input: bigint; output: bigint; }
+  JSONObject: { input: any; output: any; }
   UInt8: { input: number; output: number; }
 };
 
@@ -118,27 +119,23 @@ export type CreateAssetLiquidityWithdrawalInput = {
 };
 
 export type CreateIncomingPaymentInput = {
-  /** Human readable description of the incoming payment. */
-  description?: InputMaybe<Scalars['String']['input']>;
   /** Expiration date-time */
   expiresAt?: InputMaybe<Scalars['String']['input']>;
-  /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
-  externalRef?: InputMaybe<Scalars['String']['input']>;
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Maximum amount to be received */
   incomingAmount?: InputMaybe<AmountInput>;
+  /** Additional metadata associated with the incoming payment. */
+  metadata?: InputMaybe<Scalars['JSONObject']['input']>;
   /** Id of the payment pointer under which the incoming payment will be created */
   paymentPointerId: Scalars['String']['input'];
 };
 
 export type CreateOutgoingPaymentInput = {
-  /** Human readable description of the outgoing payment. */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
-  externalRef?: InputMaybe<Scalars['String']['input']>;
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Additional metadata associated with the outgoing payment. */
+  metadata?: InputMaybe<Scalars['JSONObject']['input']>;
   /** Id of the payment pointer under which the outgoing payment will be created */
   paymentPointerId: Scalars['String']['input'];
   /** Id of the corresponding quote for that outgoing payment */
@@ -237,16 +234,14 @@ export type CreateQuoteInput = {
 };
 
 export type CreateReceiverInput = {
-  /** Human readable description of the incoming payment. */
-  description?: InputMaybe<Scalars['String']['input']>;
   /** Expiration date-time */
   expiresAt?: InputMaybe<Scalars['String']['input']>;
-  /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
-  externalRef?: InputMaybe<Scalars['String']['input']>;
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Maximum amount to be received */
   incomingAmount?: InputMaybe<AmountInput>;
+  /** Additional metadata associated with the incoming payment. */
+  metadata?: InputMaybe<Scalars['JSONObject']['input']>;
   /** Receiving payment pointer URL */
   paymentPointerUrl: Scalars['String']['input'];
 };
@@ -324,16 +319,14 @@ export type IncomingPayment = Model & {
   __typename?: 'IncomingPayment';
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
-  /** Human readable description of the incoming payment. */
-  description?: Maybe<Scalars['String']['output']>;
   /** Date-time of expiry. After this time, the incoming payment will not accept further payments made to it. */
   expiresAt: Scalars['String']['output'];
-  /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
-  externalRef?: Maybe<Scalars['String']['output']>;
   /** Incoming Payment id */
   id: Scalars['ID']['output'];
   /** The maximum amount that should be paid into the payment pointer under this incoming payment. */
   incomingAmount?: Maybe<Amount>;
+  /** Additional metadata associated with the incoming payment. */
+  metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** Id of the payment pointer under which this incoming payment was created */
   paymentPointerId: Scalars['ID']['output'];
   /** The total amount that has been paid into the payment pointer under this incoming payment. */
@@ -607,13 +600,11 @@ export type OutgoingPayment = Model & {
   __typename?: 'OutgoingPayment';
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
-  /** Human readable description of the outgoing payment. */
-  description?: Maybe<Scalars['String']['output']>;
   error?: Maybe<Scalars['String']['output']>;
-  /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
-  externalRef?: Maybe<Scalars['String']['output']>;
   /** Outgoing payment id */
   id: Scalars['ID']['output'];
+  /** Additional metadata associated with the outgoing payment. */
+  metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** Id of the payment pointer under which this outgoing payment was created */
   paymentPointerId: Scalars['ID']['output'];
   /** Quote for this outgoing payment */
@@ -950,16 +941,14 @@ export type Receiver = {
   completed: Scalars['Boolean']['output'];
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
-  /** Human readable description of the incoming payment. */
-  description?: Maybe<Scalars['String']['output']>;
   /** Date-time of expiry. After this time, the incoming payment will accept further payments made to it. */
   expiresAt?: Maybe<Scalars['String']['output']>;
-  /** A reference that can be used by external systems to reconcile this payment with their systems. E.g. an invoice number. */
-  externalRef?: Maybe<Scalars['String']['output']>;
   /** Incoming payment URL */
   id: Scalars['String']['output'];
   /** The maximum amount that should be paid into the payment pointer under this incoming payment. */
   incomingAmount?: Maybe<Amount>;
+  /** Additional metadata associated with the incoming payment. */
+  metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** Payment pointer URL under which the incoming payment was created */
   paymentPointerUrl: Scalars['String']['output'];
   /** The total amount that has been paid into the payment pointer under this incoming payment. */
@@ -1069,7 +1058,7 @@ export type WebhookEvent = Model & {
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
   /** Stringified JSON data */
-  data: Scalars['String']['output'];
+  data: Scalars['JSONObject']['output'];
   /** Event id */
   id: Scalars['ID']['output'];
   /** Type of event */
@@ -1128,7 +1117,7 @@ export type CreateIncomingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, description?: string | null, expiresAt: string, externalRef?: string | null, id: string, paymentPointerId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, paymentPointerId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
@@ -1151,7 +1140,7 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, description?: string | null, error?: string | null, externalRef?: string | null, id: string, paymentPointerId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, paymentPointerId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type CreatePaymentPointerKeyMutationVariables = Exact<{
   input: CreatePaymentPointerKeyInput;
