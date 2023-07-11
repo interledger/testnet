@@ -209,7 +209,7 @@ const createUserService = (): UserService => ({
   async forgotPassword(args) {
     try {
       const response = await httpClient
-        .post('forgotPassword', {
+        .post('reset-password', {
           json: args
         })
         .json<SuccessResponse>()
@@ -225,7 +225,7 @@ const createUserService = (): UserService => ({
   async resetPassword(args) {
     try {
       const response = await httpClient
-        .post('resetPassword', {
+        .post(`reset-password/${args.token}`, {
           json: args
         })
         .json<SuccessResponse>()

@@ -1,4 +1,4 @@
-export const getForgotPasswordEmail = (token: string): string => {
+export const getForgotPasswordEmail = (host: string, token: string): string => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
   <html lang="en">
@@ -34,7 +34,7 @@ export const getForgotPasswordEmail = (token: string): string => {
                 </tr>
                 <tr>
                   <td>
-                    <a href="https://rafiki.money/auth/reset/${token}" target="_blank">
+                    <a href="https://${host}/auth/reset/${token}" target="_blank">
                       <span style="background-color:#4CBDBB;border-radius:4px;color:#fff;font-size:15px;text-decoration:none;text-align:center;display:inline-block;width:210px;padding:10px 3px;max-width:100%;line-height:120%;text-transform:none;">Reset password</span>
                     </a>
                   </td>
