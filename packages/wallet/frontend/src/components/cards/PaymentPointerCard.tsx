@@ -10,6 +10,7 @@ import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { PaymentPointerMenu } from '../PaymentPointerMenu'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
@@ -86,37 +87,19 @@ export const PaymentPointerCard = ({
           View
         </PaymentPointerCardButton>
       </div>
-      <IconButton
-        aria-label="delete payment pointer"
-        className="h-7 w-12 justify-end text-red-400 transition-transform duration-150 hover:scale-[115%]"
-        onClick={() =>
-          openDialog(
-            <ConfirmationDialog
-              confirmText="Delete payment pointer"
-              onConfirm={() => handleDeleteConfirmation(paymentPointer.id)}
-              onClose={closeDialog}
-            />
-          )
-        }
-      >
-        <X stroke="currentColor" strokeWidth={3} />
-      </IconButton>
+      <PaymentPointerMenu />
     </div>
   )
 }
 
 export const cardStyles = `
-flex items-center justify-between border-b border-b-green-4 px-2 py-3
+flex items-center justify-between border-b border-b-green-4 px-2 py-3 space-x-4
 [&:nth-child(4n+1)_div_a]:bg-green-5 [&:nth-child(4n+1)_div_a:hover]:bg-green-6 
 [&:nth-child(4n+2)_div_a]:bg-violet-1 [&:nth-child(4n+2)_div_a:hover]:bg-violet-2
 [&:nth-child(4n+3)_div_a]:bg-pink-1 [&:nth-child(4n+3)_div_a:hover]:bg-pink-2
 [&:nth-child(4n+4)_div_a]:bg-orange-1 [&:nth-child(4n+4)_div_a:hover]:bg-orange-2
-[&:nth-child(4n+1)_div_button]:bg-green-5 [&:nth-child(4n+1)_div_button:hover]:bg-green-6 
-[&:nth-child(4n+2)_div_button]:bg-violet-1 [&:nth-child(4n+2)_div_button:hover]:bg-violet-2
-[&:nth-child(4n+3)_div_button]:bg-pink-1 [&:nth-child(4n+3)_div_button:hover]:bg-pink-2
-[&:nth-child(4n+4)_div_button]:bg-orange-1 [&:nth-child(4n+4)_div_button:hover]:bg-orange-2
-[&:nth-child(4n+1)_div]:text-green-6
-[&:nth-child(4n+2)_div]:text-violet-2
-[&:nth-child(4n+3)_div]:text-pink-2
-[&:nth-child(4n+4)_div]:text-orange-2
+first-of-type:[&:nth-child(4n+1)_div_span]:text-green-6
+first-of-type:[&:nth-child(4n+2)_div_span]:text-violet-2
+first-of-type:[&:nth-child(4n+3)_div_span]:text-pink-2
+first-of-type:[&:nth-child(4n+4)_div_span]:text-orange-2
 `
