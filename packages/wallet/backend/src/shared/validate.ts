@@ -16,7 +16,6 @@ export async function validate<
       }
     })
 
-
     throw new BadRequest('Invalid input', errors)
   }
   return res.data

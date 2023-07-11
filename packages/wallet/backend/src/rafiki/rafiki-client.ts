@@ -252,7 +252,6 @@ export class RafikiClient implements IRafikiClient {
     if (!response.updatePaymentPointer.success) {
       throw new Error(response.updatePaymentPointer.message)
     }
-
   }
 
   public async createRafikiPaymentPointerKey(

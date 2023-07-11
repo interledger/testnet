@@ -178,8 +178,8 @@ export class PaymentPointerController implements IPaymentPointerController {
       })
 
       res.status(200).json({
-          success: true,
-          message: 'Payment pointer was successfully updated.'
+        success: true,
+        message: 'Payment pointer was successfully updated.'
       })
     } catch (e) {
       this.deps.logger.error(e)

@@ -83,7 +83,7 @@ const PaymentPointerOptions = ({
     const response = await paymentPointerService.delete(id)
     if (response.success) {
       openDialog(
-        <SuccessDialog 
+        <SuccessDialog
           onClose={() => {
             closeDialog()
             router.replace(router.asPath)

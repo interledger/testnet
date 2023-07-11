@@ -214,8 +214,13 @@ export class PaymentPointerService implements IPaymentPointerService {
     const trx = await PaymentPointer.startTransaction()
 
     try {
-      await Promise.all([await paymentPointer.$query().patch({ publicName }),
-      await this.deps.rafikiClient.updatePaymentPointer({ id: paymentPointerId, publicName })])
+      await Promise.all([
+        await paymentPointer.$query().patch({ publicName }),
+        await this.deps.rafikiClient.updatePaymentPointer({
+          id: paymentPointerId,
+          publicName
+        })
+      ])
       await trx.commit()
     } catch (e) {
       await trx.rollback()
