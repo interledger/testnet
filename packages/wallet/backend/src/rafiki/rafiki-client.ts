@@ -119,7 +119,9 @@ export class RafikiClient implements IRafikiClient {
   ): Promise<IncomingPayment> {
     const input: CreateIncomingPaymentInput = {
       paymentPointerId: params.paymentPointerId,
-      description: params.description,
+      metadata: {
+        description: params.description
+      },
       expiresAt: params.expiresAt,
       ...(params.amount && {
         incomingAmount: {
