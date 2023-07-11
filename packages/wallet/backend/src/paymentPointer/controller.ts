@@ -2,7 +2,7 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { PaymentPointerService } from './service'
-import { paymentPointerSchema } from './validation'
+import { paymentPointerSchema, updatePaymentPointerSchema } from './validation'
 import { PaymentPointer } from '@/paymentPointer/model'
 
 interface IPaymentPointerController {
@@ -155,6 +155,31 @@ export class PaymentPointerController implements IPaymentPointerController {
       res.status(200).json({
         success: true,
         message: 'Key was successfully revoked.'
+      })
+    } catch (e) {
+      this.deps.logger.error(e)
+      next(e)
+    }
+  }
+
+  update = async (req: Request, res: CustomResponse, next: NextFunction) => {
+    try {
+      const { accountId, paymentPointerId } = req.params
+
+      const {
+        body: { publicName }
+      } = await validate(updatePaymentPointerSchema, req)
+
+      await this.deps.paymentPointerService.update({
+        userId: req.session.user.id,
+        accountId,
+        paymentPointerId,
+        publicName
+      })
+
+      res.status(200).json({
+        success: true,
+        message: 'Payment pointer was successfully updated.'
       })
     } catch (e) {
       this.deps.logger.error(e)
