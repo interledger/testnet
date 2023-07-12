@@ -3,6 +3,7 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { Chevron } from '@/components/icons/Chevron'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { DeveloperKeys } from '@/components/settings/developer-keys'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { Account, accountService } from '@/lib/api/account'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
@@ -17,7 +18,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 
 type DeveloperKeysProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const DeveloperKeys: NextPageWithLayout<DeveloperKeysProps> = ({
+const DeveloperKeyss: NextPageWithLayout<DeveloperKeysProps> = ({
   accounts
 }) => {
   const [openDialog, closeDialog] = useDialog()
@@ -27,7 +28,9 @@ const DeveloperKeys: NextPageWithLayout<DeveloperKeysProps> = ({
     <>
       <PageHeader title="Developer Keys" />
       <SettingsTabs />
+
       <div className="flex w-full flex-col md:max-w-lg">
+        <DeveloperKeys accounts={accounts} />
         <dl className="space-y-6 divide-y divide-green/10">
           {accounts.map((account) => (
             <Disclosure as="div" key={account.name} className="pt-6">
@@ -265,8 +268,8 @@ export const getServerSideProps: GetServerSideProps<{
   }
 }
 
-DeveloperKeys.getLayout = function (page) {
+DeveloperKeyss.getLayout = function (page) {
   return <AppLayout>{page}</AppLayout>
 }
 
-export default DeveloperKeys
+export default DeveloperKeyss

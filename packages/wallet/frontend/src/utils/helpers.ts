@@ -69,3 +69,35 @@ export const getFee = (
     value: fee.toString()
   })
 }
+
+const FILE_TYPE = {
+  TEXT_PLAIN: 'text/plain'
+} as const
+
+type FileType = keyof typeof FILE_TYPE
+
+type GenerateAndDownloadFileProps = {
+  content: string
+  filename: string
+  fileType: FileType
+}
+
+export const generateAndDownloadFile = ({
+  content,
+  filename,
+  fileType
+}: GenerateAndDownloadFileProps): void => {
+  const blob = new Blob([content], { type: FILE_TYPE[fileType] })
+  const anchor = document.createElement('a')
+
+  anchor.download = filename
+  anchor.href = URL.createObjectURL(blob)
+  anchor.dataset.downloadurl = [fileType, anchor.download, anchor.href].join(
+    ':'
+  )
+  anchor.style.display = 'none'
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(anchor.href)
+}
