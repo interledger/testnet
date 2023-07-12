@@ -57,7 +57,7 @@ services:
       OPEN_PAYMENTS_HOST: https://ilp.rafiki.money
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       RAFIKI_MONEY_FRONTEND_HOST: rafiki.money
-      SENDGRID_APFROM_EMAILI_KEY: ${SENDGRID_API_KEY}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
     restart: always
     networks:

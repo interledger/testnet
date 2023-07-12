@@ -62,6 +62,20 @@ export class UserService implements IUserService {
   }
 
   public async resetPassword(token: string, password: string): Promise<void> {
+    const user = await this.getUserByToken(token)
+
+    if (!user) {
+      throw new BadRequest('Invalid token')
+    }
+
+    await User.query().findById(user.id).patch({
+      newPassword: password,
+      passwordResetExpiresAt: null,
+      passwordResetToken: null
+    })
+  }
+
+  public async getUserByToken(token: string): Promise<User | undefined> {
     const passwordResetToken = crypto
       .createHash('sha256')
       .update(token)
@@ -70,16 +84,10 @@ export class UserService implements IUserService {
     const user = await User.query().findOne({ passwordResetToken })
 
     if (
-      !user?.passwordResetExpiresAt ||
+      user?.passwordResetExpiresAt &&
       user.passwordResetExpiresAt.getTime() < Date.now()
     ) {
-      throw new BadRequest('Invalid token')
+      return user
     }
-
-    await User.query().findById(user.id).patch({
-      password,
-      passwordResetExpiresAt: null,
-      passwordResetToken: null
-    })
   }
 }

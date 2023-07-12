@@ -249,7 +249,7 @@ const createUserService = (): UserService => ({
   async checkToken(token, cookies) {
     try {
       const response = await httpClient
-        .get(`check-token/${token}`, {
+        .get(`reset-password/${token}/validate`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
