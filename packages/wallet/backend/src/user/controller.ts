@@ -121,12 +121,12 @@ export class UserController implements IUserController {
     try {
       const token = req.params.token
 
-      const user = await this.deps.userService.getUserByToken(token)
+      const isValid = await this.deps.userService.validateToken(token)
 
       res.json({
         success: true,
         message: 'Token was checked',
-        data: { isValid: !!user }
+        data: { isValid }
       })
     } catch (e) {
       this.deps.logger.error(e)

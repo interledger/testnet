@@ -14,6 +14,7 @@ interface IUserService {
   getById(id: string): Promise<User | undefined>
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
+  validateToken(token: string): Promise<boolean>
 }
 
 interface UserServiceDependencies {
@@ -75,7 +76,7 @@ export class UserService implements IUserService {
     })
   }
 
-  public async getUserByToken(token: string): Promise<User | undefined> {
+  private async getUserByToken(token: string): Promise<User | undefined> {
     const passwordResetToken = crypto
       .createHash('sha256')
       .update(token)
@@ -85,9 +86,15 @@ export class UserService implements IUserService {
 
     if (
       user?.passwordResetExpiresAt &&
-      user.passwordResetExpiresAt.getTime() < Date.now()
+      user.passwordResetExpiresAt.getTime() > Date.now()
     ) {
       return user
     }
+  }
+
+  public async validateToken(token: string): Promise<boolean> {
+    const user = await this.getUserByToken(token)
+
+    return !!user
   }
 }
