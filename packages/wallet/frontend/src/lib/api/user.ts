@@ -129,6 +129,10 @@ export type Document = {
   isBackRequired: boolean
 }
 
+export type ValidToken = {
+  isValid: boolean
+}
+
 type SignUpArgs = z.infer<typeof signUpSchema>
 type SignUpError = ErrorResponse<SignUpArgs | undefined>
 type SignUpResponse = SuccessResponse | SignUpError
@@ -144,6 +148,9 @@ type ForgotPasswordResponse = SuccessResponse | ForgotPasswordError
 type ResetPasswordArgs = z.infer<typeof resetPasswordSchema>
 type ResetPasswordError = ErrorResponse<ResetPasswordArgs | undefined>
 type ResetPasswordResponse = SuccessResponse | ResetPasswordError
+
+type CheckTokenResult = SuccessResponse<ValidToken>
+type CheckTokenResponse = CheckTokenResult | ErrorResponse
 
 type MeResult = SuccessResponse<User>
 type MeResponse = MeResult | ErrorResponse
@@ -165,6 +172,7 @@ interface UserService {
   login: (args: LoginArgs) => Promise<LoginResponse>
   forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
   resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
+  checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
   me: (cookies?: string) => Promise<MeResponse>
   createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
   verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
@@ -234,6 +242,24 @@ const createUserService = (): UserService => ({
       return getError<ResetPasswordArgs>(
         error,
         'We could not reset your password. Please try again.'
+      )
+    }
+  },
+
+  async checkToken(token, cookies) {
+    try {
+      const response = await httpClient
+        .get(`check-token/${token}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<CheckTokenResult>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'Link is invalid. Please try again, or request a new link.'
       )
     }
   },

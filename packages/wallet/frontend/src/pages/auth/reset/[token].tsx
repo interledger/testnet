@@ -19,7 +19,8 @@ type ResetPasswordPageProps = InferGetServerSidePropsType<
 >
 
 const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
-  token
+  token,
+  isValid
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const resetPasswordForm = useZodForm({
@@ -32,7 +33,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
   return (
     <>
       <HeaderLogo header="Reset Password" />
-      {token ? (
+      {token && isValid ? (
         <>
           <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
             Provide a new password for your Testnet account.
@@ -111,7 +112,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
         <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
           You are trying to access an invalid link. Please verify your link, or{' '}
           <Link href="/auth/forgot" className="font-medium underline">
-            request link
+            request a new link
           </Link>{' '}
           to reset password again.
         </h2>
@@ -141,6 +142,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   token: string
+  isValid: boolean
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -150,9 +152,21 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  const checkTokenResponse = await userService.checkToken(
+    result.data.token,
+    ctx.req.headers.cookie
+  )
+
+  if (!checkTokenResponse.success || !checkTokenResponse.data) {
+    return {
+      notFound: true
+    }
+  }
+
   return {
     props: {
-      token: result.data.token
+      token: result.data.token,
+      isValid: checkTokenResponse.data.isValid
     }
   }
 }
