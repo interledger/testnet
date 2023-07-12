@@ -88,13 +88,20 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 type="hidden"
                 {...resetPasswordForm.register('token')}
               />
-              <div className="flex justify-center py-5">
+              <div className="flex justify-evenly py-5">
                 <Button
                   aria-label="Reset Password"
                   type="submit"
                   loading={resetPasswordForm.formState.isSubmitting}
                 >
                   Reset
+                </Button>
+                <Button
+                  intent="secondary"
+                  aria-label="cancel"
+                  href="/auth/login"
+                >
+                  Cancel
                 </Button>
               </div>
             </Form>

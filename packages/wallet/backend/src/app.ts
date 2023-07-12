@@ -149,7 +149,7 @@ export class App {
     // Auth Routes
     router.post('/signup', authController.signUp)
     router.post('/login', authController.logIn)
-    router.post('/reset-password', userController.requestResetPassword)
+    router.post('/forgot-password', userController.requestResetPassword)
     router.post('/reset-password/:token', userController.resetPassword)
 
     // Me Endpoint

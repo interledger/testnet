@@ -68,6 +68,11 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
               Get reset password link
             </Button>
           </div>
+          <div className="flex justify-center">
+            <Button intent="secondary" aria-label="cancel" href="login">
+              Cancel
+            </Button>
+          </div>
         </Form>
       </div>
       <Image

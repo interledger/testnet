@@ -36,7 +36,7 @@ export class EmailService implements IEmailService {
     return this.send({
       from: this.from,
       to,
-      subject: 'Forgotten Password - rafiki.money',
+      subject: '[Rafiki.Money] Reset your password',
       html: getForgotPasswordEmail(this.baseUrl, token)
     })
   }
