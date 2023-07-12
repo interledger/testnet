@@ -22,6 +22,7 @@ import { User } from '@/user/model'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { BaseError } from '@/errors/Base'
+import { truncateTables } from '@/tests/tables'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
@@ -39,6 +40,36 @@ describe('Asset Controller', (): void => {
 
   const next = jest.fn()
   const args = mockLogInRequest().body
+
+  const createUser = async () => {
+    const req = createRequest()
+    req.body = args
+    await userService.create(args)
+  }
+  const createReqRes = async () => {
+    res = createResponse()
+    req = createRequest()
+
+    await applyMiddleware(withSession, req, res)
+
+    const { user, session } = await authService.authorize(args)
+    req.session.id = session.id
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      needsWallet: !user.rapydWalletId,
+      needsIDProof: !user.kycId
+    }
+    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+  }
+  const createMockAccount = async () => {
+    req.body = {
+      name: accountName,
+      assetId: mockedAsset.id
+    }
+    await accountController.createAccount(req, res, next)
+    createdAccount = res._getJSONData().data
+  }
 
   beforeAll(async (): Promise<void> => {
     bindings = createContainer(env)
@@ -101,32 +132,20 @@ describe('Asset Controller', (): void => {
       accountService
     }
     Reflect.set(accountController, 'deps', accountControllerDepsMocked)
-
-    const req = createRequest()
-    req.body = args
-    await userService.create(args)
   })
 
   beforeEach(async (): Promise<void> => {
-    res = createResponse()
-    req = createRequest()
-
-    await applyMiddleware(withSession, req, res)
-
-    const { user, session } = await authService.authorize(args)
-    req.session.id = session.id
-    req.session.user = {
-      id: user.id,
-      email: user.email,
-      needsWallet: !user.rapydWalletId,
-      needsIDProof: !user.kycId
-    }
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+    await createUser()
+    await createReqRes()
   })
 
   afterAll(async (): Promise<void> => {
     appContainer.stop()
     knex.destroy()
+  })
+
+  afterEach(async (): Promise<void> => {
+    await truncateTables(knex)
   })
 
   describe('createAccount', (): void => {
@@ -143,10 +162,13 @@ describe('Asset Controller', (): void => {
           name: accountName
         }
       })
-      createdAccount = res._getJSONData().data
     })
   })
   describe('listAccounts', (): void => {
+    beforeEach(async (): Promise<void> => {
+      await createMockAccount()
+      await createReqRes()
+    })
     it("should list User's accounts (1 account, after creation)", async (): Promise<void> => {
       await accountController.listAccounts(req, res, next)
       expect(res.statusCode).toBe(200)
@@ -161,6 +183,10 @@ describe('Asset Controller', (): void => {
   })
 
   describe('getAccountById', (): void => {
+    beforeEach(async (): Promise<void> => {
+      await createMockAccount()
+      await createReqRes()
+    })
     it("should get User's Account by id", async (): Promise<void> => {
       req.params = {
         id: createdAccount.id
@@ -189,6 +215,10 @@ describe('Asset Controller', (): void => {
     })
   })
   describe('fundAccount', (): void => {
+    beforeEach(async (): Promise<void> => {
+      await createMockAccount()
+      await createReqRes()
+    })
     it("should fund User's Account", async (): Promise<void> => {
       req.body = {
         accountId: createdAccount.id,
@@ -204,6 +234,10 @@ describe('Asset Controller', (): void => {
     })
   })
   describe('withdrawFunds', (): void => {
+    beforeEach(async (): Promise<void> => {
+      await createMockAccount()
+      await createReqRes()
+    })
     it("should withdraw from User's Account", async (): Promise<void> => {
       req.body = {
         accountId: createdAccount.id,
