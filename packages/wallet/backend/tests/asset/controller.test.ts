@@ -70,7 +70,7 @@ describe('Asset Controller', (): void => {
   })
 
   describe('list', (): void => {
-    it('should return the list of assets (empty)', async (): Promise<void> => {
+    it('should return the list of assets', async (): Promise<void> => {
       const depsMocked = {
         rafikiClient: {
           listAssets: () => mockedListAssets
@@ -80,9 +80,11 @@ describe('Asset Controller', (): void => {
 
       await assetController.list(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toMatchObject({
+      const jsonData = res._getJSONData()
+      expect(jsonData).toMatchObject({
         message: 'Success'
       })
+      expect(jsonData?.data?.length).toEqual(mockedListAssets.length)
     })
   })
 })
