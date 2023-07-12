@@ -92,6 +92,28 @@ export const verifyIdentitySchema = z
     }
   )
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: 'Email is required' })
+})
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, { message: 'Password should be at least 6 characters long' }),
+    confirmPassword: z.string(),
+    token: z.string()
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Passwords must match',
+        path: ['confirmPassword']
+      })
+    }
+  })
+
 export type User = {
   email: string
   firstName: string
@@ -115,6 +137,14 @@ type LoginArgs = z.infer<typeof loginSchema>
 type LoginError = ErrorResponse<LoginArgs | undefined>
 type LoginResponse = SuccessResponse | LoginError
 
+type ForgotPasswordArgs = z.infer<typeof forgotPasswordSchema>
+type ForgotPasswordError = ErrorResponse<ForgotPasswordArgs | undefined>
+type ForgotPasswordResponse = SuccessResponse | ForgotPasswordError
+
+type ResetPasswordArgs = z.infer<typeof resetPasswordSchema>
+type ResetPasswordError = ErrorResponse<ResetPasswordArgs | undefined>
+type ResetPasswordResponse = SuccessResponse | ResetPasswordError
+
 type MeResult = SuccessResponse<User>
 type MeResponse = MeResult | ErrorResponse
 
@@ -133,6 +163,8 @@ type ProfileResponse = SuccessResponse | ProfileError
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
   login: (args: LoginArgs) => Promise<LoginResponse>
+  forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
+  resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
   me: (cookies?: string) => Promise<MeResponse>
   createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
   verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
@@ -170,6 +202,38 @@ const createUserService = (): UserService => ({
       return getError<LoginArgs>(
         error,
         'We could not log you in. Please try again.'
+      )
+    }
+  },
+
+  async forgotPassword(args) {
+    try {
+      const response = await httpClient
+        .post('reset-password', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<ForgotPasswordArgs>(
+        error,
+        'Something went wrong. Please try again.'
+      )
+    }
+  },
+
+  async resetPassword(args) {
+    try {
+      const response = await httpClient
+        .post(`reset-password/${args.token}`, {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<ResetPasswordArgs>(
+        error,
+        'We could not reset your password. Please try again.'
       )
     }
   },
