@@ -70,7 +70,7 @@ describe('Asset Controller', (): void => {
   })
 
   describe('list', (): void => {
-    it("should return the user's list of assets (empty)", async (): Promise<void> => {
+    it('should return the list of assets (empty)', async (): Promise<void> => {
       const depsMocked = {
         rafikiClient: {
           listAssets: () => mockedListAssets
