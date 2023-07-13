@@ -110,7 +110,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
         </>
       ) : (
         <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
-          You are trying to access an invalid link. Please verify your link, or{' '}
+          The link is invalid or has expired. <br /> Please verify your link, or{' '}
           <Link href="/auth/forgot" className="font-medium underline">
             request a new link
           </Link>{' '}
