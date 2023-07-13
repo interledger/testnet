@@ -48,13 +48,12 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   }
 }
 
-export const formatDate = (date: string): string => {
+export const formatDate = (date: string, time = true): string => {
   return new Date(date).toLocaleDateString('default', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    ...(time && { hour: '2-digit', minute: '2-digit' })
   })
 }
 
