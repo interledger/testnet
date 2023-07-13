@@ -11,6 +11,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useRouter } from 'next/router'
 import { generateAndDownloadFile } from '@/utils/helpers'
+import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
 
 type PaymentPointerContextType = {
   paymentPointer: PaymentPointer
@@ -283,7 +284,15 @@ const PaymentPointerCTA = () => {
         <Button
           intent="secondary"
           aria-label="generate keys"
-          onClick={revokePublicAndPrivateKeys}
+          onClick={() =>
+            openDialog(
+              <ConfirmationDialog
+                confirmText="Revoke payment pointer key"
+                onConfirm={() => revokePublicAndPrivateKeys()}
+                onClose={closeDialog}
+              />
+            )
+          }
         >
           Revoke public & private key
         </Button>
