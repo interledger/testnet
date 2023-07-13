@@ -7,9 +7,11 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { formatDate } from '@/utils/helpers'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 
-type DeveloperKeysProps = InferGetServerSidePropsType<typeof getServerSideProps>
+type DeveloperKeysPageProps = InferGetServerSidePropsType<
+  typeof getServerSideProps
+>
 
-const DeveloperKeyss: NextPageWithLayout<DeveloperKeysProps> = ({
+const DeveloperKeysPage: NextPageWithLayout<DeveloperKeysPageProps> = ({
   accounts
 }) => {
   return (
@@ -60,8 +62,8 @@ export const getServerSideProps: GetServerSideProps<{
   }
 }
 
-DeveloperKeyss.getLayout = function (page) {
+DeveloperKeysPage.getLayout = function (page) {
   return <AppLayout>{page}</AppLayout>
 }
 
-export default DeveloperKeyss
+export default DeveloperKeysPage
