@@ -49,4 +49,21 @@ export class EmailService implements IEmailService {
       `Send email is disabled. Reset password link is: ${url}`
     )
   }
+
+  async sendVerifyEmail(to: string, token: string): Promise<void> {
+    const url = `${this.baseUrl}/auth/reset/${token}`
+
+    if (this.deps.env.SEND_EMAIL) {
+      return this.send({
+        from: this.deps.env.FROM_EMAIL,
+        to,
+        subject: '[Rafiki.Money] Verify your email',
+        html: getForgotPasswordEmail(url)
+      })
+    }
+
+    this.deps.logger.info(
+      `Send email is disabled. Verify email link is: ${url}`
+    )
+  }
 }

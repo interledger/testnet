@@ -69,7 +69,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     'userService',
     async () =>
       new UserService({
-        emailService: await container.resolve('emailService')
+        emailService: await container.resolve('emailService'),
+        logger: await container.resolve('logger')
       })
   )
 
