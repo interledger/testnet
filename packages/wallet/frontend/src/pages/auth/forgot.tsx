@@ -59,7 +59,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
             error={forgotPasswordForm.formState.errors.email?.message}
             label="E-mail"
           />
-          <div className="flex justify-center py-5">
+          <div className="flex justify-evenly py-5">
             <Button
               aria-label="Forgot Password"
               type="submit"
@@ -67,8 +67,6 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
             >
               Get reset password link
             </Button>
-          </div>
-          <div className="flex justify-center">
             <Button intent="secondary" aria-label="cancel" href="login">
               Cancel
             </Button>
