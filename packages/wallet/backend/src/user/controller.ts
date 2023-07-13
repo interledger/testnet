@@ -20,6 +20,7 @@ interface IUserController {
   requestResetPassword: ControllerFunction
   resetPassword: ControllerFunction
   checkToken: ControllerFunction<TokenValidity>
+  verifyEmail: ControllerFunction
 }
 interface UserControllerDependencies {
   userService: UserService
@@ -127,6 +128,26 @@ export class UserController implements IUserController {
         success: true,
         message: 'Token was checked',
         data: { isValid }
+      })
+    } catch (e) {
+      this.deps.logger.error(e)
+      next(e)
+    }
+  }
+
+  verifyEmail = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req.params.token
+
+      await this.deps.userService.verifyEmail(token)
+
+      res.json({
+        success: true,
+        message: 'Email was verified successfully'
       })
     } catch (e) {
       this.deps.logger.error(e)

@@ -2,6 +2,7 @@ import { Env } from '@/config/env'
 import { default as sendgrid } from '@sendgrid/mail'
 import { getForgotPasswordEmail } from '@/email/templates/forgotPassword'
 import { Logger } from 'winston'
+import { getVerifyEmail } from '@/email/templates/verifyEmail'
 
 interface EmailArgs {
   to: string
@@ -51,14 +52,14 @@ export class EmailService implements IEmailService {
   }
 
   async sendVerifyEmail(to: string, token: string): Promise<void> {
-    const url = `${this.baseUrl}/auth/reset/${token}`
+    const url = `${this.baseUrl}/auth/verify/${token}`
 
     if (this.deps.env.SEND_EMAIL) {
       return this.send({
         from: this.deps.env.FROM_EMAIL,
         to,
-        subject: '[Rafiki.Money] Verify your email',
-        html: getForgotPasswordEmail(url)
+        subject: '[Rafiki.Money] Verify your account',
+        html: getVerifyEmail(url)
       })
     }
 

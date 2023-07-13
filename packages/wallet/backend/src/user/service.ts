@@ -94,6 +94,27 @@ export class UserService implements IUserService {
     })
   }
 
+  public async validateToken(token: string): Promise<boolean> {
+    const user = await this.getUserByToken(token)
+
+    return !!user
+  }
+
+  public async verifyEmail(token: string): Promise<void> {
+    const verifyEmailToken = hashToken(token)
+
+    const user = await User.query().findOne({ verifyEmailToken })
+
+    if (!user) {
+      throw new BadRequest('Invalid token')
+    }
+
+    await User.query().findById(user.id).patch({
+      isEmailVerified: true,
+      verifyEmailToken: null
+    })
+  }
+
   private async getUserByToken(token: string): Promise<User | undefined> {
     const passwordResetToken = hashToken(token)
 
@@ -105,11 +126,5 @@ export class UserService implements IUserService {
     ) {
       return user
     }
-  }
-
-  public async validateToken(token: string): Promise<boolean> {
-    const user = await this.getUserByToken(token)
-
-    return !!user
   }
 }
