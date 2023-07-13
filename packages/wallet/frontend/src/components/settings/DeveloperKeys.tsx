@@ -5,13 +5,7 @@ import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { cx } from 'class-variance-authority'
 import { CopyButton } from '@/ui/CopyButton'
 import { Button } from '@/ui/Button'
-import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useState
-} from 'react'
+import { ReactNode, createContext, useContext, useState } from 'react'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
@@ -194,7 +188,7 @@ const PaymentPointerKeyInfo = () => {
               <CopyButton
                 aria-label="copy key id"
                 className="h-10 w-10"
-                value={paymentPointer.keyIds.id!}
+                value={paymentPointer.keyIds.id}
               />
             </div>
           </div>
@@ -218,7 +212,7 @@ const PaymentPointerCTA = () => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
 
-  const revokePublicAndPrivateKeys = useCallback(async () => {
+  async function revokePublicAndPrivateKeys() {
     const response = await paymentPointerService.revokeKey({
       accountId: paymentPointer.accountId,
       paymentPointerId: paymentPointer.id
@@ -246,9 +240,9 @@ const PaymentPointerCTA = () => {
         content={response.message}
       />
     )
-  }, [])
+  }
 
-  const generatePublicAndPrivateKeys = useCallback(async () => {
+  async function generatePublicAndPrivateKeys() {
     const response = await paymentPointerService.generateKey({
       accountId: paymentPointer.accountId,
       paymentPointerId: paymentPointer.id
@@ -281,7 +275,7 @@ const PaymentPointerCTA = () => {
         />
       )
     }
-  }, [])
+  }
 
   return (
     <div className="pt-4">
