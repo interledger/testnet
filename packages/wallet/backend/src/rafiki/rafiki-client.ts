@@ -39,7 +39,9 @@ import {
   QueryAssetsArgs,
   UpdatePaymentPointerInput,
   UpdatePaymentPointerMutationVariables,
-  UpdatePaymentPointerMutation
+  UpdatePaymentPointerMutation,
+  RevokePaymentPointerKeyMutation,
+  RevokePaymentPointerKeyMutationVariables
 } from './backend/generated/graphql'
 import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
 import { BadRequest, NotFound } from '@/errors'
@@ -52,7 +54,10 @@ import {
   createPaymentPointerMutation,
   updatePaymentPointerMutation
 } from './backend/request/payment-pointer.request'
-import { createPaymentPointerKeyMutation } from './backend/request/payment-pointer-key.request'
+import {
+  createPaymentPointerKeyMutation,
+  revokePaymentPointerKeyMutation
+} from './backend/request/payment-pointer-key.request'
 import { GraphQLClient } from 'graphql-request'
 import {
   createQuoteMutation,
@@ -276,6 +281,19 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return response.createPaymentPointerKey.paymentPointerKey
+  }
+
+  public async revokePaymenterPointerKey(id: string): Promise<void> {
+    const response = await this.deps.gqlClient.request<
+      RevokePaymentPointerKeyMutation,
+      RevokePaymentPointerKeyMutationVariables
+    >(revokePaymentPointerKeyMutation, {
+      input: { id }
+    })
+
+    if (!response.revokePaymentPointerKey?.success) {
+      throw new Error(response.revokePaymentPointerKey?.message)
+    }
   }
 
   public async createQuote(params: CreateQuoteParams): Promise<Quote> {

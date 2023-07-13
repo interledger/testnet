@@ -201,7 +201,23 @@ export class PaymentPointerService implements IPaymentPointerService {
       accountId,
       paymentPointerId
     )
-    await paymentPointer.$query().patch({ keyIds: null })
+
+    if (!paymentPointer.keyIds) {
+      return
+    }
+
+    const trx = await PaymentPointer.startTransaction()
+    try {
+      await Promise.all([
+        await paymentPointer.$query(trx).patch({ keyIds: null }),
+        await this.deps.rafikiClient.revokePaymenterPointerKey(
+          paymentPointer.keyIds.id
+        )
+      ])
+      await trx.commit()
+    } catch (e) {
+      await trx.rollback()
+    }
   }
 
   async update(args: UpdatePaymentPointerArgs): Promise<void> {
