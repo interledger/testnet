@@ -26,7 +26,9 @@ export const createPaymentPointerKeyMutation = gql`
 `
 
 export const revokePaymentPointerKeyMutation = gql`
-  mutation RevokePaymentPointerKeyMutation($input: RevokePaymentPointerKeyInput!) {
+  mutation RevokePaymentPointerKeyMutation(
+    $input: RevokePaymentPointerKeyInput!
+  ) {
     revokePaymentPointerKey(input: $input) {
       code
       message
