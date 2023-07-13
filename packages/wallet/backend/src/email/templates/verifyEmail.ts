@@ -19,7 +19,7 @@ export const getVerifyEmail = (baseUrl: string, token: string): string => {
                 <tbody>
                 <tr>
                     <td>
-                      <img alt="Verify Email" src="https://raw.githubusercontent.com/interledger/testnet/60ca629046f50e3ed47406fa2cb20c6abd34be2f/packages/wallet/backend/src/emailTemplates/images/KeyBird.png" width="120" height="96" style="outline:none;border:none;text-decoration:none" />
+                      <img alt="Verify Email" src="https://raw.githubusercontent.com/interledger/testnet/136572c9cd3b821392d89e4678d64d492e283265/packages/wallet/backend/src/email/templates/images/Verify.png" width="120" height="140" style="outline:none;border:none;text-decoration:none" />
                     </td>
                 </tr>
                 <tr>
