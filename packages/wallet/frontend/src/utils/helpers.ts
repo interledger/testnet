@@ -77,19 +77,19 @@ type FileType = keyof typeof FILE_TYPE
 
 type GenerateAndDownloadFileProps = {
   content: string
-  filename: string
+  fileName: string
   fileType: FileType
 }
 
 export const generateAndDownloadFile = ({
   content,
-  filename,
+  fileName,
   fileType
 }: GenerateAndDownloadFileProps): void => {
   const blob = new Blob([content], { type: FILE_TYPE[fileType] })
   const anchor = document.createElement('a')
 
-  anchor.download = filename
+  anchor.download = fileName
   anchor.href = URL.createObjectURL(blob)
   anchor.dataset.downloadurl = [fileType, anchor.download, anchor.href].join(
     ':'

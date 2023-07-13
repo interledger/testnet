@@ -173,16 +173,20 @@ export class PaymentPointerService implements IPaymentPointerService {
     const privateKeyPEM = privateKey
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
+    const keyId = uuid()
+
+    const paymentPointerKey =
+      await this.deps.rafikiClient.createRafikiPaymentPointerKey(
+        generateJwk(privateKey, keyId),
+        paymentPointer.id
+      )
+
     const key = {
-      id: uuid(),
+      id: keyId,
+      rafikiId: paymentPointerKey.id,
       publicKey: publicKeyPEM,
       createdOn: new Date()
     }
-
-    await this.deps.rafikiClient.createRafikiPaymentPointerKey(
-      generateJwk(privateKey, key.id),
-      paymentPointer.id
-    )
 
     await PaymentPointer.query().findById(paymentPointerId).patch({
       keyIds: key
@@ -209,9 +213,9 @@ export class PaymentPointerService implements IPaymentPointerService {
     const trx = await PaymentPointer.startTransaction()
     try {
       await Promise.all([
-        await paymentPointer.$query(trx).patch({ keyIds: null }),
-        await this.deps.rafikiClient.revokePaymenterPointerKey(
-          paymentPointer.keyIds.id
+        paymentPointer.$query(trx).patch({ keyIds: null }),
+        this.deps.rafikiClient.revokePaymentPointerKey(
+          paymentPointer.keyIds.rafikiId
         )
       ])
       await trx.commit()
@@ -232,8 +236,8 @@ export class PaymentPointerService implements IPaymentPointerService {
 
     try {
       await Promise.all([
-        await paymentPointer.$query(trx).patch({ publicName }),
-        await this.deps.rafikiClient.updatePaymentPointer({
+        paymentPointer.$query(trx).patch({ publicName }),
+        this.deps.rafikiClient.updatePaymentPointer({
           id: paymentPointerId,
           publicName
         })

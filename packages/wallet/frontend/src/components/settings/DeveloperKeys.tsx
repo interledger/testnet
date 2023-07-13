@@ -261,7 +261,7 @@ const PaymentPointerCTA = () => {
 
       generateAndDownloadFile({
         content: privateKey,
-        filename: 'private.key',
+        fileName: 'private.key',
         fileType: 'TEXT_PLAIN'
       })
 

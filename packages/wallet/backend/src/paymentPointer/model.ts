@@ -5,6 +5,7 @@ import { Transaction } from '@/transaction/model'
 
 interface PaymentPointerKey {
   id: string
+  rafikiId: string
   publicKey: string
   createdOn: Date
 }

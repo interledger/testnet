@@ -283,7 +283,7 @@ export class RafikiClient implements IRafikiClient {
     return response.createPaymentPointerKey.paymentPointerKey
   }
 
-  public async revokePaymenterPointerKey(id: string): Promise<void> {
+  public async revokePaymentPointerKey(id: string): Promise<void> {
     const response = await this.deps.gqlClient.request<
       RevokePaymentPointerKeyMutation,
       RevokePaymentPointerKeyMutationVariables
