@@ -11,9 +11,15 @@ interface UserFlags {
   needsWallet: boolean
   needsIDProof: boolean
 }
+interface TokenValidity {
+  isValid: boolean
+}
 
 interface IUserController {
   me: ControllerFunction<UserFlags>
+  requestResetPassword: ControllerFunction
+  resetPassword: ControllerFunction
+  checkToken: ControllerFunction<TokenValidity>
 }
 interface UserControllerDependencies {
   userService: UserService
@@ -100,6 +106,27 @@ export class UserController implements IUserController {
       res.json({
         success: true,
         message: 'Password was updated successfully'
+      })
+    } catch (e) {
+      this.deps.logger.error(e)
+      next(e)
+    }
+  }
+
+  checkToken = async (
+    req: Request,
+    res: CustomResponse<TokenValidity>,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req.params.token
+
+      const isValid = await this.deps.userService.validateToken(token)
+
+      res.json({
+        success: true,
+        message: 'Token was checked',
+        data: { isValid }
       })
     } catch (e) {
       this.deps.logger.error(e)

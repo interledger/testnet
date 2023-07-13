@@ -9,7 +9,7 @@ export class User extends BaseModel {
   static tableName = 'users'
 
   public email!: string
-  public password!: string
+  private password!: string
   public lastName?: string
   public firstName?: string
   public address?: string
@@ -22,6 +22,9 @@ export class User extends BaseModel {
   public passwordResetToken?: string | null
   public passwordResetExpiresAt?: Date | null
 
+  // this property is used to update the password
+  public newPassword?: string
+
   async $beforeInsert(queryContext: QueryContext): Promise<void> {
     super.$beforeInsert(queryContext)
     this.password = await encryptPassword(this.password)
@@ -32,8 +35,9 @@ export class User extends BaseModel {
     queryContext: QueryContext
   ): Promise<void> {
     super.$beforeUpdate(options, queryContext)
-    if (this.password) {
-      this.password = await encryptPassword(this.password)
+    if (this.newPassword) {
+      this.password = await encryptPassword(this.newPassword)
+      delete this.newPassword
     }
   }
 

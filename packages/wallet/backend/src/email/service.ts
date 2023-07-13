@@ -10,7 +10,6 @@ interface EmailArgs {
 }
 
 interface IEmailService {
-  send(args: EmailArgs): Promise<void>
   sendForgotPassword(to: string, token: string): Promise<void>
 }
 interface EmailServiceDependencies {
@@ -28,7 +27,7 @@ export class EmailService implements IEmailService {
       host === 'localhost' ? 'http://localhost:4003' : `https://${host}`
   }
 
-  async send(email: EmailArgs): Promise<void> {
+  private async send(email: EmailArgs): Promise<void> {
     await sendgrid.send(email)
   }
 
