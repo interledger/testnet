@@ -60,7 +60,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     'emailService',
     async () =>
       new EmailService({
-        env: await container.resolve('env')
+        env: await container.resolve('env'),
+        logger: await container.resolve('logger')
       })
   )
 

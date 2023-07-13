@@ -41,6 +41,7 @@ services:
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
+      SEND_EMAIL: ${SEND_EMAIL}
     restart: always
     networks:
       - testnet

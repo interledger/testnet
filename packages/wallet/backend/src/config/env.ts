@@ -23,7 +23,11 @@ const envSchema = z.object({
   RAPYD_SETTLEMENT_EWALLET: z.string().default('default_ewallet'),
   RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost'),
   SENDGRID_API_KEY: z.string().default('SENDGRID_API_KEY'),
-  FROM_EMAIL: z.string().default('tech@interledger.org')
+  FROM_EMAIL: z.string().default('tech@interledger.org'),
+  SEND_EMAIL: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true')
 })
 
 export type Env = z.infer<typeof envSchema>
