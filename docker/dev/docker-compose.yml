@@ -52,7 +52,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:main
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:b9f9b0acd6aa2c0d91282169042cfc9a745e80cd033c6f7a64d88bd4dcb41bce
     restart: always
     networks:
       - testnet
@@ -70,7 +70,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:main
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:69e5e981211fa3aaa00ee40b06d09078225ee55fae4745c60b441eeb78310abb
     restart: always
     privileged: true
     volumes:
@@ -112,7 +112,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:main
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:1701e1201075d93bce65e59788191b653ed6f5b13aefa493f37e84aa24237d03
     depends_on:
       - rafiki-backend
     restart: always

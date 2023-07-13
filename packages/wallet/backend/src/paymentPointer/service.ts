@@ -8,6 +8,13 @@ import { v4 as uuid } from 'uuid'
 import { generateJwk } from '@/utils/jwk'
 import { Account } from '@/account/model'
 
+interface UpdatePaymentPointerArgs {
+  userId: string
+  accountId: string
+  paymentPointerId: string
+  publicName: string
+}
+
 interface IPaymentPointerService {
   create: (
     userId: string,
@@ -15,6 +22,7 @@ interface IPaymentPointerService {
     paymentPointerName: string,
     publicName: string
   ) => Promise<PaymentPointer>
+  update: (args: UpdatePaymentPointerArgs) => Promise<void>
   list: (userId: string, accountId: string) => Promise<PaymentPointer[]>
   getById: (
     userId: string,
@@ -193,5 +201,29 @@ export class PaymentPointerService implements IPaymentPointerService {
       paymentPointerId
     )
     await paymentPointer.$query().patch({ keyIds: null })
+  }
+
+  async update(args: UpdatePaymentPointerArgs): Promise<void> {
+    const { userId, accountId, paymentPointerId, publicName } = args
+    const paymentPointer = await this.getById(
+      userId,
+      accountId,
+      paymentPointerId
+    )
+
+    const trx = await PaymentPointer.startTransaction()
+
+    try {
+      await Promise.all([
+        await paymentPointer.$query().patch({ publicName }),
+        await this.deps.rafikiClient.updatePaymentPointer({
+          id: paymentPointerId,
+          publicName
+        })
+      ])
+      await trx.commit()
+    } catch (e) {
+      await trx.rollback()
+    }
   }
 }

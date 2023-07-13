@@ -1156,6 +1156,13 @@ export type CreatePaymentPointerMutationVariables = Exact<{
 
 export type CreatePaymentPointerMutation = { __typename?: 'Mutation', createPaymentPointer: { __typename?: 'CreatePaymentPointerMutationResponse', code: string, success: boolean, message: string, paymentPointer?: { __typename?: 'PaymentPointer', id: string, url: string, publicName?: string | null } | null } };
 
+export type UpdatePaymentPointerMutationVariables = Exact<{
+  input: UpdatePaymentPointerInput;
+}>;
+
+
+export type UpdatePaymentPointerMutation = { __typename?: 'Mutation', updatePaymentPointer: { __typename?: 'UpdatePaymentPointerMutationResponse', code: string, success: boolean, message: string } };
+
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
