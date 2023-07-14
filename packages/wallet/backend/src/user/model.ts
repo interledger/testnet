@@ -1,9 +1,9 @@
 import { Account } from '@/account/model'
 import { BaseModel } from '@/shared/model'
 import { Session } from '@/session/model'
-import { Model, QueryContext } from 'objection'
-import { randomBytes } from 'crypto'
-import { bcrypt, bcryptVerify } from 'hash-wasm'
+import { Model, ModelOptions, QueryContext } from 'objection'
+import { bcryptVerify } from 'hash-wasm'
+import { encryptPassword } from '@/utils/helpers'
 
 export class User extends BaseModel {
   static tableName = 'users'
@@ -19,15 +19,26 @@ export class User extends BaseModel {
   public rapydContactId?: string
   public kycId?: string
   public sessions?: Session[]
+  public passwordResetToken?: string | null
+  public passwordResetExpiresAt?: Date | null
+
+  // this property is used to update the password
+  public newPassword?: string
 
   async $beforeInsert(queryContext: QueryContext): Promise<void> {
     super.$beforeInsert(queryContext)
-    this.password = await bcrypt({
-      password: this.password,
-      salt: randomBytes(16),
-      costFactor: 10,
-      outputType: 'encoded'
-    })
+    this.password = await encryptPassword(this.password)
+  }
+
+  async $beforeUpdate(
+    options: ModelOptions,
+    queryContext: QueryContext
+  ): Promise<void> {
+    super.$beforeUpdate(options, queryContext)
+    if (this.newPassword) {
+      this.password = await encryptPassword(this.newPassword)
+      delete this.newPassword
+    }
   }
 
   async verifyPassword(password: string): Promise<boolean> {
