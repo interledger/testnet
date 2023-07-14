@@ -413,12 +413,6 @@ export class RafikiService implements IRafikiService {
       ) {
         throw new BadRequest('Invalid quote sendAmount asset')
       }
-      // if (
-      //   receivedQuote.sendAmount.assetCode !== feeStructure.asset ||
-      //   receivedQuote.sendAmount.assetScale !== feeStructure.scale
-      // ) {
-      //   throw new BadRequest('Invalid quote sendAmount asset')
-      // }
       const sendAmountValue = BigInt(receivedQuote.sendAmount.value)
       const fees =
         // TODO: bigint/float multiplication
@@ -455,7 +449,7 @@ export class RafikiService implements IRafikiService {
     return {
       base: 'USD',
       rates: {
-        EUR: 1,
+        EUR: 1.1602,
         ZAR: 17.3782
       }
     }
