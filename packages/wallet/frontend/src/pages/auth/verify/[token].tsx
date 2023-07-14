@@ -22,14 +22,12 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
       {verified ? (
         <>
           <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
-            Your email has been verified, continue to login to use Interledger
+            Your email has been verified. Continue to login to use Interledger
             Testnet.
           </h2>
-          <div className="w-2/3">
-            <Button intent="primary" aria-label="login" href="/auth/login">
-              Login to your account
-            </Button>
-          </div>
+          <Button intent="primary" aria-label="login" href="/auth/login">
+            Login to your account
+          </Button>
         </>
       ) : (
         <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
