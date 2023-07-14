@@ -1,7 +1,10 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
 import { Transaction } from '@/transaction/model'
-import { transactionListRequestSchema } from '@/transaction/validation'
+import {
+  transactionListAllRequestSchema,
+  transactionListRequestSchema
+} from '@/transaction/validation'
 import { TransactionService } from '@/transaction/service'
 
 interface ITransactionController {
@@ -32,6 +35,35 @@ export class TransactionController implements ITransactionController {
         paymentPointerId,
         orderByDate
       )
+      res
+        .status(200)
+        .json({ success: true, message: 'SUCCESS', data: transactions })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  listAll = async (
+    req: Request,
+    res: CustomResponse<Transaction[]>,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { accountId } = req.params
+
+      const {
+        query: { page, pageSize }
+      } = await validate(transactionListAllRequestSchema, req)
+
+      const transactions = await this.deps.transactionService.listAll({
+        userId,
+        accountId,
+        paginationParams: {
+          page: Number(page),
+          pageSize: Number(pageSize)
+        }
+      })
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: transactions })

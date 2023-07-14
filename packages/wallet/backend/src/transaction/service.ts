@@ -2,6 +2,13 @@ import { Transaction } from './model'
 import { OrderByDirection, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
+import { PaginationQueryParams } from '@/shared/types'
+
+type ListAllTransactionsInput = {
+  userId: string
+  accountId: string
+  paginationParams: PaginationQueryParams
+}
 
 interface ITransactionService {
   list: (
@@ -14,6 +21,7 @@ interface ITransactionService {
     where: PartialModelObject<Transaction>,
     update: PartialModelObject<Transaction>
   ) => Promise<void>
+  listAll: (input: ListAllTransactionsInput) => Promise<Transaction[]>
 }
 
 interface TransactionServiceDependencies {
@@ -49,5 +57,19 @@ export class TransactionService implements ITransactionService {
     } catch (e) {
       this.deps.logger.error(`Update transaction error:`, e)
     }
+  }
+
+  async listAll({
+    userId,
+    accountId,
+    paginationParams: { page, pageSize }
+  }: ListAllTransactionsInput): Promise<Transaction[]> {
+    await this.deps.accountService.findAccountById(accountId, userId)
+
+    const transactions = await Transaction.query()
+      .orderBy('createdAt', 'desc')
+      .page(page, pageSize)
+
+    return transactions.results
   }
 }
