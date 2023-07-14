@@ -7,7 +7,6 @@ import {
 } from '../httpClient'
 import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 import { SelectOption } from '@/ui/forms/Select'
-import VerifyEmailPage from '@/pages/auth/verify/[token]'
 
 export const signUpSchema = z
   .object({
