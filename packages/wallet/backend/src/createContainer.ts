@@ -30,6 +30,7 @@ import { UserService } from '@/user/service'
 import { QuoteService } from '@/quote/service'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
+import { EmailService } from '@/email/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -55,8 +56,23 @@ export const createContainer = (config: Env): Container<Bindings> => {
   })
 
   container.singleton('sessionService', async () => new SessionService())
+  container.singleton(
+    'emailService',
+    async () =>
+      new EmailService({
+        env: await container.resolve('env'),
+        logger: await container.resolve('logger')
+      })
+  )
 
-  container.singleton('userService', async () => new UserService())
+  container.singleton(
+    'userService',
+    async () =>
+      new UserService({
+        emailService: await container.resolve('emailService')
+      })
+  )
+
   container.singleton(
     'userController',
     async () =>

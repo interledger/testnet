@@ -56,7 +56,7 @@ const LoginPage: NextPageWithLayout = () => {
             label="Password"
           />
           <Link
-            href="/recover-pswd"
+            href="forgot"
             className="text-sm font-extralight text-green-3 underline"
           >
             Forgot password?

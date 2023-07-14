@@ -36,6 +36,7 @@ import { QuoteController } from './quote/controller'
 import { QuoteService } from './quote/service'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
+import { EmailService } from '@/email/service'
 
 export interface Bindings {
   env: Env
@@ -67,6 +68,7 @@ export interface Bindings {
   quoteService: QuoteService
   rafikiAuthService: RafikiAuthService
   grantController: GrantController
+  emailService: EmailService
 }
 
 export class App {
@@ -148,6 +150,11 @@ export class App {
     router.post('/signup', authController.signUp)
     router.post('/login', authController.logIn)
 
+    // Reset password routes
+    router.post('/forgot-password', userController.requestResetPassword)
+    router.get('/reset-password/:token/validate', userController.checkToken)
+    router.post('/reset-password/:token', userController.resetPassword)
+
     // Me Endpoint
     router.get('/me', userController.me)
 
@@ -166,6 +173,11 @@ export class App {
       '/accounts/:accountId/payment-pointers/:id',
       isAuth,
       paymentPointerController.getById
+    )
+    router.patch(
+      '/accounts/:accountId/payment-pointers/:paymentPointerId',
+      isAuth,
+      paymentPointerController.update
     )
     router.delete(
       '/payment-pointer/:id',
