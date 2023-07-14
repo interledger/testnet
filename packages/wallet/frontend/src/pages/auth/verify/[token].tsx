@@ -13,7 +13,8 @@ type VerifyEmailPageProps = InferGetServerSidePropsType<
 >
 
 const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
-  verified
+  verified,
+  message
 }) => {
   return (
     <>
@@ -32,7 +33,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
         </>
       ) : (
         <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
-          Email verification unsuccessful. Please try again.
+          Email verification unsuccessful: {message}. Please try again.
         </h2>
       )}
 
@@ -60,6 +61,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   verified: boolean
+  message: string
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -69,17 +71,12 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const verifyEmailResponse = await userService.verifyEmail(result.data.token)
-
-  if (!verifyEmailResponse.success || !verifyEmailResponse.data) {
-    return {
-      notFound: true
-    }
-  }
+  const verifyEmailResponse = await userService.verifyEmail(result.data)
 
   return {
     props: {
-      verified: verifyEmailResponse.success
+      verified: verifyEmailResponse.success,
+      message: verifyEmailResponse.message
     }
   }
 }
