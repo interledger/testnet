@@ -7,6 +7,7 @@ import {
 } from '../httpClient'
 import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 import { SelectOption } from '@/ui/forms/Select'
+import VerifyEmailPage from '@/pages/auth/verify/[token]'
 
 export const signUpSchema = z
   .object({
@@ -152,6 +153,8 @@ type ResetPasswordResponse = SuccessResponse | ResetPasswordError
 type CheckTokenResult = SuccessResponse<ValidToken>
 type CheckTokenResponse = CheckTokenResult | ErrorResponse
 
+type VerifyEmailResponse = SuccessResponse | ErrorResponse
+
 type MeResult = SuccessResponse<User>
 type MeResponse = MeResult | ErrorResponse
 
@@ -173,6 +176,7 @@ interface UserService {
   forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
   resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
+  verifyEmail: (token: string) => Promise<VerifyEmailResponse>
   me: (cookies?: string) => Promise<MeResponse>
   createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
   verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
@@ -260,6 +264,20 @@ const createUserService = (): UserService => ({
       return getError(
         error,
         'Link is invalid. Please try again, or request a new link.'
+      )
+    }
+  },
+
+  async verifyEmail(token) {
+    try {
+      const response = await httpClient
+        .post(`verify-email/${token}`, { json: token })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We could not verify your email. Please try again.'
       )
     }
   },
