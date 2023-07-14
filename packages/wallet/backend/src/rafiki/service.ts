@@ -56,7 +56,6 @@ export type Quote = {
 type Fee = {
   fixed: number
   percentage: number
-  // asset: string
   scale: number
 }
 
