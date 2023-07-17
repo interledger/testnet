@@ -99,11 +99,11 @@ importers:
         specifier: ^6.3.1
         version: 6.3.1(express@4.18.2)
       knex:
-        specifier: ^2.5.0
-        version: 2.5.0(pg@8.11.1)
+        specifier: ^2.5.1
+        version: 2.5.1(pg@8.11.1)
       objection:
         specifier: ^3.0.4
-        version: 3.0.4(knex@2.5.0)
+        version: 3.0.4(knex@2.5.1)
       pg:
         specifier: ^8.11.1
         version: 8.11.1
@@ -5892,8 +5892,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /knex@2.5.0(pg@8.11.1):
-    resolution: {integrity: sha512-h6Ru3PJmZjCDUEqLgwQ/RJUu06Bz7MTzY6sD90udLIa9qwtC7Rnicr7TBiWSaswZmDqk4EZ8xysdg1fkvhYM6w==}
+  /knex@2.5.1(pg@8.11.1):
+    resolution: {integrity: sha512-z78DgGKUr4SE/6cm7ku+jHvFT0X97aERh/f0MUKAKgFnwCYBEW4TFBqtHWFYiJFid7fMrtpZ/gxJthvz5mEByA==}
     engines: {node: '>=12'}
     hasBin: true
     peerDependencies:
@@ -6615,7 +6615,7 @@ packages:
       es-abstract: 1.21.1
     dev: true
 
-  /objection@3.0.4(knex@2.5.0):
+  /objection@3.0.4(knex@2.5.1):
     resolution: {integrity: sha512-0XaStHtOBcux4nlffUj8gOpxUsAPE+sLDZPml6n79WQhInYLBvjctU/uv2kEUPPybAJK8YL6ETkLtft9UOj7nQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6623,7 +6623,7 @@ packages:
     dependencies:
       ajv: 8.12.0
       db-errors: 0.2.3
-      knex: 2.5.0(pg@8.11.1)
+      knex: 2.5.1(pg@8.11.1)
     dev: false
 
   /on-finished@2.4.1:
