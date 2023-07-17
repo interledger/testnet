@@ -1149,6 +1149,13 @@ export type CreatePaymentPointerKeyMutationVariables = Exact<{
 
 export type CreatePaymentPointerKeyMutation = { __typename?: 'Mutation', createPaymentPointerKey?: { __typename?: 'CreatePaymentPointerKeyMutationResponse', code: string, message: string, success: boolean, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, paymentPointerId: string, revoked: boolean, createdAt: string, jwk: { __typename?: 'Jwk', alg: Alg, crv: Crv, kid: string, kty: Kty, x: string } } | null } | null };
 
+export type RevokePaymentPointerKeyMutationVariables = Exact<{
+  input: RevokePaymentPointerKeyInput;
+}>;
+
+
+export type RevokePaymentPointerKeyMutation = { __typename?: 'Mutation', revokePaymentPointerKey?: { __typename?: 'RevokePaymentPointerKeyMutationResponse', code: string, message: string, success: boolean, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, revoked: boolean, paymentPointerId: string, createdAt: string } | null } | null };
+
 export type CreatePaymentPointerMutationVariables = Exact<{
   input: CreatePaymentPointerInput;
 }>;
