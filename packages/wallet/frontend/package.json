@@ -17,7 +17,7 @@
     "react-hook-form": "^7.45.1",
     "react-joyride": "^2.5.4",
     "react-select": "^5.7.3",
-    "sharp": "^0.32.1",
+    "sharp": "^0.32.3",
     "zod": "^3.21.4"
   },
   "devDependencies": {
