@@ -7,7 +7,6 @@ module.exports = {
   quoteProps: 'consistent',
   jsxSingleQuote: false,
   trailingComma: 'none',
-  pluginSearchDirs: false,
   /**
    * This plugin is going automatically sort Tailwind's classes, following
    * it's recommended class order.
