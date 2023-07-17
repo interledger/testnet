@@ -13,8 +13,7 @@ export const fundAccountSchema = z.object({
     .number({
       invalid_type_error: 'Please enter a valid amount'
     })
-    .min(0, { message: 'Please enter an amount' })
-    .positive()
+    .nonnegative({ message: 'Please enter an amount' })
 })
 
 export const withdrawFundsSchema = fundAccountSchema
