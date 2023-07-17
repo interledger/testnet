@@ -2,6 +2,14 @@ import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
 import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
+
+interface PaymentPointerKey {
+  id: string
+  rafikiId: string
+  publicKey: string
+  createdOn: Date
+}
+
 export class PaymentPointer extends BaseModel {
   static tableName = 'paymentPointers'
 
@@ -12,7 +20,7 @@ export class PaymentPointer extends BaseModel {
   active!: boolean
   account!: Account
   transacions!: Array<Transaction>
-  keyIds!: string | null
+  keyIds!: PaymentPointerKey | null
 
   static relationMappings = () => ({
     account: {

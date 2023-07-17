@@ -48,13 +48,12 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   }
 }
 
-export const formatDate = (date: string): string => {
+export const formatDate = (date: string, time = true): string => {
   return new Date(date).toLocaleDateString('default', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    ...(time && { hour: '2-digit', minute: '2-digit' })
   })
 }
 
@@ -68,4 +67,36 @@ export const getFee = (
     assetScale: send.assetScale,
     value: fee.toString()
   })
+}
+
+const FILE_TYPE = {
+  TEXT_PLAIN: 'text/plain'
+} as const
+
+type FileType = keyof typeof FILE_TYPE
+
+type GenerateAndDownloadFileProps = {
+  content: string
+  fileName: string
+  fileType: FileType
+}
+
+export const generateAndDownloadFile = ({
+  content,
+  fileName,
+  fileType
+}: GenerateAndDownloadFileProps): void => {
+  const blob = new Blob([content], { type: FILE_TYPE[fileType] })
+  const anchor = document.createElement('a')
+
+  anchor.download = fileName
+  anchor.href = URL.createObjectURL(blob)
+  anchor.dataset.downloadurl = [fileType, anchor.download, anchor.href].join(
+    ':'
+  )
+  anchor.style.display = 'none'
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(anchor.href)
 }
