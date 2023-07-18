@@ -2,12 +2,12 @@ import { Transaction } from './model'
 import { OrderByDirection, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
-import { PaginationQueryParams } from '@/shared/types'
+import { ObjectWithAnyKeys, PaginationQueryParams } from '@/shared/types'
 
 type ListAllTransactionsInput = {
   userId: string
-  accountId: string
   paginationParams: PaginationQueryParams
+  filterParams: Partial<Transaction>
 }
 
 interface ITransactionService {
@@ -21,7 +21,9 @@ interface ITransactionService {
     where: PartialModelObject<Transaction>,
     update: PartialModelObject<Transaction>
   ) => Promise<void>
-  listAll: (input: ListAllTransactionsInput) => Promise<Transaction[]>
+  listAll: (
+    input: ListAllTransactionsInput
+  ) => Promise<PartialModelObject<Transaction>[]>
 }
 
 interface TransactionServiceDependencies {
@@ -61,15 +63,35 @@ export class TransactionService implements ITransactionService {
 
   async listAll({
     userId,
-    accountId,
-    paginationParams: { page, pageSize }
-  }: ListAllTransactionsInput): Promise<Transaction[]> {
-    await this.deps.accountService.findAccountById(accountId, userId)
+    paginationParams: { page, pageSize },
+    filterParams
+  }: ListAllTransactionsInput): Promise<PartialModelObject<Transaction>[]> {
+    // "withGraphJoined" requires table names (eg: "id" is ambiguous)
+    const filterParamsWithTablename: ObjectWithAnyKeys = Object.keys(
+      filterParams
+    ).reduce(
+      (acc, oldKey) => ({
+        ...acc,
+        [`transactions.${oldKey}`]: (filterParams as ObjectWithAnyKeys)[oldKey]
+      }),
+      {}
+    )
 
     const transactions = await Transaction.query()
+      .withGraphJoined({ paymentPointer: { account: { user: true } } })
       .orderBy('createdAt', 'desc')
+      .where('paymentPointer:account:user.id', userId)
+      .where(filterParamsWithTablename)
       .page(page, pageSize)
 
-    return transactions.results
+    const transactionsWithoutPaymentPointer = transactions.results.map(
+      (transaction: Partial<Transaction>) => {
+        delete transaction.paymentPointer
+
+        return transaction
+      }
+    )
+
+    return transactionsWithoutPaymentPointer
   }
 }

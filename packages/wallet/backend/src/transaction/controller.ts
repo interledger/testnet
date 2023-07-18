@@ -6,6 +6,7 @@ import {
   transactionListRequestSchema
 } from '@/transaction/validation'
 import { TransactionService } from '@/transaction/service'
+import { PartialModelObject } from 'objection'
 
 interface ITransactionController {
   list: ControllerFunction<Transaction[]>
@@ -45,24 +46,23 @@ export class TransactionController implements ITransactionController {
 
   listAll = async (
     req: Request,
-    res: CustomResponse<Transaction[]>,
+    res: CustomResponse<PartialModelObject<Transaction>[]>,
     next: NextFunction
   ) => {
     try {
       const userId = req.session.user.id
-      const { accountId } = req.params
-
       const {
-        query: { page, pageSize }
+        query: { page, pageSize, filter }
       } = await validate(transactionListAllRequestSchema, req)
 
+      const filterParams = (filter as Partial<Transaction>) || {}
       const transactions = await this.deps.transactionService.listAll({
         userId,
-        accountId,
         paginationParams: {
           page: Number(page),
           pageSize: Number(pageSize)
-        }
+        },
+        filterParams
       })
       res
         .status(200)

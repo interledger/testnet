@@ -191,11 +191,7 @@ export class App {
       isAuth,
       transactionController.list
     )
-    router.get(
-      '/accounts/:accountId/transactions',
-      isAuth,
-      transactionController.listAll
-    )
+    router.get('/transactions', isAuth, transactionController.listAll)
 
     router.post(
       '/accounts/:accountId/payment-pointers/:paymentPointerId/register-key',

@@ -6,6 +6,18 @@ export const transactionListRequestSchema = z.object({
   })
 })
 
+const transactionObject = z.object({
+  id: z.string().optional(),
+  paymentId: z.string().optional(),
+  description: z.string().optional(),
+  paymentPointerId: z.string().optional(),
+  accountId: z.string().optional(),
+  assetCode: z.string().optional(),
+  value: z.bigint().optional(),
+  type: z.string().optional(),
+  status: z.string().optional()
+})
+
 export const transactionListAllRequestSchema = z.object({
   query: z.object({
     page: z
@@ -15,6 +27,7 @@ export const transactionListAllRequestSchema = z.object({
     pageSize: z
       .string()
       .refine((val: string) => Number(val) >= 1)
-      .default('Infinity')
+      .default('Infinity'),
+    filter: transactionObject.optional()
   })
 })
