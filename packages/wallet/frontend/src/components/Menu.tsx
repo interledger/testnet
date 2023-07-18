@@ -11,6 +11,7 @@ import { Chevron } from './icons/Chevron'
 import { Cog } from './icons/Cog'
 import { Grant } from './icons/Grant'
 import { Home } from './icons/Home'
+import { Logout } from './icons/Logout'
 import { X } from './icons/X'
 
 type MenuItemProps = {
@@ -63,6 +64,11 @@ const menuItems: MenuItemProps[] = [
         href: '/settings/developer-keys'
       }
     ]
+  },
+  {
+    name: 'Logout',
+    href: '/logout',
+    Icon: Logout
   }
 ]
 

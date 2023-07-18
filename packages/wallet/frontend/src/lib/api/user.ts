@@ -141,6 +141,8 @@ type LoginArgs = z.infer<typeof loginSchema>
 type LoginError = ErrorResponse<LoginArgs | undefined>
 type LoginResponse = SuccessResponse | LoginError
 
+type LogoutResponse = SuccessResponse | ErrorResponse
+
 type ForgotPasswordArgs = z.infer<typeof forgotPasswordSchema>
 type ForgotPasswordError = ErrorResponse<ForgotPasswordArgs | undefined>
 type ForgotPasswordResponse = SuccessResponse | ForgotPasswordError
@@ -170,6 +172,7 @@ type ProfileResponse = SuccessResponse | ProfileError
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
   login: (args: LoginArgs) => Promise<LoginResponse>
+  logout: () => Promise<LogoutResponse>
   forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
   resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
@@ -211,6 +214,17 @@ const createUserService = (): UserService => ({
         error,
         'We could not log you in. Please try again.'
       )
+    }
+  },
+
+  async logout() {
+    try {
+      const response = await httpClient
+        .post('logout', {})
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, 'We could not log you out. Please try again.')
     }
   },
 
