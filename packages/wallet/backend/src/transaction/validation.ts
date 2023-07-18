@@ -20,14 +20,8 @@ const transactionObject = z.object({
 
 export const transactionListAllRequestSchema = z.object({
   query: z.object({
-    page: z
-      .string() // Unfortunately, query params are always received as 'string'
-      .refine((val: string) => Number(val) >= 0)
-      .default('0'),
-    pageSize: z
-      .string()
-      .refine((val: string) => Number(val) >= 1)
-      .default('Infinity'),
+    page: z.coerce.number().int().nonnegative().default(0),
+    pageSize: z.coerce.number().int().positive().default(Infinity),
     filter: transactionObject.optional()
   })
 })

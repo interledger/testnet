@@ -59,8 +59,8 @@ export class TransactionController implements ITransactionController {
       const transactions = await this.deps.transactionService.listAll({
         userId,
         paginationParams: {
-          page: Number(page),
-          pageSize: Number(pageSize)
+          page,
+          pageSize
         },
         filterParams
       })
