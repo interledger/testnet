@@ -459,7 +459,7 @@ export class RafikiService implements IRafikiService {
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
 
-      this.deps.logger.info(`Sum of fees: ${receiveAmountValue - fees}`)
+      this.deps.logger.info(`Sum of fees (conversion fee from rafiki + wallet fee): ${receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value} + ${fees} ${receiveAmountValue - fees}`)
 
       this.deps.logger.info(`Will finally receive ${receivedQuote.receiveAmount.value}`)
       
