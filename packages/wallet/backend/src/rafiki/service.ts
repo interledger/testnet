@@ -403,7 +403,13 @@ export class RafikiService implements IRafikiService {
         scale: 2
       }
     }
+
+   
+
     const actualFee = feeStructure[receivedQuote.sendAmount.assetCode]
+
+   
+
     if (receivedQuote.paymentType == PaymentType.FixedDelivery) {
       if (
         feeStructure[receivedQuote.sendAmount.assetCode] &&
@@ -428,15 +434,27 @@ export class RafikiService implements IRafikiService {
         throw new BadRequest('Invalid quote receiveAmount asset')
       }
       const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
+      this.deps.logger.info(`Send amount value: ${receivedQuote.sendAmount.value}`)
+      this.deps.logger.info(`Receive amount: ${receiveAmountValue} from rafiki which includes cross currency fees already.`);
+
+
       const fees =
         BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
+
+
+      this.deps.logger.info(`Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${actualFee.percentage}  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`)
+
 
       if (receiveAmountValue <= fees) {
         throw new BadRequest('Fees exceed quote receiveAmount')
       }
 
+
+    
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
+
+      this.deps.logger.info(`Sum of fees: ${receiveAmountValue - fees}`)
     } else {
       throw new BadRequest('Invalid paymentType')
     }
