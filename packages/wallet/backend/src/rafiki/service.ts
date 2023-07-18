@@ -448,7 +448,7 @@ export class RafikiService implements IRafikiService {
     return {
       base: 'USD',
       rates: {
-        EUR: 1.1602,
+        EUR: 1.2500,
         ZAR: 17.3782
       }
     }
