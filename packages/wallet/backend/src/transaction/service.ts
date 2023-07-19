@@ -1,5 +1,5 @@
-import { Transaction, TransactionExtended } from './model'
-import { OrderByDirection, PartialModelObject } from 'objection'
+import { Transaction } from './model'
+import { OrderByDirection, Page, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
 import { ObjectWithAnyKeys, PaginationQueryParams } from '@/shared/types'
@@ -8,6 +8,7 @@ type ListAllTransactionsInput = {
   userId: string
   paginationParams: PaginationQueryParams
   filterParams: Partial<Transaction>
+  orderByDate: OrderByDirection
 }
 
 interface ITransactionService {
@@ -21,9 +22,7 @@ interface ITransactionService {
     where: PartialModelObject<Transaction>,
     update: PartialModelObject<Transaction>
   ) => Promise<void>
-  listAll: (
-    input: ListAllTransactionsInput
-  ) => Promise<PartialModelObject<Transaction>[]>
+  listAll: (input: ListAllTransactionsInput) => Promise<Page<Transaction>>
 }
 
 interface TransactionServiceDependencies {
@@ -64,11 +63,9 @@ export class TransactionService implements ITransactionService {
   async listAll({
     userId,
     paginationParams: { page, pageSize },
-    filterParams
-  }: ListAllTransactionsInput): Promise<
-    PartialModelObject<TransactionExtended>[]
-  > {
-    // "withGraphJoined" requires table names (eg: "id" is ambiguous)
+    filterParams,
+    orderByDate
+  }: ListAllTransactionsInput): Promise<Page<Transaction>> {
     const filterParamsWithTablename: ObjectWithAnyKeys = Object.keys(
       filterParams
     ).reduce(
@@ -79,28 +76,23 @@ export class TransactionService implements ITransactionService {
       {}
     )
 
-    const transactions = (
-      await Transaction.query()
-        .withGraphJoined({ paymentPointer: { account: { user: true } } })
-        .orderBy('transactions.createdAt', 'desc')
-        .where('paymentPointer:account:user.id', userId)
-        .where(filterParamsWithTablename)
-        .page(page, pageSize)
-    ).results
+    const transactions = await Transaction.query()
+      .select(
+        'transactions.*',
+        'paymentPointer.url as paymentPointerUrl',
+        'paymentPointer:account.name as accountName'
+        // 'paymentPointer:account.id as accountId'
+      )
+      .joinRelated('[paymentPointer.[account.user]]')
+      .where('paymentPointer:account:user.id', userId)
+      .where(
+        'paymentPointer:account.id',
+        'dd1d2e20-808c-497b-89ab-147baca49853'
+      )
+      .orderBy('transactions.createdAt', orderByDate)
+      .where(filterParamsWithTablename)
+      .page(page, pageSize)
 
-    const transactionsExtended = transactions.map(
-      (transaction: Partial<Transaction>) => {
-        const transactionExtended = {
-          ...transaction,
-          paymentPointerUrl: transaction?.paymentPointer?.url,
-          accountName: transaction?.paymentPointer?.account?.name
-        }
-        delete transactionExtended.paymentPointer
-
-        return transactionExtended
-      }
-    )
-
-    return transactionsExtended
+    return transactions
   }
 }

@@ -1,12 +1,12 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
-import { Transaction, TransactionExtended } from '@/transaction/model'
+import { Transaction } from '@/transaction/model'
 import {
   transactionListAllRequestSchema,
   transactionListRequestSchema
 } from '@/transaction/validation'
 import { TransactionService } from '@/transaction/service'
-import { PartialModelObject } from 'objection'
+import { Page } from 'objection'
 
 interface ITransactionController {
   list: ControllerFunction<Transaction[]>
@@ -46,13 +46,13 @@ export class TransactionController implements ITransactionController {
 
   listAll = async (
     req: Request,
-    res: CustomResponse<PartialModelObject<TransactionExtended>[]>,
+    res: CustomResponse<Page<Transaction>>,
     next: NextFunction
   ) => {
     try {
       const userId = req.session.user.id
       const {
-        query: { page, pageSize, filter }
+        query: { page, pageSize, filter, orderByDate }
       } = await validate(transactionListAllRequestSchema, req)
 
       const filterParams = (filter as Partial<Transaction>) || {}
@@ -62,11 +62,14 @@ export class TransactionController implements ITransactionController {
           page,
           pageSize
         },
-        filterParams
+        filterParams,
+        orderByDate
       })
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', data: transactions })
+      res.status(200).json({
+        success: true,
+        message: 'SUCCESS',
+        data: transactions
+      })
     } catch (e) {
       next(e)
     }
