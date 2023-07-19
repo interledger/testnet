@@ -132,7 +132,7 @@ export class AccountService implements IAccountService {
       query = query
         .withGraphFetched({ paymentPointers: true })
         .modifyGraph('paymentPointers', (builder) => {
-          builder.orderBy('createdAt', 'ASC')
+          builder.where({ active: true }).orderBy('createdAt', 'ASC')
         })
 
     const accounts = await query

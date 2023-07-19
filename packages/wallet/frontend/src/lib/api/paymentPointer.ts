@@ -49,12 +49,18 @@ export interface Transaction {
   updatedAt: string
 }
 
+type PaymentPointerKey = {
+  id: string
+  publicKey: string
+  createdOn: string
+}
+
 export type PaymentPointer = {
   id: string
   url: string
   publicName: string
   accountId: string
-  keyIds: string | null
+  keyIds: PaymentPointerKey | null
 }
 
 type PaymentPointerKeyDetails = {
