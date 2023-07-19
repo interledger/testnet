@@ -172,7 +172,7 @@ type ProfileResponse = SuccessResponse | ProfileError
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
   login: (args: LoginArgs) => Promise<LoginResponse>
-  logout: () => Promise<LogoutResponse>
+  logout: (cookies?: string) => Promise<LogoutResponse>
   forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
   resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
@@ -217,10 +217,14 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async logout() {
+  async logout(cookies) {
     try {
       const response = await httpClient
-        .post('logout', {})
+        .post('logout', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {

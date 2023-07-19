@@ -67,7 +67,7 @@ const menuItems: MenuItemProps[] = [
   },
   {
     name: 'Logout',
-    href: '/auth/logout',
+    href: '/logout',
     Icon: Logout
   }
 ]

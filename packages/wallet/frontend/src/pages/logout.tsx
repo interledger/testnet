@@ -4,7 +4,7 @@ import { Link } from '@/ui/Link'
 import Image from 'next/image'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 
 type LogoutPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -27,7 +27,7 @@ const LogoutPage: NextPageWithLayout<LogoutPageProps> = ({ isLoggedOut }) => {
           />
           <p className="z-10 mt-auto font-extralight text-green">
             Want to login again?{' '}
-            <Link href="login" className="font-medium underline">
+            <Link href="/auth/login" className="font-medium underline">
               Log in
             </Link>
           </p>
@@ -46,10 +46,10 @@ const LogoutPage: NextPageWithLayout<LogoutPageProps> = ({ isLoggedOut }) => {
 
 export const getServerSideProps: GetServerSideProps<{
   isLoggedOut: boolean
-}> = async () => {
-  console.log("LOGOUT")
-  const logoutResponse = await userService.logout()
+}> = async (ctx) => {
+  const logoutResponse = await userService.logout(ctx.req.headers.cookie)
 
+  console.log(logoutResponse.success)
   if (!logoutResponse.success) {
     return {
       notFound: true
