@@ -13,14 +13,14 @@ const LogoutPage: NextPageWithLayout<LogoutPageProps> = ({ isLoggedOut }) => {
     <>
       {isLoggedOut ? (
         <>
-          <HeaderLogo header="Interledger testnet" />
+          <HeaderLogo header="Interledger Testnet" />
           <h2 className="mb-5 mt-10 text-xl font-semibold text-green">
             You have successfully been logged out
           </h2>
           <Image
             className="mt-auto object-cover md:hidden"
-            src="/login-mobile.webp"
-            alt="Login"
+            src="/welcome-mobile.webp"
+            alt="Logout"
             quality={100}
             width={500}
             height={200}
@@ -47,6 +47,7 @@ const LogoutPage: NextPageWithLayout<LogoutPageProps> = ({ isLoggedOut }) => {
 export const getServerSideProps: GetServerSideProps<{
   isLoggedOut: boolean
 }> = async () => {
+  console.log("LOGOUT")
   const logoutResponse = await userService.logout()
 
   if (!logoutResponse.success) {
@@ -63,7 +64,7 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 LogoutPage.getLayout = function (page) {
-  return <AuthLayout image="Login">{page}</AuthLayout>
+  return <AuthLayout image="Park">{page}</AuthLayout>
 }
 
 export default LogoutPage
