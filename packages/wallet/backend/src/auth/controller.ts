@@ -5,6 +5,7 @@ import { AuthService } from './service'
 import { logInSchema, signUpSchema } from './validation'
 import { UserService } from '@/user/service'
 import { Unauthorized } from '@/errors'
+import { env } from '@/config/env'
 
 interface IAuthController {
   signUp: ControllerFunction
@@ -74,6 +75,7 @@ export class AuthController implements IAuthController {
 
       await this.deps.authService.logout(req.session.user.id)
       req.session.destroy()
+      res.clearCookie(env.COOKIE_NAME)
 
       res.json({ success: true, message: 'SUCCESS' })
     } catch (e) {
