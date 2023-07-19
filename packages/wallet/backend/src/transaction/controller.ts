@@ -1,6 +1,6 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
-import { Transaction } from '@/transaction/model'
+import { Transaction, TransactionExtended } from '@/transaction/model'
 import {
   transactionListAllRequestSchema,
   transactionListRequestSchema
@@ -46,7 +46,7 @@ export class TransactionController implements ITransactionController {
 
   listAll = async (
     req: Request,
-    res: CustomResponse<PartialModelObject<Transaction>[]>,
+    res: CustomResponse<PartialModelObject<TransactionExtended>[]>,
     next: NextFunction
   ) => {
     try {

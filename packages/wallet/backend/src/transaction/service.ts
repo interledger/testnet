@@ -1,4 +1,4 @@
-import { Transaction } from './model'
+import { Transaction, TransactionExtended } from './model'
 import { OrderByDirection, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
@@ -65,7 +65,9 @@ export class TransactionService implements ITransactionService {
     userId,
     paginationParams: { page, pageSize },
     filterParams
-  }: ListAllTransactionsInput): Promise<PartialModelObject<Transaction>[]> {
+  }: ListAllTransactionsInput): Promise<
+    PartialModelObject<TransactionExtended>[]
+  > {
     // "withGraphJoined" requires table names (eg: "id" is ambiguous)
     const filterParamsWithTablename: ObjectWithAnyKeys = Object.keys(
       filterParams
@@ -77,21 +79,28 @@ export class TransactionService implements ITransactionService {
       {}
     )
 
-    const transactions = await Transaction.query()
-      .withGraphJoined({ paymentPointer: { account: { user: true } } })
-      .orderBy('createdAt', 'desc')
-      .where('paymentPointer:account:user.id', userId)
-      .where(filterParamsWithTablename)
-      .page(page, pageSize)
+    const transactions = (
+      await Transaction.query()
+        .withGraphJoined({ paymentPointer: { account: { user: true } } })
+        .orderBy('transactions.createdAt', 'desc')
+        .where('paymentPointer:account:user.id', userId)
+        .where(filterParamsWithTablename)
+        .page(page, pageSize)
+    ).results
 
-    const transactionsWithoutPaymentPointer = transactions.results.map(
+    const transactionsExtended = transactions.map(
       (transaction: Partial<Transaction>) => {
-        delete transaction.paymentPointer
+        const transactionExtended = {
+          ...transaction,
+          paymentPointerUrl: transaction?.paymentPointer?.url,
+          accountName: transaction?.paymentPointer?.account?.name
+        }
+        delete transactionExtended.paymentPointer
 
-        return transaction
+        return transactionExtended
       }
     )
 
-    return transactionsWithoutPaymentPointer
+    return transactionsExtended
   }
 }
