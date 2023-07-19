@@ -199,8 +199,8 @@ importers:
         specifier: ^2.5.4
         version: 2.5.4(react-dom@18.2.0)(react@18.2.0)
       react-select:
-        specifier: ^5.7.3
-        version: 5.7.3(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^5.7.4
+        version: 5.7.4(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
       sharp:
         specifier: ^0.32.3
         version: 0.32.3
@@ -7302,8 +7302,8 @@ packages:
     resolution: {integrity: sha512-nopsRn7KnGgazBe2c3H2+Kf+Csp6PGDRLiBkYEDMKY8o/EIgft/WnIm/OnAKTawZiLnJXHAqhpFBddvs6NiXlw==}
     dev: false
 
-  /react-select@5.7.3(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-z8i3NCuFFWL3w27xq92rBkVI2onT0jzIIPe480HlBjXJ3b5o6Q+Clp4ydyeKrj9DZZ3lrjawwLC5NGl0FSvUDg==}
+  /react-select@5.7.4(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NhuE56X+p9QDFh4BgeygHFIvJJszO1i1KSkg/JPcIJrbovyRtI+GuOEa4XzFCEpZRAEoEI8u/cAHK+jG/PgUzQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
