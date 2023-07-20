@@ -1,11 +1,24 @@
 import { z } from 'zod'
 
 export const incomingPaymentSchema = z.object({
-  body: z.object({
-    paymentPointerId: z.string().uuid(),
-    amount: z.number().positive(),
-    description: z.string().optional()
-  })
+  body: z
+    .object({
+      paymentPointerId: z.string().uuid(),
+      amount: z.number().positive(),
+      description: z.string().optional(),
+      expiry: z.coerce.number().positive().int().optional(),
+      unit: z.enum(['s', 'm', 'h', 'd']).optional()
+    })
+    .superRefine(({ expiry, unit }, ctx) => {
+      if ((expiry && !unit) || (!expiry && unit)) {
+        ctx.addIssue({
+          code: 'custom',
+          message:
+            'Payment expiry was not properly specified. Please make sure that both the amount and time unit are specified',
+          path: ['expiry']
+        })
+      }
+    })
 })
 
 export const paymentDetailsSchema = z.object({

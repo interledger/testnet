@@ -9,6 +9,7 @@ import {
 import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
 import { Asset } from '@/rafiki/backend/generated/graphql'
+import { add } from 'date-fns'
 
 interface IIncomingPaymentService {
   create: (
@@ -43,7 +44,9 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     userId: string,
     paymentPointerId: string,
     amount: number,
-    description?: string
+    description?: string,
+    expiry?: number,
+    unit?: string
   ): Promise<Transaction> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
@@ -61,11 +64,18 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
+    let expiryDate: Date | undefined
+
+    if (expiry && unit) {
+      expiryDate = add(new Date(), this.generateExpiryObject(expiry, unit))
+    }
+
     return this.createIncomingPaymentTransactions({
       paymentPointerId,
       description,
       asset,
-      amount: BigInt(amount * 10 ** asset.scale)
+      amount: BigInt(amount * 10 ** asset.scale),
+      expiresAt: expiryDate?.toISOString()
     })
   }
 
@@ -128,5 +138,17 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     })
 
     return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
+  }
+
+  private generateExpiryObject(expiry: number, unit: string): Duration {
+    switch (unit) {
+      case 's': {
+        return {
+          seconds: expiry
+        }
+      }
+    }
+
+    return {days: 30}
   }
 }
