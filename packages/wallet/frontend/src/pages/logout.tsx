@@ -4,7 +4,10 @@ import { Link } from '@/ui/Link'
 import Image from 'next/image'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType
+} from 'next/types'
 
 type LogoutPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -49,12 +52,13 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (ctx) => {
   const logoutResponse = await userService.logout(ctx.req.headers.cookie)
 
-  console.log(logoutResponse.success)
   if (!logoutResponse.success) {
     return {
       notFound: true
     }
   }
+
+  ctx.res.setHeader('Set-Cookie', [`testnet.cookie=deleted; Max-Age=0; path=/`])
 
   return {
     props: {
