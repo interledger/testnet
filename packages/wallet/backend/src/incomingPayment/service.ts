@@ -149,6 +149,6 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       }
     }
 
-    return {days: 30}
+    return { days: 30 }
   }
 }
