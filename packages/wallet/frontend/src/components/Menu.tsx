@@ -1,5 +1,6 @@
 import { userService } from '@/lib/api/user'
 import { MenuBubbles } from '@/ui/Bubbles'
+import { Button } from '@/ui/Button'
 import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
@@ -168,14 +169,14 @@ export const Menu = () => {
                   </nav>
                 </div>
                 <div className="mt-auto space-y-5 pl-8 pr-5">
-                  <Link
+                  <button
                     onClick={handleLogout}
                     aria-label="logout"
                     className="flex items-center space-x-4 text-lg text-green"
                   >
                     <Logout className="h-8 w-8 text-green-3" />
                     <span>Logout</span>
-                  </Link>
+                  </button>
                   <MenuBubbles className="inset-x-0 hidden w-full h-sm:block" />
                 </div>
               </Dialog.Panel>
@@ -252,14 +253,14 @@ export const Menu = () => {
             )}
           </div>
           <div className="hidden md:block">
-            <Link
+            <button
               onClick={handleLogout}
               aria-label="logout"
               className="flex items-center space-x-4 text-lg font-semibold text-green hover:text-white"
             >
               <Logout className="h-6 w-6" />
               <span>Logout</span>
-            </Link>
+            </button>
           </div>
 
           <div className="ml-auto flex md:hidden">
