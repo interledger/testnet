@@ -1,9 +1,10 @@
+import { userService } from '@/lib/api/user'
 import { MenuBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
-import { useRouter } from 'next/router'
+import router, { useRouter } from 'next/router'
 import { Fragment, type SVGProps, useState } from 'react'
 import { Banknotes } from './icons/Banknotes'
 import { Bars } from './icons/Bars'
@@ -64,17 +65,19 @@ const menuItems: MenuItemProps[] = [
         href: '/settings/developer-keys'
       }
     ]
-  },
-  {
-    name: 'Logout',
-    href: '/logout',
-    Icon: Logout
   }
 ]
 
 export const Menu = () => {
   const pathname = `/${useRouter().pathname.split('/')?.slice(1)[0] ?? ''}`
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
+
+  const handleLogout = async () => {
+    const res = await userService.logout()
+    if (res.success) {
+      router.push('/auth')
+    }
+  }
 
   return (
     <>
@@ -164,7 +167,17 @@ export const Menu = () => {
                     )}
                   </nav>
                 </div>
-                <MenuBubbles className="absolute inset-x-0 bottom-0 hidden w-full h-sm:block" />
+                <div className="mt-auto space-y-5 pl-8 pr-5">
+                  <Link
+                    onClick={handleLogout}
+                    aria-label="logout"
+                    className="flex items-center space-x-4 text-lg text-green"
+                  >
+                    <Logout className="h-8 w-8 text-green-3" />
+                    <span>Logout</span>
+                  </Link>
+                  <MenuBubbles className="inset-x-0 hidden w-full h-sm:block" />
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -237,6 +250,16 @@ export const Menu = () => {
                 </Link>
               )
             )}
+          </div>
+          <div className="hidden md:block">
+            <Link
+              onClick={handleLogout}
+              aria-label="logout"
+              className="flex items-center space-x-4 text-lg font-semibold text-green hover:text-white"
+            >
+              <Logout className="h-6 w-6" />
+              <span>Logout</span>
+            </Link>
           </div>
 
           <div className="ml-auto flex md:hidden">
