@@ -4,7 +4,7 @@ import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { Fragment, type SVGProps, useState } from 'react'
 import { Banknotes } from './icons/Banknotes'
 import { Bars } from './icons/Bars'
@@ -69,7 +69,8 @@ const menuItems: MenuItemProps[] = [
 ]
 
 export const Menu = () => {
-  const pathname = `/${useRouter().pathname.split('/')?.slice(1)[0] ?? ''}`
+  const router = useRouter()
+  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
 
   const handleLogout = async () => {
