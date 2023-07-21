@@ -270,7 +270,7 @@ const PaymentPointerCTA = () => {
           title="Success"
           size="lg"
           content={
-            <div className='text-base'>
+            <div className="text-base">
               <p>Your payment pointer keys were successfully generated.</p>
               <div className="mt-4 space-y-2">
                 <p className="text-base">
