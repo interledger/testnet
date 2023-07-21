@@ -52,13 +52,11 @@ export class AuthService implements IAuthService {
   public async logout(id: string): Promise<void> {
     const user = await this.deps.userService.getById(id)
 
-    // TODO: Prevent timing attacks
     if (!user) {
       throw new Unauthorized('Invalid credentials')
     }
 
-    await user.$relatedQuery('sessions').insertGraphAndFetch({
-      userId: id,
+    await user.$relatedQuery('sessions').where({ userId: id }).update({
       expiresAt: new Date()
     })
   }
