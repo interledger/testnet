@@ -1,6 +1,5 @@
 import { userService } from '@/lib/api/user'
 import { MenuBubbles } from '@/ui/Bubbles'
-import { Button } from '@/ui/Button'
 import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
