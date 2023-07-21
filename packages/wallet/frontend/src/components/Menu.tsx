@@ -69,9 +69,9 @@ const menuItems: MenuItemProps[] = [
 ]
 
 export const Menu = () => {
-  const pathname = `/${useRouter().pathname.split('/')?.slice(1)[0] ?? ''}`
-  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
   const router = useRouter()
+  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
+  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
 
   const handleLogout = async () => {
     const res = await userService.logout()
