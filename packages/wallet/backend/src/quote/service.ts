@@ -2,9 +2,11 @@ import { AccountService } from '@/account/service'
 import { BadRequest, NotFound } from '@/errors'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
+import { Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp } from '@/utils/helpers'
-import { Quote } from '@/rafiki/backend/generated/graphql'
+import { RafikiService } from '../rafiki/service'
+import { EnrichedQuote } from './controller'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
@@ -14,6 +16,7 @@ interface QuoteServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
+  rafikiService: RafikiService
 }
 
 type CreateQuoteParams = {
@@ -76,4 +79,26 @@ export class QuoteService implements IQuoteService {
       amount: params.isReceive ? undefined : value
     })
   }
+
+
+  enrichQuote(quote:Quote):  EnrichedQuote | Quote{
+    if(quote.receiveAmount.assetCode === quote.sendAmount.assetCode){
+      return quote
+    }
+    const rate = this.deps.rafikiService.getRates(quote.sendAmount.assetCode).rates[quote.receiveAmount.assetCode];
+
+    const convertedReceiveAmount = BigInt((Number(quote.receiveAmount.value) * rate).toFixed());
+
+    const feeInSenderCurrency = BigInt(quote.sendAmount.value) - convertedReceiveAmount;
+
+    return {
+      ...quote,
+      fee: {value: feeInSenderCurrency, assetScale: quote.sendAmount.assetScale, assetCode: quote.sendAmount.assetCode, conversionRate: rate}
+      
+    }
+
+  }
+
+
+
 }

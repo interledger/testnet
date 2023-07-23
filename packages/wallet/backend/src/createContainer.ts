@@ -1,12 +1,3 @@
-import { IncomingPaymentController } from '@/incomingPayment/controller'
-import { IncomingPaymentService } from '@/incomingPayment/service'
-import { OutgoingPaymentController } from '@/outgoingPayment/controller'
-import { PaymentPointerController } from '@/paymentPointer/controller'
-import { PaymentPointerService } from '@/paymentPointer/service'
-import { TransactionController } from '@/transaction/controller'
-import { TransactionService } from '@/transaction/service'
-import { GraphQLClient } from 'graphql-request'
-import knex from 'knex'
 import { AccountController } from '@/account/controller'
 import { AccountService } from '@/account/service'
 import { Bindings } from '@/app'
@@ -15,8 +6,17 @@ import { AuthController } from '@/auth/controller'
 import { AuthService } from '@/auth/service'
 import { Env } from '@/config/env'
 import { logger } from '@/config/logger'
+import { EmailService } from '@/email/service'
+import { GrantController } from '@/grant/controller'
+import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { IncomingPaymentService } from '@/incomingPayment/service'
+import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { PaymentPointerController } from '@/paymentPointer/controller'
+import { PaymentPointerService } from '@/paymentPointer/service'
 import { QuoteController } from '@/quote/controller'
+import { QuoteService } from '@/quote/service'
+import { RafikiAuthService } from '@/rafiki/auth/service'
 import { RafikiController } from '@/rafiki/controller'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { RafikiService } from '@/rafiki/service'
@@ -25,12 +25,12 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { RapydService } from '@/rapyd/service'
 import { SessionService } from '@/session/service'
 import { Container } from '@/shared/container'
+import { TransactionController } from '@/transaction/controller'
+import { TransactionService } from '@/transaction/service'
 import { UserController } from '@/user/controller'
 import { UserService } from '@/user/service'
-import { QuoteService } from '@/quote/service'
-import { RafikiAuthService } from '@/rafiki/auth/service'
-import { GrantController } from '@/grant/controller'
-import { EmailService } from '@/email/service'
+import { GraphQLClient } from 'graphql-request'
+import knex from 'knex'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -255,26 +255,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  container.singleton(
-    'quoteService',
-    async () =>
-      new QuoteService({
-        accountService: await container.resolve('accountService'),
-        incomingPaymentService: await container.resolve(
-          'incomingPaymentService'
-        ),
-        rafikiClient: await container.resolve('rafikiClient')
-      })
-  )
-
-  container.singleton(
-    'quoteController',
-    async () =>
-      new QuoteController({
-        quoteService: await container.resolve('quoteService')
-      })
-  )
-
   container.singleton('rafikiService', async () => {
     const rapydClient = await container.resolve('rapydClient')
     const env = await container.resolve('env')
@@ -297,6 +277,27 @@ export const createContainer = (config: Env): Container<Bindings> => {
 
     return new RafikiController({ logger, rafikiService })
   })
+
+  container.singleton(
+    'quoteService',
+    async () =>
+      new QuoteService({
+        accountService: await container.resolve('accountService'),
+        incomingPaymentService: await container.resolve(
+          'incomingPaymentService'
+        ),
+        rafikiClient: await container.resolve('rafikiClient'),
+        rafikiService: await container.resolve('rafikiService')
+      })
+  )
+
+  container.singleton(
+    'quoteController',
+    async () =>
+      new QuoteController({
+        quoteService: await container.resolve('quoteService')
+      })
+  )
 
   container.singleton(
     'grantController',

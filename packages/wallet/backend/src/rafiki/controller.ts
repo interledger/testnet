@@ -3,6 +3,7 @@ import { Logger } from 'winston'
 import { Quote, RafikiService, Rates } from './service'
 import { validate } from '../shared/validate'
 import { quoteSchmea, webhookSchema } from './validation'
+import { BadRequest } from '../errors'
 
 interface IRafikiController {
   createQuote: (
@@ -34,12 +35,16 @@ export class RafikiController implements IRafikiController {
   }
 
   getRates = async (
-    _req: Request,
+    req: Request,
     res: Response<Rates>,
     next: NextFunction
   ) => {
     try {
-      res.status(200).json(this.deps.rafikiService.getRates())
+      const {base} = req.query;
+      if(!base){
+        throw new BadRequest('rates base was not provided');
+      }
+      res.status(200).json(this.deps.rafikiService.getRates(base as string))
     } catch (e) {
       next(e)
     }
