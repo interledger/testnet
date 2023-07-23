@@ -268,7 +268,30 @@ const PaymentPointerCTA = () => {
       openDialog(
         <SuccessDialog
           title="Success"
-          content={'The private key was automatically saved on your device.'}
+          size="lg"
+          content={
+            <div className="text-base">
+              <p>Your payment pointer keys were successfully generated.</p>
+              <div className="mt-4 space-y-2">
+                <p className="text-base">
+                  The private key has been automatically downloaded to your
+                  machine.
+                </p>
+                <textarea
+                  readOnly
+                  disabled
+                  rows={5}
+                  className="block w-full resize-none border-0 bg-transparent py-1.5 text-sm text-white disabled:bg-black/10"
+                  value={privateKey}
+                />
+                <CopyButton
+                  ctaText="COPY PRIVATE KEY"
+                  aria-label="copy private key"
+                  value={privateKey}
+                />
+              </div>
+            </div>
+          }
           onClose={() => {
             closeDialog()
             router.replace(router.asPath)
