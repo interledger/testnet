@@ -1,4 +1,6 @@
+import { NotFound } from '@/errors'
 import { IncomingPaymentService } from '@/incomingPayment/service'
+import { PaymentPointer } from '@/paymentPointer/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 
@@ -32,10 +34,19 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       metadata: { description }
     })
 
+    const paymentPointer = await PaymentPointer.query()
+      .findById(paymentPointerId)
+      .select('accountId', 'active')
+
+    if (!paymentPointer || !paymentPointer.active) {
+      throw new NotFound()
+    }
+
     return Transaction.query().insert({
       paymentPointerId,
       paymentId: payment.id,
       assetCode,
+      accountId: paymentPointer?.accountId,
       value,
       type: 'OUTGOING',
       status: 'PENDING',
