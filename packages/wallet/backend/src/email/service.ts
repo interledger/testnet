@@ -6,7 +6,6 @@ import { getVerifyEmail } from '@/email/templates/verifyEmail'
 
 interface EmailArgs {
   to: string
-  from: string
   subject: string
   html: string
 }
@@ -21,6 +20,7 @@ interface EmailServiceDependencies {
 
 export class EmailService implements IEmailService {
   private readonly baseUrl: string
+  private readonly from: { email: string; name: string }
 
   constructor(private deps: EmailServiceDependencies) {
     sendgrid.setApiKey(this.deps.env.SENDGRID_API_KEY)
@@ -28,10 +28,15 @@ export class EmailService implements IEmailService {
     const host = this.deps.env.RAFIKI_MONEY_FRONTEND_HOST
     this.baseUrl =
       host === 'localhost' ? 'http://localhost:4003' : `https://${host}`
+
+    this.from = {
+      email: this.deps.env.FROM_EMAIL,
+      name: 'Tech Interledger'
+    }
   }
 
   private async send(email: EmailArgs): Promise<void> {
-    await sendgrid.send(email)
+    await sendgrid.send({ from: this.from, ...email })
   }
 
   async sendForgotPassword(to: string, token: string): Promise<void> {
@@ -39,7 +44,6 @@ export class EmailService implements IEmailService {
 
     if (this.deps.env.SEND_EMAIL) {
       return this.send({
-        from: this.deps.env.FROM_EMAIL,
         to,
         subject: '[Rafiki.Money] Reset your password',
         html: getForgotPasswordEmail(url)
@@ -56,7 +60,6 @@ export class EmailService implements IEmailService {
 
     if (this.deps.env.SEND_EMAIL) {
       return this.send({
-        from: this.deps.env.FROM_EMAIL,
         to,
         subject: '[Rafiki.Money] Verify your account',
         html: getVerifyEmail(url)

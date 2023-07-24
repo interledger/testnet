@@ -4,11 +4,17 @@ import addSeconds from 'date-fns/addSeconds'
 import type { Env } from '@/config/env'
 import type { Session } from '@/session/model'
 import type { UserService } from '@/user/service'
+import { getRandomToken, hashToken } from '@/utils/helpers'
+import { EmailService } from '@/email/service'
+import { Logger } from 'winston'
 
 interface AuthorizeArgs {
   email: string
   password: string
 }
+
+interface SignupArgs extends AuthorizeArgs {}
+
 interface AuthorizeResult {
   user: User
   session: Session
@@ -16,14 +22,36 @@ interface AuthorizeResult {
 
 interface IAuthService {
   authorize(args: AuthorizeArgs): Promise<AuthorizeResult>
+  signup(args: SignupArgs): Promise<User>
 }
 interface AuthServiceDependencies {
   userService: UserService
+  emailService: EmailService
+  logger: Logger
   env: Env
 }
 
 export class AuthService implements IAuthService {
   constructor(private deps: AuthServiceDependencies) {}
+
+  async signup({ email, password }: SignupArgs): Promise<User> {
+    const token = getRandomToken()
+
+    const user = await this.deps.userService.create({
+      email,
+      password,
+      verifyEmailToken: hashToken(token)
+    })
+
+    await this.deps.emailService.sendVerifyEmail(email, token).catch((e) => {
+      this.deps.logger.error(
+        `Error on sending verify email for user ${user.email}`,
+        e
+      )
+    })
+
+    return user
+  }
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
     const user = await this.deps.userService.getByEmail(args.email)

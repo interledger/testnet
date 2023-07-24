@@ -155,7 +155,7 @@ export class App {
     router.post('/forgot-password', userController.requestResetPassword)
     router.get('/reset-password/:token/validate', userController.checkToken)
     router.post('/reset-password/:token', userController.resetPassword)
-    router.post('/verify-email/:token', userController.verifyEmail)
+    router.post('/verify-email/:token', authController.verifyEmail)
 
     // Me Endpoint
     router.get('/me', userController.me)

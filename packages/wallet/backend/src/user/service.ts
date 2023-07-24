@@ -7,6 +7,7 @@ import { Logger } from 'winston'
 interface CreateUserArgs {
   email: string
   password: string
+  verifyEmailToken: string
 }
 
 interface IUserService {
@@ -33,23 +34,7 @@ export class UserService implements IUserService {
       throw new Conflict('Email already in use')
     }
 
-    const token = getRandomToken()
-
-    const user = await User.query().insertAndFetch({
-      ...args,
-      verifyEmailToken: hashToken(token)
-    })
-
-    await this.deps.emailService
-      .sendVerifyEmail(args.email, token)
-      .catch((e) => {
-        this.deps.logger.error(
-          `Error on sending verify email for user ${user.email}`,
-          e
-        )
-      })
-
-    return user
+    return User.query().insertAndFetch(args)
   }
 
   public async getByEmail(email: string): Promise<User | undefined> {
