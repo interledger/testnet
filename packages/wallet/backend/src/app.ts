@@ -149,6 +149,7 @@ export class App {
     // Auth Routes
     router.post('/signup', authController.signUp)
     router.post('/login', authController.logIn)
+    router.post('/logout', isAuth, authController.logOut)
 
     // Reset password routes
     router.post('/forgot-password', userController.requestResetPassword)

@@ -174,20 +174,25 @@ export class PaymentPointerService implements IPaymentPointerService {
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
     const keyId = uuid()
-    const keyIds = paymentPointer.keyIds || []
 
-    await this.deps.rafikiClient.createRafikiPaymentPointerKey(
-      generateJwk(privateKey, keyId),
-      paymentPointer.id
-    )
+    const paymentPointerKey =
+      await this.deps.rafikiClient.createRafikiPaymentPointerKey(
+        generateJwk(privateKey, keyId),
+        paymentPointer.id
+      )
 
-    await PaymentPointer.query()
-      .findById(paymentPointerId)
-      .patch({
-        keyIds: JSON.stringify([...keyIds, keyId])
-      })
+    const key = {
+      id: keyId,
+      rafikiId: paymentPointerKey.id,
+      publicKey: publicKeyPEM,
+      createdOn: new Date()
+    }
 
-    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId }
+    await PaymentPointer.query().findById(paymentPointerId).patch({
+      keyIds: key
+    })
+
+    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId: key.id }
   }
 
   async revokeKey(
@@ -200,7 +205,23 @@ export class PaymentPointerService implements IPaymentPointerService {
       accountId,
       paymentPointerId
     )
-    await paymentPointer.$query().patch({ keyIds: null })
+
+    if (!paymentPointer.keyIds) {
+      return
+    }
+
+    const trx = await PaymentPointer.startTransaction()
+    try {
+      await Promise.all([
+        paymentPointer.$query(trx).patch({ keyIds: null }),
+        this.deps.rafikiClient.revokePaymentPointerKey(
+          paymentPointer.keyIds.rafikiId
+        )
+      ])
+      await trx.commit()
+    } catch (e) {
+      await trx.rollback()
+    }
   }
 
   async update(args: UpdatePaymentPointerArgs): Promise<void> {
@@ -215,8 +236,8 @@ export class PaymentPointerService implements IPaymentPointerService {
 
     try {
       await Promise.all([
-        await paymentPointer.$query().patch({ publicName }),
-        await this.deps.rafikiClient.updatePaymentPointer({
+        paymentPointer.$query(trx).patch({ publicName }),
+        this.deps.rafikiClient.updatePaymentPointer({
           id: paymentPointerId,
           publicName
         })
