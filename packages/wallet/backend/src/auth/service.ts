@@ -48,4 +48,14 @@ export class AuthService implements IAuthService {
       session
     }
   }
+
+  public async logout(userId: string): Promise<void> {
+    const user = await this.deps.userService.getById(userId)
+
+    if (!user) {
+      throw new Unauthorized('Invalid credentials')
+    }
+
+    await user.$relatedQuery('sessions').delete()
+  }
 }
