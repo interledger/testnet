@@ -34,15 +34,11 @@ export class RafikiController implements IRafikiController {
     }
   }
 
-  getRates = async (
-    req: Request,
-    res: Response<Rates>,
-    next: NextFunction
-  ) => {
+  getRates = async (req: Request, res: Response<Rates>, next: NextFunction) => {
     try {
-      const {base} = req.query;
-      if(!base){
-        throw new BadRequest('rates base was not provided');
+      const { base } = req.query
+      if (!base) {
+        throw new BadRequest('rates base was not provided')
       }
       res.status(200).json(this.deps.rafikiService.getRates(base as string))
     } catch (e) {

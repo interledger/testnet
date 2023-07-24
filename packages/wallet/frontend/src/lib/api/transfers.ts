@@ -55,7 +55,7 @@ export interface Quote {
   id: string
   receiveAmount: AmountProps
   sendAmount: AmountProps
-  fee? : AmountProps & {conversionRate: number}
+  fee?: AmountProps & { conversionRate: number }
 }
 
 type SendArgs = z.infer<typeof sendSchema>

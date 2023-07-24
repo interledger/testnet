@@ -1,4 +1,4 @@
-import { Quote } from "../lib/api/transfers"
+import { Quote } from '../lib/api/transfers'
 
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
@@ -59,13 +59,15 @@ export const formatDate = (date: string, time = true): string => {
   })
 }
 
-export const getFee = (quote: Quote
-): FormattedAmount => {
-
-  if(quote.fee){
-    return formatAmount({assetCode: quote.fee.assetCode, assetScale: quote.fee.assetScale, value: quote.fee.value.toString()})
+export const getFee = (quote: Quote): FormattedAmount => {
+  if (quote.fee) {
+    return formatAmount({
+      assetCode: quote.fee.assetCode,
+      assetScale: quote.fee.assetScale,
+      value: quote.fee.value.toString()
+    })
   }
-  
+
   const fee = BigInt(quote.sendAmount.value) - BigInt(quote.receiveAmount.value)
   return formatAmount({
     assetCode: quote.sendAmount.assetCode,

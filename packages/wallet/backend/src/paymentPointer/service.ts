@@ -249,20 +249,23 @@ export class PaymentPointerService implements IPaymentPointerService {
     }
   }
 
-  public async getExternalPaymentPointer(
-    id: string,
-  ):Promise<{id: string, publicName: string, assetCode: string, assetScale: number, authServer: string}>  {
+  public async getExternalPaymentPointer(id: string): Promise<{
+    id: string
+    publicName: string
+    assetCode: string
+    assetScale: number
+    authServer: string
+  }> {
     const headers = {
       'Host': `${id.split('/')[2]}`,
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      'Accept': 'application/json'
     }
-      const res = await axios({
-        method:'get',
-        url: `${id.replace('https', 'http')}`,
-        headers
-      })
-      return res.data
-    
+    const res = await axios({
+      method: 'get',
+      url: `${id.replace('https', 'http')}`,
+      headers
+    })
+    return res.data
   }
 }

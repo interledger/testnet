@@ -17,8 +17,8 @@ interface QuoteServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
-  rafikiService: RafikiService,
-  paymentPointerService: PaymentPointerService,
+  rafikiService: RafikiService
+  paymentPointerService: PaymentPointerService
 }
 
 type CreateQuoteParams = {
@@ -56,7 +56,9 @@ export class QuoteService implements IQuoteService {
       throw new BadRequest('Not enough funds in account')
     }
 
-    let asset: Asset | undefined = await this.deps.rafikiClient.getAssetById(assetId)
+    let asset: Asset | undefined = await this.deps.rafikiClient.getAssetById(
+      assetId
+    )
     if (!asset) {
       throw new NotFound()
     }
@@ -66,20 +68,27 @@ export class QuoteService implements IQuoteService {
 
     let paymentUrl = params.receiver
 
-    const pp = await this.deps.paymentPointerService.getExternalPaymentPointer(paymentUrl);
+    const pp = await this.deps.paymentPointerService.getExternalPaymentPointer(
+      paymentUrl
+    )
 
-    if(params.isReceive && pp.assetCode !== asset.code){
-      const {value: convertedValue} = this.convert(pp.assetCode, asset.code, value);
-      value =  convertedValue
+    if (params.isReceive && pp.assetCode !== asset.code) {
+      const { value: convertedValue } = this.convert(
+        pp.assetCode,
+        asset.code,
+        value
+      )
+      value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
-      const assetList = await this.deps.rafikiClient.listAssets();
-      asset = assetList.find(a=> a.code === pp.assetCode);
-      if(!asset){
-        throw new BadRequest('Destination payment pointer asset is not supported');
+      const assetList = await this.deps.rafikiClient.listAssets()
+      asset = assetList.find((a) => a.code === pp.assetCode)
+      if (!asset) {
+        throw new BadRequest(
+          'Destination payment pointer asset is not supported'
+        )
       }
     }
-
 
     if (!incomingPaymentRegexp.test(params.receiver)) {
       paymentUrl = await this.deps.incomingPaymentService.createReceiver({
@@ -91,37 +100,53 @@ export class QuoteService implements IQuoteService {
       })
     }
 
-    return this.enrichQuote(await this.deps.rafikiClient.createQuote({
-      paymentPointerId: params.paymentPointerId,
-      receiver: paymentUrl,
-      asset,
-      amount: params.isReceive ? undefined : value
-    }), params.isReceive ? originalValue : undefined)
+    return this.enrichQuote(
+      await this.deps.rafikiClient.createQuote({
+        paymentPointerId: params.paymentPointerId,
+        receiver: paymentUrl,
+        asset,
+        amount: params.isReceive ? undefined : value
+      }),
+      params.isReceive ? originalValue : undefined
+    )
   }
 
-  enrichQuote(quote:Quote, originalValue?: bigint):  EnrichedQuote | Quote{
-    if(quote.receiveAmount.assetCode === quote.sendAmount.assetCode){
+  enrichQuote(quote: Quote, originalValue?: bigint): EnrichedQuote | Quote {
+    if (quote.receiveAmount.assetCode === quote.sendAmount.assetCode) {
       return quote
     }
-    const {conversionRate, value } = this.convert(quote.sendAmount.assetCode, quote.receiveAmount.assetCode,quote.receiveAmount.value)
-    const feeInSenderCurrency = BigInt(quote.sendAmount.value) - value;
+    const { conversionRate, value } = this.convert(
+      quote.sendAmount.assetCode,
+      quote.receiveAmount.assetCode,
+      quote.receiveAmount.value
+    )
+    const feeInSenderCurrency = BigInt(quote.sendAmount.value) - value
 
     return {
       ...quote,
-      fee: {value: originalValue? BigInt(quote.sendAmount.value) - originalValue: feeInSenderCurrency, assetScale: quote.sendAmount.assetScale, assetCode: quote.sendAmount.assetCode, conversionRate}
-      
+      fee: {
+        value: originalValue
+          ? BigInt(quote.sendAmount.value) - originalValue
+          : feeInSenderCurrency,
+        assetScale: quote.sendAmount.assetScale,
+        assetCode: quote.sendAmount.assetCode,
+        conversionRate
+      }
     }
-
   }
 
-  private convert(sourceAssetCode: string,destinationAssetCode: string, amount: bigint ): {conversionRate: number, value: bigint}{
-    const conversionRate = this.deps.rafikiService.getRates(sourceAssetCode).rates[destinationAssetCode];
+  private convert(
+    sourceAssetCode: string,
+    destinationAssetCode: string,
+    amount: bigint
+  ): { conversionRate: number; value: bigint } {
+    const conversionRate =
+      this.deps.rafikiService.getRates(sourceAssetCode).rates[
+        destinationAssetCode
+      ]
 
-    const value = BigInt((Number(amount) * conversionRate).toFixed());
+    const value = BigInt((Number(amount) * conversionRate).toFixed())
 
-    return {conversionRate, value}
+    return { conversionRate, value }
   }
-
-
-
 }

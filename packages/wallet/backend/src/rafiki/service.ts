@@ -61,7 +61,6 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
-
 interface Ratess {
   [currency: string]: { [currency: string]: number }
 }
@@ -408,12 +407,23 @@ export class RafikiService implements IRafikiService {
       }
     }
 
-    if(receivedQuote.sendAmount.assetCode !== receivedQuote.receiveAmount.assetCode){
-      this.deps.logger.info(`conversion fee (from rafiki) : ${receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value}`)
-      this.deps.logger.info(`Send amount value: ${receivedQuote.sendAmount.value}`)
-      this.deps.logger.info(`Receive amount: ${receivedQuote.receiveAmount.value} from rafiki which includes cross currency fees already.`);
+    if (
+      receivedQuote.sendAmount.assetCode !==
+      receivedQuote.receiveAmount.assetCode
+    ) {
+      this.deps.logger.info(
+        `conversion fee (from rafiki) : ${
+          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
+        }`
+      )
+      this.deps.logger.info(
+        `Send amount value: ${receivedQuote.sendAmount.value}`
+      )
+      this.deps.logger.info(
+        `Receive amount: ${receivedQuote.receiveAmount.value} from rafiki which includes cross currency fees already.`
+      )
     }
-    
+
     const actualFee = feeStructure[receivedQuote.sendAmount.assetCode]
 
     if (receivedQuote.paymentType == PaymentType.FixedDelivery) {
@@ -431,12 +441,19 @@ export class RafikiService implements IRafikiService {
         BigInt(Math.floor(Number(sendAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
 
-      this.deps.logger.info(`wallet fees: (sendAmount (${Math.floor(Number(sendAmountValue))}) * wallet percentage (${actualFee.percentage})) + fixed ${actualFee.fixed} = ${fees}`)
+      this.deps.logger.info(
+        `wallet fees: (sendAmount (${Math.floor(
+          Number(sendAmountValue)
+        )}) * wallet percentage (${actualFee.percentage})) + fixed ${
+          actualFee.fixed
+        } = ${fees}`
+      )
 
       receivedQuote.sendAmount.value = sendAmountValue + fees
 
-      this.deps.logger.info(`Will finally send: ${receivedQuote.sendAmount.value}`)
-
+      this.deps.logger.info(
+        `Will finally send: ${receivedQuote.sendAmount.value}`
+      )
     } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
       if (
         !Object.keys(feeStructure).includes(
@@ -447,14 +464,16 @@ export class RafikiService implements IRafikiService {
       }
 
       const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
-     
+
       const fees =
         BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
 
-
-      this.deps.logger.info(`Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${actualFee.percentage}  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`)
-
+      this.deps.logger.info(
+        `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
+          actualFee.percentage
+        }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
+      )
 
       if (receiveAmountValue <= fees) {
         throw new BadRequest('Fees exceed quote receiveAmount')
@@ -462,10 +481,15 @@ export class RafikiService implements IRafikiService {
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
 
-      this.deps.logger.info(`Sum of fees (conversion fee from rafiki + wallet fee): ${receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value} + ${fees} ${receiveAmountValue - fees}`)
+      this.deps.logger.info(
+        `Sum of fees (conversion fee from rafiki + wallet fee): ${
+          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
+        } + ${fees} ${receiveAmountValue - fees}`
+      )
 
-      this.deps.logger.info(`Will finally receive ${receivedQuote.receiveAmount.value}`)
-      
+      this.deps.logger.info(
+        `Will finally receive ${receivedQuote.receiveAmount.value}`
+      )
     } else {
       throw new BadRequest('Invalid paymentType')
     }
@@ -473,17 +497,14 @@ export class RafikiService implements IRafikiService {
     return receivedQuote
   }
 
-
-
   public getRates(base: string): Rates {
-
     const exchangeRates: Ratess = {
       USD: {
-        EUR: 1.1200,
+        EUR: 1.12,
         ZAR: 17.3792
       },
       EUR: {
-        USD: 0.8900,
+        USD: 0.89,
         ZAR: 20.44
       },
       ZAR: {
@@ -494,7 +515,6 @@ export class RafikiService implements IRafikiService {
     return {
       base,
       rates: exchangeRates[base] ?? {}
-     
+    }
   }
-}
 }
