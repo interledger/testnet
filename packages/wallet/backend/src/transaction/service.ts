@@ -79,8 +79,13 @@ export class TransactionService implements ITransactionService {
         'paymentPointer.url as paymentPointerUrl',
         'paymentPointer:account.name as accountName'
       )
-      .joinRelated('[paymentPointer.[account.user]]')
-      .where('paymentPointer:account:user.id', userId)
+      .fullOuterJoinRelated('[paymentPointer.[account.user], account.user]')
+      .where(function () {
+        this.where('paymentPointer:account:user.id', userId).orWhere(
+          'account:user.id',
+          userId
+        )
+      })
       .orderBy('transactions.createdAt', orderByDate)
       .where(filterParamsWithTableNames)
       .page(page, pageSize)

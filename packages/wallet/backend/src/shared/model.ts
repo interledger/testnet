@@ -28,8 +28,8 @@ export abstract class BaseModel extends Model {
     json = super.$formatJson(json)
     return {
       ...json,
-      createdAt: json.createdAt.toISOString(),
-      updatedAt: json.updatedAt.toISOString()
+      createdAt: json.createdAt?.toISOString() ?? json.createdAt,
+      updatedAt: json.updatedAt?.toISOString() ?? json.updatedAt
     }
   }
 }
