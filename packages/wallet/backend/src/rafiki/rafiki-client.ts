@@ -116,7 +116,7 @@ export class RafikiClient implements IRafikiClient {
     return response.assets.edges.map((el: { node: Asset }) => el.node)
   }
 
-  public async getAssetById(id: string) {
+  public async getAssetById(id: string): Promise<Asset> {
     const response = await this.deps.gqlClient.request<
       GetAssetQuery,
       GetAssetQueryVariables

@@ -287,7 +287,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
           'incomingPaymentService'
         ),
         rafikiClient: await container.resolve('rafikiClient'),
-        rafikiService: await container.resolve('rafikiService')
+        rafikiService: await container.resolve('rafikiService'),
+        paymentPointerService: await container.resolve('paymentPointerService')
       })
   )
 

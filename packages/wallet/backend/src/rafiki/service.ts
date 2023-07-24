@@ -408,24 +408,6 @@ export class RafikiService implements IRafikiService {
       }
     }
 
-    /*
-    currency fee + ilp 1% slippage + balarii = - 1.15
-
-    +1 + 0.02 * 11.48 = 1.23
-
-    fee total  = - 1.148 + 1.23 = 0.08
-
-    */
-
-
-
-    //-€0.26
-
-
-
-    11.6 
-
-
     if(receivedQuote.sendAmount.assetCode !== receivedQuote.receiveAmount.assetCode){
       this.deps.logger.info(`conversion fee (from rafiki) : ${receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value}`)
       this.deps.logger.info(`Send amount value: ${receivedQuote.sendAmount.value}`)
