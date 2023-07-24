@@ -1,5 +1,32 @@
 import { bcrypt } from 'hash-wasm'
 import { randomBytes } from 'crypto'
+import { ObjectWithAnyKeys } from '@/shared/types'
+
+export const replaceObjectKey = (
+  obj: ObjectWithAnyKeys,
+  replacedKey: string,
+  newKey: string
+): ObjectWithAnyKeys =>
+  Object.keys(obj).reduce(
+    (acc, oldKey) => ({
+      ...acc,
+      [oldKey === replacedKey ? newKey : oldKey]: obj[oldKey]
+    }),
+    {}
+  )
+
+export const prefixSomeObjectKeys = (
+  obj: ObjectWithAnyKeys,
+  prefixedKeys: Array<string>,
+  prefix: string
+): ObjectWithAnyKeys =>
+  Object.keys(obj).reduce(
+    (acc, oldKey) => ({
+      ...acc,
+      [`${prefixedKeys.includes(oldKey) ? prefix : ''}${oldKey}`]: obj[oldKey]
+    }),
+    {}
+  )
 
 export const transformAmount = (
   amount: string | bigint,

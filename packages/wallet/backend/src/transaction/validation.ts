@@ -8,18 +8,11 @@ export const transactionListRequestSchema = z.object({
 
 const transactionExtendedObject = z
   .object({
-    // id: z.string().optional(),
-    // paymentId: z.string().optional(),
-    // description: z.string().optional(),
     accountId: z.string().uuid().optional(),
-    // value: z.coerce.bigint().optional(),
     paymentPointerId: z.string().uuid().optional(),
     assetCode: z.string().optional(),
     type: z.string().optional(),
     status: z.string().optional()
-
-    // paymentPointerUrl: z.string().optional(),
-    // accountName: z.string().optional()
   })
   .strict()
 

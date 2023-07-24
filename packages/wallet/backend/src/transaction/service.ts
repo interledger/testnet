@@ -3,6 +3,7 @@ import { OrderByDirection, Page, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
 import { ObjectWithAnyKeys, PaginationQueryParams } from '@/shared/types'
+import { prefixSomeObjectKeys, replaceObjectKey } from '@/utils/helpers'
 
 type ListAllTransactionsInput = {
   userId: string
@@ -66,14 +67,15 @@ export class TransactionService implements ITransactionService {
     filterParams,
     orderByDate
   }: ListAllTransactionsInput): Promise<Page<Transaction>> {
-    const filterParamsWithTablename: ObjectWithAnyKeys = Object.keys(
-      filterParams
-    ).reduce(
-      (acc, oldKey) => ({
-        ...acc,
-        [`transactions.${oldKey}`]: (filterParams as ObjectWithAnyKeys)[oldKey]
-      }),
-      {}
+    let filterParamsWithTableNames: ObjectWithAnyKeys = prefixSomeObjectKeys(
+      filterParams,
+      ['paymentPointerId', 'assetCode', 'type', 'status'],
+      'transactions.'
+    )
+    filterParamsWithTableNames = replaceObjectKey(
+      filterParamsWithTableNames,
+      'accountId',
+      'paymentPointer:account.id'
     )
 
     const transactions = await Transaction.query()
@@ -81,7 +83,6 @@ export class TransactionService implements ITransactionService {
         'transactions.*',
         'paymentPointer.url as paymentPointerUrl',
         'paymentPointer:account.name as accountName'
-        // 'paymentPointer:account.id as accountId'
       )
       .joinRelated('[paymentPointer.[account.user]]')
       .where('paymentPointer:account:user.id', userId)
@@ -90,7 +91,7 @@ export class TransactionService implements ITransactionService {
         'dd1d2e20-808c-497b-89ab-147baca49853'
       )
       .orderBy('transactions.createdAt', orderByDate)
-      .where(filterParamsWithTablename)
+      .where(filterParamsWithTableNames)
       .page(page, pageSize)
 
     return transactions
