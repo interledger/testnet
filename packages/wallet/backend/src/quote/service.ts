@@ -111,7 +111,10 @@ export class QuoteService implements IQuoteService {
     )
   }
 
-  private enrichQuote(quote: Quote, originalValue?: bigint): EnrichedQuote | Quote {
+  private enrichQuote(
+    quote: Quote,
+    originalValue?: bigint
+  ): EnrichedQuote | Quote {
     if (quote.receiveAmount.assetCode === quote.sendAmount.assetCode) {
       return quote
     }

@@ -263,10 +263,12 @@ export class PaymentPointerService implements IPaymentPointerService {
     }
     const res = await axios({
       method: 'get',
-      url: `${env.NODE_ENV === 'development' ? id.replace('https', 'http') : id}`,
+      url: `${
+        env.NODE_ENV === 'development' ? id.replace('https', 'http') : id
+      }`,
       headers
     })
-    
+
     return res.data
   }
 }
