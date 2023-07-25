@@ -407,22 +407,19 @@ export class RafikiService implements IRafikiService {
       }
     }
 
-    const isDevelopment = env.NODE_ENV === 'development'
-
     if (
-      isDevelopment &&
       receivedQuote.sendAmount.assetCode !==
-        receivedQuote.receiveAmount.assetCode
+      receivedQuote.receiveAmount.assetCode
     ) {
-      this.deps.logger.info(
+      this.deps.logger.debug(
         `conversion fee (from rafiki) : ${
           receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
         }`
       )
-      this.deps.logger.info(
+      this.deps.logger.debug(
         `Send amount value: ${receivedQuote.sendAmount.value}`
       )
-      this.deps.logger.info(
+      this.deps.logger.debug(
         `Receive amount: ${receivedQuote.receiveAmount.value} from rafiki which includes cross currency fees already.`
       )
     }
@@ -444,21 +441,19 @@ export class RafikiService implements IRafikiService {
         BigInt(Math.floor(Number(sendAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
 
-      isDevelopment &&
-        this.deps.logger.info(
-          `wallet fees: (sendAmount (${Math.floor(
-            Number(sendAmountValue)
-          )}) * wallet percentage (${actualFee.percentage})) + fixed ${
-            actualFee.fixed
-          } = ${fees}`
-        )
+      this.deps.logger.debug(
+        `wallet fees: (sendAmount (${Math.floor(
+          Number(sendAmountValue)
+        )}) * wallet percentage (${actualFee.percentage})) + fixed ${
+          actualFee.fixed
+        } = ${fees}`
+      )
 
       receivedQuote.sendAmount.value = sendAmountValue + fees
 
-      isDevelopment &&
-        this.deps.logger.info(
-          `Will finally send: ${receivedQuote.sendAmount.value}`
-        )
+      this.deps.logger.debug(
+        `Will finally send: ${receivedQuote.sendAmount.value}`
+      )
     } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
       if (
         !Object.keys(feeStructure).includes(
@@ -474,12 +469,11 @@ export class RafikiService implements IRafikiService {
         BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
 
-      isDevelopment &&
-        this.deps.logger.info(
-          `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
-            actualFee.percentage
-          }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
-        )
+      this.deps.logger.debug(
+        `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
+          actualFee.percentage
+        }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
+      )
 
       if (receiveAmountValue <= fees) {
         throw new BadRequest('Fees exceed quote receiveAmount')
@@ -487,17 +481,15 @@ export class RafikiService implements IRafikiService {
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
 
-      isDevelopment &&
-        this.deps.logger.info(
-          `Sum of fees (conversion fee from rafiki + wallet fee): ${
-            receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
-          } + ${fees} ${receiveAmountValue - fees}`
-        )
+      this.deps.logger.debug(
+        `Sum of fees (conversion fee from rafiki + wallet fee): ${
+          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
+        } + ${fees} ${receiveAmountValue - fees}`
+      )
 
-      isDevelopment &&
-        this.deps.logger.info(
-          `Will finally receive ${receivedQuote.receiveAmount.value}`
-        )
+      this.deps.logger.debug(
+        `Will finally receive ${receivedQuote.receiveAmount.value}`
+      )
     } else {
       throw new BadRequest('Invalid paymentType')
     }
