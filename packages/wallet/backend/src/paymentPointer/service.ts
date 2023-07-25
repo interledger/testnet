@@ -260,9 +260,6 @@ export class PaymentPointerService implements IPaymentPointerService {
   public async getExternalPaymentPointer(
     url: string
   ): Promise<ExternalPaymentPointer> {
-    if (url.startsWith('$')) {
-      url.replace('$', 'https://')
-    }
     const headers = {
       'Host': new URL(url).host,
       'Content-Type': 'application/json',
