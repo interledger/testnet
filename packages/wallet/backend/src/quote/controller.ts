@@ -11,7 +11,7 @@ interface QuoteControllerDependencies {
   quoteService: QuoteService
 }
 
-export type ConversedQuote = Quote & {
+export type QuoteWithFees = Quote & {
   fee?: Amount
 }
 
@@ -20,7 +20,7 @@ export class QuoteController implements IQuoteController {
 
   create = async (
     req: Request,
-    res: CustomResponse<ConversedQuote | Quote>,
+    res: CustomResponse<QuoteWithFees | Quote>,
     next: NextFunction
   ) => {
     try {

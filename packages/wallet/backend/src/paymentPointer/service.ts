@@ -266,7 +266,9 @@ export class PaymentPointerService implements IPaymentPointerService {
       'Accept': 'application/json'
     }
     url =
-      this.deps.env.NODE_ENV === 'development' ? url.replace('https://', 'http://') : url
+      this.deps.env.NODE_ENV === 'development'
+        ? url.replace('https://', 'http://')
+        : url
     const res = await axios.get(url, { headers })
     return res.data
   }

@@ -6,7 +6,7 @@ import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp } from '@/utils/helpers'
 import { RafikiService } from '../rafiki/service'
-import { ConversedQuote } from './controller'
+import { QuoteWithFees } from './controller'
 import { PaymentPointerService } from '../paymentPointer/service'
 
 interface IQuoteService {
@@ -39,7 +39,7 @@ type ConvertParams = {
 export class QuoteService implements IQuoteService {
   constructor(private deps: QuoteServiceDependencies) {}
 
-  async create(params: CreateQuoteParams): Promise<ConversedQuote> {
+  async create(params: CreateQuoteParams): Promise<QuoteWithFees> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
       params.paymentPointerId
     )
@@ -128,7 +128,7 @@ export class QuoteService implements IQuoteService {
   private addConversionInfo(
     quote: Quote,
     originalValue?: bigint
-  ): ConversedQuote | Quote {
+  ): QuoteWithFees | Quote {
     if (quote.receiveAmount.assetCode === quote.sendAmount.assetCode) {
       return quote
     }
