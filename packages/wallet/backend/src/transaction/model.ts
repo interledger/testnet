@@ -15,7 +15,7 @@ export class Transaction extends BaseModel {
   paymentId!: string
   description?: string
   paymentPointerId?: string
-  accountId?: string
+  accountId!: string
   assetCode!: string
   value!: bigint | null
   type!: 'INCOMING' | 'OUTGOING'
