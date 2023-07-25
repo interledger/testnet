@@ -40,7 +40,7 @@ export class RafikiController implements IRafikiController {
   ) => {
     try {
       const {
-        params: { base }
+        query: { base }
       } = await validate(ratesSchema, req)
       res.status(200).json(this.deps.rafikiService.getRates(base))
     } catch (e) {

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { EventType, PaymentType } from './service'
 
-export const ratesSchema = z.object({ params: z.object({ base: z.string() }) })
+export const ratesSchema = z.object({ query: z.object({ base: z.string() }) })
 
 export const webhookSchema = z.object({
   body: z.object({
