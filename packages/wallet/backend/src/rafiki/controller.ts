@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { Quote, RafikiService, Rates } from './service'
+import { Quote, RafikiService, RatesResponse } from './service'
 import { validate } from '../shared/validate'
 import { quoteSchmea, webhookSchema } from './validation'
 import { BadRequest } from '../errors'
@@ -13,7 +13,7 @@ interface IRafikiController {
   ) => Promise<void>
   getRates: (
     req: Request,
-    res: Response<Rates>,
+    res: Response<RatesResponse>,
     next: NextFunction
   ) => Promise<void>
 }
@@ -34,11 +34,15 @@ export class RafikiController implements IRafikiController {
     }
   }
 
-  getRates = async (req: Request, res: Response<Rates>, next: NextFunction) => {
+  getRates = async (
+    req: Request,
+    res: Response<RatesResponse>,
+    next: NextFunction
+  ) => {
     try {
       const { base } = req.query
       if (!base) {
-        throw new BadRequest('rates base was not provided')
+        throw new BadRequest('Rates base was not provided')
       }
       res.status(200).json(this.deps.rafikiService.getRates(base as string))
     } catch (e) {

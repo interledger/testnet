@@ -1,5 +1,5 @@
 import { Logger } from 'winston'
-import { Env } from '@/config/env'
+import { Env, env } from '@/config/env'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { RafikiClient } from './rafiki-client'
 import { BadRequest } from '@/errors'
@@ -61,12 +61,12 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
-interface Ratess {
+interface Rates {
   [currency: string]: { [currency: string]: number }
 }
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
-  getRates: (base: string) => Rates
+  getRates: (base: string) => RatesResponse
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -78,7 +78,7 @@ interface RafikiServiceDependencies {
   transactionService: TransactionService
 }
 
-export type Rates = {
+export type RatesResponse = {
   base: string
   rates: Record<string, number>
 }
@@ -407,9 +407,12 @@ export class RafikiService implements IRafikiService {
       }
     }
 
+    const isDevelopment = env.NODE_ENV === 'development'
+
     if (
+      isDevelopment &&
       receivedQuote.sendAmount.assetCode !==
-      receivedQuote.receiveAmount.assetCode
+        receivedQuote.receiveAmount.assetCode
     ) {
       this.deps.logger.info(
         `conversion fee (from rafiki) : ${
@@ -441,19 +444,21 @@ export class RafikiService implements IRafikiService {
         BigInt(Math.floor(Number(sendAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
 
-      this.deps.logger.info(
-        `wallet fees: (sendAmount (${Math.floor(
-          Number(sendAmountValue)
-        )}) * wallet percentage (${actualFee.percentage})) + fixed ${
-          actualFee.fixed
-        } = ${fees}`
-      )
+      isDevelopment &&
+        this.deps.logger.info(
+          `wallet fees: (sendAmount (${Math.floor(
+            Number(sendAmountValue)
+          )}) * wallet percentage (${actualFee.percentage})) + fixed ${
+            actualFee.fixed
+          } = ${fees}`
+        )
 
       receivedQuote.sendAmount.value = sendAmountValue + fees
 
-      this.deps.logger.info(
-        `Will finally send: ${receivedQuote.sendAmount.value}`
-      )
+      isDevelopment &&
+        this.deps.logger.info(
+          `Will finally send: ${receivedQuote.sendAmount.value}`
+        )
     } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
       if (
         !Object.keys(feeStructure).includes(
@@ -469,11 +474,12 @@ export class RafikiService implements IRafikiService {
         BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
         BigInt(actualFee.fixed)
 
-      this.deps.logger.info(
-        `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
-          actualFee.percentage
-        }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
-      )
+      isDevelopment &&
+        this.deps.logger.info(
+          `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
+            actualFee.percentage
+          }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
+        )
 
       if (receiveAmountValue <= fees) {
         throw new BadRequest('Fees exceed quote receiveAmount')
@@ -481,15 +487,17 @@ export class RafikiService implements IRafikiService {
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
 
-      this.deps.logger.info(
-        `Sum of fees (conversion fee from rafiki + wallet fee): ${
-          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
-        } + ${fees} ${receiveAmountValue - fees}`
-      )
+      isDevelopment &&
+        this.deps.logger.info(
+          `Sum of fees (conversion fee from rafiki + wallet fee): ${
+            receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
+          } + ${fees} ${receiveAmountValue - fees}`
+        )
 
-      this.deps.logger.info(
-        `Will finally receive ${receivedQuote.receiveAmount.value}`
-      )
+      isDevelopment &&
+        this.deps.logger.info(
+          `Will finally receive ${receivedQuote.receiveAmount.value}`
+        )
     } else {
       throw new BadRequest('Invalid paymentType')
     }
@@ -497,8 +505,8 @@ export class RafikiService implements IRafikiService {
     return receivedQuote
   }
 
-  public getRates(base: string): Rates {
-    const exchangeRates: Ratess = {
+  public getRates(base: string): RatesResponse {
+    const exchangeRates: Rates = {
       USD: {
         EUR: 1.12,
         ZAR: 17.3792

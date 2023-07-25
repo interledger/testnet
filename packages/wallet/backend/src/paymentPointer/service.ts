@@ -16,6 +16,14 @@ interface UpdatePaymentPointerArgs {
   publicName: string
 }
 
+export interface ExternalPaymentPointer {
+  url: string
+  publicName: string
+  assetCode: string
+  assetScale: number
+  authServer: string
+}
+
 interface IPaymentPointerService {
   create: (
     userId: string,
@@ -249,26 +257,17 @@ export class PaymentPointerService implements IPaymentPointerService {
     }
   }
 
-  public async getExternalPaymentPointer(id: string): Promise<{
-    id: string
-    publicName: string
-    assetCode: string
-    assetScale: number
-    authServer: string
-  }> {
+  public async getExternalPaymentPointer(
+    url: string
+  ): Promise<ExternalPaymentPointer> {
     const headers = {
-      'Host': `${id.split('/')[2]}`,
+      'Host': new URL(url).host,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }
-    const res = await axios({
-      method: 'get',
-      url: `${
-        env.NODE_ENV === 'development' ? id.replace('https', 'http') : id
-      }`,
-      headers
-    })
-
+    url =
+      env.NODE_ENV === 'development' ? url.replace('https://', 'http://') : url
+    const res = await axios.get(url, { headers })
     return res.data
   }
 }

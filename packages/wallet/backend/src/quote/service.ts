@@ -6,7 +6,7 @@ import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp } from '@/utils/helpers'
 import { RafikiService } from '../rafiki/service'
-import { EnrichedQuote } from './controller'
+import { ConversedQuote } from './controller'
 import { PaymentPointerService } from '../paymentPointer/service'
 
 interface IQuoteService {
@@ -30,10 +30,16 @@ type CreateQuoteParams = {
   description?: string
 }
 
+type ConvertParams = {
+  sourceAssetCode: string
+  destinationAssetCode: string
+  amount: bigint
+}
+
 export class QuoteService implements IQuoteService {
   constructor(private deps: QuoteServiceDependencies) {}
 
-  async create(params: CreateQuoteParams): Promise<EnrichedQuote> {
+  async create(params: CreateQuoteParams): Promise<ConversedQuote> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
       params.paymentPointerId
     )
@@ -68,21 +74,27 @@ export class QuoteService implements IQuoteService {
 
     let paymentUrl = params.receiver
 
-    const pp = await this.deps.paymentPointerService.getExternalPaymentPointer(
-      paymentUrl
-    )
-
-    if (params.isReceive && pp.assetCode !== asset.code) {
-      const { value: convertedValue } = this.convert(
-        pp.assetCode,
-        asset.code,
-        value
+    const destinationPaymentPointer =
+      await this.deps.paymentPointerService.getExternalPaymentPointer(
+        paymentUrl
       )
+
+    if (
+      params.isReceive &&
+      destinationPaymentPointer.assetCode !== asset.code
+    ) {
+      const convertedValue = this.convert({
+        sourceAssetCode: destinationPaymentPointer.assetCode,
+        destinationAssetCode: asset.code,
+        amount: value
+      })
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
       const assetList = await this.deps.rafikiClient.listAssets()
-      asset = assetList.find((a) => a.code === pp.assetCode)
+      asset = assetList.find(
+        (a) => a.code === destinationPaymentPointer.assetCode
+      )
       if (!asset) {
         throw new BadRequest(
           'Destination payment pointer asset is not supported'
@@ -100,7 +112,7 @@ export class QuoteService implements IQuoteService {
       })
     }
 
-    return this.enrichQuote(
+    return this.addConversionInfo(
       await this.deps.rafikiClient.createQuote({
         paymentPointerId: params.paymentPointerId,
         receiver: paymentUrl,
@@ -111,18 +123,18 @@ export class QuoteService implements IQuoteService {
     )
   }
 
-  private enrichQuote(
+  private addConversionInfo(
     quote: Quote,
     originalValue?: bigint
-  ): EnrichedQuote | Quote {
+  ): ConversedQuote | Quote {
     if (quote.receiveAmount.assetCode === quote.sendAmount.assetCode) {
       return quote
     }
-    const { conversionRate, value } = this.convert(
-      quote.sendAmount.assetCode,
-      quote.receiveAmount.assetCode,
-      quote.receiveAmount.value
-    )
+    const value = this.convert({
+      sourceAssetCode: quote.sendAmount.assetCode,
+      destinationAssetCode: quote.receiveAmount.assetCode,
+      amount: quote.receiveAmount.value
+    })
     const feeInSenderCurrency = BigInt(quote.sendAmount.value) - value
 
     return {
@@ -132,24 +144,15 @@ export class QuoteService implements IQuoteService {
           ? BigInt(quote.sendAmount.value) - originalValue
           : feeInSenderCurrency,
         assetScale: quote.sendAmount.assetScale,
-        assetCode: quote.sendAmount.assetCode,
-        conversionRate
+        assetCode: quote.sendAmount.assetCode
       }
     }
   }
 
-  private convert(
-    sourceAssetCode: string,
-    destinationAssetCode: string,
-    amount: bigint
-  ): { conversionRate: number; value: bigint } {
-    const conversionRate =
-      this.deps.rafikiService.getRates(sourceAssetCode).rates[
-        destinationAssetCode
-      ]
-
-    const value = BigInt((Number(amount) * conversionRate).toFixed())
-
-    return { conversionRate, value }
+  private convert(params: ConvertParams): bigint {
+    const conversionRate = this.deps.rafikiService.getRates(
+      params.sourceAssetCode
+    ).rates[params.destinationAssetCode]
+    return BigInt((Number(params.amount) * conversionRate).toFixed())
   }
 }
