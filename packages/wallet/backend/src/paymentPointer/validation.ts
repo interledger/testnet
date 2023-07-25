@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const externalPaymentPointerSchema = z.object({
-  params: z.object({ url: z.string().url() })
+  query: z.object({ url: z.string().url() })
 })
 
 export const paymentPointerSchema = z.object({

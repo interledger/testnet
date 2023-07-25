@@ -84,7 +84,7 @@ export class PaymentPointerController implements IPaymentPointerController {
   ) => {
     try {
       const {
-        params: { url }
+        query: { url }
       } = await validate(externalPaymentPointerSchema, req)
       const externalPaymentPointer =
         await this.deps.paymentPointerService.getExternalPaymentPointer(url)
