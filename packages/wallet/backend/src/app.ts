@@ -176,7 +176,7 @@ export class App {
       paymentPointerController.getById
     )
     router.get(
-      '/payment-pointer/:url',
+      '/external-payment-pointers/:url',
       isAuth,
       paymentPointerController.getExternalPaymentPointer
     )

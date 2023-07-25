@@ -4,7 +4,11 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { BadRequest } from '../errors'
 import { ExternalPaymentPointer, PaymentPointerService } from './service'
-import { paymentPointerSchema, updatePaymentPointerSchema } from './validation'
+import {
+  externalPaymentPointerSchema,
+  paymentPointerSchema,
+  updatePaymentPointerSchema
+} from './validation'
 
 interface IPaymentPointerController {
   create: ControllerFunction<PaymentPointer>
@@ -80,11 +84,11 @@ export class PaymentPointerController implements IPaymentPointerController {
     next: NextFunction
   ) => {
     try {
-      if (!req.params.url) {
-        throw new BadRequest('Payment pointer url is required!')
-      }
+      const {
+        params: { url }
+      } = await validate(externalPaymentPointerSchema, req)
       const externalPaymentPointer =
-        await this.deps.paymentPointerService.getExternalPaymentPointer(req.url)
+        await this.deps.paymentPointerService.getExternalPaymentPointer(url)
       res.status(200).json({
         success: true,
         message: 'SUCCESS',
