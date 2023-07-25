@@ -18,6 +18,7 @@ import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import { AssetController } from '@/asset/controller'
 import { mockedListAssets, mockLogInRequest } from '../mocks'
+import { getRandomToken } from '@/utils/helpers'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
@@ -47,7 +48,7 @@ describe('Asset Controller', (): void => {
 
     req.body = args
 
-    await userService.create(args)
+    await userService.create({ ...args, verifyEmailToken: getRandomToken() })
     await applyMiddleware(withSession, req, res)
 
     const { user, session } = await authService.authorize(args)

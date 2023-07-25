@@ -8,6 +8,7 @@ import { truncateTables } from '@/tests/tables'
 import type { AuthService } from '@/auth/service'
 import type { UserService } from '@/user/service'
 import { mockLogInRequest } from '../mocks'
+import { getRandomToken } from '@/utils/helpers'
 
 describe('Authentication Service', (): void => {
   let bindings: Container<Bindings>
@@ -36,7 +37,10 @@ describe('Authentication Service', (): void => {
   describe('Authorize', (): void => {
     it('should authorize a user', async (): Promise<void> => {
       const args = mockLogInRequest().body
-      const user = await userService.create(args)
+      const user = await userService.create({
+        ...args,
+        verifyEmailToken: getRandomToken()
+      })
 
       await expect(authService.authorize(args)).resolves.toMatchObject({
         session: {
@@ -57,7 +61,7 @@ describe('Authentication Service', (): void => {
 
     it('should throw an error if the password is invalid', async (): Promise<void> => {
       const args = mockLogInRequest().body
-      await userService.create(args)
+      await userService.create({ ...args, verifyEmailToken: getRandomToken() })
 
       await expect(
         authService.authorize({ ...args, password: 'invalid' })

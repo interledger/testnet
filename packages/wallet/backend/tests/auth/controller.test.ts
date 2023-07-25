@@ -19,6 +19,7 @@ import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import { mockLogInRequest, mockSignUpRequest } from '../mocks'
+import { getRandomToken } from '@/utils/helpers'
 
 describe('Authentication Controller', (): void => {
   let bindings: Container<Bindings>
@@ -112,7 +113,10 @@ describe('Authentication Controller', (): void => {
       const body = mockLogInRequest().body
       req.body = body
 
-      const user = await userService.create(body)
+      const user = await userService.create({
+        ...body,
+        verifyEmailToken: getRandomToken()
+      })
       const authorizeSpy = jest.spyOn(authService, 'authorize')
       await applyMiddleware(withSession, req, res)
       await authController.logIn(req, res, next)

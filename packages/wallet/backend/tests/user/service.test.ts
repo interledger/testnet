@@ -7,6 +7,7 @@ import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
 import { faker } from '@faker-js/faker'
 import type { UserService } from '@/user/service'
+import { getRandomToken } from '@/utils/helpers'
 
 describe('User Service', (): void => {
   let bindings: Container<Bindings>
@@ -17,6 +18,11 @@ describe('User Service', (): void => {
   const args = {
     email: faker.internet.email(),
     password: faker.internet.password()
+  }
+
+  const createUserArgs = {
+    ...args,
+    verifyEmailToken: getRandomToken()
   }
 
   beforeAll(async (): Promise<void> => {
@@ -37,15 +43,15 @@ describe('User Service', (): void => {
 
   describe('create', (): void => {
     it('should create a new user', async (): Promise<void> => {
-      await expect(userService.create(args)).resolves.toMatchObject({
+      await expect(userService.create(createUserArgs)).resolves.toMatchObject({
         email: args.email
       })
     })
 
     it('should throw an error if the email is already in use', async (): Promise<void> => {
-      await userService.create(args)
+      await userService.create(createUserArgs)
 
-      await expect(userService.create(args)).rejects.toThrowError(
+      await expect(userService.create(createUserArgs)).rejects.toThrowError(
         /Email already in use/
       )
     })
@@ -53,7 +59,7 @@ describe('User Service', (): void => {
 
   describe('getById', (): void => {
     it('should fetch an user by id', async (): Promise<void> => {
-      const user = await userService.create(args)
+      const user = await userService.create(createUserArgs)
 
       await expect(userService.getById(user.id)).resolves.toMatchObject({
         email: args.email

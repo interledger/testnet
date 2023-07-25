@@ -23,6 +23,7 @@ import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { BaseError } from '@/errors/Base'
 import { truncateTables } from '@/tests/tables'
+import { getRandomToken } from '@/utils/helpers'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
@@ -44,7 +45,7 @@ describe('Asset Controller', (): void => {
   const createUser = async () => {
     const req = createRequest()
     req.body = args
-    await userService.create(args)
+    await userService.create({ ...args, verifyEmailToken: getRandomToken() })
   }
   const createReqRes = async () => {
     res = createResponse()
