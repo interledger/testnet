@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { Quote, RafikiService, RatesResponse } from './service'
 import { validate } from '../shared/validate'
+import { Quote, RafikiService, RatesResponse } from './service'
 import { quoteSchmea, ratesSchema, webhookSchema } from './validation'
-import { BadRequest } from '../errors'
 
 interface IRafikiController {
   createQuote: (

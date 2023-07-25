@@ -2,7 +2,6 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { BadRequest } from '../errors'
 import { ExternalPaymentPointer, PaymentPointerService } from './service'
 import {
   externalPaymentPointerSchema,

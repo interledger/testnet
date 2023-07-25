@@ -1,10 +1,10 @@
-import { Logger } from 'winston'
-import { Env, env } from '@/config/env'
-import { RapydClient } from '@/rapyd/rapyd-client'
-import { RafikiClient } from './rafiki-client'
+import { Env } from '@/config/env'
 import { BadRequest } from '@/errors'
 import { PaymentPointer } from '@/paymentPointer/model'
+import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
+import { Logger } from 'winston'
+import { RafikiClient } from './rafiki-client'
 
 export enum EventType {
   IncomingPaymentCompleted = 'incoming_payment.completed',
