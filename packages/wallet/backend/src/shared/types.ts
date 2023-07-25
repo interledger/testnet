@@ -3,6 +3,4 @@ export type PaginationQueryParams = {
   pageSize: number
 }
 
-export type ObjectWithAnyKeys = {
-  [key: string]: unknown
-}
+export type ObjectWithAnyKeys = Record<string, unknown>

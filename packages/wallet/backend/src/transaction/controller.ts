@@ -55,7 +55,7 @@ export class TransactionController implements ITransactionController {
         query: { page, pageSize, filter, orderByDate }
       } = await validate(transactionListAllRequestSchema, req)
 
-      const filterParams = (filter as Partial<Transaction>) || {}
+      const filterParams = filter as Partial<Transaction>
       const transactions = await this.deps.transactionService.listAll({
         userId,
         paginationParams: {

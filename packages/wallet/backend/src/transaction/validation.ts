@@ -20,7 +20,7 @@ export const transactionListAllRequestSchema = z.object({
   query: z.object({
     page: z.coerce.number().int().nonnegative().default(0),
     pageSize: z.coerce.number().int().positive().default(10),
-    filter: transactionExtendedObject.optional(),
+    filter: transactionExtendedObject.optional().default({}),
     orderByDate: z.enum(['ASC', 'DESC']).default('DESC')
   })
 })

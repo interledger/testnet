@@ -38,7 +38,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       .findById(paymentPointerId)
       .select('accountId', 'active')
 
-    if (!paymentPointer || !paymentPointer.active) {
+    if (!paymentPointer?.active) {
       throw new NotFound()
     }
 
@@ -46,7 +46,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       paymentPointerId,
       paymentId: payment.id,
       assetCode,
-      accountId: paymentPointer?.accountId,
+      accountId: paymentPointer.accountId,
       value,
       type: 'OUTGOING',
       status: 'PENDING',

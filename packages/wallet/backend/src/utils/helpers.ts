@@ -17,7 +17,7 @@ export const replaceObjectKey = (
 
 export const prefixSomeObjectKeys = (
   obj: ObjectWithAnyKeys,
-  prefixedKeys: Array<string>,
+  prefixedKeys: string[],
   prefix: string
 ): ObjectWithAnyKeys =>
   Object.keys(obj).reduce(
