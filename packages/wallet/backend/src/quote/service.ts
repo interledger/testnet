@@ -112,13 +112,15 @@ export class QuoteService implements IQuoteService {
       })
     }
 
+    const quote = await this.deps.rafikiClient.createQuote({
+      paymentPointerId: params.paymentPointerId,
+      receiver: paymentUrl,
+      asset,
+      amount: params.isReceive ? undefined : value
+    })
+
     return this.addConversionInfo(
-      await this.deps.rafikiClient.createQuote({
-        paymentPointerId: params.paymentPointerId,
-        receiver: paymentUrl,
-        asset,
-        amount: params.isReceive ? undefined : value
-      }),
+      quote,
       params.isReceive ? originalValue : undefined
     )
   }
