@@ -1,5 +1,5 @@
 import { Env } from '@/config/env'
-import { default as sendgrid } from '@sendgrid/mail'
+import { default as sendgrid, MailDataRequired } from '@sendgrid/mail'
 import { getForgotPasswordEmail } from '@/email/templates/forgotPassword'
 import { Logger } from 'winston'
 import { getVerifyEmail } from '@/email/templates/verifyEmail'
@@ -20,7 +20,7 @@ interface EmailServiceDependencies {
 
 export class EmailService implements IEmailService {
   private readonly baseUrl: string
-  private readonly from: { email: string; name: string }
+  private readonly from: MailDataRequired['from']
 
   constructor(private deps: EmailServiceDependencies) {
     sendgrid.setApiKey(this.deps.env.SENDGRID_API_KEY)
