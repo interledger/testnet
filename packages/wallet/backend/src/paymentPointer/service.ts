@@ -1,6 +1,6 @@
 import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
-import { Env, env } from '@/config/env'
+import { Env } from '@/config/env'
 import { Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk } from '@/utils/jwk'
@@ -266,7 +266,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       'Accept': 'application/json'
     }
     url =
-      env.NODE_ENV === 'development' ? url.replace('https://', 'http://') : url
+      this.deps.env.NODE_ENV === 'development' ? url.replace('https://', 'http://') : url
     const res = await axios.get(url, { headers })
     return res.data
   }
