@@ -12,9 +12,9 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { formatAmount, getObjectKeys } from '@/utils/helpers'
+import { formatAmount, getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
@@ -26,6 +26,7 @@ import {
 } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
+import { assetService, Rates } from '@/lib/api/asset'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -33,6 +34,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
+  const [currentExchangeRates, setCurrentExchangeRates] = useState<Rates>()
+  const [selectedAssetCode, setSelectedAssetCode] = useState('')
+  const [receiverAssetCode, setReceiverAssetCode] = useState('')
+  const [exchangeCurrencyText, setExchangeCurrencyText] = useState('')
+  const [convertAmount, setConvertAmount] = useState(0)
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
@@ -51,10 +57,29 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setRunOnboarding(true)
       }, 500)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
-  const getPaymentPointers = async (accountId: string) => {
+    if (
+      convertAmount &&
+      convertAmount !== 0 &&
+      currentExchangeRates &&
+      !('success' in currentExchangeRates) &&
+      receiverAssetCode !== '' &&
+      receiverAssetCode !== selectedAssetCode
+    ) {
+      const conversionRate = currentExchangeRates.rates[receiverAssetCode]
+      const convertedValue = (convertAmount * conversionRate).toFixed()
+      const senderCurrencySymbol = getCurrencySymbol(selectedAssetCode)
+      const receiverCurrencySymbol = getCurrencySymbol(receiverAssetCode)
+      setExchangeCurrencyText(
+        `Receiver Payment Pointer asset is in ${receiverCurrencySymbol}. Exchange Rate: ${senderCurrencySymbol}${convertAmount} = ${receiverCurrencySymbol}${convertedValue}`
+      )
+    } else {
+      setExchangeCurrencyText('')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [convertAmount, selectedAssetCode, receiverAssetCode])
+
+  const onAccountChange = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
@@ -94,10 +119,27 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       })
     )
     setPaymentPointers(paymentPointers)
+
+    if (selectedAccount) {
+      const exchangeRatesResponse = await assetService.exchangeRates(
+        selectedAccount.assetCode
+      )
+
+      if ('success' in exchangeRatesResponse) {
+        setExchangeCurrencyText('')
+        return
+      }
+
+      setCurrentExchangeRates(exchangeRatesResponse)
+      setSelectedAssetCode(selectedAccount.assetCode)
+    }
   }
 
   const onPaymentPointerChange = async (url: string): Promise<void> => {
-    if (url === '') return
+    if (url === '') {
+      setReceiverAssetCode('')
+      return
+    }
 
     if (url.includes('/incoming-payments/')) {
       const response = await transfersService.getIncomingPaymentDetails(url)
@@ -116,6 +158,23 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     if (isToggleDisabled) setIsToggleDisabled(false)
 
     sendForm.setValue('receiver', url)
+
+    const paymentPointerAssetCodeResponse =
+      await paymentPointerService.assetCode(url)
+    if (
+      !paymentPointerAssetCodeResponse.success ||
+      !paymentPointerAssetCodeResponse.data
+    ) {
+      setExchangeCurrencyText('')
+      setReceiverAssetCode('')
+      return
+    }
+
+    setReceiverAssetCode(paymentPointerAssetCodeResponse.data.assetCode)
+  }
+
+  const onAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setConvertAmount(Number(event.currentTarget.value))
   }
 
   const handleAcceptQuote = async (id: string) => {
@@ -200,7 +259,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               isSearchable={false}
               onChange={(option) => {
                 if (option) {
-                  getPaymentPointers(option.value)
+                  onAccountChange(option.value)
                 }
               }}
             />
@@ -252,6 +311,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               {...sendForm.register('amount')}
               error={sendForm.formState.errors.amount?.message}
               label="Amount"
+              onChange={(event) => onAmountChange(event)}
               labelHint={
                 <Controller
                   name="paymentType"
@@ -280,6 +340,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 />
               }
             />
+            <p className="ml-2 text-sm text-green">{exchangeCurrencyText}</p>
             <Input {...sendForm.register('description')} label="Description" />
           </div>
           <div className="flex justify-center py-5">

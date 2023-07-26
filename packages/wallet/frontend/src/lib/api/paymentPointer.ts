@@ -74,6 +74,10 @@ type BasePaymentPointerArgs = {
   paymentPointerId: string
 }
 
+type PaymentPointeAssetCode = {
+  assetCode: string
+}
+
 type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
@@ -112,6 +116,9 @@ type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
 type RevokeKeyArgs = BasePaymentPointerArgs
 type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
+type AssetCodeResult = SuccessResponse<PaymentPointeAssetCode>
+type AssetCodeResponse = AssetCodeResult | ErrorResponse
+
 interface PaymentPointerService {
   get: (
     args: GetPaymentPointerArgs,
@@ -135,6 +142,7 @@ interface PaymentPointerService {
   ) => Promise<ListTransactionsResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
+  assetCode: (url: string, cookies?: string) => Promise<AssetCodeResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -277,6 +285,21 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         error,
         'We were not able to revoke the key. Please try again.'
       )
+    }
+  },
+
+  async assetCode(url, cookies) {
+    try {
+      const response = await httpClient
+        .get(`external-payment-pointers?url=${url}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<AssetCodeResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Error fetching payment pointer url asset code.')
     }
   }
 })
