@@ -14,7 +14,6 @@ import {
 import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
-import type { UserService } from '@/user/service'
 import { mockedListAssets, mockLogInRequest } from '../mocks'
 import { AccountController } from '@/account/controller'
 import { AccountService } from '@/account/service'
@@ -23,14 +22,13 @@ import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { BaseError } from '@/errors/Base'
 import { truncateTables } from '@/tests/tables'
-import { getRandomToken } from '@/utils/helpers'
+import { createUser } from '@/tests/helpers'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
-  let userService: UserService
   let accountController: AccountController
   let accountService: AccountService
   let req: MockRequest<Request>
@@ -42,11 +40,6 @@ describe('Asset Controller', (): void => {
   const next = jest.fn()
   const args = mockLogInRequest().body
 
-  const createUser = async () => {
-    const req = createRequest()
-    req.body = args
-    await userService.create({ ...args, verifyEmailToken: getRandomToken() })
-  }
   const createReqRes = async () => {
     res = createResponse()
     req = createRequest()
@@ -77,7 +70,6 @@ describe('Asset Controller', (): void => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
-    userService = await bindings.resolve('userService')
     accountController = await bindings.resolve('accountController')
     accountService = await bindings.resolve('accountService')
 
@@ -136,7 +128,7 @@ describe('Asset Controller', (): void => {
   })
 
   beforeEach(async (): Promise<void> => {
-    await createUser()
+    await createUser({ ...args, isEmailVerified: true })
     await createReqRes()
   })
 

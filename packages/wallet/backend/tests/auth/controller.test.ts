@@ -18,8 +18,8 @@ import { errorHandler } from '@/middleware/errorHandler'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
-import { mockLogInRequest, mockSignUpRequest } from '../mocks'
-import { getRandomToken } from '@/utils/helpers'
+import { fakeLoginData, mockLogInRequest, mockSignUpRequest } from '../mocks'
+import { createUser } from '@/tests/helpers'
 
 describe('Authentication Controller', (): void => {
   let bindings: Container<Bindings>
@@ -110,18 +110,20 @@ describe('Authentication Controller', (): void => {
 
   describe('Log In', (): void => {
     it('should return status 200 if the user is authorized', async (): Promise<void> => {
-      const body = mockLogInRequest().body
-      req.body = body
+      const fakeLogin = fakeLoginData()
+      const newUserData = {
+        ...fakeLogin,
+        isEmailVerified: true
+      }
+      const user = await createUser(newUserData)
 
-      const user = await userService.create({
-        ...body,
-        verifyEmailToken: getRandomToken()
-      })
+      req.body = fakeLogin
+
       const authorizeSpy = jest.spyOn(authService, 'authorize')
       await applyMiddleware(withSession, req, res)
       await authController.logIn(req, res, next)
 
-      expect(authorizeSpy).toHaveBeenCalledWith(body)
+      expect(authorizeSpy).toHaveBeenCalledWith(fakeLogin)
       expect(next).toHaveBeenCalledTimes(0)
       expect(req.session.id).toBeDefined()
       expect(req.session.user).toMatchObject({

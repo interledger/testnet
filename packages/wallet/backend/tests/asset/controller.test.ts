@@ -15,17 +15,15 @@ import {
 import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
-import type { UserService } from '@/user/service'
 import { AssetController } from '@/asset/controller'
 import { mockedListAssets, mockLogInRequest } from '../mocks'
-import { getRandomToken } from '@/utils/helpers'
+import { createUser } from '@/tests/helpers'
 
 describe('Asset Controller', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
-  let userService: UserService
   let assetController: AssetController
   let req: MockRequest<Request>
   let res: MockResponse<Response>
@@ -38,7 +36,6 @@ describe('Asset Controller', (): void => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
-    userService = await bindings.resolve('userService')
     assetController = await bindings.resolve('assetController')
   })
 
@@ -48,7 +45,7 @@ describe('Asset Controller', (): void => {
 
     req.body = args
 
-    await userService.create({ ...args, verifyEmailToken: getRandomToken() })
+    await createUser({ ...args, isEmailVerified: true })
     await applyMiddleware(withSession, req, res)
 
     const { user, session } = await authService.authorize(args)
