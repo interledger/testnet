@@ -102,6 +102,13 @@ export class PaymentPointerService implements IPaymentPointerService {
       .where('active', true)
   }
 
+  async listAll(userId: string): Promise<PaymentPointer[]> {
+    return PaymentPointer.query().joinRelated('account').where({
+      'account.userId': userId,
+      'paymentPointers.active': true
+    })
+  }
+
   async getById(
     userId: string,
     accountId: string,

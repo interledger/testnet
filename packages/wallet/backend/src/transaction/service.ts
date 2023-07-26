@@ -81,8 +81,9 @@ export class TransactionService implements ITransactionService {
       )
       .fullOuterJoinRelated('[paymentPointer, account.user]')
       .where('account:user.id', userId)
-      .orderBy('transactions.createdAt', orderByDate)
+      .whereNotNull('transactions.id')
       .where(filterParamsWithTableNames)
+      .orderBy('transactions.createdAt', orderByDate)
       .page(page, pageSize)
 
     return transactions

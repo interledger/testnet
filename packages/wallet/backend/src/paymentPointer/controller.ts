@@ -73,6 +73,26 @@ export class PaymentPointerController implements IPaymentPointerController {
     }
   }
 
+  listAll = async (
+    req: Request,
+    res: CustomResponse<PaymentPointer[]>,
+    next: NextFunction
+  ) => {
+    const userId = req.session.user.id
+
+    try {
+      const paymentPointers = await this.deps.paymentPointerService.listAll(
+        userId
+      )
+
+      res
+        .status(200)
+        .json({ success: true, message: 'SUCCESS', data: paymentPointers })
+    } catch (e) {
+      next(e)
+    }
+  }
+
   getById = async (
     req: Request,
     res: CustomResponse<PaymentPointer>,

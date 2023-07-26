@@ -28,7 +28,7 @@ const TRANSACTION_TYPE = {
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING'
 } as const
-type TransactionType = keyof typeof TRANSACTION_TYPE
+export type TransactionType = keyof typeof TRANSACTION_TYPE
 
 const TRANSACTION_STATUS = {
   PENDING: 'PENDING',
@@ -121,6 +121,7 @@ interface PaymentPointerService {
     accountId: string,
     cookies?: string
   ) => Promise<ListPaymentPointerResponse>
+  listAll: (cookies?: string) => Promise<ListPaymentPointerResponse>
   create: (
     accountId: string,
     args: CreatePaymentPointerArgs
@@ -171,6 +172,21 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch payment pointers.')
+    }
+  },
+
+  async listAll(cookies) {
+    try {
+      const response = await httpClient
+        .get('payment-pointers', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<ListPaymentPointerResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to fetch payment pointers')
     }
   },
 
