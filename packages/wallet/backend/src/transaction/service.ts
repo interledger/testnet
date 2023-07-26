@@ -77,7 +77,8 @@ export class TransactionService implements ITransactionService {
       .select(
         'transactions.*',
         'paymentPointer.url as paymentPointerUrl',
-        'account.name as accountName'
+        'account.name as accountName',
+        'account.assetScale'
       )
       .fullOuterJoinRelated('[paymentPointer, account.user]')
       .where('account:user.id', userId)
