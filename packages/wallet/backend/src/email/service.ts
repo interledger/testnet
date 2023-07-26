@@ -3,6 +3,7 @@ import { default as sendgrid, MailDataRequired } from '@sendgrid/mail'
 import { getForgotPasswordEmail } from '@/email/templates/forgotPassword'
 import { Logger } from 'winston'
 import { getVerifyEmail } from '@/email/templates/verifyEmail'
+import { verifyDomain } from './verify-domain'
 
 interface EmailArgs {
   to: string
@@ -56,6 +57,9 @@ export class EmailService implements IEmailService {
   }
 
   async sendVerifyEmail(to: string, token: string): Promise<void> {
+    const domain = to.split('@')[1]
+    await verifyDomain(domain)
+
     const url = `${this.baseUrl}/auth/verify/${token}`
 
     if (this.deps.env.SEND_EMAIL) {

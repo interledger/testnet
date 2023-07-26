@@ -66,6 +66,10 @@ export class AuthService implements IAuthService {
       throw new Unauthorized('Invalid credentials')
     }
 
+    if (!user.isEmailVerified) {
+      throw new Unauthorized('Email address is not verified')
+    }
+
     const session = await user.$relatedQuery('sessions').insertGraphAndFetch({
       userId: user.id,
       expiresAt: addSeconds(new Date(), this.deps.env.COOKIE_TTL)
