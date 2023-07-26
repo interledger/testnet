@@ -43,6 +43,7 @@ export const requestSchema = z.object({
 type PaymentDetails = {
   description?: string
   value: number
+  assetCode: string
 }
 
 type AmountProps = {

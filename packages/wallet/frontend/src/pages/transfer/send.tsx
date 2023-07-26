@@ -150,27 +150,31 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         sendForm.setValue('amount', response.data.value)
         sendForm.setValue('description', response.data.description ?? '')
         setIsToggleDisabled(true)
+
+        setReceiverAssetCode(response.data.assetCode)
+        setConvertAmount(response.data.value)
       } else {
         sendForm.setError('receiver', { message: response.message })
+        setReceiverAssetCode('')
       }
+    } else {
+      const paymentPointerAssetCodeResponse =
+        await paymentPointerService.assetCode(url)
+      if (
+        !paymentPointerAssetCodeResponse.success ||
+        !paymentPointerAssetCodeResponse.data
+      ) {
+        setExchangeCurrencyText('')
+        setReceiverAssetCode('')
+        return
+      }
+
+      setReceiverAssetCode(paymentPointerAssetCodeResponse.data.assetCode)
     }
 
     if (isToggleDisabled) setIsToggleDisabled(false)
 
     sendForm.setValue('receiver', url)
-
-    const paymentPointerAssetCodeResponse =
-      await paymentPointerService.assetCode(url)
-    if (
-      !paymentPointerAssetCodeResponse.success ||
-      !paymentPointerAssetCodeResponse.data
-    ) {
-      setExchangeCurrencyText('')
-      setReceiverAssetCode('')
-      return
-    }
-
-    setReceiverAssetCode(paymentPointerAssetCodeResponse.data.assetCode)
   }
 
   const onAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
