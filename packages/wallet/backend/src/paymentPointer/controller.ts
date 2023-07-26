@@ -1,9 +1,13 @@
+import { PaymentPointer } from '@/paymentPointer/model'
+import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { validate } from '@/shared/validate'
-import { PaymentPointerService } from './service'
-import { paymentPointerSchema, updatePaymentPointerSchema } from './validation'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { ExternalPaymentPointer, PaymentPointerService } from './service'
+import {
+  externalPaymentPointerSchema,
+  paymentPointerSchema,
+  updatePaymentPointerSchema
+} from './validation'
 
 interface IPaymentPointerController {
   create: ControllerFunction<PaymentPointer>
@@ -68,6 +72,27 @@ export class PaymentPointerController implements IPaymentPointerController {
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: paymentPointers })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  getExternalPaymentPointer = async (
+    req: Request,
+    res: CustomResponse<ExternalPaymentPointer>,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        query: { url }
+      } = await validate(externalPaymentPointerSchema, req)
+      const externalPaymentPointer =
+        await this.deps.paymentPointerService.getExternalPaymentPointer(url)
+      res.status(200).json({
+        success: true,
+        message: 'SUCCESS',
+        data: externalPaymentPointer
+      })
     } catch (e) {
       next(e)
     }
