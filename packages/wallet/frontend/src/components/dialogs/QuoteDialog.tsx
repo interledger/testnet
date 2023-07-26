@@ -26,7 +26,7 @@ export const QuoteDialog = ({ onClose, onAccept, quote }: QuoteDialogProps) => {
     assetScale: quote.sendAmount.assetScale
   })
 
-  const fee = getFee(quote.sendAmount, quote.receiveAmount)
+  const fee = getFee(quote)
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>

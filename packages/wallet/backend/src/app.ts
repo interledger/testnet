@@ -176,6 +176,11 @@ export class App {
       isAuth,
       paymentPointerController.getById
     )
+    router.get(
+      '/external-payment-pointers',
+      isAuth,
+      paymentPointerController.getExternalPaymentPointer
+    )
     router.patch(
       '/accounts/:accountId/payment-pointers/:paymentPointerId',
       isAuth,

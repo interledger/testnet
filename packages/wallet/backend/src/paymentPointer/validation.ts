@@ -1,5 +1,14 @@
 import { z } from 'zod'
 
+export const externalPaymentPointerSchema = z.object({
+  query: z.object({
+    url: z
+      .string()
+      .transform((val) => val.replace('$', 'https://'))
+      .pipe(z.string().url())
+  })
+})
+
 export const paymentPointerSchema = z.object({
   body: z.object({
     paymentPointerName: z
