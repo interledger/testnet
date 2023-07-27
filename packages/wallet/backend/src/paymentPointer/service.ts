@@ -1,18 +1,27 @@
-import { Conflict, NotFound } from '@/errors'
-import { PaymentPointer } from './model'
-import { Env } from '@/config/env'
+import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
+import { Env } from '@/config/env'
+import { Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { generateJwk } from '@/utils/jwk'
+import axios from 'axios'
 import { generateKeyPairSync } from 'crypto'
 import { v4 as uuid } from 'uuid'
-import { generateJwk } from '@/utils/jwk'
-import { Account } from '@/account/model'
+import { PaymentPointer } from './model'
 
 interface UpdatePaymentPointerArgs {
   userId: string
   accountId: string
   paymentPointerId: string
   publicName: string
+}
+
+export interface ExternalPaymentPointer {
+  url: string
+  publicName: string
+  assetCode: string
+  assetScale: number
+  authServer: string
 }
 
 interface IPaymentPointerService {
@@ -253,5 +262,21 @@ export class PaymentPointerService implements IPaymentPointerService {
     } catch (e) {
       await trx.rollback()
     }
+  }
+
+  public async getExternalPaymentPointer(
+    url: string
+  ): Promise<ExternalPaymentPointer> {
+    const headers = {
+      'Host': new URL(url).host,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+    url =
+      this.deps.env.NODE_ENV === 'development'
+        ? url.replace('https://', 'http://')
+        : url
+    const res = await axios.get(url, { headers })
+    return res.data
   }
 }

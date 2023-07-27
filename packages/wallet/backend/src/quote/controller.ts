@@ -1,8 +1,8 @@
+import { Amount, Quote } from '@/rafiki/backend/generated/graphql'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import { QuoteService } from './service'
 import { quoteSchema } from './validation'
-import { Quote } from '@/rafiki/backend/generated/graphql'
 
 interface IQuoteController {
   create: ControllerFunction<Quote>
@@ -11,12 +11,16 @@ interface QuoteControllerDependencies {
   quoteService: QuoteService
 }
 
+export type QuoteWithFees = Quote & {
+  fee?: Amount
+}
+
 export class QuoteController implements IQuoteController {
   constructor(private deps: QuoteControllerDependencies) {}
 
   create = async (
     req: Request,
-    res: CustomResponse<Quote>,
+    res: CustomResponse<QuoteWithFees | Quote>,
     next: NextFunction
   ) => {
     try {
