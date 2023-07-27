@@ -26,11 +26,11 @@ function getIncomingPaymentUrl(
   paymentPointers: SelectPaymentPointerOption[],
   paymentPointerId: string
 ): string {
-  return `${
-    paymentPointers.find(
-      (paymentPointer) => paymentPointer.value === paymentPointerId
-    )?.url
-  }/incoming-payments/${paymentId}`.replace('https://', '$')
+  const url = paymentPointers.find(
+    (paymentPointer) => paymentPointer.value === paymentPointerId
+  )?.url
+
+  return `${url}/incoming-payments/${paymentId}`.replace('https://', '$')
 }
 
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
