@@ -24,30 +24,10 @@ export const updatePaymentPointerSchema = z.object({
   })
 })
 
-const TRANSACTION_TYPE = {
-  INCOMING: 'INCOMING',
-  OUTGOING: 'OUTGOING'
-} as const
-export type TransactionType = keyof typeof TRANSACTION_TYPE
 
-const TRANSACTION_STATUS = {
-  PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED',
-  REJECTED: 'REJECTED'
-} as const
-type TransactionStatus = keyof typeof TRANSACTION_STATUS
-export interface Transaction {
-  id: string
-  paymentId: string
-  description: string
-  paymentPointerId: string
-  assetCode: string
-  value: string
-  type: TransactionType
-  status: TransactionStatus
-  createdAt: string
-  updatedAt: string
-}
+
+
+
 
 type PaymentPointerKey = {
   id: string
@@ -101,10 +81,6 @@ type UpdatePaymentPointerResponse = SuccessResponse | UpdatePaymentPointerError
 
 type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
 
-type ListTransactionsArgs = BasePaymentPointerArgs
-type ListTransactionsResult = SuccessResponse<Transaction[]>
-type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
-
 type GenerateKeyArgs = BasePaymentPointerArgs
 type GenerateKeyResult = SuccessResponse<PaymentPointerKeyDetails>
 type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
@@ -130,10 +106,6 @@ interface PaymentPointerService {
     args: UpdatePaymentPointerArgs
   ) => Promise<UpdatePaymentPointerResponse>
   delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
-  listTransactions: (
-    args: ListTransactionsArgs,
-    cookies?: string
-  ) => Promise<ListTransactionsResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
 }
@@ -239,27 +211,6 @@ const createPaymentPointerService = (): PaymentPointerService => ({
       return getError(
         error,
         'We were not able to delete your payment pointer. Please try again.'
-      )
-    }
-  },
-
-  async listTransactions(args, cookies) {
-    try {
-      const response = await httpClient
-        .get(
-          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/transactions`,
-          {
-            headers: {
-              ...(cookies ? { Cookie: cookies } : {})
-            }
-          }
-        )
-        .json<ListTransactionsResult>()
-      return response
-    } catch (error) {
-      return getError(
-        error,
-        'We were not able to create your payment pointer. Please try again.'
       )
     }
   },

@@ -1,25 +1,63 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useHttpRequest } from './useHttp'
-import { Transaction } from '../api/paymentPointer'
-import { listTransactions } from '../api/transactions'
+import { TransactionsPage, transactionService } from '../api/transaction'
+import { useRouter } from 'next/router'
+import { SelectOption } from '@/ui/forms/Select'
+
+type TransactionsQueryParams = Record<keyof TransactionsFilters, string>
+
+export type TransactionsFilters = {
+  page: string
+  accountId: SelectOption
+  paymentPointerId: SelectOption
+  type: SelectOption
+  status: SelectOption
+}
+
+const defaultState = {
+  results: [],
+  total: 0
+}
 
 export const useTransactions = () => {
+  const router = useRouter()
+  const { accountId, paymentPointerId, type, status, page } =
+    router.query as TransactionsQueryParams
   const [request, loading, error] = useHttpRequest()
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactions, setTransactions] =
+    useState<TransactionsPage>(defaultState)
 
   const fetch = useCallback(
-    async (filters: Record<string, string | number>) => {
-      const response = await request(listTransactions, filters)
+    async (
+      filters: Record<string, string>,
+      pagination: Record<string, string>
+    ) => {
+      const response = await request(transactionService.list, {
+        filters,
+        pagination
+      })
       if (response.success) {
-        setTransactions(response.data ?? [])
+        setTransactions(response.data ?? defaultState)
       }
     },
     [request]
   )
 
   useEffect(() => {
-    fetch({})
-  }, [fetch])
+    fetch({
+      accountId,
+      paymentPointerId,
+      type,
+      status,
+    }, { page })
+  }, [fetch, accountId, paymentPointerId, type, status, page])
 
-  return [transactions, fetch, loading, error] as const
+  return [
+    transactions,
+    { accountId, paymentPointerId, type, status },
+    { page },
+    fetch,
+    loading,
+    error
+  ] as const
 }

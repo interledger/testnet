@@ -1,5 +1,5 @@
 import { PageHeader } from '@/components/PageHeader'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { AppLayout } from '@/components/layouts/AppLayout'
@@ -7,11 +7,15 @@ import { accountService } from '@/lib/api/account'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { Select, SelectOption } from '@/ui/forms/Select'
-import { useRouter } from 'next/router'
-import { useTransactions } from '@/lib/hooks/useTransactions'
+import {
+  TransactionsFilters,
+  useTransactions
+} from '@/lib/hooks/useTransactions'
 import { Table } from '@/ui/Table'
 import { Arrow } from '@/components/icons/Arrow'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
+import { formatAmount } from '@/utils/helpers'
+import { useRedirect } from '@/lib/hooks/useRedirect'
 
 type PaymentPointerSelectOption = SelectOption & {
   accountId: string
@@ -20,15 +24,6 @@ type PaymentPointerSelectOption = SelectOption & {
 export type TransactionsFilterProps = {
   accounts: SelectOption[]
   paymentPointers: PaymentPointerSelectOption[]
-}
-
-type QueryParameters = Record<string, string>
-
-type Filters = {
-  accountId: SelectOption
-  paymentPointerId: SelectOption
-  type: SelectOption
-  status: SelectOption
 }
 
 const defaultOption = {
@@ -64,52 +59,30 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
-  const router = useRouter()
-  const [transactions, fetch, loading, error] = useTransactions()
-  const { accountId, paymentPointerId, type, status } =
-    router.query as QueryParameters
+  const redirect = useRedirect<TransactionsFilters>()
+  const [transactions, filters, pagination, fetch, loading] = useTransactions()
 
   const currentAccount = useMemo<SelectOption>(
     () =>
-      accounts.find((account) => account.value === accountId) ?? defaultOption,
-    [accounts, accountId]
+      accounts.find((account) => account.value === filters.accountId) ??
+      defaultOption,
+    [accounts, filters.accountId]
   )
   const currentPaymentPointer = useMemo<PaymentPointerSelectOption>(
     () =>
-      paymentPointers.find((pp) => pp.value === paymentPointerId) ?? {
+      paymentPointers.find((pp) => pp.value === filters.paymentPointerId) ?? {
         ...defaultOption,
         accountId: ''
       },
-    [paymentPointers, paymentPointerId]
+    [paymentPointers, filters.paymentPointerId]
   )
   const currentType = useMemo<SelectOption>(
-    () => types.find((t) => t.value === type) ?? defaultOption,
-    [type]
+    () => types.find((t) => t.value === filters.type) ?? defaultOption,
+    [filters.type]
   )
   const currentStatus = useMemo<SelectOption>(
-    () => statuses.find((s) => s.value === status) ?? defaultOption,
-    [status]
-  )
-
-  const redirect = useCallback(
-    (filterKey: keyof Filters, option: string) => {
-      const query = {
-        ...router.query,
-        [`${filterKey}`]: option
-      }
-      if (option === '') {
-        delete query[filterKey]
-      }
-      router.push(
-        {
-          pathname: '/transactions',
-          query
-        },
-        undefined,
-        { shallow: true }
-      )
-    },
-    [router]
+    () => statuses.find((s) => s.value === filters.status) ?? defaultOption,
+    [filters.status]
   )
 
   useEffect(() => {
@@ -122,10 +95,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    fetch({ accountId, paymentPointerId, type, status })
-  }, [fetch, accountId, paymentPointerId, type, status])
-
   return (
     <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
       <PageHeader title="Transactions" />
@@ -137,18 +106,48 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           value={currentAccount}
           onChange={(option) => {
             if (option) {
-              redirect('accountId', option.value)
+              if (
+                option.value &&
+                option.value !== currentPaymentPointer.value
+              ) {
+                redirect({ accountId: option.value, paymentPointerId: '' })
+              } else {
+                redirect({ accountId: option.value })
+              }
             }
           }}
         />
         <Select
-          options={paymentPointers}
+          options={
+            currentAccount.value === ''
+              ? paymentPointers
+              : paymentPointers.filter(
+                  (pp) => pp.accountId === currentAccount.value
+                )
+          }
           label="Payment Pointer"
           placeholder="Select payment pointer..."
-          value={currentPaymentPointer}
+          value={
+            currentPaymentPointer.accountId !== currentAccount.value &&
+            currentAccount.value !== ''
+              ? { ...defaultOption, accountId: '' }
+              : currentPaymentPointer
+          }
           onChange={(option) => {
+            console.log(
+              currentAccount.value &&
+                currentPaymentPointer.accountId !== currentAccount.value
+            )
             if (option) {
-              redirect('paymentPointerId', option.value)
+              if (
+                currentAccount.value &&
+                currentPaymentPointer.accountId !== currentAccount.value
+              ) {
+                console.log('aici')
+                redirect({ paymentPointerId: '' })
+              } else {
+                redirect({ paymentPointerId: option.value })
+              }
             }
           }}
         />
@@ -159,7 +158,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           value={currentType}
           onChange={(option) => {
             if (option) {
-              redirect('type', option.value)
+              redirect({ type: option.value })
             }
           }}
         />
@@ -170,47 +169,62 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           value={currentStatus}
           onChange={(option) => {
             if (option) {
-              redirect('status', option.value)
+              redirect({ status: option.value })
             }
           }}
         />
-        {loading ? 'Loading...' : null}
-        <Table>
-          <Table.Head
-            columns={['', 'Date', 'Description', 'Status', 'Amount']}
-          />
-          <Table.Body>
-            {transactions.results.length ? (
-              transactions.results.map((trx) => (
-                <Table.Row key={trx.id}>
-                  <Table.Cell className="w-10">
-                    <Arrow
-                      direction={trx.type === 'INCOMING' ? 'down' : 'up'}
-                    />
+        {loading ? (
+          <Table.Shimmer />
+        ) : (
+          <Table>
+            <Table.Head
+              columns={['', 'Date', 'Description', 'Status', 'Amount']}
+            />
+            <Table.Body>
+              {transactions.results.length ? (
+                transactions.results.map((trx) => (
+                  <Table.Row key={trx.id}>
+                    <Table.Cell className="w-10">
+                      <Arrow
+                        direction={trx.type === 'INCOMING' ? 'down' : 'up'}
+                      />
+                    </Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      {trx.createdAt}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {trx.description ?? 'No description'}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Badge
+                        intent={getStatusBadgeIntent(trx.status)}
+                        size="md"
+                        text={trx.status}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      {
+                        formatAmount({
+                          value: trx.value ?? 0,
+
+                          assetCode: trx.assetCode,
+
+                          assetScale: trx.assetScale
+                        }).amount
+                      }
+                    </Table.Cell>
+                  </Table.Row>
+                ))
+              ) : (
+                <Table.Row>
+                  <Table.Cell colSpan={4} className="text-center">
+                    No transactions found.
                   </Table.Cell>
-                  <Table.Cell className="whitespace-nowrap">
-                    {trx.createdAt}
-                  </Table.Cell>
-                  <Table.Cell>{trx.description ?? 'No description'}</Table.Cell>
-                  <Table.Cell>
-                    <Badge
-                      intent={getStatusBadgeIntent(trx.status)}
-                      size="md"
-                      text={trx.status}
-                    />
-                  </Table.Cell>
-                  <Table.Cell>{trx.value}</Table.Cell>
                 </Table.Row>
-              ))
-            ) : (
-              <Table.Row>
-                <Table.Cell colSpan={4} className="text-center">
-                  No transactions found.
-                </Table.Cell>
-              </Table.Row>
-            )}
-          </Table.Body>
-        </Table>
+              )}
+            </Table.Body>
+          </Table>
+        )}
       </div>
     </div>
   )
