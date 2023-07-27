@@ -2,7 +2,12 @@ import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './validation'
+import {
+  dailyRateSchema,
+  kycSchema,
+  profileSchema,
+  walletSchema
+} from './validation'
 import { User } from '@/user/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
@@ -185,32 +190,28 @@ export class RapydController implements IRapydController {
 
   public getDailyRate = async (
     req: Request,
-    res: CustomResponse<DailyRateResponse>,
+    res: CustomResponse<Rate>,
     next: NextFunction
   ) => {
     try {
       const {
-        action_type,
-        amount,
-        buy_currency,
-        date,
-        fixed_side,
-        sell_currency
-      } = req.query
-
-      if (!action_type) throw new Error(`Action type is required`)
-
-      if (!buy_currency) throw new Error(`Buy currency is required`)
-
-      if (!sell_currency) throw new Error(`Sell currency is required`)
+        query: {
+          actionType,
+          amount,
+          buyCurrency,
+          date,
+          fixedSide,
+          sellCurrency
+        }
+      } = await validate(dailyRateSchema, req)
 
       const rate = await this.deps.rapydService.getDailyRate({
-        action_type: action_type as string,
-        amount: Number(amount),
-        buy_currency: buy_currency as string,
-        date: date as string,
-        fixed_side: fixed_side as string,
-        sell_currency: sell_currency as string
+        action_type: actionType,
+        amount,
+        buy_currency: buyCurrency,
+        date: date,
+        fixed_side: fixedSide,
+        sell_currency: sellCurrency
       })
 
       res.status(200).json({ success: true, message: 'SUCCESS', data: rate })

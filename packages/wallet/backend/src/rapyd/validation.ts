@@ -38,12 +38,12 @@ export const walletSchema = z.object({
 })
 
 export const dailyRateSchema = z.object({
-  body: z.object({
+  query: z.object({
     actionType: z.string({ required_error: 'Action type is required' }),
     amount: z.number().optional(),
     buyCurrency: z.string({ required_error: 'Buy currency is required' }),
     date: z.string().optional(),
     fixedSide: z.string().optional(),
-    sellCurrency: z.string({ required_error: 'Sell Currency is required' })
+    sellCurrency: z.string({ required_error: 'Sell currency is required' })
   })
 })

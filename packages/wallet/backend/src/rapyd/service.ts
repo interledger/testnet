@@ -51,7 +51,7 @@ export interface IRapydService {
     firstName: string,
     lastName: string
   ) => Promise<RapydWallet>
-  getDailyRate: (req: DailyRateRequest) => Promise<DailyRateResponse>
+  getDailyRate: (req: DailyRateRequest) => Promise<Rate>
 }
 
 export class RapydService implements IRapydService {

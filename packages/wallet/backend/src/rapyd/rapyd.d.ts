@@ -334,7 +334,7 @@ interface DailyRateRequest {
   sell_currency: string
 }
 
-interface DailyRateResponse {
+interface Rate {
   sell_currency: string
   buy_currency: string
   fixed_side: null | string
