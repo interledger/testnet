@@ -33,11 +33,6 @@ const menuItems: MenuItemProps[] = [
     Icon: Home
   },
   {
-    name: 'Transactions',
-    href: '/transactions',
-    Icon: Transactions
-  },
-  {
     name: 'Transfer',
     href: '/transfer',
     Icon: Banknotes,
@@ -52,6 +47,11 @@ const menuItems: MenuItemProps[] = [
       }
     ]
   },
+{
+name: 'Transactions',
+      href: '/transactions',
+      Icon: Transactions
+},
   {
     name: 'Grants',
     href: '/grants',

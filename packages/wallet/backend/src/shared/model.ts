@@ -25,7 +25,6 @@ export abstract class BaseModel extends Model {
   }
 
   $formatJson(json: Pojo): Pojo {
-    console.log(json)
     json = super.$formatJson(json)
     return {
       ...json,

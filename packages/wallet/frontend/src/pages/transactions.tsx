@@ -152,12 +152,12 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 currentAccount.value &&
                   currentPaymentPointer.accountId !== currentAccount.value
               )
+              console.log(currentAccount.value, option?.accountId)
               if (option) {
                 if (
                   currentAccount.value &&
-                  currentPaymentPointer.accountId !== currentAccount.value
+                  option.accountId !== currentAccount.value
                 ) {
-                  console.log('aici')
                   redirect({ paymentPointerId: '' })
                 } else {
                   redirect({ paymentPointerId: option.value })
@@ -232,7 +232,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     </Table.Cell>
                     <Table.Cell>{trx.accountName}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {trx.paymentPointerUrl ?? '-'}
+                      {trx.paymentPointerUrl ?? ''}
                     </Table.Cell>
                     <Table.Cell>
                       {trx.description ?? 'No description'}
@@ -271,31 +271,35 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           </Table>
         </div>
       )}
-      <div className="flex w-full items-center justify-between">
-        <Button
-          className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
-          aria-label="go to previous page"
-          disabled={Number(pagination.page) - 1 < 0}
-          onClick={() => {
-            const previousPage = Number(pagination.page) - 1
-            if (isNaN(previousPage) || previousPage < 0) return
-            redirect({ page: previousPage.toString() })
-          }}
-        >
-          Previous
-        </Button>
-        <Button
-          className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
-          aria-label="go to next page"
-          onClick={() => {
-            const nextPage = Number(pagination.page) + 1
-            if (isNaN(nextPage) || nextPage > totalPages - 1) return
-            redirect({ page: nextPage.toString() })
-          }}
-        >
-          Next
-        </Button>
-      </div>
+      {!error && !loading ? (
+        <div className="flex w-full items-center justify-between">
+          <Button
+            className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+            aria-label="go to previous page"
+            disabled={Number(pagination.page) - 1 < 0}
+            onClick={() => {
+              const previousPage = Number(pagination.page) - 1
+              if (isNaN(previousPage) || previousPage < 0) return
+              redirect({ page: previousPage.toString() })
+            }}
+          >
+            Previous
+          </Button>
+          <Button
+            className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+            aria-label="go to next page"
+            disabled={Number(pagination.page) + 1 > totalPages - 1}
+            onClick={() => {
+              const nextPage = Number(pagination.page) + 1
+              console.log(nextPage, totalPages - 1)
+              if (isNaN(nextPage) || nextPage > totalPages - 1) return
+              redirect({ page: nextPage.toString() })
+            }}
+          >
+            Next
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }

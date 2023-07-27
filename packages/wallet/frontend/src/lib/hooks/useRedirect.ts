@@ -12,14 +12,10 @@ export const useRedirect = <
         ...router.query
       }
 
-      console.log(filters)
-      console.log(Object.entries(filters))
-
       for (const [key, value] of Object.entries(filters) as [
         keyof TQueryParams,
         string
       ][]) {
-        console.log(key.toString(), value)
         if (value === '') {
           delete query[key.toString()]
         } else {
