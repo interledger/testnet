@@ -51,6 +51,7 @@ export interface IRapydService {
     firstName: string,
     lastName: string
   ) => Promise<RapydWallet>
+  getDailyRate: (req: DailyRateRequest) => Promise<DailyRateResponse>
 }
 
 export class RapydService implements IRapydService {
@@ -199,5 +200,17 @@ export class RapydService implements IRapydService {
     })
 
     return result.data
+  }
+
+  public async getDailyRate(req: DailyRateRequest) {
+    const rateResponse = await this.deps.rapyd.getDailyRate(req)
+
+    if (rateResponse.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to retrieve daily rate from rapyd, ${rateResponse.status.message}`
+      )
+    }
+
+    return rateResponse.data
   }
 }

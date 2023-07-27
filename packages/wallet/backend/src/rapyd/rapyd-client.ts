@@ -256,6 +256,17 @@ export class RapydClient implements IRapydClient {
     )
   }
 
+  public getDailyRate(
+    req: DailyRateRequest
+  ): Promise<RapydResponse<DailyRateResponse>> {
+    let url = `rates/daily?action_type=${req.action_type}&buy_currency=${req.buy_currency}&sell_currency=${req.sell_currency}`
+    url += req.amount ? `&amount=${req.amount}` : ''
+    url += req.date ? `&date=${req.date}` : ''
+    url += req.fixed_side ? `&fixed_side=${req.fixed_side}` : ''
+
+    return this.get<RapydResponse<DailyRateResponse>>(url)
+  }
+
   /*
   const handleSettlementOutOfFunds = async (
     req: RapydTransferRequest,

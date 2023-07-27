@@ -325,4 +325,24 @@ interface CompletePayoutRequest {
   amount: number
 }
 
+interface DailyRateRequest {
+  action_type: string
+  amount?: number
+  buy_currency: string
+  date?: string
+  fixed_side?: string
+  sell_currency: string
+}
+
+interface DailyRateResponse {
+  sell_currency: string
+  buy_currency: string
+  fixed_side: null | string
+  action_type: string
+  rate: number
+  date: string
+  sell_amount: null | string
+  buy_amount: null | string
+}
+
 type CompletePayoutResponse = WithdrawFundsFromAccountResponse
