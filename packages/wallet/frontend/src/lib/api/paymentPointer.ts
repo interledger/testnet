@@ -153,7 +153,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         .json<ListPaymentPointerResult>()
       return response
     } catch (error) {
-      return getError(error, 'Unable to fetch payment pointers')
+      return getError(error, 'Unable to fetch payment pointers.')
     }
   },
 

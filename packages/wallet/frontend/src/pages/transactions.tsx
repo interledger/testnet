@@ -148,11 +148,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 : currentPaymentPointer
             }
             onChange={(option) => {
-              console.log(
-                currentAccount.value &&
-                  currentPaymentPointer.accountId !== currentAccount.value
-              )
-              console.log(currentAccount.value, option?.accountId)
               if (option) {
                 if (
                   currentAccount.value &&
@@ -251,9 +246,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       {
                         formatAmount({
                           value: trx.value ?? 0,
-
                           assetCode: trx.assetCode,
-
                           assetScale: trx.assetScale
                         }).amount
                       }
@@ -291,7 +284,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             disabled={Number(pagination.page) + 1 > totalPages - 1}
             onClick={() => {
               const nextPage = Number(pagination.page) + 1
-              console.log(nextPage, totalPages - 1)
               if (isNaN(nextPage) || nextPage > totalPages - 1) return
               redirect({ page: nextPage.toString() })
             }}

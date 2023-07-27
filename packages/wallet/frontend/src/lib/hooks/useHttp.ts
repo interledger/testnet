@@ -21,7 +21,7 @@ export const useHttpRequest = () => {
       if (!response?.success) {
         setError(
           response?.message ??
-            'We encountered a network error. Please try again!'
+            'We encountered a network error. Please try again.'
         )
       }
       setIsLoading(false)
