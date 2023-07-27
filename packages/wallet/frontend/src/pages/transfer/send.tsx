@@ -14,7 +14,7 @@ import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
@@ -45,14 +45,19 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     useOnboardingContext()
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
 
-  const showExchangeRate =
-    convertAmount &&
-    convertAmount !== 0 &&
-    currentExchangeRates &&
-    !('success' in currentExchangeRates) &&
-    receiverAssetCode &&
-    selectedAsset &&
-    receiverAssetCode !== selectedAsset.assetCode
+  const showExchangeRate = useMemo<boolean>(
+    () =>
+      convertAmount &&
+      convertAmount !== 0 &&
+      currentExchangeRates &&
+      !('success' in currentExchangeRates) &&
+      receiverAssetCode &&
+      selectedAsset &&
+      receiverAssetCode !== selectedAsset.assetCode
+        ? true
+        : false,
+    [convertAmount, currentExchangeRates, receiverAssetCode, selectedAsset]
+  )
 
   const sendForm = useZodForm({
     schema: sendSchema,
