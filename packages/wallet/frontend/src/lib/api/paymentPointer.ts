@@ -74,8 +74,12 @@ type BasePaymentPointerArgs = {
   paymentPointerId: string
 }
 
-type PaymentPointeAssetCode = {
+type PaymentPointeOP = {
+  id: string
   assetCode: string
+  assetScale: number
+  publicName: string
+  authServer: string
 }
 
 type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
@@ -116,7 +120,7 @@ type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
 type RevokeKeyArgs = BasePaymentPointerArgs
 type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
-type AssetCodeResult = SuccessResponse<PaymentPointeAssetCode>
+type AssetCodeResult = SuccessResponse<PaymentPointeOP>
 type AssetCodeResponse = AssetCodeResult | ErrorResponse
 
 interface PaymentPointerService {
@@ -142,7 +146,7 @@ interface PaymentPointerService {
   ) => Promise<ListTransactionsResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
-  assetCode: (url: string, cookies?: string) => Promise<AssetCodeResponse>
+  getExternal: (url: string, cookies?: string) => Promise<AssetCodeResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -288,7 +292,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     }
   },
 
-  async assetCode(url, cookies) {
+  async getExternal(url, cookies) {
     try {
       const response = await httpClient
         .get(`external-payment-pointers?url=${url}`, {
@@ -299,7 +303,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         .json<AssetCodeResult>()
       return response
     } catch (error) {
-      return getError(error, 'Error fetching payment pointer url asset code.')
+      return getError(error, 'Error fetching external payment pointer details.')
     }
   }
 })

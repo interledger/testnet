@@ -30,18 +30,30 @@ import { assetService, Rates } from '@/lib/api/asset'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
+type Asset = { assetCode: string; assetScale: number }
 const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const [currentExchangeRates, setCurrentExchangeRates] = useState<Rates>()
-  const [selectedAssetCode, setSelectedAssetCode] = useState('')
-  const [receiverAssetCode, setReceiverAssetCode] = useState('')
-  const [exchangeCurrencyText, setExchangeCurrencyText] = useState('')
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
+  const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
+    null
+  )
   const [convertAmount, setConvertAmount] = useState(0)
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
+
+  const showExchangeRate =
+    convertAmount &&
+    convertAmount !== 0 &&
+    currentExchangeRates &&
+    !('success' in currentExchangeRates) &&
+    receiverAssetCode &&
+    selectedAsset &&
+    receiverAssetCode !== selectedAsset.assetCode
+
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
@@ -57,27 +69,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setRunOnboarding(true)
       }, 500)
     }
-
-    if (
-      convertAmount &&
-      convertAmount !== 0 &&
-      currentExchangeRates &&
-      !('success' in currentExchangeRates) &&
-      receiverAssetCode !== '' &&
-      receiverAssetCode !== selectedAssetCode
-    ) {
-      const conversionRate = currentExchangeRates.rates[receiverAssetCode]
-      const convertedValue = (convertAmount * conversionRate).toFixed()
-      const senderCurrencySymbol = getCurrencySymbol(selectedAssetCode)
-      const receiverCurrencySymbol = getCurrencySymbol(receiverAssetCode)
-      setExchangeCurrencyText(
-        `Receiver Payment Pointer asset is in ${receiverCurrencySymbol}. Exchange Rate: ${senderCurrencySymbol}${convertAmount} = ${receiverCurrencySymbol}${convertedValue}`
-      )
-    } else {
-      setExchangeCurrencyText('')
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [convertAmount, selectedAssetCode, receiverAssetCode])
+  }, [])
 
   const onAccountChange = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -126,18 +119,20 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       )
 
       if ('success' in exchangeRatesResponse) {
-        setExchangeCurrencyText('')
         return
       }
 
       setCurrentExchangeRates(exchangeRatesResponse)
-      setSelectedAssetCode(selectedAccount.assetCode)
+      setSelectedAsset({
+        assetCode: selectedAccount.assetCode,
+        assetScale: selectedAccount.assetScale
+      })
     }
   }
 
   const onPaymentPointerChange = async (url: string): Promise<void> => {
     if (url === '') {
-      setReceiverAssetCode('')
+      setReceiverAssetCode(null)
       return
     }
 
@@ -155,17 +150,16 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setConvertAmount(response.data.value)
       } else {
         sendForm.setError('receiver', { message: response.message })
-        setReceiverAssetCode('')
+        setReceiverAssetCode(null)
       }
     } else {
       const paymentPointerAssetCodeResponse =
-        await paymentPointerService.assetCode(url)
+        await paymentPointerService.getExternal(url)
       if (
         !paymentPointerAssetCodeResponse.success ||
         !paymentPointerAssetCodeResponse.data
       ) {
-        setExchangeCurrencyText('')
-        setReceiverAssetCode('')
+        setReceiverAssetCode(null)
         return
       }
 
@@ -178,7 +172,12 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   }
 
   const onAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setConvertAmount(Number(event.currentTarget.value))
+    const amount = Number(event.currentTarget.value)
+    if (isNaN(amount)) {
+      setConvertAmount(0)
+    } else {
+      setConvertAmount(Number(event.currentTarget.value))
+    }
   }
 
   const handleAcceptQuote = async (id: string) => {
@@ -344,7 +343,15 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 />
               }
             />
-            <p className="ml-2 text-sm text-green">{exchangeCurrencyText}</p>
+            {showExchangeRate ? (
+              <p className="ml-2 text-sm text-green">{`Receiver Payment Pointer asset is in ${getCurrencySymbol(
+                receiverAssetCode
+              )}. Exchange Rate: ${getCurrencySymbol(
+                selectedAsset.assetCode
+              )}${convertAmount} = ${getCurrencySymbol(receiverAssetCode)}${(
+                convertAmount * currentExchangeRates.rates[receiverAssetCode]
+              ).toFixed(selectedAsset.assetScale)}`}</p>
+            ) : null}
             <Input {...sendForm.register('description')} label="Description" />
           </div>
           <div className="flex justify-center py-5">
