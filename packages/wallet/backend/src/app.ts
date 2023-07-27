@@ -186,6 +186,8 @@ export class App {
       paymentPointerController.softDelete
     )
 
+    router.get('/payment-pointers', isAuth, paymentPointerController.listAll)
+
     // transactions routes
     router.get(
       '/accounts/:accountId/payment-pointers/:paymentPointerId/transactions',

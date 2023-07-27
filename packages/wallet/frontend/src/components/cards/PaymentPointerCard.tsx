@@ -57,7 +57,7 @@ export const PaymentPointerCard = ({
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{paymentPointer.url}</span>
         <PaymentPointerCardButton
-          href={`/account/${paymentPointer.accountId}/${paymentPointer.id}`}
+          href={`/transactions?paymentPointerId=${paymentPointer.id}`}
           aria-label="view payment pointer"
           id={idOnboarding}
         >
