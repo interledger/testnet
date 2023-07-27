@@ -13,7 +13,6 @@ export const useHttpRequest = () => {
       TArgs = any
     >(
       fn: (a?: TArgs) => Promise<TResponse>,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       args: TArgs
     ) => {
       setError(undefined)

@@ -24,11 +24,6 @@ export const updatePaymentPointerSchema = z.object({
   })
 })
 
-
-
-
-
-
 type PaymentPointerKey = {
   id: string
   publicKey: string

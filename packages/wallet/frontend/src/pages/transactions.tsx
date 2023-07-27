@@ -16,6 +16,7 @@ import { Arrow } from '@/components/icons/Arrow'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { formatAmount } from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
+import { Button } from '@/ui/Button'
 
 type PaymentPointerSelectOption = SelectOption & {
   accountId: string
@@ -60,7 +61,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const redirect = useRedirect<TransactionsFilters>()
-  const [transactions, filters, pagination, fetch, loading] = useTransactions()
+  const [transactions, filters, pagination, fetch, loading, error] =
+    useTransactions()
 
   const currentAccount = useMemo<SelectOption>(
     () =>
@@ -85,6 +87,11 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
     [filters.status]
   )
 
+  const totalPages = useMemo<number>(
+    () => Math.ceil(transactions.total / 10),
+    [transactions.total]
+  )
+
   useEffect(() => {
     if (isUserFirstTime) {
       setTimeout(() => {
@@ -96,89 +103,123 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   }, [])
 
   return (
-    <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
+    <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <PageHeader title="Transactions" />
-      <div className="mt-5 flex w-full flex-col space-y-5 lg:max-w-xl xl:max-w-4xl">
-        <Select
-          options={accounts}
-          label="Account"
-          placeholder="Select account..."
-          value={currentAccount}
-          onChange={(option) => {
-            if (option) {
-              if (
-                option.value &&
-                option.value !== currentPaymentPointer.value
-              ) {
-                redirect({ accountId: option.value, paymentPointerId: '' })
-              } else {
-                redirect({ accountId: option.value })
+      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12">
+        <div className="md:col-span-3">
+          <Select
+            options={accounts}
+            label="Account"
+            placeholder="Select account..."
+            value={currentAccount}
+            onChange={(option) => {
+              if (option) {
+                if (
+                  option.value &&
+                  option.value !== currentPaymentPointer.value
+                ) {
+                  redirect({
+                    accountId: option.value,
+                    paymentPointerId: '',
+                    page: '0'
+                  })
+                } else {
+                  redirect({ accountId: option.value, page: '0' })
+                }
               }
+            }}
+          />
+        </div>
+        <div className="md:col-span-3">
+          <Select
+            options={
+              currentAccount.value === ''
+                ? paymentPointers
+                : paymentPointers.filter(
+                    (pp) => pp.accountId === currentAccount.value
+                  )
             }
-          }}
-        />
-        <Select
-          options={
-            currentAccount.value === ''
-              ? paymentPointers
-              : paymentPointers.filter(
-                  (pp) => pp.accountId === currentAccount.value
-                )
-          }
-          label="Payment Pointer"
-          placeholder="Select payment pointer..."
-          value={
-            currentPaymentPointer.accountId !== currentAccount.value &&
-            currentAccount.value !== ''
-              ? { ...defaultOption, accountId: '' }
-              : currentPaymentPointer
-          }
-          onChange={(option) => {
-            console.log(
-              currentAccount.value &&
-                currentPaymentPointer.accountId !== currentAccount.value
-            )
-            if (option) {
-              if (
+            label="Payment Pointer"
+            placeholder="Select payment pointer..."
+            value={
+              currentPaymentPointer.accountId !== currentAccount.value &&
+              currentAccount.value !== ''
+                ? { ...defaultOption, accountId: '' }
+                : currentPaymentPointer
+            }
+            onChange={(option) => {
+              console.log(
                 currentAccount.value &&
-                currentPaymentPointer.accountId !== currentAccount.value
-              ) {
-                console.log('aici')
-                redirect({ paymentPointerId: '' })
-              } else {
-                redirect({ paymentPointerId: option.value })
+                  currentPaymentPointer.accountId !== currentAccount.value
+              )
+              if (option) {
+                if (
+                  currentAccount.value &&
+                  currentPaymentPointer.accountId !== currentAccount.value
+                ) {
+                  console.log('aici')
+                  redirect({ paymentPointerId: '' })
+                } else {
+                  redirect({ paymentPointerId: option.value })
+                }
               }
-            }
-          }}
-        />
-        <Select
-          options={types}
-          label="Type"
-          placeholder="Select type..."
-          value={currentType}
-          onChange={(option) => {
-            if (option) {
-              redirect({ type: option.value })
-            }
-          }}
-        />
-        <Select
-          options={statuses}
-          label="Status"
-          placeholder="Select status..."
-          value={currentStatus}
-          onChange={(option) => {
-            if (option) {
-              redirect({ status: option.value })
-            }
-          }}
-        />
-        {loading ? (
-          <Table.Shimmer />
-        ) : (
+            }}
+          />
+        </div>
+        <div className="md:col-span-3 lg:col-span-2">
+          <Select
+            options={types}
+            label="Type"
+            placeholder="Select type..."
+            value={currentType}
+            onChange={(option) => {
+              if (option) {
+                redirect({ type: option.value, page: '0' })
+              }
+            }}
+          />
+        </div>
+        <div className="md:col-span-3 lg:col-span-2">
+          <Select
+            options={statuses}
+            label="Status"
+            placeholder="Select status..."
+            value={currentStatus}
+            onChange={(option) => {
+              if (option) {
+                redirect({ status: option.value, page: '0' })
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      {error ? (
+        <div className="flex w-full flex-col items-center justify-center">
+          <p className="text-lg">{error}</p>
+          <Button
+            aria-label="refresh transactions table"
+            intent="secondary"
+            onClick={() => fetch(filters, pagination)}
+          >
+            Refresh table
+          </Button>
+        </div>
+      ) : loading ? (
+        <Table.Shimmer />
+      ) : (
+        <div className="w-full">
           <Table>
             <Table.Head
-              columns={['', 'Date', 'Description', 'Status', 'Amount']}
+              columns={[
+                '',
+                'Account',
+                'Payment pointer',
+                'Description',
+                'Amount',
+                'Status',
+                'Date'
+              ]}
             />
             <Table.Body>
               {transactions.results.length ? (
@@ -189,11 +230,15 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                         direction={trx.type === 'INCOMING' ? 'down' : 'up'}
                       />
                     </Table.Cell>
+                    <Table.Cell>{trx.accountName}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {trx.createdAt}
+                      {trx.paymentPointerUrl ?? '-'}
                     </Table.Cell>
                     <Table.Cell>
                       {trx.description ?? 'No description'}
+                    </Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      {trx.createdAt}
                     </Table.Cell>
                     <Table.Cell>
                       <Badge
@@ -224,7 +269,32 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               )}
             </Table.Body>
           </Table>
-        )}
+        </div>
+      )}
+      <div className="flex w-full items-center justify-between">
+        <Button
+          className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+          aria-label="go to previous page"
+          disabled={Number(pagination.page) - 1 < 0}
+          onClick={() => {
+            const previousPage = Number(pagination.page) - 1
+            if (isNaN(previousPage) || previousPage < 0) return
+            redirect({ page: previousPage.toString() })
+          }}
+        >
+          Previous
+        </Button>
+        <Button
+          className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+          aria-label="go to next page"
+          onClick={() => {
+            const nextPage = Number(pagination.page) + 1
+            if (isNaN(nextPage) || nextPage > totalPages - 1) return
+            redirect({ page: nextPage.toString() })
+          }}
+        >
+          Next
+        </Button>
       </div>
     </div>
   )

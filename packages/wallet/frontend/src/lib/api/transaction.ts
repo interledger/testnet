@@ -29,6 +29,8 @@ type TransactionStatus = keyof typeof TRANSACTION_STATUS
 export interface Transaction {
   id: string
   paymentId: string
+  accountName: string
+  paymentPointerUrl?: string
   description: string
   paymentPointerId: string
   assetCode: string

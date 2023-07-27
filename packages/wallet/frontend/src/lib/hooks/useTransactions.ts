@@ -44,18 +44,21 @@ export const useTransactions = () => {
   )
 
   useEffect(() => {
-    fetch({
-      accountId,
-      paymentPointerId,
-      type,
-      status,
-    }, { page })
+    fetch(
+      {
+        accountId,
+        paymentPointerId,
+        type,
+        status
+      },
+      { page: page ?? 0 }
+    )
   }, [fetch, accountId, paymentPointerId, type, status, page])
 
   return [
     transactions,
     { accountId, paymentPointerId, type, status },
-    { page },
+    { page: page ?? 0 },
     fetch,
     loading,
     error
