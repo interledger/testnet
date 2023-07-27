@@ -14,7 +14,7 @@ import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { ChangeEvent, memo, useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
@@ -45,8 +45,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     useOnboardingContext()
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
 
-  const showExchangeRate = useMemo<boolean>(
-    () =>
+  const ExchangeRate = memo(() => {
+    if (
       convertAmount &&
       convertAmount !== 0 &&
       currentExchangeRates &&
@@ -54,10 +54,19 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       receiverAssetCode &&
       selectedAsset &&
       receiverAssetCode !== selectedAsset.assetCode
-        ? true
-        : false,
-    [convertAmount, currentExchangeRates, receiverAssetCode, selectedAsset]
-  )
+    ) {
+      return (
+        <p className="ml-2 text-sm text-green">{`Receiver Payment Pointer asset is in ${getCurrencySymbol(
+          receiverAssetCode
+        )}. Exchange Rate: ${getCurrencySymbol(
+          selectedAsset.assetCode
+        )}${convertAmount} = ${getCurrencySymbol(receiverAssetCode)}${(
+          convertAmount * currentExchangeRates.rates[receiverAssetCode]
+        ).toFixed(selectedAsset.assetScale)}`}</p>
+      )
+    } else return null
+  })
+  ExchangeRate.displayName = 'ExchangeRate'
 
   const sendForm = useZodForm({
     schema: sendSchema,
@@ -348,15 +357,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 />
               }
             />
-            {showExchangeRate ? (
-              <p className="ml-2 text-sm text-green">{`Receiver Payment Pointer asset is in ${getCurrencySymbol(
-                receiverAssetCode
-              )}. Exchange Rate: ${getCurrencySymbol(
-                selectedAsset.assetCode
-              )}${convertAmount} = ${getCurrencySymbol(receiverAssetCode)}${(
-                convertAmount * currentExchangeRates.rates[receiverAssetCode]
-              ).toFixed(selectedAsset.assetScale)}`}</p>
-            ) : null}
+            <ExchangeRate />
             <Input {...sendForm.register('description')} label="Description" />
           </div>
           <div className="flex justify-center py-5">
