@@ -9,6 +9,7 @@ import { Unauthorized } from '@/errors'
 interface IAuthController {
   signUp: ControllerFunction
   logIn: ControllerFunction
+  verifyEmail: ControllerFunction
 }
 interface AuthControllerDependencies {
   authService: AuthService
@@ -26,7 +27,7 @@ export class AuthController implements IAuthController {
         body: { email, password }
       } = await validate(signUpSchema, req)
 
-      await this.deps.userService.create({ email, password })
+      await this.deps.authService.signUp({ email, password })
 
       res
         .status(201)
@@ -76,6 +77,26 @@ export class AuthController implements IAuthController {
       req.session.destroy()
 
       res.json({ success: true, message: 'SUCCESS' })
+    } catch (e) {
+      this.deps.logger.error(e)
+      next(e)
+    }
+  }
+
+  verifyEmail = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req.params.token
+
+      await this.deps.userService.verifyEmail(token)
+
+      res.json({
+        success: true,
+        message: 'Email was verified successfully'
+      })
     } catch (e) {
       this.deps.logger.error(e)
       next(e)

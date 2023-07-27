@@ -114,6 +114,10 @@ export const resetPasswordSchema = z
     }
   })
 
+export const verifyEmailSchema = z.object({
+  token: z.string()
+})
+
 export type User = {
   email: string
   firstName: string
@@ -154,6 +158,10 @@ type ResetPasswordResponse = SuccessResponse | ResetPasswordError
 type CheckTokenResult = SuccessResponse<ValidToken>
 type CheckTokenResponse = CheckTokenResult | ErrorResponse
 
+type VerifyEmailArgs = z.infer<typeof verifyEmailSchema>
+type VerifyEmailError = ErrorResponse<VerifyEmailArgs | undefined>
+type VerifyEmailResponse = SuccessResponse | VerifyEmailError
+
 type MeResult = SuccessResponse<User>
 type MeResponse = MeResult | ErrorResponse
 
@@ -176,6 +184,7 @@ interface UserService {
   forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
   resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
+  verifyEmail: (args: VerifyEmailArgs) => Promise<VerifyEmailResponse>
   me: (cookies?: string) => Promise<MeResponse>
   createWallet: (args: CreateWalletArgs) => Promise<CreateWalletResponse>
   verifyIdentity: (args: VerifyIdentityArgs) => Promise<VerifyIdentityResponse>
@@ -276,6 +285,22 @@ const createUserService = (): UserService => ({
       return getError(
         error,
         'Link is invalid. Please try again, or request a new link.'
+      )
+    }
+  },
+
+  async verifyEmail(args) {
+    try {
+      const response = await httpClient
+        .post(`verify-email/${args.token}`, {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We could not verify your email. Please try again.'
       )
     }
   },

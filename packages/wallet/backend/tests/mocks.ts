@@ -3,12 +3,18 @@ import { logInSchema, signUpSchema } from '@/auth/validation'
 import z from 'zod'
 
 type LogInRequest = z.infer<typeof logInSchema>
+
+export const fakeLoginData = () => {
+  return {
+    email: faker.internet.email(),
+    password: faker.internet.password()
+  }
+}
 export const mockLogInRequest = (
   overrides?: Partial<LogInRequest['body']>
 ): LogInRequest => ({
   body: {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
+    ...fakeLoginData(),
     ...overrides
   }
 })
