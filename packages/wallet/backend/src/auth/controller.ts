@@ -27,7 +27,7 @@ export class AuthController implements IAuthController {
         body: { email, password }
       } = await validate(signUpSchema, req)
 
-      await this.deps.authService.signup({ email, password })
+      await this.deps.authService.signUp({ email, password })
 
       res
         .status(201)

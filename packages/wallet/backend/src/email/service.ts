@@ -1,15 +1,18 @@
 import { Env } from '@/config/env'
 import { default as sendgrid, MailDataRequired } from '@sendgrid/mail'
-import { getForgotPasswordEmail } from '@/email/templates/forgotPassword'
+import { getForgotPasswordEmailTemplate } from '@/email/templates/forgotPassword'
 import { Logger } from 'winston'
-import { getVerifyEmail } from '@/email/templates/verifyEmail'
-import { verifyDomain } from './verify-domain'
+import { getVerifyEmailTemplate } from '@/email/templates/verifyEmail'
+import dns from 'dns'
+import domains from 'disposable-email-domains'
 
 interface EmailArgs {
   to: string
   subject: string
   html: string
 }
+
+const disposableDomains: Set<string> = new Set(domains)
 
 interface IEmailService {
   sendForgotPassword(to: string, token: string): Promise<void>
@@ -47,7 +50,7 @@ export class EmailService implements IEmailService {
       return this.send({
         to,
         subject: '[Rafiki.Money] Reset your password',
-        html: getForgotPasswordEmail(url)
+        html: getForgotPasswordEmailTemplate(url)
       })
     }
 
@@ -57,21 +60,39 @@ export class EmailService implements IEmailService {
   }
 
   async sendVerifyEmail(to: string, token: string): Promise<void> {
-    const domain = to.split('@')[1]
-    await verifyDomain(domain)
-
     const url = `${this.baseUrl}/auth/verify/${token}`
 
     if (this.deps.env.SEND_EMAIL) {
       return this.send({
         to,
         subject: '[Rafiki.Money] Verify your account',
-        html: getVerifyEmail(url)
+        html: getVerifyEmailTemplate(url)
       })
     }
 
     this.deps.logger.info(
       `Send email is disabled. Verify email link is: ${url}`
+    )
+  }
+
+  public verifyDomain(domain: string): Promise<boolean> {
+    if (this.isDisposableDomain(domain)) {
+      throw new Error('Email was created using a disposable email service')
+    }
+
+    return this.canResolveDnsMx(domain)
+  }
+  private isDisposableDomain(domain: string): boolean {
+    return disposableDomains.has(domain)
+  }
+
+  private canResolveDnsMx(domain: string): Promise<boolean> {
+    return new Promise((resolve, reject) =>
+      dns.resolveMx(domain, (err, addresses) => {
+        if (err || !addresses.length)
+          return reject('Domain dns mx cannot be resolved')
+        resolve(true)
+      })
     )
   }
 }

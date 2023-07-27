@@ -13,7 +13,7 @@ interface AuthorizeArgs {
   password: string
 }
 
-interface SignupArgs extends AuthorizeArgs {}
+interface SignUpArgs extends AuthorizeArgs {}
 
 interface AuthorizeResult {
   user: User
@@ -22,7 +22,7 @@ interface AuthorizeResult {
 
 interface IAuthService {
   authorize(args: AuthorizeArgs): Promise<AuthorizeResult>
-  signup(args: SignupArgs): Promise<User>
+  signUp(args: SignUpArgs): Promise<User>
 }
 interface AuthServiceDependencies {
   userService: UserService
@@ -34,9 +34,11 @@ interface AuthServiceDependencies {
 export class AuthService implements IAuthService {
   constructor(private deps: AuthServiceDependencies) {}
 
-  async signup({ email, password }: SignupArgs): Promise<User> {
-    const token = getRandomToken()
+  async signUp({ email, password }: SignUpArgs): Promise<User> {
+    const domain = email.split('@')[1]
+    await this.deps.emailService.verifyDomain(domain)
 
+    const token = getRandomToken()
     const user = await this.deps.userService.create({
       email,
       password,
