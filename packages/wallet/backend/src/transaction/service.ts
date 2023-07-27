@@ -77,6 +77,7 @@ export class TransactionService implements ITransactionService {
       .select(
         'transactions.*',
         'paymentPointer.url as paymentPointerUrl',
+        "paymentPointer.publicName as paymentPointerPublicName",
         'account.name as accountName',
         'account.assetScale'
       )

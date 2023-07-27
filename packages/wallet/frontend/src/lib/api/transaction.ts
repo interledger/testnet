@@ -30,6 +30,7 @@ export interface Transaction {
   id: string
   paymentId: string
   accountName: string
+  paymentPointerPublicName?: string
   paymentPointerUrl?: string
   description: string
   paymentPointerId: string

@@ -14,7 +14,7 @@ import {
 import { Table } from '@/ui/Table'
 import { Arrow } from '@/components/icons/Arrow'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
-import { formatAmount } from '@/utils/helpers'
+import { formatAmount, formatDate } from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 
@@ -203,7 +203,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
       ) : loading ? (
         <Table.Shimmer />
       ) : (
-        <div className="w-full">
+        <div className="w-full" id="transactionsList">
           <Table>
             <Table.Head
               columns={[
@@ -227,20 +227,16 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     </Table.Cell>
                     <Table.Cell>{trx.accountName}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {trx.paymentPointerUrl ?? ''}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {trx.description ?? 'No description'}
+                      {trx.paymentPointerPublicName ??
+                        trx.paymentPointerUrl ??
+                        ''}
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {trx.createdAt}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Badge
-                        intent={getStatusBadgeIntent(trx.status)}
-                        size="md"
-                        text={trx.status}
-                      />
+                      {trx.description ? (
+                        trx.description
+                      ) : (
+                        <p className="text-sm font-thin">No description</p>
+                      )}
                     </Table.Cell>
                     <Table.Cell>
                       {
@@ -250,6 +246,16 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                           assetScale: trx.assetScale
                         }).amount
                       }
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Badge
+                        intent={getStatusBadgeIntent(trx.status)}
+                        size="md"
+                        text={trx.status}
+                      />
+                    </Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      {formatDate(trx.createdAt)}
                     </Table.Cell>
                   </Table.Row>
                 ))
