@@ -47,11 +47,11 @@ const menuItems: MenuItemProps[] = [
       }
     ]
   },
-{
-name: 'Transactions',
-      href: '/transactions',
-      Icon: Transactions
-},
+  {
+    name: 'Transactions',
+    href: '/transactions',
+    Icon: Transactions
+  },
   {
     name: 'Grants',
     href: '/grants',

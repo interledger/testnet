@@ -5,7 +5,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-    reactStrictMode: true,
+  reactStrictMode: true,
   poweredByHeader: false,
   env: {
     NEXT_PUBLIC_BACKEND_URL:
