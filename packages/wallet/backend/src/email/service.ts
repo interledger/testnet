@@ -5,6 +5,7 @@ import { Logger } from 'winston'
 import { getVerifyEmailTemplate } from '@/email/templates/verifyEmail'
 import dns from 'dns'
 import domains from 'disposable-email-domains'
+import { BadRequest } from '@/errors'
 
 interface EmailArgs {
   to: string
@@ -75,23 +76,33 @@ export class EmailService implements IEmailService {
     )
   }
 
-  public verifyDomain(domain: string): Promise<boolean> {
-    if (this.isDisposableDomain(domain)) {
-      throw new Error('Email was created using a disposable email service')
-    }
+  public async verifyDomain(domain: string): Promise<void> {
+    try {
+      if (this.isDisposableDomain(domain)) {
+        throw new Error('Email was created using a disposable email service')
+      }
 
-    return this.canResolveDnsMx(domain)
+      await this.canResolveDnsMx(domain).catch((e) => {
+        throw new Error(e)
+      })
+    } catch (e) {
+      this.deps.logger.error('Error on validating email domain', e)
+      throw new BadRequest('Email address is invalid')
+    }
   }
+
   private isDisposableDomain(domain: string): boolean {
     return disposableDomains.has(domain)
   }
 
-  private canResolveDnsMx(domain: string): Promise<boolean> {
+  private async canResolveDnsMx(domain: string): Promise<void> {
     return new Promise((resolve, reject) =>
       dns.resolveMx(domain, (err, addresses) => {
-        if (err || !addresses.length)
+        if (err || !addresses.length) {
           return reject('Domain dns mx cannot be resolved')
-        resolve(true)
+        }
+
+        resolve()
       })
     )
   }
