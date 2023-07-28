@@ -87,6 +87,8 @@ export class App {
     })
     Model.knex(knex)
 
+    this.processResources()
+
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
   }
@@ -268,5 +270,27 @@ export class App {
     app.use(router)
 
     return app
+  }
+
+  private async processTransaction() {
+    const transactionService = await this.container.resolve(
+      'transactionService'
+    )
+    console.log('running process Transaction')
+    return transactionService
+      .process()
+      .catch(() => true)
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processTransaction())
+        } else {
+          setTimeout(() => this.processTransaction(), 5000).unref()
+        }
+      })
+  }
+
+  private processResources() {
+    console.log('processing resources')
+    process.nextTick(() => this.processTransaction())
   }
 }

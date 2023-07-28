@@ -21,6 +21,7 @@ export class Transaction extends BaseModel {
   type!: 'INCOMING' | 'OUTGOING'
   status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
   paymentPointer!: PaymentPointer
+  expiresAt!: Date | null
 
   static relationMappings = () => ({
     paymentPointer: {

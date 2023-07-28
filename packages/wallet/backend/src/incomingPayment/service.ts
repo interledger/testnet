@@ -34,7 +34,7 @@ type CreateReceiverParams = {
   asset: Asset
   paymentPointerUrl: string
   description?: string
-  expiresAt?: string
+  expiresAt?: Date
 }
 
 export class IncomingPaymentService implements IIncomingPaymentService {
@@ -75,7 +75,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       description,
       asset,
       amount: BigInt(amount * 10 ** asset.scale),
-      expiresAt: expiryDate?.toISOString(),
+      expiresAt: expiryDate,
       accountId: existingPaymentPointer.accountId
     })
   }
@@ -119,6 +119,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       accountId: params.accountId,
       paymentId: response.id,
       assetCode: params.asset.code,
+      expiresAt: params.expiresAt,
       value: params.amount,
       type: 'INCOMING',
       status: 'PENDING',
