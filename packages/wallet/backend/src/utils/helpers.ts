@@ -1,5 +1,6 @@
 import { bcrypt } from 'hash-wasm'
-import { randomBytes } from 'crypto'
+import { ObjectWithAnyKeys } from '@/shared/types'
+import { randomBytes, createHash } from 'crypto'
 
 export const transformAmount = (
   amount: string | bigint,
@@ -41,3 +42,37 @@ export const encryptPassword = (password: string) => {
     outputType: 'encoded'
   })
 }
+
+export const hashToken = (token: string) => {
+  return createHash('sha256').update(token).digest('hex')
+}
+
+export const getRandomToken = (): string => {
+  return randomBytes(32).toString('hex')
+}
+
+export const replaceObjectKey = (
+  obj: ObjectWithAnyKeys,
+  replacedKey: string,
+  newKey: string
+): ObjectWithAnyKeys =>
+  Object.keys(obj).reduce(
+    (acc, oldKey) => ({
+      ...acc,
+      [oldKey === replacedKey ? newKey : oldKey]: obj[oldKey]
+    }),
+    {}
+  )
+
+export const prefixSomeObjectKeys = (
+  obj: ObjectWithAnyKeys,
+  prefixedKeys: string[],
+  prefix: string
+): ObjectWithAnyKeys =>
+  Object.keys(obj).reduce(
+    (acc, oldKey) => ({
+      ...acc,
+      [`${prefixedKeys.includes(oldKey) ? prefix : ''}${oldKey}`]: obj[oldKey]
+    }),
+    {}
+  )
