@@ -15,7 +15,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.2",
-    "react-joyride": "^2.5.4",
+    "react-joyride": "^2.5.5",
     "react-select": "^5.7.4",
     "sharp": "^0.32.3",
     "zod": "^3.21.4"
