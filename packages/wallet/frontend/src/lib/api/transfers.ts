@@ -6,7 +6,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { Transaction } from './paymentPointer'
+import { Transaction } from './transaction'
 
 export const sendSchema = z.object({
   paymentPointerId: z

@@ -14,6 +14,7 @@ import { Grant } from './icons/Grant'
 import { Home } from './icons/Home'
 import { Logout } from './icons/Logout'
 import { X } from './icons/X'
+import { Transactions } from './icons/Transactions'
 
 type MenuItemProps = {
   name: string
@@ -45,6 +46,11 @@ const menuItems: MenuItemProps[] = [
         href: '/transfer/request'
       }
     ]
+  },
+  {
+    name: 'Transactions',
+    href: '/transactions',
+    Icon: Transactions
   },
   {
     name: 'Grants',
