@@ -6,7 +6,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { Transaction } from './paymentPointer'
+import { Transaction } from './transaction'
 
 export const sendSchema = z.object({
   paymentPointerId: z
@@ -81,6 +81,7 @@ export interface Quote {
   id: string
   receiveAmount: AmountProps
   sendAmount: AmountProps
+  fee?: AmountProps
 }
 
 type SendArgs = z.infer<typeof sendSchema>

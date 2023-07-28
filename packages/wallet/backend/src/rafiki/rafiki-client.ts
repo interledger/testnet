@@ -83,6 +83,7 @@ export type CreateIncomingPaymentParams = {
   asset: Asset
   description?: string
   expiresAt?: string
+  accountId: string
 }
 
 type CreateQuoteParams = {
@@ -116,7 +117,7 @@ export class RafikiClient implements IRafikiClient {
     return response.assets.edges.map((el: { node: Asset }) => el.node)
   }
 
-  public async getAssetById(id: string) {
+  public async getAssetById(id: string): Promise<Asset> {
     const response = await this.deps.gqlClient.request<
       GetAssetQuery,
       GetAssetQueryVariables
@@ -136,7 +137,7 @@ export class RafikiClient implements IRafikiClient {
       expiresAt: params.expiresAt,
       ...(params.amount && {
         incomingAmount: {
-          value: params.amount as unknown as bigint,
+          value: params.amount,
           assetCode: params.asset.code,
           assetScale: params.asset.scale
         }

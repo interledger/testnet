@@ -9,6 +9,8 @@ export class User extends BaseModel {
   static tableName = 'users'
 
   public email!: string
+  public verifyEmailToken?: string | null
+  public isEmailVerified!: boolean
   private password!: string
   public lastName?: string
   public firstName?: string

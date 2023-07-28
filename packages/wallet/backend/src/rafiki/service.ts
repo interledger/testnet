@@ -1,10 +1,10 @@
-import { Logger } from 'winston'
 import { Env } from '@/config/env'
-import { RapydClient } from '@/rapyd/rapyd-client'
-import { RafikiClient } from './rafiki-client'
 import { BadRequest } from '@/errors'
 import { PaymentPointer } from '@/paymentPointer/model'
+import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
+import { Logger } from 'winston'
+import { RafikiClient } from './rafiki-client'
 
 export enum EventType {
   IncomingPaymentCompleted = 'incoming_payment.completed',
@@ -53,16 +53,20 @@ export type Quote = {
   expiresAt: string
 }
 
-export interface Fees {
+type Fee = {
   fixed: number
   percentage: number
-  asset: string
   scale: number
 }
 
+export type Fees = Record<string, Fee>
+
+interface Rates {
+  [currency: string]: { [currency: string]: number }
+}
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
-  getRates: () => Rates
+  getRates: (base: string) => RatesResponse
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -74,7 +78,7 @@ interface RafikiServiceDependencies {
   transactionService: TransactionService
 }
 
-export type Rates = {
+export type RatesResponse = {
   base: string
   rates: Record<string, number>
 }
@@ -391,41 +395,101 @@ export class RafikiService implements IRafikiService {
 
   public async createQuote(receivedQuote: Quote) {
     const feeStructure: Fees = {
-      fixed: 100,
-      percentage: 0.02,
-      asset: 'USD',
-      scale: 2
+      USD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      EUR: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      }
     }
+
+    if (
+      receivedQuote.sendAmount.assetCode !==
+      receivedQuote.receiveAmount.assetCode
+    ) {
+      this.deps.logger.debug(
+        `conversion fee (from rafiki) : ${
+          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
+        }`
+      )
+      this.deps.logger.debug(
+        `Send amount value: ${receivedQuote.sendAmount.value}`
+      )
+      this.deps.logger.debug(
+        `Receive amount: ${receivedQuote.receiveAmount.value} from rafiki which includes cross currency fees already.`
+      )
+    }
+
+    const actualFee = feeStructure[receivedQuote.sendAmount.assetCode]
 
     if (receivedQuote.paymentType == PaymentType.FixedDelivery) {
       if (
-        receivedQuote.sendAmount.assetCode !== feeStructure.asset ||
-        receivedQuote.sendAmount.assetScale !== feeStructure.scale
+        feeStructure[receivedQuote.sendAmount.assetCode] &&
+        receivedQuote.sendAmount.assetScale !==
+          feeStructure[receivedQuote.sendAmount.assetCode].scale
       ) {
         throw new BadRequest('Invalid quote sendAmount asset')
       }
       const sendAmountValue = BigInt(receivedQuote.sendAmount.value)
+
       const fees =
         // TODO: bigint/float multiplication
-        BigInt(Math.floor(Number(sendAmountValue) * feeStructure.percentage)) +
-        BigInt(feeStructure.fixed)
+        BigInt(Math.floor(Number(sendAmountValue) * actualFee.percentage)) +
+        BigInt(actualFee.fixed)
+
+      this.deps.logger.debug(
+        `wallet fees: (sendAmount (${Math.floor(
+          Number(sendAmountValue)
+        )}) * wallet percentage (${actualFee.percentage})) + fixed ${
+          actualFee.fixed
+        } = ${fees}`
+      )
 
       receivedQuote.sendAmount.value = sendAmountValue + fees
+
+      this.deps.logger.debug(
+        `Will finally send: ${receivedQuote.sendAmount.value}`
+      )
     } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
-      if (receivedQuote.receiveAmount.assetCode !== feeStructure.asset) {
+      if (
+        !Object.keys(feeStructure).includes(
+          receivedQuote.receiveAmount.assetCode
+        )
+      ) {
         throw new BadRequest('Invalid quote receiveAmount asset')
       }
+
       const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
+
       const fees =
-        BigInt(
-          Math.floor(Number(receiveAmountValue) * feeStructure.percentage)
-        ) + BigInt(feeStructure.fixed)
+        BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
+        BigInt(actualFee.fixed)
+
+      this.deps.logger.debug(
+        `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
+          actualFee.percentage
+        }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
+      )
 
       if (receiveAmountValue <= fees) {
         throw new BadRequest('Fees exceed quote receiveAmount')
       }
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
+
+      this.deps.logger.debug(
+        `Sum of fees (conversion fee from rafiki + wallet fee): ${
+          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
+        } + ${fees} ${receiveAmountValue - fees}`
+      )
+
+      this.deps.logger.debug(
+        `Will finally receive ${receivedQuote.receiveAmount.value}`
+      )
     } else {
       throw new BadRequest('Invalid paymentType')
     }
@@ -433,13 +497,24 @@ export class RafikiService implements IRafikiService {
     return receivedQuote
   }
 
-  public getRates(): Rates {
-    return {
-      base: 'USD',
-      rates: {
-        EUR: 1.1602,
-        ZAR: 17.3782
+  public getRates(base: string): RatesResponse {
+    const exchangeRates: Rates = {
+      USD: {
+        EUR: 1.12,
+        ZAR: 17.3792
+      },
+      EUR: {
+        USD: 0.89,
+        ZAR: 20.44
+      },
+      ZAR: {
+        USD: 0.0575,
+        EUR: 0.0489
       }
+    }
+    return {
+      base,
+      rates: exchangeRates[base] ?? {}
     }
   }
 }

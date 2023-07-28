@@ -75,7 +75,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       description,
       asset,
       amount: BigInt(amount * 10 ** asset.scale),
-      expiresAt: expiryDate?.toISOString()
+      expiresAt: expiryDate?.toISOString(),
+      accountId: existingPaymentPointer.accountId
     })
   }
 
@@ -115,6 +116,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     return Transaction.query().insert({
       paymentPointerId: params.paymentPointerId,
+      accountId: params.accountId,
       paymentId: response.id,
       assetCode: params.asset.code,
       value: params.amount,
@@ -134,6 +136,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     const response = await this.createIncomingPaymentTransactions({
       ...params,
+      accountId: existingPaymentPointer.accountId,
       paymentPointerId: existingPaymentPointer.id
     })
 
