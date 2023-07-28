@@ -20,7 +20,7 @@
     "helmet": "^7.0.0",
     "iron-session": "^6.3.1",
     "knex": "^2.5.1",
-    "objection": "^3.0.4",
+    "objection": "^3.1.1",
     "pg": "^8.11.1",
     "uuid": "^9.0.0",
     "winston": "^3.10.0",
