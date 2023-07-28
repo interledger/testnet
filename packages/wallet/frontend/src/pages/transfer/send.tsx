@@ -12,9 +12,9 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { formatAmount, getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
+import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { ChangeEvent, memo, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
@@ -26,17 +26,17 @@ import {
 } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
-import { assetService, Rates } from '@/lib/api/asset'
+import { AssetOP, assetService, Rates } from '@/lib/api/asset'
+import { ExchangeRate } from '@/components/ExchangeRate'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-type Asset = { assetCode: string; assetScale: number }
 const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
   const [balance, setBalance] = useState('')
   const [currentExchangeRates, setCurrentExchangeRates] = useState<Rates>()
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<AssetOP | null>(null)
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
   )
@@ -44,29 +44,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
-
-  const ExchangeRate = memo(() => {
-    if (
-      convertAmount &&
-      convertAmount !== 0 &&
-      currentExchangeRates &&
-      !('success' in currentExchangeRates) &&
-      receiverAssetCode &&
-      selectedAsset &&
-      receiverAssetCode !== selectedAsset.assetCode
-    ) {
-      return (
-        <p className="ml-2 text-sm text-green">{`Receiver Payment Pointer asset is in ${getCurrencySymbol(
-          receiverAssetCode
-        )}. Exchange Rate: ${getCurrencySymbol(
-          selectedAsset.assetCode
-        )}${convertAmount} = ${getCurrencySymbol(receiverAssetCode)}${(
-          convertAmount * currentExchangeRates.rates[receiverAssetCode]
-        ).toFixed(selectedAsset.assetScale)}`}</p>
-      )
-    } else return null
-  })
-  ExchangeRate.displayName = 'ExchangeRate'
 
   const sendForm = useZodForm({
     schema: sendSchema,
@@ -357,7 +334,12 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 />
               }
             />
-            <ExchangeRate />
+            <ExchangeRate
+              convertAmount={convertAmount}
+              currentExchangeRates={currentExchangeRates}
+              receiverAssetCode={receiverAssetCode}
+              selectedAsset={selectedAsset}
+            />
             <Input {...sendForm.register('description')} label="Description" />
           </div>
           <div className="flex justify-center py-5">
@@ -392,11 +374,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   )
 }
 
-type SelectAccountOption = SelectOption & {
-  balance: string
-  assetCode: string
-  assetScale: number
-}
+type SelectAccountOption = SelectOption &
+  AssetOP & {
+    balance: string
+  }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {

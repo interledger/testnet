@@ -5,6 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { AssetOP } from './asset'
 
 export const createPaymentPointerSchema = z.object({
   paymentPointerName: z.string().toLowerCase().min(3, {
@@ -74,10 +75,8 @@ type BasePaymentPointerArgs = {
   paymentPointerId: string
 }
 
-type PaymentPointeOP = {
+type PaymentPointeOP = AssetOP & {
   id: string
-  assetCode: string
-  assetScale: number
   publicName: string
   authServer: string
 }

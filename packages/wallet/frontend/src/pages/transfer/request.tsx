@@ -18,6 +18,7 @@ import { useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { AssetOP } from '@/lib/api/asset'
 
 type SelectPaymentPointerOption = SelectOption & { url: string }
 
@@ -201,11 +202,10 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   )
 }
 
-type SelectAccountOption = SelectOption & {
-  balance: string
-  assetCode: string
-  assetScale: number
-}
+type SelectAccountOption = SelectOption &
+  AssetOP & {
+    balance: string
+  }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {

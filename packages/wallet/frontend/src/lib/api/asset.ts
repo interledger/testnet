@@ -18,6 +18,11 @@ export type Rates = {
   rates: Record<string, number>
 }
 
+export type AssetOP = {
+  assetCode: string
+  assetScale: number
+}
+
 type ListAssetsResult = SuccessResponse<Asset[]>
 type ListAssetsResponse = ListAssetsResult | ErrorResponse
 
