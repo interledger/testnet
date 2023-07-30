@@ -44,11 +44,11 @@
     "typescript": "^5.0.4"
   },
   "engines": {
-    "pnpm": "^8.6.10",
+    "pnpm": "^8.6.11",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@8.6.10"
+  "packageManager": "pnpm@8.6.11"
 }
