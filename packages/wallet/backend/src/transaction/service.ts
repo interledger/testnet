@@ -105,11 +105,8 @@ export class TransactionService implements ITransactionService {
         .whereNull('value')
         .whereNotNull('expiresAt')
 
-      console.log(transaction)
       if (!transaction) return
       if (!transaction.expiresAt) return
-
-      console.log(transaction, transaction.expiresAt <= now)
 
       if (transaction.expiresAt <= now) {
         await this.handleExpired(trx, transaction)

@@ -87,7 +87,9 @@ export class App {
     })
     Model.knex(knex)
 
-    this.processResources()
+    if(env.NODE_ENV !== 'test') {
+        this.processResources()
+    }
 
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
