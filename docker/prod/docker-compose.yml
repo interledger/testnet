@@ -63,7 +63,7 @@ services:
     restart: always
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:b9f9b0acd6aa2c0d91282169042cfc9a745e80cd033c6f7a64d88bd4dcb41bce
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:3accbe6cab4b9fe75b591e1239873af4bc9145414549e2e17ff5d932d13e043c
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
