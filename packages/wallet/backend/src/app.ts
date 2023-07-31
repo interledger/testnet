@@ -278,7 +278,6 @@ export class App {
     const transactionService = await this.container.resolve(
       'transactionService'
     )
-    console.log('running process Transaction')
     return transactionService
       .process()
       .catch(() => true)
@@ -292,7 +291,6 @@ export class App {
   }
 
   private processResources() {
-    console.log('processing resources')
     process.nextTick(() => this.processTransaction())
   }
 }
