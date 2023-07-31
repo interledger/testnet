@@ -283,14 +283,14 @@ export class App {
       .catch(() => true)
       .then((trx) => {
         if (trx) {
-          process.nextTick(() => this.processTransaction())
+          process.nextTick(() => this.processPendingTransactions())
         } else {
-          setTimeout(() => this.processTransaction(), 5000).unref()
+          setTimeout(() => this.processPendingTransactions(), 5000).unref()
         }
       })
   }
 
   private processResources() {
-    process.nextTick(() => this.processTransaction())
+    process.nextTick(() => this.processPendingTransactions())
   }
 }
