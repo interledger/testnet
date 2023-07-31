@@ -34,8 +34,7 @@ const defaultOption = {
 
 const types: SelectOption[] = [
   defaultOption,
-  { label: 'Incoming', value: 'INCOMING'
-  },
+  { label: 'Incoming', value: 'INCOMING' },
   { label: 'Outgoing', value: 'OUTGOING' }
 ]
 
