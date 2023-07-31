@@ -25,7 +25,7 @@ interface ITransactionService {
     update: PartialModelObject<Transaction>
   ) => Promise<void>
   listAll: (input: ListAllTransactionsInput) => Promise<Page<Transaction>>
-  process: () => Promise<string | undefined>
+  processPendingIncomingPayments: () => Promise<string | undefined>
 }
 
 interface TransactionServiceDependencies {
@@ -94,7 +94,7 @@ export class TransactionService implements ITransactionService {
     return transactions
   }
 
-  async process(): Promise<string | undefined> {
+  async processPendingIncomingPayments(): Promise<string | undefined> {
     return this.deps.knex.transaction(async (trx) => {
       const now = new Date(Date.now())
       const [transaction] = await Transaction.query(trx)

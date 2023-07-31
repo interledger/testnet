@@ -274,12 +274,12 @@ export class App {
     return app
   }
 
-  private async processTransaction() {
+  private async processPendingTransactions() {
     const transactionService = await this.container.resolve(
       'transactionService'
     )
     return transactionService
-      .process()
+      .processPendingIncomingPayments()
       .catch(() => true)
       .then((trx) => {
         if (trx) {
