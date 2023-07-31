@@ -32,7 +32,21 @@ const SignUpPage: NextPageWithLayout = () => {
               openDialog(
                 <SuccessDialog
                   onClose={closeDialog}
-                  content="Your account was created."
+                  content={
+                    <div>
+                      <h4 className="text-lg font-bold">
+                        Welcome to Interledger Testnet
+                      </h4>
+                      <p className="text-xs">
+                        A verification link has been sent to your email account.
+                      </p>
+                      <p className="text-xs">
+                        Please click on the link that has just been sent to your
+                        email account to verify your email and continue the
+                        registration process.
+                      </p>
+                    </div>
+                  }
                   redirect="/auth/login"
                   redirectText="Go to login page"
                 />

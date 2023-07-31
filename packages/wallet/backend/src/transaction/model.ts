@@ -2,6 +2,12 @@ import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Account } from '@/account/model'
+
+export type TransactionExtended = Transaction & {
+  paymentPointerUrl: PaymentPointer['url']
+  accountName: Account['name']
+}
+
 export class Transaction extends BaseModel {
   static tableName = 'transactions'
 
@@ -9,7 +15,7 @@ export class Transaction extends BaseModel {
   paymentId!: string
   description?: string
   paymentPointerId?: string
-  accountId?: string
+  accountId!: string
   assetCode!: string
   value!: bigint | null
   type!: 'INCOMING' | 'OUTGOING'

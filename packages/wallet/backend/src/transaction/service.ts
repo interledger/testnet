@@ -1,7 +1,16 @@
 import { Transaction } from './model'
-import { OrderByDirection, PartialModelObject } from 'objection'
+import { OrderByDirection, Page, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
+import { PaginationQueryParams } from '@/shared/types'
+import { prefixSomeObjectKeys } from '@/utils/helpers'
+
+type ListAllTransactionsInput = {
+  userId: string
+  paginationParams: PaginationQueryParams
+  filterParams: Partial<Transaction>
+  orderByDate: OrderByDirection
+}
 
 interface ITransactionService {
   list: (
@@ -14,6 +23,7 @@ interface ITransactionService {
     where: PartialModelObject<Transaction>,
     update: PartialModelObject<Transaction>
   ) => Promise<void>
+  listAll: (input: ListAllTransactionsInput) => Promise<Page<Transaction>>
 }
 
 interface TransactionServiceDependencies {
@@ -49,5 +59,35 @@ export class TransactionService implements ITransactionService {
     } catch (e) {
       this.deps.logger.error(`Update transaction error:`, e)
     }
+  }
+
+  async listAll({
+    userId,
+    paginationParams: { page, pageSize },
+    filterParams,
+    orderByDate
+  }: ListAllTransactionsInput): Promise<Page<Transaction>> {
+    const filterParamsWithTableNames = prefixSomeObjectKeys(
+      filterParams,
+      ['paymentPointerId', 'assetCode', 'type', 'status', 'accountId'],
+      'transactions.'
+    )
+
+    const transactions = await Transaction.query()
+      .select(
+        'transactions.*',
+        'paymentPointer.url as paymentPointerUrl',
+        'paymentPointer.publicName as paymentPointerPublicName',
+        'account.name as accountName',
+        'account.assetScale'
+      )
+      .fullOuterJoinRelated('[paymentPointer, account.user]')
+      .where('account:user.id', userId)
+      .whereNotNull('transactions.id')
+      .where(filterParamsWithTableNames)
+      .orderBy('transactions.createdAt', orderByDate)
+      .page(page, pageSize)
+
+    return transactions
   }
 }

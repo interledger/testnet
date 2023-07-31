@@ -1,11 +1,13 @@
 import { BadRequest, Conflict } from '@/errors'
 import { User } from './model'
-import crypto from 'crypto'
 import { EmailService } from '@/email/service'
+import { getRandomToken, hashToken } from '@/utils/helpers'
+import { Logger } from 'winston'
 
 interface CreateUserArgs {
   email: string
   password: string
+  verifyEmailToken: string
 }
 
 interface IUserService {
@@ -19,6 +21,7 @@ interface IUserService {
 
 interface UserServiceDependencies {
   emailService: EmailService
+  logger: Logger
 }
 
 export class UserService implements IUserService {
@@ -45,15 +48,15 @@ export class UserService implements IUserService {
   public async requestResetPassword(email: string): Promise<void> {
     const user = await this.getByEmail(email)
 
-    if (!user) {
+    if (!user?.isEmailVerified) {
+      this.deps.logger.info(
+        `Reset email not sent. User with email ${email} not found (or not verified)`
+      )
       return
     }
 
-    const resetToken = crypto.randomBytes(32).toString('hex')
-    const passwordResetToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex')
+    const resetToken = getRandomToken()
+    const passwordResetToken = hashToken(resetToken)
     const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
     await User.query()
@@ -76,11 +79,29 @@ export class UserService implements IUserService {
     })
   }
 
+  public async validateToken(token: string): Promise<boolean> {
+    const user = await this.getUserByToken(token)
+
+    return !!user
+  }
+
+  public async verifyEmail(token: string): Promise<void> {
+    const verifyEmailToken = hashToken(token)
+
+    const user = await User.query().findOne({ verifyEmailToken })
+
+    if (!user) {
+      throw new BadRequest('Invalid token')
+    }
+
+    await User.query().findById(user.id).patch({
+      isEmailVerified: true,
+      verifyEmailToken: null
+    })
+  }
+
   private async getUserByToken(token: string): Promise<User | undefined> {
-    const passwordResetToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex')
+    const passwordResetToken = hashToken(token)
 
     const user = await User.query().findOne({ passwordResetToken })
 
@@ -90,11 +111,5 @@ export class UserService implements IUserService {
     ) {
       return user
     }
-  }
-
-  public async validateToken(token: string): Promise<boolean> {
-    const user = await this.getUserByToken(token)
-
-    return !!user
   }
 }
