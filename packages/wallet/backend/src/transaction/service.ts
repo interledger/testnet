@@ -102,15 +102,11 @@ export class TransactionService implements ITransactionService {
         .forUpdate()
         .skipLocked()
         .where('status', '=', 'PENDING')
-        .whereNull('value')
         .whereNotNull('expiresAt')
+        .andWhere('expiresAt', '<=', now)
 
       if (!transaction) return
-      if (!transaction.expiresAt) return
-
-      if (transaction.expiresAt <= now) {
-        await this.handleExpired(trx, transaction)
-      }
+      await this.handleExpired(trx, transaction)
 
       return transaction.id
     })

@@ -52,7 +52,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   >([])
   const [balance, setBalance] = useState('')
   const requestForm = useZodForm({
-    schema: requestSchema
+    schema: requestSchema,
+    mode: 'onSubmit'
   })
 
   const getPaymentPointers = async (accountId: string) => {

@@ -46,7 +46,21 @@ export const requestSchema = z
     expiry: z.coerce
       .number()
       .int({ message: 'Expiry time amount should be a whole number' })
-      .positive({ message: 'Expiry time amount should be greater than 0' })
+      .refine((value) => {
+        if (value && isNaN(value)) {
+          return false
+        }
+        return true
+      })
+      .refine(
+        (value) => {
+          if (value && value <= 0) {
+            return false
+          }
+          return true
+        },
+        { message: 'Expiry time amount should be greater than 0' }
+      )
       .optional(),
     unit: z
       .object({
