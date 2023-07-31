@@ -147,7 +147,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   private generateExpiryObject(expiry: number, unit: string): Duration {
     switch (unit) {
       case 's': {
-        return { seconds: expiry}
+        return { seconds: expiry }
       }
       case 'm': {
         return { minutes: expiry }
