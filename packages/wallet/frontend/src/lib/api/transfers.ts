@@ -92,9 +92,9 @@ type AmountProps = {
 }
 
 interface Expiration {
-    value: number
-    unit: string
-  }
+  value: number
+  unit: string
+}
 
 export interface Quote {
   id: string
@@ -173,12 +173,12 @@ const createTransfersService = (): TransfersService => ({
   },
 
   async request(args) {
-    let expiration: Expiration | undefined = undefined;
-    if(args.expiry && args.expiry > 0 && args.unit) {
-        expiration = {
-            value: args.expiry,
-            unit: args.unit.value
-        }
+    let expiration: Expiration | undefined = undefined
+    if (args.expiry && args.expiry > 0 && args.unit) {
+      expiration = {
+        value: args.expiry,
+        unit: args.unit.value
+      }
     }
 
     try {
@@ -189,7 +189,7 @@ const createTransfersService = (): TransfersService => ({
             paymentPointerId: args.paymentPointerId
               ? args.paymentPointerId.value
               : undefined,
-              expiration
+            expiration
           }
         })
         .json<SuccessResponse>()

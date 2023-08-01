@@ -87,10 +87,6 @@ export class App {
     })
     Model.knex(knex)
 
-    if (env.NODE_ENV !== 'test') {
-      this.processResources()
-    }
-
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
   }
@@ -290,7 +286,7 @@ export class App {
       })
   }
 
-  private processResources() {
+  async processResources() {
     process.nextTick(() => this.processPendingTransactions())
   }
 }

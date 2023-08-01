@@ -43,10 +43,10 @@ interface Expiration {
 }
 
 const unitMapping: Record<string, keyof Duration> = {
-    s: 'seconds',
-    m: 'minutes',
-    h: 'hours',
-    d: 'days'
+  s: 'seconds',
+  m: 'minutes',
+  h: 'hours',
+  d: 'days'
 }
 
 export class IncomingPaymentService implements IIncomingPaymentService {
