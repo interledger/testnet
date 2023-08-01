@@ -280,7 +280,7 @@ export class App {
     )
     return transactionService
       .processPendingIncomingPayments()
-      .catch(() => true)
+      .catch(() => false)
       .then((trx) => {
         if (trx) {
           process.nextTick(() => this.processPendingTransactions())

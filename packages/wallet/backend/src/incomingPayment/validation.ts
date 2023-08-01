@@ -6,11 +6,19 @@ export const incomingPaymentSchema = z.object({
       paymentPointerId: z.string().uuid(),
       amount: z.number().positive(),
       description: z.string().optional(),
-      expiry: z.coerce.number().positive().int().optional(),
-      unit: z.enum(['s', 'm', 'h', 'd']).optional()
+      expiration: z
+        .object({
+          value: z.coerce.number().positive().int(),
+          unit: z.enum(['s', 'm', 'h', 'd'])
+        })
+        .optional()
     })
-    .superRefine(({ expiry, unit }, ctx) => {
-      if ((expiry && !unit) || (!expiry && unit)) {
+    .superRefine(({ expiration }, ctx) => {
+      if (
+        expiration &&
+        ((expiration.value && !expiration.unit) ||
+          (!expiration.value && expiration.unit))
+      ) {
         ctx.addIssue({
           code: 'custom',
           message:

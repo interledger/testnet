@@ -91,6 +91,11 @@ type AmountProps = {
   value: string
 }
 
+interface Expiration {
+    value: number
+    unit: string
+  }
+
 export interface Quote {
   id: string
   receiveAmount: AmountProps
@@ -168,6 +173,14 @@ const createTransfersService = (): TransfersService => ({
   },
 
   async request(args) {
+    let expiration: Expiration | undefined = undefined;
+    if(args.expiry && args.expiry > 0 && args.unit) {
+        expiration = {
+            value: args.expiry,
+            unit: args.unit.value
+        }
+    }
+
     try {
       const response = await httpClient
         .post('incoming-payments', {
@@ -176,8 +189,7 @@ const createTransfersService = (): TransfersService => ({
             paymentPointerId: args.paymentPointerId
               ? args.paymentPointerId.value
               : undefined,
-            expiry: args.expiry && args.expiry > 0 ? args.expiry : undefined,
-            unit: args.unit ? args.unit.value : undefined
+              expiration
           }
         })
         .json<SuccessResponse>()

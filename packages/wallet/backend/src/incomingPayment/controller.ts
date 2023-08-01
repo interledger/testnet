@@ -32,7 +32,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
     try {
       const userId = req.session.user.id
       const {
-        body: { paymentPointerId, amount, description, expiry, unit }
+        body: { paymentPointerId, amount, description, expiration }
       } = await validate(incomingPaymentSchema, req)
 
       const transaction = await this.deps.incomingPaymentService.create(
@@ -40,8 +40,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
         paymentPointerId,
         amount,
         description,
-        expiry,
-        unit
+        expiration
       )
       res
         .status(200)

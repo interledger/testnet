@@ -29,12 +29,24 @@ interface IncomingPaymentServiceDependencies {
   rafikiClient: RafikiClient
 }
 
-type CreateReceiverParams = {
+interface CreateReceiverParams {
   amount: bigint | null
   asset: Asset
   paymentPointerUrl: string
   description?: string
   expiresAt?: Date
+}
+
+interface Expiration {
+  value: number
+  unit: string
+}
+
+const unitMapping: Record<string, keyof Duration> = {
+    s: 'seconds',
+    m: 'minutes',
+    h: 'hours',
+    d: 'days'
 }
 
 export class IncomingPaymentService implements IIncomingPaymentService {
@@ -45,8 +57,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     paymentPointerId: string,
     amount: number,
     description?: string,
-    expiry?: number,
-    unit?: string
+    expiration?: Expiration
   ): Promise<Transaction> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
@@ -66,8 +77,11 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     let expiryDate: Date | undefined
 
-    if (expiry && unit) {
-      expiryDate = add(new Date(), this.generateExpiryObject(expiry, unit))
+    if (expiration) {
+      expiryDate = add(
+        new Date(),
+        this.generateExpiryObject(expiration.value, expiration.unit)
+      )
     }
 
     return this.createIncomingPaymentTransactions({
@@ -145,21 +159,6 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   }
 
   private generateExpiryObject(expiry: number, unit: string): Duration {
-    switch (unit) {
-      case 's': {
-        return { seconds: expiry }
-      }
-      case 'm': {
-        return { minutes: expiry }
-      }
-      case 'h': {
-        return { hours: expiry }
-      }
-      case 'd': {
-        return { days: expiry }
-      }
-    }
-
-    return { days: 30 }
+    return unitMapping[unit] ? { [unitMapping[unit]]: expiry } : { days: 30 }
   }
 }
