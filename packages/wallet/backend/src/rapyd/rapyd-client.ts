@@ -343,6 +343,7 @@ export class RapydClient implements IRapydClient {
       })
       return res.data
     } catch (e) {
+      this.deps.logger.error(e)
       if (e instanceof AxiosError) {
         this.deps.logger.error(
           `Axios ${method} request for ${url} failed with: ${

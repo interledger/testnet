@@ -6,6 +6,7 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
+import { v4 as uuid } from 'uuid'
 
 type CreateAccountArgs = {
   userId: string
@@ -66,25 +67,34 @@ export class AccountService implements IAccountService {
       )
     }
 
-    // issue virtual account to wallet
     const user = await User.query().findById(args.userId)
     if (!user) {
       throw new NotFound()
     }
 
-    const result = await this.deps.rapyd.issueVirtualAccount({
-      country: user.country ?? '',
-      currency: asset.code,
-      ewallet: user.rapydWalletId ?? ''
-    })
+    // TEMPORARY FIX - we can not issue virtual accounts at the moment
+    // this means that we can not simulate a bank transfer
 
-    if (result.status?.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to issue virtal account to ewallet: ${result.status?.message}`
-      )
-    }
-    // save virtual bank account number to database
-    const virtualAccount = result.data
+    // issue virtual account to wallet
+    //await this.deps.rapyd.depositLiquidity({
+    //  amount: 100,
+    //  currency: asset.code,
+    //  ewallet: user.rapydWalletId ?? ''
+    //})
+
+    // const result = await this.deps.rapyd.issueVirtualAccount({
+    //   country: user.country ?? '',
+    //   currency: asset.code,
+    //   ewallet: user.rapydWalletId ?? ''
+    // })
+
+    // if (result.status?.status !== 'SUCCESS') {
+    //   throw new Error(
+    //     `Unable to issue virtal account to ewallet: ${result.status?.message}`
+    //   )
+    // }
+    // // save virtual bank account number to database
+    // const virtualAccount = result.data
 
     const account = await Account.query().insert({
       name: args.name,
@@ -92,13 +102,15 @@ export class AccountService implements IAccountService {
       assetCode: asset.code,
       assetId: args.assetId,
       assetScale: asset.scale,
-      virtualAccountId: virtualAccount.id
+      virtualAccountId: `virtual_account_id_${args.userId}`
     })
-    await this.deps.rapyd.simulateBankTransferToWallet({
-      amount: 0,
-      currency: account.assetCode,
-      issued_bank_account: account.virtualAccountId
-    })
+
+    // TEMPORARY FIX
+    // await this.deps.rapyd.simulateBankTransferToWallet({
+    //   amount: 0,
+    //   currency: account.assetCode,
+    //   issued_bank_account: account.virtualAccountId
+    // })
 
     if (!user || !user.rapydWalletId) {
       throw new NotFound()
@@ -195,33 +207,50 @@ export class AccountService implements IAccountService {
     const existingAccount = await Account.query()
       .where('userId', args.userId)
       .where('id', args.accountId)
+      .withGraphFetched('user')
       .first()
     if (!existingAccount) {
       throw new NotFound()
     }
 
+    // TEMPORARY FIX
     // fund amount to wallet account
-    const result = await this.deps.rapyd.simulateBankTransferToWallet({
-      amount: args.amount,
-      currency: existingAccount.assetCode,
-      issued_bank_account: existingAccount.virtualAccountId
-    })
+    // const result = await this.deps.rapyd.simulateBankTransferToWallet({
+    //   amount: args.amount,
+    //   currency: existingAccount.assetCode,
+    //   issued_bank_account: existingAccount.virtualAccountId
+    // })
 
-    if (result.status?.status !== 'SUCCESS') {
-      throw new Error(`Unable to fund your account: ${result.status?.message}`)
+    if (existingAccount.user.rapydWalletId) {
+      const result = await this.deps.rapyd.depositLiquidity({
+        amount: args.amount,
+        currency: existingAccount.assetCode,
+        ewallet: existingAccount.user.rapydWalletId
+      })
+
+      if (result.status?.status !== 'SUCCESS') {
+        throw new Error(
+          `Unable to fund your account: ${result.status?.message}`
+        )
+      }
+
+      const asset = await this.deps.rafiki.getAssetById(existingAccount.assetId)
+      // const transactions = result.data.transactions
+      await Transaction.query().insert({
+        accountId: existingAccount.id,
+        //   paymentId: transactions[transactions.length - 1].id,
+        paymentId: uuid(),
+        assetCode: existingAccount.assetCode,
+        value: transformBalance(args.amount, asset.scale),
+        type: 'INCOMING',
+        status: 'COMPLETED',
+        description: 'Fund account'
+      })
+    } else {
+      this.deps.logger.error(
+        `Could not create default account for user "${existingAccount.userId}". Reason: Missing "rapydWalletId"`
+      )
     }
-
-    const asset = await this.deps.rafiki.getAssetById(existingAccount.assetId)
-    const transactions = result.data.transactions
-    await Transaction.query().insert({
-      accountId: existingAccount.id,
-      paymentId: transactions[transactions.length - 1].id,
-      assetCode: existingAccount.assetCode,
-      value: transformBalance(args.amount, asset.scale),
-      type: 'INCOMING',
-      status: 'COMPLETED',
-      description: 'Fund account'
-    })
   }
 
   public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
