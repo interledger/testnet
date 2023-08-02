@@ -117,17 +117,17 @@ export class QuoteService implements IQuoteService {
     const amount = BigInt(
       (params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()
     )
-    const amountParam = {
-      assetCode: asset.code,
-      assetScale: asset.scale,
-      value: amount
-    }
+    const amountParam =  { assetCode: asset.code, assetScale: asset.scale, value: amount }
 
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
-      receiveAmount: params.isReceive ? amountParam : undefined,
+      receiveAmount: params.isReceive
+        ? amountParam
+        : undefined,
       receiver: paymentUrl,
-      sendAmount: params.isReceive ? undefined : amountParam
+      sendAmount: params.isReceive
+        ? undefined
+        : amountParam
     })
 
     return this.addConversionInfo(

@@ -97,7 +97,7 @@ export class TransactionService implements ITransactionService {
   async processPendingIncomingPayments(): Promise<string | undefined> {
     return this.deps.knex.transaction(async (trx) => {
       // Giving a Rafiki a little more time to process the payments before we process them.
-      const now = new Date(Date.now() + 10_000)
+      const now = new Date(Date.now() - 30_000)
       const [transaction] = await Transaction.query(trx)
         .limit(1)
         .forUpdate()
