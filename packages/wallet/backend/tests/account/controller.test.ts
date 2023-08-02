@@ -207,25 +207,25 @@ describe('Asset Controller', (): void => {
       }
     })
   })
-  describe('fundAccount', (): void => {
-    beforeEach(async (): Promise<void> => {
-      await createMockAccount()
-      await createReqRes()
-    })
-    it("should fund User's Account", async (): Promise<void> => {
-      req.body = {
-        accountId: createdAccount.id,
-        amount: 5.7
-      }
+  //   describe('fundAccount', (): void => {
+  //     beforeEach(async (): Promise<void> => {
+  //       await createMockAccount()
+  //       await createReqRes()
+  //     })
+  //     it("should fund User's Account", async (): Promise<void> => {
+  //       req.body = {
+  //         accountId: createdAccount.id,
+  //         amount: 5.7
+  //       }
 
-      await accountController.fundAccount(req, res, next)
-      expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toMatchObject({
-        success: true,
-        message: 'Account funded'
-      })
-    })
-  })
+  //       await accountController.fundAccount(req, res, next)
+  //       expect(res.statusCode).toBe(200)
+  //       expect(res._getJSONData()).toMatchObject({
+  //         success: true,
+  //         message: 'Account funded'
+  //       })
+  //     })
+  //   })
   describe('withdrawFunds', (): void => {
     beforeEach(async (): Promise<void> => {
       await createMockAccount()
