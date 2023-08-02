@@ -20,7 +20,7 @@ export const paymentDetailsSchema = z.object({
       .string()
       .regex(
         new RegExp(
-          /\/[a-z1-9_]*\/incoming-payments\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
+          /\/[a-z1-9_-]*\/incoming-payments\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
         ),
         {
           message: 'Url is not a valid incoming payment url'
