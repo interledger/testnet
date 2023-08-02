@@ -178,3 +178,4 @@ networks:
 
 volumes:
   pg-data:
+  tigerbeetle-data: # named volumes can be managed easier using docker-compose
