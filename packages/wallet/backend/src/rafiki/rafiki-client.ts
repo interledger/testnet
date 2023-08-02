@@ -82,7 +82,7 @@ export type CreateIncomingPaymentParams = {
   amount: bigint | null
   asset: Asset
   description?: string
-  expiresAt?: string
+  expiresAt?: Date
   accountId: string
 }
 
@@ -134,7 +134,7 @@ export class RafikiClient implements IRafikiClient {
       metadata: {
         description: params.description
       },
-      expiresAt: params.expiresAt,
+      expiresAt: params.expiresAt?.toISOString(),
       ...(params.amount && {
         incomingAmount: {
           value: params.amount,

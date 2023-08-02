@@ -110,7 +110,7 @@ export class QuoteService implements IQuoteService {
         asset,
         paymentPointerUrl: params.receiver,
         description: params.description,
-        expiresAt: new Date(Date.now() + 1000 * 60).toISOString()
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
       })
     }
     // const amount =  params.isReceive ? isIncomingPayment ? BigInt((params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()): undefined : value

@@ -27,18 +27,58 @@ export const acceptQuoteSchema = z.object({
   quoteId: z.string().uuid()
 })
 
-export const requestSchema = z.object({
-  paymentPointerId: z
-    .object({
-      value: z.string().uuid(),
-      label: z.string().min(1)
-    })
-    .nullable(),
-  amount: z.coerce.number({
-    invalid_type_error: 'Please enter a valid amount'
-  }),
-  description: z.string()
-})
+const TIME_UNITS = ['s', 'm', 'h', 'd'] as const
+
+export type TimeUnit = (typeof TIME_UNITS)[number]
+
+export const requestSchema = z
+  .object({
+    paymentPointerId: z
+      .object({
+        value: z.string().uuid(),
+        label: z.string().min(1)
+      })
+      .nullable(),
+    amount: z.coerce.number({
+      invalid_type_error: 'Please enter a valid amount'
+    }),
+    description: z.string(),
+    expiry: z.coerce
+      .number()
+      .int({ message: 'Expiry time amount should be a whole number' })
+      .refine((value) => {
+        if (value && isNaN(value)) {
+          return false
+        }
+        return true
+      })
+      .refine(
+        (value) => {
+          if (value && value <= 0) {
+            return false
+          }
+          return true
+        },
+        { message: 'Expiry time amount should be greater than 0' }
+      )
+      .optional(),
+    unit: z
+      .object({
+        value: z.enum(TIME_UNITS),
+        label: z.string().min(1)
+      })
+      .optional()
+  })
+  .superRefine(({ expiry, unit }, ctx) => {
+    if ((expiry && !unit) || (!expiry && unit)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Payment expiry was not properly specified. Please make sure that both the amount and time unit are specified',
+        path: ['expiry']
+      })
+    }
+  })
 
 type PaymentDetails = {
   description?: string
@@ -49,6 +89,11 @@ type AmountProps = {
   assetCode: string
   assetScale: number
   value: string
+}
+
+interface Expiration {
+  value: number
+  unit: string
 }
 
 export interface Quote {
@@ -128,6 +173,14 @@ const createTransfersService = (): TransfersService => ({
   },
 
   async request(args) {
+    let expiration: Expiration | undefined = undefined
+    if (args.expiry && args.expiry > 0 && args.unit) {
+      expiration = {
+        value: args.expiry,
+        unit: args.unit.value
+      }
+    }
+
     try {
       const response = await httpClient
         .post('incoming-payments', {
@@ -135,7 +188,8 @@ const createTransfersService = (): TransfersService => ({
             ...args,
             paymentPointerId: args.paymentPointerId
               ? args.paymentPointerId.value
-              : undefined
+              : undefined,
+            expiration
           }
         })
         .json<SuccessResponse>()
