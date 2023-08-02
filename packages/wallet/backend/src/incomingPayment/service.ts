@@ -31,7 +31,7 @@ interface IncomingPaymentServiceDependencies {
 
 interface CreateReceiverParams {
   amount: bigint | null
-  asset: Asset
+  asset: Pick<Asset, 'code' | 'scale'>
   paymentPointerUrl: string
   description?: string
   expiresAt?: Date
