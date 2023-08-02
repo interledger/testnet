@@ -1,18 +1,17 @@
 import { z } from 'zod'
 
 export const incomingPaymentSchema = z.object({
-  body: z
-    .object({
-      paymentPointerId: z.string().uuid(),
-      amount: z.number().positive(),
-      description: z.string().optional(),
-      expiration: z
-        .object({
-          value: z.coerce.number().positive().int(),
-          unit: z.enum(['s', 'm', 'h', 'd'])
-        })
-        .optional()
-    })
+  body: z.object({
+    paymentPointerId: z.string().uuid(),
+    amount: z.number().positive(),
+    description: z.string().optional(),
+    expiration: z
+      .object({
+        value: z.coerce.number().positive().int(),
+        unit: z.enum(['s', 'm', 'h', 'd'])
+      })
+      .optional()
+  })
 })
 
 export const paymentDetailsSchema = z.object({
