@@ -4,7 +4,13 @@ export const incomingPaymentSchema = z.object({
   body: z.object({
     paymentPointerId: z.string().uuid(),
     amount: z.number().positive(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    expiration: z
+      .object({
+        value: z.coerce.number().positive().int(),
+        unit: z.enum(['s', 'm', 'h', 'd'])
+      })
+      .optional()
   })
 })
 

@@ -4,6 +4,7 @@ import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
 import { PaginationQueryParams } from '@/shared/types'
 import { prefixSomeObjectKeys } from '@/utils/helpers'
+import { Knex } from 'knex'
 
 type ListAllTransactionsInput = {
   userId: string
@@ -24,11 +25,13 @@ interface ITransactionService {
     update: PartialModelObject<Transaction>
   ) => Promise<void>
   listAll: (input: ListAllTransactionsInput) => Promise<Page<Transaction>>
+  processPendingIncomingPayments: () => Promise<string | undefined>
 }
 
 interface TransactionServiceDependencies {
   accountService: AccountService
   logger: Logger
+  knex: Knex
 }
 
 export class TransactionService implements ITransactionService {
@@ -89,5 +92,33 @@ export class TransactionService implements ITransactionService {
       .page(page, pageSize)
 
     return transactions
+  }
+
+  async processPendingIncomingPayments(): Promise<string | undefined> {
+    return this.deps.knex.transaction(async (trx) => {
+      // Giving a Rafiki a little more time to process the payments before we process them.
+      const now = new Date(Date.now() + 10_000)
+      const [transaction] = await Transaction.query(trx)
+        .limit(1)
+        .forUpdate()
+        .skipLocked()
+        .where('status', '=', 'PENDING')
+        .whereNotNull('expiresAt')
+        .andWhere('expiresAt', '<=', now)
+
+      if (!transaction) return
+      await this.handleExpired(trx, transaction)
+
+      return transaction.id
+    })
+  }
+
+  private async handleExpired(
+    trx: Knex.Transaction,
+    transaction: Transaction
+  ): Promise<void> {
+    await transaction.$query(trx).patch({
+      status: 'EXPIRED'
+    })
   }
 }

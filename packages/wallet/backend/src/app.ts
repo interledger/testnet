@@ -269,4 +269,24 @@ export class App {
 
     return app
   }
+
+  private async processPendingTransactions() {
+    const transactionService = await this.container.resolve(
+      'transactionService'
+    )
+    return transactionService
+      .processPendingIncomingPayments()
+      .catch(() => false)
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processPendingTransactions())
+        } else {
+          setTimeout(() => this.processPendingTransactions(), 5000).unref()
+        }
+      })
+  }
+
+  async processResources() {
+    process.nextTick(() => this.processPendingTransactions())
+  }
 }
