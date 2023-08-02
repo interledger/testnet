@@ -13,20 +13,6 @@ export const incomingPaymentSchema = z.object({
         })
         .optional()
     })
-    .superRefine(({ expiration }, ctx) => {
-      if (
-        expiration &&
-        ((expiration.value && !expiration.unit) ||
-          (!expiration.value && expiration.unit))
-      ) {
-        ctx.addIssue({
-          code: 'custom',
-          message:
-            'Payment expiry was not properly specified. Please make sure that both the amount and time unit are specified',
-          path: ['expiry']
-        })
-      }
-    })
 })
 
 export const paymentDetailsSchema = z.object({
