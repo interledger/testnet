@@ -4,7 +4,7 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { incomingPaymentRegexp } from '@/utils/helpers'
+import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
 import { RafikiService } from '../rafiki/service'
 import { QuoteWithFees } from './controller'
 import { PaymentPointerService } from '../paymentPointer/service'
@@ -74,9 +74,11 @@ export class QuoteService implements IQuoteService {
 
     let paymentUrl = params.receiver
 
+    const isIncomingPayment = incomingPaymentRegexp.test(params.receiver)
+
     const destinationPaymentPointer =
       await this.deps.paymentPointerService.getExternalPaymentPointer(
-        paymentUrl
+        isIncomingPayment? urlToPaymentPointer(paymentUrl) : paymentUrl
       )
 
     if (
@@ -102,7 +104,7 @@ export class QuoteService implements IQuoteService {
       }
     }
 
-    if (!incomingPaymentRegexp.test(params.receiver)) {
+    if (!isIncomingPayment) {
       paymentUrl = await this.deps.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
         asset,
@@ -111,12 +113,13 @@ export class QuoteService implements IQuoteService {
         expiresAt: new Date(Date.now() + 1000 * 60).toISOString()
       })
     }
-
+    // const amount =  params.isReceive ? isIncomingPayment ? BigInt((params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()): undefined : value
+    const amount = BigInt((params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed())
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
       receiver: paymentUrl,
       asset,
-      amount: params.isReceive ? undefined : value
+     amount
     })
 
     return this.addConversionInfo(
