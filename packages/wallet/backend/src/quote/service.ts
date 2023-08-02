@@ -5,9 +5,9 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
+import { PaymentPointerService } from '../paymentPointer/service'
 import { RafikiService } from '../rafiki/service'
 import { QuoteWithFees } from './controller'
-import { PaymentPointerService } from '../paymentPointer/service'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
@@ -110,23 +110,24 @@ export class QuoteService implements IQuoteService {
         asset,
         paymentPointerUrl: params.receiver,
         description: params.description,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+        expiresAt: new Date(Date.now() + 1000 * 60 * 2)
       })
     }
+
+    const amount = BigInt(
+      (params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()
+    )
+    const amountParam = {
+      assetCode: asset.code,
+      assetScale: asset.scale,
+      value: amount
+    }
+
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
+      receiveAmount: params.isReceive ? amountParam : undefined,
       receiver: paymentUrl,
-      asset,
-      amount: params.isReceive
-        ? isIncomingPayment
-          ? BigInt(
-              (
-                params.amount *
-                10 ** destinationPaymentPointer.assetScale
-              ).toFixed()
-            )
-          : undefined
-        : value
+      sendAmount: params.isReceive ? undefined : amountParam
     })
 
     return this.addConversionInfo(
