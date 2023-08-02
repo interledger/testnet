@@ -107,7 +107,10 @@ export class QuoteService implements IQuoteService {
     if (!isIncomingPayment) {
       paymentUrl = await this.deps.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
-        asset,
+        asset: {
+          code: destinationPaymentPointer.assetCode,
+          scale: destinationPaymentPointer.assetScale
+        },
         paymentPointerUrl: params.receiver,
         description: params.description,
         expiresAt: new Date(Date.now() + 1000 * 60 * 2)

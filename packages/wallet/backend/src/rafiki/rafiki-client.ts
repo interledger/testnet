@@ -80,7 +80,7 @@ interface RafikiClientDependencies {
 export type CreateIncomingPaymentParams = {
   paymentPointerId: string
   amount: bigint | null
-  asset: Asset
+  asset: Pick<Asset, 'code' | 'scale'>
   description?: string
   expiresAt?: Date
   accountId: string
