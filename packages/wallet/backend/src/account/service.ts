@@ -275,7 +275,7 @@ export class AccountService implements IAccountService {
   public async createDefaultAccount(
     userId: string
   ): Promise<Account | undefined> {
-    const asset = (await this.deps.rafiki.listAssets()).find(
+    const asset = (await this.deps.rafiki.listAssets({ first: 100 })).find(
       (asset) => asset.code === 'EUR' && asset.scale === 2
     )
     if (!asset) {
