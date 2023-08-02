@@ -5,14 +5,6 @@ import {
   httpClient
 } from '../httpClient'
 
-// This is weird ...
-// Ref: https://github.com/microsoft/TypeScript/issues/54466
-declare global {
-  interface URLSearchParams {
-    size: number
-  }
-}
-
 const TRANSACTION_TYPE = {
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING'
@@ -77,7 +69,7 @@ export const createTransactionService = (): TransactionService => {
 
       try {
         const response = await httpClient
-          .get(`transactions${params.size > 0 ? `?${params}` : ``}`, {
+          .get(`transactions?${params}`, {
             retry: 0
           })
           .json<ListTransactionsResult>()
