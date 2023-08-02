@@ -326,12 +326,12 @@ interface CompletePayoutRequest {
 }
 
 interface DailyRateRequest {
-  action_type: string
+  actionType: string
   amount?: number
-  buy_currency: string
+  buyCurrency: string
   date?: string
-  fixed_side?: string
-  sell_currency: string
+  fixedSide?: string
+  sellCurrency: string
 }
 
 interface Rate {

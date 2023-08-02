@@ -257,10 +257,10 @@ export class RapydClient implements IRapydClient {
   }
 
   public getDailyRate(req: DailyRateRequest): Promise<RapydResponse<Rate>> {
-    let url = `rates/daily?action_type=${req.action_type}&buy_currency=${req.buy_currency}&sell_currency=${req.sell_currency}`
+    let url = `rates/daily?action_type=${req.actionType}&buy_currency=${req.buyCurrency}&sell_currency=${req.sellCurrency}`
     url += req.amount ? `&amount=${req.amount}` : ''
     url += req.date ? `&date=${req.date}` : ''
-    url += req.fixed_side ? `&fixed_side=${req.fixed_side}` : ''
+    url += req.fixedSide ? `&fixed_side=${req.fixedSide}` : ''
 
     return this.get<RapydResponse<Rate>>(url)
   }

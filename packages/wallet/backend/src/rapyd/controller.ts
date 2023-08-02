@@ -194,25 +194,8 @@ export class RapydController implements IRapydController {
     next: NextFunction
   ) => {
     try {
-      const {
-        query: {
-          actionType,
-          amount,
-          buyCurrency,
-          date,
-          fixedSide,
-          sellCurrency
-        }
-      } = await validate(dailyRateSchema, req)
-
-      const rate = await this.deps.rapydService.getDailyRate({
-        action_type: actionType,
-        amount,
-        buy_currency: buyCurrency,
-        date: date,
-        fixed_side: fixedSide,
-        sell_currency: sellCurrency
-      })
+      const { query } = await validate(dailyRateSchema, req)
+      const rate = await this.deps.rapydService.getDailyRate(query)
 
       res.status(200).json({ success: true, message: 'SUCCESS', data: rate })
     } catch (e) {
