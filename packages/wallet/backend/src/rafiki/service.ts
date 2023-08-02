@@ -101,7 +101,7 @@ export class RafikiService implements IRafikiService {
       case EventType.IncomingPaymentCompleted:
         await this.handleIncomingPaymentCompleted(wh)
         break
-        case EventType.IncomingPaymentCreated:
+      case EventType.IncomingPaymentCreated:
         return
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)

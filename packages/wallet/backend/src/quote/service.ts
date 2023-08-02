@@ -78,7 +78,7 @@ export class QuoteService implements IQuoteService {
 
     const destinationPaymentPointer =
       await this.deps.paymentPointerService.getExternalPaymentPointer(
-        isIncomingPayment? urlToPaymentPointer(paymentUrl) : paymentUrl
+        isIncomingPayment ? urlToPaymentPointer(paymentUrl) : paymentUrl
       )
 
     if (
@@ -114,12 +114,14 @@ export class QuoteService implements IQuoteService {
       })
     }
     // const amount =  params.isReceive ? isIncomingPayment ? BigInt((params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()): undefined : value
-    const amount = BigInt((params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed())
+    const amount = BigInt(
+      (params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()
+    )
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
       receiver: paymentUrl,
       asset,
-     amount
+      amount
     })
 
     return this.addConversionInfo(

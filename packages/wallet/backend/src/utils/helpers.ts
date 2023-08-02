@@ -15,8 +15,8 @@ export const transformAmount = (
   return `${integerPart}.${fractionalPart}`
 }
 
-
-export const urlToPaymentPointer = (url: string) => url.split('/').slice(0,4).join('/')
+export const urlToPaymentPointer = (url: string) =>
+  url.split('/').slice(0, 4).join('/')
 
 export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
