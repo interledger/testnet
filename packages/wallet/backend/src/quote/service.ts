@@ -93,7 +93,7 @@ export class QuoteService implements IQuoteService {
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
-      const assetList = await this.deps.rafikiClient.listAssets()
+      const assetList = await this.deps.rafikiClient.listAssets({ first: 100 })
       asset = assetList.find(
         (a) => a.code === destinationPaymentPointer.assetCode
       )
@@ -114,20 +114,17 @@ export class QuoteService implements IQuoteService {
       })
     }
 
-    const amount = BigInt(
-      (params.amount * 10 ** destinationPaymentPointer.assetScale).toFixed()
-    )
-    const amountParam = {
+    const amountParams = {
       assetCode: asset.code,
       assetScale: asset.scale,
-      value: amount
+      value
     }
 
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
-      receiveAmount: params.isReceive ? amountParam : undefined,
+      receiveAmount: params.isReceive ? amountParams : undefined,
       receiver: paymentUrl,
-      sendAmount: params.isReceive ? undefined : amountParam
+      sendAmount: params.isReceive ? undefined : amountParams
     })
 
     return this.addConversionInfo(
