@@ -62,9 +62,8 @@ export class QuoteService implements IQuoteService {
       throw new BadRequest('Not enough funds in account')
     }
 
-    let asset: Asset | undefined = await this.deps.rafikiClient.getAssetById(
-      assetId
-    )
+    let asset: Pick<Asset, 'scale' | 'code'> | undefined =
+      await this.deps.rafikiClient.getAssetById(assetId)
     if (!asset) {
       throw new NotFound()
     }
@@ -93,14 +92,20 @@ export class QuoteService implements IQuoteService {
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
-      const assetList = await this.deps.rafikiClient.listAssets({ first: 100 })
-      asset = assetList.find(
-        (a) => a.code === destinationPaymentPointer.assetCode
-      )
-      if (!asset) {
-        throw new BadRequest(
-          'Destination payment pointer asset is not supported'
-        )
+      // TODO: discuss if this check is required
+      // const assetList = await this.deps.rafikiClient.listAssets({ first: 100 })
+      // asset = assetList.find(
+      //   (a) => a.code === destinationPaymentPointer.assetCode
+      // )
+      // if (!asset) {
+      //   throw new BadRequest(
+      //     'Destination payment pointer asset is not supported'
+      //   )
+      // }
+
+      asset = {
+        code: destinationPaymentPointer.assetCode,
+        scale: destinationPaymentPointer.assetScale
       }
     }
 
