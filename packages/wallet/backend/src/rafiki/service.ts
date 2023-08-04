@@ -7,6 +7,7 @@ import { Logger } from 'winston'
 import { RafikiClient } from './rafiki-client'
 
 export enum EventType {
+  IncomingPaymentCreated = 'incoming_payment.created',
   IncomingPaymentCompleted = 'incoming_payment.completed',
   IncomingPaymentExpired = 'incoming_payment.expired',
   OutgoingPaymentCreated = 'outgoing_payment.created',
@@ -100,6 +101,8 @@ export class RafikiService implements IRafikiService {
       case EventType.IncomingPaymentCompleted:
         await this.handleIncomingPaymentCompleted(wh)
         break
+      case EventType.IncomingPaymentCreated:
+        return
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
         break

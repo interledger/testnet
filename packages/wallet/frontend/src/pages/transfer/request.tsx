@@ -7,7 +7,7 @@ import { Input } from '@/ui/forms/Input'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { requestSchema, transfersService } from '@/lib/api/transfers'
+import { TimeUnit, requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
@@ -19,7 +19,12 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { AssetOP } from '@/lib/api/asset'
+import { Label } from '@/ui/forms/Label'
+import { FieldError } from '@/ui/forms/FieldError'
 
+type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
+  value: TimeUnit
+}
 type SelectPaymentPointerOption = SelectOption & { url: string }
 
 function getIncomingPaymentUrl(
@@ -32,6 +37,13 @@ function getIncomingPaymentUrl(
   )?.url}/incoming-payments/${paymentId}`.replace('https://', '$')
 }
 
+const timeUnitOptions: SelectTimeUnitOption[] = [
+  { value: 's', label: 'second(s)' },
+  { value: 'm', label: 'minute(s)' },
+  { value: 'h', label: 'hour(s)' },
+  { value: 'd', label: 'day(s)' }
+]
+
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
@@ -41,7 +53,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   >([])
   const [balance, setBalance] = useState('')
   const requestForm = useZodForm({
-    schema: requestSchema
+    schema: requestSchema,
+    mode: 'onSubmit'
   })
 
   const getPaymentPointers = async (accountId: string) => {
@@ -169,6 +182,49 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               {...requestForm.register('description')}
               label="Description"
             />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="expiry">Expiry</Label>
+              <div className="flex basis-5/6 justify-end space-x-2">
+                <Input
+                  id="expiry"
+                  placeholder="Time amount"
+                  type="number"
+                  step="1"
+                  min="1"
+                  {...requestForm.register('expiry')}
+                />
+                <div className="mt-1">
+                  <Controller
+                    name="unit"
+                    control={requestForm.control}
+                    render={({ field: { value } }) => (
+                      <Select<SelectTimeUnitOption>
+                        isClearable={true}
+                        isSearchable={false}
+                        className="w-36"
+                        placeholder="Unit"
+                        options={timeUnitOptions}
+                        aria-invalid={
+                          requestForm.formState.errors.paymentPointerId
+                            ? 'true'
+                            : 'false'
+                        }
+                        value={value}
+                        onChange={(option, { action }) => {
+                          if (option) {
+                            requestForm.setValue('unit', { ...option })
+                          }
+                          if (action === 'clear') {
+                            requestForm.resetField('unit')
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <FieldError error={requestForm.formState.errors.expiry?.message} />
           </div>
           <div className="flex justify-center py-5">
             <Button

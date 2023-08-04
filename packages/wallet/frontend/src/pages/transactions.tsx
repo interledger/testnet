@@ -34,20 +34,15 @@ const defaultOption = {
 
 const types: SelectOption[] = [
   defaultOption,
-  {
-    label: 'Incoming',
-    value: 'INCOMING'
-  },
+  { label: 'Incoming', value: 'INCOMING' },
   { label: 'Outgoing', value: 'OUTGOING' }
 ]
 
 const statuses = [
   defaultOption,
-  {
-    label: 'Completed',
-    value: 'COMPLETED'
-  },
-  { label: 'Pending', value: 'PENDING' }
+  { label: 'Completed', value: 'COMPLETED' },
+  { label: 'Pending', value: 'PENDING' },
+  { label: 'Expired', value: 'EXPIRED' }
 ]
 
 type TransactionsPageProps = InferGetServerSidePropsType<

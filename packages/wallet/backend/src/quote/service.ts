@@ -4,10 +4,10 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { incomingPaymentRegexp } from '@/utils/helpers'
+import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
+import { PaymentPointerService } from '../paymentPointer/service'
 import { RafikiService } from '../rafiki/service'
 import { QuoteWithFees } from './controller'
-import { PaymentPointerService } from '../paymentPointer/service'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
@@ -62,9 +62,8 @@ export class QuoteService implements IQuoteService {
       throw new BadRequest('Not enough funds in account')
     }
 
-    let asset: Asset | undefined = await this.deps.rafikiClient.getAssetById(
-      assetId
-    )
+    let asset: Pick<Asset, 'scale' | 'code'> | undefined =
+      await this.deps.rafikiClient.getAssetById(assetId)
     if (!asset) {
       throw new NotFound()
     }
@@ -74,9 +73,11 @@ export class QuoteService implements IQuoteService {
 
     let paymentUrl = params.receiver
 
+    const isIncomingPayment = incomingPaymentRegexp.test(params.receiver)
+
     const destinationPaymentPointer =
       await this.deps.paymentPointerService.getExternalPaymentPointer(
-        paymentUrl
+        isIncomingPayment ? urlToPaymentPointer(paymentUrl) : paymentUrl
       )
 
     if (
@@ -91,32 +92,47 @@ export class QuoteService implements IQuoteService {
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
-      const assetList = await this.deps.rafikiClient.listAssets()
-      asset = assetList.find(
-        (a) => a.code === destinationPaymentPointer.assetCode
-      )
-      if (!asset) {
-        throw new BadRequest(
-          'Destination payment pointer asset is not supported'
-        )
+      // TODO: discuss if this check is required
+      // const assetList = await this.deps.rafikiClient.listAssets({ first: 100 })
+      // asset = assetList.find(
+      //   (a) => a.code === destinationPaymentPointer.assetCode
+      // )
+      // if (!asset) {
+      //   throw new BadRequest(
+      //     'Destination payment pointer asset is not supported'
+      //   )
+      // }
+
+      asset = {
+        code: destinationPaymentPointer.assetCode,
+        scale: destinationPaymentPointer.assetScale
       }
     }
 
-    if (!incomingPaymentRegexp.test(params.receiver)) {
+    if (!isIncomingPayment) {
       paymentUrl = await this.deps.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
-        asset,
+        asset: {
+          code: destinationPaymentPointer.assetCode,
+          scale: destinationPaymentPointer.assetScale
+        },
         paymentPointerUrl: params.receiver,
         description: params.description,
-        expiresAt: new Date(Date.now() + 1000 * 60).toISOString()
+        expiresAt: new Date(Date.now() + 1000 * 60 * 2)
       })
+    }
+
+    const amountParams = {
+      assetCode: asset.code,
+      assetScale: asset.scale,
+      value
     }
 
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
+      receiveAmount: params.isReceive ? amountParams : undefined,
       receiver: paymentUrl,
-      asset,
-      amount: params.isReceive ? undefined : value
+      sendAmount: params.isReceive ? undefined : amountParams
     })
 
     return this.addConversionInfo(

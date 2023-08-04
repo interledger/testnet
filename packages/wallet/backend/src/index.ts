@@ -11,6 +11,7 @@ const container = createContainer(env)
 const app = new App(container)
 
 export const start = async (app: App): Promise<void> => {
+  await app.processResources()
   await app.startServer()
 }
 

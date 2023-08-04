@@ -9,6 +9,7 @@ import {
 import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
 import { Asset } from '@/rafiki/backend/generated/graphql'
+import { add } from 'date-fns'
 
 interface IIncomingPaymentService {
   create: (
@@ -28,12 +29,24 @@ interface IncomingPaymentServiceDependencies {
   rafikiClient: RafikiClient
 }
 
-type CreateReceiverParams = {
+interface CreateReceiverParams {
   amount: bigint | null
-  asset: Asset
+  asset: Pick<Asset, 'code' | 'scale'>
   paymentPointerUrl: string
   description?: string
-  expiresAt?: string
+  expiresAt?: Date
+}
+
+interface Expiration {
+  value: number
+  unit: string
+}
+
+const unitMapping: Record<string, keyof Duration> = {
+  s: 'seconds',
+  m: 'minutes',
+  h: 'hours',
+  d: 'days'
 }
 
 export class IncomingPaymentService implements IIncomingPaymentService {
@@ -43,7 +56,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     userId: string,
     paymentPointerId: string,
     amount: number,
-    description?: string
+    description?: string,
+    expiration?: Expiration
   ): Promise<Transaction> {
     const existingPaymentPointer = await PaymentPointer.query().findById(
       paymentPointerId
@@ -61,12 +75,22 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
+    let expiryDate: Date | undefined
+
+    if (expiration) {
+      expiryDate = add(
+        new Date(),
+        this.generateExpiryObject(expiration.value, expiration.unit)
+      )
+    }
+
     return this.createIncomingPaymentTransactions({
       paymentPointerId,
       description,
       asset,
-      accountId: existingPaymentPointer.accountId,
-      amount: BigInt(amount * 10 ** asset.scale)
+      amount: BigInt(amount * 10 ** asset.scale),
+      expiresAt: expiryDate,
+      accountId: existingPaymentPointer.accountId
     })
   }
 
@@ -109,6 +133,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       accountId: params.accountId,
       paymentId: response.id,
       assetCode: params.asset.code,
+      expiresAt: params.expiresAt,
       value: params.amount,
       type: 'INCOMING',
       status: 'PENDING',
@@ -131,5 +156,9 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     })
 
     return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
+  }
+
+  private generateExpiryObject(expiry: number, unit: string): Duration {
+    return unitMapping[unit] ? { [unitMapping[unit]]: expiry } : { days: 30 }
   }
 }

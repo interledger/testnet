@@ -1,10 +1,8 @@
-import { Logger } from 'winston'
 import { Env } from '@/config/env'
-import {
-  createAssetMutation,
-  getAssetQuery,
-  getAssetsQuery
-} from './backend/request/asset.request'
+import { BadRequest, NotFound } from '@/errors'
+import { GraphQLClient } from 'graphql-request'
+import { v4 as uuid } from 'uuid'
+import { Logger } from 'winston'
 import {
   Asset,
   CreateAssetMutation,
@@ -15,9 +13,10 @@ import {
   CreateOutgoingPaymentInput,
   CreateOutgoingPaymentMutation,
   CreateOutgoingPaymentMutationVariables,
+  CreatePaymentPointerKeyMutation,
+  CreatePaymentPointerKeyMutationVariables,
   CreatePaymentPointerMutation,
   CreatePaymentPointerMutationVariables,
-  CreatePaymentPointerKeyMutation,
   CreateQuoteInput,
   CreateQuoteMutation,
   CreateQuoteMutationVariables,
@@ -30,40 +29,41 @@ import {
   GetQuoteQuery,
   GetQuoteQueryVariables,
   IncomingPayment,
-  OutgoingPayment,
-  Quote,
-  WithdrawLiquidityMutation,
-  WithdrawLiquidityMutationVariables,
-  CreatePaymentPointerKeyMutationVariables,
   JwkInput,
+  OutgoingPayment,
   QueryAssetsArgs,
-  UpdatePaymentPointerInput,
-  UpdatePaymentPointerMutationVariables,
-  UpdatePaymentPointerMutation,
+  Quote,
   RevokePaymentPointerKeyMutation,
-  RevokePaymentPointerKeyMutationVariables
+  RevokePaymentPointerKeyMutationVariables,
+  UpdatePaymentPointerInput,
+  UpdatePaymentPointerMutation,
+  UpdatePaymentPointerMutationVariables,
+  WithdrawLiquidityMutation,
+  WithdrawLiquidityMutationVariables
 } from './backend/generated/graphql'
+import {
+  createAssetMutation,
+  getAssetQuery,
+  getAssetsQuery
+} from './backend/request/asset.request'
 import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
-import { BadRequest, NotFound } from '@/errors'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
 } from './backend/request/liquidity.request'
 import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
 import {
+  createPaymentPointerKeyMutation,
+  revokePaymentPointerKeyMutation
+} from './backend/request/payment-pointer-key.request'
+import {
   createPaymentPointerMutation,
   updatePaymentPointerMutation
 } from './backend/request/payment-pointer.request'
 import {
-  createPaymentPointerKeyMutation,
-  revokePaymentPointerKeyMutation
-} from './backend/request/payment-pointer-key.request'
-import { GraphQLClient } from 'graphql-request'
-import {
   createQuoteMutation,
   getQuoteQuery
 } from './backend/request/quote.request'
-import { v4 as uuid } from 'uuid'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -80,19 +80,11 @@ interface RafikiClientDependencies {
 export type CreateIncomingPaymentParams = {
   paymentPointerId: string
   amount: bigint | null
-  asset: Asset
+  asset: Pick<Asset, 'code' | 'scale'>
   description?: string
-  expiresAt?: string
+  expiresAt?: Date
   accountId: string
 }
-
-type CreateQuoteParams = {
-  paymentPointerId: string
-  receiver: string
-  asset: Asset
-  amount?: bigint
-}
-
 export class RafikiClient implements IRafikiClient {
   constructor(private deps: RafikiClientDependencies) {}
 
@@ -134,7 +126,7 @@ export class RafikiClient implements IRafikiClient {
       metadata: {
         description: params.description
       },
-      expiresAt: params.expiresAt,
+      expiresAt: params.expiresAt?.toISOString(),
       ...(params.amount && {
         incomingAmount: {
           value: params.amount,
@@ -297,22 +289,7 @@ export class RafikiClient implements IRafikiClient {
     }
   }
 
-  public async createQuote(params: CreateQuoteParams): Promise<Quote> {
-    const value = {
-      value: params.amount as unknown as bigint,
-      assetCode: params.asset.code,
-      assetScale: params.asset.scale
-    }
-
-    const input: CreateQuoteInput = {
-      paymentPointerId: params.paymentPointerId,
-      receiver: params.receiver
-    }
-
-    if (params.amount) {
-      input.sendAmount = value
-    }
-
+  public async createQuote(input: CreateQuoteInput): Promise<Quote> {
     const { createQuote } = await this.deps.gqlClient.request<
       CreateQuoteMutation,
       CreateQuoteMutationVariables
