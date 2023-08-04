@@ -63,7 +63,7 @@ services:
     restart: always
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.2
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:17ebd18769baa66605cf3f876cae2ca6516967941041c27661fac4b30595e9bd
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -81,7 +81,7 @@ services:
     restart: always
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.2
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:17ebd18769baa66605cf3f876cae2ca6516967941041c27661fac4b30595e9bd
     container_name: rafiki-backend
     depends_on:
       - postgres
@@ -122,7 +122,7 @@ services:
       - ../temp/:/workspace/temp/
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.2
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:17ebd18769baa66605cf3f876cae2ca6516967941041c27661fac4b30595e9bd
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
