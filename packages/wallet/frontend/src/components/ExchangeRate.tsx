@@ -1,6 +1,7 @@
 import { AssetOP, Rates } from '@/lib/api/asset'
 import { getCurrencySymbol } from '@/utils/helpers'
 import { memo } from 'react'
+import { SimpleArrow } from './icons/Arrow'
 
 type ExchangeRateProps = {
   convertAmount: number
@@ -26,13 +27,25 @@ export const ExchangeRate = memo(
       receiverAssetCode !== selectedAsset.assetCode
     ) {
       return (
-        <p className="ml-2 text-sm text-green">{`Receiver Payment Pointer asset is in ${getCurrencySymbol(
-          receiverAssetCode
-        )}. Exchange Rate: ${getCurrencySymbol(
-          selectedAsset.assetCode
-        )}${convertAmount} = ${getCurrencySymbol(receiverAssetCode)}${(
-          convertAmount * currentExchangeRates.rates[receiverAssetCode]
-        ).toFixed(selectedAsset.assetScale)}`}</p>
+        <div className="flex flex-col space-y-0">
+          <p className="mx-2 text-sm text-green">
+            The receiver&apos;s account is in a different currency.
+          </p>
+          <p className="mx-2 text-sm text-green">
+            Exchange rate: {getCurrencySymbol(selectedAsset.assetCode)}1
+            <SimpleArrow className="inline h-3 w-3" />
+            {getCurrencySymbol(receiverAssetCode)}
+            {currentExchangeRates.rates[receiverAssetCode]}
+          </p>
+          <p className="mx-2 text-sm text-green">
+            Amount: {getCurrencySymbol(selectedAsset.assetCode)}
+            {convertAmount}
+            <SimpleArrow className="inline h-3 w-3" />
+            {`${getCurrencySymbol(receiverAssetCode)}${(
+              convertAmount * currentExchangeRates.rates[receiverAssetCode]
+            ).toFixed(selectedAsset.assetScale)}`}
+          </p>
+        </div>
       )
     }
 
