@@ -56,6 +56,7 @@ export const mockedTransactionInsertObjs: Array<
   PartialModelObject<Transaction>
 > = [
   {
+    id: faker.string.uuid(),
     paymentPointerId: faker.string.uuid(),
     accountId: faker.string.uuid(),
     paymentId: faker.string.uuid(),
@@ -66,6 +67,7 @@ export const mockedTransactionInsertObjs: Array<
     description: faker.string.alpha(10)
   },
   {
+    id: faker.string.uuid(),
     paymentPointerId: faker.string.uuid(),
     accountId: faker.string.uuid(),
     paymentId: faker.string.uuid(),
@@ -76,6 +78,7 @@ export const mockedTransactionInsertObjs: Array<
     description: faker.string.alpha(10)
   },
   {
+    id: faker.string.uuid(),
     paymentPointerId: faker.string.uuid(),
     accountId: faker.string.uuid(),
     paymentId: faker.string.uuid(),
@@ -86,6 +89,7 @@ export const mockedTransactionInsertObjs: Array<
     description: faker.string.alpha(10)
   },
   {
+    id: faker.string.uuid(),
     paymentPointerId: faker.string.uuid(),
     accountId: faker.string.uuid(),
     paymentId: faker.string.uuid(),
