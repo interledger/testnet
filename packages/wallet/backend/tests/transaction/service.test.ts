@@ -43,13 +43,6 @@ describe('Transaction Controller', (): void => {
   let userId: string
 
   const args = mockLogInRequest().body
-  const transactionsOrderedByDate = mockedTransactionInsertObjs.sort((a, b) =>
-    a.createdAt === b.createdAt
-      ? 0
-      : (a.createdAt as Date) > (b.createdAt as Date)
-      ? 1
-      : -1
-  )
 
   // "dependency" = ALL foreign keys (paymentPointers, account, user...)
   const prepareTransactionDependencies = async () => {
@@ -119,23 +112,6 @@ describe('Transaction Controller', (): void => {
       paymentPointer
     }
   }
-  // const insertTransactions = async ({
-  //   paymentPointer,
-  //   account
-  // }: {
-  //   paymentPointer: PaymentPointer
-  //   account: Account
-  // }) => {
-  //   await Promise.all(
-  //     mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
-  //       Transaction.query().insert({
-  //         ...mockedTransactionInsertObj,
-  //         paymentPointerId: paymentPointer.id,
-  //         accountId: account.id
-  //       })
-  //     )
-  //   )
-  // }
 
   beforeAll(async (): Promise<void> => {
     bindings = createContainer(env)
