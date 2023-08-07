@@ -5,6 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { AssetOP } from './asset'
 
 export const createPaymentPointerSchema = z.object({
   paymentPointerName: z.string().toLowerCase().min(3, {
@@ -49,6 +50,12 @@ type BasePaymentPointerArgs = {
   paymentPointerId: string
 }
 
+type PaymentPointerOP = AssetOP & {
+  id: string
+  publicName: string
+  authServer: string
+}
+
 type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
@@ -83,6 +90,9 @@ type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
 type RevokeKeyArgs = BasePaymentPointerArgs
 type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
+type AssetCodeResult = SuccessResponse<PaymentPointerOP>
+type AssetCodeResponse = AssetCodeResult | ErrorResponse
+
 interface PaymentPointerService {
   get: (
     args: GetPaymentPointerArgs,
@@ -103,6 +113,7 @@ interface PaymentPointerService {
   delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
+  getExternal: (url: string) => Promise<AssetCodeResponse>
 }
 
 const createPaymentPointerService = (): PaymentPointerService => ({
@@ -239,6 +250,17 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         error,
         'We were not able to revoke the key. Please try again.'
       )
+    }
+  },
+
+  async getExternal(url) {
+    try {
+      const response = await httpClient
+        .get(`external-payment-pointers?url=${url}`)
+        .json<AssetCodeResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Error fetching external payment pointer details.')
     }
   }
 })
