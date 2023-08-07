@@ -27,8 +27,6 @@ import { PaymentPointerService } from '@/paymentPointer/service'
 import { faker } from '@faker-js/faker'
 import { User } from '@/user/model'
 import { createUser } from '@/tests/helpers'
-// import { PaymentPointer } from '@/paymentPointer/model'
-// import { Account } from '@/account/model'
 
 describe('Transaction Controller', (): void => {
   let bindings: Container<Bindings>
