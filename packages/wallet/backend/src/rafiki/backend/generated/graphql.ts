@@ -96,6 +96,13 @@ export type AssetsConnection = {
   pageInfo: PageInfo;
 };
 
+export type BasePayment = {
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  metadata?: Maybe<Scalars['JSONObject']['output']>;
+  paymentPointerId: Scalars['ID']['output'];
+};
+
 export type CreateAssetInput = {
   /** [ISO 4217 currency code](https://en.wikipedia.org/wiki/ISO_4217), e.g. `USD` */
   code: Scalars['String']['input'];
@@ -315,7 +322,7 @@ export type HttpOutgoingInput = {
   endpoint: Scalars['String']['input'];
 };
 
-export type IncomingPayment = Model & {
+export type IncomingPayment = BasePayment & Model & {
   __typename?: 'IncomingPayment';
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
@@ -596,7 +603,7 @@ export type MutationResponse = {
   success: Scalars['Boolean']['output'];
 };
 
-export type OutgoingPayment = Model & {
+export type OutgoingPayment = BasePayment & Model & {
   __typename?: 'OutgoingPayment';
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
@@ -665,6 +672,39 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+export type Payment = BasePayment & Model & {
+  __typename?: 'Payment';
+  /** Date-time of creation */
+  createdAt: Scalars['String']['output'];
+  /** Payment id */
+  id: Scalars['ID']['output'];
+  /** Additional metadata associated with the payment. */
+  metadata?: Maybe<Scalars['JSONObject']['output']>;
+  /** Id of the payment pointer under which this payment was created */
+  paymentPointerId: Scalars['ID']['output'];
+  /** Either the IncomingPaymentState or OutgoingPaymentState according to type */
+  state: Scalars['String']['output'];
+  /** Type of payment */
+  type: PaymentType;
+};
+
+export type PaymentConnection = {
+  __typename?: 'PaymentConnection';
+  edges: Array<PaymentEdge>;
+  pageInfo: PageInfo;
+};
+
+export type PaymentEdge = {
+  __typename?: 'PaymentEdge';
+  cursor: Scalars['String']['output'];
+  node: Payment;
+};
+
+export type PaymentFilter = {
+  paymentPointerId?: InputMaybe<FilterString>;
+  type?: InputMaybe<FilterString>;
+};
+
 export type PaymentPointer = Model & {
   __typename?: 'PaymentPointer';
   /** Asset of the payment pointer */
@@ -682,7 +722,7 @@ export type PaymentPointer = Model & {
   /** List of quotes created at this payment pointer */
   quotes?: Maybe<QuoteConnection>;
   /** Status of the payment pointer */
-  status?: Maybe<PaymentPointerStatus>;
+  status: PaymentPointerStatus;
   /** Payment Pointer URL */
   url: Scalars['String']['output'];
 };
@@ -763,6 +803,11 @@ export type PaymentPointersConnection = {
   pageInfo: PageInfo;
 };
 
+export enum PaymentType {
+  Incoming = 'INCOMING',
+  Outgoing = 'OUTGOING'
+}
+
 export type Peer = Model & {
   __typename?: 'Peer';
   /** Asset of peering relationship */
@@ -816,6 +861,8 @@ export type Query = {
   paymentPointer?: Maybe<PaymentPointer>;
   /** Fetch a page of payment pointers. */
   paymentPointers: PaymentPointersConnection;
+  /** Fetch a page of combined payments */
+  payments: PaymentConnection;
   /** Fetch a peer */
   peer?: Maybe<Peer>;
   /** Fetch a page of peers. */
@@ -858,6 +905,15 @@ export type QueryPaymentPointerArgs = {
 export type QueryPaymentPointersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryPaymentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<PaymentFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -1118,6 +1174,13 @@ export type CreateIncomingPaymentMutationVariables = Exact<{
 
 
 export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, paymentPointerId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+
+export type GetIncomingPaymentQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type GetIncomingPaymentQuery = { __typename?: 'Query', incomingPayment?: { __typename?: 'IncomingPayment', id: string, paymentPointerId: string, state: IncomingPaymentState, expiresAt: string, metadata?: any | null, createdAt: string, incomingAmount?: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } | null, receivedAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
 
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];

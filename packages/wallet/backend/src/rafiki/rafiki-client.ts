@@ -26,6 +26,8 @@ import {
   GetAssetQueryVariables,
   GetAssetsQuery,
   GetAssetsQueryVariables,
+  GetIncomingPaymentQuery,
+  GetIncomingPaymentQueryVariables,
   GetQuoteQuery,
   GetQuoteQueryVariables,
   IncomingPayment,
@@ -46,7 +48,10 @@ import {
   getAssetQuery,
   getAssetsQuery
 } from './backend/request/asset.request'
-import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
+import {
+  createIncomingPaymentMutation,
+  getIncomingPaymentQuery
+} from './backend/request/incoming-payment.request'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
@@ -315,5 +320,13 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return getQuote.quote
+  }
+
+  public async getIPById(id: string) {
+    const getIP = await this.deps.gqlClient.request<
+      GetIncomingPaymentQuery,
+      GetIncomingPaymentQueryVariables
+    >(getIncomingPaymentQuery, { id })
+    return getIP.incomingPayment
   }
 }

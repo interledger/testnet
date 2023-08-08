@@ -27,3 +27,26 @@ export const createIncomingPaymentMutation = gql`
     }
   }
 `
+
+export const getIncomingPaymentQuery = gql`
+  query GetIncomingPaymentQuery($id: String!) {
+    incomingPayment(id: $id) {
+      id
+      paymentPointerId
+      state
+      expiresAt
+      incomingAmount {
+        value
+        assetCode
+        assetScale
+      }
+      receivedAmount {
+        value
+        assetCode
+        assetScale
+      }
+      metadata
+      createdAt
+    }
+  }
+`

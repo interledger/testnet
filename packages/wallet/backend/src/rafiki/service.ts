@@ -6,6 +6,41 @@ import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
 import { RafikiClient } from './rafiki-client'
 
+// {
+//      "id": "ae3c5353-4d56-4032-a0e9-5d60eb7dec59",
+//      "type": "outgoing_payment.completed",
+//      "data": {
+//        "payment": {
+//          "id": "14e48909-b3d4-47ea-a9ba-df12d9e31e74",
+//          "paymentPointerId": "12d80203-d15d-4276-85a1-bcacfedd6e5a",
+//          "state": "COMPLETED",
+//          "receiver": "https://rafiki-backend/radu/incoming-payments/1bb533b9-39d9-4e2c-84d4-c712f87405f1",
+//          "sendAmount": {
+//            "value": "500",
+//            "assetCode": "USD",
+//            "assetScale": 2
+//          },
+//          "receiveAmount": {
+//            "value": "386",
+//            "assetCode": "USD",
+//            "assetScale": 2
+//          },
+//          "sentAmount": {
+//            "value": "386",
+//            "assetCode": "USD",
+//            "assetScale": 2
+//          },
+//          "stateAttempts": 0,
+//          "createdAt": "2023-08-08T09:31:01.914Z",
+//          "updatedAt": "2023-08-08T09:31:32.558Z",
+//          "balance": "114",
+//          "metadata": {
+//            "description": ""
+//          }
+//        }
+//      }
+//    }
+
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
   IncomingPaymentCompleted = 'incoming_payment.completed',
@@ -263,6 +298,14 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
+    console.log(JSON.stringify(wh, null, 2))
+    const incomingPaymentId = (wh.data.payment.receiver as string).split(
+      '/'
+    )[5]!
+
+    const IP = await this.deps.rafikiClient.getIPById(incomingPaymentId)
+    console.log(JSON.stringify(IP, null, 2))
+
     const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
     const sendAmount = this.getAmountFromWebHook(wh)
 
