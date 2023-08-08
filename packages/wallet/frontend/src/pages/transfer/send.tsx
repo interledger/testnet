@@ -112,7 +112,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         const ratesResponse = await assetService.getExchangeRates(
           selectedAccount.assetCode
         )
-        console.log(ratesResponse)
+
         if (ratesResponse.success && ratesResponse.data) {
           value = Number(
             (value * ratesResponse.data[receiverAssetCode]).toFixed(2)
@@ -138,7 +138,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           )
 
           if (selectedAsset && ratesResponse.success && ratesResponse.data) {
-            console.log(value * ratesResponse.data[response.data.assetCode])
             value = Number(
               (value * ratesResponse.data[response.data.assetCode]).toFixed(2)
             )
