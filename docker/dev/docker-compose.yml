@@ -16,7 +16,7 @@ services:
       - pg-data:/var/lib/postgresql/data
       - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # Testnet
+  # Wallet
   wallet-backend:
     container_name: wallet-backend
     build:
@@ -48,6 +48,24 @@ services:
     ports:
       - '3003:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
+
+  # Commerce
+  commerce-backend:
+    container_name: commerce-backend
+    build:
+      context: ../..
+      dockerfile: ./packages/commerce/backend/Dockerfile.dev
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      DATABASE_URL: postgres://commerce_backend:commerce_backend@postgres/commerce_backend
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3004:3004'
 
   # Rafiki
   rafiki-auth:
