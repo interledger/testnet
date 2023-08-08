@@ -70,7 +70,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.2
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:968f5c11739785e84b29c029a54c4c328ea9449cfe6d8d13d1c3e1a2be3f865a
     restart: always
     networks:
       - testnet
@@ -88,7 +88,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.2
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:7b8be04015943241adfef27a3dae1476018139d718441ac75656728e5cfec528
     restart: always
     privileged: true
     volumes:
@@ -130,7 +130,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.2
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:78af50f6c1f603a01d9b3896098ed1766d9085d6fbe654c5697ce6233204f590
     depends_on:
       - rafiki-backend
     restart: always
@@ -142,6 +142,7 @@ services:
     environment:
       PORT: 3012
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
+      OPEN_PAYMENTS_URL: https://rafiki-backend/
 
   tigerbeetle:
     image: ghcr.io/tigerbeetle/tigerbeetle:0.13.57
