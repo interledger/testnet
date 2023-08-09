@@ -209,8 +209,6 @@ export class RapydService implements IRapydService {
     })
     const result = res.data
 
-    console.log(res.data)
-
     return {
       base,
       rates: result.success ? result.rates : {}
