@@ -56,7 +56,7 @@ export interface IRapydService {
 }
 
 export class RapydService implements IRapydService {
-  constructor(private deps: RapydServiceDependencies) { }
+  constructor(private deps: RapydServiceDependencies) {}
 
   public async getDocumentTypes(userId: string) {
     const user = await User.query().findById(userId)
@@ -204,15 +204,16 @@ export class RapydService implements IRapydService {
   }
 
   public async getRates(base: string): Promise<RatesResponse> {
-    const res = await axios.get('https://api.exchangerate.host/latest', { params: { base } })
-    const result = res.data;
+    const res = await axios.get('https://api.exchangerate.host/latest', {
+      params: { base }
+    })
+    const result = res.data
 
     console.log(res.data)
 
     return {
       base,
       rates: result.success ? result.rates : {}
-    };
-
+    }
   }
 }

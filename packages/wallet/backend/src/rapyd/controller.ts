@@ -2,7 +2,12 @@ import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, ratesSchema, walletSchema } from './validation'
+import {
+  kycSchema,
+  profileSchema,
+  ratesSchema,
+  walletSchema
+} from './validation'
 import { User } from '@/user/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
