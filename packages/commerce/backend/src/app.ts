@@ -11,6 +11,7 @@ import type { Server } from 'http'
 import type { Cradle } from './container'
 import { BaseError } from './errors/Base'
 import { Model } from 'objection'
+import { isObject } from './shared/utils'
 
 export class App {
   private server!: Server
@@ -20,6 +21,7 @@ export class App {
   public async startServer(): Promise<void> {
     const express = await this.init()
     const env = this.container.resolve('env')
+    const logger = this.container.resolve('logger')
     const knex = this.container.resolve('knex')
 
     await knex.migrate.latest({
@@ -29,6 +31,7 @@ export class App {
     Model.knex(knex)
 
     this.server = express.listen(env.PORT)
+    logger.info(`Commerce server started on port ${env.PORT}`)
   }
 
   public stop = async (): Promise<void> => {
@@ -43,7 +46,6 @@ export class App {
     return 0
   }
 
-  // TODO: Rate limiting
   private async init(): Promise<Express> {
     const app = express()
     const router = Router()
@@ -62,7 +64,7 @@ export class App {
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 
     router.use('*', (req: Request, res: TypedResponse) => {
-      const e = Error(`Requested path ${req.path} was not found`)
+      const e = Error(`Requested path ${req.path} was not found.`)
 
       res.status(404).send({
         success: false,
@@ -84,6 +86,8 @@ export class App {
     res: TypedResponse,
     _next: NextFunction
   ) {
+    const logger = this.container.resolve('logger')
+
     if (e instanceof BaseError) {
       res.status(e.statusCode).json({
         success: e.success,
@@ -91,6 +95,7 @@ export class App {
         errors: e.errors
       })
     } else {
+      logger.error((isObject(e) ? e.message : undefined) ?? 'unknown error')
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
   }

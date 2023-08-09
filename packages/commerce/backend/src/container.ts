@@ -6,30 +6,15 @@ import {
   createContainer as createAwilixContainer
 } from 'awilix'
 import type { Env } from './config/env'
-import knex, { type Knex } from 'knex'
+import { type Knex } from 'knex'
+import { createKnex } from './config/knex'
+import { Logger } from 'winston'
+import { createLogger } from './config/logger'
 
 export interface Cradle {
   env: Env
+  logger: Logger
   knex: Knex
-}
-
-function createKnex(env: Env) {
-  const _knex = knex({
-    client: 'postgresql',
-    connection: env.DATABASE_URL,
-    migrations: {
-      directory: './',
-      tableName: 'knex_migrations'
-    }
-  })
-  console.log('creating knex ...')
-  _knex.client.driver.types.setTypeParser(
-    _knex.client.driver.types.builtins.INT8,
-    'text',
-    BigInt
-  )
-
-  return _knex
 }
 
 export function createContainer(env: Env): AwilixContainer<Cradle> {
@@ -39,6 +24,7 @@ export function createContainer(env: Env): AwilixContainer<Cradle> {
 
   container.register({
     env: asValue(env),
+    logger: asFunction(createLogger).singleton(),
     knex: asFunction(createKnex).singleton()
   })
 
