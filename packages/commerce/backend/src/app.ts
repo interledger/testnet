@@ -10,6 +10,7 @@ import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
 import { BaseError } from './errors/Base'
+import { Model } from 'objection'
 
 export class App {
   private server!: Server
@@ -19,6 +20,13 @@ export class App {
   public async startServer(): Promise<void> {
     const express = await this.init()
     const env = this.container.resolve('env')
+    const knex = this.container.resolve('knex')
+
+    await knex.migrate.latest({
+      directory: __dirname + '/../migrations'
+    })
+
+    Model.knex(knex)
 
     this.server = express.listen(env.PORT)
   }
