@@ -5,7 +5,6 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
 import { RafikiClient } from './rafiki-client'
-import axios from 'axios'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -68,7 +67,7 @@ interface Rates {
 }
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
-  getRates: (base: string) => Promise<RatesResponse>
+  getRates: (base: string) => RatesResponse
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -82,8 +81,7 @@ interface RafikiServiceDependencies {
 
 export type RatesResponse = {
   base: string
-  // rates: Record<string, number>
-  rates: Rates
+  rates: Record<string, number>
 }
 
 export class RafikiService implements IRafikiService {
@@ -502,28 +500,18 @@ export class RafikiService implements IRafikiService {
     return receivedQuote
   }
 
-  public async getRates(base: string): Promise<RatesResponse> {
-    const res = await axios.get('https://api.exchangerate.host/latest', {params: { base }})
-    const result = res.data;
-    
-    console.log(res.data)
-
+  public getRates(base: string): RatesResponse {
+    const exchangeRates: Rates = {
+      USD: {
+        EUR: 1.10019
+      },
+      EUR: {
+        USD: 0.908936
+      }
+    }
     return {
       base,
-      rates: result.success ? result.rates : {}
+      rates: exchangeRates[base] ?? {}
     }
-    
-    // const exchangeRates: Rates = {
-    //   USD: {
-    //     EUR: 1.10019
-    //   },
-    //   EUR: {
-    //     USD: 0.908936
-    //   }
-    // }
-    // return {
-    //   base,
-    //   rates: exchangeRates[base] ?? {}
-    // }
   }
 }
