@@ -7,6 +7,12 @@ module.exports = {
   quoteProps: 'consistent',
   jsxSingleQuote: false,
   trailingComma: 'none',
-  plugins: ['prettier-plugin-tailwindcss'],
+  /**
+   * This plugin is going automatically sort Tailwind's classes, following
+   * it's recommended class order.
+   *
+   * https://tailwindcss.com/blog/automatic-class-sorting-with-prettier
+   */
+  plugins: [require('prettier-plugin-tailwindcss')],
   tailwindConfig: './packages/wallet/frontend/tailwind.config.js'
 }
