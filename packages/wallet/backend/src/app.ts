@@ -37,6 +37,7 @@ import { QuoteService } from './quote/service'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 import { EmailService } from '@/email/service'
+import { setRateLimit } from '@/middleware/rateLimit'
 
 export interface Bindings {
   env: Env
@@ -147,7 +148,7 @@ export class App {
     app.use(withSession)
 
     // Auth Routes
-    router.post('/signup', authController.signUp)
+    router.post('/signup', setRateLimit(2, 5 * 60, true), authController.signUp)
     router.post('/login', authController.logIn)
     router.post('/logout', isAuth, authController.logOut)
 
