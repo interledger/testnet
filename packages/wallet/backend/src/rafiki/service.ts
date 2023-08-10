@@ -503,16 +503,10 @@ export class RafikiService implements IRafikiService {
   public getRates(base: string): RatesResponse {
     const exchangeRates: Rates = {
       USD: {
-        EUR: 1.12,
-        ZAR: 17.3792
+        EUR: 1.10019
       },
       EUR: {
-        USD: 0.89,
-        ZAR: 20.44
-      },
-      ZAR: {
-        USD: 0.0575,
-        EUR: 0.0489
+        USD: 0.908936
       }
     }
     return {
