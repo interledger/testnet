@@ -201,7 +201,7 @@ export class RapydController implements IRapydController {
 
       res.status(200).json({
         success: true,
-        message: 'Profile updated succesfully',
+        message: 'SUCCESS',
         data: rates
       })
     } catch (e) {
