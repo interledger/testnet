@@ -4,7 +4,7 @@ import z from 'zod'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
 
-type LogInRequest = z.infer<typeof logInSchema>
+export type LogInRequest = z.infer<typeof logInSchema>
 
 export const fakeLoginData = () => {
   return {
@@ -52,51 +52,26 @@ export const mockedListAssets = [
   }
 ]
 
+export const generateMockedTransaction = (
+  fields: PartialModelObject<Transaction> = {}
+): PartialModelObject<Transaction> => ({
+  id: faker.string.uuid(),
+  paymentPointerId: faker.string.uuid(),
+  accountId: faker.string.uuid(),
+  paymentId: faker.string.uuid(),
+  assetCode: mockedListAssets[0].code,
+  value: faker.number.bigInt(),
+  type: 'INCOMING',
+  status: 'PENDING',
+  description: faker.string.alpha(10),
+  ...fields
+})
+
 export const mockedTransactionInsertObjs: Array<
   PartialModelObject<Transaction>
 > = [
-  {
-    id: faker.string.uuid(),
-    paymentPointerId: faker.string.uuid(),
-    accountId: faker.string.uuid(),
-    paymentId: faker.string.uuid(),
-    assetCode: mockedListAssets[0].code,
-    value: faker.number.bigInt(),
-    type: 'INCOMING',
-    status: 'PENDING',
-    description: faker.string.alpha(10)
-  },
-  {
-    id: faker.string.uuid(),
-    paymentPointerId: faker.string.uuid(),
-    accountId: faker.string.uuid(),
-    paymentId: faker.string.uuid(),
-    assetCode: mockedListAssets[0].code,
-    value: faker.number.bigInt(),
-    type: 'INCOMING',
-    status: 'PENDING',
-    description: faker.string.alpha(10)
-  },
-  {
-    id: faker.string.uuid(),
-    paymentPointerId: faker.string.uuid(),
-    accountId: faker.string.uuid(),
-    paymentId: faker.string.uuid(),
-    assetCode: mockedListAssets[0].code,
-    value: faker.number.bigInt(),
-    type: 'INCOMING',
-    status: 'PENDING',
-    description: faker.string.alpha(10)
-  },
-  {
-    id: faker.string.uuid(),
-    paymentPointerId: faker.string.uuid(),
-    accountId: faker.string.uuid(),
-    paymentId: faker.string.uuid(),
-    assetCode: mockedListAssets[0].code,
-    value: faker.number.bigInt(),
-    type: 'OUTGOING',
-    status: 'PENDING',
-    description: faker.string.alpha(10)
-  }
+  generateMockedTransaction(),
+  generateMockedTransaction(),
+  generateMockedTransaction(),
+  generateMockedTransaction({ type: 'OUTGOING' })
 ]

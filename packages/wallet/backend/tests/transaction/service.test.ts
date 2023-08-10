@@ -13,20 +13,13 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import type { AuthService } from '@/auth/service'
-import { applyMiddleware } from '@/tests/utils'
-import { withSession } from '@/middleware/withSession'
-import {
-  mockedListAssets,
-  mockedTransactionInsertObjs,
-  mockLogInRequest
-} from '../mocks'
+import { mockedListAssets, mockedTransactionInsertObjs } from '../mocks'
 import { TransactionService } from '@/transaction/service'
 import { Transaction } from '@/transaction/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { faker } from '@faker-js/faker'
-import { User } from '@/user/model'
-import { createUser } from '@/tests/helpers'
+import { loginUser } from '@/tests/utils'
 
 describe('Transaction Controller', (): void => {
   let bindings: Container<Bindings>
@@ -38,12 +31,9 @@ describe('Transaction Controller', (): void => {
   let transactionService: TransactionService
   let req: MockRequest<Request>
   let res: MockResponse<Response>
-  let userId: string
-
-  const args = mockLogInRequest().body
 
   // "dependency" = ALL foreign keys (paymentPointers, account, user...)
-  const prepareTransactionDependencies = async () => {
+  const prepareTransactionDependencies = async ({ req }: { req: Request }) => {
     const accountServiceDepsMocked = {
       rafiki: {
         getAssetById: (id: unknown) =>
@@ -94,12 +84,12 @@ describe('Transaction Controller', (): void => {
     Reflect.set(paymentPointerService, 'deps', ppServiceDepsMocked)
 
     const account = await accountService.createAccount({
-      userId,
+      userId: req.session.user.id,
       name: faker.string.alpha(10),
       assetId: mockedListAssets[0].id
     })
     const paymentPointer = await paymentPointerService.create(
-      userId,
+      req.session.user.id,
       account.id,
       faker.string.alpha(10),
       faker.string.alpha(10)
@@ -125,21 +115,15 @@ describe('Transaction Controller', (): void => {
     res = createResponse()
     req = createRequest()
 
-    req.body = args
-
-    await createUser({ ...args, isEmailVerified: true })
-    await applyMiddleware(withSession, req, res)
-
-    const { user, session } = await authService.authorize(args)
-    req.session.id = session.id
-    req.session.user = {
-      id: user.id,
-      email: user.email,
-      needsWallet: !user.rapydWalletId,
-      needsIDProof: !user.kycId
-    }
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
-    userId = user.id
+    await loginUser({
+      req,
+      res,
+      authService,
+      extraUserArgs: {
+        isEmailVerified: true,
+        rapydWalletId: 'mocked'
+      }
+    })
   })
 
   afterAll(async (): Promise<void> => {
@@ -168,7 +152,9 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { paymentPointer, account } = await prepareTransactionDependencies({
+        req
+      })
 
       await Promise.all(
         mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
@@ -199,7 +185,9 @@ describe('Transaction Controller', (): void => {
 
   describe('listAll [pagination]', (): void => {
     it('should list all transactions (4 transactions, 2x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { paymentPointer, account } = await prepareTransactionDependencies({
+        req
+      })
 
       await Promise.all(
         mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
@@ -248,7 +236,9 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions, 3x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { paymentPointer, account } = await prepareTransactionDependencies({
+        req
+      })
 
       await Promise.all(
         mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
