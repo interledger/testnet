@@ -86,7 +86,7 @@ export class QuoteService implements IQuoteService {
     ) {
       const convertedValue = this.convert({
         sourceAssetCode: destinationPaymentPointer.assetCode,
-        destinationAssetCode: assetCode,
+        destinationAssetCode: asset.code,
         amount: value
       })
       value = convertedValue

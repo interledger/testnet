@@ -26,7 +26,6 @@ import {
 } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
-import { AssetOP, assetService } from '@/lib/api/asset'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -36,10 +35,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [balance, setBalance] = useState('')
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
-  const [selectedAsset, setSelectedAsset] = useState<AssetOP | null>(null)
-  const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
-    null
-  )
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
   const sendForm = useZodForm({
     schema: sendSchema,
@@ -99,28 +94,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       })
     )
     setPaymentPointers(paymentPointers)
-
-    if (selectedAccount) {
-      setSelectedAsset({
-        assetCode: selectedAccount.assetCode,
-        assetScale: selectedAccount.assetScale
-      })
-
-      const amount = sendForm.getValues('amount')
-      if (receiverAssetCode && amount) {
-        let value = amount
-        const ratesResponse = await assetService.getExchangeRates(
-          selectedAccount.assetCode
-        )
-
-        if (ratesResponse.success && ratesResponse.data) {
-          value = Number(
-            (value * ratesResponse.data[receiverAssetCode]).toFixed(2)
-          )
-          sendForm.setValue('amount', value)
-        }
-      }
-    }
   }
 
   const onPaymentPointerChange = async (url: string): Promise<void> => {
@@ -130,43 +103,14 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       const response = await transfersService.getIncomingPaymentDetails(url)
 
       if (response.success && response.data) {
-        let value = response.data.value
-
-        if (selectedAsset) {
-          const ratesResponse = await assetService.getExchangeRates(
-            selectedAsset.assetCode
-          )
-
-          if (selectedAsset && ratesResponse.success && ratesResponse.data) {
-            value = Number(
-              (value * ratesResponse.data[response.data.assetCode]).toFixed(2)
-            )
-          }
-        }
-
         sendForm.clearErrors('receiver')
         sendForm.setValue('paymentType', 'receive')
-        sendForm.setValue('amount', value)
+        sendForm.setValue('amount', response.data.value)
         sendForm.setValue('description', response.data.description ?? '')
-
-        setReceiverAssetCode(response.data.assetCode)
         setIsToggleDisabled(true)
       } else {
         sendForm.setError('receiver', { message: response.message })
-        setReceiverAssetCode(null)
       }
-    } else {
-      const paymentPointerAssetCodeResponse =
-        await paymentPointerService.getExternal(url)
-      if (
-        !paymentPointerAssetCodeResponse.success ||
-        !paymentPointerAssetCodeResponse.data
-      ) {
-        setReceiverAssetCode(null)
-        return
-      }
-
-      setReceiverAssetCode(paymentPointerAssetCodeResponse.data.assetCode)
     }
 
     if (isToggleDisabled) setIsToggleDisabled(false)

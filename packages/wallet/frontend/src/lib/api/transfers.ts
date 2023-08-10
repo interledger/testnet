@@ -81,7 +81,6 @@ export const requestSchema = z
   })
 
 type PaymentDetails = {
-  assetCode: string
   description?: string
   value: number
 }

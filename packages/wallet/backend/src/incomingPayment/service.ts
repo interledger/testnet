@@ -94,14 +94,6 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     })
   }
 
-  // Instead of querying our Transaction model, should we fetch this information from Rafiki?
-  // Reasoning:
-  // - An incoming payment can be fulfilled by multiple outgoing payments;
-  // - If we have an incoming payment that awaits $10 and we send $5 initially,
-  //   inserting the IP URL in the receiver field again, currently shows that the incoming amount
-  //   is still $10.
-  // - By fetching the IP details from Rafiki, we can calculate how much more is needed
-  //   to fulfill this specific IP (after making an initial outgoing payment of $5).
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetails> {
     const id = extractUuidFromUrl(url)
 
