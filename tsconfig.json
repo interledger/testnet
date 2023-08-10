@@ -5,6 +5,9 @@
     },
     {
       "path": "packages/wallet/frontend"
+    },
+    {
+      "path": "packages/commerce/backend"
     }
   ],
   "files": [],
