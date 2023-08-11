@@ -5,95 +5,41 @@ import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
-import { Request, Response } from 'express'
-import {
-  createRequest,
-  createResponse,
-  MockRequest,
-  MockResponse
-} from 'node-mocks-http'
+import { createRequest, createResponse } from 'node-mocks-http'
 import type { AuthService } from '@/auth/service'
 import { mockedListAssets, mockedTransactionInsertObjs } from '../mocks'
 import { TransactionService } from '@/transaction/service'
 import { Transaction } from '@/transaction/model'
-import { AccountService } from '@/account/service'
-import { PaymentPointerService } from '@/paymentPointer/service'
 import { faker } from '@faker-js/faker'
 import { loginUser } from '@/tests/utils'
+import { Account } from '@/account/model'
+import { PaymentPointer } from '@/paymentPointer/model'
 
 describe('Transaction Controller', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
-  let accountService: AccountService
-  let paymentPointerService: PaymentPointerService
   let transactionService: TransactionService
-  let req: MockRequest<Request>
-  let res: MockResponse<Response>
+  let userId: string
 
   // "dependency" = ALL foreign keys (paymentPointers, account, user...)
-  const prepareTransactionDependencies = async ({ req }: { req: Request }) => {
-    const accountServiceDepsMocked = {
-      rafiki: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id)
-      },
-      rapyd: {
-        issueVirtualAccount: () => ({
-          status: {
-            status: 'SUCCESS'
-          },
-          data: {
-            id: 'mocked'
-          }
-        }),
-        simulateBankTransferToWallet: () => ({
-          status: {
-            status: 'SUCCESS'
-          },
-          data: {
-            transactions: [
-              {
-                id: 'mocked'
-              }
-            ]
-          }
-        }),
-        getAccountsBalance: () => ({
-          data: [
-            {
-              currency: mockedListAssets[0].code,
-              balance: 777
-            }
-          ] as Partial<RapydAccountBalance>
-        })
-      }
-    }
-    const ppServiceDepsMocked = {
-      accountService: await bindings.resolve('accountService'),
-      env: await bindings.resolve('env'),
-      rafikiClient: {
-        createRafikiPaymentPointer: () => ({
-          id: faker.string.uuid(),
-          url: faker.string.alpha(10)
-        })
-      }
-    }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
-    Reflect.set(paymentPointerService, 'deps', ppServiceDepsMocked)
-
-    const account = await accountService.createAccount({
-      userId: req.session.user.id,
+  const prepareTransactionDependencies = async () => {
+    const account = await Account.query().insert({
       name: faker.string.alpha(10),
-      assetId: mockedListAssets[0].id
+      userId,
+      assetCode: mockedListAssets[0].code,
+      assetId: mockedListAssets[0].id,
+      assetScale: mockedListAssets[0].scale,
+      virtualAccountId: 'mocked'
     })
-    const paymentPointer = await paymentPointerService.create(
-      req.session.user.id,
-      account.id,
-      faker.string.alpha(10),
-      faker.string.alpha(10)
-    )
+
+    const paymentPointer = await PaymentPointer.query().insert({
+      url: faker.string.alpha(10),
+      publicName: faker.string.alpha(10),
+      accountId: account.id,
+      id: faker.string.uuid()
+    })
 
     return {
       account,
@@ -106,24 +52,24 @@ describe('Transaction Controller', (): void => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
-    accountService = await bindings.resolve('accountService')
-    paymentPointerService = await bindings.resolve('paymentPointerService')
     transactionService = await bindings.resolve('transactionService')
   })
 
   beforeEach(async (): Promise<void> => {
-    res = createResponse()
-    req = createRequest()
+    const res = createResponse()
+    const req = createRequest()
+    const extraUserArgs = {
+      isEmailVerified: true,
+      rapydWalletId: 'mocked'
+    }
 
-    await loginUser({
+    const { user } = await loginUser({
       req,
       res,
       authService,
-      extraUserArgs: {
-        isEmailVerified: true,
-        rapydWalletId: 'mocked'
-      }
+      extraUserArgs
     })
+    userId = user.id
   })
 
   afterAll(async (): Promise<void> => {
@@ -138,7 +84,7 @@ describe('Transaction Controller', (): void => {
   describe('listAll', (): void => {
     it('should list all transactions (0 transactions)', async (): Promise<void> => {
       const transactions = await transactionService.listAll({
-        userId: req.session.user.id,
+        userId,
         paginationParams: {
           page: 0,
           pageSize: Infinity
@@ -152,9 +98,7 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies({
-        req
-      })
+      const { paymentPointer, account } = await prepareTransactionDependencies()
 
       await Promise.all(
         mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
@@ -167,7 +111,7 @@ describe('Transaction Controller', (): void => {
       )
 
       const transactions = await transactionService.listAll({
-        userId: req.session.user.id,
+        userId,
         paginationParams: {
           page: 0,
           pageSize: Infinity
@@ -185,9 +129,7 @@ describe('Transaction Controller', (): void => {
 
   describe('listAll [pagination]', (): void => {
     it('should list all transactions (4 transactions, 2x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies({
-        req
-      })
+      const { paymentPointer, account } = await prepareTransactionDependencies()
 
       await Promise.all(
         mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
@@ -200,7 +142,7 @@ describe('Transaction Controller', (): void => {
       )
 
       const transactionsPage1 = await transactionService.listAll({
-        userId: req.session.user.id,
+        userId,
         paginationParams: {
           page: 0,
           pageSize: 2
@@ -209,7 +151,7 @@ describe('Transaction Controller', (): void => {
         orderByDate: 'asc'
       })
       const transactionsPage2 = await transactionService.listAll({
-        userId: req.session.user.id,
+        userId,
         paginationParams: {
           page: 1,
           pageSize: 2
@@ -236,9 +178,7 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions, 3x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies({
-        req
-      })
+      const { paymentPointer, account } = await prepareTransactionDependencies()
 
       await Promise.all(
         mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
@@ -251,7 +191,7 @@ describe('Transaction Controller', (): void => {
       )
 
       const transactionsPage1 = await transactionService.listAll({
-        userId: req.session.user.id,
+        userId,
         paginationParams: {
           page: 0,
           pageSize: 3
@@ -260,7 +200,7 @@ describe('Transaction Controller', (): void => {
         orderByDate: 'asc'
       })
       const transactionsPage2 = await transactionService.listAll({
-        userId: req.session.user.id,
+        userId,
         paginationParams: {
           page: 1,
           pageSize: 3
