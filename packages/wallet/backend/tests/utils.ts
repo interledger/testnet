@@ -22,34 +22,42 @@ export const applyMiddleware = async (
   })
 }
 
+type LoginUserInput = {
+  req?: Request
+  res?: Response
+  authService: AuthService
+  extraUserArgs: Partial<User>
+}
+type LoginUserOutput = Promise<{
+  user: User
+}>
+
 export const loginUser = async ({
   req,
   res,
   authService,
   extraUserArgs
-}: {
-  req: Request
-  res: Response
-  authService: AuthService
-  extraUserArgs: Partial<User>
-}) => {
+}: LoginUserInput): LoginUserOutput => {
   const argsRegister = mockLogInRequest().body
-  req.body = argsRegister
 
   await createUser({
     ...argsRegister,
     ...extraUserArgs
   })
 
-  await applyMiddleware(withSession, req, res)
-
   const { user, session } = await authService.authorize(argsRegister)
-  req.session.id = session.id
-  req.session.user = {
-    id: user.id,
-    email: user.email,
-    needsWallet: !user.rapydWalletId,
-    needsIDProof: !user.kycId
+  if (req) {
+    req.body = argsRegister
+    req.session.id = session.id
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      needsWallet: !user.rapydWalletId,
+      needsIDProof: !user.kycId
+    }
+  }
+  if (req && res) {
+    await applyMiddleware(withSession, req, res)
   }
 
   return { user }

@@ -5,7 +5,6 @@ import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
-import { createRequest, createResponse } from 'node-mocks-http'
 import type { AuthService } from '@/auth/service'
 import { mockedListAssets, mockedTransactionInsertObjs } from '../mocks'
 import { TransactionService } from '@/transaction/service'
@@ -56,16 +55,12 @@ describe('Transaction Controller', (): void => {
   })
 
   beforeEach(async (): Promise<void> => {
-    const res = createResponse()
-    const req = createRequest()
     const extraUserArgs = {
       isEmailVerified: true,
       rapydWalletId: 'mocked'
     }
 
     const { user } = await loginUser({
-      req,
-      res,
       authService,
       extraUserArgs
     })
