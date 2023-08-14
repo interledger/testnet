@@ -145,8 +145,8 @@ importers:
         specifier: ^4.18.2
         version: 4.18.2
       express-rate-limit:
-        specifier: ^6.8.1
-        version: 6.8.1(express@4.18.2)
+        specifier: ^6.9.0
+        version: 6.9.0(express@4.18.2)
       graphql:
         specifier: ^16.7.1
         version: 16.7.1
@@ -4284,8 +4284,8 @@ packages:
       jest-util: 29.6.2
     dev: true
 
-  /express-rate-limit@6.8.1(express@4.18.2):
-    resolution: {integrity: sha512-xJyudsE60CsDShK74Ni1MxsldYaIoivmG3ieK2tAckMsYCBewEuGalss6p/jHmFFnqM9xd5ojE0W2VlanxcOKg==}
+  /express-rate-limit@6.9.0(express@4.18.2):
+    resolution: {integrity: sha512-AnISR3V8qy4gpKM62/TzYdoFO9NV84fBx0POXzTryHU/qGUJBWuVGd+JhbvtVmKBv37t8/afmqdnv16xWoQxag==}
     engines: {node: '>= 14.0.0'}
     peerDependencies:
       express: ^4 || ^5
