@@ -95,15 +95,14 @@ describe('Transaction Controller', (): void => {
     it('should list all transactions (4 transactions)', async (): Promise<void> => {
       const { paymentPointer, account } = await prepareTransactionDependencies()
 
-      await Promise.all(
-        mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
-          Transaction.query().insert({
-            ...mockedTransactionInsertObj,
-            paymentPointerId: paymentPointer.id,
-            accountId: account.id
-          })
-        )
+      const insertedTransactions = mockedTransactionInsertObjs.map(
+        (mockedTransactionInsertObj) => ({
+          ...mockedTransactionInsertObj,
+          paymentPointerId: paymentPointer.id,
+          accountId: account.id
+        })
       )
+      await Transaction.query().insert(insertedTransactions)
 
       const transactions = await transactionService.listAll({
         userId,
@@ -126,15 +125,14 @@ describe('Transaction Controller', (): void => {
     it('should list all transactions (4 transactions, 2x per page)', async (): Promise<void> => {
       const { paymentPointer, account } = await prepareTransactionDependencies()
 
-      await Promise.all(
-        mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
-          Transaction.query().insert({
-            ...mockedTransactionInsertObj,
-            paymentPointerId: paymentPointer.id,
-            accountId: account.id
-          })
-        )
+      const insertedTransactions = mockedTransactionInsertObjs.map(
+        (mockedTransactionInsertObj) => ({
+          ...mockedTransactionInsertObj,
+          paymentPointerId: paymentPointer.id,
+          accountId: account.id
+        })
       )
+      await Transaction.query().insert(insertedTransactions)
 
       const transactionsPage1 = await transactionService.listAll({
         userId,
@@ -175,15 +173,14 @@ describe('Transaction Controller', (): void => {
     it('should list all transactions (4 transactions, 3x per page)', async (): Promise<void> => {
       const { paymentPointer, account } = await prepareTransactionDependencies()
 
-      await Promise.all(
-        mockedTransactionInsertObjs.map(async (mockedTransactionInsertObj) =>
-          Transaction.query().insert({
-            ...mockedTransactionInsertObj,
-            paymentPointerId: paymentPointer.id,
-            accountId: account.id
-          })
-        )
+      const insertedTransactions = mockedTransactionInsertObjs.map(
+        (mockedTransactionInsertObj) => ({
+          ...mockedTransactionInsertObj,
+          paymentPointerId: paymentPointer.id,
+          accountId: account.id
+        })
       )
+      await Transaction.query().insert(insertedTransactions)
 
       const transactionsPage1 = await transactionService.listAll({
         userId,
