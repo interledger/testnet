@@ -218,8 +218,8 @@ importers:
         specifier: ^1.12.2
         version: 1.12.2
       testcontainers:
-        specifier: ^10.2.0
-        version: 10.2.0
+        specifier: ^10.2.1
+        version: 10.2.1
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.21.0)(jest@29.6.2)(typescript@5.0.4)
@@ -8049,8 +8049,8 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /testcontainers@10.2.0:
-    resolution: {integrity: sha512-HjJ4XQGMU3Za5s7EsWSn8dHSK9CiAC6eqv8qE8Ctq5c/jkKIAiui6lVXZxybiCJJ3ubArA0nPzN62Fagp1f9bw==}
+  /testcontainers@10.2.1:
+    resolution: {integrity: sha512-R9LUMUEkKGSL2M4cP466Jah+Vi+ZLFlvrT4BENjEKJKNzubATOmDk26RHe8DHeFT+hnMD6fvVii+McXr0UTO7g==}
     dependencies:
       '@balena/dockerignore': 1.0.2
       archiver: 5.3.1
