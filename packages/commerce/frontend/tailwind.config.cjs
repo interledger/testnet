@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const twColors = require('tailwindcss/colors')
 
 /** @type {import('tailwindcss').Config} */
@@ -66,5 +67,5 @@ module.exports = {
       }
     }
   },
-  plugins: [require('@tailwindcss/forms')]
+  plugins: [require('@tailwindcss/forms'), require('tailwindcss-animate')]
 }

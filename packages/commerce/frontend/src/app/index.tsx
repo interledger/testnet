@@ -4,14 +4,19 @@ import {
   createBrowserRouter,
   type RouteObject
 } from 'react-router-dom'
+import { ordersRoutes } from './orders/index.tsx'
 
 export const routes = [
   {
     element: <BaseLayout />,
     children: [
       {
-        path: '/',
+        index: true,
         lazy: () => import('./products.tsx')
+      },
+      {
+        path: '/orders',
+        children: [ordersRoutes]
       }
     ]
   }
