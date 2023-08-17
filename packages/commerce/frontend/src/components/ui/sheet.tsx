@@ -108,7 +108,7 @@ export const SheetTitle = forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold text-green', className)}
+    className={cn('text-lg font-semibold text-turqoise', className)}
     {...props}
   />
 ))
@@ -120,7 +120,7 @@ export const SheetDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-green/70', className)}
+    className={cn('text-sm text-turqoise', className)}
     {...props}
   />
 ))
