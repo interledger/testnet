@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils.ts'
 
 const NAV_LINKS = [
   {
-    to: '/',
+    to: '/products',
     name: 'Products',
     icon: <Products />
   },
