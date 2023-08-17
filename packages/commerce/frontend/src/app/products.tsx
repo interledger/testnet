@@ -8,7 +8,7 @@ export function Component() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Interledger eCommerce</PageHeaderHeading>
+        <PageHeaderHeading>Interledger E-Commerce</PageHeaderHeading>
         <PageHeaderDescription>
           Value or feeling? Explore all here!
         </PageHeaderDescription>

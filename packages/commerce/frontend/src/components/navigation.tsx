@@ -109,7 +109,9 @@ export const MobileNav = () => {
       <SheetContent>
         <SheetHeader className="-space-y-2">
           <SheetTitle>Interledger</SheetTitle>
-          <SheetDescription className="font-medium">eCommerce</SheetDescription>
+          <SheetDescription className="font-medium">
+            E-commerce
+          </SheetDescription>
         </SheetHeader>
         <MobileNavLinks>
           {NAV_LINKS.map(({ to, name, icon }) => (
