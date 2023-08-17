@@ -1,13 +1,6 @@
 import { NavLink, NavLinkProps } from 'react-router-dom'
 import { Bars3, Logo, Orders, Products } from './icons.tsx'
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
-} from './ui/sheet.tsx'
+import { Sheet, SheetTrigger, SheetContent } from './ui/sheet.tsx'
 import { MenuBubbles } from './bubbles.tsx'
 import { ReactNode, useState } from 'react'
 import { cn } from '@/lib/utils.ts'
@@ -73,7 +66,7 @@ interface MobileNavLinksProps {
 }
 
 export const MobileNavLinks = ({ children }: MobileNavLinksProps) => {
-  return <div className="mx-4 mt-6 flex flex-col gap-y-6">{children}</div>
+  return <div className="mx-4 mt-10 flex flex-col gap-y-6">{children}</div>
 }
 
 export const MainNav = () => {
@@ -107,19 +100,13 @@ export const MobileNav = () => {
         />
       </SheetTrigger>
       <SheetContent>
-        <SheetHeader className="-space-y-2">
-          <SheetTitle>Interledger</SheetTitle>
-          <SheetDescription className="font-medium">
-            E-commerce
-          </SheetDescription>
-        </SheetHeader>
         <MobileNavLinks>
           {NAV_LINKS.map(({ to, name, icon }) => (
             <MobileNavLink
               key={to}
               to={to}
               onOpenChange={setOpen}
-              className="flex items-center gap-x-2 text-lg"
+              className="flex items-center gap-x-2"
             >
               {icon}
               {name}
