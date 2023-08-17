@@ -5,7 +5,13 @@ export const BaseLayout = () => {
   return (
     <div className="flex h-screen select-none flex-col overflow-hidden text-green">
       <Header />
-      <Outlet />
+      <div className="py-10">
+        <main>
+          <div className="mx-auto max-w-[90rem] px-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
