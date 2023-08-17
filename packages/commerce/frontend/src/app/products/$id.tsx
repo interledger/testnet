@@ -1,3 +1,3 @@
 export function Component() {
-  return <>Orders</>
+  return <>Product Id</>
 }

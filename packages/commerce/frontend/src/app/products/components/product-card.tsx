@@ -24,7 +24,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const { id, name, price, image } = product
   return (
     <Link
-      to={`/${id}`}
+      to={`/products/${id}`}
       className={`
         rounded-xl transition-transform hover:scale-105 hover:shadow-md
         [&:nth-child(4n+1)]:bg-gradient-primary 

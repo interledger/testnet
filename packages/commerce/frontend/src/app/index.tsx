@@ -1,10 +1,16 @@
 import { BaseLayout } from '@/components/layouts/base.tsx'
 import {
+  Navigate,
   RouterProvider,
   createBrowserRouter,
   type RouteObject
 } from 'react-router-dom'
-import { ordersRoutes } from './orders/index.tsx'
+import { ordersRoutes } from './orders/routes.tsx'
+import { productsRoutes } from './products/routes.tsx'
+
+const Index = () => {
+  return <Navigate to={`/products`} replace />
+}
 
 export const routes = [
   {
@@ -12,11 +18,15 @@ export const routes = [
     children: [
       {
         index: true,
-        lazy: () => import('./products.tsx')
+        element: <Index />
+      },
+      {
+        path: '/products',
+        children: productsRoutes
       },
       {
         path: '/orders',
-        children: [ordersRoutes]
+        children: ordersRoutes
       }
     ]
   }
