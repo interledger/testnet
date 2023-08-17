@@ -48,9 +48,8 @@ export class RapydController implements IRapydController {
     try {
       const { id: userId } = req.session.user
 
-      const documentTypesResult = await this.deps.rapydService.getDocumentTypes(
-        userId
-      )
+      const documentTypesResult =
+        await this.deps.rapydService.getDocumentTypes(userId)
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: documentTypesResult })
