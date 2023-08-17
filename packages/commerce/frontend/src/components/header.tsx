@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { MobileNav, MainNav } from './navigation.tsx'
-import { ShoppingBag } from './icons.tsx'
+import { ShoppingCart } from './icons.tsx'
 
 export const Header = () => {
   return (
@@ -10,8 +10,8 @@ export const Header = () => {
         <div className="flex items-center justify-end">
           <nav className="flex items-center">
             <NavLink to="/cart">
-              <ShoppingBag className="h-6 w-6 text-green-3 transition-colors hover:text-green" />
-              <span className="sr-only">Shopping bag</span>
+              <ShoppingCart className="h-6 w-6 text-green-3 transition-colors hover:text-green" />
+              <span className="sr-only">Shopping cart</span>
             </NavLink>
           </nav>
           <MobileNav />

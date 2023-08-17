@@ -96,7 +96,7 @@ export const Logo = (props: SVGProps<SVGSVGElement>) => {
   )
 }
 
-export const ShoppingBag = (props: SVGProps<SVGSVGElement>) => {
+export const ShoppingCart = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
