@@ -64,9 +64,8 @@ export class RapydService implements IRapydService {
     const country = user.country
     if (!country) throw new Error('User has no country')
 
-    const documentTypesResponse = await this.deps.rapyd.getDocumentTypes(
-      country
-    )
+    const documentTypesResponse =
+      await this.deps.rapyd.getDocumentTypes(country)
 
     if (documentTypesResponse.status.status !== 'SUCCESS') {
       throw new Error(
