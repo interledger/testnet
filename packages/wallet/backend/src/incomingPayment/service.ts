@@ -59,9 +59,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     description?: string,
     expiration?: Expiration
   ): Promise<Transaction> {
-    const existingPaymentPointer = await PaymentPointer.query().findById(
-      paymentPointerId
-    )
+    const existingPaymentPointer =
+      await PaymentPointer.query().findById(paymentPointerId)
     if (!existingPaymentPointer || !existingPaymentPointer.active) {
       throw new NotFound()
     }
