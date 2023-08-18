@@ -1,5 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+/* eslint-disable @typescript-eslint/no-var-requires */
 const twColors = require('tailwindcss/colors')
+const { fontFamily } = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -64,6 +65,9 @@ module.exports = {
       },
       screens: {
         'h-sm': { raw: '(min-height: 600px)' }
+      },
+      fontFamily: {
+        sans: ['Titillium Web', ...fontFamily.sans]
       }
     }
   },
