@@ -9,3 +9,7 @@ ALTER DATABASE rafiki_backend OWNER TO rafiki_backend;
 CREATE USER wallet_backend WITH PASSWORD 'wallet_backend';
 CREATE DATABASE wallet_backend;
 ALTER DATABASE wallet_backend OWNER TO wallet_backend;
+
+CREATE USER commerce_backend WITH PASSWORD 'commerce_backend';
+CREATE DATABASE commerce_backend;
+ALTER DATABASE commerce_backend OWNER TO commerce_backend;
