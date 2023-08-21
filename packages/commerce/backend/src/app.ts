@@ -64,8 +64,8 @@ export class App {
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(
-      '/assets',
-      express.static(path.join(__dirname, '..', 'assets'), {
+      '/images',
+      express.static(path.join(__dirname, '..', 'images'), {
         maxAge: 31536000
       })
     )
