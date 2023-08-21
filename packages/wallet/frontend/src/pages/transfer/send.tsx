@@ -109,9 +109,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       const amount = sendForm.getValues('amount')
       if (receiverAssetCode && amount) {
         let value = amount
-        const ratesResponse = await assetService.getExchangeRates(
-          receiverAssetCode
-        )
+        const ratesResponse =
+          await assetService.getExchangeRates(receiverAssetCode)
 
         if (ratesResponse.success && ratesResponse.data) {
           value = parseFloat(
