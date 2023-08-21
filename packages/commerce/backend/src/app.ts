@@ -12,12 +12,7 @@ import type { Cradle } from './container'
 import { BaseError } from './errors/Base'
 import { Model } from 'objection'
 import { isObject } from './shared/utils'
-import { z } from 'zod'
-import { BadRequest, NotFound } from './errors'
-
-interface FileHandlerParams {
-  productId: string
-}
+import path from 'path'
 
 export class App {
   private server!: Server
@@ -68,8 +63,12 @@ export class App {
     app.use(helmet())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
-
-    router.get('/images/:productId', this.fileHandler.bind(this))
+    app.use(
+      '/assets',
+      express.static(path.join(__dirname, '..', 'assets'), {
+        maxAge: 31536000
+      })
+    )
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -105,29 +104,6 @@ export class App {
     } else {
       logger.error((isObject(e) ? e.message : undefined) ?? 'unknown error')
       res.status(500).json({ success: false, message: 'Internal Server Error' })
-    }
-  }
-
-  private async fileHandler(
-    req: Request<FileHandlerParams>,
-    res: TypedResponse,
-    next: NextFunction
-  ) {
-    try {
-      const result = z.string().uuid().safeParse(req.params.productId)
-      if (!result.success) throw new BadRequest('Invalid product ID.')
-
-      const productService = this.container.resolve('productService')
-      const product = await productService.get(result.data)
-      if (!product) throw new NotFound('Product not found')
-
-      const buffer = Buffer.from(product.image, 'base64')
-      res
-        .setHeader('Content-Type', 'image/png')
-        .setHeader('Cache-Control', 'max-age=31536000')
-        .send(buffer)
-    } catch (err) {
-      next(err)
     }
   }
 }
