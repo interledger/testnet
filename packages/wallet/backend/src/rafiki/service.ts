@@ -5,6 +5,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
 import { RafikiClient } from './rafiki-client'
+import { RapydService } from '../rapyd/service'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -62,17 +63,15 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
-interface Rates {
-  [currency: string]: { [currency: string]: number }
-}
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
-  getRates: (base: string) => RatesResponse
+  getRates: (base: string) => Promise<RatesResponse>
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
 interface RafikiServiceDependencies {
   rapydClient: RapydClient
+  rapydService: RapydService
   env: Env
   logger: Logger
   rafikiClient: RafikiClient
@@ -500,18 +499,7 @@ export class RafikiService implements IRafikiService {
     return receivedQuote
   }
 
-  public getRates(base: string): RatesResponse {
-    const exchangeRates: Rates = {
-      USD: {
-        EUR: 0.908936
-      },
-      EUR: {
-        USD: 1.10019
-      }
-    }
-    return {
-      base,
-      rates: exchangeRates[base] ?? {}
-    }
+  public async getRates(base: string): Promise<RatesResponse> {
+    return await this.deps.rapydService.getRates(base)
   }
 }

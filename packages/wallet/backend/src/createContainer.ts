@@ -265,10 +265,12 @@ export const createContainer = (config: Env): Container<Bindings> => {
     const logger = await container.resolve('logger')
     const rafikiClient = await container.resolve('rafikiClient')
     const transactionService = await container.resolve('transactionService')
+    const rapydService = await container.resolve('rapydService')
 
     return new RafikiService({
       rafikiClient,
       rapydClient,
+      rapydService,
       env,
       logger,
       transactionService
