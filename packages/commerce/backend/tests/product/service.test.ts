@@ -31,18 +31,41 @@ describe('Product Service', (): void => {
     await truncateTables(knex)
   })
 
-  describe('get', (): void => {
+  describe('getById', (): void => {
     it('should return undefined if the product does not exist', async (): Promise<void> => {
-      await expect(productService.get(randomUUID())).resolves.toBeUndefined()
+      await expect(
+        productService.getById(randomUUID())
+      ).resolves.toBeUndefined()
     })
 
     it('should return the product with the given id', async (): Promise<void> => {
       const product = mockProduct()
       await createProducts([product])
 
-      await expect(productService.get(product.id)).resolves.toMatchObject(
+      await expect(productService.getById(product.id)).resolves.toMatchObject(
         product
       )
+    })
+  })
+
+  describe('getBySlug', (): void => {
+    it('should return undefined if the product does not exist', async (): Promise<void> => {
+      await expect(
+        productService.getBySlug(randomUUID())
+      ).resolves.toBeUndefined()
+    })
+
+    it('should return the product with the given id', async (): Promise<void> => {
+      const id = randomUUID()
+      const product = mockProduct({
+        id,
+        slug: `product-${id}`
+      })
+      await createProducts([product])
+
+      await expect(
+        productService.getBySlug(product.slug)
+      ).resolves.toMatchObject(product)
     })
   })
 
