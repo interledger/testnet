@@ -240,6 +240,16 @@ export class App {
     router.get('/grants', isAuth, grantController.list)
     router.get('/grants/:id', isAuth, grantController.getById)
     router.delete('/grants/:id', isAuth, grantController.revoke)
+    router.get(
+      '/grant-interactions/:interactionId/:nonce',
+      isAuth,
+      grantController.getByInteraction
+    )
+    router.patch(
+      '/grant-interactions/:interactionId/:nonce',
+      isAuth,
+      grantController.setInteractionResponse
+    )
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)

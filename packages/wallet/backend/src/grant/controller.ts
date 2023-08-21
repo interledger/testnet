@@ -2,6 +2,8 @@ import { NextFunction, Request } from 'express'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { Grant } from '@/rafiki/auth/generated/graphql'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { validate } from '@/shared/validate'
+import { grantResponseSchema } from '@/grant/validation'
 
 interface IGrantController {
   list: ControllerFunction<Grant[]>
@@ -51,6 +53,45 @@ export class GrantController implements IGrantController {
     try {
       const grant = await this.deps.rafikiAuthService.getGrantById(
         req.params.id
+      )
+
+      res.json({ success: true, message: 'Success', data: grant })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  getByInteraction = async (
+    req: Request,
+    res: CustomResponse<Grant>,
+    next: NextFunction
+  ) => {
+    try {
+      const grant = await this.deps.rafikiAuthService.getGrantByInteraction(
+        req.params.interactionId,
+        req.params.nonce
+      )
+
+      res.json({ success: true, message: 'Success', data: grant })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  setInteractionResponse = async (
+    req: Request,
+    res: CustomResponse<Grant>,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { response }
+      } = await validate(grantResponseSchema, req)
+
+      const grant = await this.deps.rafikiAuthService.setInteractionResponse(
+        req.params.interactionId,
+        req.params.nonce,
+        response
       )
 
       res.json({ success: true, message: 'Success', data: grant })
