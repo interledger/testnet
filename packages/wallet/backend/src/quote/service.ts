@@ -174,16 +174,4 @@ export class QuoteService implements IQuoteService {
       (Number(params.amount) * conversionRate.rates[params.to]).toFixed()
     )
   }
-
-  // private async convert(params: ConvertParams): Promise<bigint> {
-  //   const conversionRate = await this.deps.rafikiService.getRates(
-  //     params.sourceAssetCode
-  //   )
-  //   return BigInt(
-  //     (
-  //       Number(params.amount) *
-  //       conversionRate.rates[params.destinationAssetCode]
-  //     ).toFixed()
-  //   )
-  // }
 }
