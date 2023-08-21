@@ -109,13 +109,12 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       const amount = sendForm.getValues('amount')
       if (receiverAssetCode && amount) {
         let value = amount
-        const ratesResponse = await assetService.getExchangeRates(
-          selectedAccount.assetCode
-        )
+        const ratesResponse =
+          await assetService.getExchangeRates(receiverAssetCode)
 
         if (ratesResponse.success && ratesResponse.data) {
-          value = Number(
-            (value * ratesResponse.data[receiverAssetCode]).toFixed(2)
+          value = parseFloat(
+            (value * ratesResponse.data[selectedAccount.assetCode]).toFixed(2)
           )
           sendForm.setValue('amount', value)
         }
@@ -134,12 +133,12 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
 
         if (selectedAsset) {
           const ratesResponse = await assetService.getExchangeRates(
-            selectedAsset.assetCode
+            response.data.assetCode
           )
 
           if (selectedAsset && ratesResponse.success && ratesResponse.data) {
             value = Number(
-              (value * ratesResponse.data[response.data.assetCode]).toFixed(2)
+              (value * ratesResponse.data[selectedAsset.assetCode]).toFixed(2)
             )
           }
         }

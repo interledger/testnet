@@ -22,11 +22,11 @@
     "iron-session": "^6.3.1",
     "knex": "^2.5.1",
     "objection": "^3.1.1",
-    "pg": "^8.11.2",
+    "pg": "^8.11.3",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.0",
     "winston": "^3.10.0",
-    "zod": "^3.21.4"
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
