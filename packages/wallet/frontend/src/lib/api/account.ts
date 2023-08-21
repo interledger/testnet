@@ -30,6 +30,22 @@ export const createAccountSchema = z.object({
   })
 })
 
+export const exchangeSchema = z.object({
+  amount: z.coerce
+    .number({
+      invalid_type_error: 'Please enter a valid amount'
+    })
+    .positive({ message: 'Please enter an amount' }),
+  asset: z.object({
+    value: z
+      .string({
+        required_error: 'Please select an asset you want to exchange to'
+      })
+      .uuid(),
+    label: z.string().min(1)
+  })
+})
+
 export type Account = {
   id: string
   name: string
@@ -59,6 +75,11 @@ type WithdrawFundsArgs = z.infer<typeof withdrawFundsSchema>
 type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
 type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
+type ExchangeArgs = z.infer<typeof exchangeSchema>
+type ExchangeResponse =
+  | SuccessResponse
+  | ErrorResponse<ExchangeArgs | undefined>
+
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (
@@ -68,6 +89,7 @@ interface AccountService {
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
   withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
+  exchange: (args: ExchangeArgs) => Promise<ExchangeResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -148,6 +170,22 @@ const createAccountService = (): AccountService => ({
       return getError<WithdrawFundsArgs>(
         error,
         'We were not able to withdraw the funds. Please try again.'
+      )
+    }
+  },
+
+  async exchange(args) {
+    try {
+      const response = await httpClient
+        .post('accounts/exchange', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<ExchangeArgs>(
+        error,
+        'We were not able to exchange your money to the selected currency. Please try again.'
       )
     }
   }

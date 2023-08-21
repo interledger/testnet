@@ -3,26 +3,30 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
-import { Account, accountService, withdrawFundsSchema } from '@/lib/api/account'
+import { Account, accountService, exchangeSchema } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
 import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
+import { Controller } from 'react-hook-form'
+import { Select, SelectOption } from '@/ui/forms/Select'
 
-type WithdrawFundsDialogProps = Pick<DialogProps, 'onClose'> & {
+type ExchangeDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account
+  assets: SelectOption[]
 }
 
-export const WithdrawFundsDialog = ({
+export const ExchangeDialog = ({
   onClose,
-  account
-}: WithdrawFundsDialogProps) => {
+  account,
+  assets
+}: ExchangeDialogProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
-  const withdrawFundsForm = useZodForm({
-    schema: withdrawFundsSchema
+  const exchangeForm = useZodForm({
+    schema: exchangeSchema
   })
 
   return (
@@ -55,19 +59,19 @@ export const WithdrawFundsDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Withdraw Money
+                  Exchange Money
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
-                    form={withdrawFundsForm}
+                    form={exchangeForm}
                     onSubmit={async (data) => {
-                      const response = await accountService.withdraw(data)
+                      const response = await accountService.exchange(data)
 
                       if (!response) {
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Withdrawal failed. Please try again."
+                            content="Money exchange failed. Please try again."
                           />
                         )
                         return
@@ -81,47 +85,49 @@ export const WithdrawFundsDialog = ({
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            withdrawFundsForm.setError(field, {
+                            exchangeForm.setError(field, {
                               message: errors[field]
                             })
                           )
                         }
                         if (message) {
-                          withdrawFundsForm.setError('root', { message })
+                          exchangeForm.setError('root', { message })
                         }
                       }
                     }}
                   >
                     <Input
-                      disabled={true}
-                      value={account.name}
-                      error={
-                        withdrawFundsForm.formState.errors.accountId?.message
-                      }
-                      label="Account"
-                      readOnly
-                    />
-                    <input
-                      type="hidden"
-                      {...withdrawFundsForm.register('accountId')}
-                      value={account.id}
-                    />
-                    <Input
                       required
                       label="Amount"
                       addOn={getCurrencySymbol(account.assetCode)}
-                      error={
-                        withdrawFundsForm.formState?.errors?.amount?.message
-                      }
-                      {...withdrawFundsForm.register('amount')}
+                      error={exchangeForm.formState?.errors?.amount?.message}
+                      {...exchangeForm.register('amount')}
+                    />
+                    <Controller
+                      name="asset"
+                      control={exchangeForm.control}
+                      render={({ field: { value } }) => (
+                        <Select<SelectOption>
+                          options={assets}
+                          label="Asset"
+                          placeholder="Select asset..."
+                          error={exchangeForm.formState.errors.asset?.message}
+                          value={value}
+                          onChange={(option) => {
+                            if (option) {
+                              exchangeForm.setValue('asset', { ...option })
+                            }
+                          }}
+                        />
+                      )}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
-                        aria-label="withdraw funds"
+                        aria-label="exchange money"
                         type="submit"
-                        loading={withdrawFundsForm.formState.isSubmitting}
+                        loading={exchangeForm.formState.isSubmitting}
                       >
-                        Withdraw
+                        Exchange
                       </Button>
                       <Button
                         intent="outline"
