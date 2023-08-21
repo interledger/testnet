@@ -31,8 +31,8 @@ type CreateQuoteParams = {
 }
 
 type ConvertParams = {
-  sourceAssetCode: string
-  destinationAssetCode: string
+  from: string
+  to: string
   amount: bigint
 }
 
@@ -85,8 +85,8 @@ export class QuoteService implements IQuoteService {
       destinationPaymentPointer.assetCode !== asset.code
     ) {
       const convertedValue = this.convert({
-        sourceAssetCode: assetCode,
-        destinationAssetCode: destinationPaymentPointer.assetCode,
+        from: assetCode,
+        to: destinationPaymentPointer.assetCode,
         amount: value
       })
       value = convertedValue
@@ -149,10 +149,11 @@ export class QuoteService implements IQuoteService {
       return quote
     }
     const value = this.convert({
-      sourceAssetCode: quote.sendAmount.assetCode,
-      destinationAssetCode: quote.receiveAmount.assetCode,
+      from: quote.receiveAmount.assetCode,
+      to: quote.sendAmount.assetCode,
       amount: quote.receiveAmount.value
     })
+
     const feeInSenderCurrency = BigInt(quote.sendAmount.value) - value
 
     return {
@@ -168,9 +169,9 @@ export class QuoteService implements IQuoteService {
   }
 
   private convert(params: ConvertParams): bigint {
-    const conversionRate = this.deps.rafikiService.getRates(
-      params.sourceAssetCode
-    ).rates[params.destinationAssetCode]
+    const conversionRate = this.deps.rafikiService.getRates(params.from).rates[
+      params.to
+    ]
     return BigInt((Number(params.amount) * conversionRate).toFixed())
   }
 }

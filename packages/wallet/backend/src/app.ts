@@ -237,6 +237,7 @@ export class App {
     router.post('/wallet', isAuth, rapydController.createWallet)
     router.post('/updateProfile', isAuth, rapydController.updateProfile)
     router.post('/verify', isAuth, rapydController.verifyIdentity)
+    router.get('/rates/daily', rapydController.getRates)
 
     // asset
     router.get('/assets', isAuth, assetController.list)
