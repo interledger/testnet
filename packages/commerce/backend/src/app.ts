@@ -69,7 +69,7 @@ export class App {
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 
-    router.get('/image/:productId', this.fileHandler.bind(this))
+    router.get('/images/:productId', this.fileHandler.bind(this))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
