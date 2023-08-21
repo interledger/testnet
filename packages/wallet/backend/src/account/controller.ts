@@ -4,6 +4,7 @@ import { validate } from '@/shared/validate'
 import { AccountService } from './service'
 import { accountSchema, fundSchema, withdrawFundsSchema } from './validation'
 import { Account } from '@/account/model'
+import { RatesResponse } from '@/rafiki/service'
 
 interface IAccountController {
   createAccount: ControllerFunction<Account>
@@ -127,6 +128,26 @@ export class AccountController implements IAccountController {
       })
 
       res.status(200).json({ success: true, message: 'Funds withdrawn' })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  getExchangeRates = async (
+    req: Request,
+    res: CustomResponse<RatesResponse>,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const accountId = req.params.accountId
+
+      const rates = await this.deps.accountService.getExchangeRates(
+        userId,
+        accountId
+      )
+
+      res.status(200).json({ success: true, message: 'SUCCESS', data: rates })
     } catch (e) {
       next(e)
     }
