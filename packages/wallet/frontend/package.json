@@ -6,7 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.16",
+    "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.2.0",
     "class-variance-authority": "^0.7.0",
     "ky": "^0.33.3",
