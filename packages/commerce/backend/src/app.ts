@@ -12,6 +12,7 @@ import type { Cradle } from './container'
 import { BaseError } from './errors/Base'
 import { Model } from 'objection'
 import { isObject } from './shared/utils'
+import path from 'path'
 
 export class App {
   private server!: Server
@@ -62,6 +63,12 @@ export class App {
     app.use(helmet())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
+    app.use(
+      '/images',
+      express.static(path.join(__dirname, '..', 'images'), {
+        maxAge: 31536000
+      })
+    )
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -73,7 +80,7 @@ export class App {
       })
     })
 
-    router.use(this.errorHandler)
+    router.use(this.errorHandler.bind(this))
 
     app.use(router)
 

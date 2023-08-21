@@ -5,8 +5,7 @@
 exports.up = function (knex) {
   return knex.schema.createTable('users', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
-    table.string('paymentPointer').notNullable()
-    table.string('token').notNullable()
+    table.string('paymentPointer').notNullable().unique()
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()
