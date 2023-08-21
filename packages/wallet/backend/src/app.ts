@@ -38,6 +38,7 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 import { EmailService } from '@/email/service'
 import { setRateLimit } from '@/middleware/rateLimit'
+import { SocketService } from './socket/service'
 
 export interface Bindings {
   env: Env
@@ -70,6 +71,7 @@ export interface Bindings {
   rafikiAuthService: RafikiAuthService
   grantController: GrantController
   emailService: EmailService
+  socketService: SocketService
 }
 
 export class App {
@@ -82,6 +84,7 @@ export class App {
     const env = await this.container.resolve('env')
     const logger = await this.container.resolve('logger')
     const knex = await this.container.resolve('knex')
+    const socketService = await this.container.resolve('socketService')
 
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
@@ -90,6 +93,8 @@ export class App {
 
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
+
+    socketService.init(this.server)
   }
 
   public stop = async (): Promise<void> => {

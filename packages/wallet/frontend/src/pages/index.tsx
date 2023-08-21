@@ -16,10 +16,32 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
+// import { io, Socket } from 'socket.io-client';
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
+  // let socket: Socket;
+
+  // useEffect(() => {
+  //   // Connect to the Socket.IO server
+  //   socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? ''); // Change the URL to your server URL
+
+  //   // Event listeners
+  //   socket.on('connect', () => {
+  //     console.log('Connected to server');
+  //   });
+
+  //   socket.on('disconnect', () => {
+  //     console.log('Disconnected from server');
+  //   });
+
+  //   // Clean up when the component unmounts
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
+
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
 

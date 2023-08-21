@@ -31,6 +31,7 @@ import { UserController } from '@/user/controller'
 import { UserService } from '@/user/service'
 import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
+import { SocketService } from './socket/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -310,6 +311,15 @@ export const createContainer = (config: Env): Container<Bindings> => {
       new GrantController({
         rafikiAuthService: await container.resolve('rafikiAuthService'),
         paymentPointerService: await container.resolve('paymentPointerService')
+      })
+  )
+
+  container.singleton(
+    'socketService',
+    async () =>
+      new SocketService({
+        env: await container.resolve('env'),
+        logger: await container.resolve('logger')
       })
   )
 

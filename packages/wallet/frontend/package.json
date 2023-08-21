@@ -8,6 +8,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.16",
     "@hookform/resolvers": "^3.2.0",
+    "@types/socket.io-client": "^3.0.0",
     "class-variance-authority": "^0.7.0",
     "ky": "^0.33.3",
     "next": "13.4.12",
@@ -18,6 +19,7 @@
     "react-joyride": "^2.5.5",
     "react-select": "^5.7.4",
     "sharp": "^0.32.4",
+    "socket.io-client": "^4.7.2",
     "zod": "^3.21.4"
   },
   "devDependencies": {
