@@ -1,5 +1,10 @@
 import axios from 'axios'
 
+export type RatesResponse = {
+  base: string
+  rates: Record<string, number>
+}
+
 export interface IRatesService {
   getRates: (userId: string) => Promise<RatesResponse>
 }

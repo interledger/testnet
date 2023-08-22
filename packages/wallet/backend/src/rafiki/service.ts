@@ -65,7 +65,6 @@ export type Fees = Record<string, Fee>
 
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
-  getRates: (base: string) => Promise<RatesResponse>
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -76,11 +75,6 @@ interface RafikiServiceDependencies {
   logger: Logger
   rafikiClient: RafikiClient
   transactionService: TransactionService
-}
-
-export type RatesResponse = {
-  base: string
-  rates: Record<string, number>
 }
 
 export class RafikiService implements IRafikiService {
@@ -497,9 +491,5 @@ export class RafikiService implements IRafikiService {
     }
 
     return receivedQuote
-  }
-
-  public async getRates(base: string): Promise<RatesResponse> {
-    return await this.deps.ratesService.getRates(base)
   }
 }

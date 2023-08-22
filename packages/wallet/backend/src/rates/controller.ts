@@ -1,7 +1,7 @@
 import { validate } from '@/shared/validate'
 import { NextFunction, Request } from 'express'
 import { ratesSchema } from './validation'
-import { RatesService } from './service'
+import { RatesResponse, RatesService } from './service'
 
 interface IRatesController {
   getRates: ControllerFunction<RatesResponse>

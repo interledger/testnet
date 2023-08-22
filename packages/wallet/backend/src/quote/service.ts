@@ -6,8 +6,8 @@ import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
 import { PaymentPointerService } from '../paymentPointer/service'
-import { RafikiService } from '../rafiki/service'
 import { QuoteWithFees } from './controller'
+import { RatesService } from '../rates/service'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
@@ -17,7 +17,7 @@ interface QuoteServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
-  rafikiService: RafikiService
+  ratesService: RatesService
   paymentPointerService: PaymentPointerService
 }
 
@@ -169,7 +169,7 @@ export class QuoteService implements IQuoteService {
   }
 
   private async convert(params: ConvertParams): Promise<bigint> {
-    const conversionRate = await this.deps.rafikiService.getRates(params.from)
+    const conversionRate = await this.deps.ratesService.getRates(params.from)
     return BigInt(
       (Number(params.amount) * conversionRate.rates[params.to]).toFixed()
     )
