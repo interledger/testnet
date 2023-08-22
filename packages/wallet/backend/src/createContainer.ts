@@ -32,7 +32,6 @@ import { UserService } from '@/user/service'
 import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
 import { RatesService } from './rates/service'
-import { RatesController } from './rates/controller'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -174,13 +173,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton('ratesService', async () => new RatesService())
-  container.singleton(
-    'ratesController',
-    async () =>
-      new RatesController({
-        ratesService: await container.resolve('ratesService')
-      })
-  )
 
   container.singleton(
     'rapydController',
