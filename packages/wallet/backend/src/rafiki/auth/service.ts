@@ -85,6 +85,7 @@ export class RafikiAuthService implements IRafikiAuthService {
   ) {
     const response = await axios.post(
       `${this.deps.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}/${acceptance}`,
+      {},
       {
         headers: {
           'x-idp-secret': this.deps.env.AUTH_IDENTITY_SERVER_SECRET

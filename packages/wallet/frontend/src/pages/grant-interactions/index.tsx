@@ -6,7 +6,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { formatAmount, formatDate } from '@/utils/helpers'
+import { formatAmount } from '@/utils/helpers'
 import { Grant, grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import Image from 'next/image'
@@ -44,8 +44,8 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
         onClose={closeDialog}
         title="Grant Request Accepted."
         content="The grant request was successfully accepted."
-        redirect={`/grants`}
-        redirectText="View grants"
+        redirect={`${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`}
+        redirectText="Finish interaction"
       />
     )
   }
@@ -58,10 +58,6 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
           <div>
             <span className="font-semibold">Client: </span>
             <span className="font-light">{grant.client}</span>
-          </div>
-          <div>
-            <span className="font-semibold">Created at: </span>
-            <span className="font-light">{grant.createdAt}</span>
           </div>
           <div className="border-b border-b-green-5 pb-3 text-xl font-semibold">
             Access - Permissions:
@@ -172,8 +168,9 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
 }
 
 const querySchema = z.object({
-  interactionId: z.string(),
-  nonce: z.string()
+  interactId: z.string(),
+  nonce: z.string(),
+  clientUri: z.string()
 })
 
 export const getServerSideProps: GetServerSideProps<{
@@ -189,7 +186,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const grantInteractionResponse = await grantsService.getInteraction(
-    result.data.interactionId,
+    result.data.interactId,
     result.data.nonce,
     ctx.req.headers.cookie
   )
@@ -200,22 +197,16 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  grantInteractionResponse.data.createdAt = formatDate(
-    grantInteractionResponse.data.createdAt
-  )
-  grantInteractionResponse.data.client =
-    grantInteractionResponse.data.client.replace('https://', '$')
   grantInteractionResponse.data.access.map((access) => {
-    access.identifier =
-      access.identifier !== null
-        ? access.identifier.replace('https://', '$')
-        : null
-    if (access.limits !== null) {
+    access.identifier = access.identifier
+      ? access.identifier.replace('https://', '$')
+      : null
+    if (access.limits) {
       access.limits.receiver = access.limits.receiver
         ? access.limits.receiver.replace('https://', '$')
-        : access.limits.receiver
+        : access.limits.receiver ?? null
 
-      if (access.limits.sendAmount !== null) {
+      if (access.limits.sendAmount) {
         access.limits.sendAmount.formattedAmount = formatAmount({
           value: access.limits.sendAmount.value ?? 0,
           assetCode: access.limits.sendAmount.assetCode,
@@ -232,11 +223,12 @@ export const getServerSideProps: GetServerSideProps<{
       }
     }
   })
+  grantInteractionResponse.data.client = result.data.clientUri
 
   return {
     props: {
       grant: grantInteractionResponse.data,
-      interactionId: result.data.interactionId,
+      interactionId: result.data.interactId,
       nonce: result.data.nonce
     }
   }
