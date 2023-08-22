@@ -38,6 +38,8 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 import { EmailService } from '@/email/service'
 import { setRateLimit } from '@/middleware/rateLimit'
+import { RatesController } from './rates/controller'
+import { RatesService } from './rates/service'
 
 export interface Bindings {
   env: Env
@@ -48,6 +50,8 @@ export interface Bindings {
   rafikiService: RafikiService
   rafikiController: RafikiController
   rapydService: RapydService
+  ratesController: RatesController
+  ratesService: RatesService
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
@@ -131,6 +135,7 @@ export class App {
     const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
+    const ratesController = await this.container.resolve('ratesController')
 
     app.use(
       cors({
@@ -232,7 +237,7 @@ export class App {
     router.post('/wallet', isAuth, rapydController.createWallet)
     router.post('/updateProfile', isAuth, rapydController.updateProfile)
     router.post('/verify', isAuth, rapydController.verifyIdentity)
-    router.get('/rates/daily', rapydController.getRates)
+    router.get('/rates/daily', ratesController.getRates)
 
     // asset
     router.get('/assets', isAuth, assetController.list)

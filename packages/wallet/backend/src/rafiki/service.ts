@@ -4,8 +4,8 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
+import { RatesService } from '../rates/service'
 import { RafikiClient } from './rafiki-client'
-import { RapydService } from '../rapyd/service'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -71,7 +71,7 @@ interface IRafikiService {
 
 interface RafikiServiceDependencies {
   rapydClient: RapydClient
-  rapydService: RapydService
+  ratesService: RatesService
   env: Env
   logger: Logger
   rafikiClient: RafikiClient
@@ -500,6 +500,6 @@ export class RafikiService implements IRafikiService {
   }
 
   public async getRates(base: string): Promise<RatesResponse> {
-    return await this.deps.rapydService.getRates(base)
+    return await this.deps.ratesService.getRates(base)
   }
 }
