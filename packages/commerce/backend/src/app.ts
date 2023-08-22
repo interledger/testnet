@@ -52,6 +52,7 @@ export class App {
     const router = Router()
 
     const env = this.container.resolve('env')
+    const productController = this.container.resolve('productController')
 
     app.use(
       cors({
@@ -69,6 +70,9 @@ export class App {
         maxAge: 31536000
       })
     )
+
+    router.get('/products', productController.list.bind(this))
+    router.get('/products/:slug', productController.get.bind(this))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -102,7 +106,7 @@ export class App {
         errors: e.errors
       })
     } else {
-      logger.error((isObject(e) ? e.message : undefined) ?? 'unknown error')
+      logger.error((isObject(e) ? e.message : e) ?? 'unknown error')
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
   }

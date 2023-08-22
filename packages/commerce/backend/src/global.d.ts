@@ -19,4 +19,10 @@ declare global {
   > extends Response {
     json: Send<TBody, this>
   }
+
+  type Controller<T = undefined> = (
+    req: Request,
+    res: CustomResponse<T>,
+    next: NextFunction
+  ) => Promise<void>
 }
