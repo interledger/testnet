@@ -7,6 +7,8 @@ import {
 } from 'react-router-dom'
 import { ordersRoutes } from './orders/routes.tsx'
 import { productsRoutes } from './products/routes.tsx'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 
 const Index = () => {
   return <Navigate to={`/products`} replace />
@@ -33,7 +35,21 @@ export const routes = [
 ] satisfies RouteObject[]
 
 const router = createBrowserRouter(routes)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      cacheTime: Infinity
+    }
+  }
+})
 
 export function App() {
-  return <RouterProvider router={router} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  )
 }

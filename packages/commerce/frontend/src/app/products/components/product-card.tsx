@@ -1,4 +1,4 @@
-import { ArrowRightLong } from '@/components/icons'
+import { ArrowRightLong } from '@/components/icons.tsx'
 import {
   Card,
   CardContent,
@@ -6,16 +6,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle
-} from '@/components/ui/card'
+} from '@/components/ui/card.tsx'
+import type { Product } from '@/lib/api/product.ts'
 import { Link } from 'react-router-dom'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  image: string
-}
 
 interface ProductCardProps {
   product: Product

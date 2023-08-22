@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils.ts'
 import { HTMLAttributes } from 'react'
 
 export const PageHeader = ({

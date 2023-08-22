@@ -2,10 +2,13 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading
-} from '@/components/page-header'
-import { ProductCard } from './components/product-card'
+} from '@/components/page-header.tsx'
+import { ProductCard } from './components/product-card.tsx'
+import { useProductsQuery } from '@/hooks/useProductsQuery.ts'
 
 export function Component() {
+  const { data, error } = useProductsQuery()
+  console.log(data, error)
   return (
     <>
       <PageHeader>
