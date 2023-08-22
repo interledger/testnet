@@ -236,8 +236,8 @@ importers:
         specifier: ^1.7.17
         version: 1.7.17(react-dom@18.2.0)(react@18.2.0)
       '@hookform/resolvers':
-        specifier: ^3.2.0
-        version: 3.2.0(react-hook-form@7.45.4)
+        specifier: ^3.3.0
+        version: 3.3.0(react-hook-form@7.45.4)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -1745,8 +1745,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@hookform/resolvers@3.2.0(react-hook-form@7.45.4):
-    resolution: {integrity: sha512-skXQHhLxq0Sz2xDwCyv5dygBCtXJe1GmWwxDzfdtl0X6agD6qcyTG8HrZWkjJoy8AkiLARqYvSYJ8z7+Nwmi7w==}
+  /@hookform/resolvers@3.3.0(react-hook-form@7.45.4):
+    resolution: {integrity: sha512-tgK3nWlfFLlqhqpXZmFMP3RN5E7mlbGfnM2h2ILVsW1TNGuFSod0ePW0grlIY2GAbL4pJdtmOT4HQSZsTwOiKg==}
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
