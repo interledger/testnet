@@ -16,31 +16,41 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
-// import { io, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
-  // let socket: Socket;
+  let socket: Socket
 
-  // useEffect(() => {
-  //   // Connect to the Socket.IO server
-  //   socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? ''); // Change the URL to your server URL
+  useEffect(() => {
+    // Access cookies
 
-  //   // Event listeners
-  //   socket.on('connect', () => {
-  //     console.log('Connected to server');
-  //   });
+    // Connect to the Socket.IO server
+    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
+      query: {
+        email: user.email
+      }
+    }) // Change the URL to your server URL
 
-  //   socket.on('disconnect', () => {
-  //     console.log('Disconnected from server');
-  //   });
+    // Event listeners
+    socket.on('connect', () => {
+      console.log('Connected to server')
+    })
 
-  //   // Clean up when the component unmounts
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, []);
+    socket.on('message', (message) => {
+      console.log(`Received message: ${message}`)
+    })
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server')
+    })
+
+    // Clean up when the component unmounts
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -144,7 +154,9 @@ export const getServerSideProps: GetServerSideProps<{
   user: {
     firstName: string
     lastName: string
+    email: string
   }
+  cookie?: string
 }> = async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie)
   const user = await userService.me(ctx.req.headers.cookie)
@@ -160,7 +172,8 @@ export const getServerSideProps: GetServerSideProps<{
       accounts: response.data ?? [],
       user: {
         firstName: user.data?.firstName ?? '',
-        lastName: user.data?.lastName ?? ''
+        lastName: user.data?.lastName ?? '',
+        email: user.data?.email ?? ''
       }
     }
   }
