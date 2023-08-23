@@ -40,11 +40,17 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
       return
     }
 
+    const title = isAccepted
+      ? 'Grant Request Accepted.'
+      : 'Grant Request Declined.'
+    const content = isAccepted
+      ? 'The grant request was successfully accepted.'
+      : 'The grant request was declined. No payments will be made.'
     openDialog(
       <SuccessDialog
         onClose={closeDialog}
-        title="Grant Request Accepted."
-        content="The grant request was successfully accepted."
+        title={title}
+        content={content}
         redirect={`${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`}
         redirectText="Finish"
       />
