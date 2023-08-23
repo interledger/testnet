@@ -6,11 +6,6 @@ import {
 import { useProductsQuery } from '@/hooks/useProductsQuery.ts'
 import { ProductCard } from './components/product-card'
 import { useCartStore } from '@/hooks/useCartStore'
-import {
-  addToCart,
-  decreaseQuantity,
-  increaseQuantity
-} from '@/lib/stores/cart-store'
 
 export function Component() {
   const { data } = useProductsQuery()
@@ -21,24 +16,7 @@ export function Component() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>
-          <button
-            onClick={() =>
-              addToCart({
-                id: 'test',
-                description: 'descri',
-                image: 'test.pg',
-                name: 'name',
-                price: 1000
-              })
-            }
-          >
-            test
-          </button>
-          <button onClick={() => increaseQuantity('test')}>increase</button>
-          <button onClick={() => decreaseQuantity('test')}>decrease</button>
-          Interledger E-Commerce
-        </PageHeaderHeading>
+        <PageHeaderHeading>Interledger E-Commerce</PageHeaderHeading>
         <PageHeaderDescription>
           Value or feeling? Explore all here!
         </PageHeaderDescription>
