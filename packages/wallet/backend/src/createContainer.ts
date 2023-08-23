@@ -31,6 +31,7 @@ import { UserController } from '@/user/controller'
 import { UserService } from '@/user/service'
 import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
+import { GrantService } from '@/grant/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -305,11 +306,21 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton(
+    'grantService',
+    async () =>
+      new GrantService({
+        rafikiAuthService: await container.resolve('rafikiAuthService'),
+        paymentPointerService: await container.resolve('paymentPointerService')
+      })
+  )
+
+  container.singleton(
     'grantController',
     async () =>
       new GrantController({
         rafikiAuthService: await container.resolve('rafikiAuthService'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        paymentPointerService: await container.resolve('paymentPointerService'),
+        grantService: await container.resolve('grantService')
       })
   )
 

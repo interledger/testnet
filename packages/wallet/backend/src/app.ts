@@ -38,6 +38,7 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { GrantController } from '@/grant/controller'
 import { EmailService } from '@/email/service'
 import { setRateLimit } from '@/middleware/rateLimit'
+import { GrantService } from '@/grant/service'
 
 export interface Bindings {
   env: Env
@@ -69,6 +70,7 @@ export interface Bindings {
   quoteService: QuoteService
   rafikiAuthService: RafikiAuthService
   grantController: GrantController
+  grantService: GrantService
   emailService: EmailService
 }
 
