@@ -3,12 +3,12 @@ import {
   PageHeaderDescription,
   PageHeaderHeading
 } from '@/components/page-header.tsx'
-import { ProductCard } from './components/product-card.tsx'
 import { useProductsQuery } from '@/hooks/useProductsQuery.ts'
+import { ProductCard } from './components/product-card'
 
 export function Component() {
-  const { data, error } = useProductsQuery()
-  console.log(data, error)
+  const { data } = useProductsQuery()
+
   return (
     <>
       <PageHeader>
@@ -18,15 +18,12 @@ export function Component() {
         </PageHeaderDescription>
       </PageHeader>
       <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-        <ProductCard
-          product={{
-            id: 'productid',
-            description: 'description',
-            name: 'name',
-            price: 100,
-            image: 'image'
-          }}
-        />
+        {!data ? (
+          <>It looks like we do not have any products at the moment</>
+        ) : null}
+        {data?.data.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </>
   )

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card.tsx'
-import type { Product } from '@/lib/api/product.ts'
+import type { Product } from '@/hooks/useProductsQuery.ts'
 import { Link } from 'react-router-dom'
 
 interface ProductCardProps {

@@ -1,10 +1,27 @@
-import { getProducts } from '@/lib/api/product.ts'
-import { APIError } from '@/lib/api/error.ts'
-import { useQuery } from '@tanstack/react-query'
+import { APIError } from '@/lib/api-error'
+import { UseQueryResult, useQuery } from '@tanstack/react-query'
+import { fetcher } from '@/lib/utils'
+import { SuccessReponse } from '@/lib/types'
 
-export function useProductsQuery() {
-  return useQuery<Awaited<ReturnType<typeof getProducts>>, APIError>({
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  image: string
+}
+
+export function useProductsQuery(): UseQueryResult<
+  SuccessReponse<Product[]>,
+  APIError
+> {
+  return useQuery({
     queryKey: ['products'],
-    queryFn: getProducts
+    queryFn: async function () {
+      return await fetcher<Product[]>('/', {
+        method: 'GET',
+        credentials: 'include'
+      })
+    }
   })
 }
