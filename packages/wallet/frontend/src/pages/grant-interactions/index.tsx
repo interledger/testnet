@@ -26,12 +26,12 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
 }) => {
   const [openDialog, closeDialog] = useDialog()
 
-  async function answerGrantRequest(isAccepted: boolean) {
-    const response = await grantsService.answerGrantRequest(
-      interactionId,
-      nonce,
-      isAccepted
-    )
+  async function answerGrantRequest(action: string) {
+    const response = await grantsService.finalizeInteraction({
+      interactionId: interactionId,
+      nonce: nonce,
+      action: action
+    })
 
     if (!response.success) {
       openDialog(
@@ -40,12 +40,14 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
       return
     }
 
-    const title = isAccepted
-      ? 'Grant Request Accepted.'
-      : 'Grant Request Declined.'
-    const content = isAccepted
-      ? 'The grant request was successfully accepted.'
-      : 'The grant request was declined. No payments will be made.'
+    const title =
+      action === 'accept'
+        ? 'Grant Request Accepted.'
+        : 'Grant Request Declined.'
+    const content =
+      action === 'accept'
+        ? 'The grant request was successfully accepted.'
+        : 'The grant request was declined. No payments will be made.'
     openDialog(
       <SuccessDialog
         onClose={closeDialog}
@@ -66,7 +68,7 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
           <Button
             aria-label="accept"
             onClick={() => {
-              answerGrantRequest(true)
+              answerGrantRequest('accept')
             }}
           >
             Accept
@@ -75,7 +77,7 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
             intent="secondary"
             aria-label="decline"
             onClick={() => {
-              answerGrantRequest(false)
+              answerGrantRequest('reject')
             }}
           >
             Decline

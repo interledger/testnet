@@ -10,7 +10,7 @@ export const GrantDetails = ({ grant, isAcceptedGrant }: GrantDetailsProps) => {
         <span className="font-semibold">Client: </span>
         <span className="font-light">{grant.client}</span>
       </div>
-      {isAcceptedGrant && (
+      {isAcceptedGrant ? (
         <>
           <div>
             <span>Created at: </span>
@@ -25,7 +25,7 @@ export const GrantDetails = ({ grant, isAcceptedGrant }: GrantDetailsProps) => {
             />
           </div>
         </>
-      )}
+      ) : null}
       <div className="border-b border-b-green-5 py-2 text-lg font-semibold">
         Access - Permissions:
       </div>
@@ -35,12 +35,12 @@ export const GrantDetails = ({ grant, isAcceptedGrant }: GrantDetailsProps) => {
             <span>Access type: </span>
             <span className="text-sm">{accessDetails.type.toUpperCase()}</span>
           </div>
-          {accessDetails.identifier && (
+          {accessDetails.identifier ? (
             <div>
               <span>Payment Pointer access: </span>
               <span className="font-light">{accessDetails.identifier}</span>
             </div>
-          )}
+          ) : null}
           <div className="flex flex-row items-center">
             <span>Access action: </span>
             <div className="mx-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
@@ -51,42 +51,42 @@ export const GrantDetails = ({ grant, isAcceptedGrant }: GrantDetailsProps) => {
               </div>
             ))}
           </div>
-          {accessDetails.limits && (
+          {accessDetails.limits ? (
             <>
-              {accessDetails.limits.sendAmount && (
+              {accessDetails.limits.sendAmount ? (
                 <div>
                   <span>Amount to send: </span>
                   <span className="font-light">
                     {accessDetails.limits.sendAmount.formattedAmount}
                   </span>
                 </div>
-              )}
-              {accessDetails.limits.receiveAmount && (
+              ) : null}
+              {accessDetails.limits.receiveAmount ? (
                 <div>
                   <span>Amount to receive: </span>
                   <span className="font-light">
                     {accessDetails.limits.receiveAmount.formattedAmount}
                   </span>
                 </div>
-              )}
-              {accessDetails.limits.receiver && (
+              ) : null}
+              {accessDetails.limits.receiver ? (
                 <div>
                   <span>Payment Pointer of the receiver: </span>
                   <span className="font-light">
                     {accessDetails.limits.receiver}
                   </span>
                 </div>
-              )}
-              {accessDetails.limits.interval && (
+              ) : null}
+              {accessDetails.limits.interval ? (
                 <div>
                   <span>Interval between payments: </span>
                   <span className="font-light">
                     {accessDetails.limits.interval}
                   </span>
                 </div>
-              )}
+              ) : null}
             </>
-          )}
+          ) : null}
         </div>
       ))}
     </div>

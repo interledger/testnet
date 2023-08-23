@@ -48,7 +48,13 @@ type GetGrantResult = SuccessResponse<Grant>
 type GetGrantResponse = GetGrantResult | ErrorResponse
 
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
-type ChoiceGrantRequestResponse = SuccessResponse | ErrorResponse
+
+type FinalizeInteractionParams = {
+  interactionId: string
+  nonce: string
+  action: string
+}
+type FinalizeInteractionResponse = SuccessResponse | ErrorResponse
 
 interface GrantsService {
   list: (cookies?: string) => Promise<ListGrantsResponse>
@@ -58,11 +64,9 @@ interface GrantsService {
     nonce: string,
     cookies?: string
   ) => Promise<GetGrantResponse>
-  answerGrantRequest: (
-    interactionId: string,
-    nonce: string,
-    isAccepted: boolean
-  ) => Promise<ChoiceGrantRequestResponse>
+  finalizeInteraction: (
+    args: FinalizeInteractionParams
+  ) => Promise<FinalizeInteractionResponse>
   delete: (grantId: string) => Promise<DeleteGrantResponse>
 }
 
@@ -112,17 +116,16 @@ const createGrantsService = (): GrantsService => ({
     }
   },
 
-  async answerGrantRequest(interactionId, nonce, isAccepted) {
-    const grantRequestResponse = isAccepted ? 'accept' : 'reject'
+  async finalizeInteraction(args) {
     try {
       const response = await httpClient
-        .patch(`grant-interactions/${interactionId}/${nonce}`, {
-          json: { response: grantRequestResponse }
+        .patch(`grant-interactions/${args.interactionId}/${args.nonce}`, {
+          json: { response: args.action }
         })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, `Unable to ${grantRequestResponse} grant request.`)
+      return getError(error, `Unable to ${args.action} grant request.`)
     }
   },
 
