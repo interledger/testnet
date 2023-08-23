@@ -1,7 +1,6 @@
-import { APIError } from '@/lib/api-error'
 import { UseQueryResult, useQuery } from '@tanstack/react-query'
-import { fetcher } from '@/lib/utils'
-import { SuccessReponse } from '@/lib/types'
+import { fetcher, APIError } from '@/lib/fetcher.ts'
+import { SuccessReponse } from '@/lib/types.ts'
 
 export interface Product {
   id: string
