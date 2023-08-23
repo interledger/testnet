@@ -1,7 +1,7 @@
 import { NextFunction, Request } from 'express'
 import { IProductService } from './service'
 import { Product } from './model'
-import { BadRequest, NotFound } from '@/errors'
+import { BadRequest } from '@/errors'
 import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
 
