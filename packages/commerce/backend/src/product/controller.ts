@@ -35,10 +35,6 @@ export class ProductController implements IProductController {
       }
 
       const product = await this.productService.getBySlug(params.slug)
-      if (!product) {
-        this.logger.error(`Product with slug "${params.slug}" was not found.`)
-        throw new NotFound('Product was not found.')
-      }
 
       res.status(200).json(toSuccessReponse(product))
     } catch (err) {
