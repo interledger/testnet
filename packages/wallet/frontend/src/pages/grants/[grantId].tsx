@@ -27,7 +27,11 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     const response = await grantsService.delete(id)
     if (response.success) {
       openDialog(
-        <SuccessDialog onClose={closeDialog} title="Grant Revoked." content="Grant successfully revoked." />
+        <SuccessDialog
+          onClose={closeDialog}
+          title="Grant Revoked."
+          content="Grant successfully revoked."
+        />
       )
       router.push('/grants')
     } else {
