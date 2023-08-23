@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils.ts'
 
-export const Skeleton = ({
+export const Shimmer = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
