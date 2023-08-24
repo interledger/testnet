@@ -32,7 +32,7 @@ export class ProductService implements IProductService {
   }
 
   public async list() {
-    return await Product.query()
+    return await Product.query().orderBy('createdAt', 'DESC')
   }
 
   public async getImage(id: string) {
