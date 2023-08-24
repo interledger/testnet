@@ -1,16 +1,16 @@
 import { Grant } from '@/lib/api/grants'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 
-type GrantDetailsProps = { grant: Grant; isAcceptedGrant: boolean }
+type GrantDetailsProps = { grant: Grant; isFinalizedInteraction: boolean }
 
-export const GrantDetails = ({ grant, isAcceptedGrant }: GrantDetailsProps) => {
+export const GrantDetails = ({ grant, isFinalizedInteraction }: GrantDetailsProps) => {
   return (
     <div className="flex flex-col text-green sm:my-10">
       <div className="text-xl text-turqoise">
         <span className="font-semibold">Client: </span>
         <span className="font-light">{grant.client}</span>
       </div>
-      {isAcceptedGrant ? (
+      {isFinalizedInteraction ? (
         <>
           <div>
             <span>Created at: </span>

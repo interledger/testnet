@@ -26,7 +26,7 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
 }) => {
   const [openDialog, closeDialog] = useDialog()
 
-  async function answerGrantRequest(action: string) {
+  async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
       interactionId: interactionId,
       nonce: nonce,
@@ -63,12 +63,12 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
     <>
       <PageHeader title="Grant request" />
       <div className="flex w-full flex-col md:max-w-lg">
-        <GrantDetails grant={grant} isAcceptedGrant={false}></GrantDetails>
+        <GrantDetails grant={grant} isFinalizedInteraction={false}></GrantDetails>
         <div className="flex justify-evenly">
           <Button
             aria-label="accept"
             onClick={() => {
-              answerGrantRequest('accept')
+              finalizeGrantRequest('accept')
             }}
           >
             Accept
@@ -77,7 +77,7 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
             intent="secondary"
             aria-label="decline"
             onClick={() => {
-              answerGrantRequest('reject')
+              finalizeGrantRequest('reject')
             }}
           >
             Decline

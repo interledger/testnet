@@ -29,7 +29,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       openDialog(
         <SuccessDialog
           onClose={closeDialog}
-          title="Grant Revoked."
+          title="Success"
           content="Grant successfully revoked."
         />
       )
@@ -45,7 +45,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     <>
       <PageHeader title="Grant details" />
       <div className="flex flex-col items-start md:flex-col">
-        <GrantDetails grant={grant} isAcceptedGrant={true}></GrantDetails>
+        <GrantDetails grant={grant} isFinalizedInteraction={true}></GrantDetails>
         {grant.state !== 'REVOKED' && (
           <Button
             intent="secondary"
