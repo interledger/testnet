@@ -45,7 +45,7 @@ const products = [
     description:
       '&quot;Carry out a random act of kindness, with no expectation of reward, safe in the knowledge that one day someone might do the same for you.&quot; - Princess Diana',
     price: 32.0,
-    image: 'kindess.png',
+    image: 'kindness.png',
     createdAt: new Date(Date.now() + 10 * 4).toISOString(),
     updatedAt: new Date(Date.now() + 10 * 4).toISOString()
   },
@@ -73,4 +73,6 @@ exports.up = function (knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function (knex) {}
+exports.down = function (knex) {
+  return knex('products').delete()
+}
