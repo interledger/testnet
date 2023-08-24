@@ -68,7 +68,7 @@ jobs:
       - run: pnpm wallet:backend test
 
   test-commerce-backend:
-    name: WALLET - Test backend
+    name: COMMERCE - Test backend
     runs-on: ubuntu-latest
     needs: build-commerce-backend
     steps:
