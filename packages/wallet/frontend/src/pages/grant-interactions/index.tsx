@@ -63,7 +63,10 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
     <>
       <PageHeader title="Grant request" />
       <div className="flex w-full flex-col md:max-w-lg">
-        <GrantDetails grant={grant} isFinalizedInteraction={false}></GrantDetails>
+        <GrantDetails
+          grant={grant}
+          isFinalizedInteraction={false}
+        ></GrantDetails>
         <div className="flex justify-evenly">
           <Button
             aria-label="accept"
