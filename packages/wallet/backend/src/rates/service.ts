@@ -6,7 +6,7 @@ export type RatesResponse = {
 }
 
 export interface IRatesService {
-  getRates: (userId: string) => Promise<RatesResponse>
+  getRates: (base: string) => Promise<RatesResponse>
 }
 
 export class RatesService implements IRatesService {
