@@ -73,9 +73,8 @@ export const MainNav = () => {
   return (
     <div className="flex">
       <NavLink to="/" className="mr-6 flex items-center space-x-2">
-        <span className="inline-block">
-          <Logo className="h-9 w-9 flex-shrink-0" />
-        </span>
+        <Logo className="h-9 w-9 flex-shrink-0" />
+        <span className="inline-block font-bold">E-Commerce</span>
       </NavLink>
       <nav className="hidden items-center space-x-6 font-medium md:flex">
         {NAV_LINKS.map(({ to, name }) => (
