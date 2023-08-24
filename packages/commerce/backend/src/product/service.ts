@@ -35,10 +35,6 @@ export class ProductService implements IProductService {
     return await Product.query().orderBy('createdAt', 'DESC')
   }
 
-  public async getImage(id: string) {
-    return await Product.query().findById(id).select('image')
-  }
-
   private async get(
     column: GetColumns,
     value: string
