@@ -1,3 +1,3 @@
 export function Component() {
-  return <>Product Id</>
+  return <>Product Slug</>
 }

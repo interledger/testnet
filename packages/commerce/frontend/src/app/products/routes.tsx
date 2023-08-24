@@ -8,8 +8,8 @@ export const productsRoutes: RouteObject[] = [
         lazy: () => import('./index.tsx')
       },
       {
-        path: ':id',
-        lazy: () => import('./$id.tsx')
+        path: ':slug',
+        lazy: () => import('./$slug.tsx')
       }
     ]
   }
