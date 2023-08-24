@@ -8,6 +8,7 @@ import { truncateTables } from '@/tests/tables'
 import { randomUUID } from 'crypto'
 import { mockProduct } from '../mocks'
 import { createProducts } from '../helpers'
+import { NotFound } from '@/errors'
 
 describe('Product Service', (): void => {
   let container: AwilixContainer<Cradle>
@@ -32,10 +33,10 @@ describe('Product Service', (): void => {
   })
 
   describe('getById', (): void => {
-    it('should return undefined if the product does not exist', async (): Promise<void> => {
-      await expect(
-        productService.getById(randomUUID())
-      ).resolves.toBeUndefined()
+    it('throws a NotFound exception if the product does not exist', async (): Promise<void> => {
+      await expect(productService.getById(randomUUID())).rejects.toThrowError(
+        NotFound
+      )
     })
 
     it('should return the product with the given id', async (): Promise<void> => {
@@ -49,10 +50,10 @@ describe('Product Service', (): void => {
   })
 
   describe('getBySlug', (): void => {
-    it('should return undefined if the product does not exist', async (): Promise<void> => {
-      await expect(
-        productService.getBySlug(randomUUID())
-      ).resolves.toBeUndefined()
+    it('throws a NotFound exception if the product does not exist', async (): Promise<void> => {
+      await expect(productService.getBySlug(randomUUID())).rejects.toThrowError(
+        NotFound
+      )
     })
 
     it('should return the product with the given id', async (): Promise<void> => {

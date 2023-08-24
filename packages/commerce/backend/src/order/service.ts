@@ -1,5 +1,6 @@
 import { type OrderItem } from '@/orderItem/model'
 import { Order, OrderStatus } from './model'
+import { NotFound } from '@/errors'
 
 interface OrderItemParams
   extends Pick<OrderItem, 'productId' | 'price' | 'quantity'> {}
@@ -12,7 +13,7 @@ interface CreateParams {
 
 export interface IOrderService {
   create: (params: CreateParams) => Promise<Order>
-  get: (id: string, userId?: string) => Promise<Order | undefined>
+  get: (id: string, userId?: string) => Promise<Order>
   list: (userId: string) => Promise<Order[]>
   complete: (id: string) => Promise<Order | undefined>
   reject: (id: string) => Promise<Order | undefined>
@@ -30,11 +31,16 @@ export class OrderService implements IOrderService {
       .returning('*')
   }
 
-  public async get(id: string, userId?: string): Promise<Order | undefined> {
-    const order = Order.query().findById(id).withGraphFetched('orderItems')
-    if (userId) order.where('userId', '=', userId)
+  public async get(id: string, userId?: string): Promise<Order> {
+    const row = Order.query().findById(id).withGraphFetched('orderItems')
+    if (userId) row.where('userId', '=', userId)
 
-    return await order
+    const order = await row
+
+    if (!order) {
+      throw new NotFound('Order was not found.')
+    }
+    return order
   }
 
   public async list(userId: string): Promise<Order[]> {
