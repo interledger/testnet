@@ -4,7 +4,7 @@ const products = [
     slug: 'luck',
     description:
       '&quot;I am a great believer in luck, and I find the harder I work, the more I have of it.&quot; - Thomas Jefferson',
-    price: 99.99,
+    price: 77.77,
     image: 'luck.png',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -40,22 +40,22 @@ const products = [
     updatedAt: new Date(Date.now() + 10 * 3).toISOString()
   },
   {
-    name: 'Kindness',
-    slug: 'kindness',
-    description:
-      '&quot;Carry out a random act of kindness, with no expectation of reward, safe in the knowledge that one day someone might do the same for you.&quot; - Princess Diana',
-    price: 32.0,
-    image: 'kindess.png',
-    createdAt: new Date(Date.now() + 10 * 4).toISOString(),
-    updatedAt: new Date(Date.now() + 10 * 4).toISOString()
-  },
-  {
     name: 'Opportunity',
     slug: 'opportunity',
     description:
       '&quot;A pessimist sees the difficulty in every opportunity; an optimist sees the opportunity in every difficulty.&quot; - Winston Churchill',
     price: 123.79,
     image: 'opportunity.png',
+    createdAt: new Date(Date.now() + 10 * 4).toISOString(),
+    updatedAt: new Date(Date.now() + 10 * 4).toISOString()
+  },
+  {
+    name: 'Kindness',
+    slug: 'kindness',
+    description:
+      '&quot;Carry out a random act of kindness, with no expectation of reward, safe in the knowledge that one day someone might do the same for you.&quot; - Princess Diana',
+    price: 32.0,
+    image: 'kindness.png',
     createdAt: new Date(Date.now() + 10 * 5).toISOString(),
     updatedAt: new Date(Date.now() + 10 * 5).toISOString()
   }
@@ -73,4 +73,6 @@ exports.up = function (knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function (knex) {}
+exports.down = function (knex) {
+  return knex('products').delete()
+}

@@ -61,7 +61,11 @@ export class App {
       })
     )
 
-    app.use(helmet())
+    app.use(
+      helmet({
+        crossOriginResourcePolicy: false
+      })
+    )
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(
