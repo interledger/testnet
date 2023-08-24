@@ -11,6 +11,7 @@ import { createProducts } from '../helpers'
 import { OrderStatus, type Order } from '@/order/model'
 import { IUserService } from '@/user/service'
 import { deleteProperty } from '@/shared/utils'
+import { NotFound } from '@/errors'
 
 describe('Order Service', (): void => {
   let container: AwilixContainer<Cradle>
@@ -95,14 +96,16 @@ describe('Order Service', (): void => {
   })
 
   describe('get', (): void => {
-    it('should return undefined if the order does not exist', async (): Promise<void> => {
-      await expect(orderService.get(randomUUID())).resolves.toBeUndefined()
+    it('throws a NotFound exception if the order does not exist', async (): Promise<void> => {
+      await expect(orderService.get(randomUUID())).rejects.toThrowError(
+        NotFound
+      )
     })
 
-    it('should return undefined if the order does not belong to the current user', async (): Promise<void> => {
+    it('throws a NotFound exception if the order does not belong to the current user', async (): Promise<void> => {
       await expect(
         orderService.get(order.id, randomUUID())
-      ).resolves.toBeUndefined()
+      ).rejects.toThrowError(NotFound)
     })
 
     it('should return the order with the given id', async (): Promise<void> => {
