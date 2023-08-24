@@ -91,7 +91,7 @@ export class App {
     return app
   }
 
-  private errorHandler(
+  public errorHandler(
     e: Error,
     _req: Request,
     res: TypedResponse,
