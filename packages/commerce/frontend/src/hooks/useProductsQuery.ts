@@ -4,6 +4,7 @@ import { SuccessReponse } from '@/lib/types.ts'
 
 export interface Product {
   id: string
+  slug: string
   name: string
   description: string
   price: number
@@ -17,7 +18,7 @@ export function useProductsQuery(): UseQueryResult<
   return useQuery({
     queryKey: ['products'],
     queryFn: async function () {
-      return await fetcher<Product[]>('/', {
+      return await fetcher<Product[]>('/products', {
         method: 'GET',
         credentials: 'include'
       })

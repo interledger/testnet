@@ -4,3 +4,14 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: CxOptions) {
   return twMerge(cx(inputs))
 }
+
+export function formatPrice(price: number): string {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2
+  })
+
+  return formatter.format(price)
+}

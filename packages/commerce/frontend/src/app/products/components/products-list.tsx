@@ -2,6 +2,8 @@ import { useProductsQuery } from '@/hooks/useProductsQuery.ts'
 import { ProductCard } from './product-card'
 import { ProductCardShimmer } from './product-card-shimmer.tsx'
 import { cn } from '@/lib/utils.ts'
+import { queryClient } from '@/app/query-client.ts'
+import { BirdError } from '@/components/icons.tsx'
 
 const ProductsListWrapper = ({
   className,
@@ -10,7 +12,7 @@ const ProductsListWrapper = ({
   return (
     <div
       className={cn(
-        'mt-10 grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8',
+        'mt-10 grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-2 lg:grid-cols-3',
         className
       )}
       {...props}
@@ -31,13 +33,20 @@ export const ProductsList = () => {
     )
   }
 
-  // TODO: Add error state - this is temporary
   if (products.error) {
     return (
-      <div className="col-span-4 text-center text-lg">
-        An error has occurred:
-        <br />
-        <span className="text-red-500">{products.error.message}</span>
+      <div className="col-span-4 mt-4 text-center">
+        <BirdError className="mx-auto h-20 w-20" />
+        <p className="text-lg font-bold">Something went wrong ...</p>
+        <p>We are working on fixing this problem.</p>
+        <p>If the issue persists, do not hesitate to contact us.</p>
+        <p>Please try again.</p>
+        <button
+          className="mt-2 text-lg text-green-6 hover:text-green-3"
+          onClick={() => queryClient.invalidateQueries(['products'])}
+        >
+          Retry
+        </button>
       </div>
     )
   }

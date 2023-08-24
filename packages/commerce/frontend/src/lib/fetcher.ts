@@ -2,16 +2,12 @@ import { API_BASE_URL } from './constants.ts'
 import { ErrorResponse, SuccessReponse } from './types.ts'
 
 export class APIError extends Error {
-  public readonly success!: boolean
+  public readonly success: boolean = false
   public readonly errors?: Record<string, string>
 
-  constructor(
-    success: boolean,
-    message: string,
-    errors?: Record<string, string>
-  ) {
+  constructor(message: string, errors?: Record<string, string>) {
     super(message)
-    this.success = success
+
     this.errors = errors
   }
 }
@@ -28,7 +24,7 @@ export async function fetcher<JSON = any>(
   const json = await response.json()
   if (!response.ok) {
     const error = json as ErrorResponse
-    throw new APIError(error.success, error.message, error.errors)
+    throw new APIError(error.message, error.errors)
   }
 
   return json
