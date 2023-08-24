@@ -71,8 +71,8 @@ export class App {
       })
     )
 
-    router.get('/products', productController.list.bind(this))
-    router.get('/products/:slug', productController.get.bind(this))
+    router.get('/products', productController.list.bind(productController))
+    router.get('/products/:slug', productController.get.bind(productController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
