@@ -1,7 +1,7 @@
 import { NextFunction, Request } from 'express'
 import { IOrderService } from './service'
 import { Order } from './model'
-import { BadRequest, NotFound } from '@/errors'
+import { BadRequest } from '@/errors'
 import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
 
@@ -31,9 +31,6 @@ export class OrderController implements IOrderController {
       }
 
       const order = await this.orderService.get(params.id)
-      if (!order) {
-        throw new NotFound('Order was not found.')
-      }
 
       res.status(200).json(toSuccessReponse(order))
     } catch (err) {
