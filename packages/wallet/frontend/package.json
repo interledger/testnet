@@ -23,7 +23,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.12",
     "@next/eslint-plugin-next": "^13.4.12",
-    "@tailwindcss/forms": "^0.5.4",
+    "@tailwindcss/forms": "^0.5.5",
     "@types/node": "^18.14.0",
     "@types/nprogress": "^0.2.0",
     "@types/react": "18.2.20",
