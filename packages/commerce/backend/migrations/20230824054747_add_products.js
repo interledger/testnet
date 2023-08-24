@@ -3,7 +3,7 @@ const products = [
     name: 'Luck',
     slug: 'luck',
     description:
-      '"I am a great believer in luck, and I find the harder I work, the more I have of it." - Thomas Jefferson',
+      '&quot;I am a great believer in luck, and I find the harder I work, the more I have of it.&quot; - Thomas Jefferson',
     price: 99.99,
     image: 'luck.png',
     createdAt: new Date().toISOString(),
@@ -13,7 +13,7 @@ const products = [
     name: 'Knowledge',
     slug: 'knowledge',
     description:
-      '"To know that we know what we know, and to know that we do not know what we do not know, that is true knowledge." ~~ Nicolaus Copernicus',
+      '&quot;To know that we know what we know, and to know that we do not know what we do not know, that is true knowledge.&quot; - Nicolaus Copernicus',
     price: 54.5,
     image: 'knowledge.png',
     createdAt: new Date(Date.now() + 10).toISOString(),
@@ -23,7 +23,7 @@ const products = [
     name: 'Courage',
     slug: 'courage',
     description:
-      '"Courage is the most important of all the virtues, because without courage you can\'t practice any other virtue consistently. You can practice any virtue erratically, but nothing consistently without courage." - Maya Angelou',
+      '&quot;Courage is the most important of all the virtues, because without courage you can&apos;t practice any other virtue consistently. You can practice any virtue erratically, but nothing consistently without courage.&quot; - Maya Angelou',
     price: 19.99,
     image: 'courage.png',
     createdAt: new Date(Date.now() + 10 * 2).toISOString(),
@@ -33,7 +33,7 @@ const products = [
     name: 'Patience',
     slug: 'patience',
     description:
-      '"Learning patience can be a difficult experience, but once conquered, you will find life is easier." - Catherine Pulsifer',
+      '&quot;Learning patience can be a difficult experience, but once conquered, you will find life is easier.&quot; - Catherine Pulsifer',
     price: 27.99,
     image: 'patience.png',
     createdAt: new Date(Date.now() + 10 * 3).toISOString(),
@@ -43,7 +43,7 @@ const products = [
     name: 'Kindness',
     slug: 'kindness',
     description:
-      '"Carry out a random act of kindness, with no expectation of reward, safe in the knowledge that one day someone might do the same for you." - Princess Diana',
+      '&quot;Carry out a random act of kindness, with no expectation of reward, safe in the knowledge that one day someone might do the same for you.&quot; - Princess Diana',
     price: 32.0,
     image: 'kindess.png',
     createdAt: new Date(Date.now() + 10 * 4).toISOString(),
@@ -53,7 +53,7 @@ const products = [
     name: 'Opportunity',
     slug: 'opportunity',
     description:
-      '"A pessimist sees the difficulty in every opportunity; an optimist sees the opportunity in every difficulty." - Winston Churchill',
+      '&quot;A pessimist sees the difficulty in every opportunity; an optimist sees the opportunity in every difficulty.&quot; - Winston Churchill',
     price: 123.79,
     image: 'opportunity.png',
     createdAt: new Date(Date.now() + 10 * 5).toISOString(),
