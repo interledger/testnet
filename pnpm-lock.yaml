@@ -153,6 +153,9 @@ importers:
       valtio:
         specifier: ^1.11.2
         version: 1.11.2(@types/react@18.2.21)(react@18.2.0)
+      zod:
+        specifier: ^3.22.2
+        version: 3.22.2
     devDependencies:
       '@tailwindcss/forms':
         specifier: ^0.5.4

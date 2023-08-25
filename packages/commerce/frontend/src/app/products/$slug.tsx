@@ -1,3 +1,7 @@
+import { useProductQuery } from '@/hooks/useProductQuery'
+
 export function Component() {
-  return <>Product Slug</>
+  const x = useProductQuery()
+
+  console.log(x.data, x.error)
 }
