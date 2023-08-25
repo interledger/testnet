@@ -1,3 +1,4 @@
+import { queryClient } from '@/app/query-client'
 import { ArrowRightLong } from '@/components/icons.tsx'
 import {
   Card,
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui/card.tsx'
 import type { Product } from '@/hooks/useProductsQuery.ts'
 import { IMAGES_URL } from '@/lib/constants.ts'
+import { fetcher } from '@/lib/fetcher'
 import { formatPrice } from '@/lib/utils.ts'
 import { Link } from 'react-router-dom'
 
@@ -21,6 +23,17 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const imageUrl = `${IMAGES_URL}${image}`
   return (
     <Link
+      onMouseEnter={async () => {
+        await queryClient.prefetchQuery({
+          queryKey: ['products', slug],
+          queryFn: async function () {
+            return await fetcher(`/products/${slug}`, {
+              method: 'GET',
+              credentials: 'include'
+            })
+          }
+        })
+      }}
       to={`/products/${slug}`}
       className={`
         rounded-xl transition-transform hover:scale-105 hover:shadow-md
