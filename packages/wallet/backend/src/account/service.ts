@@ -7,6 +7,8 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
 import { RatesResponse } from '@/rafiki/service'
+import { QuoteWithFees } from '@/quote/controller'
+import { QuoteService } from '@/quote/service'
 
 type CreateAccountArgs = {
   userId: string
@@ -32,10 +34,18 @@ interface IAccountService {
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
+type CreateExchangeQuote = {
+  userId: string
+  accountId: string
+  assetCode: string
+  amount: number
+}
+
 interface CountriesServiceDependencies {
   rapyd: RapydClient
   rafiki: RafikiClient
   logger: Logger
+  quoteServiceGetter: () => QuoteService
 }
 
 export class AccountService implements IAccountService {
@@ -342,5 +352,52 @@ export class AccountService implements IAccountService {
     }
 
     return rates
+  }
+
+  public async createExchangeQuote({
+    userId,
+    accountId,
+    assetCode,
+    amount
+  }: CreateExchangeQuote): Promise<QuoteWithFees> {
+    const accountFrom = await Account.query()
+      .findById(accountId)
+      .withGraphFetched({ paymentPointers: true })
+      .modifyGraph('paymentPointers', (builder) => {
+        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
+      })
+
+    const accountPpId = accountFrom?.paymentPointers?.[0]?.id
+
+    if (!accountPpId) {
+      throw new NotFound(
+        'You do not have a PaymentPointer for this Account. Please create at least 1 PP in order to Exchange.'
+      )
+    }
+
+    const accountTo = await Account.query()
+      .where({ userId, assetCode })
+      .withGraphFetched({ paymentPointers: true })
+      .modifyGraph('paymentPointers', (builder) => {
+        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
+      })
+      .limit(1)
+      .first()
+    const receiverPp = accountTo?.paymentPointers?.[0]?.url
+
+    if (!receiverPp) {
+      throw 1234
+      // TODO - create Account and PP
+    }
+
+    const quote = await this.deps.quoteServiceGetter().create({
+      userId,
+      paymentPointerId: accountPpId,
+      amount,
+      isReceive: false,
+      receiver: receiverPp
+    })
+
+    return quote
   }
 }
