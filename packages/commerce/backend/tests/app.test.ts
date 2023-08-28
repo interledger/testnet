@@ -14,7 +14,8 @@ describe('Application', (): void => {
   })
 
   afterAll(async (): Promise<void> => {
-    app.stop()
+    await app.stop()
+    await app.knex.destroy()
   })
 
   it('should return status 404 if the route does not exist', async (): Promise<void> => {
