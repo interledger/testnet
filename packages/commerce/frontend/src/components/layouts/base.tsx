@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 
 export const BaseLayout = () => {
   return (
-    <div className="flex h-screen select-none flex-col text-green">
+    <div className="flex h-screen flex-col text-green">
       <Header />
       <div className="py-10">
         <main>

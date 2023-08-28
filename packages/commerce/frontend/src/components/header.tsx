@@ -1,6 +1,6 @@
-import { NavLink } from 'react-router-dom'
+import { useCartStore } from '@/hooks/useCartStore.ts'
 import { MobileNav, MainNav } from './navigation.tsx'
-import { ShoppingCart } from './icons.tsx'
+import { ShoppingCartPopover } from './shopping-cart-popover.tsx'
 
 export const Header = () => {
   return (
@@ -9,14 +9,18 @@ export const Header = () => {
         <MainNav />
         <div className="flex items-center justify-end">
           <nav className="flex items-center">
-            <NavLink to="/cart">
-              <ShoppingCart className="h-6 w-6 text-green-3 transition-colors hover:text-green" />
-              <span className="sr-only">Shopping cart</span>
-            </NavLink>
+            <ShoppingCartPopover />
+            <ShoppingCartTotalItems />
           </nav>
           <MobileNav />
         </div>
       </div>
     </header>
   )
+}
+
+const ShoppingCartTotalItems = () => {
+  const { totalItems } = useCartStore()
+
+  return <span className="text-sm">{totalItems}</span>
 }
