@@ -1,17 +1,12 @@
-import { NextFunction, Request } from 'express'
-import { Logger } from 'winston'
-import { validate } from '@/shared/validate'
-import { Options, RapydService } from './service'
-import {
-  kycSchema,
-  profileSchema,
-  ratesSchema,
-  walletSchema
-} from './validation'
-import { User } from '@/user/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { validate } from '@/shared/validate'
+import { User } from '@/user/model'
 import { getRandomValues } from 'crypto'
+import { NextFunction, Request } from 'express'
+import { Logger } from 'winston'
+import { Options, RapydService } from './service'
+import { kycSchema, profileSchema, walletSchema } from './validation'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -181,27 +176,6 @@ export class RapydController implements IRapydController {
       res.status(200).json({
         success: true,
         message: 'Profile updated succesfully'
-      })
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  getRates = async (
-    req: Request,
-    res: CustomResponse<RatesResponse>,
-    next: NextFunction
-  ) => {
-    try {
-      const {
-        query: { base }
-      } = await validate(ratesSchema, req)
-      const rates = await this.deps.rapydService.getRates(base)
-
-      res.status(200).json({
-        success: true,
-        message: 'SUCCESS',
-        data: rates
       })
     } catch (e) {
       next(e)
