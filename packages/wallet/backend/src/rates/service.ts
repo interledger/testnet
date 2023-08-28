@@ -29,7 +29,7 @@ export class RatesService implements IRatesService {
       params: { base }
     })
     const result = res.data
-    this.cache.set(base, result)
+    this.cache.set(base, result.rates)
 
     return {
       base,
