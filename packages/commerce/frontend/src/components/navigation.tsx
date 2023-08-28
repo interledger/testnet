@@ -74,7 +74,7 @@ export const MainNav = () => {
   return (
     <div className="flex">
       <Link to="/" className="mr-6 flex items-center space-x-2">
-        <Logo className="h-9 w-9 flex-shrink-0" />
+        <Logo className="h-9 w-9 flex-shrink-0" aria-label="Logo" />
         <span className="inline-block font-bold">E-Commerce</span>
       </Link>
       <nav className="hidden items-center space-x-6 font-medium md:flex">
@@ -97,8 +97,9 @@ export const MobileNav = () => {
         <Button
           variant="ghost"
           className="ml-4 px-0 text-green-3 hover:bg-transparent hover:text-green focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+          aria-label="open menu"
         >
-          <Bars3 strokeWidth={3} className="h-6 w-6" />
+          <Bars3 strokeWidth={3} className="h-6 w-6" aria-label="bars menu" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>

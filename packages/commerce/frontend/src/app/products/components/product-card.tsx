@@ -61,7 +61,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </CardContent>
         <CardFooter className="flex items-center justify-start gap-x-2">
           <span className="text-sm font-light">View product</span>
-          <ArrowRightLong className="h-4 w-4" />
+          <ArrowRightLong className="h-4 w-4" aria-label="right arrow" />
         </CardFooter>
       </Card>
     </Link>

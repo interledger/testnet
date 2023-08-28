@@ -8,7 +8,12 @@ export const ProductCTA = () => {
 
   return (
     <div className="mt-10">
-      <Button className="h-12" size="lg" onClick={() => addToCart(product)}>
+      <Button
+        aria-label="add to cart"
+        className="h-12"
+        size="lg"
+        onClick={() => addToCart(product)}
+      >
         Add to cart
       </Button>
     </div>

@@ -2,7 +2,7 @@ import { Product } from '@/hooks/useProductsQuery'
 import { resetStore, valtioPersist } from '@/lib/valtio-persist.ts'
 import { watch } from 'valtio/utils'
 
-interface CartItem extends Product {
+export interface CartItem extends Product {
   quantity: number
 }
 
