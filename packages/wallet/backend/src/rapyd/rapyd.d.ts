@@ -326,8 +326,3 @@ interface CompletePayoutRequest {
 }
 
 type CompletePayoutResponse = WithdrawFundsFromAccountResponse
-
-type RatesResponse = {
-  base: string
-  rates: Record<string, number>
-}

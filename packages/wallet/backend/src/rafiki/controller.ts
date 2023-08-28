@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
+import { RatesResponse, RatesService } from '../rates/service'
 import { validate } from '../shared/validate'
-import { Quote, RafikiService, RatesResponse } from './service'
+import { Quote, RafikiService } from './service'
 import { quoteSchmea, ratesSchema, webhookSchema } from './validation'
 
 interface IRafikiController {
@@ -19,6 +20,7 @@ interface IRafikiController {
 interface RafikiControllerDependencies {
   logger: Logger
   rafikiService: RafikiService
+  ratesService: RatesService
 }
 
 export class RafikiController implements IRafikiController {
@@ -42,7 +44,8 @@ export class RafikiController implements IRafikiController {
       const {
         query: { base }
       } = await validate(ratesSchema, req)
-      res.status(200).json(this.deps.rafikiService.getRates(base))
+      const rates = await this.deps.ratesService.getRates(base)
+      res.status(200).json(rates)
     } catch (e) {
       next(e)
     }
