@@ -3,7 +3,7 @@ import { ProductCard } from './product-card'
 import { ProductCardShimmer } from './product-card-shimmer.tsx'
 import { cn } from '@/lib/utils.ts'
 import { queryClient } from '@/app/query-client.ts'
-import { BirdError } from '@/components/icons.tsx'
+import { BirdError } from '@/components/bird.tsx'
 
 const ProductsListWrapper = ({
   className,

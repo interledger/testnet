@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card.tsx'
 import type { Product } from '@/hooks/useProductsQuery.ts'
 import { IMAGES_URL } from '@/lib/constants.ts'
-import { fetcher } from '@/lib/fetcher'
+import { fetcher } from '@/lib/fetcher.ts'
 import { formatPrice } from '@/lib/utils.ts'
 import { Link } from 'react-router-dom'
 
@@ -40,9 +40,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         [&:nth-child(4n+1)]:bg-gradient-orange
         [&:nth-child(4n+2)]:bg-gradient-pink
         [&:nth-child(4n+3)]:bg-gradient-primary 
-        [&:nth-child(4n+4)]:bg-gradient-violet 
+        [&:nth-child(4n+4)]:bg-gradient-violet
         [&:nth-child(4n+5)]:bg-gradient-primary
-        [&:nth-child(4n+6)]:bg-gradient-pink 
+        [&:nth-child(4n+6)]:bg-gradient-pink
         `}
     >
       <Card className="relative border-none text-white">
