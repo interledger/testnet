@@ -6,9 +6,9 @@
     "start": "next start"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.17",
-    "@hookform/resolvers": "^3.2.0",
     "@types/socket.io-client": "^3.0.0",
+    "@headlessui/react": "^1.7.17",
+    "@hookform/resolvers": "^3.3.0",
     "class-variance-authority": "^0.7.0",
     "ky": "^0.33.3",
     "next": "13.4.12",
@@ -25,10 +25,10 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.12",
     "@next/eslint-plugin-next": "^13.4.12",
-    "@tailwindcss/forms": "^0.5.4",
+    "@tailwindcss/forms": "^0.5.5",
     "@types/node": "^18.14.0",
     "@types/nprogress": "^0.2.0",
-    "@types/react": "18.2.20",
+    "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "^10.4.15",
     "postcss": "^8.4.28",

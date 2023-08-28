@@ -2,6 +2,7 @@ import type { Env } from '@/config/env'
 import { Logger } from 'winston'
 import socketIo from 'socket.io'
 import http from 'http'
+import { decrypt } from '@/utils/crypto'
 
 interface ISocketService {
   init(args: http.Server): void
@@ -15,7 +16,6 @@ interface SocketServiceDependencies {
 
 export class SocketService implements ISocketService {
   private io: socketIo.Server | null = null
-  private sockets = new Map()
 
   constructor(private deps: SocketServiceDependencies) {}
 
@@ -32,27 +32,21 @@ export class SocketService implements ISocketService {
     this.deps.logger.info(`Socket Server is started...`)
 
     this.io.on('connection', (socket) => {
-      const email = socket.handshake.query.email // Access the user's email
-      this.sockets.set(email, socket)
+      const emailToken = socket.handshake.query.emailToken!.toString()
+      const email = emailToken ? decrypt(emailToken) : ''
+      socket.join(email)
+
       this.deps.logger.info(`A socket client ${email} is connected...`)
 
       // Handle events
       socket.on('disconnect', () => {
-        this.sockets.delete(email)
+        // this.sockets.delete(email)
         this.deps.logger.info(`socket client disconnected...`)
       })
     })
   }
 
   emitBalanceUpdateByEmail(email: string) {
-    if (this.io) {
-      const socket = this.sockets.get(email)
-      if (socket) {
-        socket.emit('message', 'please update balance')
-      } else {
-        // Handle the case where the user is not connected
-        console.log(`User with email ${email} is not connected.`)
-      }
-    }
+    this.io?.to(email).emit('message', 'please update balance!')
   }
 }

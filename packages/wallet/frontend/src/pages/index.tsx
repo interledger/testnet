@@ -15,23 +15,22 @@ import type {
 import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
+import { encrypt } from '@/utils/crypto'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
-  let socket: Socket
+  const [_socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
-    // Access cookies
-
     // Connect to the Socket.IO server
-    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
+    const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
       query: {
-        email: user.email
+        emailToken: encrypt(user.email)
       }
-    }) // Change the URL to your server URL
+    })
 
     // Event listeners
     socket.on('connect', () => {
@@ -46,11 +45,13 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
       console.log('Disconnected from server')
     })
 
+    setSocket(socket)
+
     // Clean up when the component unmounts
     return () => {
       socket.disconnect()
     }
-  }, [])
+  }, [user])
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -156,7 +157,7 @@ export const getServerSideProps: GetServerSideProps<{
     lastName: string
     email: string
   }
-  cookie?: string
+  token?: string
 }> = async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie)
   const user = await userService.me(ctx.req.headers.cookie)
@@ -174,7 +175,8 @@ export const getServerSideProps: GetServerSideProps<{
         firstName: user.data?.firstName ?? '',
         lastName: user.data?.lastName ?? '',
         email: user.data?.email ?? ''
-      }
+      },
+      token: ctx.req.headers.cookie
     }
   }
 }
