@@ -23,7 +23,7 @@ export function Component() {
     return (
       <div className="col-span-4 mt-4 text-center">
         <BirdError className="mx-auto h-20 w-20" />
-        <p className="text-lg font-bold">Something went wrong ...</p>
+        <p className="text-lg font-bold">Something went wrong...</p>
         <p>{error.message}</p>
         <Link
           to="/products"
@@ -39,7 +39,7 @@ export function Component() {
     return (
       <ProductContext.Provider value={{ product: data.data }}>
         <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
-          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-gray-50  lg:w-full">
+          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-gray-50 lg:w-full">
             <img
               src={`${IMAGES_URL}${data.data.image}`}
               alt={data.data.name}
