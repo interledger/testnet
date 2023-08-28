@@ -1,12 +1,12 @@
-import { NextFunction, Request } from 'express'
-import { Logger } from 'winston'
-import { validate } from '@/shared/validate'
-import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './validation'
-import { User } from '@/user/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { validate } from '@/shared/validate'
+import { User } from '@/user/model'
 import { getRandomValues } from 'crypto'
+import { NextFunction, Request } from 'express'
+import { Logger } from 'winston'
+import { Options, RapydService } from './service'
+import { kycSchema, profileSchema, walletSchema } from './validation'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -48,9 +48,8 @@ export class RapydController implements IRapydController {
     try {
       const { id: userId } = req.session.user
 
-      const documentTypesResult = await this.deps.rapydService.getDocumentTypes(
-        userId
-      )
+      const documentTypesResult =
+        await this.deps.rapydService.getDocumentTypes(userId)
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: documentTypesResult })

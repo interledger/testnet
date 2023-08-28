@@ -7,9 +7,11 @@ module.exports = {
   development: {
     client: 'postgresql',
     connection: {
-      database: 'development',
+      host: 'localhost',
+      database: 'commerce_backend',
       user: 'postgres',
-      password: 'password'
+      password: 'password',
+      port: 5433
     },
     pool: {
       min: 2,

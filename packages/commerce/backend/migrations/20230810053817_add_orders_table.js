@@ -9,7 +9,10 @@ exports.up = function (knex) {
     table.foreign('userId').references('users.id').onDelete('CASCADE')
     table.uuid('quoteId').notNullable()
     table.float('total', 10, 2).notNullable
-    table.enum('status', ['PROCESSING', 'COMPLETED', 'REJECTED']).notNullable()
+    table
+      .enum('status', ['PROCESSING', 'COMPLETED', 'REJECTED'])
+      .notNullable()
+      .defaultTo('PROCESSING')
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

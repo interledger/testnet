@@ -13,7 +13,7 @@ type ListAllTransactionsInput = {
   orderByDate: OrderByDirection
 }
 
-interface ITransactionService {
+export interface ITransactionService {
   list: (
     userId: string,
     accountId: string,

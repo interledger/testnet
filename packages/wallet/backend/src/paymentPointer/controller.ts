@@ -85,9 +85,8 @@ export class PaymentPointerController implements IPaymentPointerController {
     const userId = req.session.user.id
 
     try {
-      const paymentPointers = await this.deps.paymentPointerService.listAll(
-        userId
-      )
+      const paymentPointers =
+        await this.deps.paymentPointerService.listAll(userId)
 
       res
         .status(200)
