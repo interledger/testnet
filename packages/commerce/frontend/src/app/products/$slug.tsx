@@ -1,8 +1,8 @@
-import { useProductQuery } from '@/hooks/useProductQuery.ts'
+import { useProductQuery } from '@/hooks/use-product-query.ts'
 import { IMAGES_URL } from '@/lib/constants.ts'
 import { formatPrice } from '@/lib/utils.ts'
 import { ProductCTA } from './components/product-cta.tsx'
-import { Product } from '@/hooks/useProductsQuery.ts'
+import { Product } from '@/hooks/use-products-query.ts'
 import { createContext } from 'react'
 
 interface ProductContextValue {

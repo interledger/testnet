@@ -1,4 +1,4 @@
-import { useProductsQuery } from '@/hooks/useProductsQuery.ts'
+import { useProductsQuery } from '@/hooks/use-products-query.ts'
 import { ProductCard } from './product-card'
 import { ProductCardShimmer } from './product-card-shimmer.tsx'
 import { cn } from '@/lib/utils.ts'

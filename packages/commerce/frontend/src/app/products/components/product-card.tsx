@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card.tsx'
-import type { Product } from '@/hooks/useProductsQuery.ts'
+import type { Product } from '@/hooks/use-products-query'
 import { IMAGES_URL } from '@/lib/constants.ts'
 import { fetcher } from '@/lib/fetcher.ts'
 import { formatPrice } from '@/lib/utils.ts'

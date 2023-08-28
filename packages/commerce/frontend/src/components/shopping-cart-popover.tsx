@@ -4,7 +4,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover.tsx'
 import { ShoppingCart, X } from './icons.tsx'
-import { useCartStore } from '@/hooks/useCartStore.ts'
+import { useCartStore } from '@/hooks/use-cart-store.ts'
 import { Button } from './ui/button.tsx'
 import { IMAGES_URL } from '@/lib/constants.ts'
 import { PopoverClose } from '@radix-ui/react-popover'

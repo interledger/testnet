@@ -1,4 +1,4 @@
-import { useCartStore } from '@/hooks/useCartStore.ts'
+import { useCartStore } from '@/hooks/use-cart-store.ts'
 import { MobileNav, MainNav } from './navigation.tsx'
 import { ShoppingCartPopover } from './shopping-cart-popover.tsx'
 

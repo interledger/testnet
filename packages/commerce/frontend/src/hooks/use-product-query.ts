@@ -1,9 +1,9 @@
 import { UseQueryResult, useQuery } from '@tanstack/react-query'
 import { fetcher, APIError } from '@/lib/fetcher.ts'
 import { SuccessReponse } from '@/lib/types.ts'
-import { Product } from './useProductsQuery'
-import { useZodRouteParams } from './useZodParams'
-import { productSlugParamsSchema } from '@/app/route-schemas'
+import { Product } from './use-products-query.ts'
+import { useZodRouteParams } from './use-zod-params.ts'
+import { productSlugParamsSchema } from '@/app/route-schemas.ts'
 
 export function useProductQuery(): UseQueryResult<
   SuccessReponse<Product>,

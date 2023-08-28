@@ -1,4 +1,4 @@
-import { Product } from '@/hooks/useProductsQuery'
+import { Product } from '@/hooks/use-products-query'
 import { resetStore, valtioPersist } from '@/lib/valtio-persist.ts'
 import { watch } from 'valtio/utils'
 
