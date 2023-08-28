@@ -33,10 +33,10 @@ type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
-  const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
-  const [balance, setBalance] = useState('')
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
+  const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
+  const [balance, setBalance] = useState('')
   const [selectedAsset, setSelectedAsset] = useState<AssetOP | null>(null)
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
@@ -45,6 +45,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     useState<ExchangeRates>()
   const [convertAmount, setConvertAmount] = useState(0)
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
+  const [incomingPaymentAmount, setIncomingPaymentAmount] = useState(0)
 
   const sendForm = useZodForm({
     schema: sendSchema,
@@ -115,6 +116,24 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         selectedAccount.assetCode
       )
 
+      const receiver = sendForm.getValues('receiver')
+      if (receiver.includes('/incoming-payments/') && receiverAssetCode) {
+        let value = convertAmount
+        if (selectedAccount.assetCode !== receiverAssetCode) {
+          const response =
+            await assetService.getExchangeRates(receiverAssetCode)
+          if (response.success && response.data) {
+            value = Number(
+              (value * response.data[selectedAccount.assetCode]).toFixed(2)
+            )
+          }
+        } else {
+          value = incomingPaymentAmount
+        }
+        sendForm.setValue('amount', value)
+        setConvertAmount(value)
+      }
+
       if (ratesResponse.success && ratesResponse.data) {
         setCurrentExchangeRates(ratesResponse.data)
       }
@@ -131,12 +150,28 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       const response = await transfersService.getIncomingPaymentDetails(url)
 
       if (response.success && response.data) {
+        let value = response.data.value
+        setIncomingPaymentAmount(value)
+        const responseAssetCode = response.data.assetCode
+
+        if (selectedAsset && selectedAsset.assetCode !== responseAssetCode) {
+          const ratesResponse =
+            await assetService.getExchangeRates(responseAssetCode)
+
+          if (ratesResponse.success && ratesResponse.data) {
+            value = Number(
+              (value * ratesResponse.data[selectedAsset.assetCode]).toFixed(2)
+            )
+          }
+        }
+
         sendForm.clearErrors('receiver')
         sendForm.setValue('paymentType', 'receive')
+        sendForm.setValue('amount', value)
         sendForm.setValue('description', response.data.description ?? '')
 
-        setReceiverAssetCode(response.data.assetCode)
-        setConvertAmount(response.data.value)
+        setReceiverAssetCode(responseAssetCode)
+        setConvertAmount(value)
         setIsToggleDisabled(true)
       } else {
         sendForm.setError('receiver', { message: response.message })

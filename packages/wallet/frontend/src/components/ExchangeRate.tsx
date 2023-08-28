@@ -31,19 +31,19 @@ export const ExchangeRate = memo(
             The receiver&apos;s account is in a different currency.
           </p>
           <p className="mx-2 text-sm text-green">
-            Exchange rate: {getCurrencySymbol(selectedAsset.assetCode)}
-            {currentExchangeRates[selectedAsset.assetCode]}&nbsp;
+            Exchange rate: {getCurrencySymbol(selectedAsset.assetCode)}&nbsp;
+            {currentExchangeRates[selectedAsset.assetCode].toFixed(selectedAsset.assetScale)}&nbsp;
             <SimpleArrow className="inline h-3 w-3" />
             &nbsp;
-            {getCurrencySymbol(receiverAssetCode)}
+            {getCurrencySymbol(receiverAssetCode)}&nbsp;
             {currentExchangeRates[receiverAssetCode]}
           </p>
           <p className="mx-2 text-sm text-green">
-            Exchanged amount: {getCurrencySymbol(selectedAsset.assetCode)}
+            Exchanged amount: {getCurrencySymbol(selectedAsset.assetCode)}&nbsp;
             {convertAmount}&nbsp;
             <SimpleArrow className="inline h-3 w-3" />
             &nbsp;
-            {`${getCurrencySymbol(receiverAssetCode)}${(
+            {`${getCurrencySymbol(receiverAssetCode)} ${(
               convertAmount * currentExchangeRates[receiverAssetCode]
             ).toFixed(selectedAsset.assetScale)}`}
           </p>
