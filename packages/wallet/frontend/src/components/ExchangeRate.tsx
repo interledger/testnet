@@ -32,7 +32,10 @@ export const ExchangeRate = memo(
           </p>
           <p className="mx-2 text-sm text-green">
             Exchange rate: {getCurrencySymbol(selectedAsset.assetCode)}&nbsp;
-            {currentExchangeRates[selectedAsset.assetCode].toFixed(selectedAsset.assetScale)}&nbsp;
+            {currentExchangeRates[selectedAsset.assetCode].toFixed(
+              selectedAsset.assetScale
+            )}
+            &nbsp;
             <SimpleArrow className="inline h-3 w-3" />
             &nbsp;
             {getCurrencySymbol(receiverAssetCode)}&nbsp;
