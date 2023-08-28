@@ -52,6 +52,7 @@ export class App {
     const router = Router()
 
     const env = this.container.resolve('env')
+    const productController = this.container.resolve('productController')
 
     app.use(
       cors({
@@ -60,7 +61,11 @@ export class App {
       })
     )
 
-    app.use(helmet())
+    app.use(
+      helmet({
+        crossOriginResourcePolicy: false
+      })
+    )
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(
@@ -69,6 +74,9 @@ export class App {
         maxAge: 31536000
       })
     )
+
+    router.get('/products', productController.list.bind(productController))
+    router.get('/products/:slug', productController.get.bind(productController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -87,7 +95,7 @@ export class App {
     return app
   }
 
-  private errorHandler(
+  public errorHandler(
     e: Error,
     _req: Request,
     res: TypedResponse,
@@ -102,7 +110,7 @@ export class App {
         errors: e.errors
       })
     } else {
-      logger.error((isObject(e) ? e.message : undefined) ?? 'unknown error')
+      logger.error((isObject(e) ? e.message : e) ?? 'unknown error')
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
   }
