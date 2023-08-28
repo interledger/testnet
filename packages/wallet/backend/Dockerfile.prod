@@ -3,7 +3,7 @@ FROM node:18-alpine AS base
 WORKDIR /testnet
 
 RUN corepack enable
-RUN corepack prepare pnpm@8.6.12 --activate
+RUN corepack prepare pnpm@8.7.0 --activate
 RUN apk add --no-cache \
     libc6-compat \
     python3 \
