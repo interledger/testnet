@@ -39,6 +39,8 @@ services:
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
+      AUTH_DOMAIN: http://rafiki-auth:3006
+      AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL}
@@ -83,6 +85,8 @@ services:
       ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
+      IDENTITY_SERVER_DOMAIN: http://localhost:4003/grant-interactions
+      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
     depends_on:
       - postgres
 

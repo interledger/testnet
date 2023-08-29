@@ -39,6 +39,7 @@ import type { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
+import { GrantService } from '@/grant/service'
 
 export interface Bindings {
   env: Env
@@ -71,6 +72,7 @@ export interface Bindings {
   quoteService: QuoteService
   rafikiAuthService: RafikiAuthService
   grantController: GrantController
+  grantService: GrantService
   emailService: EmailService
 }
 
@@ -242,6 +244,16 @@ export class App {
     router.get('/grants', isAuth, grantController.list)
     router.get('/grants/:id', isAuth, grantController.getById)
     router.delete('/grants/:id', isAuth, grantController.revoke)
+    router.get(
+      '/grant-interactions/:interactionId/:nonce',
+      isAuth,
+      grantController.getByInteraction
+    )
+    router.patch(
+      '/grant-interactions/:interactionId/:nonce',
+      isAuth,
+      grantController.setInteractionResponse
+    )
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)

@@ -15,6 +15,7 @@ import {
   RevokeGrantMutation,
   RevokeGrantMutationVariables
 } from '@/rafiki/auth/generated/graphql'
+import axios from 'axios'
 
 interface IRafikiAuthService {
   listGrants(identifiers: string[]): Promise<Grant[]>
@@ -62,5 +63,36 @@ export class RafikiAuthService implements IRafikiAuthService {
     >(getGrantByIdQuery, { grantId })
 
     return response.grant
+  }
+
+  async getGrantByInteraction(interactionId: string, nonce: string) {
+    const response = await axios.get(
+      `${this.deps.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}`,
+      {
+        headers: {
+          'x-idp-secret': this.deps.env.AUTH_IDENTITY_SERVER_SECRET
+        }
+      }
+    )
+
+    return response.data
+  }
+
+  async setInteractionResponse(
+    interactionId: string,
+    nonce: string,
+    acceptance: 'accept' | 'reject'
+  ) {
+    const response = await axios.post(
+      `${this.deps.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}/${acceptance}`,
+      {},
+      {
+        headers: {
+          'x-idp-secret': this.deps.env.AUTH_IDENTITY_SERVER_SECRET
+        }
+      }
+    )
+
+    return response.data
   }
 }
