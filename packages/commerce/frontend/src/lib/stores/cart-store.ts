@@ -9,11 +9,13 @@ export interface CartItem extends Product {
 interface CartState {
   items: CartItem[]
   totalItems: number
+  totalAmount: number
 }
 
 const state = {
   items: [],
-  totalItems: 0
+  totalItems: 0,
+  totalAmount: 0
 }
 
 export const cartStore = valtioPersist<CartState>('cart-store', state)
@@ -51,10 +53,13 @@ export function resetCart(): void {
 }
 
 watch((get) => {
-  get(cartStore)
+  get(cartStore.items)
   let totalItems = 0
+  let totalAmount = 0
   for (let i = 0; i < cartStore.items.length; i++) {
     totalItems += cartStore.items[i].quantity
+    totalAmount += cartStore.items[i].price * cartStore.items[i].quantity
   }
   cartStore.totalItems = totalItems
+  cartStore.totalAmount = totalAmount
 })
