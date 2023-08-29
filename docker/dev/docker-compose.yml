@@ -39,6 +39,8 @@ services:
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
+      AUTH_DOMAIN: http://rafiki-auth:3006
+      AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL}
@@ -70,7 +72,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:968f5c11739785e84b29c029a54c4c328ea9449cfe6d8d13d1c3e1a2be3f865a
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:fb3e052d99ca989bea0c4e724fbef30a4ef320e6c4e85ca86ca2e05bb4be2832
     restart: always
     networks:
       - testnet
@@ -83,12 +85,14 @@ services:
       ADMIN_PORT: 3008
       NODE_ENV: development
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
+      IDENTITY_SERVER_DOMAIN: http://localhost:4003/grant-interactions
+      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
     depends_on:
       - postgres
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:main@sha256:7b8be04015943241adfef27a3dae1476018139d718441ac75656728e5cfec528
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:d1743cfe58f26847dd6fb80704ea9a4cb91747675661911005798d4cd35bef6e
     restart: always
     privileged: true
     volumes:
@@ -130,7 +134,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:main@sha256:78af50f6c1f603a01d9b3896098ed1766d9085d6fbe654c5697ce6233204f590
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:e8fd69d600a72f760fe175e695db852b351d37fa94065ef206ece051dfc68f8c
     depends_on:
       - rafiki-backend
     restart: always

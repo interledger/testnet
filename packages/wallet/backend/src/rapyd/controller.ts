@@ -1,12 +1,12 @@
-import { NextFunction, Request } from 'express'
-import { Logger } from 'winston'
-import { validate } from '@/shared/validate'
-import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './validation'
-import { User } from '@/user/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { validate } from '@/shared/validate'
+import { User } from '@/user/model'
 import { getRandomValues } from 'crypto'
+import { NextFunction, Request } from 'express'
+import { Logger } from 'winston'
+import { Options, RapydService } from './service'
+import { kycSchema, profileSchema, walletSchema } from './validation'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>

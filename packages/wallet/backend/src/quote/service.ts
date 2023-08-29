@@ -6,8 +6,8 @@ import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
 import { PaymentPointerService } from '../paymentPointer/service'
-import { RafikiService } from '../rafiki/service'
 import { QuoteWithFees } from './controller'
+import { RatesService } from '../rates/service'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
@@ -17,7 +17,7 @@ interface QuoteServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
-  rafikiService: RafikiService
+  ratesService: RatesService
   paymentPointerService: PaymentPointerService
 }
 
@@ -31,8 +31,8 @@ type CreateQuoteParams = {
 }
 
 type ConvertParams = {
-  sourceAssetCode: string
-  destinationAssetCode: string
+  from: string
+  to: string
   amount: bigint
 }
 
@@ -84,9 +84,9 @@ export class QuoteService implements IQuoteService {
       params.isReceive &&
       destinationPaymentPointer.assetCode !== asset.code
     ) {
-      const convertedValue = this.convert({
-        sourceAssetCode: destinationPaymentPointer.assetCode,
-        destinationAssetCode: assetCode,
+      const convertedValue = await this.convert({
+        from: assetCode,
+        to: destinationPaymentPointer.assetCode,
         amount: value
       })
       value = convertedValue
@@ -141,18 +141,19 @@ export class QuoteService implements IQuoteService {
     )
   }
 
-  private addConversionInfo(
+  private async addConversionInfo(
     quote: Quote,
     originalValue?: bigint
-  ): QuoteWithFees | Quote {
+  ): Promise<QuoteWithFees | Quote> {
     if (quote.receiveAmount.assetCode === quote.sendAmount.assetCode) {
       return quote
     }
-    const value = this.convert({
-      sourceAssetCode: quote.sendAmount.assetCode,
-      destinationAssetCode: quote.receiveAmount.assetCode,
+    const value = await this.convert({
+      from: quote.receiveAmount.assetCode,
+      to: quote.sendAmount.assetCode,
       amount: quote.receiveAmount.value
     })
+
     const feeInSenderCurrency = BigInt(quote.sendAmount.value) - value
 
     return {
@@ -167,10 +168,10 @@ export class QuoteService implements IQuoteService {
     }
   }
 
-  private convert(params: ConvertParams): bigint {
-    const conversionRate = this.deps.rafikiService.getRates(
-      params.sourceAssetCode
-    ).rates[params.destinationAssetCode]
-    return BigInt((Number(params.amount) * conversionRate).toFixed())
+  private async convert(params: ConvertParams): Promise<bigint> {
+    const conversionRate = await this.deps.ratesService.getRates(params.from)
+    return BigInt(
+      (Number(params.amount) * conversionRate.rates[params.to]).toFixed()
+    )
   }
 }

@@ -1,3 +1,4 @@
+import { AssetOP } from '@/lib/api/asset'
 import { Quote } from '../lib/api/transfers'
 
 /**
@@ -26,10 +27,8 @@ export const getCurrencySymbol = (assetCode: string): string => {
     .trim()
 }
 
-type FormatAmountArgs = {
+type FormatAmountArgs = AssetOP & {
   value: string
-  assetCode: string
-  assetScale: number
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {

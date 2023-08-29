@@ -1,11 +1,16 @@
+import { EmailService } from '@/email/service'
+import { GrantController } from '@/grant/controller'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
+import { setRateLimit } from '@/middleware/rateLimit'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { PaymentPointerController } from '@/paymentPointer/controller'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { RafikiAuthService } from '@/rafiki/auth/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
+import cors from 'cors'
 import express, { Router, type Express, type Request } from 'express'
 import helmet from 'helmet'
 import { Server } from 'http'
@@ -21,23 +26,20 @@ import type { Env } from './config/env'
 import { errorHandler } from './middleware/errorHandler'
 import { isAuth } from './middleware/isAuth'
 import { withSession } from './middleware/withSession'
+import { QuoteController } from './quote/controller'
+import { QuoteService } from './quote/service'
+import { RafikiController } from './rafiki/controller'
 import { RafikiClient } from './rafiki/rafiki-client'
+import { RafikiService } from './rafiki/service'
 import { RapydController } from './rapyd/controller'
 import { RapydClient } from './rapyd/rapyd-client'
 import { RapydService } from './rapyd/service'
+import { RatesService } from './rates/service'
 import type { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
-import cors from 'cors'
-import { RafikiController } from './rafiki/controller'
-import { RafikiService } from './rafiki/service'
-import { QuoteController } from './quote/controller'
-import { QuoteService } from './quote/service'
-import { RafikiAuthService } from '@/rafiki/auth/service'
-import { GrantController } from '@/grant/controller'
-import { EmailService } from '@/email/service'
-import { setRateLimit } from '@/middleware/rateLimit'
+import { GrantService } from '@/grant/service'
 
 export interface Bindings {
   env: Env
@@ -48,6 +50,7 @@ export interface Bindings {
   rafikiService: RafikiService
   rafikiController: RafikiController
   rapydService: RapydService
+  ratesService: RatesService
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
@@ -69,6 +72,7 @@ export interface Bindings {
   quoteService: QuoteService
   rafikiAuthService: RafikiAuthService
   grantController: GrantController
+  grantService: GrantService
   emailService: EmailService
 }
 
@@ -240,6 +244,16 @@ export class App {
     router.get('/grants', isAuth, grantController.list)
     router.get('/grants/:id', isAuth, grantController.getById)
     router.delete('/grants/:id', isAuth, grantController.revoke)
+    router.get(
+      '/grant-interactions/:interactionId/:nonce',
+      isAuth,
+      grantController.getByInteraction
+    )
+    router.patch(
+      '/grant-interactions/:interactionId/:nonce',
+      isAuth,
+      grantController.setInteractionResponse
+    )
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)

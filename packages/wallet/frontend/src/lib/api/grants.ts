@@ -49,9 +49,24 @@ type GetGrantResponse = GetGrantResult | ErrorResponse
 
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
 
+type FinalizeInteractionParams = {
+  interactionId: string
+  nonce: string
+  action: string
+}
+type FinalizeInteractionResponse = SuccessResponse | ErrorResponse
+
 interface GrantsService {
   list: (cookies?: string) => Promise<ListGrantsResponse>
   get: (grantId: string, cookies?: string) => Promise<GetGrantResponse>
+  getInteraction: (
+    interactionId: string,
+    nonce: string,
+    cookies?: string
+  ) => Promise<GetGrantResponse>
+  finalizeInteraction: (
+    args: FinalizeInteractionParams
+  ) => Promise<FinalizeInteractionResponse>
   delete: (grantId: string) => Promise<DeleteGrantResponse>
 }
 
@@ -83,6 +98,34 @@ const createGrantsService = (): GrantsService => ({
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch grant details.')
+    }
+  },
+
+  async getInteraction(interactionId, nonce, cookies) {
+    try {
+      const response = await httpClient
+        .get(`grant-interactions/${interactionId}/${nonce}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<GetGrantResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to fetch grant request details.')
+    }
+  },
+
+  async finalizeInteraction(args) {
+    try {
+      const response = await httpClient
+        .patch(`grant-interactions/${args.interactionId}/${args.nonce}`, {
+          json: { response: args.action }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, `Unable to ${args.action} grant request.`)
     }
   },
 

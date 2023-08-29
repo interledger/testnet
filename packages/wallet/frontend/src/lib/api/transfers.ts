@@ -6,6 +6,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+import { AssetOP } from './asset'
 import { Transaction } from './transaction'
 
 export const sendSchema = z.object({
@@ -86,9 +87,7 @@ type PaymentDetails = {
   value: number
 }
 
-type AmountProps = {
-  assetCode: string
-  assetScale: number
+type AmountProps = AssetOP & {
   value: string
 }
 

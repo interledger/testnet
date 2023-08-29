@@ -148,6 +148,17 @@ export class PaymentPointerService implements IPaymentPointerService {
     )
   }
 
+  async belongsToUser(userId: string, url: string): Promise<boolean> {
+    const paymentPointers = await PaymentPointer.query()
+      .where('url', url)
+      .withGraphFetched('account')
+      .modifyGraph('account', (builder) => {
+        builder.where({ userId })
+      })
+
+    return !!paymentPointers.length
+  }
+
   /**
    * This is a soft delete functionality. The payment pointer will never be
    * deleted. We will change its `active` column to `false` when the user
