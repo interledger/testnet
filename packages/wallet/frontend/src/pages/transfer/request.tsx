@@ -20,6 +20,7 @@ import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Label } from '@/ui/forms/Label'
 import { FieldError } from '@/ui/forms/FieldError'
+import { AssetOP } from '@/lib/api/asset'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -257,11 +258,10 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   )
 }
 
-type SelectAccountOption = SelectOption & {
-  balance: string
-  assetCode: string
-  assetScale: number
-}
+type SelectAccountOption = SelectOption &
+  AssetOP & {
+    balance: string
+  }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {

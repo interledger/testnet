@@ -1,9 +1,9 @@
-import { useProductsQuery } from '@/hooks/useProductsQuery.ts'
+import { useProductsQuery } from '@/hooks/use-products-query.ts'
 import { ProductCard } from './product-card'
 import { ProductCardShimmer } from './product-card-shimmer.tsx'
 import { cn } from '@/lib/utils.ts'
 import { queryClient } from '@/app/query-client.ts'
-import { BirdError } from '@/components/icons.tsx'
+import { BirdError } from '@/components/bird.tsx'
 
 const ProductsListWrapper = ({
   className,
@@ -37,7 +37,7 @@ export const ProductsList = () => {
     return (
       <div className="col-span-4 mt-4 text-center">
         <BirdError className="mx-auto h-20 w-20" />
-        <p className="text-lg font-bold">Something went wrong ...</p>
+        <p className="text-lg font-bold">Something went wrong...</p>
         <p>We are working on fixing this problem.</p>
         <p>If the issue persists, do not hesitate to contact us.</p>
         <p>Please try again.</p>

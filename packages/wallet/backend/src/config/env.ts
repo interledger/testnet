@@ -19,6 +19,8 @@ const envSchema = z.object({
     .string()
     .url()
     .default('http://rafiki-auth:3008/graphql'),
+  AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3006'),
+  AUTH_IDENTITY_SERVER_SECRET: z.string().default('replace-me'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
   RAPYD_SETTLEMENT_EWALLET: z.string().default('default_ewallet'),
   RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost'),

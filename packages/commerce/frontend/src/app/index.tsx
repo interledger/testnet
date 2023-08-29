@@ -9,6 +9,7 @@ import { ordersRoutes } from './orders/routes.tsx'
 import { productsRoutes } from './products/routes.tsx'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './query-client.ts'
+import { Toaster } from '@/components/ui/toaster.tsx'
 
 const Index = () => {
   return <Navigate to={`/products`} replace />
@@ -40,6 +41,7 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster />
     </QueryClientProvider>
   )
 }
