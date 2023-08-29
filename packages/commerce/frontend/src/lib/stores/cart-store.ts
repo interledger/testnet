@@ -35,7 +35,9 @@ export function addToCart(product: Product, quantity: number = 1): void {
 }
 
 export function removeFromCart(id: string): void {
-  cartStore.items.filter((item) => item.id !== id)
+  const index = cartStore.items.findIndex((item) => item.id === id)
+  cartStore.items[index].quantity = Infinity
+  cartStore.items.splice(index, 1)
 }
 
 export function increaseQuantity(id: string): void {
@@ -46,6 +48,15 @@ export function increaseQuantity(id: string): void {
 export function decreaseQuantity(id: string): void {
   const index = cartStore.items.findIndex((item) => item.id === id)
   cartStore.items[index].quantity -= 1
+  if (cartStore.items[index].quantity <= 0) {
+    cartStore.items[index].quantity = Infinity
+    cartStore.items.splice(index, 1)
+  }
+}
+
+export function setQuantity(id: string, quantity: number) {
+  const index = cartStore.items.findIndex((item) => item.id === id)
+  cartStore.items[index].quantity = quantity
 }
 
 export function resetCart(): void {

@@ -10,12 +10,14 @@ import { IMAGES_URL } from '@/lib/constants.ts'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { Link } from 'react-router-dom'
 import { CartItem } from '@/lib/stores/cart-store.ts'
+import { useState } from 'react'
 
 export const ShoppingCartPopover = () => {
+  const [open, setOpen] = useState(false)
   const { items } = useCartStore()
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
