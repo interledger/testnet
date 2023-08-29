@@ -26,9 +26,12 @@ export const MainNavLink = (props: MainNavLinkProps) => {
     <NavLink
       {...props}
       className={({ isActive }) =>
-        isActive
-          ? 'text-green'
-          : 'text-green-3 transition-colors hover:text-green'
+        cn(
+          isActive
+            ? 'text-green'
+            : 'text-green-3 transition-colors hover:text-green',
+          'rounded-sm focus:outline-none focus:ring-2 focus:ring-green-3'
+        )
       }
     />
   )
