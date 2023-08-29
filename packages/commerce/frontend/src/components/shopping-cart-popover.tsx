@@ -46,7 +46,7 @@ export const ShoppingCartPopover = () => {
           <div className="grid gap-2">
             <ul
               role="list"
-              className="max-h-60 divide-y divide-gray-200 overflow-scroll focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="max-h-60 divide-y divide-green-3 overflow-scroll focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               {items.map((item) => (
                 <ShoppingCartItem key={item.id} item={item} />
@@ -72,11 +72,11 @@ interface ShoppingCartItemProps {
 
 const ShoppingCartItem = ({ item }: ShoppingCartItemProps) => {
   return (
-    <li className="flex items-center py-6 focus-visible:outline-none focus-visible:ring-1">
+    <li className="flex items-center py-6 text-green focus-visible:outline-none focus-visible:ring-1">
       <img
         src={`${IMAGES_URL}${item.image}`}
         alt={item.name}
-        className="h-12 w-12 flex-none rounded-md border border-gray-200"
+        className="h-12 w-12 flex-none rounded-md border border-green-3"
       />
       <div className="ml-4 flex-auto">
         <Link
