@@ -24,7 +24,7 @@ export const CartItemContext = createContext<CartItemContextValue>(
 export const CartItem = ({ item }: CartItemProps) => {
   return (
     <CartItemContext.Provider value={{ item: item }}>
-      <li key={item.id} className="flex py-6 sm:py-10">
+      <li key={item.id} className="flex py-6 first-of-type:pt-0">
         <div className="flex-shrink-0 rounded-md border border-green-3 bg-green-1">
           <img
             src={`${IMAGES_URL}${item.image}`}
@@ -33,7 +33,7 @@ export const CartItem = ({ item }: CartItemProps) => {
           />
         </div>
         <div className="flex flex-1 items-start justify-between">
-          <div className="ml-4 flex flex-col sm:ml-6">
+          <div className="ml-4 flex flex-col">
             <div className="flex justify-between">
               <Link
                 to={`/products/${item.slug}`}
@@ -76,7 +76,7 @@ const ItemQuantity = () => {
 
   return (
     <div className="flex flex-col gap-y-2">
-      <div className="w-32 rounded-md border-2 border-green-4 p-0.5">
+      <div className="w-28 rounded-md border-2 border-green-4 p-0.5 md:w-32">
         <div className="flex items-center">
           <QuantityButton action={() => decreaseQuantity(item.id)}>
             <Minus strokeWidth={3} />
