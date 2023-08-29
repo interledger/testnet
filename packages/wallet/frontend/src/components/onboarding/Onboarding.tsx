@@ -85,7 +85,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 7
     target: '#send',
     content:
-      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction. Make the payments from your new USD account for now. We are working hard to make other currencies work.',
+      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: MoneyOut
