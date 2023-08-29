@@ -1,3 +1,4 @@
+import { queryClient } from '@/app/query-client'
 import { ArrowRightLong } from '@/components/icons.tsx'
 import {
   Card,
@@ -7,8 +8,9 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card.tsx'
-import type { Product } from '@/hooks/useProductsQuery.ts'
+import type { Product } from '@/hooks/use-products-query'
 import { IMAGES_URL } from '@/lib/constants.ts'
+import { fetcher } from '@/lib/fetcher.ts'
 import { formatPrice } from '@/lib/utils.ts'
 import { Link } from 'react-router-dom'
 
@@ -21,15 +23,26 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const imageUrl = `${IMAGES_URL}${image}`
   return (
     <Link
+      onMouseEnter={async () => {
+        await queryClient.prefetchQuery({
+          queryKey: ['products', slug],
+          queryFn: async function () {
+            return await fetcher(`/products/${slug}`, {
+              method: 'GET',
+              credentials: 'include'
+            })
+          }
+        })
+      }}
       to={`/products/${slug}`}
       className={`
         rounded-xl transition-transform hover:scale-105 hover:shadow-md
         [&:nth-child(4n+1)]:bg-gradient-orange
         [&:nth-child(4n+2)]:bg-gradient-pink
         [&:nth-child(4n+3)]:bg-gradient-primary 
-        [&:nth-child(4n+4)]:bg-gradient-violet 
+        [&:nth-child(4n+4)]:bg-gradient-violet
         [&:nth-child(4n+5)]:bg-gradient-primary
-        [&:nth-child(4n+6)]:bg-gradient-pink 
+        [&:nth-child(4n+6)]:bg-gradient-pink
         `}
     >
       <Card className="relative border-none text-white">
@@ -48,7 +61,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </CardContent>
         <CardFooter className="flex items-center justify-start gap-x-2">
           <span className="text-sm font-light">View product</span>
-          <ArrowRightLong className="h-4 w-4" />
+          <ArrowRightLong className="h-4 w-4" aria-label="right arrow" />
         </CardFooter>
       </Card>
     </Link>
