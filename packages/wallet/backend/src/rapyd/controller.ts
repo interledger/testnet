@@ -12,6 +12,7 @@ import { User } from '@/user/model'
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { getRandomValues } from 'crypto'
+import { SocketService } from '@/socket/service'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -25,6 +26,7 @@ interface RapydControllerDependencies {
   paymentPointerService: PaymentPointerService
   logger: Logger
   rapydService: RapydService
+  socketService: SocketService
 }
 
 export class RapydController implements IRapydController {

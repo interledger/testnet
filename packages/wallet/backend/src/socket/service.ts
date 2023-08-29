@@ -1,17 +1,19 @@
-import type { Env } from '@/config/env'
+import { env, type Env } from '@/config/env'
 import { Logger } from 'winston'
 import socketIo from 'socket.io'
 import http from 'http'
-import { decrypt } from '@/utils/crypto'
+import { unsealData } from 'iron-session'
+import { AccountService } from '@/account/service'
 
 interface ISocketService {
   init(args: http.Server): void
-  emitBalanceUpdateByEmail(email: string): void
+  emitAccountsUpdateById(id: string): void
 }
 
 interface SocketServiceDependencies {
   logger: Logger
   env: Env
+  accountService: AccountService
 }
 
 export class SocketService implements ISocketService {
@@ -31,22 +33,28 @@ export class SocketService implements ISocketService {
     })
     this.deps.logger.info(`Socket Server is started...`)
 
-    this.io.on('connection', (socket) => {
-      const emailToken = socket.handshake.query.emailToken!.toString()
-      const email = emailToken ? decrypt(emailToken) : ''
-      socket.join(email)
-
-      this.deps.logger.info(`A socket client ${email} is connected...`)
+    this.io.on('connection', async (socket) => {
+      const token = socket.handshake.query.token?.toString().split('=')[1]
+      const { user } = await unsealData(token as string, {
+        password: env.COOKIE_PASSWORD
+      })
+      const userId = (user as UserSessionData).id
+      this.deps.logger.info(`A socket client ${userId} is connected...`)
+      socket.join(userId)
 
       // Handle events
       socket.on('disconnect', () => {
-        // this.sockets.delete(email)
-        this.deps.logger.info(`socket client disconnected...`)
+        socket.leave(userId)
+        this.deps.logger.info(`A socket client ${userId} disconnected...`)
       })
     })
   }
 
-  emitBalanceUpdateByEmail(email: string) {
-    this.io?.to(email).emit('message', 'please update balance!')
+  async emitAccountsUpdateById(userId?: string) {
+    if (!userId) return
+
+    const accounts = await this.deps.accountService.getAccounts(userId, false)
+
+    this.io?.to(userId).emit('ACCOUNTS_UPDATE', accounts)
   }
 }

@@ -21,37 +21,42 @@ import { encrypt } from '@/utils/crypto'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
-  const [_socket, setSocket] = useState<Socket | null>(null)
+const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
+  const [socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
     // Connect to the Socket.IO server
-    const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
+    if (socket) return
+    const newSocket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
       query: {
-        emailToken: encrypt(user.email)
+        emailToken: encrypt(user.email),
+        token
       }
     })
 
-    // Event listeners
-    socket.on('connect', () => {
-      console.log('Connected to server')
-    })
-
-    socket.on('message', (message) => {
-      console.log(`Received message: ${message}`)
-    })
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server')
-    })
-
-    setSocket(socket)
+    setSocket(newSocket)
 
     // Clean up when the component unmounts
     return () => {
-      socket.disconnect()
+      newSocket.disconnect()
     }
   }, [user])
+
+  useEffect(() => {
+    // Event listeners
+    socket?.on('connect', () => {
+      console.log('Connected to server')
+    })
+
+    socket?.on('ACCOUNTS_UPDATE', (data) => {
+      console.log('Received new accounts data;')
+      console.log(data)
+    })
+
+    socket?.on('disconnect', () => {
+      console.log('Disconnected from server')
+    })
+  }, [socket])
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()

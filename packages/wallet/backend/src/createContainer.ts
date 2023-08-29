@@ -179,7 +179,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
         accountService: await container.resolve('accountService'),
         paymentPointerService: await container.resolve('paymentPointerService'),
         logger: await container.resolve('logger'),
-        rapydService: await container.resolve('rapydService')
+        rapydService: await container.resolve('rapydService'),
+        socketService: await container.resolve('socketService')
       })
   )
 
@@ -266,13 +267,17 @@ export const createContainer = (config: Env): Container<Bindings> => {
     const logger = await container.resolve('logger')
     const rafikiClient = await container.resolve('rafikiClient')
     const transactionService = await container.resolve('transactionService')
+    const socketService = await container.resolve('socketService')
+    const userService = await container.resolve('userService')
 
     return new RafikiService({
       rafikiClient,
       rapydClient,
       env,
       logger,
-      transactionService
+      transactionService,
+      socketService,
+      userService
     })
   })
 
@@ -319,7 +324,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new SocketService({
         env: await container.resolve('env'),
-        logger: await container.resolve('logger')
+        logger: await container.resolve('logger'),
+        accountService: await container.resolve('accountService')
       })
   )
 
