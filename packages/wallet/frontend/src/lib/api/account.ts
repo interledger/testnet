@@ -6,6 +6,7 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import { PaymentPointer } from './paymentPointer'
+import { acceptQuoteSchema } from './transfers'
 
 export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
@@ -30,7 +31,7 @@ export const createAccountSchema = z.object({
   })
 })
 
-export const exchangeSchema = z.object({
+export const exchangeAssetSchema = z.object({
   amount: z.coerce
     .number({
       invalid_type_error: 'Please enter a valid amount'
@@ -75,10 +76,14 @@ type WithdrawFundsArgs = z.infer<typeof withdrawFundsSchema>
 type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
 type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
-type ExchangeArgs = z.infer<typeof exchangeSchema>
+type ExchangeArgs = z.infer<typeof exchangeAssetSchema>
 type ExchangeResponse =
   | SuccessResponse
   | ErrorResponse<ExchangeArgs | undefined>
+
+type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
+type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
+type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
@@ -90,6 +95,7 @@ interface AccountService {
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
   withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
   exchange: (args: ExchangeArgs) => Promise<ExchangeResponse>
+  acceptExchangeQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -186,6 +192,22 @@ const createAccountService = (): AccountService => ({
       return getError<ExchangeArgs>(
         error,
         'We were not able to exchange your money to the selected currency. Please try again.'
+      )
+    }
+  },
+
+  async acceptExchangeQuote(args) {
+    try {
+      const response = await httpClient
+        .post('outgoing-payments', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<AcceptQuoteArgs>(
+        error,
+        'We could not send the money. Please try again.'
       )
     }
   }

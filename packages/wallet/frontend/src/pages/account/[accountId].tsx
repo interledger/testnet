@@ -23,16 +23,12 @@ import type {
 import { useMemo } from 'react'
 import { useEffect } from 'react'
 import { z } from 'zod'
-import { ExchangeDialog } from '@/components/dialogs/ExchangeDialog'
-import { assetService } from '@/lib/api/asset'
-import { SelectOption } from '@/ui/forms/Select'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  paymentPointers,
-  assets
+  paymentPointers
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const formattedAmount = useMemo(
@@ -124,15 +120,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             </span>
           </Link>
           <Link
-            onClick={() =>
-              openDialog(
-                <ExchangeDialog
-                  account={account}
-                  assets={assets}
-                  onClose={closeDialog}
-                />
-              )
-            }
+            id="exchangeAsset"
+            href={`/exchange?assetCode=${account.assetCode}&assetScale=${account.assetScale}`}
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Exchange className="h-8 w-8" />
@@ -183,7 +172,6 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointers: PaymentPointer[]
-  assets: SelectOption[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -193,28 +181,18 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse, paymentPointersResponse, assetsResponse] =
-    await Promise.all([
-      accountService.get(result.data.accountId, ctx.req.headers.cookie),
-      paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie),
-      assetService.list(ctx.req.headers.cookie)
-    ])
+  const [accountResponse, paymentPointersResponse] = await Promise.all([
+    accountService.get(result.data.accountId, ctx.req.headers.cookie),
+    paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
+  ])
 
-  if (
-    !accountResponse.success ||
-    !paymentPointersResponse.success ||
-    !assetsResponse.success
-  ) {
+  if (!accountResponse.success || !paymentPointersResponse.success) {
     return {
       notFound: true
     }
   }
 
-  if (
-    !accountResponse.data ||
-    !paymentPointersResponse.data ||
-    !assetsResponse.data
-  ) {
+  if (!accountResponse.data || !paymentPointersResponse.data) {
     return {
       notFound: true
     }
@@ -225,16 +203,10 @@ export const getServerSideProps: GetServerSideProps<{
     url: pp.url.replace('https://', '$')
   }))
 
-  const assets = assetsResponse.data?.map((asset) => ({
-    value: asset.id,
-    label: asset.code
-  }))
-
   return {
     props: {
       account: accountResponse.data,
-      paymentPointers,
-      assets
+      paymentPointers
     }
   }
 }
