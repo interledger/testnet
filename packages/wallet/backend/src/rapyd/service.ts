@@ -3,8 +3,6 @@ import { User } from '@/user/model'
 import crypto from 'crypto'
 import { Logger } from 'winston'
 import { RapydClient } from './rapyd-client'
-import axios from 'axios'
-import { RatesResponse } from '@/rafiki/service'
 
 interface RapydServiceDependencies {
   rapyd: RapydClient
@@ -200,17 +198,5 @@ export class RapydService implements IRapydService {
     })
 
     return result.data
-  }
-
-  public async getRates(base: string): Promise<RatesResponse> {
-    const res = await axios.get('https://api.exchangerate.host/latest', {
-      params: { base }
-    })
-    const result = res.data
-
-    return {
-      base,
-      rates: result.success ? result.rates : {}
-    }
   }
 }

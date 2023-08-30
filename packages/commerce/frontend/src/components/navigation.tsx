@@ -1,9 +1,10 @@
-import { NavLink, NavLinkProps } from 'react-router-dom'
+import { Link, NavLink, NavLinkProps } from 'react-router-dom'
 import { Bars3, Logo, Orders, Products } from './icons.tsx'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet.tsx'
 import { MenuBubbles } from './bubbles.tsx'
 import { ReactNode, useState } from 'react'
 import { cn } from '@/lib/utils.ts'
+import { Button } from './ui/button.tsx'
 
 const NAV_LINKS = [
   {
@@ -72,10 +73,10 @@ export const MobileNavLinks = ({ children }: MobileNavLinksProps) => {
 export const MainNav = () => {
   return (
     <div className="flex">
-      <NavLink to="/" className="mr-6 flex items-center space-x-2">
-        <Logo className="h-9 w-9 flex-shrink-0" />
+      <Link to="/" className="mr-6 flex items-center space-x-2">
+        <Logo className="h-9 w-9 flex-shrink-0" aria-label="Logo" />
         <span className="inline-block font-bold">E-Commerce</span>
-      </NavLink>
+      </Link>
       <nav className="hidden items-center space-x-6 font-medium md:flex">
         {NAV_LINKS.map(({ to, name }) => (
           <MainNavLink key={to} to={to}>
@@ -91,12 +92,16 @@ export const MobileNav = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger>
-        <Bars3
-          strokeWidth={3}
-          className="ml-4 h-6 w-6 text-green-3 transition-colors hover:text-green md:hidden"
-        />
+    <Sheet open={open} onOpenChange={setOpen} modal={true}>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          className="ml-4 px-0 text-green-3 hover:bg-transparent hover:text-green focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+          aria-label="open menu"
+        >
+          <Bars3 strokeWidth={3} className="h-6 w-6" aria-label="bars menu" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
       </SheetTrigger>
       <SheetContent>
         <MobileNavLinks>

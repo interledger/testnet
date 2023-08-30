@@ -17,7 +17,6 @@ import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
-import { encrypt } from '@/utils/crypto'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -29,7 +28,6 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     if (socket) return
     const newSocket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
       query: {
-        emailToken: encrypt(user.email),
         token
       }
     })
@@ -40,7 +38,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     return () => {
       newSocket.disconnect()
     }
-  }, [user])
+  }, [socket, token])
 
   useEffect(() => {
     // Event listeners

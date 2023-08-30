@@ -32,6 +32,8 @@ import { UserService } from '@/user/service'
 import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
 import { SocketService } from './socket/service'
+import { GrantService } from './grant/service'
+import { RatesService } from './rates/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -172,6 +174,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
+  container.singleton('ratesService', async () => new RatesService())
+
   container.singleton(
     'rapydController',
     async () =>
@@ -269,10 +273,12 @@ export const createContainer = (config: Env): Container<Bindings> => {
     const transactionService = await container.resolve('transactionService')
     const socketService = await container.resolve('socketService')
     const userService = await container.resolve('userService')
+    const ratesService = await container.resolve('ratesService')
 
     return new RafikiService({
       rafikiClient,
       rapydClient,
+      ratesService,
       env,
       logger,
       transactionService,
@@ -284,8 +290,9 @@ export const createContainer = (config: Env): Container<Bindings> => {
   container.singleton('rafikiController', async () => {
     const logger = await container.resolve('logger')
     const rafikiService = await container.resolve('rafikiService')
+    const ratesService = await container.resolve('ratesService')
 
-    return new RafikiController({ logger, rafikiService })
+    return new RafikiController({ logger, rafikiService, ratesService })
   })
 
   container.singleton(
@@ -297,7 +304,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
           'incomingPaymentService'
         ),
         rafikiClient: await container.resolve('rafikiClient'),
-        rafikiService: await container.resolve('rafikiService'),
+        ratesService: await container.resolve('ratesService'),
         paymentPointerService: await container.resolve('paymentPointerService')
       })
   )
@@ -311,11 +318,21 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton(
+    'grantService',
+    async () =>
+      new GrantService({
+        rafikiAuthService: await container.resolve('rafikiAuthService'),
+        paymentPointerService: await container.resolve('paymentPointerService')
+      })
+  )
+
+  container.singleton(
     'grantController',
     async () =>
       new GrantController({
         rafikiAuthService: await container.resolve('rafikiAuthService'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        paymentPointerService: await container.resolve('paymentPointerService'),
+        grantService: await container.resolve('grantService')
       })
   )
 

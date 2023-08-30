@@ -26,7 +26,7 @@ export type AssetOP = {
 type ListAssetsResult = SuccessResponse<Asset[]>
 type ListAssetsResponse = ListAssetsResult | ErrorResponse
 
-type ExchangeRates = Record<string, number>
+export type ExchangeRates = Record<string, number>
 type GetExchangeRatesResponse = SuccessResponse<ExchangeRates> | ErrorResponse
 
 interface AssetService {

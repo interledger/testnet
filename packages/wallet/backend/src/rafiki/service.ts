@@ -4,6 +4,7 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
+import { RatesService } from '../rates/service'
 import { RafikiClient } from './rafiki-client'
 import { UserService } from '@/user/service'
 import { SocketService } from '@/socket/service'
@@ -64,12 +65,8 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
-interface Rates {
-  [currency: string]: { [currency: string]: number }
-}
 interface IRafikiService {
   createQuote: (receivedQuote: Quote) => Promise<Quote>
-  getRates: (base: string) => RatesResponse
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -77,15 +74,11 @@ interface RafikiServiceDependencies {
   userService: UserService
   socketService: SocketService
   rapydClient: RapydClient
+  ratesService: RatesService
   env: Env
   logger: Logger
   rafikiClient: RafikiClient
   transactionService: TransactionService
-}
-
-export type RatesResponse = {
-  base: string
-  rates: Record<string, number>
 }
 
 export class RafikiService implements IRafikiService {
@@ -508,20 +501,5 @@ export class RafikiService implements IRafikiService {
     }
 
     return receivedQuote
-  }
-
-  public getRates(base: string): RatesResponse {
-    const exchangeRates: Rates = {
-      USD: {
-        EUR: 0.908936
-      },
-      EUR: {
-        USD: 1.10019
-      }
-    }
-    return {
-      base,
-      rates: exchangeRates[base] ?? {}
-    }
   }
 }
