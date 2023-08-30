@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
-    "@hookform/resolvers": "^3.3.0",
+    "@hookform/resolvers": "^3.3.1",
     "class-variance-authority": "^0.7.0",
     "ky": "^0.33.3",
     "next": "13.4.12",
