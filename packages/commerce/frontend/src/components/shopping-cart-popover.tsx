@@ -77,7 +77,7 @@ interface ShoppingCartItemProps {
 
 const ShoppingCartItem = ({ item }: ShoppingCartItemProps) => {
   return (
-    <li className="flex items-center py-6 text-green first-of-type:pt-0 focus-visible:outline-none focus-visible:ring-1">
+    <li className="flex items-center py-6 text-green first-of-type:pt-0 focus:outline-none focus:ring-2 focus:ring-green-3">
       <img
         src={`${IMAGES_URL}${item.image}`}
         alt={item.name}
@@ -86,7 +86,7 @@ const ShoppingCartItem = ({ item }: ShoppingCartItemProps) => {
       <div className="ml-4 flex-auto">
         <Link
           to={`/products/${item.slug}`}
-          className="focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-3"
+          className="rounded-md focus:outline-none focus:ring-2 focus:ring-green-3"
         >
           <h3 className="inline-block">{item.name}</h3>
           <span className="sr-only">View product {item.name}</span>

@@ -76,7 +76,10 @@ export const MobileNavLinks = ({ children }: MobileNavLinksProps) => {
 export const MainNav = () => {
   return (
     <div className="flex">
-      <Link to="/" className="mr-6 flex items-center space-x-2">
+      <Link
+        to="/"
+        className="mr-6 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-green-3 rounded-md"
+      >
         <Logo className="h-9 w-9 flex-shrink-0" aria-label="Logo" />
         <span className="inline-block font-bold">E-Commerce</span>
       </Link>

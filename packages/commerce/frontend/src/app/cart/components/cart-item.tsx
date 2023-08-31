@@ -35,7 +35,10 @@ export const CartItem = ({ item }: CartItemProps) => {
         <div className="flex flex-1 items-start justify-between">
           <div className="ml-4 flex flex-col">
             <div className="flex justify-between">
-              <Link to={`/products/${item.slug}`} className="text-xl">
+              <Link
+                to={`/products/${item.slug}`}
+                className="rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-green-3"
+              >
                 {item.name}
               </Link>
             </div>
@@ -69,7 +72,7 @@ const QuantityButton = ({
     <Button
       onClick={() => action()}
       variant="ghost"
-      className="h-9 w-9 rounded-[calc(.375rem-0.175rem)] bg-green-5 p-2 text-white hover:bg-green-6"
+      className="h-9 w-9 rounded-[calc(.375rem-0.175rem)] bg-green-5 p-2 text-white hover:bg-green-6 focus:ring-2 focus:ring-green-3"
       {...props}
     >
       {children}
@@ -83,7 +86,7 @@ const ItemQuantity = () => {
   return (
     <div className="flex flex-col gap-y-2">
       <div className="w-28 rounded-md border-2 border-green-4 p-0.5 md:w-32">
-        <div className="flex items-center">
+        <div className="flex items-center space-x-0.5">
           <QuantityButton
             aria-label="decrease quantity"
             action={() => decreaseQuantity(item.id)}
@@ -92,9 +95,10 @@ const ItemQuantity = () => {
           </QuantityButton>
           <input
             readOnly
+            tabIndex={-1}
             value={item.quantity}
             name="quantity"
-            className="w-full text-center focus:outline-none"
+            className="w-full border-none p-0 text-center focus:outline-none"
           />
           <QuantityButton
             aria-label="increase quantity"
