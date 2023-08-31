@@ -78,7 +78,7 @@ export const MainNav = () => {
     <div className="flex">
       <Link
         to="/"
-        className="mr-6 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-green-3 rounded-md"
+        className="mr-6 flex items-center space-x-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-3"
       >
         <Logo className="h-9 w-9 flex-shrink-0" aria-label="Logo" />
         <span className="inline-block font-bold">E-Commerce</span>
