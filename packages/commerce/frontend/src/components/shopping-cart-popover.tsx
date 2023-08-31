@@ -88,7 +88,7 @@ const ShoppingCartItem = ({ item }: ShoppingCartItemProps) => {
           to={`/products/${item.slug}`}
           className="focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-3"
         >
-          <h3 className="inline-block font-medium">{item.name}</h3>
+          <h3 className="inline-block">{item.name}</h3>
           <span className="sr-only">View product {item.name}</span>
         </Link>
 

@@ -35,10 +35,7 @@ export const CartItem = ({ item }: CartItemProps) => {
         <div className="flex flex-1 items-start justify-between">
           <div className="ml-4 flex flex-col">
             <div className="flex justify-between">
-              <Link
-                to={`/products/${item.slug}`}
-                className="text-xl font-medium"
-              >
+              <Link to={`/products/${item.slug}`} className="text-xl">
                 {item.name}
               </Link>
             </div>

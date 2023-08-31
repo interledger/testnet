@@ -13,15 +13,15 @@ export const OrderSummary = () => {
     <section className="mt-16 rounded-lg bg-green-1 px-4 py-6 sm:p-6 lg:col-span-4 lg:mt-0 lg:p-8">
       <h2 className="text-lg font-bold">Summary</h2>
       <dl className="mt-6 space-y-4">
-        <div className="flex items-center justify-between font-medium">
+        <div className="flex items-center justify-between">
           <dt>Subtotal</dt>
           <dd className="font-bold">{orderSubTotal}</dd>
         </div>
-        <div className=" flex items-center justify-between border-t border-green pt-4 font-medium">
+        <div className=" flex items-center justify-between border-t border-green pt-4">
           <dt>Fees</dt>
           <dd className="text-sm">Fees will be calculated at checkout</dd>
         </div>
-        <div className="flex items-center justify-between border-t border-green pt-4 font-medium">
+        <div className="flex items-center justify-between border-t border-green pt-4">
           <dt>Estimated order total</dt>
           <dd className="font-bold">{orderSubTotal}</dd>
         </div>
