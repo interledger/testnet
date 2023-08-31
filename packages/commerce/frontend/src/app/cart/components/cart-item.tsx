@@ -42,8 +42,12 @@ export const CartItem = ({ item }: CartItemProps) => {
                 {item.name}
               </Link>
             </div>
-            <p className="mt-1 text-sm font-light">
+            <p className="mt-1 text-sm font-light">Qty: {item.quantity}</p>
+            <p className="text-sm font-light">
               Price per unit: {formatPrice(item.price)}
+            </p>
+            <p className="text-sm">
+              Total: {formatPrice(item.quantity * item.price)}
             </p>
           </div>
           <ItemQuantity />
@@ -54,17 +58,22 @@ export const CartItem = ({ item }: CartItemProps) => {
 }
 
 interface QuantityButtonProps {
-  action: () => void
-  children: ReactNode
+  'action': () => void
+  'children': ReactNode
+  'aria-label': string
 }
 
-const QuantityButton = ({ action, children }: QuantityButtonProps) => {
+const QuantityButton = ({
+  action,
+  children,
+  ...props
+}: QuantityButtonProps) => {
   return (
     <Button
-      aria-label="decrease"
+      onClick={() => action()}
       variant="ghost"
       className="h-9 w-9 rounded-[calc(.375rem-0.175rem)] bg-green-5 p-2 text-white hover:bg-green-6"
-      onClick={() => action()}
+      {...props}
     >
       {children}
     </Button>
@@ -78,7 +87,10 @@ const ItemQuantity = () => {
     <div className="flex flex-col gap-y-2">
       <div className="w-28 rounded-md border-2 border-green-4 p-0.5 md:w-32">
         <div className="flex items-center">
-          <QuantityButton action={() => decreaseQuantity(item.id)}>
+          <QuantityButton
+            aria-label="decrease quantity"
+            action={() => decreaseQuantity(item.id)}
+          >
             <Minus strokeWidth={3} />
           </QuantityButton>
           <input
@@ -87,7 +99,10 @@ const ItemQuantity = () => {
             name="quantity"
             className="w-full text-center focus:outline-none"
           />
-          <QuantityButton action={() => increaseQuantity(item.id)}>
+          <QuantityButton
+            aria-label="increase quantity"
+            action={() => increaseQuantity(item.id)}
+          >
             <Plus strokeWidth={3} />
           </QuantityButton>
         </div>
