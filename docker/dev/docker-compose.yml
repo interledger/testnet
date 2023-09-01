@@ -110,7 +110,7 @@ services:
       CONNECTOR_PORT: 3002
       OPEN_PAYMENTS_PORT: 80
       DATABASE_URL: postgresql://rafiki_backend:rafiki_backend@postgres/rafiki_backend
-      USE_TIGERBEETLE: true
+      USE_TIGERBEETLE: false
       TIGERBEETLE_CLUSTER_ID: 0
       TIGERBEETLE_REPLICA_ADDRESSES: 10.5.0.50:4342
       NONCE_REDIS_KEY: test

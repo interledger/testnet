@@ -38,6 +38,7 @@ export class SocketService implements ISocketService {
       const { user } = await unsealData(token as string, {
         password: env.COOKIE_PASSWORD
       })
+
       const userId = (user as UserSessionData).id
       this.deps.logger.info(`A socket client ${userId} is connected...`)
       socket.join(userId)
@@ -54,6 +55,8 @@ export class SocketService implements ISocketService {
     if (!userId) return
 
     const accounts = await this.deps.accountService.getAccounts(userId, false)
+
+    console.log('accounts', accounts)
 
     this.io?.to(userId).emit('ACCOUNTS_UPDATE', accounts)
   }

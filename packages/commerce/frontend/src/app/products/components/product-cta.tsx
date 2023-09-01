@@ -9,17 +9,17 @@ export const ProductCTA = () => {
   const { toast } = useToast()
 
   function handleClick() {
-    addToCart(product),
-      toast({
-        title: 'Item added to cart.',
-        description: (
-          <p>
-            Product <span className="italic">{product.name}</span> was added to
-            cart.
-          </p>
-        ),
-        variant: 'success'
-      })
+    addToCart(product)
+    toast({
+      title: 'Item added to cart.',
+      description: (
+        <p>
+          Product <span className="italic">{product.name}</span> was added to
+          cart.
+        </p>
+      ),
+      variant: 'success'
+    })
   }
 
   return (

@@ -9,11 +9,13 @@ export interface CartItem extends Product {
 interface CartState {
   items: CartItem[]
   totalItems: number
+  totalAmount: number
 }
 
 const state = {
   items: [],
-  totalItems: 0
+  totalItems: 0,
+  totalAmount: 0
 }
 
 export const cartStore = valtioPersist<CartState>('cart-store', state)
@@ -33,7 +35,9 @@ export function addToCart(product: Product, quantity: number = 1): void {
 }
 
 export function removeFromCart(id: string): void {
-  cartStore.items.filter((item) => item.id !== id)
+  const index = cartStore.items.findIndex((item) => item.id === id)
+  cartStore.items[index].quantity = Infinity
+  cartStore.items.splice(index, 1)
 }
 
 export function increaseQuantity(id: string): void {
@@ -44,6 +48,15 @@ export function increaseQuantity(id: string): void {
 export function decreaseQuantity(id: string): void {
   const index = cartStore.items.findIndex((item) => item.id === id)
   cartStore.items[index].quantity -= 1
+  if (cartStore.items[index].quantity <= 0) {
+    cartStore.items[index].quantity = Infinity
+    cartStore.items.splice(index, 1)
+  }
+}
+
+export function setQuantity(id: string, quantity: number) {
+  const index = cartStore.items.findIndex((item) => item.id === id)
+  cartStore.items[index].quantity = quantity
 }
 
 export function resetCart(): void {
@@ -51,10 +64,13 @@ export function resetCart(): void {
 }
 
 watch((get) => {
-  get(cartStore)
+  get(cartStore.items)
   let totalItems = 0
+  let totalAmount = 0
   for (let i = 0; i < cartStore.items.length; i++) {
     totalItems += cartStore.items[i].quantity
+    totalAmount += cartStore.items[i].price * cartStore.items[i].quantity
   }
   cartStore.totalItems = totalItems
+  cartStore.totalAmount = totalAmount
 })

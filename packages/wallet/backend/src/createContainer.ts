@@ -184,7 +184,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
         paymentPointerService: await container.resolve('paymentPointerService'),
         logger: await container.resolve('logger'),
         rapydService: await container.resolve('rapydService'),
-        socketService: await container.resolve('socketService')
+        socketService: await container.resolve('socketService'),
+        userService: await container.resolve('userService')
       })
   )
 

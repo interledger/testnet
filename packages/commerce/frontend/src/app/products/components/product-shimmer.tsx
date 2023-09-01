@@ -7,17 +7,9 @@ export const ProductShimmer = () => {
         <Shimmer className="h-full w-full" />
       </div>
       <div className="col-span-2 mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-        <h1 className="text-3xl font-bold tracking-tight">
-          <Shimmer className="h-10 w-24" />
-        </h1>
-        <div className="mt-3">
-          <p className="text-3xl tracking-tight">
-            <Shimmer className="h-10 w-60" />
-          </p>
-        </div>
-        <div className="prose mt-6 max-w-full">
-          <Shimmer className="h-20 w-full" />
-        </div>
+        <Shimmer className="h-10 w-24" />
+        <Shimmer className="mt-3 h-10 w-60" />
+        <Shimmer className="mt-6 h-20 w-full" />
       </div>
     </div>
   )

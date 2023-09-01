@@ -15,32 +15,23 @@ import type {
 import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
+import { useEffect } from 'react'
+import { Socket, io } from 'socket.io-client'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
-  const [socket, setSocket] = useState<Socket | null>(null)
+  // const [socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
+    let socket: Socket | null = null
     // Connect to the Socket.IO server
-    if (socket) return
-    const newSocket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
+    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
       query: {
         token
       }
     })
 
-    setSocket(newSocket)
-
-    // Clean up when the component unmounts
-    return () => {
-      newSocket.disconnect()
-    }
-  }, [socket, token])
-
-  useEffect(() => {
     // Event listeners
     socket?.on('connect', () => {
       console.log('Connected to server')
@@ -54,7 +45,12 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     socket?.on('disconnect', () => {
       console.log('Disconnected from server')
     })
-  }, [socket])
+
+    // Clean up when the component unmounts
+    return () => {
+      socket?.disconnect()
+    }
+  }, [token])
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
