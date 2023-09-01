@@ -6,7 +6,7 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import { PaymentPointer } from './paymentPointer'
-import { acceptQuoteSchema } from './transfers'
+import { acceptQuoteSchema, Quote } from './transfers'
 
 export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
@@ -77,9 +77,8 @@ type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
 type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
 type ExchangeArgs = z.infer<typeof exchangeAssetSchema>
-type ExchangeResponse =
-  | SuccessResponse
-  | ErrorResponse<ExchangeArgs | undefined>
+type QuoteResult = SuccessResponse<Quote>
+type ExchangeResponse = QuoteResult | ErrorResponse<ExchangeArgs | undefined>
 
 type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
 type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
@@ -94,7 +93,7 @@ interface AccountService {
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
   withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
-  exchange: (args: ExchangeArgs) => Promise<ExchangeResponse>
+  exchange: (accountId: string, args: ExchangeArgs) => Promise<ExchangeResponse>
   acceptExchangeQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
 }
 
@@ -180,11 +179,14 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async exchange(args) {
+  async exchange(accountId, args) {
     try {
       const response = await httpClient
-        .post('accounts/exchange', {
-          json: args
+        .post(`accounts/${accountId}/exchange`, {
+          json: {
+            assetCode: args.asset.label,
+            amount: args.amount
+          }
         })
         .json<SuccessResponse>()
       return response

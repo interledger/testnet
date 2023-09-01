@@ -121,7 +121,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           </Link>
           <Link
             id="exchangeAsset"
-            href={`/exchange?assetCode=${account.assetCode}&assetScale=${account.assetScale}`}
+            href={`/exchange?assetCode=${account.assetCode}&assetScale=${account.assetScale}&id=${account.id}`}
             className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Exchange className="h-8 w-8" />

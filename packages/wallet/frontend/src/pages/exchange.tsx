@@ -27,7 +27,8 @@ type ExchangeAssetProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
   assets,
   rates,
-  asset
+  asset,
+  accountId
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
@@ -74,13 +75,14 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
         id="createAccountForm"
         form={exchangeAssetForm}
         onSubmit={async (data) => {
-          const response = await accountService.exchange(data)
+          const response = await accountService.exchange(accountId, data)
           if (response.success) {
             if (response.data) {
               const quoteId = response.data.id
               openDialog(
                 <QuoteDialog
                   quote={response.data}
+                  type="exchange"
                   onAccept={() => {
                     handleAcceptQuote(quoteId)
                     closeDialog
@@ -183,13 +185,15 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
 
 const querySchema = z.object({
   assetCode: z.string(),
-  assetScale: z.string()
+  assetScale: z.string(),
+  id: z.string().uuid()
 })
 
 export const getServerSideProps: GetServerSideProps<{
   assets: SelectOption[]
   rates: ExchangeRates
   asset: AssetOP
+  accountId: string
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -218,7 +222,8 @@ export const getServerSideProps: GetServerSideProps<{
       asset: {
         assetCode: result.data.assetCode,
         assetScale: Number(result.data.assetScale)
-      }
+      },
+      accountId: result.data.id
     }
   }
 }
