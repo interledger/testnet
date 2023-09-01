@@ -180,31 +180,56 @@ export class RapydClient implements IRapydClient {
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>> {
     // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
     const payoutType = await this.getPayoutMethodTypes(args.assetCode)
-
     if (payoutType.status.status !== 'SUCCESS') {
       throw new Error(
         `Unable to withdraw funds from your account: ${payoutType.status.message}`
       )
     }
-
+    console.log(payoutType.data)
     // withdraw funds/create payout from wallet account into bank account
-    const userDetails = {
+    const beneficiaryDetails = {
+      // first_name: args.user.firstName,
+      // last_name: args.user.lastName,
+      // address: args.user.address ?? '',
+      // payment_type: 'priority',
+      // city: args.user.country ?? '',
+      // state: args.user.country ?? '',
+      // postcode: '12345',
+      // bic_swift: 'BARCGB22'
+      category: 'bank',
+      bank_name: 'Bank of Merchants',
+      country: 'CA',
+      currency: 'USD',
+      entity_type: 'individual',
+      first_name: 'John',
+      last_name: 'Doe',
+      identification_type: 'identification_id',
+      identification_value: '12p3456178h9',
+      merchant_reference_id: 'JDho00ep1',
+      address: '1 Main Street',
+      city: 'Montreal',
+      state: 'Quebec',
+      postcode: '12345',
+      account_number: '1234p56ph007',
+      bic_swift: 'BARCGB22'
+    }
+    const senderDetails = {
       name: `${args.user.firstName} ${args.user.lastName}`,
       address: args.user.address ?? ''
     }
     const withdrawReq = {
-      beneficiary: userDetails,
+      beneficiary: beneficiaryDetails,
       payout_amount: args.amount,
       payout_currency: args.assetCode,
       ewallet: args.user.rapydWalletId ?? '',
-      sender: userDetails,
+      sender: senderDetails,
       sender_country: args.user.country ?? '',
       sender_currency: args.assetCode,
       beneficiary_entity_type: 'individual',
       sender_entity_type: 'individual',
       payout_method_type: payoutType.data[0].payout_method_type
     }
-
+    console.log(withdrawReq)
     const payout = await this.post<
       RapydResponse<WithdrawFundsFromAccountResponse>
     >('payouts', JSON.stringify(withdrawReq))
@@ -344,6 +369,8 @@ export class RapydClient implements IRapydClient {
       return res.data
     } catch (e) {
       if (e instanceof AxiosError) {
+        console.log(e.response?.data)
+
         this.deps.logger.error(
           `Axios ${method} request for ${url} failed with: ${
             e.message || e.response?.data
