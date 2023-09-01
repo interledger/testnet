@@ -259,11 +259,6 @@ export class App {
     router.post('/accounts', isAuth, accountController.createAccount)
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
-    router.get(
-      '/accounts/:accountId/exchangeRates',
-      isAuth,
-      accountController.getExchangeRates
-    )
     router.post(
       '/accounts/:accountId/exchange',
       isAuth,

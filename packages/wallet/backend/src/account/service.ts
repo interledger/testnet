@@ -6,7 +6,6 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
-import { RatesResponse } from '@/rafiki/service'
 import { QuoteWithFees } from '@/quote/controller'
 import { QuoteService } from '@/quote/service'
 
@@ -305,53 +304,6 @@ export class AccountService implements IAccountService {
     })
 
     return account
-  }
-
-  public async getExchangeRates(
-    userId: string,
-    accountId: string
-  ): Promise<RatesResponse> {
-    const account = await Account.query()
-      .findById(accountId)
-      .where('userId', userId)
-
-    if (!account) {
-      throw new NotFound()
-    }
-
-    const assetCode = account.assetCode
-    // const rates = await this.deps.rapydService.getRates(assetCode)
-
-    // ### --------------------------- <DELETE ME> --------------------------- ###
-    // we will use deps.rapydService.getRates() instead of this mock
-    interface Rates {
-      [currency: string]: { [currency: string]: number }
-    }
-    const getRates = (base: string): RatesResponse => {
-      const exchangeRates: Rates = {
-        USD: {
-          EUR: 1.10019
-        },
-        EUR: {
-          USD: 0.908936
-        }
-      }
-      return {
-        base,
-        rates: exchangeRates[base] ?? {}
-      }
-    }
-    // ### --------------------------- </DELETE ME> --------------------------- ###
-
-    const rates = getRates(assetCode)
-
-    if (!rates) {
-      throw new NotFound(
-        `Exchange Rates were not found for this assetCode ${assetCode}`
-      )
-    }
-
-    return rates
   }
 
   public async createExchangeQuote({
