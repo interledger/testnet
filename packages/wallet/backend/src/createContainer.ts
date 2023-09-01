@@ -154,13 +154,15 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
+  let quoteServiceResolved: QuoteService
   container.singleton(
     'accountService',
     async () =>
       new AccountService({
         logger: await container.resolve('logger'),
         rafiki: await container.resolve('rafikiClient'),
-        rapyd: await container.resolve('rapydClient')
+        rapyd: await container.resolve('rapydClient'),
+        quoteServiceGetter: () => quoteServiceResolved
       })
   )
 
@@ -289,10 +291,9 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return new RafikiController({ logger, rafikiService, ratesService })
   })
 
-  container.singleton(
-    'quoteService',
-    async () =>
-      new QuoteService({
+  container.singleton('quoteService', async () => {
+    if (!quoteServiceResolved) {
+      quoteServiceResolved = new QuoteService({
         accountService: await container.resolve('accountService'),
         incomingPaymentService: await container.resolve(
           'incomingPaymentService'
@@ -301,7 +302,10 @@ export const createContainer = (config: Env): Container<Bindings> => {
         ratesService: await container.resolve('ratesService'),
         paymentPointerService: await container.resolve('paymentPointerService')
       })
-  )
+    }
+
+    return quoteServiceResolved
+  })
 
   container.singleton(
     'quoteController',
