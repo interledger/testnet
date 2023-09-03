@@ -6,7 +6,6 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
-import { RatesResponse } from '@/rafiki/service'
 import { QuoteWithFees } from '@/quote/controller'
 import { QuoteService } from '@/quote/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
@@ -310,53 +309,6 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async getExchangeRates(
-    userId: string,
-    accountId: string
-  ): Promise<RatesResponse> {
-    const account = await Account.query()
-      .findById(accountId)
-      .where('userId', userId)
-
-    if (!account) {
-      throw new NotFound()
-    }
-
-    const assetCode = account.assetCode
-    // const rates = await this.deps.rapydService.getRates(assetCode)
-
-    // ### --------------------------- <DELETE ME> --------------------------- ###
-    // we will use deps.rapydService.getRates() instead of this mock
-    interface Rates {
-      [currency: string]: { [currency: string]: number }
-    }
-    const getRates = (base: string): RatesResponse => {
-      const exchangeRates: Rates = {
-        USD: {
-          EUR: 1.10019
-        },
-        EUR: {
-          USD: 0.908936
-        }
-      }
-      return {
-        base,
-        rates: exchangeRates[base] ?? {}
-      }
-    }
-    // ### --------------------------- </DELETE ME> --------------------------- ###
-
-    const rates = getRates(assetCode)
-
-    if (!rates) {
-      throw new NotFound(
-        `Exchange Rates were not found for this assetCode ${assetCode}`
-      )
-    }
-
-    return rates
-  }
-
   public async createExchangeQuote({
     userId,
     accountId,
@@ -370,23 +322,9 @@ export class AccountService implements IAccountService {
         builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
       })
 
-    const accountPpId = accountFrom?.paymentPointers?.[0]?.id
-
-    if (!accountPpId) {
-      throw new NotFound(
-        'You do not have a PaymentPointer for this Account. Please create at least 1 PP in order to Exchange.'
-      )
+    if (!accountFrom) {
+      throw new NotFound(`The source account does not exist.`)
     }
-
-    let accountTo = await Account.query()
-      .where({ userId, assetCode })
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
-      .limit(1)
-      .first()
-    let receiverPp = accountTo?.paymentPointers?.[0]?.url // We try using an existing PP (if there is one!)
 
     const assetInRafiki = (
       await this.deps.rafiki.listAssets({ first: 100 })
@@ -397,6 +335,29 @@ export class AccountService implements IAccountService {
       )
     }
 
+    let senderPpId = accountFrom?.paymentPointers?.[0]?.id
+    if (!senderPpId) {
+      const paymentPointer = await this.deps
+        .paymentPointerServiceGetter()
+        .create(
+          userId,
+          accountFrom.id,
+          getRandomValues(new Uint32Array(1))[0].toString(16),
+          `${assetCode} Payment Pointer`
+        )
+      senderPpId = paymentPointer.id
+    }
+
+    let accountTo = await Account.query()
+      .where({ userId, assetCode })
+      .withGraphFetched({ paymentPointers: true })
+      .modifyGraph('paymentPointers', (builder) => {
+        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
+      })
+      .limit(1)
+      .first()
+    let receiverPp = accountTo?.paymentPointers?.[0]?.url
+
     if (!accountTo) {
       accountTo = await this.createAccount({
         name: `${assetCode} account`,
@@ -404,18 +365,13 @@ export class AccountService implements IAccountService {
         assetId: assetInRafiki.id
       })
     }
-
     if (!receiverPp) {
-      const paymentPointerName = getRandomValues(
-        new Uint32Array(1)
-      )[0].toString(16)
-
       const paymentPointer = await this.deps
         .paymentPointerServiceGetter()
         .create(
           userId,
           accountTo.id,
-          paymentPointerName,
+          getRandomValues(new Uint32Array(1))[0].toString(16),
           `${assetCode} Payment Pointer`
         )
       receiverPp = paymentPointer.url
@@ -423,8 +379,9 @@ export class AccountService implements IAccountService {
 
     const quote = await this.deps.quoteServiceGetter().create({
       userId,
-      paymentPointerId: accountPpId,
+      paymentPointerId: senderPpId,
       amount,
+      description: 'Currency exchange.',
       isReceive: false,
       receiver: receiverPp
     })
