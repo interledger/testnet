@@ -9,6 +9,8 @@ import { Transaction } from '@/transaction/model'
 import { RatesResponse } from '@/rafiki/service'
 import { QuoteWithFees } from '@/quote/controller'
 import { QuoteService } from '@/quote/service'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { getRandomValues } from 'crypto'
 
 type CreateAccountArgs = {
   userId: string
@@ -46,6 +48,7 @@ interface CountriesServiceDependencies {
   rafiki: RafikiClient
   logger: Logger
   quoteServiceGetter: () => QuoteService
+  paymentPointerServiceGetter: () => PaymentPointerService
 }
 
 export class AccountService implements IAccountService {
@@ -375,7 +378,7 @@ export class AccountService implements IAccountService {
       )
     }
 
-    const accountTo = await Account.query()
+    let accountTo = await Account.query()
       .where({ userId, assetCode })
       .withGraphFetched({ paymentPointers: true })
       .modifyGraph('paymentPointers', (builder) => {
@@ -383,11 +386,39 @@ export class AccountService implements IAccountService {
       })
       .limit(1)
       .first()
-    const receiverPp = accountTo?.paymentPointers?.[0]?.url
+    let receiverPp = accountTo?.paymentPointers?.[0]?.url // We try using an existing PP (if there is one!)
+
+    const assetInRafiki = (
+      await this.deps.rafiki.listAssets({ first: 100 })
+    ).find((asset) => asset.code === assetCode)
+    if (!assetInRafiki) {
+      throw new NotFound(
+        `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
+      )
+    }
+
+    if (!accountTo) {
+      accountTo = await this.createAccount({
+        name: `${assetCode} account`,
+        userId,
+        assetId: assetInRafiki.id
+      })
+    }
 
     if (!receiverPp) {
-      throw 1234
-      // TODO - create Account and PP
+      const paymentPointerName = getRandomValues(
+        new Uint32Array(1)
+      )[0].toString(16)
+
+      const paymentPointer = await this.deps
+        .paymentPointerServiceGetter()
+        .create(
+          userId,
+          accountTo.id,
+          paymentPointerName,
+          `${assetCode} Payment Pointer`
+        )
+      receiverPp = paymentPointer.url
     }
 
     const quote = await this.deps.quoteServiceGetter().create({
