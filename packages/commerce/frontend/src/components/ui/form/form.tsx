@@ -1,4 +1,3 @@
-
 import { FormHTMLAttributes } from 'react'
 import {
   FieldValues,
@@ -33,7 +32,6 @@ export const Form = <TFields extends FieldValues>({
       >
         <fieldset
           disabled={disabled || form.formState.isSubmitting}
-          // TODO: Figure out why fieldset has a weird behaviour ???
         >
           {children}
         </fieldset>
