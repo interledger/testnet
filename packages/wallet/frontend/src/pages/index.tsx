@@ -27,7 +27,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     let socket: Socket | null = null
     // Connect to the Socket.IO server
     socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
-      query: {
+      auth: {
         token
       }
     })
