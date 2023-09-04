@@ -8,6 +8,8 @@ import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
 import { QuoteWithFees } from '@/quote/controller'
 import { QuoteService } from '@/quote/service'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { getRandomValues } from 'crypto'
 
 type CreateAccountArgs = {
   userId: string
@@ -45,6 +47,7 @@ interface CountriesServiceDependencies {
   rafiki: RafikiClient
   logger: Logger
   quoteServiceGetter: () => QuoteService
+  paymentPointerServiceGetter: () => PaymentPointerService
 }
 
 export class AccountService implements IAccountService {
@@ -319,15 +322,33 @@ export class AccountService implements IAccountService {
         builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
       })
 
-    const accountPpId = accountFrom?.paymentPointers?.[0]?.id
+    if (!accountFrom) {
+      throw new NotFound(`The source account does not exist.`)
+    }
 
-    if (!accountPpId) {
+    const assetInRafiki = (
+      await this.deps.rafiki.listAssets({ first: 100 })
+    ).find((asset) => asset.code === assetCode)
+    if (!assetInRafiki) {
       throw new NotFound(
-        'You do not have a PaymentPointer for this Account. Please create at least 1 PP in order to Exchange.'
+        `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
       )
     }
 
-    const accountTo = await Account.query()
+    let senderPpId = accountFrom?.paymentPointers?.[0]?.id
+    if (!senderPpId) {
+      const paymentPointer = await this.deps
+        .paymentPointerServiceGetter()
+        .create(
+          userId,
+          accountFrom.id,
+          getRandomValues(new Uint32Array(1))[0].toString(16),
+          `${assetCode} Payment Pointer`
+        )
+      senderPpId = paymentPointer.id
+    }
+
+    let accountTo = await Account.query()
       .where({ userId, assetCode })
       .withGraphFetched({ paymentPointers: true })
       .modifyGraph('paymentPointers', (builder) => {
@@ -335,17 +356,32 @@ export class AccountService implements IAccountService {
       })
       .limit(1)
       .first()
-    const receiverPp = accountTo?.paymentPointers?.[0]?.url
+    let receiverPp = accountTo?.paymentPointers?.[0]?.url
 
+    if (!accountTo) {
+      accountTo = await this.createAccount({
+        name: `${assetCode} account`,
+        userId,
+        assetId: assetInRafiki.id
+      })
+    }
     if (!receiverPp) {
-      throw 1234
-      // TODO - create Account and PP
+      const paymentPointer = await this.deps
+        .paymentPointerServiceGetter()
+        .create(
+          userId,
+          accountTo.id,
+          getRandomValues(new Uint32Array(1))[0].toString(16),
+          `${assetCode} Payment Pointer`
+        )
+      receiverPp = paymentPointer.url
     }
 
     const quote = await this.deps.quoteServiceGetter().create({
       userId,
-      paymentPointerId: accountPpId,
+      paymentPointerId: senderPpId,
       amount,
+      description: 'Currency exchange.',
       isReceive: false,
       receiver: receiverPp
     })
