@@ -30,9 +30,7 @@ export const Form = <TFields extends FieldValues>({
         }}
         {...props}
       >
-        <fieldset
-          disabled={disabled || form.formState.isSubmitting}
-        >
+        <fieldset disabled={disabled || form.formState.isSubmitting}>
           {children}
         </fieldset>
       </form>
