@@ -67,6 +67,7 @@ module.exports = {
         'h-sm': { raw: '(min-height: 600px)' }
       },
       fontFamily: {
+        rubik: ['Rubik', 'sans-serif'],
         sans: ['Titillium Web', ...fontFamily.sans]
       }
     }
