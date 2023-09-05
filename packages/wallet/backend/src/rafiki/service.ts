@@ -406,11 +406,6 @@ export class RafikiService implements IRafikiService {
         percentage: 0.02,
         scale: 2
       },
-      EUR: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
       AUD: {
         fixed: 100,
         percentage: 0.02,
