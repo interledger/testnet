@@ -55,9 +55,6 @@ export class SocketService implements ISocketService {
     if (!userId) return
 
     const accounts = await this.deps.accountService.getAccounts(userId, false)
-
-    console.log('accounts', accounts)
-
     this.io?.to(userId).emit('ACCOUNTS_UPDATE', accounts)
   }
 }
