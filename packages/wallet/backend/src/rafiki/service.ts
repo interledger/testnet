@@ -400,6 +400,116 @@ export class RafikiService implements IRafikiService {
         fixed: 100,
         percentage: 0.02,
         scale: 2
+      },
+      AED: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      AUD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      CAD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      CHF: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      CZK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      DKK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      GHP: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      HKD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      HRK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      HUF: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      IDR: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      ILS: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      JPY: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      MXN: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      NOK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      NZD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      PLN: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      RON: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      SEK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      SGD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      TRY: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      ZAR: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
       }
     }
 
