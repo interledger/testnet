@@ -53,6 +53,7 @@ export class App {
 
     const env = this.container.resolve('env')
     const productController = this.container.resolve('productController')
+    const orderController = this.container.resolve('orderController')
 
     app.use(
       cors({
@@ -77,6 +78,7 @@ export class App {
 
     router.get('/products', productController.list.bind(productController))
     router.get('/products/:slug', productController.get.bind(productController))
+    router.post('/orders', orderController.create.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)

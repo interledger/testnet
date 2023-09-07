@@ -16,11 +16,14 @@ import { OrderService, type IOrderService } from './order/service'
 import { UserService, type IUserService } from './user/service'
 import { IProductController, ProductController } from './product/controller'
 import { IOrderController, OrderController } from './order/controller'
+import { AuthenticatedClient } from '@interledger/open-payments'
+import { createOpenPaymentsClient } from './open-payments/client'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
+  op: AuthenticatedClient
   userService: IUserService
   productService: IProductService
   orderService: IOrderService
@@ -28,14 +31,19 @@ export interface Cradle {
   orderController: IOrderController
 }
 
-export function createContainer(env: Env): AwilixContainer<Cradle> {
+export async function createContainer(
+  env: Env
+): Promise<AwilixContainer<Cradle>> {
   const container = createAwilixContainer<Cradle>({
     injectionMode: InjectionMode.CLASSIC
   })
 
+  const op = await createOpenPaymentsClient(env)
+
   container.register({
     env: asValue(env),
     logger: asFunction(createLogger).singleton(),
+    op: asValue(op),
     knex: asFunction(createKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),

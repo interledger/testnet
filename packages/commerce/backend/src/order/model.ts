@@ -1,7 +1,7 @@
 import { OrderItem } from '@/orderItem/model'
 import { BaseModel } from '@/shared/model'
 import { User } from '@/user/model'
-import { Model } from 'objection'
+import { Model, TransactionOrKnex } from 'objection'
 
 export enum OrderStatus {
   PROCESSING = 'PROCESSING',
@@ -18,6 +18,23 @@ export class Order extends BaseModel {
   public total!: number
   public status!: OrderStatus
   public orderItems!: OrderItem[]
+
+  async calcaulateTotalAmount(trx: TransactionOrKnex): Promise<Order> {
+    const { totalAmount } = (await OrderItem.query(trx)
+      .where({
+        orderId: this.id
+      })
+      .select(
+        trx.raw(
+          'TRUNC(ROUND(SUM(quantity * price)::numeric, 2), 2)::float as "totalAmount"'
+        )
+      )
+      .first()
+      .debug()) as unknown as { totalAmount: number }
+    console.log(typeof totalAmount)
+    this.total = totalAmount
+    return this
+  }
 
   static relationMappings = () => ({
     user: {
