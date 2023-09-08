@@ -63,8 +63,4 @@ export class OrderService implements IOrderService {
 
     return await order.$query().patchAndFetch({ status })
   }
-
-  public calculateTotalAmount(items: OrderItemParams[]): number {
-    return items.reduce((total, item) => total + 2 * item.quantity, 0)
-  }
 }
