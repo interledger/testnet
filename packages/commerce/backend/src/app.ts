@@ -9,7 +9,7 @@ import express, {
 import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
-import { BaseError } from './errors/Base'
+import { BaseError } from './errors/base'
 import { Model } from 'objection'
 import { isObject } from './shared/utils'
 import path from 'path'

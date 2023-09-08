@@ -1,4 +1,4 @@
-import { type OrderItem } from '@/orderItem/model'
+import { type OrderItem } from '@/order-item/model'
 import { Order, OrderStatus } from './model'
 import { NotFound } from '@/errors'
 import { TransactionOrKnex } from 'objection'
