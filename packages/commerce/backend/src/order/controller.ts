@@ -2,10 +2,10 @@ import { NextFunction, Request } from 'express'
 import { IOrderService } from './service'
 import { Order } from './model'
 import { BadRequest } from '@/errors'
-import { toSuccessReponse } from '@/shared/utils'
+import { extractUuidFromUrl, toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
 import { AuthenticatedClient, isPendingGrant } from '@interledger/open-payments'
-import { Env } from '@/config/env'
+// import { Env } from '@/config/env'
 import { InternalServerError } from '@/errors'
 import { randomUUID } from 'crypto'
 
@@ -20,7 +20,7 @@ export interface IOrderController {
 
 export class OrderController implements IOrderController {
   constructor(
-    private env: Env,
+    // private env: Env,
     private op: AuthenticatedClient,
     private orderService: IOrderService,
     private logger: Logger
@@ -68,11 +68,11 @@ export class OrderController implements IOrderController {
       const customerPaymentPointer = await this.op.paymentPointer.get({
         url: 'http://rafiki-backend/client'
       })
-
+      this.logger.debug('Customer payment pointer', customerPaymentPointer)
       const shopPaymentPointer = await this.op.paymentPointer.get({
-        url: this.env.PAYMENT_POINTER
+        url: 'http://rafiki-backend/shop'
       })
-
+      this.logger.debug('Shop payment pointer', shopPaymentPointer)
       const incomingPaymentGrant = await this.op.grant.request(
         { url: shopPaymentPointer.authServer },
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -139,8 +139,12 @@ export class OrderController implements IOrderController {
         },
         { receiver: incomingPayment.id }
       )
-
-      await order.$query().patch({ quoteId: quote.id })
+      const quoteId = extractUuidFromUrl(quote.id)
+      if (!quoteId) {
+        this.logger.error(`Could not extract quote ID from ${quote.id}`)
+        throw new InternalServerError()
+      }
+      await order.$query().patch({ quoteId })
 
       const outgointPaymentGrant = await this.op.grant.request(
         { url: customerPaymentPointer.authServer },

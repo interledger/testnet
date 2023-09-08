@@ -1,14 +1,18 @@
 import { Env } from '@/config/env'
 // import { InternalServerError } from '@/errors'
-// import { parseKey } from '@/shared/utils'
+import { parseOrProvisionKey } from '@/shared/utils'
 import { createAuthenticatedClient } from '@interledger/open-payments'
+import { join } from 'path'
 
 export async function createOpenPaymentsClient(env: Env) {
-  const privateKey =
-    '-----BEGIN PRIVATE KEY-----MC4CAQAwBQYDK2VwBCIEII/0EKsAD/C0Gvj7dANexC+wrHAt6ZgatsOfHO6aZZ6F-----END PRIVATE KEY-----'
-
+  const privateKey = parseOrProvisionKey(
+    join(__dirname, '..', '..', env.PRIVATE_KEY)
+  )
+  console.log(privateKey)
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     privateKey,
     paymentPointerUrl: env.PAYMENT_POINTER
   })

@@ -1,6 +1,5 @@
-import { createPrivateKey } from 'crypto'
-import { readFileSync } from 'fs'
-import path from 'path'
+import * as crypto from 'crypto'
+import * as fs from 'fs'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isObject(value: unknown): value is Record<string, any> {
@@ -43,9 +42,9 @@ export function toErrorResponse(
 
 export function parseKey(keyFile: string) {
   try {
-    const key = createPrivateKey(
-      readFileSync(path.join(process.cwd(), keyFile))
-    )
+    console.log(keyFile)
+    const key = crypto.createPrivateKey(fs.readFileSync(keyFile))
+
     const jwk = key.export({ format: 'jwk' })
 
     if (jwk.crv !== 'Ed25519') {
@@ -59,4 +58,43 @@ export function parseKey(keyFile: string) {
     console.log(isObject(err) ? err.message : err)
     throw err
   }
+}
+
+export function parseOrProvisionKey(
+  keyFile: string | undefined
+): crypto.KeyObject {
+  const TMP_DIR = './tmp'
+  if (keyFile) {
+    try {
+      console.log(keyFile)
+      console.log(fs.readFileSync(keyFile, 'utf-8'))
+      const key = crypto.createPrivateKey(fs.readFileSync(keyFile))
+      const jwk = key.export({ format: 'jwk' })
+      if (jwk.crv === 'Ed25519') {
+        console.log(`Key ${keyFile} loaded.`)
+        return key
+      } else {
+        console.log('Private key is not EdDSA-Ed25519 key. Generating new key.')
+      }
+    } catch (err) {
+      console.log('Private key could not be loaded.')
+      throw err
+    }
+  }
+  const keypair = crypto.generateKeyPairSync('ed25519')
+  if (!fs.existsSync(TMP_DIR)) {
+    fs.mkdirSync(TMP_DIR)
+  }
+  fs.writeFileSync(
+    `${TMP_DIR}/private-key-${new Date().getTime()}.pem`,
+    keypair.privateKey.export({ format: 'pem', type: 'pkcs8' })
+  )
+  return keypair.privateKey
+}
+
+export function extractUuidFromUrl(url: string): string | null {
+  const regex =
+    /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  const match = url.match(regex)
+  return match ? match[0] : null
 }
