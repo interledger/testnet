@@ -58,6 +58,9 @@ export class RafikiController implements IRafikiController {
       await this.deps.rafikiService.onWebHook(wh.body)
       res.status(200).send()
     } catch (e) {
+      this.deps.logger.error(
+        `Webhook response error for rafiki: ${(e as Error).message}`
+      )
       next(e)
     }
   }

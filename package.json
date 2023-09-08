@@ -33,8 +33,8 @@
     "wallet:frontend": "pnpm --filter @wallet/frontend --"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.5.0",
-    "@typescript-eslint/parser": "^6.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.6.0",
+    "@typescript-eslint/parser": "^6.6.0",
     "concurrently": "^8.2.1",
     "eslint": "^8.48.0",
     "eslint-config-prettier": "^9.0.0",
@@ -46,11 +46,11 @@
     "typescript": "^5.0.4"
   },
   "engines": {
-    "pnpm": "^8.7.1",
+    "pnpm": "^8.7.4",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@8.7.1"
+  "packageManager": "pnpm@8.7.4"
 }
