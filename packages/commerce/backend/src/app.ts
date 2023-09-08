@@ -57,7 +57,7 @@ export class App {
 
     app.use(
       cors({
-        origin: ['http://localhost:4004'],
+        origin: [env.FRONTEND_URL],
         credentials: true
       })
     )
@@ -78,6 +78,7 @@ export class App {
 
     router.get('/products', productController.list.bind(productController))
     router.get('/products/:slug', productController.get.bind(productController))
+
     router.post('/orders', orderController.create.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {

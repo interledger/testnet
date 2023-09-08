@@ -3,6 +3,7 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().default(3004),
   NODE_ENV: z.string().default('development'),
+  FRONTEND_URL: z.string().default('http://localhost:4004'),
   DATABASE_URL: z
     .string()
     .default('postgres://postgres:password@localhost:5433/commerce_backend'),

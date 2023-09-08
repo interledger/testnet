@@ -2,12 +2,11 @@ import { NextFunction, Request } from 'express'
 import { IOrderService } from './service'
 import { Order } from './model'
 import { BadRequest } from '@/errors'
-import { extractUuidFromUrl, toSuccessReponse } from '@/shared/utils'
+import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
-import { AuthenticatedClient, isPendingGrant } from '@interledger/open-payments'
-// import { Env } from '@/config/env'
-import { InternalServerError } from '@/errors'
-import { randomUUID } from 'crypto'
+import { IOpenPayments } from '@/open-payments/service'
+import { validate } from '@/middleware/validate'
+import { createOrderSchema } from './validation'
 
 interface GetParams {
   id?: string
@@ -20,10 +19,9 @@ export interface IOrderController {
 
 export class OrderController implements IOrderController {
   constructor(
-    // private env: Env,
-    private op: AuthenticatedClient,
-    private orderService: IOrderService,
-    private logger: Logger
+    private logger: Logger,
+    private openPayments: IOpenPayments,
+    private orderService: IOrderService
   ) {}
 
   public async get(
@@ -47,142 +45,28 @@ export class OrderController implements IOrderController {
   }
 
   public async create(
-    req: Request<never, never, Array<{ productId: string; quantity: number }>>,
+    req: Request,
     res: TypedResponse<Order>,
     next: NextFunction
   ) {
     try {
-      const { body } = req
-
-      if (body.length === 0) {
-        throw new BadRequest('No products provided')
-      }
+      const { products } = await validate(createOrderSchema, req.body)
 
       const order = await Order.transaction(async (trx) => {
         const newOrder = await this.orderService.create(
-          { orderItems: body },
+          { orderItems: products },
           trx
         )
         return await newOrder.calcaulateTotalAmount(trx)
       })
 
-      const customerPaymentPointer = await this.op.paymentPointer.get({
-        url: 'http://rafiki-backend/client'
+      const grant = await this.openPayments.preparePayment({
+        order,
+        paymentPointer: 'http://rafiki-backend/client'
       })
-      this.logger.debug('Customer payment pointer', customerPaymentPointer)
-      this.logger.debug(JSON.stringify(customerPaymentPointer, null, 2))
 
-      const shopPaymentPointer = await this.op.paymentPointer.get({
-        url: 'http://rafiki-backend/shop'
-      })
-      this.logger.debug('Shop payment pointer')
-      this.logger.debug(JSON.stringify(shopPaymentPointer, null, 2))
-
-      const incomingPaymentGrant = await this.op.grant.request(
-        { url: shopPaymentPointer.authServer },
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: 'interact' should be optional
-        {
-          access_token: {
-            access: [
-              {
-                type: 'incoming-payment',
-                actions: ['read-all', 'create']
-              }
-            ]
-          }
-        }
-      )
-
-      if (isPendingGrant(incomingPaymentGrant)) {
-        this.logger.error('Expected non-interactive incoming payment grant.')
-        throw new InternalServerError()
-      }
-
-      const incomingPayment = await this.op.incomingPayment.create(
-        {
-          paymentPointer: shopPaymentPointer.id,
-          accessToken: incomingPaymentGrant.access_token.value
-        },
-        {
-          incomingAmount: {
-            assetCode: shopPaymentPointer.assetCode,
-            assetScale: shopPaymentPointer.assetScale,
-            value: (order.total * 10 ** shopPaymentPointer.assetScale).toFixed()
-          },
-          metadata: {
-            orderId: order.id
-          }
-        }
-      )
-
-      const quoteGrant = await this.op.grant.request(
-        { url: customerPaymentPointer.authServer },
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: 'interact' should be optional
-        {
-          access_token: {
-            access: [
-              {
-                type: 'quote',
-                actions: ['create', 'read']
-              }
-            ]
-          }
-        }
-      )
-
-      if (isPendingGrant(quoteGrant)) {
-        this.logger.error('Expected non-interactive quote grant.')
-        throw new InternalServerError()
-      }
-
-      const quote = await this.op.quote.create(
-        {
-          paymentPointer: customerPaymentPointer.id,
-          accessToken: quoteGrant.access_token.value
-        },
-        { receiver: incomingPayment.id }
-      )
-
-      const quoteId = extractUuidFromUrl(quote.id)
-      if (!quoteId) {
-        this.logger.error(`Could not extract quote ID from ${quote.id}`)
-        throw new InternalServerError()
-      }
-
-      await order.$query().patch({ quoteId })
-
-      const outgointPaymentGrant = await this.op.grant.request(
-        { url: customerPaymentPointer.authServer },
-        {
-          access_token: {
-            access: [
-              {
-                type: 'outgoing-payment',
-                actions: ['create', 'read', 'list'],
-                identifier: customerPaymentPointer.id,
-                limits: {
-                  sendAmount: quote.sendAmount,
-                  receiveAmount: quote.receiveAmount
-                }
-              }
-            ]
-          },
-          interact: {
-            start: ['redirect'],
-            finish: {
-              method: 'redirect',
-              uri: `http://localhost:4004/orderId=${order.id}`,
-              nonce: randomUUID()
-            }
-          }
-        }
-      )
-
-      this.logger.debug(JSON.stringify(outgointPaymentGrant, null, 2))
-
-      res.status(200).json(toSuccessReponse(order))
+      res.status(301).redirect(grant.interact.redirect)
+      // res.status(200).json(toSuccessReponse(order))
     } catch (err) {
       this.logger.error(err)
       next(err)

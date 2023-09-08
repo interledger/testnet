@@ -31,7 +31,7 @@ export class Order extends BaseModel {
       )
       .first()
       .debug()) as unknown as { totalAmount: number }
-    console.log(typeof totalAmount)
+
     this.total = totalAmount
     return this
   }

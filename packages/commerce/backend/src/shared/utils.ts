@@ -60,36 +60,6 @@ export function parseKey(keyFile: string) {
   }
 }
 
-export function parseOrProvisionKey(
-  keyFile: string | undefined
-): crypto.KeyObject {
-  const TMP_DIR = './tmp'
-  if (keyFile) {
-    try {
-      const key = crypto.createPrivateKey(fs.readFileSync(keyFile))
-      const jwk = key.export({ format: 'jwk' })
-      if (jwk.crv === 'Ed25519') {
-        console.log(`Key ${keyFile} loaded.`)
-        return key
-      } else {
-        console.log('Private key is not EdDSA-Ed25519 key. Generating new key.')
-      }
-    } catch (err) {
-      console.log('Private key could not be loaded.')
-      throw err
-    }
-  }
-  const keypair = crypto.generateKeyPairSync('ed25519')
-  if (!fs.existsSync(TMP_DIR)) {
-    fs.mkdirSync(TMP_DIR)
-  }
-  fs.writeFileSync(
-    `${TMP_DIR}/private-key-${new Date().getTime()}.pem`,
-    keypair.privateKey.export({ format: 'pem', type: 'pkcs8' })
-  )
-  return keypair.privateKey
-}
-
 export function extractUuidFromUrl(url: string): string | null {
   const regex =
     /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i

@@ -18,12 +18,14 @@ import { IProductController, ProductController } from './product/controller'
 import { IOrderController, OrderController } from './order/controller'
 import { AuthenticatedClient } from '@interledger/open-payments'
 import { createOpenPaymentsClient } from './open-payments/client'
+import { IOpenPayments, OpenPayments } from './open-payments/service'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
-  op: AuthenticatedClient
+  opClient: AuthenticatedClient
+  openPayments: IOpenPayments
   userService: IUserService
   productService: IProductService
   orderService: IOrderService
@@ -38,12 +40,13 @@ export async function createContainer(
     injectionMode: InjectionMode.CLASSIC
   })
 
-  const op = await createOpenPaymentsClient(env)
+  const opClient = await createOpenPaymentsClient(env)
 
   container.register({
     env: asValue(env),
     logger: asFunction(createLogger).singleton(),
-    op: asValue(op),
+    opClient: asValue(opClient),
+    openPayments: asClass(OpenPayments).singleton(),
     knex: asFunction(createKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),
