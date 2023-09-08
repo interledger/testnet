@@ -1,6 +1,3 @@
-import * as crypto from 'crypto'
-import * as fs from 'fs'
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isObject(value: unknown): value is Record<string, any> {
   return typeof value === 'object' && value !== null
@@ -37,26 +34,6 @@ export function toErrorResponse(
     success: false,
     message,
     errors
-  }
-}
-
-export function parseKey(keyFile: string) {
-  try {
-    console.log(keyFile)
-    const key = crypto.createPrivateKey(fs.readFileSync(keyFile))
-
-    const jwk = key.export({ format: 'jwk' })
-
-    if (jwk.crv !== 'Ed25519') {
-      throw new Error('Private key is not EdDSA-Ed25519 key.')
-    }
-
-    if (jwk.crv === 'Ed25519') {
-      return key
-    }
-  } catch (err) {
-    console.log(isObject(err) ? err.message : err)
-    throw err
   }
 }
 
