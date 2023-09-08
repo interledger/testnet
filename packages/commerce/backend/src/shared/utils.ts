@@ -66,8 +66,6 @@ export function parseOrProvisionKey(
   const TMP_DIR = './tmp'
   if (keyFile) {
     try {
-      console.log(keyFile)
-      console.log(fs.readFileSync(keyFile, 'utf-8'))
       const key = crypto.createPrivateKey(fs.readFileSync(keyFile))
       const jwk = key.export({ format: 'jwk' })
       if (jwk.crv === 'Ed25519') {

@@ -57,6 +57,7 @@ export class OrderController implements IOrderController {
       if (body.length === 0) {
         throw new BadRequest('No products provided')
       }
+
       const order = await Order.transaction(async (trx) => {
         const newOrder = await this.orderService.create(
           { orderItems: body },

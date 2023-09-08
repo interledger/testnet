@@ -8,7 +8,6 @@ export async function createOpenPaymentsClient(env: Env) {
   const privateKey = parseOrProvisionKey(
     join(__dirname, '..', '..', env.PRIVATE_KEY)
   )
-  console.log(privateKey)
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -17,7 +17,7 @@ describe('Product Service', (): void => {
   let productService: IProductService
 
   beforeAll(async (): Promise<void> => {
-    container = createContainer(env)
+    container = await createContainer(env)
     app = await createApp(container)
     knex = app.knex
     productService = container.resolve('productService')

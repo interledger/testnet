@@ -16,7 +16,7 @@ describe('Product Service', (): void => {
   const paymentPointer = 'https://ilp.example.com'
 
   beforeAll(async (): Promise<void> => {
-    container = createContainer(env)
+    container = await createContainer(env)
     app = await createApp(container)
     knex = app.knex
     userService = container.resolve('userService')

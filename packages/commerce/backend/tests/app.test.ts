@@ -9,7 +9,7 @@ describe('Application', (): void => {
   let app: TestApp
 
   beforeAll(async (): Promise<void> => {
-    container = createContainer(env)
+    container = await createContainer(env)
     app = await createApp(container)
   })
 

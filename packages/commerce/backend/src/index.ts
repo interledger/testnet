@@ -15,4 +15,6 @@ async function bootstrap() {
   })
 }
 
-bootstrap()
+if (!module.parent) {
+  bootstrap()
+}

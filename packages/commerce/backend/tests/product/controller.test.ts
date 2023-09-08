@@ -31,7 +31,7 @@ describe('Application', (): void => {
   })
 
   beforeAll(async (): Promise<void> => {
-    container = createContainer(env)
+    container = await createContainer(env)
     app = await createApp(container)
     productController = container.resolve('productController')
     productService = container.resolve('productService')
