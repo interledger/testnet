@@ -70,10 +70,14 @@ export class OrderController implements IOrderController {
         url: 'http://rafiki-backend/client'
       })
       this.logger.debug('Customer payment pointer', customerPaymentPointer)
+      this.logger.debug(JSON.stringify(customerPaymentPointer, null, 2))
+
       const shopPaymentPointer = await this.op.paymentPointer.get({
         url: 'http://rafiki-backend/shop'
       })
-      this.logger.debug('Shop payment pointer', shopPaymentPointer)
+      this.logger.debug('Shop payment pointer')
+      this.logger.debug(JSON.stringify(shopPaymentPointer, null, 2))
+
       const incomingPaymentGrant = await this.op.grant.request(
         { url: shopPaymentPointer.authServer },
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -140,11 +144,13 @@ export class OrderController implements IOrderController {
         },
         { receiver: incomingPayment.id }
       )
+
       const quoteId = extractUuidFromUrl(quote.id)
       if (!quoteId) {
         this.logger.error(`Could not extract quote ID from ${quote.id}`)
         throw new InternalServerError()
       }
+
       await order.$query().patch({ quoteId })
 
       const outgointPaymentGrant = await this.op.grant.request(
@@ -167,14 +173,14 @@ export class OrderController implements IOrderController {
             start: ['redirect'],
             finish: {
               method: 'redirect',
-              uri: `http://localhost:3030/mock-idp/fake-client?orderId=${order.id}`,
+              uri: `http://localhost:4004/orderId=${order.id}`,
               nonce: randomUUID()
             }
           }
         }
       )
 
-      console.log(outgointPaymentGrant)
+      this.logger.debug(JSON.stringify(outgointPaymentGrant, null, 2))
 
       res.status(200).json(toSuccessReponse(order))
     } catch (err) {

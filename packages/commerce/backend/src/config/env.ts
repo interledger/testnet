@@ -8,7 +8,11 @@ const envSchema = z.object({
     .default('postgres://postgres:password@localhost:5433/commerce_backend'),
   PAYMENT_POINTER: z.string().default('http://rafiki-backend/shop'),
   KEY_ID: z.string().default('8e5e109e-9ea8-44a0-9490-1792bf1e07cb'),
-  PRIVATE_KEY: z.string().default('tmp/private.pem')
+  PRIVATE_KEY: z
+    .string()
+    .default(
+      'LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSU9LemxweFR5c0xhbS94VWZ5R2t2T2dpSmcraTEvT25STURWMElqNi9vVnQKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ=='
+    )
 })
 
 export type Env = z.infer<typeof envSchema>

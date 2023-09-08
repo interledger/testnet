@@ -22,10 +22,6 @@ export class OrderItem extends BaseModel {
     this.price = product.price
   }
 
-  public $afterInsert(_queryContext: QueryContext): void {
-    console.log('after insert order item')
-  }
-
   static relationMappings = () => ({
     order: {
       relation: Model.BelongsToOneRelation,
