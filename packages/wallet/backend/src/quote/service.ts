@@ -118,7 +118,7 @@ export class QuoteService implements IQuoteService {
         },
         paymentPointerUrl: params.receiver,
         description: params.description,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 2)
+        expiresAt: new Date(Date.now() + 1000 * 15)
       })
     }
 
