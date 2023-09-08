@@ -17,6 +17,9 @@ import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { Socket, io } from 'socket.io-client'
+import { NotificationToast } from '@/components/NotificationToast'
+import { ToastProvider } from '@radix-ui/react-toast'
+import { MoneyBird } from '@/components/icons/MoneyBird'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -144,6 +147,12 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
           </div>
         )}
       </div>
+      <ToastProvider>
+        <NotificationToast
+          content="You received some money."
+          Icon={MoneyBird}
+        />
+      </ToastProvider>
       <SmallBubbles className="mt-10 block w-full md:hidden" />
     </>
   )
