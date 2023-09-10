@@ -33,6 +33,7 @@ interface IAccountService {
   getAccountBalance: (userId: string, assetCode: string) => Promise<number>
   fundAccount: (args: FundAccountArgs) => Promise<void>
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
+  createExchangeQuote: (args: CreateExchangeQuote) => Promise<QuoteWithFees>
 }
 
 type CreateExchangeQuote = {
@@ -46,8 +47,8 @@ interface CountriesServiceDependencies {
   rapyd: RapydClient
   rafiki: RafikiClient
   logger: Logger
-  quoteServiceGetter: () => QuoteService
-  paymentPointerServiceGetter: () => PaymentPointerService
+  quoteService: () => QuoteService
+  paymentPointerService: () => PaymentPointerService
 }
 
 export class AccountService implements IAccountService {
@@ -317,13 +318,14 @@ export class AccountService implements IAccountService {
   }: CreateExchangeQuote): Promise<QuoteWithFees> {
     const accountFrom = await Account.query()
       .findById(accountId)
+      .where('userId', userId)
       .withGraphFetched({ paymentPointers: true })
       .modifyGraph('paymentPointers', (builder) => {
         builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
       })
 
     if (!accountFrom) {
-      throw new NotFound(`The source account does not exist.`)
+      throw new NotFound(`The source account does not exist for this user.`)
     }
 
     const assetInRafiki = (
@@ -335,15 +337,15 @@ export class AccountService implements IAccountService {
       )
     }
 
-    let senderPpId = accountFrom?.paymentPointers?.[0]?.id
+    let senderPpId = accountFrom.paymentPointers?.[0]?.id
     if (!senderPpId) {
       const paymentPointer = await this.deps
-        .paymentPointerServiceGetter()
+        .paymentPointerService()
         .create(
           userId,
           accountFrom.id,
           getRandomValues(new Uint32Array(1))[0].toString(16),
-          `${assetCode} Payment Pointer`
+          `Exchange Payment Pointer`
         )
       senderPpId = paymentPointer.id
     }
@@ -356,7 +358,6 @@ export class AccountService implements IAccountService {
       })
       .limit(1)
       .first()
-    let receiverPp = accountTo?.paymentPointers?.[0]?.url
 
     if (!accountTo) {
       accountTo = await this.createAccount({
@@ -365,9 +366,10 @@ export class AccountService implements IAccountService {
         assetId: assetInRafiki.id
       })
     }
+    let receiverPp = accountTo.paymentPointers?.[0]?.url
     if (!receiverPp) {
       const paymentPointer = await this.deps
-        .paymentPointerServiceGetter()
+        .paymentPointerService()
         .create(
           userId,
           accountTo.id,
@@ -377,7 +379,7 @@ export class AccountService implements IAccountService {
       receiverPp = paymentPointer.url
     }
 
-    const quote = await this.deps.quoteServiceGetter().create({
+    const quote = await this.deps.quoteService().create({
       userId,
       paymentPointerId: senderPpId,
       amount,
