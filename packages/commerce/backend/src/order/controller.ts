@@ -14,7 +14,7 @@ interface GetParams {
 
 export interface IOrderController {
   get: Controller<Order>
-  create: Controller<unknown>
+  create: Controller
 }
 
 export class OrderController implements IOrderController {
@@ -44,11 +44,7 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async create(
-    req: Request,
-    res: TypedResponse<Order>,
-    next: NextFunction
-  ) {
+  public async create(req: Request, res: TypedResponse, next: NextFunction) {
     try {
       const { products } = await validate(createOrderSchema, req.body)
 
@@ -67,7 +63,6 @@ export class OrderController implements IOrderController {
 
       this.logger.debug(JSON.stringify(grant, null, 2))
       res.status(301).redirect(grant.interact.redirect)
-      // res.status(200).json(toSuccessReponse(order))
     } catch (err) {
       this.logger.error(err)
       next(err)

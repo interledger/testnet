@@ -86,7 +86,7 @@ export class OpenPayments implements IOpenPayments {
       }
     )
 
-    const quoteGrant = await this.createNonInteractiveGrant(
+    const quoteGrant = await this.createNonInteractiveQuoteGrant(
       customerPaymentPointer.authServer,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: 'interact' should be optional
@@ -121,7 +121,7 @@ export class OpenPayments implements IOpenPayments {
     return outgoingPaymentGrant
   }
 
-  private async createNonInteractiveGrant(
+  private async createNonInteractiveQuoteGrant(
     authServer: string,
     options: Omit<GrantRequest, 'client'>
   ): Promise<Grant> {

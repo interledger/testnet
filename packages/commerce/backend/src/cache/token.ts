@@ -98,7 +98,7 @@ export class TokenCache extends InMemoryCache<string> {
     )
 
     if (isPendingGrant(grant)) {
-      this.logger.error('Expected non-interactive quote grant.')
+      this.logger.error('Expected non-interactive incoming payment grant.')
       throw new InternalServerError()
     }
 
