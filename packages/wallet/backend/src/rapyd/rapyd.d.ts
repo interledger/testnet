@@ -310,6 +310,7 @@ interface PayoutMethodResponse {
   payout_method_type: string
   name: string
   payout_currencies: string
+  beneficiary_country: string
 }
 
 interface WithdrawFundsFromAccountResponse {

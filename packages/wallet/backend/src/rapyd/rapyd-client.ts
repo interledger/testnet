@@ -179,19 +179,29 @@ export class RapydClient implements IRapydClient {
     args: WithdrawFundsParams
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>> {
     // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
-    const payoutType = await this.getPayoutMethodTypes(args.assetCode)
+    const payoutTypeResult = await this.getPayoutMethodTypes(args.assetCode)
 
-    if (payoutType.status.status !== 'SUCCESS') {
+    if (payoutTypeResult.status.status !== 'SUCCESS') {
       throw new Error(
-        `Unable to withdraw funds from your account: ${payoutType.status.message}`
+        `Unable to withdraw funds from your account: ${payoutTypeResult.status.message}`
       )
     }
 
+    const payoutType = payoutTypeResult.data[0]
+
+    const [_address, city, _postalCode] = args.user.address?.split(',') ?? []
     // withdraw funds/create payout from wallet account into bank account
     const userDetails = {
-      name: `${args.user.firstName} ${args.user.lastName}`,
-      address: args.user.address ?? ''
+      first_name: args.user.firstName,
+      last_name: args.user.lastName,
+      address: args.user.address ?? '',
+      payment_type: 'priority', // https://docs.rapyd.net/en/payout-with-fx.html
+      city,
+      iban: 'DE75512108001245126199',
+      bic_swift: `BARC${payoutType.beneficiary_country.toUpperCase()}22`, // https://docs.rapyd.net/en/bic-swift-numbers-for-testing.html
+      date_of_birth: '22/02/1980'
     }
+
     const withdrawReq = {
       beneficiary: userDetails,
       payout_amount: args.amount,
@@ -202,7 +212,7 @@ export class RapydClient implements IRapydClient {
       sender_currency: args.assetCode,
       beneficiary_entity_type: 'individual',
       sender_entity_type: 'individual',
-      payout_method_type: payoutType.data[0].payout_method_type
+      payout_method_type: payoutType.payout_method_type
     }
 
     const payout = await this.post<
