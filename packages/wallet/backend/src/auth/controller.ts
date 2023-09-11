@@ -33,7 +33,6 @@ export class AuthController implements IAuthController {
         .status(201)
         .json({ success: true, message: 'User created successfully' })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -61,7 +60,6 @@ export class AuthController implements IAuthController {
 
       res.json({ success: true, message: 'Authorized' })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -78,7 +76,6 @@ export class AuthController implements IAuthController {
 
       res.json({ success: true, message: 'SUCCESS' })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -98,7 +95,6 @@ export class AuthController implements IAuthController {
         message: 'Email was verified successfully'
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
