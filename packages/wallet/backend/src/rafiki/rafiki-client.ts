@@ -163,6 +163,9 @@ export class RafikiClient implements IRafikiClient {
     })
 
     if (!response.withdrawEventLiquidity?.success) {
+      if (response.withdrawEventLiquidity?.message === 'Transfer exists') {
+        return true
+      }
       throw new BadRequest(
         response.withdrawEventLiquidity?.message ||
           'Unable to withdrawLiquidity from rafiki'

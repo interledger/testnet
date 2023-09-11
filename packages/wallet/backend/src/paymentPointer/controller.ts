@@ -201,7 +201,6 @@ export class PaymentPointerController implements IPaymentPointerController {
         message: 'Key was successfully revoked.'
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -226,7 +225,6 @@ export class PaymentPointerController implements IPaymentPointerController {
         message: 'Payment pointer was successfully updated.'
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
