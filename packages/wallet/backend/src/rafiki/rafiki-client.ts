@@ -300,8 +300,11 @@ export class RafikiClient implements IRafikiClient {
       input
     })
 
-    if (createQuote.code === '400' && createQuote.message === 'invalid amount') {
-      throw new BadRequest('Fees exceed send amount');
+    if (
+      createQuote.code === '400' &&
+      createQuote.message === 'invalid amount'
+    ) {
+      throw new BadRequest('Fees exceed send amount')
     }
 
     if (!createQuote.quote) {
