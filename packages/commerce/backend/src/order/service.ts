@@ -1,18 +1,17 @@
-import { type OrderItem } from '@/orderItem/model'
+import { type OrderItem } from '@/order-item/model'
 import { Order, OrderStatus } from './model'
 import { NotFound } from '@/errors'
+import { TransactionOrKnex } from 'objection'
 
-interface OrderItemParams
-  extends Pick<OrderItem, 'productId' | 'price' | 'quantity'> {}
+interface OrderItemParams extends Pick<OrderItem, 'productId' | 'quantity'> {}
 
 interface CreateParams {
-  quoteId: string
   userId?: string
   orderItems: OrderItemParams[]
 }
 
 export interface IOrderService {
-  create: (params: CreateParams) => Promise<Order>
+  create: (params: CreateParams, trx: TransactionOrKnex) => Promise<Order>
   get: (id: string, userId?: string) => Promise<Order>
   list: (userId: string) => Promise<Order[]>
   complete: (id: string) => Promise<Order | undefined>
@@ -20,12 +19,12 @@ export interface IOrderService {
 }
 
 export class OrderService implements IOrderService {
-  public async create(params: CreateParams): Promise<Order> {
-    const total = this.calculateTotalAmount(params.orderItems)
-
-    return await Order.query()
+  public async create(
+    params: CreateParams,
+    trx: TransactionOrKnex
+  ): Promise<Order> {
+    return await Order.query(trx)
       .insertGraph({
-        total,
         ...params
       })
       .returning('*')
@@ -63,9 +62,5 @@ export class OrderService implements IOrderService {
     if (!order) return
 
     return await order.$query().patchAndFetch({ status })
-  }
-
-  private calculateTotalAmount(items: OrderItemParams[]): number {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 }

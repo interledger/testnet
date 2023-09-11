@@ -1,4 +1,4 @@
-import { BaseError } from './Base'
+import { BaseError } from './base'
 
 export class Conflict extends BaseError {
   constructor(message: string) {

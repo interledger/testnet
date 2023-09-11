@@ -27,12 +27,10 @@ describe('Order Service', (): void => {
   const orderItems = [
     {
       productId: productOne.id,
-      price: productOne.price,
       quantity: 5
     },
     {
       productId: productTwo.id,
-      price: productTwo.price,
       quantity: 3
     }
   ]
@@ -41,15 +39,17 @@ describe('Order Service', (): void => {
     await createProducts([productOne, productTwo])
 
     const user = await userService.create(paymentPointer)
-    return await orderService.create({
-      quoteId: randomUUID(),
-      userId: user.id,
-      orderItems
-    })
+    return await orderService.create(
+      {
+        userId: user.id,
+        orderItems
+      },
+      app.knex
+    )
   }
 
   beforeAll(async (): Promise<void> => {
-    container = createContainer(env)
+    container = await createContainer(env)
     app = await createApp(container)
     knex = app.knex
     userService = container.resolve('userService')
@@ -75,7 +75,7 @@ describe('Order Service', (): void => {
         quoteId: randomUUID(),
         orderItems
       }
-      const order = await orderService.create(params)
+      const order = await orderService.create(params, app.knex)
 
       expect(order).toMatchObject(params)
       expect(order.userId).toBeNull()
@@ -84,11 +84,10 @@ describe('Order Service', (): void => {
     test('can create an order with a user ID', async (): Promise<void> => {
       const user = await userService.create(paymentPointer + '/alice')
       const params = {
-        quoteId: randomUUID(),
         userId: user.id,
         orderItems
       }
-      const order = await orderService.create(params)
+      const order = await orderService.create(params, app.knex)
 
       expect(order).toMatchObject(params)
       expect(order.userId).toEqual(params.userId)
@@ -152,13 +151,5 @@ describe('Order Service', (): void => {
       const completedOrder = await orderService.reject(randomUUID())
       expect(completedOrder?.status).toBeUndefined()
     })
-  })
-
-  test('total should be the sum of the order items', async (): Promise<void> => {
-    const orderTotalAmount = order.orderItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    )
-    expect(order.total).toStrictEqual(orderTotalAmount)
   })
 })
