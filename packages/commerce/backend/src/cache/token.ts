@@ -68,7 +68,7 @@ export class TokenCache extends InMemoryCache<string> {
     )
 
     /**
-     * If we chage AUTH_SERVER_DOMAIN environment variable to
+     * If we change AUTH_SERVER_DOMAIN environment variable to
      * `http://rafiki-auth:3006` we would not be able to redirect
      * the user, because it will try navigate to
      * `http://rafiki-auth:3006/interact/...` which is only available

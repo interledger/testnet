@@ -16,11 +16,11 @@ import { Logger } from 'winston'
 
 interface PreparePaymentParams {
   order: Order
-  paymentPointer: string
+  paymentPointerUrl: string
 }
 
 interface CreateQuoteParams {
-  paymentPointer: string
+  paymentPointerUrl: string
   accessToken: string
   receiver: string
 }
@@ -54,9 +54,9 @@ export class OpenPayments implements IOpenPayments {
   public async preparePayment(
     params: PreparePaymentParams
   ): Promise<PendingGrant> {
-    const { order, paymentPointer } = params
+    const { order, paymentPointerUrl } = params
     const customerPaymentPointer = await this.opClient.paymentPointer.get({
-      url: paymentPointer
+      url: paymentPointerUrl
     })
     this.logger.debug('Customer payment pointer', customerPaymentPointer)
     this.logger.debug(JSON.stringify(customerPaymentPointer, null, 2))
@@ -103,7 +103,7 @@ export class OpenPayments implements IOpenPayments {
     )
 
     const { quote, quoteId } = await this.createQuote({
-      paymentPointer: customerPaymentPointer.id,
+      paymentPointerUrl: customerPaymentPointer.id,
       accessToken: quoteGrant.access_token.value,
       receiver: incomingPayment.id
     })
@@ -179,13 +179,13 @@ export class OpenPayments implements IOpenPayments {
   }
 
   private async createQuote({
-    paymentPointer,
+    paymentPointerUrl,
     accessToken,
     receiver
   }: CreateQuoteParams): Promise<{ quote: Quote; quoteId: string }> {
     const quote = await this.opClient.quote.create(
       {
-        paymentPointer,
+        paymentPointer: paymentPointerUrl,
         accessToken
       },
       { receiver }

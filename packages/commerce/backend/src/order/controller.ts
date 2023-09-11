@@ -58,7 +58,7 @@ export class OrderController implements IOrderController {
 
       const grant = await this.openPayments.preparePayment({
         order,
-        paymentPointer: 'http://rafiki-backend/client'
+        paymentPointerUrl: 'http://rafiki-backend/client'
       })
 
       this.logger.debug(JSON.stringify(grant, null, 2))
