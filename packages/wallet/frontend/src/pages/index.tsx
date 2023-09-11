@@ -17,10 +17,8 @@ import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { Socket, io } from 'socket.io-client'
-import { NotificationToast } from '@/components/NotificationToast'
-import { ToastProvider } from '@radix-ui/react-toast'
-import { MoneyBird } from '@/components/icons/MoneyBird'
 import { useToast } from '@/lib/hooks/useToast'
+import { MoneyBird } from '@/components/icons/MoneyBird'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -39,24 +37,14 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     // Event listeners
     socket?.on('connect', () => {
       console.log('Connected to server')
-      toast({
-        title: 'Item added to cart.',
-        description: (
-          <p>
-            You received some money.
-          </p>
-        ),
-        variant: 'success'
-      })
     })
 
     socket?.on('ACCOUNTS_UPDATE', (data) => {
       console.log(`Account ${data[0].name} updated`)
-      console.log(data)
       toast({
-        title: 'Item added to cart.',
         description: (
           <p>
+             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
             You received some {data[0].assetCode} into account {data[0].name}.
           </p>
         ),
@@ -72,7 +60,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     return () => {
       socket?.disconnect()
     }
-  }, [token])
+  }, [toast, token])
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -166,12 +154,6 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
           </div>
         )}
       </div>
-      {/* <ToastProvider>
-        <NotificationToast
-          content="You received some money."
-          Icon={MoneyBird}
-        />
-      </ToastProvider> */}
       <SmallBubbles className="mt-10 block w-full md:hidden" />
     </>
   )

@@ -31,10 +31,10 @@ export const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border bg-white text-green focus:ring-green',
+        default: 'bg-white text-green focus:ring-green',
         success:
-          'border bg-white border-green-3 text-green-3 focus:ring-green-3',
-        error: 'border border-pink bg-pink text-white focus:ring-pink'
+          'bg-white border-green-3 text-green-3 focus:ring-green-3',
+        error: 'border-pink bg-pink text-white focus:ring-pink'
       }
     },
     defaultVariants: {
