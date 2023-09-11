@@ -20,12 +20,13 @@ import { Socket, io } from 'socket.io-client'
 import { NotificationToast } from '@/components/NotificationToast'
 import { ToastProvider } from '@radix-ui/react-toast'
 import { MoneyBird } from '@/components/icons/MoneyBird'
+import { useToast } from '@/lib/hooks/useToast'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
   // const [socket, setSocket] = useState<Socket | null>(null)
-
+  const { toast } = useToast()
   useEffect(() => {
     let socket: Socket | null = null
     // Connect to the Socket.IO server
@@ -38,11 +39,29 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     // Event listeners
     socket?.on('connect', () => {
       console.log('Connected to server')
+      toast({
+        title: 'Item added to cart.',
+        description: (
+          <p>
+            You received some money.
+          </p>
+        ),
+        variant: 'success'
+      })
     })
 
     socket?.on('ACCOUNTS_UPDATE', (data) => {
-      console.log('Received new accounts data;')
+      console.log(`Account ${data[0].name} updated`)
       console.log(data)
+      toast({
+        title: 'Item added to cart.',
+        description: (
+          <p>
+            You received some {data[0].assetCode} into account {data[0].name}.
+          </p>
+        ),
+        variant: 'success'
+      })
     })
 
     socket?.on('disconnect', () => {
@@ -147,12 +166,12 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
           </div>
         )}
       </div>
-      <ToastProvider>
+      {/* <ToastProvider>
         <NotificationToast
           content="You received some money."
           Icon={MoneyBird}
         />
-      </ToastProvider>
+      </ToastProvider> */}
       <SmallBubbles className="mt-10 block w-full md:hidden" />
     </>
   )
