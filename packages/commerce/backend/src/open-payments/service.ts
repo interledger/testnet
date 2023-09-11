@@ -1,3 +1,4 @@
+import { TokenCache } from '@/cache/token'
 import { Env } from '@/config/env'
 import { InternalServerError } from '@/errors'
 import { Order } from '@/order/model'
@@ -46,7 +47,8 @@ export class OpenPayments implements IOpenPayments {
   constructor(
     private env: Env,
     private logger: Logger,
-    private opClient: AuthenticatedClient
+    private opClient: AuthenticatedClient,
+    private tokenCache: TokenCache
   ) {}
 
   public async preparePayment(
@@ -65,26 +67,12 @@ export class OpenPayments implements IOpenPayments {
     this.logger.debug('Shop payment pointer')
     this.logger.debug(JSON.stringify(shopPaymentPointer, null, 2))
 
-    const incomingPaymentGrant = await this.createNonInteractiveGrant(
-      shopPaymentPointer.authServer,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: 'interact' should be optional
-      {
-        access_token: {
-          access: [
-            {
-              type: 'incoming-payment',
-              actions: ['read-all', 'create']
-            }
-          ]
-        }
-      }
-    )
+    const shopAccessToken = await this.tokenCache.get('accessToken')
 
     const incomingPayment = await this.opClient.incomingPayment.create(
       {
         paymentPointer: shopPaymentPointer.id,
-        accessToken: incomingPaymentGrant.access_token.value
+        accessToken: shopAccessToken
       },
       {
         incomingAmount: {

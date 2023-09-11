@@ -1,16 +1,23 @@
-export class InMemoryCache<T> {
-  private cache: Map<string, { data: T; expires: number | null }>
+interface CacheData<TData> {
+  data: TData
+  expires: number | null
+  createdAt: number
+}
+
+export abstract class InMemoryCache<TData> {
+  protected cache: Map<string, CacheData<TData>>
 
   constructor() {
     this.cache = new Map()
   }
 
-  set(key: string, value: T, ttl?: number): void {
-    const expires = ttl ? Date.now() + ttl : null
-    this.cache.set(key, { data: value, expires })
+  set(key: string, value: TData, ttl?: number): void {
+    const now = Date.now()
+    const expires = ttl ? now + ttl : null
+    this.cache.set(key, { data: value, expires, createdAt: now })
   }
 
-  get(key: string): T | null {
+  async get(key: string): Promise<TData | null> {
     const cached = this.cache.get(key)
 
     if (!cached) {

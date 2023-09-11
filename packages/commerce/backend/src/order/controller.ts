@@ -65,6 +65,7 @@ export class OrderController implements IOrderController {
         paymentPointer: 'http://rafiki-backend/client'
       })
 
+      this.logger.debug(JSON.stringify(grant, null, 2))
       res.status(301).redirect(grant.interact.redirect)
       // res.status(200).json(toSuccessReponse(order))
     } catch (err) {

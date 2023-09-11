@@ -21,12 +21,14 @@ import {
   createAuthenticatedClient
 } from '@interledger/open-payments'
 import { IOpenPayments, OpenPayments } from './open-payments/service'
+import { TokenCache } from './cache/token'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
   opClient: AuthenticatedClient
+  tokenCache: TokenCache
   openPayments: IOpenPayments
   userService: IUserService
   productService: IProductService
@@ -53,6 +55,7 @@ export async function createContainer(
     logger: asFunction(createLogger).singleton(),
     opClient: asValue(client),
     openPayments: asClass(OpenPayments).singleton(),
+    tokenCache: asClass(TokenCache).singleton(),
     knex: asFunction(createKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),

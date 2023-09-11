@@ -29,8 +29,7 @@ export class Order extends BaseModel {
           'TRUNC(ROUND(SUM(quantity * price)::numeric, 2), 2)::float as "totalAmount"'
         )
       )
-      .first()
-      .debug()) as unknown as { totalAmount: number }
+      .first()) as unknown as { totalAmount: number }
 
     this.total = totalAmount
     return this
