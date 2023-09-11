@@ -597,7 +597,7 @@ export class RafikiService implements IRafikiService {
       )
 
       if (receiveAmountValue <= fees) {
-        throw new BadRequest('Fees exceed quote receiveAmount')
+        this.deps.logger.debug('Fees exceed quote receiveAmount')
       }
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees
