@@ -110,7 +110,7 @@ export class OpenPayments implements IOpenPayments {
 
     await order.$query().patch({ quoteId })
 
-    const outgoingPaymentGrant = this.createOutgointPaymentGrant({
+    const outgoingPaymentGrant = this.createOutgoingPaymentGrant({
       orderId: order.id,
       paymentPointer: customerPaymentPointer.id,
       authServer: customerPaymentPointer.authServer,
@@ -138,7 +138,7 @@ export class OpenPayments implements IOpenPayments {
     return grant
   }
 
-  private async createOutgointPaymentGrant(
+  private async createOutgoingPaymentGrant(
     params: CreateOutgoingPaymentParams
   ): Promise<PendingGrant> {
     const { authServer, orderId, paymentPointer, sendAmount, receiveAmount } =
