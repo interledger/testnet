@@ -44,7 +44,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
       toast({
         description: (
           <p>
-             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
             You received some {data[0].assetCode} into account {data[0].name}.
           </p>
         ),

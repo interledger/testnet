@@ -19,7 +19,7 @@ const titilium = Titillium_Web({
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
   // const { toast } = useToast()
-  
+
   useEffect(() => {
     // let socket: Socket | null = null
     // // Connect to the Socket.IO server
@@ -27,12 +27,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     //   auth: {
     //   }
     // })
-
     // // Event listeners
     // socket?.on('connect', () => {
     //   console.log('Connected to server')
     // })
-
     // socket?.on('ACCOUNTS_UPDATE', (data) => {
     //   console.log(`Account ${data[0].name} updated`)
     //   toast({
@@ -45,17 +43,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     //     variant: 'success'
     //   })
     // })
-
     // socket?.on('disconnect', () => {
     //   console.log('Disconnected from server')
     // })
-
     // // Clean up when the component unmounts
     // return () => {
     //   socket?.disconnect()
     // }
   }, [])
-  
+
   return (
     <>
       <Head>
