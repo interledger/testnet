@@ -113,7 +113,9 @@ export class App {
         errors: e.errors
       })
     } else {
-      logger.error((isObject(e) ? e.message : e) ?? 'unknown error')
+      const message = isObject(e) ? e.message : 'unknown error'
+      logger.error(message)
+      logger.error(e)
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
   }
