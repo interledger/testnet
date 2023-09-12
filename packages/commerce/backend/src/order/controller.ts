@@ -12,9 +12,13 @@ interface GetParams {
   id?: string
 }
 
+interface CreateResponse {
+  redirectUrl: string
+}
+
 export interface IOrderController {
   get: Controller<Order>
-  create: Controller
+  create: Controller<CreateResponse>
 }
 
 export class OrderController implements IOrderController {
@@ -44,9 +48,16 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async create(req: Request, res: TypedResponse, next: NextFunction) {
+  public async create(
+    req: Request,
+    res: TypedResponse<CreateResponse>,
+    next: NextFunction
+  ) {
     try {
-      const { products } = await validate(createOrderSchema, req.body)
+      const { products, paymentPointerUrl } = await validate(
+        createOrderSchema,
+        req.body
+      )
 
       const order = await Order.transaction(async (trx) => {
         const newOrder = await this.orderService.create(
@@ -58,13 +69,14 @@ export class OrderController implements IOrderController {
 
       const grant = await this.openPayments.preparePayment({
         order,
-        paymentPointerUrl: 'http://rafiki-backend/client'
+        paymentPointerUrl
       })
 
       this.logger.debug(JSON.stringify(grant, null, 2))
-      res.status(301).redirect(grant.interact.redirect)
+      res
+        .status(201)
+        .json(toSuccessReponse({ redirectUrl: grant.interact.redirect }))
     } catch (err) {
-      this.logger.error(err)
       next(err)
     }
   }

@@ -1,6 +1,6 @@
 import { TokenCache } from '@/cache/token'
 import { Env } from '@/config/env'
-import { InternalServerError } from '@/errors'
+import { BadRequest, InternalServerError } from '@/errors'
 import { Order } from '@/order/model'
 import { extractUuidFromUrl } from '@/shared/utils'
 import {
@@ -55,36 +55,61 @@ export class OpenPayments implements IOpenPayments {
     params: PreparePaymentParams
   ): Promise<PendingGrant> {
     const { order, paymentPointerUrl } = params
-    const customerPaymentPointer = await this.opClient.paymentPointer.get({
-      url: paymentPointerUrl
-    })
+    const customerPaymentPointer = await this.opClient.paymentPointer
+      .get({
+        url: paymentPointerUrl
+      })
+      .catch((err) => {
+        this.logger.error(err)
+        throw new BadRequest('Invalid payment pointer.')
+      })
+
     this.logger.debug('Customer payment pointer', customerPaymentPointer)
     this.logger.debug(JSON.stringify(customerPaymentPointer, null, 2))
 
-    const shopPaymentPointer = await this.opClient.paymentPointer.get({
-      url: this.env.PAYMENT_POINTER
-    })
+    const shopPaymentPointer = await this.opClient.paymentPointer
+      .get({
+        url: this.env.PAYMENT_POINTER
+      })
+      .catch((err) => {
+        this.logger.error('Could not fetch shop payment pointer.')
+        this.logger.error(err)
+        throw new InternalServerError()
+      })
+
     this.logger.debug('Shop payment pointer')
     this.logger.debug(JSON.stringify(shopPaymentPointer, null, 2))
 
-    const shopAccessToken = await this.tokenCache.get('accessToken')
+    const shopAccessToken = await this.tokenCache
+      .get('accessToken')
+      .catch((err) => {
+        this.logger.error('Could not retrieve access token for IP grant.')
+        this.logger.error(err)
+        throw new InternalServerError()
+      })
 
-    const incomingPayment = await this.opClient.incomingPayment.create(
-      {
-        paymentPointer: shopPaymentPointer.id,
-        accessToken: shopAccessToken
-      },
-      {
-        incomingAmount: {
-          assetCode: shopPaymentPointer.assetCode,
-          assetScale: shopPaymentPointer.assetScale,
-          value: (order.total * 10 ** shopPaymentPointer.assetScale).toFixed()
+    const incomingPayment = await this.opClient.incomingPayment
+      .create(
+        {
+          paymentPointer: shopPaymentPointer.id,
+          accessToken: shopAccessToken
         },
-        metadata: {
-          orderId: order.id
+        {
+          incomingAmount: {
+            assetCode: shopPaymentPointer.assetCode,
+            assetScale: shopPaymentPointer.assetScale,
+            value: (order.total * 10 ** shopPaymentPointer.assetScale).toFixed()
+          },
+          metadata: {
+            orderId: order.id
+          }
         }
-      }
-    )
+      )
+      .catch((err) => {
+        this.logger.error('Unable to create incoming payment.')
+        this.logger.error(err)
+        throw new InternalServerError()
+      })
 
     const quoteGrant = await this.createNonInteractiveQuoteGrant(
       customerPaymentPointer.authServer,
@@ -100,12 +125,20 @@ export class OpenPayments implements IOpenPayments {
           ]
         }
       }
-    )
+    ).catch((err) => {
+      this.logger.error('Could not retrieve quote grant.')
+      this.logger.error(err)
+      throw new InternalServerError()
+    })
 
     const { quote, quoteId } = await this.createQuote({
       paymentPointerUrl: customerPaymentPointer.id,
       accessToken: quoteGrant.access_token.value,
       receiver: incomingPayment.id
+    }).catch((err) => {
+      this.logger.error('Unable to create quote.')
+      this.logger.error(err)
+      throw new InternalServerError()
     })
 
     await order.$query().patch({ quoteId })
@@ -116,6 +149,10 @@ export class OpenPayments implements IOpenPayments {
       authServer: customerPaymentPointer.authServer,
       sendAmount: quote.sendAmount,
       receiveAmount: quote.receiveAmount
+    }).catch((err) => {
+      this.logger.error('Could not retrieve outgoing payment grant.')
+      this.logger.error(err)
+      throw new InternalServerError()
     })
 
     return outgoingPaymentGrant

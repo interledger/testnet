@@ -28,8 +28,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           queryKey: ['products', slug],
           queryFn: async function () {
             return await fetcher(`/products/${slug}`, {
-              method: 'GET',
-              credentials: 'include'
+              method: 'GET'
             })
           }
         })
