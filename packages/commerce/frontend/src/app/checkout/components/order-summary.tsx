@@ -1,4 +1,4 @@
-import { IMAGES_URL } from '@/lib/constants'
+import { IMAGES_URL } from '@/lib/constants.ts'
 import { CartItem } from '@/lib/stores/cart-store.ts'
 import { formatPrice } from '@/lib/utils.ts'
 

@@ -1,7 +1,6 @@
-import { FieldValues } from 'react-hook-form'
+import type { FieldValues, FieldPath } from 'react-hook-form'
 import { API_BASE_URL } from './constants.ts'
 import { ErrorResponse, SuccessReponse } from './types.ts'
-import type { FieldPath } from 'react-hook-form'
 
 type Errors<T = undefined> = T extends FieldValues
   ? Record<FieldPath<T>, string>

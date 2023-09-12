@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { PaymentMethods } from './components/payment-methods'
+import { PaymentMethods } from './components/payment-methods.tsx'
 import { OrderSummary, Summary } from './components/order-summary.tsx'
 
 export function Component() {

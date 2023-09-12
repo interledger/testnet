@@ -15,12 +15,9 @@ import {
   createOrderSchema,
   useCreateOrderMutation
 } from '@/hooks/use-create-order-mutation.ts'
-import { useRef } from 'react'
 import { getObjectKeys } from '@/lib/utils.ts'
 
 export const PaymentMethods = () => {
-  const contentRef = useRef<HTMLDivElement | null>(null)
-
   return (
     <Tabs className="py-4 sm:px-6 lg:px-0">
       <h2 className="mb-4 block">Select payment method</h2>
@@ -30,7 +27,7 @@ export const PaymentMethods = () => {
           <span className="text-sm">Open Payments</span>
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="open-payments" ref={contentRef}>
+      <TabsContent value="open-payments">
         <OpenPaymentsForm />
       </TabsContent>
     </Tabs>
@@ -44,13 +41,15 @@ const OpenPaymentsForm = () => {
     schema: createOrderSchema
   })
   const { mutate, data, isLoading } = useCreateOrderMutation({
-    onError: function ({ errors }) {
+    onError: function ({ message, errors }) {
       if (errors) {
         getObjectKeys(errors).map((field) =>
           form.setError(field, {
             message: errors[field]
           })
         )
+      } else {
+        form.setError('root', { message })
       }
     }
   })
@@ -78,7 +77,6 @@ const OpenPaymentsForm = () => {
         label="Payment pointer"
         {...form.register('paymentPointerUrl')}
       />
-
       <PayButton className="mt-5 w-full" />
     </Form>
   )
