@@ -241,8 +241,6 @@ export class RapydClient implements IRapydClient {
       payout_method_type: payoutType.payout_method_type
     }
 
-    console.log(JSON.stringify(withdrawReq, undefined, 2))
-
     const payout = await this.post<
       RapydResponse<WithdrawFundsFromAccountResponse>
     >('payouts', JSON.stringify(withdrawReq))
