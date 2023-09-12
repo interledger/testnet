@@ -15,3 +15,7 @@ export function formatPrice(price: number): string {
 
   return formatter.format(price)
 }
+
+export const getObjectKeys = Object.keys as <T extends object>(
+  obj: T
+) => Array<keyof T>
