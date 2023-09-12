@@ -6,6 +6,10 @@ export const checkoutRoutes: RouteObject[] = [
       {
         index: true,
         lazy: () => import('./index.tsx')
+      },
+      {
+        path: 'confirmation',
+        lazy: () => import('./confirmation.tsx')
       }
     ]
   }
