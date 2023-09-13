@@ -313,6 +313,7 @@ interface PayoutMethodResponse {
   beneficiary_country: string
   sender_entity_types: string[]
   beneficiary_entity_types: string[]
+  sender_currencies: string[]
 }
 
 interface RequiredFields {

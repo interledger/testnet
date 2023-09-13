@@ -4,6 +4,7 @@ import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { User } from '@/user/model'
 import RandExp from 'randexp'
+import { BadRequest } from '@/errors'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>
@@ -199,45 +200,43 @@ export class RapydClient implements IRapydClient {
       payoutType
     )
 
+    const addressDelimiter = ['AUD', 'NZD'].includes(args.assetCode)
+      ? ' ; '
+      : ','
     const [street, city, postCode] = args.user.address?.split(', ') ?? []
     // withdraw funds/create payout from wallet account into bank account
     const userDetails: RequiredFieldsType = {
       first_name: args.user.firstName ?? '',
       last_name: args.user.lastName ?? '',
-      address: `${street}; ${postCode}` ?? '',
+      address: [street, postCode].join(addressDelimiter),
       city,
       country: args.user.country ?? '',
-      iban: 'DE75512108001245126199',
+      iban: 'HU42117730161111101800000000',
       bic_swift: `BARC${payoutType.beneficiary_country.toUpperCase()}22`, // https://docs.rapyd.net/en/bic-swift-numbers-for-testing.html
       date_of_birth: '22/02/1980',
-      company_name: 'Simulate withdraw',
+      company_name: 'SimulateWithdraw',
       state: city,
-      postcode: postCode,
-      beneficiary_bic_local: `BARC${payoutType.beneficiary_country.toUpperCase()}22`
+      postcode: postCode
     }
 
     const withdrawReq = {
       beneficiary: this.generateRequiredFields(
-        requiredFieldsForPayout.beneficiary_required_fields,
+        requiredFieldsForPayout.beneficiary_required_fields ?? [],
         userDetails
       ),
       payout_amount: args.amount,
       payout_currency: args.assetCode,
       ewallet: args.user.rapydWalletId ?? '',
       sender: this.generateRequiredFields(
-        requiredFieldsForPayout.sender_required_fields,
+        requiredFieldsForPayout.sender_required_fields ?? [],
         userDetails
       ),
       sender_country: args.user.country ?? '',
       sender_currency: args.assetCode,
-      beneficiary_entity_type: payoutType.beneficiary_entity_types.includes(
-        'individual'
-      )
-        ? 'individual'
-        : 'company',
-      sender_entity_type: payoutType.sender_entity_types.includes('individual')
-        ? 'individual'
-        : 'company',
+      beneficiary_entity_type: this.getEntityType(
+        payoutType.beneficiary_entity_types
+      ),
+      sender_entity_type: this.getEntityType(payoutType.sender_entity_types),
       payout_method_type: payoutType.payout_method_type
     }
 
@@ -285,7 +284,18 @@ export class RapydClient implements IRapydClient {
       )
     }
 
-    return response.data[0]
+    const payoutType = response.data[0]
+
+    if (!payoutType.sender_currencies.includes(assetCode)) {
+      this.deps.logger.debug(
+        `[UNAVAILABLE_PAYOUT_CURRENCY] available sender currencies for asset ${assetCode} are ${payoutType.sender_currencies}`
+      )
+      throw new BadRequest(
+        `Unable to withdraw funds from your account: no payout methods available`
+      )
+    }
+
+    return payoutType
   }
 
   private completePayout(
@@ -413,8 +423,10 @@ export class RapydClient implements IRapydClient {
       senderCurrency: params.assetCode,
       beneficiaryCountry: payoutType.beneficiary_country,
       payoutCurrency: params.assetCode,
-      senderEntityType: payoutType.sender_entity_types[0],
-      beneficiaryEntityType: payoutType.beneficiary_entity_types[0],
+      beneficiaryEntityType: this.getEntityType(
+        payoutType.beneficiary_entity_types
+      ),
+      senderEntityType: this.getEntityType(payoutType.sender_entity_types),
       payoutAmount: params.amount,
       payoutMethodType: payoutType.payout_method_type
     }
@@ -447,5 +459,9 @@ export class RapydClient implements IRapydClient {
     })
 
     return generatedObject
+  }
+
+  private getEntityType(entityTypes: string[]) {
+    return entityTypes.includes('individual') ? 'individual' : entityTypes[0]
   }
 }
