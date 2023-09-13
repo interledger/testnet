@@ -34,7 +34,9 @@ export class SocketService implements ISocketService {
     this.deps.logger.info(`Socket Server is started...`)
 
     this.io.on('connection', async (socket) => {
-      const token = socket.handshake.auth.token?.toString().split('=')[1]
+      const cookie = socket.request.headers['cookie']
+      const token = cookie?.toString().split('=')[1]
+
       const { user } = await unsealData(token as string, {
         password: env.COOKIE_PASSWORD
       })

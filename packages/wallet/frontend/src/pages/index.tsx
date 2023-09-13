@@ -22,16 +22,14 @@ import { MoneyBird } from '@/components/icons/MoneyBird'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
+const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
   // const [socket, setSocket] = useState<Socket | null>(null)
   const { toast } = useToast()
   useEffect(() => {
     let socket: Socket | null = null
     // Connect to the Socket.IO server
     socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
-      auth: {
-        token
-      }
+      withCredentials: true
     })
 
     // Event listeners
@@ -60,7 +58,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user, token }) => {
     return () => {
       socket?.disconnect()
     }
-  }, [toast, token])
+  }, [toast])
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -166,7 +164,6 @@ export const getServerSideProps: GetServerSideProps<{
     lastName: string
     email: string
   }
-  token?: string
 }> = async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie)
   const user = await userService.me(ctx.req.headers.cookie)
@@ -184,8 +181,7 @@ export const getServerSideProps: GetServerSideProps<{
         firstName: user.data?.firstName ?? '',
         lastName: user.data?.lastName ?? '',
         email: user.data?.email ?? ''
-      },
-      token: ctx.req.headers.cookie
+      }
     }
   }
 }
