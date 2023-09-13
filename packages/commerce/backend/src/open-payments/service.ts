@@ -2,7 +2,6 @@ import { TokenCache } from '@/cache/token'
 import { Env } from '@/config/env'
 import { BadRequest, InternalServerError } from '@/errors'
 import { Order } from '@/order/model'
-import { extractUuidFromUrl } from '@/shared/utils'
 import {
   AuthenticatedClient,
   Grant,
@@ -41,6 +40,7 @@ interface CreateOutgoingPaymentParams {
 
 export interface IOpenPayments {
   preparePayment(params: PreparePaymentParams): Promise<PendingGrant>
+  createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -131,7 +131,7 @@ export class OpenPayments implements IOpenPayments {
       throw new InternalServerError()
     })
 
-    const { quote, quoteId } = await this.createQuote({
+    const quote = await this.createQuote({
       paymentPointerUrl: customerPaymentPointer.id,
       accessToken: quoteGrant.access_token.value,
       receiver: incomingPayment.id
@@ -141,9 +141,7 @@ export class OpenPayments implements IOpenPayments {
       throw new InternalServerError()
     })
 
-    await order.$query().patch({ quoteId })
-
-    const outgoingPaymentGrant = this.createOutgoingPaymentGrant({
+    const outgoingPaymentGrant = await this.createOutgoingPaymentGrant({
       orderId: order.id,
       paymentPointer: customerPaymentPointer.id,
       authServer: customerPaymentPointer.authServer,
@@ -155,7 +153,84 @@ export class OpenPayments implements IOpenPayments {
       throw new InternalServerError()
     })
 
+    await order.$query().patch({
+      quoteId: quote.id,
+      paymentPointerUrl: customerPaymentPointer.id,
+      continueToken: outgoingPaymentGrant.continue.access_token.value,
+      continueUri: outgoingPaymentGrant.continue.uri
+        .replace('localhost', 'rafiki-auth')
+        .replace('auth/', '')
+    })
+
     return outgoingPaymentGrant
+  }
+
+  public async createOutgoingPayment(
+    order: Order,
+    interactRef: string
+  ): Promise<void> {
+    try {
+      if (!order.paymentPointerUrl) {
+        this.logger.error("Order is missing customer's payment pointer.")
+        throw new InternalServerError()
+      }
+
+      if (!interactRef) {
+        this.logger.error('Missing "interactRef".')
+        throw new InternalServerError()
+      }
+
+      if (!order.continueToken || !order.continueUri) {
+        this.logger.debug(`continueToken - ${order.continueToken}`)
+        this.logger.debug(`continueUri - ${order.continueUri}`)
+        this.logger.error('Could not find order continuation token or URI.')
+        throw new InternalServerError()
+      }
+
+      const continuation = await this.opClient.grant
+        .continue(
+          {
+            accessToken: order.continueToken,
+            url: order.continueUri
+              .replace('localhost', 'rafiki-auth')
+              .replace('auth/', '')
+          },
+          {
+            interact_ref: interactRef
+          }
+        )
+        .catch((err) => {
+          this.logger.error('Could not finish the continuation request')
+          this.logger.error(err)
+          throw new InternalServerError()
+        })
+      console.log(JSON.stringify(continuation, null, 2))
+      const outgoing = await this.opClient.outgoingPayment
+        .create(
+          {
+            paymentPointer: order.paymentPointerUrl,
+            accessToken: continuation.access_token.value
+          },
+          {
+            quoteId: order.quoteId,
+            metadata: {
+              orderRef: order.id
+            }
+          }
+        )
+        .catch((err) => {
+          console.log(JSON.stringify(err, null, 2))
+          throw new InternalServerError()
+        })
+      console.log('outgoing', outgoing)
+    } catch (err) {
+      await order.$query().patch({
+        quoteId: undefined,
+        continueToken: undefined,
+        continueUri: undefined
+      })
+      throw new InternalServerError()
+    }
   }
 
   private async createNonInteractiveQuoteGrant(
@@ -200,7 +275,7 @@ export class OpenPayments implements IOpenPayments {
           start: ['redirect'],
           finish: {
             method: 'redirect',
-            uri: `${this.env.FRONTEND_URL}/placeholder?orderId=${orderId}`,
+            uri: `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${orderId}`,
             nonce: randomUUID()
           }
         }
@@ -219,21 +294,13 @@ export class OpenPayments implements IOpenPayments {
     paymentPointerUrl,
     accessToken,
     receiver
-  }: CreateQuoteParams): Promise<{ quote: Quote; quoteId: string }> {
-    const quote = await this.opClient.quote.create(
+  }: CreateQuoteParams): Promise<Quote> {
+    return await this.opClient.quote.create(
       {
         paymentPointer: paymentPointerUrl,
         accessToken
       },
       { receiver }
     )
-
-    const quoteId = extractUuidFromUrl(quote.id)
-    if (!quoteId) {
-      this.logger.error(`Could not extract quote ID from ${quote.id}`)
-      throw new InternalServerError()
-    }
-
-    return { quote, quoteId }
   }
 }

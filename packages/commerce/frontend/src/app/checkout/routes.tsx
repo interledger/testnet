@@ -1,4 +1,4 @@
-import { RouteObject } from 'react-router-dom'
+import { Navigate, RouteObject } from 'react-router-dom'
 
 export const checkoutRoutes: RouteObject[] = [
   {
@@ -9,6 +9,7 @@ export const checkoutRoutes: RouteObject[] = [
       },
       {
         path: 'confirmation',
+        errorElement: <Navigate to="/cart" />,
         lazy: () => import('./confirmation.tsx')
       }
     ]

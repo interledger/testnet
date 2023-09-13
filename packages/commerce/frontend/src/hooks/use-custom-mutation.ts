@@ -7,28 +7,30 @@ import {
 } from '@tanstack/react-query'
 import { z } from 'zod'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface FetcherOptions {
+  endpoint: string
+  method?: string
+}
+
 export function useCustomMutation<
-  TData,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TSchema extends z.ZodObject<any>,
+  TSchema extends z.ZodObject<any>['_output'],
+  TData,
   TParams
 >(
-  endpoint: string,
-  schema: TSchema,
+  fetcherOptions: FetcherOptions,
   options?: UseMutationOptions<
     SuccessReponse<TData>,
-    APIError<z.infer<typeof schema>>,
+    APIError<TSchema>,
     TParams
   >
-): UseMutationResult<
-  SuccessReponse<TData>,
-  APIError<z.infer<typeof schema>>,
-  TParams
-> {
+): UseMutationResult<SuccessReponse<TData>, APIError<TSchema>, TParams> {
+  const { method, endpoint } = fetcherOptions
   return useMutation({
     mutationFn: async function (params: TParams) {
       return await fetcher(endpoint, {
-        method: 'POST',
+        method: method ?? 'POST',
         redirect: 'follow',
         body: JSON.stringify(params)
       })

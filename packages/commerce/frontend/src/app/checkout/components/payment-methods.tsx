@@ -16,6 +16,7 @@ import {
   useCreateOrderMutation
 } from '@/hooks/use-create-order-mutation.ts'
 import { getObjectKeys } from '@/lib/utils.ts'
+import { resetCart } from '@/lib/stores/cart-store.ts'
 
 export const PaymentMethods = () => {
   return (
@@ -55,6 +56,8 @@ const OpenPaymentsForm = () => {
   })
 
   if (data?.data.redirectUrl) {
+    // console.log(data.data.redirectUrl)
+    resetCart()
     window.location.href = data.data.redirectUrl
   }
 

@@ -7,7 +7,10 @@ exports.up = function (knex) {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.uuid('userId')
     table.foreign('userId').references('users.id').onDelete('CASCADE')
-    table.uuid('quoteId')
+    table.string('paymentPointerUrl')
+    table.string('quoteId')
+    table.string('continueUri')
+    table.string('continueToken')
     table.float('total', 10, 2).defaultTo(0.0)
     table
       .enum('status', ['PROCESSING', 'COMPLETED', 'REJECTED'])

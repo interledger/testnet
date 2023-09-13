@@ -177,6 +177,9 @@ importers:
       react-router-dom:
         specifier: ^6.15.0
         version: 6.15.0(react-dom@18.2.0)(react@18.2.0)
+      remix-params-helper:
+        specifier: ^0.4.10
+        version: 0.4.10(zod@3.22.2)
       tailwind-merge:
         specifier: ^1.14.0
         version: 1.14.0
@@ -9045,6 +9048,14 @@ packages:
   /remedial@1.0.8:
     resolution: {integrity: sha512-/62tYiOe6DzS5BqVsNpH/nkGlX45C/Sp6V+NtiN6JQNS1Viay7cWkazmRkrQrdFj2eshDe96SIQNIoMxqhzBOg==}
     dev: true
+
+  /remix-params-helper@0.4.10(zod@3.22.2):
+    resolution: {integrity: sha512-1LZ1FjxCtPekg4a1R50aKA0uB2+668Wd2a0ld7LDrQ0bJ2TzijnCVr822cs8epziS6MG2bG8ZHMPDAR2t4PK+Q==}
+    peerDependencies:
+      zod: ^3.11.6
+    dependencies:
+      zod: 3.22.2
+    dev: false
 
   /remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}

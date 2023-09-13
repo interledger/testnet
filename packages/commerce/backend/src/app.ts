@@ -80,6 +80,7 @@ export class App {
     router.get('/products/:slug', productController.get.bind(productController))
 
     router.post('/orders', orderController.create.bind(orderController))
+    router.patch('/orders/:id', orderController.finish.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
