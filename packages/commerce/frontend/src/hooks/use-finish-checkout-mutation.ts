@@ -7,7 +7,7 @@ import { useCustomMutation } from './use-custom-mutation.ts'
 type FinishCheckoutMutationParams = z.infer<typeof finishCheckoutSchema>
 
 export const finishCheckoutSchema = z.object({
-  result: z.enum(['grant_reject', 'grant_invalid']).optional(),
+  result: z.enum(['grant_rejected', 'grant_invalid']).optional(),
   hash: z.string().optional(),
   interactRef: z.string().uuid().optional()
 })

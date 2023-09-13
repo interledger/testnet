@@ -1,12 +1,15 @@
 import { AnimatedCheckMark } from '@/components/animated-check-mark.tsx'
 import { AnimatedText } from '@/components/animated-text.tsx'
-import { Button } from '@/components/ui/button.tsx'
+import { Button, buttonVariants } from '@/components/ui/button.tsx'
+import { useFinishCheckoutMutation } from '@/hooks/use-finish-checkout-mutation.ts'
 import { useZodSearchParams } from '@/hooks/use-zod-search-params.ts'
+import { cn } from '@/lib/utils.ts'
+import { VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { checkoutConfirmationSearchParamsSchema } from '../route-schemas.ts'
-import { useFinishCheckoutMutation } from '@/hooks/use-finish-checkout-mutation.ts'
-import { useEffect } from 'react'
+import { Loader } from './components/loader.tsx'
 
 export function Component() {
   const [{ orderId, hash, interact_ref, result }] = useZodSearchParams(
@@ -24,10 +27,25 @@ export function Component() {
   }, [])
 
   if (data) {
+    let color: string = 'text-turqoise'
+    let text: string | undefined = 'Thank you for your order!'
+    let variant: VariantProps<typeof buttonVariants>['variant'] = 'default'
+
+    if (result === 'grant_rejected') {
+      color = 'text-pink'
+      text = 'Payment successfully declined.'
+      variant = 'secondary'
+    }
+
     return (
-      <div className="mt-36 flex min-h-full w-full flex-col items-center gap-y-5">
+      <div
+        className={cn(
+          'mt-36 flex min-h-full w-full flex-col items-center gap-y-5',
+          color
+        )}
+      >
         <AnimatedCheckMark />
-        <AnimatedText text="THANK YOU FOR YOUR ORDER!" />
+        <AnimatedText text={text} />
         <motion.div
           initial="hidden"
           animate="visible"
@@ -36,7 +54,7 @@ export function Component() {
             visible: { opacity: 1, transition: { delay: 1.5 } }
           }}
         >
-          <Button variant="secondary" aria-label="continue shopping" asChild>
+          <Button variant={variant} aria-label="continue shopping" asChild>
             <Link to="/products">Continue shopping</Link>
           </Button>
         </motion.div>
@@ -48,5 +66,5 @@ export function Component() {
     return <>{error.message}</>
   }
 
-  return <>Loading...</>
+  return <Loader />
 }

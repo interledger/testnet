@@ -4,6 +4,7 @@ import { User } from '@/user/model'
 import { Model, TransactionOrKnex } from 'objection'
 
 export enum OrderStatus {
+  PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
   REJECTED = 'REJECTED'

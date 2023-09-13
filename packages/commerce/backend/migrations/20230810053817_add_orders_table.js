@@ -13,9 +13,9 @@ exports.up = function (knex) {
     table.string('continueToken')
     table.float('total', 10, 2).defaultTo(0.0)
     table
-      .enum('status', ['PROCESSING', 'COMPLETED', 'REJECTED'])
+      .enum('status', ['PENDING', 'PROCESSING', 'COMPLETED', 'REJECTED'])
       .notNullable()
-      .defaultTo('PROCESSING')
+      .defaultTo('PENDING')
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

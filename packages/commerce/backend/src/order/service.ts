@@ -1,7 +1,8 @@
 import { type OrderItem } from '@/order-item/model'
 import { Order, OrderStatus } from './model'
-import { NotFound } from '@/errors'
+import { InternalServerError, NotFound } from '@/errors'
 import { TransactionOrKnex } from 'objection'
+import { Logger } from 'winston'
 
 interface OrderItemParams extends Pick<OrderItem, 'productId' | 'quantity'> {}
 
@@ -13,12 +14,15 @@ interface CreateParams {
 export interface IOrderService {
   create: (params: CreateParams, trx: TransactionOrKnex) => Promise<Order>
   get: (id: string, userId?: string) => Promise<Order>
+  ensurePendingState: (id: string) => Promise<Order>
   list: (userId: string) => Promise<Order[]>
   complete: (id: string) => Promise<Order | undefined>
   reject: (id: string) => Promise<Order | undefined>
 }
 
 export class OrderService implements IOrderService {
+  constructor(private logger: Logger) {}
+
   public async create(
     params: CreateParams,
     trx: TransactionOrKnex
@@ -38,6 +42,17 @@ export class OrderService implements IOrderService {
 
     if (!order) {
       throw new NotFound('Order was not found.')
+    }
+    return order
+  }
+
+  public async ensurePendingState(id: string): Promise<Order> {
+    const order = await this.get(id)
+    if (order.status !== 'PENDING') {
+      this.logger.error(
+        `Trying to perform a checkout confirmation on a non-pending order (ID: ${id}).`
+      )
+      throw new InternalServerError()
     }
     return order
   }

@@ -16,7 +16,7 @@ export const createOrderSchema = z.object({
 })
 
 export const finishOrderSchema = z.object({
-  result: z.enum(['grant_reject', 'grant_invalid']).optional(),
+  result: z.enum(['grant_rejected', 'grant_invalid']).optional(),
   hash: z.string().optional(),
   interactRef: z.string().uuid().optional()
 })

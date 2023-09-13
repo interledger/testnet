@@ -7,7 +7,7 @@ interface AnimatedTextProps {
 export const AnimatedText = ({ text }: AnimatedTextProps) => {
   return (
     <motion.div
-      className="flex overflow-hidden text-center text-xl font-bold tracking-tight text-pink sm:text-3xl"
+      className="flex overflow-hidden text-center text-xl font-bold tracking-tight sm:text-3xl"
       variants={{
         hidden: { opacity: 0 },
         visible: () => ({
@@ -20,7 +20,7 @@ export const AnimatedText = ({ text }: AnimatedTextProps) => {
     >
       {text.split(' ').map((word, index) => (
         <motion.span
-          className="mr-1"
+          className="mr-1 uppercase"
           variants={{
             visible: {
               opacity: 1,
