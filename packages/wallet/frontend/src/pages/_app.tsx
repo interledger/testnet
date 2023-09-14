@@ -5,6 +5,10 @@ import { AppProvider } from '@/components/providers'
 import { Progress } from '@/ui/Progress'
 import type { AppPropsWithLayout } from '@/lib/types/app'
 import { Toaster } from '@/components/toast/Toaster'
+import { MoneyBird } from '@/components/icons/MoneyBird'
+import { useToast } from '@/lib/hooks/useToast'
+import { io, Socket } from 'socket.io-client'
+import { useEffect } from 'react'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -14,7 +18,42 @@ const titilium = Titillium_Web({
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
+  const { toast } = useToast()
 
+  useEffect(() => {
+    let socket: Socket | null = null
+    // Connect to the Socket.IO server
+    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
+      withCredentials: true
+    })
+
+    // Event listeners
+    socket?.on('connect', () => {
+      console.log('Connected to server')
+    })
+
+    socket?.on('ACCOUNTS_UPDATE', (data) => {
+      console.log(`Account ${data[0].name} updated`)
+      toast({
+        description: (
+          <p>
+            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+            You received some {data[0].assetCode} into account {data[0].name}.
+          </p>
+        ),
+        variant: 'success'
+      })
+    })
+
+    socket?.on('disconnect', () => {
+      console.log('Disconnected from server')
+    })
+
+    // Clean up when the component unmounts
+    return () => {
+      socket?.disconnect()
+    }
+  }, [toast])
   return (
     <>
       <Head>

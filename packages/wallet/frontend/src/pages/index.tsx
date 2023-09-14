@@ -16,50 +16,10 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
-import { Socket, io } from 'socket.io-client'
-import { useToast } from '@/lib/hooks/useToast'
-import { MoneyBird } from '@/components/icons/MoneyBird'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
-  // const [socket, setSocket] = useState<Socket | null>(null)
-  const { toast } = useToast()
-  useEffect(() => {
-    let socket: Socket | null = null
-    // Connect to the Socket.IO server
-    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
-      withCredentials: true
-    })
-
-    // Event listeners
-    socket?.on('connect', () => {
-      console.log('Connected to server')
-    })
-
-    socket?.on('ACCOUNTS_UPDATE', (data) => {
-      console.log(`Account ${data[0].name} updated`)
-      toast({
-        description: (
-          <p>
-            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            You received some {data[0].assetCode} into account {data[0].name}.
-          </p>
-        ),
-        variant: 'success'
-      })
-    })
-
-    socket?.on('disconnect', () => {
-      console.log('Disconnected from server')
-    })
-
-    // Clean up when the component unmounts
-    return () => {
-      socket?.disconnect()
-    }
-  }, [toast])
-
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
 
