@@ -1,4 +1,4 @@
-import { BaseError } from './Base'
+import { BaseError } from './base'
 
 export class NotFound extends BaseError {
   constructor(message?: string) {

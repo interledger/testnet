@@ -2,9 +2,10 @@ import { Button } from '@/components/ui/button.tsx'
 import { useCartStore } from '@/hooks/use-cart-store.ts'
 import { formatPrice } from '@/lib/utils.ts'
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 
-export const OrderSummary = () => {
-  const { totalAmount } = useCartStore()
+export const Summary = () => {
+  const { totalAmount, items } = useCartStore()
   const orderSubTotal = useMemo(() => formatPrice(totalAmount), [totalAmount])
 
   if (totalAmount === 0) return null
@@ -27,8 +28,10 @@ export const OrderSummary = () => {
         </div>
       </dl>
       <div className="mt-6 flex">
-        <Button aria-label="go to checkout" className="w-full">
-          Checkout
+        <Button aria-label="go to checkout" className="w-full" asChild>
+          <Link to="/checkout" state={JSON.stringify({ items, totalAmount })}>
+            Checkout
+          </Link>
         </Button>
       </div>
     </section>

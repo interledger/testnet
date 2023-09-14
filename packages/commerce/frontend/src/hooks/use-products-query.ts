@@ -19,8 +19,7 @@ export function useProductsQuery(): UseQueryResult<
     queryKey: ['products'],
     queryFn: async function () {
       return await fetcher<Product[]>('/products', {
-        method: 'GET',
-        credentials: 'include'
+        method: 'GET'
       })
     }
   })

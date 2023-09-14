@@ -16,11 +16,20 @@ import { OrderService, type IOrderService } from './order/service'
 import { UserService, type IUserService } from './user/service'
 import { IProductController, ProductController } from './product/controller'
 import { IOrderController, OrderController } from './order/controller'
+import {
+  AuthenticatedClient,
+  createAuthenticatedClient
+} from '@interledger/open-payments'
+import { IOpenPayments, OpenPayments } from './open-payments/service'
+import { TokenCache } from './cache/token'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
+  opClient: AuthenticatedClient
+  tokenCache: TokenCache
+  openPayments: IOpenPayments
   userService: IUserService
   productService: IProductService
   orderService: IOrderService
@@ -28,14 +37,25 @@ export interface Cradle {
   orderController: IOrderController
 }
 
-export function createContainer(env: Env): AwilixContainer<Cradle> {
+export async function createContainer(
+  env: Env
+): Promise<AwilixContainer<Cradle>> {
   const container = createAwilixContainer<Cradle>({
     injectionMode: InjectionMode.CLASSIC
+  })
+
+  const client = await createAuthenticatedClient({
+    keyId: env.KEY_ID,
+    privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
+    paymentPointerUrl: env.PAYMENT_POINTER
   })
 
   container.register({
     env: asValue(env),
     logger: asFunction(createLogger).singleton(),
+    opClient: asValue(client),
+    openPayments: asClass(OpenPayments).singleton(),
+    tokenCache: asClass(TokenCache).singleton(),
     knex: asFunction(createKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),
