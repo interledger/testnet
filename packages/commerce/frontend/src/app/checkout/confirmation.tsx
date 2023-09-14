@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils.ts'
 import { VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { checkoutConfirmationSearchParamsSchema } from '../route-schemas.ts'
 import { Loader } from './components/loader.tsx'
 
@@ -63,7 +63,7 @@ export function Component() {
   }
 
   if (error) {
-    return <>{error.message}</>
+    return <Navigate to="/products" />
   }
 
   return <Loader />

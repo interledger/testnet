@@ -35,7 +35,7 @@ export class Order extends BaseModel {
       )
       .first()) as unknown as { totalAmount: number }
 
-    this.total = totalAmount
+    await this.$query(trx).patch({ total: totalAmount })
     return this
   }
 

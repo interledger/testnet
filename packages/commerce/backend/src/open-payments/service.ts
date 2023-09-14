@@ -216,8 +216,10 @@ export class OpenPayments implements IOpenPayments {
             }
           }
         )
-        .catch((err) => {
-          console.log(JSON.stringify(err, null, 2))
+        .catch(() => {
+          this.logger.error(
+            `Error while creating outgoing payment for order ${order.id}.`
+          )
           throw new InternalServerError()
         })
     } catch (err) {

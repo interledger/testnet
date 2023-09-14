@@ -53,9 +53,11 @@ export const ProductsList = () => {
 
   return (
     <>
-      {Array.from({ length: 6 }, (_, key) => (
-        <ProductCardShimmer key={key} />
-      ))}
+      <ProductsListWrapper>
+        {Array.from({ length: 6 }, (_, key) => (
+          <ProductCardShimmer key={key} />
+        ))}
+      </ProductsListWrapper>
     </>
   )
 }
