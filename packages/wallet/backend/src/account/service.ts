@@ -6,10 +6,6 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
-import { QuoteWithFees } from '@/quote/controller'
-import { QuoteService } from '@/quote/service'
-import { PaymentPointerService } from '@/paymentPointer/service'
-import { getRandomValues } from 'crypto'
 
 type CreateAccountArgs = {
   userId: string
@@ -33,22 +29,12 @@ interface IAccountService {
   getAccountBalance: (userId: string, assetCode: string) => Promise<number>
   fundAccount: (args: FundAccountArgs) => Promise<void>
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
-  createExchangeQuote: (args: CreateExchangeQuote) => Promise<QuoteWithFees>
-}
-
-type CreateExchangeQuote = {
-  userId: string
-  accountId: string
-  assetCode: string
-  amount: number
 }
 
 interface CountriesServiceDependencies {
   rapyd: RapydClient
   rafiki: RafikiClient
   logger: Logger
-  quoteService: () => QuoteService
-  paymentPointerService: () => PaymentPointerService
 }
 
 export class AccountService implements IAccountService {
@@ -308,86 +294,5 @@ export class AccountService implements IAccountService {
     })
 
     return account
-  }
-
-  public async createExchangeQuote({
-    userId,
-    accountId,
-    assetCode,
-    amount
-  }: CreateExchangeQuote): Promise<QuoteWithFees> {
-    const accountFrom = await Account.query()
-      .findById(accountId)
-      .where('userId', userId)
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
-
-    if (!accountFrom) {
-      throw new NotFound(`The source account does not exist for this user.`)
-    }
-
-    const assetInRafiki = (
-      await this.deps.rafiki.listAssets({ first: 100 })
-    ).find((asset) => asset.code === assetCode)
-    if (!assetInRafiki) {
-      throw new NotFound(
-        `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
-      )
-    }
-
-    let senderPpId = accountFrom.paymentPointers?.[0]?.id
-    if (!senderPpId) {
-      const paymentPointer = await this.deps
-        .paymentPointerService()
-        .create(
-          userId,
-          accountFrom.id,
-          getRandomValues(new Uint32Array(1))[0].toString(16),
-          `Exchange Payment Pointer`
-        )
-      senderPpId = paymentPointer.id
-    }
-
-    let accountTo = await Account.query()
-      .where({ userId, assetCode })
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
-      .limit(1)
-      .first()
-
-    if (!accountTo) {
-      accountTo = await this.createAccount({
-        name: `${assetCode} account`,
-        userId,
-        assetId: assetInRafiki.id
-      })
-    }
-    let receiverPp = accountTo.paymentPointers?.[0]?.url
-    if (!receiverPp) {
-      const paymentPointer = await this.deps
-        .paymentPointerService()
-        .create(
-          userId,
-          accountTo.id,
-          getRandomValues(new Uint32Array(1))[0].toString(16),
-          `${assetCode} Payment Pointer`
-        )
-      receiverPp = paymentPointer.url
-    }
-
-    const quote = await this.deps.quoteService().create({
-      userId,
-      paymentPointerId: senderPpId,
-      amount,
-      description: 'Currency exchange.',
-      isReceive: false,
-      receiver: receiverPp
-    })
-
-    return quote
   }
 }

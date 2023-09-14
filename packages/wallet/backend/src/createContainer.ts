@@ -154,17 +154,13 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  let quoteServiceResolved: QuoteService
-  let paymentPointerServiceResolved: PaymentPointerService
   container.singleton(
     'accountService',
     async () =>
       new AccountService({
         logger: await container.resolve('logger'),
         rafiki: await container.resolve('rafikiClient'),
-        rapyd: await container.resolve('rapydClient'),
-        quoteService: () => quoteServiceResolved,
-        paymentPointerService: () => paymentPointerServiceResolved
+        rapyd: await container.resolve('rapydClient')
       })
   )
 
@@ -190,16 +186,15 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  container.singleton('paymentPointerService', async () => {
-    if (!paymentPointerServiceResolved) {
-      paymentPointerServiceResolved = new PaymentPointerService({
+  container.singleton(
+    'paymentPointerService',
+    async () =>
+      new PaymentPointerService({
         env: await container.resolve('env'),
         rafikiClient: await container.resolve('rafikiClient'),
         accountService: await container.resolve('accountService')
       })
-    }
-    return paymentPointerServiceResolved
-  })
+  )
 
   container.singleton(
     'paymentPointerController',
@@ -294,9 +289,10 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return new RafikiController({ logger, rafikiService, ratesService })
   })
 
-  container.singleton('quoteService', async () => {
-    if (!quoteServiceResolved) {
-      quoteServiceResolved = new QuoteService({
+  container.singleton(
+    'quoteService',
+    async () =>
+      new QuoteService({
         accountService: await container.resolve('accountService'),
         incomingPaymentService: await container.resolve(
           'incomingPaymentService'
@@ -305,10 +301,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
         ratesService: await container.resolve('ratesService'),
         paymentPointerService: await container.resolve('paymentPointerService')
       })
-    }
-
-    return quoteServiceResolved
-  })
+  )
 
   container.singleton(
     'quoteController',

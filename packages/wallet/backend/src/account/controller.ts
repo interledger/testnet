@@ -2,15 +2,8 @@ import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { AccountService } from './service'
-import {
-  accountSchema,
-  fundSchema,
-  withdrawFundsSchema,
-  createExchangeQuoteSchema
-} from './validation'
+import { accountSchema, fundSchema, withdrawFundsSchema } from './validation'
 import { Account } from '@/account/model'
-import { Quote } from '@/rafiki/backend/generated/graphql'
-import { QuoteWithFees } from '@/quote/controller'
 
 interface IAccountController {
   createAccount: ControllerFunction<Account>
@@ -37,6 +30,7 @@ export class AccountController implements IAccountController {
       const {
         body: { name, assetId }
       } = await validate(accountSchema, req)
+
       const createAccountResult = await this.deps.accountService.createAccount({
         userId,
         name,
@@ -134,31 +128,6 @@ export class AccountController implements IAccountController {
       })
 
       res.status(200).json({ success: true, message: 'Funds withdrawn' })
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  createExchangeQuote = async (
-    req: Request,
-    res: CustomResponse<QuoteWithFees | Quote>,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = req.session.user.id
-      const { accountId } = req.params
-      const {
-        body: { assetCode, amount }
-      } = await validate(createExchangeQuoteSchema, req)
-
-      const quote = await this.deps.accountService.createExchangeQuote({
-        userId,
-        accountId,
-        assetCode,
-        amount
-      })
-
-      res.status(200).json({ success: true, message: 'SUCCESS', data: quote })
     } catch (e) {
       next(e)
     }

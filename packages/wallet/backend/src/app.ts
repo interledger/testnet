@@ -262,7 +262,7 @@ export class App {
     router.post(
       '/accounts/:accountId/exchange',
       isAuth,
-      accountController.createExchangeQuote
+      quoteController.createExchangeQuote
     )
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
     router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)

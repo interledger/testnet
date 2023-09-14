@@ -69,6 +69,7 @@ interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
   listAssets(args?: QueryAssetsArgs): Promise<Asset[]>
   getAssetById(id: string): Promise<Asset>
+  getRafikiAsset(assetCode: string): Promise<Asset | undefined>
 }
 
 interface RafikiClientDependencies {
@@ -315,5 +316,13 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return getQuote.quote
+  }
+
+  public async getRafikiAsset(assetCode: string) {
+    const assetInRafiki = (await this.listAssets({ first: 100 })).find(
+      (asset) => asset.code === assetCode
+    )
+
+    return assetInRafiki
   }
 }
