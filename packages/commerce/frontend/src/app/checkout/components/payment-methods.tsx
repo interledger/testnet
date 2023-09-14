@@ -41,7 +41,7 @@ const OpenPaymentsForm = () => {
   const form = useZodForm({
     schema: createOrderSchema
   })
-  const { mutate, data, isLoading } = useCreateOrderMutation({
+  const { mutate, data, isLoading, isSuccess } = useCreateOrderMutation({
     onError: function ({ message, errors }) {
       if (errors) {
         getObjectKeys(errors).map((field) =>
@@ -56,7 +56,6 @@ const OpenPaymentsForm = () => {
   })
 
   if (data?.data.redirectUrl) {
-    // console.log(data.data.redirectUrl)
     resetCart()
     window.location.href = data.data.redirectUrl
   }
@@ -64,7 +63,7 @@ const OpenPaymentsForm = () => {
   return (
     <Form
       form={form}
-      disabled={form.formState.isSubmitting || isLoading}
+      disabled={form.formState.isSubmitting || isLoading || isSuccess}
       onSubmit={form.handleSubmit(({ paymentPointerUrl }) =>
         mutate({
           paymentPointerUrl,
