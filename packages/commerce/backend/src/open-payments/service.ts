@@ -159,7 +159,7 @@ export class OpenPayments implements IOpenPayments {
       continueToken: outgoingPaymentGrant.continue.access_token.value,
       continueUri: outgoingPaymentGrant.continue.uri
         .replace('localhost', 'rafiki-auth')
-        .replace('auth/', '')
+        .replace('auth/', '') // TODO: Remove this when upgrading to the new version.
     })
 
     return outgoingPaymentGrant
@@ -192,8 +192,6 @@ export class OpenPayments implements IOpenPayments {
           {
             accessToken: order.continueToken,
             url: order.continueUri
-              .replace('localhost', 'rafiki-auth')
-              .replace('auth/', '')
           },
           {
             interact_ref: interactRef
@@ -204,8 +202,8 @@ export class OpenPayments implements IOpenPayments {
           this.logger.error(err)
           throw new InternalServerError()
         })
-      console.log(JSON.stringify(continuation, null, 2))
-      const outgoing = await this.opClient.outgoingPayment
+
+      await this.opClient.outgoingPayment
         .create(
           {
             paymentPointer: order.paymentPointerUrl,
@@ -222,7 +220,6 @@ export class OpenPayments implements IOpenPayments {
           console.log(JSON.stringify(err, null, 2))
           throw new InternalServerError()
         })
-      console.log('outgoing', outgoing)
     } catch (err) {
       await order.$query().patch({
         quoteId: undefined,

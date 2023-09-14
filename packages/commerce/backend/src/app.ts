@@ -120,4 +120,26 @@ export class App {
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
   }
+
+  private async processPendingOrders() {
+    const orderService = this.container.resolve('orderService')
+    const logger = this.container.resolve('logger')
+    return orderService
+      .processPendingOrders()
+      .catch(() => {
+        logger.error('Error while trying to process pending orders')
+        return true
+      })
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processPendingOrders())
+        } else {
+          setTimeout(() => this.processPendingOrders(), 5000).unref()
+        }
+      })
+  }
+
+  async processResources() {
+    process.nextTick(() => this.processPendingOrders())
+  }
 }

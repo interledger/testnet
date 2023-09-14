@@ -106,8 +106,11 @@ export class OrderController implements IOrderController {
           .json({ success: status === 200 ? true : false, message: 'SUCCESS' })
       }
 
-      res.status(200).json({ success: true, message: 'SUCCESS' })
       await this.openPayments.createOutgoingPayment(order, interactRef)
+      // Manually completing the order for now until we have a way to verify
+      // if the payment went through or not.
+      await this.orderService.complete(order.id)
+      res.status(200).json({ success: true, message: 'SUCCESS' })
     } catch (err) {
       next(err)
     }
