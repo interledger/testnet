@@ -456,6 +456,11 @@ export class RafikiService implements IRafikiService {
         percentage: 0.02,
         scale: 2
       },
+      GBP: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
       GHP: {
         fixed: 100,
         percentage: 0.02,
