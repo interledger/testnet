@@ -72,7 +72,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:fb3e052d99ca989bea0c4e724fbef30a4ef320e6c4e85ca86ca2e05bb4be2832
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:72ced8474dd58fd7fb299fc93185c90c5c853bf6fe6a0602ad311637fc9cff3b
     restart: always
     networks:
       - testnet
