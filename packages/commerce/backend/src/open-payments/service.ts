@@ -59,8 +59,10 @@ export class OpenPayments implements IOpenPayments {
       .get({
         url: paymentPointerUrl
       })
-      .catch((err) => {
-        this.logger.error(err)
+      .catch(() => {
+        this.logger.error(
+          `Could not fetch customer payment pointer "${paymentPointerUrl}".`
+        )
         throw new BadRequest('Invalid payment pointer.')
       })
 
@@ -71,9 +73,10 @@ export class OpenPayments implements IOpenPayments {
       .get({
         url: this.env.PAYMENT_POINTER
       })
-      .catch((err) => {
-        this.logger.error('Could not fetch shop payment pointer.')
-        this.logger.error(err)
+      .catch(() => {
+        this.logger.error(
+          `Could not fetch shop payment pointer "${this.env.PAYMENT_POINTER}".`
+        )
         throw new InternalServerError()
       })
 
@@ -82,9 +85,8 @@ export class OpenPayments implements IOpenPayments {
 
     const shopAccessToken = await this.tokenCache
       .get('accessToken')
-      .catch((err) => {
+      .catch(() => {
         this.logger.error('Could not retrieve access token for IP grant.')
-        this.logger.error(err)
         throw new InternalServerError()
       })
 
@@ -105,9 +107,8 @@ export class OpenPayments implements IOpenPayments {
           }
         }
       )
-      .catch((err) => {
+      .catch(() => {
         this.logger.error('Unable to create incoming payment.')
-        this.logger.error(err)
         throw new InternalServerError()
       })
 
@@ -125,9 +126,8 @@ export class OpenPayments implements IOpenPayments {
           ]
         }
       }
-    ).catch((err) => {
+    ).catch(() => {
       this.logger.error('Could not retrieve quote grant.')
-      this.logger.error(err)
       throw new InternalServerError()
     })
 
@@ -135,9 +135,8 @@ export class OpenPayments implements IOpenPayments {
       paymentPointerUrl: customerPaymentPointer.id,
       accessToken: quoteGrant.access_token.value,
       receiver: incomingPayment.id
-    }).catch((err) => {
+    }).catch(() => {
       this.logger.error('Unable to create quote.')
-      this.logger.error(err)
       throw new InternalServerError()
     })
 
@@ -147,19 +146,22 @@ export class OpenPayments implements IOpenPayments {
       authServer: customerPaymentPointer.authServer,
       sendAmount: quote.sendAmount,
       receiveAmount: quote.receiveAmount
-    }).catch((err) => {
+    }).catch(() => {
       this.logger.error('Could not retrieve outgoing payment grant.')
-      this.logger.error(err)
       throw new InternalServerError()
     })
+
+    // TODO: Remove replacing "auth/" when upgrading to the new version.
+    let continueUri = outgoingPaymentGrant.continue.uri.replace('auth/', '')
+    if (this.env.NODE_ENV === 'development') {
+      continueUri = continueUri.replace('localhost', 'rafiki-auth')
+    }
 
     await order.$query().patch({
       quoteId: quote.id,
       paymentPointerUrl: customerPaymentPointer.id,
       continueToken: outgoingPaymentGrant.continue.access_token.value,
-      continueUri: outgoingPaymentGrant.continue.uri
-        .replace('localhost', 'rafiki-auth')
-        .replace('auth/', '') // TODO: Remove this when upgrading to the new version.
+      continueUri
     })
 
     return outgoingPaymentGrant
@@ -197,9 +199,8 @@ export class OpenPayments implements IOpenPayments {
             interact_ref: interactRef
           }
         )
-        .catch((err) => {
+        .catch(() => {
           this.logger.error('Could not finish the continuation request.')
-          this.logger.error(err)
           throw new InternalServerError()
         })
 
