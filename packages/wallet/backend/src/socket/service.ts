@@ -4,10 +4,12 @@ import socketIo from 'socket.io'
 import http from 'http'
 import { unsealData } from 'iron-session'
 import { AccountService } from '@/account/service'
+import MessageType from './messageType'
 
 interface ISocketService {
   init(args: http.Server): void
-  emitAccountsUpdateById(id: string): void
+  emitMoneyReceivedByUserId(id: string): void
+  emitMoneySentByUserId(id: string): void
 }
 
 interface SocketServiceDependencies {
@@ -53,10 +55,17 @@ export class SocketService implements ISocketService {
     })
   }
 
-  async emitAccountsUpdateById(userId?: string) {
+  async emitMoneyReceivedByUserId(userId?: string) {
     if (!userId) return
 
     const accounts = await this.deps.accountService.getAccounts(userId, false)
-    this.io?.to(userId).emit('ACCOUNTS_UPDATE', accounts)
+    this.io?.to(userId).emit(MessageType.MONEY_RECEIVED, accounts)
+  }
+
+  async emitMoneySentByUserId(userId?: string) {
+    if (!userId) return
+
+    const accounts = await this.deps.accountService.getAccounts(userId, false)
+    this.io?.to(userId).emit(MessageType.MONEY_SENT, accounts)
   }
 }

@@ -32,13 +32,26 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       console.log('Connected to server')
     })
 
-    socket?.on('ACCOUNTS_UPDATE', (data) => {
+    socket?.on('MONEY_RECEIVED', (data) => {
       console.log(`Account ${data[0].name} updated`)
       toast({
         description: (
           <p>
             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
             You received some {data[0].assetCode} into account {data[0].name}.
+          </p>
+        ),
+        variant: 'success'
+      })
+    })
+
+    socket?.on('MONEY_SENT', (data) => {
+      console.log(`Account ${data[0].name} updated`)
+      toast({
+        description: (
+          <p>
+            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+            You sent some {data[0].assetCode} into account {data[0].name}.
           </p>
         ),
         variant: 'success'

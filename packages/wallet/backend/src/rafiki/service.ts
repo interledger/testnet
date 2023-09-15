@@ -236,7 +236,7 @@ export class RafikiService implements IRafikiService {
     )
 
     const user = await this.deps.userService.getByWalletId(receiverWalletId)
-    await this.deps.socketService.emitAccountsUpdateById(user?.id.toString())
+    await this.deps.socketService.emitMoneyReceivedByUserId(user?.id.toString())
 
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
@@ -325,7 +325,7 @@ export class RafikiService implements IRafikiService {
     )
 
     const user = await this.deps.userService.getByWalletId(source_ewallet)
-    await this.deps.socketService.emitAccountsUpdateById(user?.id.toString())
+    await this.deps.socketService.emitMoneySentByUserId(user?.id.toString())
 
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
