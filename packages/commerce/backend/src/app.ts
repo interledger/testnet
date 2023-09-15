@@ -126,8 +126,9 @@ export class App {
     const logger = this.container.resolve('logger')
     return orderService
       .processPendingOrders()
-      .catch(() => {
+      .catch((err) => {
         logger.error('Error while trying to process pending orders')
+        logger.error(err)
         return true
       })
       .then((trx) => {
