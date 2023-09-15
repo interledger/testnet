@@ -52,6 +52,10 @@ export class SocketService implements ISocketService {
         socket.leave(userId)
         this.deps.logger.info(`A socket client ${userId} disconnected...`)
       })
+
+      socket.on('error', (e) => {
+        this.deps.logger.error('Error in socket communication', e)
+      })
     })
   }
 
