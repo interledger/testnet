@@ -310,6 +310,20 @@ interface PayoutMethodResponse {
   payout_method_type: string
   name: string
   payout_currencies: string
+  beneficiary_country: string
+  sender_entity_types: string[]
+  beneficiary_entity_types: string[]
+  sender_currencies: string[]
+}
+
+interface RequiredFields {
+  name: string
+  regex: string
+}
+
+interface PayoutRequiredFieldsResponse {
+  beneficiary_required_fields: RequiredFields[]
+  sender_required_fields: RequiredFields[]
 }
 
 interface WithdrawFundsFromAccountResponse {
