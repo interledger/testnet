@@ -12,7 +12,7 @@ export function Loader() {
           duration: 1
         }}
       />
-      <h2 className="text-2xl uppercase">Processing ...</h2>
+      <h2 className="text-2xl uppercase">Processing...</h2>
     </div>
   )
 }

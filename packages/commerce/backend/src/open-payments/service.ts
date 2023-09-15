@@ -198,7 +198,7 @@ export class OpenPayments implements IOpenPayments {
           }
         )
         .catch((err) => {
-          this.logger.error('Could not finish the continuation request')
+          this.logger.error('Could not finish the continuation request.')
           this.logger.error(err)
           throw new InternalServerError()
         })
