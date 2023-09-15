@@ -46,31 +46,31 @@ type ConvertParams = {
   amount: bigint
 }
 
-const createPpIfFalsy = async ({
-  pp,
+const createPaymentPointerIfFalsy = async ({
+  paymentPointer,
   userId,
   accountId,
   publicName,
   paymentPointerService
 }: {
-  pp: PaymentPointer
+  paymentPointer: PaymentPointer
   userId: string
   accountId: string
   publicName: string
   paymentPointerService: PaymentPointerService
 }): Promise<PaymentPointer> => {
-  if (pp) {
-    return pp
+  if (paymentPointer) {
+    return paymentPointer
   }
 
-  const paymentPointer = await paymentPointerService.create(
+  const newPaymentPointer = await paymentPointerService.create(
     userId,
     accountId,
     getRandomValues(new Uint32Array(1))[0].toString(16),
     publicName
   )
 
-  return paymentPointer
+  return newPaymentPointer
 }
 
 export class QuoteService implements IQuoteService {
@@ -237,8 +237,8 @@ export class QuoteService implements IQuoteService {
       )
     }
 
-    const senderPp = await createPpIfFalsy({
-      pp: accountFrom.paymentPointers?.[0],
+    const senderPp = await createPaymentPointerIfFalsy({
+      paymentPointer: accountFrom.paymentPointers?.[0],
       userId,
       accountId: accountFrom.id,
       publicName: `Exchange Payment Pointer (exchanging into ${assetCode})`,
@@ -263,8 +263,8 @@ export class QuoteService implements IQuoteService {
       })
     }
 
-    const receiverPp = await createPpIfFalsy({
-      pp: accountTo.paymentPointers?.[0],
+    const receiverPp = await createPaymentPointerIfFalsy({
+      paymentPointer: accountTo.paymentPointers?.[0],
       userId,
       accountId: accountTo.id,
       publicName: `${assetCode} Payment Pointer`,
