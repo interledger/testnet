@@ -99,12 +99,11 @@ export class OrderController implements IOrderController {
       const order = await this.orderService.ensurePendingState(orderId)
 
       if (result) {
-        const status = result === 'grant_rejected' ? 200 : 400
-        const message = result === 'grant_rejected' ? 'SUCCESS' : 'FAILED'
+        const isRejected = result === 'grant_rejected'
+        const status = isRejected ? 200 : 400
+        const message = isRejected ? 'SUCCESS' : 'FAILED'
         this.orderService.reject(orderId)
-        res
-          .status(status)
-          .json({ success: status === 200 ? true : false, message })
+        res.status(status).json({ success: isRejected, message })
       }
 
       await this.openPayments.createOutgoingPayment(order, interactRef)

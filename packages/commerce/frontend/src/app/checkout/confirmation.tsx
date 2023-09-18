@@ -28,7 +28,7 @@ export function Component() {
 
   if (data) {
     let color: string = 'text-turqoise'
-    let text: string | undefined = 'Thank you for your order!'
+    let text: string = 'Thank you for your order!'
     let variant: VariantProps<typeof buttonVariants>['variant'] = 'default'
 
     if (result === 'grant_rejected') {
