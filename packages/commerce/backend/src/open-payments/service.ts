@@ -240,7 +240,7 @@ export class OpenPayments implements IOpenPayments {
   private async getPaymentPointer(url: string) {
     const paymentPointer = await this.opClient.paymentPointer
       .get({
-        url: url
+        url
       })
       .catch(() => {
         this.logger.error(`Could not fetch customer payment pointer "${url}".`)
