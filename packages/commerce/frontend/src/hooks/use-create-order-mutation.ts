@@ -29,5 +29,5 @@ export function useCreateOrderMutation(
     CreateOrderMutationParams
   >
 ) {
-  return useCustomMutation('/orders', createOrderSchema, options)
+  return useCustomMutation({ endpoint: '/orders' }, options)
 }

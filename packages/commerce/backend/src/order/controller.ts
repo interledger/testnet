@@ -6,7 +6,7 @@ import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
 import { IOpenPayments } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
-import { createOrderSchema } from './validation'
+import { createOrderSchema, finishOrderSchema } from './validation'
 
 interface GetParams {
   id?: string
@@ -19,6 +19,7 @@ interface CreateResponse {
 export interface IOrderController {
   get: Controller<Order>
   create: Controller<CreateResponse>
+  finish: Controller
 }
 
 export class OrderController implements IOrderController {
@@ -76,6 +77,40 @@ export class OrderController implements IOrderController {
       res
         .status(201)
         .json(toSuccessReponse({ redirectUrl: grant.interact.redirect }))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async finish(req: Request, res: TypedResponse, next: NextFunction) {
+    try {
+      const orderId = req.params.id
+      if (!orderId) {
+        throw new BadRequest('Order ID was not provided.')
+      }
+
+      // TODO: Verify hash
+      // https://rafiki.dev/concepts/open-payments/grant-interaction/#endpoints
+      const { interactRef, result } = await validate(
+        finishOrderSchema,
+        req.body
+      )
+
+      const order = await this.orderService.ensurePendingState(orderId)
+
+      if (result) {
+        const isRejected = result === 'grant_rejected'
+        const status = isRejected ? 200 : 400
+        const message = isRejected ? 'SUCCESS' : 'FAILED'
+        this.orderService.reject(orderId)
+        res.status(status).json({ success: isRejected, message })
+      }
+
+      await this.openPayments.createOutgoingPayment(order, interactRef)
+      // Manually completing the order for now until we have a way to verify
+      // if the payment went through or not.
+      await this.orderService.complete(order.id)
+      res.status(200).json({ success: true, message: 'SUCCESS' })
     } catch (err) {
       next(err)
     }
