@@ -62,7 +62,13 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
   return (
     <>
       <PageHeader title="Grant request" />
-      <div className="flex w-full flex-col md:max-w-lg">
+      <div className="mt-10 flex w-full flex-col md:max-w-lg">
+        <div className="text-xl font-semibold text-turqoise">
+          {grant.client} wants to access your wallet.
+        </div>
+        <div className="text-turqoise">
+          Please read bellow access request details and accept or decline:
+        </div>
         <GrantDetails
           grant={grant}
           isFinalizedInteraction={false}

@@ -9,12 +9,12 @@ export const GrantDetails = ({
 }: GrantDetailsProps) => {
   return (
     <div className="flex flex-col text-green sm:my-10">
-      <div className="text-xl text-turqoise">
-        <span className="font-semibold">Client: </span>
-        <span className="font-light">{grant.client}</span>
-      </div>
       {isFinalizedInteraction ? (
         <>
+          <div className="text-xl text-turqoise">
+            <span className="font-semibold">Client: </span>
+            <span className="font-light">{grant.client}</span>
+          </div>
           <div>
             <span>Created at: </span>
             <span className="font-light">{grant.createdAt}</span>
@@ -40,7 +40,7 @@ export const GrantDetails = ({
           </div>
           {accessDetails.identifier ? (
             <div>
-              <span>Payment Pointer access: </span>
+              <span>Access to your payment pointer: </span>
               <span className="font-light">{accessDetails.identifier}</span>
             </div>
           ) : null}
