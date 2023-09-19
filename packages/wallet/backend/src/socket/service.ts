@@ -1,10 +1,10 @@
-import { env, type Env } from '@/config/env'
+import { type Env } from '@/config/env'
 import { Logger } from 'winston'
 import socketIo from 'socket.io'
 import http from 'http'
-import { unsealData } from 'iron-session'
 import { AccountService } from '@/account/service'
 import MessageType from './messageType'
+import { withSession } from '@/middleware/withSession'
 
 interface ISocketService {
   init(args: http.Server): void
@@ -35,15 +35,10 @@ export class SocketService implements ISocketService {
     })
     this.deps.logger.info(`Socket Server is started...`)
 
+    this.io.engine.use(withSession)
     this.io.on('connection', async (socket) => {
-      const cookie = socket.request.headers['cookie']
-      const token = cookie?.toString().split('=')[1]
+      const userId = socket.request.session.user.id
 
-      const { user } = await unsealData(token as string, {
-        password: env.COOKIE_PASSWORD
-      })
-
-      const userId = (user as UserSessionData).id
       this.deps.logger.info(`A socket client ${userId} is connected...`)
       socket.join(userId)
 

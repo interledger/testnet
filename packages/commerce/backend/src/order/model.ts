@@ -4,6 +4,7 @@ import { User } from '@/user/model'
 import { Model, TransactionOrKnex } from 'objection'
 
 export enum OrderStatus {
+  PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
   REJECTED = 'REJECTED'
@@ -16,6 +17,9 @@ export class Order extends BaseModel {
   public userId!: string
   public quoteId!: string
   public total!: number
+  public paymentPointerUrl?: string
+  public continueToken?: string
+  public continueUri?: string
   public status!: OrderStatus
   public orderItems!: OrderItem[]
 
@@ -31,7 +35,7 @@ export class Order extends BaseModel {
       )
       .first()) as unknown as { totalAmount: number }
 
-    this.total = totalAmount
+    await this.$query(trx).patch({ total: totalAmount })
     return this
   }
 
