@@ -32,7 +32,7 @@ export class EmailService implements IEmailService {
 
     const host = this.deps.env.RAFIKI_MONEY_FRONTEND_HOST
     this.baseUrl =
-      host === 'localhost' ? 'http://localhost:4003' : `https://${host}`
+      host === 'localhost' ? 'http://localhost:4002' : `https://${host}`
 
     this.from = {
       email: this.deps.env.FROM_EMAIL,

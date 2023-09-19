@@ -48,7 +48,7 @@ services:
     networks:
       - testnet
     ports:
-      - '3003:3003'
+      - '3053:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
 
   # Commerce
@@ -67,7 +67,7 @@ services:
     networks:
       - testnet
     ports:
-      - '3004:3004'
+      - '3054:3004'
 
   # Rafiki
   rafiki-auth:
@@ -77,35 +77,34 @@ services:
     networks:
       - testnet
     ports:
-      - '3006:3006'
-      - '3008:3008'
+      - '3056:3010'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
       ADMIN_PORT: 3008
       NODE_ENV: development
-      AUTH_SERVER_DOMAIN: http://localhost:3006
+      AUTH_SERVER_DOMAIN: http://localhost:3056
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
-      IDENTITY_SERVER_DOMAIN: http://localhost:4003/grant-interactions
+      IDENTITY_SERVER_DOMAIN: http://localhost:4002/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
     depends_on:
       - postgres
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:main@sha256:d1743cfe58f26847dd6fb80704ea9a4cb91747675661911005798d4cd35bef6e
+    image: rafiki-backend:autopeering
     restart: always
     privileged: true
     volumes:
       - ../temp/:/workspace/temp/
     ports:
-      - '3010:80'
-      - '3011:3001'
+      - '3060:80'
+      - '3061:3001'
+      - '3055:3005'
     networks:
       - testnet
     environment:
       NODE_ENV: development
-      PRIVATE_KEY_FILE: ./temp/private-key.pem
       LOG_LEVEL: debug
       ADMIN_PORT: 3001
       CONNECTOR_PORT: 3002
@@ -113,7 +112,7 @@ services:
       DATABASE_URL: postgresql://rafiki_backend:rafiki_backend@postgres/rafiki_backend
       USE_TIGERBEETLE: true
       TIGERBEETLE_CLUSTER_ID: 0
-      TIGERBEETLE_REPLICA_ADDRESSES: 10.5.0.50:4342
+      TIGERBEETLE_REPLICA_ADDRESSES: 10.6.0.50:4342
       NONCE_REDIS_KEY: test
       AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
       AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
@@ -129,6 +128,8 @@ services:
       WEBHOOK_TIMEOUT: 60000
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       QUOTE_URL: http://wallet-backend:3003/quote
+      ENABLE_AUTO_PEERING: true
+      AUTO_PEERING_SERVER_PORT: 3005
     depends_on:
       - postgres
       - redis
@@ -141,7 +142,7 @@ services:
     restart: always
     privileged: true
     ports:
-      - '3012:3012'
+      - '3062:3012'
     networks:
       - testnet
     environment:
@@ -156,7 +157,7 @@ services:
       - tigerbeetle-data:/var/lib/tigerbeetle
     networks:
       testnet:
-        ipv4_address: 10.5.0.50
+        ipv4_address: 10.6.0.50
     entrypoint:
       - /bin/sh
       - -c
@@ -183,8 +184,9 @@ services:
       - ../temp/:/workspace/temp/
     restart: always
     ports:
-      - '3040:3000'
+      - '3042:3000'
     environment:
+      PORT: 3042
       KEY_FILE: ./temp/private-key.pem
 
   redis:
@@ -198,8 +200,8 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.5.0.0/24
-          gateway: 10.5.0.1
+        - subnet: 10.6.0.0/24
+          gateway: 10.6.0.1
 
 volumes:
   pg-data:
