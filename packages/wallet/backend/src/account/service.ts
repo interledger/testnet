@@ -155,6 +155,27 @@ export class AccountService implements IAccountService {
     return accounts
   }
 
+  public async getAccountByAssetCode(
+    userId: string,
+    assetCode: string
+  ): Promise<Account> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('assetCode', assetCode)
+      .first()
+
+    if (!account) {
+      throw new NotFound()
+    }
+
+    account.balance = transformBalance(
+      await this.getAccountBalance(userId, account.assetCode),
+      account.assetScale
+    )
+
+    return account
+  }
+
   public async getAccountById(
     userId: string,
     accountId: string

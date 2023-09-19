@@ -8,8 +8,8 @@ import { withSession } from '@/middleware/withSession'
 
 interface ISocketService {
   init(args: http.Server): void
-  emitMoneyReceivedByUserId(id: string): void
-  emitMoneySentByUserId(id: string): void
+  emitMoneyReceivedByUserId(id: string, assetCode: string): void
+  emitMoneySentByUserId(id: string, assetCode: string): void
 }
 
 interface SocketServiceDependencies {
@@ -54,17 +54,19 @@ export class SocketService implements ISocketService {
     })
   }
 
-  async emitMoneyReceivedByUserId(userId?: string) {
-    if (!userId) return
-
-    const accounts = await this.deps.accountService.getAccounts(userId, false)
-    this.io?.to(userId).emit(MessageType.MONEY_RECEIVED, accounts)
+  async emitMoneyReceivedByUserId(userId: string, assetCode: string) {
+    const account = await this.deps.accountService.getAccountByAssetCode(
+      userId,
+      assetCode
+    )
+    this.io?.to(userId).emit(MessageType.MONEY_RECEIVED, account)
   }
 
-  async emitMoneySentByUserId(userId?: string) {
-    if (!userId) return
-
-    const accounts = await this.deps.accountService.getAccounts(userId, false)
-    this.io?.to(userId).emit(MessageType.MONEY_SENT, accounts)
+  async emitMoneySentByUserId(userId: string, assetCode: string) {
+    const account = await this.deps.accountService.getAccountByAssetCode(
+      userId,
+      assetCode
+    )
+    this.io?.to(userId).emit(MessageType.MONEY_SENT, account)
   }
 }

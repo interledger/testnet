@@ -33,12 +33,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     })
 
     socket?.on('MONEY_RECEIVED', (data) => {
-      console.log(`Account ${data[0].name} updated`)
+      console.log(`Account ${data.name} updated`)
       toast({
         description: (
           <p>
             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            You received some {data[0].assetCode} into account {data[0].name}.
+            You received some {data.assetCode} into account {data.name}.
           </p>
         ),
         variant: 'success'
@@ -46,12 +46,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     })
 
     socket?.on('MONEY_SENT', (data) => {
-      console.log(`Account ${data[0].name} updated`)
+      console.log(`Account ${data.name} updated`)
       toast({
         description: (
           <p>
             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            You sent some {data[0].assetCode} into account {data[0].name}.
+            You sent some {data.assetCode} into account {data.name}.
           </p>
         ),
         variant: 'success'
