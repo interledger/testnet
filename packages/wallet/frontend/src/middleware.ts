@@ -13,7 +13,6 @@ const publicPaths = ['/auth*']
 export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const nextPage = req.nextUrl.searchParams.get('next')
-
   // Because this is not going to run in the browser, we have to explictly pass
   // the cookies.
   const response = await userService.me(
@@ -52,9 +51,13 @@ export async function middleware(req: NextRequest) {
     }
   } else {
     // If the user is not logged in and tries to access a private resource,
-    // redirect to auth page.
+    // redirect to auth page or in the case of grant-interaction, back to the interaction page.
+    const callbackUrl =
+      req.url.indexOf('grant-interact') !== -1 ? `?callbackUrl=${req.url}` : ''
     if (!isPublic && !response.success) {
-      return NextResponse.redirect(new URL('/auth', req.url))
+      return NextResponse.redirect(
+        new URL(`/auth/login/${callbackUrl}`, req.url)
+      )
     }
   }
 

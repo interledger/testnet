@@ -32,8 +32,11 @@ export const GrantDetails = ({
       <div className="border-b border-b-green-5 py-2 text-lg font-semibold">
         Access - Permissions:
       </div>
-      {grant.access.map((accessDetails) => (
-        <div key={grant.id} className="border-b border-b-green-5 py-2">
+      {grant.access.map((accessDetails, index) => (
+        <div
+          key={`${grant.id}-${index}`}
+          className="border-b border-b-green-5 py-2"
+        >
           <div>
             <span>Access type: </span>
             <span className="text-sm">{accessDetails.type.toUpperCase()}</span>
@@ -47,8 +50,11 @@ export const GrantDetails = ({
           <div className="flex flex-row items-center">
             <span>Access action: </span>
             <div className="mx-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
-            {accessDetails.actions.map((permission) => (
-              <div key={accessDetails.id} className="flex items-center">
+            {accessDetails.actions.map((permission, index) => (
+              <div
+                key={`${accessDetails.id}-${index}`}
+                className="flex items-center"
+              >
                 <span className="text-sm">{permission.toUpperCase()}</span>
                 <div className="mx-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
               </div>

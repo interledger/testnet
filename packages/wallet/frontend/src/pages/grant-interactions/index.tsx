@@ -1,5 +1,4 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
-import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
 import type {
   GetServerSideProps,
@@ -13,7 +12,6 @@ import Image from 'next/image'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { GrantDetails } from '@/components/GrantDetails'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -22,9 +20,11 @@ type GrantInteractionPageProps = InferGetServerSidePropsType<
 const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
   grant,
   interactionId,
-  nonce
+  nonce,
+  clientName
 }) => {
   const [openDialog, closeDialog] = useDialog()
+  const client = clientName ? clientName : grant.client
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -61,19 +61,13 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
 
   return (
     <>
-      <PageHeader title="Grant request" />
       <div className="mt-10 flex w-full flex-col md:max-w-lg">
-        <div className="text-xl font-semibold text-turqoise">
-          {grant.client} wants to access your wallet.
+        <div className="text-xl text-green">
+          <span className="font-semibold">{client}</span> wants to access your
+          wallet account and send{' '}
+          {grant.access[0].limits?.sendAmount?.formattedAmount}.
         </div>
-        <div className="text-turqoise">
-          Please read bellow access request details and accept or decline:
-        </div>
-        <GrantDetails
-          grant={grant}
-          isFinalizedInteraction={false}
-        ></GrantDetails>
-        <div className="flex justify-evenly">
+        <div className="mt-10 flex justify-evenly">
           <Button
             aria-label="accept"
             onClick={() => {
@@ -108,13 +102,15 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
 const querySchema = z.object({
   interactId: z.string(),
   nonce: z.string(),
-  clientUri: z.string()
+  clientUri: z.string(),
+  clientName: z.string()
 })
 
 export const getServerSideProps: GetServerSideProps<{
   grant: Grant
   interactionId: string
   nonce: string
+  clientName: string
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -151,14 +147,6 @@ export const getServerSideProps: GetServerSideProps<{
           assetScale: access.limits.sendAmount.assetScale
         }).amount
       }
-
-      if (access.limits.receiveAmount !== null) {
-        access.limits.receiveAmount.formattedAmount = formatAmount({
-          value: access.limits.receiveAmount.value ?? 0,
-          assetCode: access.limits.receiveAmount.assetCode,
-          assetScale: access.limits.receiveAmount.assetScale
-        }).amount
-      }
     }
   })
   grantInteractionResponse.data.client = result.data.clientUri
@@ -167,7 +155,8 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       grant: grantInteractionResponse.data,
       interactionId: result.data.interactId,
-      nonce: result.data.nonce
+      nonce: result.data.nonce,
+      clientName: result.data.clientName
     }
   }
 }
