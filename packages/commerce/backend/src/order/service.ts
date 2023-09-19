@@ -59,7 +59,7 @@ export class OrderService implements IOrderService {
       )
       throw new InternalServerError()
     }
-    return order
+    return order.$query().withGraphFetched('payments')
   }
 
   public async list(userId: string): Promise<Order[]> {

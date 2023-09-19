@@ -91,7 +91,7 @@ export class OrderController implements IOrderController {
 
       // TODO: Verify hash
       // https://rafiki.dev/concepts/open-payments/grant-interaction/#endpoints
-      const { interactRef, result } = await validate(
+      const { interactRef, hash, result } = await validate(
         finishOrderSchema,
         req.body
       )
@@ -106,6 +106,11 @@ export class OrderController implements IOrderController {
         res.status(status).json({ success: isRejected, message })
       }
 
+      await this.openPayments.verifyHash({
+        interactRef,
+        receivedHash: hash,
+        payment: order.payments
+      })
       await this.openPayments.createOutgoingPayment(order, interactRef)
       // Manually completing the order for now until we have a way to verify
       // if the payment went through or not.

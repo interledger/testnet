@@ -8,7 +8,6 @@ exports.up = function (knex) {
     table.uuid('userId')
     table.foreign('userId').references('users.id').onDelete('CASCADE')
     table.string('paymentPointerUrl')
-    table.string('quoteId')
     table.string('continueUri')
     table.string('continueToken')
     table.float('total', 10, 2).defaultTo(0.0)
