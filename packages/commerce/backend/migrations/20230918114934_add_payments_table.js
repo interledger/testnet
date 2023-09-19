@@ -15,7 +15,14 @@ exports.up = function (knex) {
     table.string('interactUrl').notNullable()
     table.string('interactNonce').notNullable()
     table.string('clientNonce').notNullable()
+    table
+      .enum('status', ['PENDING', 'COMPLETED', 'FAILED'])
+      .notNullable()
+      .defaultTo('PENDING')
 
+    table.smallint('attempts').notNullable().defaultTo(0)
+
+    table.timestamp('processAt')
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()
   })

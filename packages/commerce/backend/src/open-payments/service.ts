@@ -7,6 +7,7 @@ import {
   AuthenticatedClient,
   Grant,
   GrantRequest,
+  IncomingPayment,
   PaymentPointer,
   PendingGrant,
   Quote,
@@ -56,6 +57,7 @@ export interface IOpenPayments {
   preparePayment(params: PreparePaymentParams): Promise<PendingGrant>
   createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
   verifyHash(params: VerifyHashParams): Promise<void>
+  getIncomingPayment(url: string): Promise<IncomingPayment>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -76,12 +78,7 @@ export class OpenPayments implements IOpenPayments {
       this.env.PAYMENT_POINTER
     )
 
-    const shopAccessToken = await this.tokenCache
-      .get('accessToken')
-      .catch(() => {
-        this.logger.error('Could not retrieve access token for IP grant.')
-        throw new InternalServerError()
-      })
+    const shopAccessToken = await this.getAccessToken()
 
     const incomingPayment = await this.createIncomingPayment({
       accessToken: shopAccessToken,
@@ -111,7 +108,6 @@ export class OpenPayments implements IOpenPayments {
       continueUri = continueUri.replace('localhost', 'rafiki-auth')
     }
 
-    console.log(clientNonce)
     await Payment.query().insert({
       orderId: order.id,
       quoteId: quote.id,
@@ -171,24 +167,23 @@ export class OpenPayments implements IOpenPayments {
     }
   }
 
+  // `interactUrl` should be the grant request endpoint when upgrading to alpha3
   public async verifyHash({
     interactRef,
-    receivedHash,
-    payment
+    receivedHash
   }: VerifyHashParams): Promise<void> {
     if (!interactRef) {
-      this.logger.error('Missing interactRef')
+      this.logger.error('Missing interactRef.')
       throw new InternalServerError()
     }
 
     if (!receivedHash) {
-      this.logger.error('Missing received hash')
+      this.logger.error('Missing received hash.')
       throw new InternalServerError()
     }
 
-    console.log(payment)
     // const { clientNonce, interactNonce, interactUrl } = payment
-    //const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${interactUrl}`
+    // const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${interactUrl}`
     // const hash = createHash('sha3-512').update(data).digest('base64')
 
     // if (hash !== receivedHash) {
@@ -197,6 +192,26 @@ export class OpenPayments implements IOpenPayments {
     //   this.logger.error(`Calculated hash: "${hash}"`)
     //   throw new InternalServerError()
     // }
+  }
+
+  public async getIncomingPayment(url: string) {
+    const accessToken = await this.getAccessToken()
+    return await this.opClient.incomingPayment
+      .get({
+        url,
+        accessToken
+      })
+      .catch(() => {
+        this.logger.error(`Could not fetch incoming payment "${url}"`)
+        throw new InternalServerError()
+      })
+  }
+
+  private async getAccessToken() {
+    return await this.tokenCache.get('accessToken').catch(() => {
+      this.logger.error('Could not retrieve access token for IP grant.')
+      throw new InternalServerError()
+    })
   }
 
   private async createNonInteractiveQuoteGrant(
