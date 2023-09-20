@@ -15,7 +15,7 @@ const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
   const callBackUrl =
     router.asPath.indexOf('callbackUrl') !== -1
-      ? `${router.query?.callbackUrl}&nonce=${router.query?.nonce}&clientName=${router.query?.clientName}&clientUri=${router.query?.clientUri}`
+      ? `${router.query?.callbackUrl}`
       : '/'
   const loginForm = useZodForm({
     schema: loginSchema

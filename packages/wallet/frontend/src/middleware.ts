@@ -52,12 +52,16 @@ export async function middleware(req: NextRequest) {
   } else {
     // If the user is not logged in and tries to access a private resource,
     // redirect to auth page or in the case of grant-interaction, back to the interaction page.
-    const callbackUrl =
-      req.url.indexOf('grant-interact') !== -1 ? `?callbackUrl=${req.url}` : ''
+
     if (!isPublic && !response.success) {
-      return NextResponse.redirect(
-        new URL(`/auth/login/${callbackUrl}`, req.url)
-      )
+      const url = new URL(`/auth/login/`, req.url)
+      if (req.nextUrl.pathname !== '') {
+        url.searchParams.set(
+          'callbackUrl',
+          `${req.nextUrl.pathname}${req.nextUrl.search}`
+        )
+      }
+      return NextResponse.redirect(url)
     }
   }
 
