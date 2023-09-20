@@ -13,9 +13,8 @@ export function useProductQuery(): UseQueryResult<
   return useQuery({
     queryKey: ['products', slug],
     queryFn: async function () {
-      return await fetcher<Product>('/products/' + slug, {
-        method: 'GET',
-        credentials: 'include'
+      return await fetcher('/products/' + slug, {
+        method: 'GET'
       })
     }
   })

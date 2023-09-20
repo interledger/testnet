@@ -133,3 +133,4 @@ dist
 # Others
 .DS_Store
 .idea
+tmp

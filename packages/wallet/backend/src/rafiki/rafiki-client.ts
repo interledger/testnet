@@ -163,6 +163,9 @@ export class RafikiClient implements IRafikiClient {
     })
 
     if (!response.withdrawEventLiquidity?.success) {
+      if (response.withdrawEventLiquidity?.message === 'Transfer exists') {
+        return true
+      }
       throw new BadRequest(
         response.withdrawEventLiquidity?.message ||
           'Unable to withdrawLiquidity from rafiki'
@@ -296,6 +299,13 @@ export class RafikiClient implements IRafikiClient {
     >(createQuoteMutation, {
       input
     })
+
+    if (
+      createQuote.code === '400' &&
+      createQuote.message === 'invalid amount'
+    ) {
+      throw new BadRequest('Fees exceed send amount')
+    }
 
     if (!createQuote.quote) {
       throw new Error('Unable to fetch created quote')

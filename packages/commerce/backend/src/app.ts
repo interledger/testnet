@@ -9,7 +9,7 @@ import express, {
 import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
-import { BaseError } from './errors/Base'
+import { BaseError } from './errors/base'
 import { Model } from 'objection'
 import { isObject } from './shared/utils'
 import path from 'path'
@@ -53,10 +53,11 @@ export class App {
 
     const env = this.container.resolve('env')
     const productController = this.container.resolve('productController')
+    const orderController = this.container.resolve('orderController')
 
     app.use(
       cors({
-        origin: ['http://localhost:4004'],
+        origin: [env.FRONTEND_URL],
         credentials: true
       })
     )
@@ -77,6 +78,9 @@ export class App {
 
     router.get('/products', productController.list.bind(productController))
     router.get('/products/:slug', productController.get.bind(productController))
+
+    router.post('/orders', orderController.create.bind(orderController))
+    router.patch('/orders/:id', orderController.finish.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -110,8 +114,33 @@ export class App {
         errors: e.errors
       })
     } else {
-      logger.error((isObject(e) ? e.message : e) ?? 'unknown error')
+      const message = isObject(e) ? e.message : 'unknown error'
+      logger.error(message)
+      logger.error(e)
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
+  }
+
+  private async processPendingPayments() {
+    const paymentService = this.container.resolve('paymentService')
+    const logger = this.container.resolve('logger')
+    return paymentService
+      .processPendingPayments()
+      .catch((err) => {
+        logger.error('Error while trying to process pending payments')
+        logger.error(err)
+        return true
+      })
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processPendingPayments())
+        } else {
+          setTimeout(() => this.processPendingPayments(), 5000).unref()
+        }
+      })
+  }
+
+  async processResources() {
+    process.nextTick(() => this.processPendingPayments())
   }
 }

@@ -1,4 +1,4 @@
-import { OrderItem } from '@/orderItem/model'
+import { OrderItem } from '@/order-item/model'
 import { BaseModel } from '@/shared/model'
 import { Model } from 'objection'
 

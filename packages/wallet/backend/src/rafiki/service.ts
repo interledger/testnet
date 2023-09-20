@@ -13,7 +13,8 @@ export enum EventType {
   IncomingPaymentExpired = 'incoming_payment.expired',
   OutgoingPaymentCreated = 'outgoing_payment.created',
   OutgoingPaymentCompleted = 'outgoing_payment.completed',
-  OutgoingPaymentFailed = 'outgoing_payment.failed'
+  OutgoingPaymentFailed = 'outgoing_payment.failed',
+  PaymentPointerNotFound = 'payment_pointer.not_found'
 }
 
 export interface WebHook {
@@ -81,6 +82,15 @@ export class RafikiService implements IRafikiService {
   constructor(private deps: RafikiServiceDependencies) {}
 
   public async onWebHook(wh: WebHook): Promise<void> {
+    this.deps.logger.info(
+      `received webhook of type : ${wh.type} for : ${
+        wh.type === EventType.PaymentPointerNotFound
+          ? ''
+          : wh.data.incomingPayment
+          ? `incomingPayment ${wh.data.incomingPayment.id}}`
+          : `outgoingPayment ${wh.data.payment.id}}`
+      }`
+    )
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -98,6 +108,9 @@ export class RafikiService implements IRafikiService {
         return
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
+        break
+      case EventType.PaymentPointerNotFound:
+        this.deps.logger.warn(`${EventType.PaymentPointerNotFound} received`)
         break
       default:
         throw new BadRequest(`unknown event type, ${wh.type}`)
@@ -183,6 +196,8 @@ export class RafikiService implements IRafikiService {
     const amount = this.getAmountFromWebHook(wh)
 
     if (!this.validateAmount(amount, wh.type)) {
+      //* Only in case the expired incoming payment has no money received will it be set as expired.
+      //* Otherwise, it will complete, even if not all the money is yet sent.
       if (wh.type === EventType.IncomingPaymentExpired) {
         await this.deps.transactionService.updateTransaction(
           { paymentId: wh.data.incomingPayment.id },
@@ -400,6 +415,116 @@ export class RafikiService implements IRafikiService {
         fixed: 100,
         percentage: 0.02,
         scale: 2
+      },
+      AED: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      AUD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      CAD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      CHF: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      CZK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      DKK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      GHP: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      HKD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      HRK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      HUF: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      IDR: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      ILS: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      JPY: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      MXN: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      NOK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      NZD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      PLN: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      RON: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      SEK: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      SGD: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      TRY: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
+      },
+      ZAR: {
+        fixed: 100,
+        percentage: 0.02,
+        scale: 2
       }
     }
 
@@ -472,7 +597,7 @@ export class RafikiService implements IRafikiService {
       )
 
       if (receiveAmountValue <= fees) {
-        throw new BadRequest('Fees exceed quote receiveAmount')
+        this.deps.logger.debug('Fees exceed quote receiveAmount')
       }
 
       receivedQuote.receiveAmount.value = receiveAmountValue - fees

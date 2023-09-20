@@ -1,7 +1,7 @@
 import { PageHeader, PageHeaderHeading } from '@/components/page-header.tsx'
 import { cn } from '@/lib/utils.ts'
 import { CartItems } from './components/cart-items.tsx'
-import { OrderSummary } from './components/order-summary.tsx'
+import { Summary } from './components/summary.tsx'
 
 const ShoppingCartWrapper = ({
   className,
@@ -26,7 +26,7 @@ export function Component() {
       </PageHeader>
       <ShoppingCartWrapper>
         <CartItems />
-        <OrderSummary />
+        <Summary />
       </ShoppingCartWrapper>
     </>
   )
