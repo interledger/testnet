@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { RatesResponse, RatesService } from '../rates/service'
-import { validate } from '../shared/validate'
+import { RatesResponse, RatesService } from '@/rates/service'
+import { validate } from '@/shared/validate'
 import { Quote, RafikiService } from './service'
-import { quoteSchmea, ratesSchema, webhookSchema } from './validation'
+import { quoteSchema, ratesSchema, webhookSchema } from './validation'
 
 interface IRafikiController {
   createQuote: (
@@ -27,7 +27,7 @@ export class RafikiController implements IRafikiController {
   constructor(private deps: RafikiControllerDependencies) {}
   createQuote = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { body } = await validate(quoteSchmea, req)
+      const { body } = await validate(quoteSchema, req)
       const result = await this.deps.rafikiService.createQuote(body)
       res.status(201).json(result)
     } catch (e) {

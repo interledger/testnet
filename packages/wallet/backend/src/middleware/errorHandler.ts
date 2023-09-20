@@ -16,6 +16,7 @@ export const errorHandler = (
       errors: e.errors
     })
   } else if (e instanceof AxiosError) {
+    console.log(e)
     logger.debug(JSON.stringify(e.response?.data, undefined, 2))
 
     const message =

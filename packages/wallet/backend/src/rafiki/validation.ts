@@ -30,13 +30,13 @@ const quoteAmountSchema = z.object({
   assetScale: z.number()
 })
 
-export const quoteSchmea = z.object({
+export const quoteSchema = z.object({
   body: z.object({
     id: z.string(),
     paymentType: z.nativeEnum(PaymentType),
     paymentPointerId: z.string(),
     receiver: z.string(),
-    sendAmount: quoteAmountSchema,
+    debitAmount: quoteAmountSchema,
     receiveAmount: quoteAmountSchema,
     maxPacketAmount: z.bigint().optional(),
     minExchangeRate: z.number().optional(),

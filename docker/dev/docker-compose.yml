@@ -78,6 +78,7 @@ services:
       - testnet
     ports:
       - '3056:3010'
+      - '3058:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
@@ -100,7 +101,8 @@ services:
     ports:
       - '3060:80'
       - '3061:3001'
-      - '3055:3005'
+      - '3055:3055'
+      - '3052:3002'
     networks:
       - testnet
     environment:
@@ -119,17 +121,17 @@ services:
       ILP_ADDRESS: test.net
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
-      PUBLIC_HOST: http://rafiki-backend
-      OPEN_PAYMENTS_URL: http://rafiki-backend
+      PUBLIC_HOST: http://172.17.0.1:3060
+      OPEN_PAYMENTS_URL: http://172.17.0.1:3060
       REDIS_URL: redis://redis:6379/0
-      PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
+      PAYMENT_POINTER_URL:  http://172.17.0.1:3060/test
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       QUOTE_URL: http://wallet-backend:3003/quote
       ENABLE_AUTO_PEERING: true
-      AUTO_PEERING_SERVER_PORT: 3005
+      AUTO_PEERING_SERVER_PORT: 3055
     depends_on:
       - postgres
       - redis

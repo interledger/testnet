@@ -1,5 +1,5 @@
 import { AccountService } from '@/account/service'
-import { BadRequest, NotFound } from '@/errors'
+import { NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
 import { PaymentPointer } from '@/paymentPointer/model'
 import {
@@ -152,17 +152,22 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     const existingPaymentPointer = await PaymentPointer.query().findOne({
       url: params.paymentPointerUrl ?? ''
     })
+
+    let id
     if (!existingPaymentPointer) {
-      throw new BadRequest('Invalid payment pointer')
+      const response = await this.deps.rafikiClient.createReceiver(params)
+      id = response.id
+    } else {
+      const response = await this.createIncomingPaymentTransactions({
+        ...params,
+        accountId: existingPaymentPointer.accountId,
+        paymentPointerId: existingPaymentPointer.id
+      })
+
+      id = response.paymentId
     }
 
-    const response = await this.createIncomingPaymentTransactions({
-      ...params,
-      accountId: existingPaymentPointer.accountId,
-      paymentPointerId: existingPaymentPointer.id
-    })
-
-    return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
+    return `${params.paymentPointerUrl}/incoming-payments/${id}`
   }
 
   private generateExpiryObject(expiry: number, unit: string): Duration {
