@@ -22,6 +22,7 @@ import {
 } from '@interledger/open-payments'
 import { IOpenPayments, OpenPayments } from './open-payments/service'
 import { TokenCache } from './cache/token'
+import { IPaymentService, PaymentService } from './payment/service'
 
 export interface Cradle {
   env: Env
@@ -35,6 +36,7 @@ export interface Cradle {
   orderService: IOrderService
   productController: IProductController
   orderController: IOrderController
+  paymentService: IPaymentService
 }
 
 export async function createContainer(
@@ -61,7 +63,8 @@ export async function createContainer(
     productService: asClass(ProductService).singleton(),
     orderService: asClass(OrderService).singleton(),
     productController: asClass(ProductController).singleton(),
-    orderController: asClass(OrderController).singleton()
+    orderController: asClass(OrderController).singleton(),
+    paymentService: asClass(PaymentService).singleton()
   })
 
   return container

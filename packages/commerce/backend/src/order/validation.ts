@@ -1,12 +1,9 @@
-import { env } from '@/config/env'
 import { z } from 'zod'
 
 export const createOrderSchema = z.object({
   paymentPointerUrl: z
     .string()
-    .transform((val) =>
-      val.replace('$', env.NODE_ENV === 'development' ? 'http://' : 'https://')
-    )
+    .transform((val) => val.replace('$', 'https://'))
     .pipe(z.string().url({ message: 'Invalid payment pointer.' })),
   products: z
     .array(
@@ -16,4 +13,10 @@ export const createOrderSchema = z.object({
       })
     )
     .nonempty()
+})
+
+export const finishOrderSchema = z.object({
+  result: z.enum(['grant_rejected', 'grant_invalid']).optional(),
+  hash: z.string().optional(),
+  interactRef: z.string().uuid().optional()
 })

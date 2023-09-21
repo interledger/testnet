@@ -2,11 +2,13 @@ import { TokenCache } from '@/cache/token'
 import { Env } from '@/config/env'
 import { BadRequest, InternalServerError } from '@/errors'
 import { Order } from '@/order/model'
-import { extractUuidFromUrl } from '@/shared/utils'
+import { Payment } from '@/payment/model'
 import {
   AuthenticatedClient,
   Grant,
   GrantRequest,
+  IncomingPayment,
+  PaymentPointer,
   PendingGrant,
   Quote,
   isPendingGrant
@@ -20,8 +22,7 @@ interface PreparePaymentParams {
 }
 
 interface CreateQuoteParams {
-  paymentPointerUrl: string
-  accessToken: string
+  paymentPointer: PaymentPointer
   receiver: string
 }
 
@@ -37,10 +38,26 @@ interface CreateOutgoingPaymentParams {
   paymentPointer: string
   sendAmount: Amount
   receiveAmount: Amount
+  nonce: string
+}
+
+interface CreateIncomingPaymentParams {
+  paymentPointer: PaymentPointer
+  accessToken: string
+  order: Order
+}
+
+interface VerifyHashParams {
+  interactRef?: string
+  receivedHash?: string
+  payment: Payment
 }
 
 export interface IOpenPayments {
   preparePayment(params: PreparePaymentParams): Promise<PendingGrant>
+  createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
+  verifyHash(params: VerifyHashParams): Promise<void>
+  getIncomingPayment(url: string): Promise<IncomingPayment>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -55,107 +72,146 @@ export class OpenPayments implements IOpenPayments {
     params: PreparePaymentParams
   ): Promise<PendingGrant> {
     const { order, paymentPointerUrl } = params
-    const customerPaymentPointer = await this.opClient.paymentPointer
-      .get({
-        url: paymentPointerUrl
-      })
-      .catch((err) => {
-        this.logger.error(err)
-        throw new BadRequest('Invalid payment pointer.')
-      })
+    const customerPaymentPointer =
+      await this.getPaymentPointer(paymentPointerUrl)
+    const shopPaymentPointer = await this.getPaymentPointer(
+      this.env.PAYMENT_POINTER
+    )
 
-    this.logger.debug('Customer payment pointer', customerPaymentPointer)
-    this.logger.debug(JSON.stringify(customerPaymentPointer, null, 2))
+    const shopAccessToken = await this.getAccessToken()
 
-    const shopPaymentPointer = await this.opClient.paymentPointer
-      .get({
-        url: this.env.PAYMENT_POINTER
-      })
-      .catch((err) => {
-        this.logger.error('Could not fetch shop payment pointer.')
-        this.logger.error(err)
-        throw new InternalServerError()
-      })
-
-    this.logger.debug('Shop payment pointer')
-    this.logger.debug(JSON.stringify(shopPaymentPointer, null, 2))
-
-    const shopAccessToken = await this.tokenCache
-      .get('accessToken')
-      .catch((err) => {
-        this.logger.error('Could not retrieve access token for IP grant.')
-        this.logger.error(err)
-        throw new InternalServerError()
-      })
-
-    const incomingPayment = await this.opClient.incomingPayment
-      .create(
-        {
-          paymentPointer: shopPaymentPointer.id,
-          accessToken: shopAccessToken
-        },
-        {
-          incomingAmount: {
-            assetCode: shopPaymentPointer.assetCode,
-            assetScale: shopPaymentPointer.assetScale,
-            value: (order.total * 10 ** shopPaymentPointer.assetScale).toFixed()
-          },
-          metadata: {
-            orderId: order.id
-          }
-        }
-      )
-      .catch((err) => {
-        this.logger.error('Unable to create incoming payment.')
-        this.logger.error(err)
-        throw new InternalServerError()
-      })
-
-    const quoteGrant = await this.createNonInteractiveQuoteGrant(
-      customerPaymentPointer.authServer,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: 'interact' should be optional
-      {
-        access_token: {
-          access: [
-            {
-              type: 'quote',
-              actions: ['create', 'read']
-            }
-          ]
-        }
-      }
-    ).catch((err) => {
-      this.logger.error('Could not retrieve quote grant.')
-      this.logger.error(err)
-      throw new InternalServerError()
+    const incomingPayment = await this.createIncomingPayment({
+      accessToken: shopAccessToken,
+      order: order,
+      paymentPointer: shopPaymentPointer
     })
 
-    const { quote, quoteId } = await this.createQuote({
-      paymentPointerUrl: customerPaymentPointer.id,
-      accessToken: quoteGrant.access_token.value,
+    const quote = await this.createQuote({
+      paymentPointer: customerPaymentPointer,
       receiver: incomingPayment.id
-    }).catch((err) => {
-      this.logger.error('Unable to create quote.')
-      this.logger.error(err)
-      throw new InternalServerError()
     })
 
-    await order.$query().patch({ quoteId })
+    const clientNonce = randomUUID()
 
-    const outgoingPaymentGrant = this.createOutgoingPaymentGrant({
+    const outgoingPaymentGrant = await this.createOutgoingPaymentGrant({
       orderId: order.id,
       paymentPointer: customerPaymentPointer.id,
       authServer: customerPaymentPointer.authServer,
       sendAmount: quote.sendAmount,
-      receiveAmount: quote.receiveAmount
-    }).catch((err) => {
-      this.logger.error('Could not retrieve outgoing payment grant.')
-      this.logger.error(err)
-      throw new InternalServerError()
+      receiveAmount: quote.receiveAmount,
+      nonce: clientNonce
+    })
+
+    // TODO: Remove replacing "auth/" when upgrading to the new version.
+    let continueUri = outgoingPaymentGrant.continue.uri.replace('auth/', '')
+    if (this.env.NODE_ENV === 'development') {
+      continueUri = continueUri.replace('localhost', 'rafiki-auth')
+    }
+
+    await Payment.query().insert({
+      orderId: order.id,
+      quoteId: quote.id,
+      continueUri,
+      continueToken: outgoingPaymentGrant.continue.access_token.value,
+      interactUrl: outgoingPaymentGrant.interact.redirect,
+      interactNonce: outgoingPaymentGrant.interact.finish,
+      incomingPaymentUrl: incomingPayment.id,
+      clientNonce,
+      paymentPointer: customerPaymentPointer.id
     })
 
     return outgoingPaymentGrant
+  }
+
+  public async createOutgoingPayment(
+    order: Order,
+    interactRef: string
+  ): Promise<void> {
+    try {
+      const continuation = await this.opClient.grant
+        .continue(
+          {
+            accessToken: order.payments.continueToken,
+            url: order.payments.continueUri
+          },
+          {
+            interact_ref: interactRef
+          }
+        )
+        .catch(() => {
+          this.logger.error('Could not finish the continuation request.')
+          throw new InternalServerError()
+        })
+
+      await this.opClient.outgoingPayment
+        .create(
+          {
+            paymentPointer: order.payments.paymentPointer,
+            accessToken: continuation.access_token.value
+          },
+          {
+            quoteId: order.payments.quoteId,
+            metadata: {
+              orderRef: order.id
+            }
+          }
+        )
+        .catch(() => {
+          this.logger.error(
+            `Error while creating outgoing payment for order ${order.id}.`
+          )
+          throw new InternalServerError()
+        })
+    } catch (err) {
+      throw new InternalServerError()
+    }
+  }
+
+  // `interactUrl` should be the grant request endpoint when upgrading to alpha3
+  public async verifyHash({
+    interactRef,
+    receivedHash
+  }: VerifyHashParams): Promise<void> {
+    if (!interactRef) {
+      this.logger.error('Missing interactRef.')
+      throw new InternalServerError()
+    }
+
+    if (!receivedHash) {
+      this.logger.error('Missing received hash.')
+      throw new InternalServerError()
+    }
+
+    // const { clientNonce, interactNonce, interactUrl } = payment
+    // const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${interactUrl}`
+    // const hash = createHash('sha3-512').update(data).digest('base64')
+
+    // if (hash !== receivedHash) {
+    //   this.logger.error(`Invalid hash for payment "${payment.id}"`)
+    //   this.logger.error(`Received hash: "${receivedHash}"`)
+    //   this.logger.error(`Calculated hash: "${hash}"`)
+    //   throw new InternalServerError()
+    // }
+  }
+
+  public async getIncomingPayment(url: string) {
+    const accessToken = await this.getAccessToken()
+    return await this.opClient.incomingPayment
+      .get({
+        url,
+        accessToken
+      })
+      .catch(() => {
+        this.logger.error(`Could not fetch incoming payment "${url}"`)
+        throw new InternalServerError()
+      })
+  }
+
+  private async getAccessToken() {
+    return await this.tokenCache.get('accessToken').catch(() => {
+      this.logger.error('Could not retrieve access token for IP grant.')
+      throw new InternalServerError()
+    })
   }
 
   private async createNonInteractiveQuoteGrant(
@@ -178,34 +234,46 @@ export class OpenPayments implements IOpenPayments {
   private async createOutgoingPaymentGrant(
     params: CreateOutgoingPaymentParams
   ): Promise<PendingGrant> {
-    const { authServer, orderId, paymentPointer, sendAmount, receiveAmount } =
-      params
-    const grant = await this.opClient.grant.request(
-      { url: authServer },
-      {
-        access_token: {
-          access: [
-            {
-              type: 'outgoing-payment',
-              actions: ['create', 'read', 'list'],
-              identifier: paymentPointer,
-              limits: {
-                sendAmount,
-                receiveAmount
+    const {
+      nonce,
+      authServer,
+      orderId,
+      paymentPointer,
+      sendAmount,
+      receiveAmount
+    } = params
+    console.log(nonce)
+    const grant = await this.opClient.grant
+      .request(
+        { url: authServer },
+        {
+          access_token: {
+            access: [
+              {
+                type: 'outgoing-payment',
+                actions: ['create', 'read', 'list'],
+                identifier: paymentPointer,
+                limits: {
+                  sendAmount,
+                  receiveAmount
+                }
               }
+            ]
+          },
+          interact: {
+            start: ['redirect'],
+            finish: {
+              method: 'redirect',
+              uri: `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${orderId}`,
+              nonce
             }
-          ]
-        },
-        interact: {
-          start: ['redirect'],
-          finish: {
-            method: 'redirect',
-            uri: `${this.env.FRONTEND_URL}/placeholder?orderId=${orderId}`,
-            nonce: randomUUID()
           }
         }
-      }
-    )
+      )
+      .catch(() => {
+        this.logger.error('Could not retrieve outgoing payment grant.')
+        throw new InternalServerError()
+      })
 
     if (!isPendingGrant(grant)) {
       this.logger.error('Expected interactive outgoing payment grant.')
@@ -215,25 +283,84 @@ export class OpenPayments implements IOpenPayments {
     return grant
   }
 
-  private async createQuote({
-    paymentPointerUrl,
+  private async getPaymentPointer(url: string) {
+    const paymentPointer = await this.opClient.paymentPointer
+      .get({
+        url
+      })
+      .catch(() => {
+        this.logger.error(`Could not fetch payment pointer "${url}".`)
+        throw new BadRequest('Invalid payment pointer.')
+      })
+
+    this.logger.debug('Payment pointer information', paymentPointer)
+    this.logger.debug(JSON.stringify(paymentPointer, null, 2))
+
+    return paymentPointer
+  }
+
+  private async createIncomingPayment({
+    paymentPointer,
     accessToken,
+    order
+  }: CreateIncomingPaymentParams) {
+    return await this.opClient.incomingPayment
+      .create(
+        {
+          paymentPointer: paymentPointer.id,
+          accessToken: accessToken
+        },
+        {
+          incomingAmount: {
+            assetCode: paymentPointer.assetCode,
+            assetScale: paymentPointer.assetScale,
+            value: (order.total * 10 ** paymentPointer.assetScale).toFixed()
+          },
+          metadata: {
+            orderId: order.id
+          }
+        }
+      )
+      .catch(() => {
+        this.logger.error('Unable to create incoming payment.')
+        throw new InternalServerError()
+      })
+  }
+
+  private async createQuote({
+    paymentPointer,
     receiver
-  }: CreateQuoteParams): Promise<{ quote: Quote; quoteId: string }> {
-    const quote = await this.opClient.quote.create(
+  }: CreateQuoteParams): Promise<Quote> {
+    const grant = await this.createNonInteractiveQuoteGrant(
+      paymentPointer.authServer,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: 'interact' should be optional
       {
-        paymentPointer: paymentPointerUrl,
-        accessToken
-      },
-      { receiver }
-    )
-
-    const quoteId = extractUuidFromUrl(quote.id)
-    if (!quoteId) {
-      this.logger.error(`Could not extract quote ID from ${quote.id}`)
+        access_token: {
+          access: [
+            {
+              type: 'quote',
+              actions: ['create', 'read']
+            }
+          ]
+        }
+      }
+    ).catch(() => {
+      this.logger.error('Could not retrieve quote grant.')
       throw new InternalServerError()
-    }
+    })
 
-    return { quote, quoteId }
+    return await this.opClient.quote
+      .create(
+        {
+          paymentPointer: paymentPointer.id,
+          accessToken: grant.access_token.value
+        },
+        { receiver }
+      )
+      .catch(() => {
+        this.logger.error(`Could not create quote for receiver ${receiver}.`)
+        throw new InternalServerError()
+      })
   }
 }

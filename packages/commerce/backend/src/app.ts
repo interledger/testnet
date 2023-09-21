@@ -80,6 +80,7 @@ export class App {
     router.get('/products/:slug', productController.get.bind(productController))
 
     router.post('/orders', orderController.create.bind(orderController))
+    router.patch('/orders/:id', orderController.finish.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -118,5 +119,28 @@ export class App {
       logger.error(e)
       res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
+  }
+
+  private async processPendingPayments() {
+    const paymentService = this.container.resolve('paymentService')
+    const logger = this.container.resolve('logger')
+    return paymentService
+      .processPendingPayments()
+      .catch((err) => {
+        logger.error('Error while trying to process pending payments')
+        logger.error(err)
+        return true
+      })
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processPendingPayments())
+        } else {
+          setTimeout(() => this.processPendingPayments(), 5000).unref()
+        }
+      })
+  }
+
+  async processResources() {
+    process.nextTick(() => this.processPendingPayments())
   }
 }

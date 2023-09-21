@@ -4,7 +4,7 @@ interface CacheData<TData> {
   createdAt: number
 }
 
-export abstract class InMemoryCache<TData> {
+export class InMemoryCache<TData> {
   protected cache: Map<string, CacheData<TData>>
 
   constructor() {

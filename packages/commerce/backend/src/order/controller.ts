@@ -6,7 +6,9 @@ import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
 import { IOpenPayments } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
-import { createOrderSchema } from './validation'
+import { createOrderSchema, finishOrderSchema } from './validation'
+import { IPaymentService } from '@/payment/service'
+import { Knex } from 'knex'
 
 interface GetParams {
   id?: string
@@ -19,13 +21,16 @@ interface CreateResponse {
 export interface IOrderController {
   get: Controller<Order>
   create: Controller<CreateResponse>
+  finish: Controller
 }
 
 export class OrderController implements IOrderController {
   constructor(
+    private knex: Knex,
     private logger: Logger,
     private openPayments: IOpenPayments,
-    private orderService: IOrderService
+    private orderService: IOrderService,
+    private paymentService: IPaymentService
   ) {}
 
   public async get(
@@ -76,6 +81,43 @@ export class OrderController implements IOrderController {
       res
         .status(201)
         .json(toSuccessReponse({ redirectUrl: grant.interact.redirect }))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async finish(req: Request, res: TypedResponse, next: NextFunction) {
+    try {
+      const orderId = req.params.id
+      if (!orderId) {
+        throw new BadRequest('Order ID was not provided.')
+      }
+
+      const { interactRef, hash, result } = await validate(
+        finishOrderSchema,
+        req.body
+      )
+
+      const order = await this.orderService.ensurePendingState(orderId)
+
+      if (result) {
+        const isRejected = result === 'grant_rejected'
+        const status = isRejected ? 200 : 400
+        const message = isRejected ? 'SUCCESS' : 'FAILED'
+        await this.knex.transaction(async (trx) => {
+          await this.paymentService.fail(order.payments, trx)
+        })
+        res.status(status).json({ success: isRejected, message })
+      }
+
+      await this.openPayments.verifyHash({
+        interactRef,
+        receivedHash: hash,
+        payment: order.payments
+      })
+      await this.openPayments.createOutgoingPayment(order, interactRef)
+
+      res.status(200).json({ success: true, message: 'SUCCESS' })
     } catch (err) {
       next(err)
     }

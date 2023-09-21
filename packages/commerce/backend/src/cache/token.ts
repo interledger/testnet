@@ -74,10 +74,11 @@ export class TokenCache extends InMemoryCache<string> {
      * `http://rafiki-auth:3006/interact/...` which is only available
      * in the Docker container.
      */
-    this.manageUrl = token.access_token.manage.replace(
-      'localhost',
-      'rafiki-auth'
-    )
+    let manageUrl = token.access_token.manage
+    if (this.env.NODE_ENV === 'development') {
+      manageUrl = manageUrl.replace('localhost', 'rafiki-auth')
+    }
+    this.manageUrl = manageUrl
   }
 
   private async getGrant(): Promise<Grant> {
