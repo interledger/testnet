@@ -1,5 +1,5 @@
 {
-  "name": "@commerce/frontend",
+  "name": "@boutique/frontend",
   "type": "module",
   "scripts": {
     "dev": "vite",

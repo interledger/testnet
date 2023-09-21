@@ -9,7 +9,7 @@ export function Component() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Interledger E-Commerce</PageHeaderHeading>
+        <PageHeaderHeading>Interledger Boutique</PageHeaderHeading>
         <PageHeaderDescription>
           Value or feeling? Explore all here!
         </PageHeaderDescription>

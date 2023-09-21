@@ -24,6 +24,6 @@ ADD . ./
 RUN pnpm install -r --offline
 
 # Build backend
-RUN pnpm commerce:backend build
+RUN pnpm boutique:backend build
 
-CMD ["node", "./packages/commerce/backend/dist/index.js"]
+CMD ["node", "./packages/boutique/backend/dist/index.js"]
