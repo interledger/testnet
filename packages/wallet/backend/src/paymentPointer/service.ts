@@ -292,4 +292,16 @@ export class PaymentPointerService implements IPaymentPointerService {
     console.log(res)
     return res.data
   }
+
+  async findByIdWithoutValidation(id: string) {
+    const paymentPointer = await PaymentPointer.query()
+      .findById(id)
+      .where('active', true)
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
+
+    return paymentPointer
+  }
 }

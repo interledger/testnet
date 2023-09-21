@@ -211,7 +211,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
       new TransactionService({
         accountService: await container.resolve('accountService'),
         logger: await container.resolve('logger'),
-        knex: await container.resolve('knex')
+        knex: await container.resolve('knex'),
+        paymentPointerService: await container.resolve('paymentPointerService')
       })
   )
 

@@ -72,7 +72,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:fb3e052d99ca989bea0c4e724fbef30a4ef320e6c4e85ca86ca2e05bb4be2832
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:2c76f507c522f8cdad100aa917c323a68e8cf813e2a43788ee9fd54494730bdc
     restart: always
     networks:
       - testnet
@@ -93,7 +93,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: rafiki-backend:autopeering
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:a3b6c945467aad2872574d15f90c828db6dd094d70a53a67fb75edbd343023d0
     restart: always
     privileged: true
     volumes:
@@ -124,12 +124,11 @@ services:
       PUBLIC_HOST: http://172.17.0.1:3060
       OPEN_PAYMENTS_URL: http://172.17.0.1:3060
       REDIS_URL: redis://redis:6379/0
-      PAYMENT_POINTER_URL:  http://172.17.0.1:3060/test
+      PAYMENT_POINTER_URL: http://172.17.0.1:3060/test
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
-      QUOTE_URL: http://wallet-backend:3003/quote
       ENABLE_AUTO_PEERING: true
       AUTO_PEERING_SERVER_PORT: 3055
     depends_on:

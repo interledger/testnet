@@ -19,7 +19,10 @@ import {
   CreatePaymentPointerMutationVariables,
   CreateQuoteInput,
   CreateQuoteMutation,
-  CreateQuoteMutationVariables, CreateReceiverInput, CreateReceiverMutation, CreateReceiverMutationVariables,
+  CreateQuoteMutationVariables,
+  CreateReceiverInput,
+  CreateReceiverMutation,
+  CreateReceiverMutationVariables,
   DepositLiquidityMutation,
   DepositLiquidityMutationVariables,
   GetAssetQuery,
@@ -32,7 +35,8 @@ import {
   JwkInput,
   OutgoingPayment,
   QueryAssetsArgs,
-  Quote, Receiver,
+  Quote,
+  Receiver,
   RevokePaymentPointerKeyMutation,
   RevokePaymentPointerKeyMutationVariables,
   UpdatePaymentPointerInput,
@@ -46,7 +50,7 @@ import {
   getAssetQuery,
   getAssetsQuery
 } from './backend/request/asset.request'
-import {createIncomingPaymentMutation, createReceiverMutation} from './backend/request/incoming-payment.request'
+import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation

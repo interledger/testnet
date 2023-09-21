@@ -5,6 +5,8 @@ import { Logger } from 'winston'
 import { PaginationQueryParams } from '@/shared/types'
 import { prefixSomeObjectKeys } from '@/utils/helpers'
 import { Knex } from 'knex'
+import { IncomingPayment } from '@/rafiki/backend/generated/graphql'
+import { PaymentPointerService } from '@/paymentPointer/service'
 
 type ListAllTransactionsInput = {
   userId: string
@@ -30,6 +32,7 @@ export interface ITransactionService {
 
 interface TransactionServiceDependencies {
   accountService: AccountService
+  paymentPointerService: PaymentPointerService
   logger: Logger
   knex: Knex
 }
@@ -119,6 +122,26 @@ export class TransactionService implements ITransactionService {
   ): Promise<void> {
     await transaction.$query(trx).patch({
       status: 'EXPIRED'
+    })
+  }
+
+  async createIncomingPayment(params: IncomingPayment) {
+    console.log(JSON.stringify(params, undefined, 2))
+    const paymentPointer =
+      await this.deps.paymentPointerService.findByIdWithoutValidation(
+        params.paymentPointerId
+      )
+
+    return await Transaction.query().insert({
+      paymentPointerId: params.paymentPointerId,
+      accountId: paymentPointer.accountId,
+      paymentId: params.id,
+      assetCode: params.incomingAmount!.assetCode,
+      expiresAt: params.expiresAt ? new Date(params.expiresAt) : undefined,
+      value: params.incomingAmount!.value,
+      type: 'INCOMING',
+      status: 'PENDING',
+      description: params.metadata.description
     })
   }
 }

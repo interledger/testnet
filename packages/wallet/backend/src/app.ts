@@ -263,7 +263,6 @@ export class App {
     router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
     router.get('/rates', rafikiController.getRates)
-    router.post('/quote', rafikiController.createQuote)
     router.post('/webhooks', rafikiController.onWebHook)
 
     // Return an error for invalid routes

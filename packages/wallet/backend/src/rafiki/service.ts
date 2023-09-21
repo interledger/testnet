@@ -65,7 +65,6 @@ type Fee = {
 export type Fees = Record<string, Fee>
 
 interface IRafikiService {
-  createQuote: (receivedQuote: Quote) => Promise<Quote>
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -105,7 +104,10 @@ export class RafikiService implements IRafikiService {
         await this.handleIncomingPaymentCompleted(wh)
         break
       case EventType.IncomingPaymentCreated:
-        return
+        await this.deps.transactionService.createIncomingPayment(
+          wh.data.incomingPayment
+        )
+        break
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
         break
@@ -402,219 +404,5 @@ export class RafikiService implements IRafikiService {
     )
 
     return false
-  }
-
-  public async createQuote(receivedQuote: Quote) {
-    const feeStructure: Fees = {
-      USD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      EUR: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      AED: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      AUD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      CAD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      CHF: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      CZK: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      DKK: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      GHP: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      HKD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      HRK: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      HUF: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      IDR: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      ILS: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      JPY: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      MXN: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      NOK: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      NZD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      PLN: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      RON: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      SEK: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      SGD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      TRY: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      ZAR: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      }
-    }
-
-    if (
-      receivedQuote.debitAmount.assetCode !==
-      receivedQuote.receiveAmount.assetCode
-    ) {
-      this.deps.logger.debug(
-        `conversion fee (from rafiki) : ${
-          receivedQuote.debitAmount.value - receivedQuote.receiveAmount.value
-        }`
-      )
-      this.deps.logger.debug(
-        `Send amount value: ${receivedQuote.debitAmount.value}`
-      )
-      this.deps.logger.debug(
-        `Receive amount: ${receivedQuote.receiveAmount.value} from rafiki which includes cross currency fees already.`
-      )
-    }
-
-    const actualFee = feeStructure[receivedQuote.debitAmount.assetCode]
-
-    if (receivedQuote.paymentType == PaymentType.FixedDelivery) {
-      if (
-        feeStructure[receivedQuote.debitAmount.assetCode] &&
-        receivedQuote.debitAmount.assetScale !==
-          feeStructure[receivedQuote.debitAmount.assetCode].scale
-      ) {
-        throw new BadRequest('Invalid quote debitAmount asset')
-      }
-      const debitAmountValue = BigInt(receivedQuote.debitAmount.value)
-
-      const fees =
-        // TODO: bigint/float multiplication
-        BigInt(Math.floor(Number(debitAmountValue) * actualFee.percentage)) +
-        BigInt(actualFee.fixed)
-
-      this.deps.logger.debug(
-        `wallet fees: (debitAmount (${Math.floor(
-          Number(debitAmountValue)
-        )}) * wallet percentage (${actualFee.percentage})) + fixed ${
-          actualFee.fixed
-        } = ${fees}`
-      )
-
-      receivedQuote.debitAmount.value = debitAmountValue + fees
-
-      this.deps.logger.debug(
-        `Will finally send: ${receivedQuote.debitAmount.value}`
-      )
-    } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
-      if (
-        !Object.keys(feeStructure).includes(
-          receivedQuote.receiveAmount.assetCode
-        )
-      ) {
-        throw new BadRequest('Invalid quote receiveAmount asset')
-      }
-
-      const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
-
-      const fees =
-        BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
-        BigInt(actualFee.fixed)
-
-      this.deps.logger.debug(
-        `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
-          actualFee.percentage
-        }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
-      )
-
-      if (receiveAmountValue <= fees) {
-        this.deps.logger.debug('Fees exceed quote receiveAmount')
-      }
-
-      receivedQuote.receiveAmount.value = receiveAmountValue - fees
-
-      this.deps.logger.debug(
-        `Sum of fees (conversion fee from rafiki + wallet fee): ${
-          receivedQuote.debitAmount.value - receivedQuote.receiveAmount.value
-        } + ${fees} ${receiveAmountValue - fees}`
-      )
-
-      this.deps.logger.debug(
-        `Will finally receive ${receivedQuote.receiveAmount.value}`
-      )
-    } else {
-      throw new BadRequest('Invalid paymentType')
-    }
-
-    return receivedQuote
   }
 }

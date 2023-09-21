@@ -146,6 +146,31 @@ export type CreateIncomingPaymentInput = {
   paymentPointerId: Scalars['String']['input'];
 };
 
+export type CreateOrUpdatePeerByUrlInput = {
+  /** Initial amount of liquidity to add for peer */
+  addedLiquidity?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Asset id of peering relationship */
+  assetId: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Account Servicing Entity will be notified via a webhook event if peer liquidity falls below this value */
+  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Maximum packet amount that the peer accepts */
+  maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Peer's internal name for overriding auto-peer's default naming */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Peer's URL address at which the peer accepts auto-peering requests */
+  peerUrl: Scalars['String']['input'];
+};
+
+export type CreateOrUpdatePeerByUrlMutationResponse = MutationResponse & {
+  __typename?: 'CreateOrUpdatePeerByUrlMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  peer?: Maybe<Peer>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type CreateOutgoingPaymentInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
@@ -199,31 +224,6 @@ export type CreatePaymentPointerWithdrawalInput = {
   idempotencyKey: Scalars['String']['input'];
   /** The id of the Open Payments payment pointer to create the withdrawal for. */
   paymentPointerId: Scalars['String']['input'];
-};
-
-export type CreatePeerByUrlInput = {
-  /** Asset id of peering relationship */
-  assetId: Scalars['String']['input'];
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
-  /** Initial amount of liquidity to add for peer */
-  initialLiquidity?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Account Servicing Entity will be notified via a webhook event if peer liquidity falls below this value */
-  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Maximum packet amount that the peer accepts */
-  maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Peer's internal name for overriding auto-peer's default naming */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /** Peer's URL address at which the peer accepts auto-peering requests */
-  peerUrl: Scalars['String']['input'];
-};
-
-export type CreatePeerByUrlMutationResponse = MutationResponse & {
-  __typename?: 'CreatePeerByUrlMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  peer?: Maybe<Peer>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type CreatePeerInput = {
@@ -511,6 +511,8 @@ export type Mutation = {
   createAssetLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create an internal Open Payments Incoming Payment. The receiver has a payment pointer on this Rafiki instance. */
   createIncomingPayment: IncomingPaymentResponse;
+  /** Create a peer using a URL */
+  createOrUpdatePeerByUrl: CreateOrUpdatePeerByUrlMutationResponse;
   /** Create an Open Payments Outgoing Payment */
   createOutgoingPayment: OutgoingPaymentResponse;
   /** Create a payment pointer */
@@ -521,8 +523,6 @@ export type Mutation = {
   createPaymentPointerWithdrawal?: Maybe<PaymentPointerWithdrawalMutationResponse>;
   /** Create a peer */
   createPeer: CreatePeerMutationResponse;
-  /** Create a peer using a URL */
-  createPeerByUrl: CreatePeerByUrlMutationResponse;
   /** Withdraw peer liquidity */
   createPeerLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create an Open Payments Quote */
@@ -579,6 +579,11 @@ export type MutationCreateIncomingPaymentArgs = {
 };
 
 
+export type MutationCreateOrUpdatePeerByUrlArgs = {
+  input: CreateOrUpdatePeerByUrlInput;
+};
+
+
 export type MutationCreateOutgoingPaymentArgs = {
   input: CreateOutgoingPaymentInput;
 };
@@ -601,11 +606,6 @@ export type MutationCreatePaymentPointerWithdrawalArgs = {
 
 export type MutationCreatePeerArgs = {
   input: CreatePeerInput;
-};
-
-
-export type MutationCreatePeerByUrlArgs = {
-  input: CreatePeerByUrlInput;
 };
 
 
@@ -1002,15 +1002,6 @@ export type QueryPaymentsArgs = {
 };
 
 
-export type QueryPaymentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filter?: InputMaybe<PaymentFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
 export type QueryPeerArgs = {
   id: Scalars['String']['input'];
 };
@@ -1361,10 +1352,3 @@ export type GetQuoteQueryVariables = Exact<{
 
 
 export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, paymentPointerId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
-
-export type CreateReceiverMutationVariables = Exact<{
-  input: CreateReceiverInput;
-}>;
-
-
-export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, paymentPointerUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };

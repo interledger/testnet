@@ -27,7 +27,7 @@ type Access = {
   type: string
   limits: {
     receiver: string | null
-    sendAmount: PaymentAmount | null
+    debitAmount: PaymentAmount | null
     receiveAmount: PaymentAmount | null
     interval: string | null
   } | null

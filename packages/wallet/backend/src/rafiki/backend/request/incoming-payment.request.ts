@@ -28,7 +28,6 @@ export const createIncomingPaymentMutation = gql`
   }
 `
 
-
 export const createReceiverMutation = gql`
   mutation CreateReceiverMutation($input: CreateReceiverInput!) {
     createReceiver(input: $input) {

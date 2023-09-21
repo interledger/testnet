@@ -138,11 +138,11 @@ export const getServerSideProps: GetServerSideProps<{
         ? access.limits.receiver.replace('https://', '$')
         : access.limits.receiver ?? null
 
-      if (access.limits.sendAmount) {
-        access.limits.sendAmount.formattedAmount = formatAmount({
-          value: access.limits.sendAmount.value ?? 0,
-          assetCode: access.limits.sendAmount.assetCode,
-          assetScale: access.limits.sendAmount.assetScale
+      if (access.limits.debitAmount) {
+        access.limits.debitAmount.formattedAmount = formatAmount({
+          value: access.limits.debitAmount.value ?? 0,
+          assetCode: access.limits.debitAmount.assetCode,
+          assetScale: access.limits.debitAmount.assetScale
         }).amount
       }
     }
