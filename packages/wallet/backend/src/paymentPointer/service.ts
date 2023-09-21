@@ -287,9 +287,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       this.deps.env.NODE_ENV === 'development'
         ? url.replace('https://', 'http://')
         : url
-    console.log(url)
     const res = await axios.get(url, { headers })
-    console.log(res)
     return res.data
   }
 

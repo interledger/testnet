@@ -72,13 +72,13 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:2c76f507c522f8cdad100aa917c323a68e8cf813e2a43788ee9fd54494730bdc
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.3
     restart: always
     networks:
       - testnet
     ports:
-      - '3056:3010'
-      - '3058:3008'
+      - '3006:3010'
+      - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
@@ -93,16 +93,16 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:main@sha256:a3b6c945467aad2872574d15f90c828db6dd094d70a53a67fb75edbd343023d0
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.3
     restart: always
     privileged: true
     volumes:
       - ../temp/:/workspace/temp/
     ports:
-      - '3060:80'
-      - '3061:3001'
-      - '3055:3055'
-      - '3052:3002'
+      - '3010:80'
+      - '3011:3001'
+      - '3005:3005'
+      - '3002:3002'
     networks:
       - testnet
     environment:
@@ -114,7 +114,7 @@ services:
       DATABASE_URL: postgresql://rafiki_backend:rafiki_backend@postgres/rafiki_backend
       USE_TIGERBEETLE: true
       TIGERBEETLE_CLUSTER_ID: 0
-      TIGERBEETLE_REPLICA_ADDRESSES: 10.6.0.50:4342
+      TIGERBEETLE_REPLICA_ADDRESSES: 10.5.0.50:4342
       NONCE_REDIS_KEY: test
       AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
       AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
@@ -130,20 +130,20 @@ services:
       WEBHOOK_TIMEOUT: 60000
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       ENABLE_AUTO_PEERING: true
-      AUTO_PEERING_SERVER_PORT: 3055
+      AUTO_PEERING_SERVER_PORT: 3005
     depends_on:
       - postgres
       - redis
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:main@sha256:e8fd69d600a72f760fe175e695db852b351d37fa94065ef206ece051dfc68f8c
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.3
     depends_on:
       - rafiki-backend
     restart: always
     privileged: true
     ports:
-      - '3062:3012'
+      - '3012:3012'
     networks:
       - testnet
     environment:
@@ -158,7 +158,7 @@ services:
       - tigerbeetle-data:/var/lib/tigerbeetle
     networks:
       testnet:
-        ipv4_address: 10.6.0.50
+        ipv4_address: 10.5.0.50
     entrypoint:
       - /bin/sh
       - -c
@@ -185,7 +185,7 @@ services:
       - ../temp/:/workspace/temp/
     restart: always
     ports:
-      - '3042:3000'
+      - '3041:3000'
     environment:
       PORT: 3042
       KEY_FILE: ./temp/private-key.pem
@@ -201,8 +201,8 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.6.0.0/24
-          gateway: 10.6.0.1
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1
 
 volumes:
   pg-data:

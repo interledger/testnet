@@ -75,13 +75,10 @@ export class QuoteService implements IQuoteService {
 
     const isIncomingPayment = incomingPaymentRegexp.test(params.receiver)
 
-    console.log('get payment pointer')
     const destinationPaymentPointer =
       await this.deps.paymentPointerService.getExternalPaymentPointer(
         isIncomingPayment ? urlToPaymentPointer(paymentUrl) : paymentUrl
       )
-
-    console.log('destinationPaymentPointer: ', destinationPaymentPointer)
 
     if (
       params.isReceive &&
@@ -113,7 +110,7 @@ export class QuoteService implements IQuoteService {
     }
 
     if (!isIncomingPayment) {
-      console.log('create receiver')
+
       paymentUrl = await this.deps.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
         asset: {
@@ -132,7 +129,6 @@ export class QuoteService implements IQuoteService {
       value
     }
 
-    console.log('create quote')
     const quote = await this.deps.rafikiClient.createQuote({
       paymentPointerId: params.paymentPointerId,
       receiveAmount: params.isReceive ? amountParams : undefined,
