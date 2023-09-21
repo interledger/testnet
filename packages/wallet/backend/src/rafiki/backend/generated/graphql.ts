@@ -1002,6 +1002,15 @@ export type QueryPaymentsArgs = {
 };
 
 
+export type QueryPaymentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<PaymentFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryPeerArgs = {
   id: Scalars['String']['input'];
 };
@@ -1352,3 +1361,10 @@ export type GetQuoteQueryVariables = Exact<{
 
 
 export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, paymentPointerId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
+
+export type CreateReceiverMutationVariables = Exact<{
+  input: CreateReceiverInput;
+}>;
+
+
+export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, paymentPointerUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };

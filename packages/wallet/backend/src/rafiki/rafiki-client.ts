@@ -64,6 +64,7 @@ import {
   createQuoteMutation,
   getQuoteQuery
 } from './backend/request/quote.request'
+import { createReceiverMutation } from '@/rafiki/backend/request/receiver.request'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -160,9 +161,7 @@ export class RafikiClient implements IRafikiClient {
     return paymentResponse.payment
   }
 
-  public async createReceiver(
-    params: CreateReceiverParams
-  ): Promise<Receiver> {
+  public async createReceiver(params: CreateReceiverParams): Promise<Receiver> {
     const input: CreateReceiverInput = {
       paymentPointerUrl: params.paymentPointerUrl,
       metadata: {
@@ -185,7 +184,6 @@ export class RafikiClient implements IRafikiClient {
         input
       })
 
-    console.log(paymentResponse)
     if (!paymentResponse.success) {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }

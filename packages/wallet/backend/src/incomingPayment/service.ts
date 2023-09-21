@@ -153,16 +153,17 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       url: params.paymentPointerUrl ?? ''
     })
 
-    let id
     if (!existingPaymentPointer) {
       const response = await this.deps.rafikiClient.createReceiver(params)
-      id = response.id
-    } else {
-      const response = await this.createIncomingPaymentTransactions({
-        ...params,
-        accountId: existingPaymentPointer.accountId,
-        paymentPointerId: existingPaymentPointer.id
-      })
+      // id is the incoming payment url
+      return response.id
+    }
+
+    const response = await this.createIncomingPaymentTransactions({
+      ...params,
+      accountId: existingPaymentPointer.accountId,
+      paymentPointerId: existingPaymentPointer.id
+    })
 
       id = response.paymentId
     }

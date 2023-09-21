@@ -18,12 +18,6 @@ export const webhookSchema = z.object({
   })
 })
 
-export const amountSchema = z.object({
-  value: z.bigint(),
-  assetCode: z.string(),
-  assetScale: z.number()
-})
-
 const quoteAmountSchema = z.object({
   value: z.coerce.bigint(),
   assetCode: z.string(),
