@@ -51,7 +51,7 @@ services:
       - '3003:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
 
-  # Boutique 
+  # Boutique
   boutique-backend:
     container_name: boutique-backend
     build:
