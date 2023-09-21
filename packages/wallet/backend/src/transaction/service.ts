@@ -132,13 +132,14 @@ export class TransactionService implements ITransactionService {
         params.paymentPointerId
       )
 
-    return await Transaction.query().insert({
+    const amount = params.incomingAmount || params.receivedAmount
+    return Transaction.query().insert({
       paymentPointerId: params.paymentPointerId,
       accountId: paymentPointer.accountId,
       paymentId: params.id,
-      assetCode: params.incomingAmount!.assetCode,
+      assetCode: amount.assetCode,
       expiresAt: params.expiresAt ? new Date(params.expiresAt) : undefined,
-      value: params.incomingAmount!.value,
+      value: amount.value,
       type: 'INCOMING',
       status: 'PENDING',
       description: params.metadata.description

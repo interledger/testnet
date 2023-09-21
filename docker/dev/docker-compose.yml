@@ -48,7 +48,7 @@ services:
     networks:
       - testnet
     ports:
-      - '3053:3003'
+      - '3003:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
 
   # Commerce
