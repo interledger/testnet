@@ -1,7 +1,7 @@
 {
   "name": "@wallet/frontend",
   "scripts": {
-    "dev": "PORT=4002 next dev",
+    "dev": "PORT=4003 next dev",
     "build": "next build",
     "start": "next start"
   },
