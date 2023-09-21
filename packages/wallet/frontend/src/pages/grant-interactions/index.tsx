@@ -1,5 +1,3 @@
-import { AppLayout } from '@/components/layouts/AppLayout'
-import { NextPageWithLayout } from '@/lib/types/app'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -17,12 +15,12 @@ type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >
 
-const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
+const GrantInteractionPage = ({
   grant,
   interactionId,
   nonce,
   clientName
-}) => {
+}: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
   const client = clientName ? clientName : grant.client
 
@@ -60,32 +58,30 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
   }
 
   return (
-    <>
-      <div className="mt-10 flex w-full flex-col md:max-w-lg">
-        <div className="text-xl text-green">
-          <span className="font-semibold">{client}</span> wants to access your
-          wallet account and send{' '}
-          {grant.access[0].limits?.sendAmount?.formattedAmount}.
-        </div>
-        <div className="mt-10 flex justify-evenly">
-          <Button
-            aria-label="accept"
-            onClick={() => {
-              finalizeGrantRequest('accept')
-            }}
-          >
-            Accept
-          </Button>
-          <Button
-            intent="secondary"
-            aria-label="decline"
-            onClick={() => {
-              finalizeGrantRequest('reject')
-            }}
-          >
-            Decline
-          </Button>
-        </div>
+    <div className="flex h-full flex-col items-center justify-center text-center">
+      <div className="text-xl text-green">
+        <span className="font-semibold">{client}</span> wants to access your
+        wallet account and send{' '}
+        {grant.access[0].limits?.sendAmount?.formattedAmount}.
+      </div>
+      <div className="mt-10 flex w-full max-w-xl justify-evenly">
+        <Button
+          aria-label="accept"
+          onClick={() => {
+            finalizeGrantRequest('accept')
+          }}
+        >
+          Accept
+        </Button>
+        <Button
+          intent="secondary"
+          aria-label="decline"
+          onClick={() => {
+            finalizeGrantRequest('reject')
+          }}
+        >
+          Decline
+        </Button>
       </div>
       <Image
         className="mt-20 object-cover"
@@ -95,7 +91,7 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
         width={500}
         height={150}
       />
-    </>
+    </div>
   )
 }
 
@@ -159,10 +155,6 @@ export const getServerSideProps: GetServerSideProps<{
       clientName: result.data.clientName
     }
   }
-}
-
-GrantInteractionPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
 }
 
 export default GrantInteractionPage
