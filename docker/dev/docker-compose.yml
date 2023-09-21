@@ -187,7 +187,6 @@ services:
     ports:
       - '3040:3000'
     environment:
-      PORT: 3040
       KEY_FILE: ./temp/private-key.pem
 
   redis:
