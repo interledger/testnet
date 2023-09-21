@@ -71,7 +71,7 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-xl text-green">
           <span className="font-semibold">{client}</span> wants to access your
           wallet account and send{' '}
-          {grant.access[0].limits?.sendAmount?.formattedAmount}.
+          {grant.access[0].limits?.debitAmount?.formattedAmount}.
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
