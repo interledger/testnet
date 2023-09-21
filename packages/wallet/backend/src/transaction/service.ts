@@ -126,7 +126,6 @@ export class TransactionService implements ITransactionService {
   }
 
   async createIncomingPayment(params: IncomingPayment) {
-    console.log(JSON.stringify(params, undefined, 2))
     const paymentPointer =
       await this.deps.paymentPointerService.findByIdWithoutValidation(
         params.paymentPointerId

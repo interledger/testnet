@@ -67,7 +67,7 @@ services:
     networks:
       - testnet
     ports:
-      - '3054:3004'
+      - '3004:3004'
 
   # Rafiki
   rafiki-auth:
@@ -77,16 +77,16 @@ services:
     networks:
       - testnet
     ports:
-      - '3006:3010'
+      - '3006:3006'
       - '3008:3008'
     environment:
       PORT: 3006
       INTROSPECTION_PORT: 3007
       ADMIN_PORT: 3008
       NODE_ENV: development
-      AUTH_SERVER_DOMAIN: http://localhost:3056
+      AUTH_SERVER_DOMAIN: http://localhost:3006
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
-      IDENTITY_SERVER_DOMAIN: http://localhost:4002/grant-interactions
+      IDENTITY_SERVER_DOMAIN: http://localhost:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
     depends_on:
       - postgres
@@ -121,10 +121,10 @@ services:
       ILP_ADDRESS: test.net
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
-      PUBLIC_HOST: http://172.17.0.1:3060
-      OPEN_PAYMENTS_URL: http://172.17.0.1:3060
+      PUBLIC_HOST: http://rafiki-backend
+      OPEN_PAYMENTS_URL: http://rafiki-backend
       REDIS_URL: redis://redis:6379/0
-      PAYMENT_POINTER_URL: http://172.17.0.1:3060/test
+      PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
@@ -185,7 +185,7 @@ services:
       - ../temp/:/workspace/temp/
     restart: always
     ports:
-      - '3041:3000'
+      - '3040:3000'
     environment:
       PORT: 3042
       KEY_FILE: ./temp/private-key.pem
