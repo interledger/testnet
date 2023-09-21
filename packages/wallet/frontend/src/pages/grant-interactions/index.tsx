@@ -58,39 +58,41 @@ const GrantInteractionPage = ({
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center text-center">
-      <div className="text-xl text-green">
-        <span className="font-semibold">{client}</span> wants to access your
-        wallet account and send{' '}
-        {grant.access[0].limits?.sendAmount?.formattedAmount}.
+    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
+      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+        <Image
+          className="mx-auto object-cover"
+          src="/grants.webp"
+          alt="Grants"
+          quality={100}
+          width={500}
+          height={150}
+        />
+        <div className="mt-20 text-xl text-green">
+          <span className="font-semibold">{client}</span> wants to access your
+          wallet account and send{' '}
+          {grant.access[0].limits?.sendAmount?.formattedAmount}.
+        </div>
+        <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
+          <Button
+            aria-label="accept"
+            onClick={() => {
+              finalizeGrantRequest('accept')
+            }}
+          >
+            Accept
+          </Button>
+          <Button
+            intent="secondary"
+            aria-label="decline"
+            onClick={() => {
+              finalizeGrantRequest('reject')
+            }}
+          >
+            Decline
+          </Button>
+        </div>
       </div>
-      <div className="mt-10 flex w-full max-w-xl justify-evenly">
-        <Button
-          aria-label="accept"
-          onClick={() => {
-            finalizeGrantRequest('accept')
-          }}
-        >
-          Accept
-        </Button>
-        <Button
-          intent="secondary"
-          aria-label="decline"
-          onClick={() => {
-            finalizeGrantRequest('reject')
-          }}
-        >
-          Decline
-        </Button>
-      </div>
-      <Image
-        className="mt-20 object-cover"
-        src="/grants.webp"
-        alt="Grants"
-        quality={100}
-        width={500}
-        height={150}
-      />
     </div>
   )
 }
