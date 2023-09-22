@@ -95,7 +95,6 @@ services:
       - redis
     environment:
       NODE_ENV: ${NODE_ENV}
-      PRIVATE_KEY_FILE: ${RAFIKI_BACKEND_PRIVATE_KEY_FILE}
       LOG_LEVEL: ${RAFIKI_BACKEND_LOG_LEVEL}
       ADMIN_PORT: ${RAFIKI_BACKEND_ADMIN_PORT}
       CONNECTOR_PORT: ${RAFIKI_BACKEND_CONNECTOR_PORT}
@@ -124,6 +123,8 @@ services:
     ports:
       - '3010:80'
       - '3011:3001'
+      - '${RAFIKI_BACKEND_AUTOPEERING_PORT}:${RAFIKI_BACKEND_AUTOPEERING_PORT}'
+      - '${RAFIKI_BACKEND_CONNECTOR_PORT}:${RAFIKI_BACKEND_CONNECTOR_PORT}'
     privileged: true
     restart: always
     volumes:
