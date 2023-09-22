@@ -124,6 +124,7 @@ services:
       - '3010:80'
       - '3011:3001'
       - '${RAFIKI_BACKEND_AUTOPEERING_PORT}:${RAFIKI_BACKEND_AUTOPEERING_PORT}'
+      - '${RAFIKI_BACKEND_CONNECTOR_PORT}:${RAFIKI_BACKEND_CONNECTOR_PORT}'
     privileged: true
     restart: always
     volumes:
