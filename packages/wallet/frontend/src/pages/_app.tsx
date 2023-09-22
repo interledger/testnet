@@ -9,7 +9,6 @@ import { MoneyBird } from '@/components/icons/MoneyBird'
 import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
-import { useBalanceContext } from '@/lib/context/balance'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -20,7 +19,6 @@ const titilium = Titillium_Web({
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
   const { toast } = useToast()
-  // const { setBalance } = useBalanceContext()
 
   useEffect(() => {
     let socket: Socket | null = null
