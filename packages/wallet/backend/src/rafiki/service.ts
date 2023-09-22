@@ -104,7 +104,7 @@ export class RafikiService implements IRafikiService {
         await this.handleIncomingPaymentCompleted(wh)
         break
       case EventType.IncomingPaymentCreated:
-        await this.deps.transactionService.createIncomingPayment(
+        await this.deps.transactionService.createIncomingTransaction(
           wh.data.incomingPayment
         )
         break
@@ -250,6 +250,9 @@ export class RafikiService implements IRafikiService {
       return
     }
 
+    await this.deps.transactionService.createOutgoingTransaction(
+      wh.data.payment
+    )
     const holdResult = await this.deps.rapydClient.holdLiquidity({
       amount: this.amountToNumber(amount),
       currency: amount.assetCode,

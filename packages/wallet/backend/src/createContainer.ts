@@ -173,7 +173,10 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
-  container.singleton('ratesService', async () => new RatesService())
+  container.singleton(
+    'ratesService',
+    async () => new RatesService({ env: await container.resolve('env') })
+  )
 
   container.singleton(
     'rapydController',

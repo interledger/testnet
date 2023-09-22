@@ -44,6 +44,7 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL}
+      RATE_API_KEY: ${RATE_API_KEY}
     restart: always
     networks:
       - testnet
