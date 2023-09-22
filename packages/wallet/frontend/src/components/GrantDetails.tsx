@@ -1,34 +1,27 @@
 import { Grant } from '@/lib/api/grants'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 
-type GrantDetailsProps = { grant: Grant; isFinalizedInteraction: boolean }
+type GrantDetailsProps = { grant: Grant }
 
-export const GrantDetails = ({
-  grant,
-  isFinalizedInteraction
-}: GrantDetailsProps) => {
+export const GrantDetails = ({ grant }: GrantDetailsProps) => {
   return (
     <div className="flex flex-col text-green sm:my-10">
       <div className="text-xl text-turqoise">
         <span className="font-semibold">Client: </span>
         <span className="font-light">{grant.client}</span>
       </div>
-      {isFinalizedInteraction ? (
-        <>
-          <div>
-            <span>Created at: </span>
-            <span className="font-light">{grant.createdAt}</span>
-          </div>
-          <div className="flex items-center">
-            <span className="mr-4">State: </span>
-            <Badge
-              intent={getStatusBadgeIntent(grant.state)}
-              size="md"
-              text={grant.state}
-            />
-          </div>
-        </>
-      ) : null}
+      <div>
+        <span>Created at: </span>
+        <span className="font-light">{grant.createdAt}</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-4">State: </span>
+        <Badge
+          intent={getStatusBadgeIntent(grant.state)}
+          size="md"
+          text={grant.state}
+        />
+      </div>
       <div className="border-b border-b-green-5 py-2 text-lg font-semibold">
         Access - Permissions:
       </div>
@@ -43,7 +36,7 @@ export const GrantDetails = ({
           </div>
           {accessDetails.identifier ? (
             <div>
-              <span>Payment Pointer access: </span>
+              <span>Access to your payment pointer: </span>
               <span className="font-light">{accessDetails.identifier}</span>
             </div>
           ) : null}

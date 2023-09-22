@@ -32,8 +32,13 @@ export type Access = Model & {
   type: Scalars['String']['output'];
 };
 
+export type FilterGrantState = {
+  in?: InputMaybe<Array<GrantState>>;
+  notIn?: InputMaybe<Array<GrantState>>;
+};
+
 export type FilterString = {
-  in: Array<Scalars['String']['input']>;
+  in?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type Grant = Model & {
@@ -58,6 +63,7 @@ export type GrantEdge = {
 
 export type GrantFilter = {
   identifier?: InputMaybe<FilterString>;
+  state?: InputMaybe<FilterGrantState>;
 };
 
 export enum GrantState {

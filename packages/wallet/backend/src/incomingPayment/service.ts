@@ -1,5 +1,5 @@
 import { AccountService } from '@/account/service'
-import { BadRequest, NotFound } from '@/errors'
+import { NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
 import { PaymentPointer } from '@/paymentPointer/model'
 import {
@@ -152,8 +152,11 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     const existingPaymentPointer = await PaymentPointer.query().findOne({
       url: params.paymentPointerUrl ?? ''
     })
+
     if (!existingPaymentPointer) {
-      throw new BadRequest('Invalid payment pointer')
+      const response = await this.deps.rafikiClient.createReceiver(params)
+      // id is the incoming payment url
+      return response.id
     }
 
     const response = await this.createIncomingPaymentTransactions({
