@@ -132,7 +132,7 @@ export class QuoteService implements IQuoteService {
       paymentPointerId: params.paymentPointerId,
       receiveAmount: params.isReceive ? amountParams : undefined,
       receiver: paymentUrl,
-      sendAmount: params.isReceive ? undefined : amountParams
+      debitAmount: params.isReceive ? undefined : amountParams
     })
 
     return this.addConversionInfo(
@@ -145,25 +145,25 @@ export class QuoteService implements IQuoteService {
     quote: Quote,
     originalValue?: bigint
   ): Promise<QuoteWithFees | Quote> {
-    if (quote.receiveAmount.assetCode === quote.sendAmount.assetCode) {
+    if (quote.receiveAmount.assetCode === quote.debitAmount.assetCode) {
       return quote
     }
     const value = await this.convert({
       from: quote.receiveAmount.assetCode,
-      to: quote.sendAmount.assetCode,
+      to: quote.debitAmount.assetCode,
       amount: quote.receiveAmount.value
     })
 
-    const feeInSenderCurrency = BigInt(quote.sendAmount.value) - value
+    const feeInSenderCurrency = BigInt(quote.debitAmount.value) - value
 
     return {
       ...quote,
       fee: {
         value: originalValue
-          ? BigInt(quote.sendAmount.value) - originalValue
+          ? BigInt(quote.debitAmount.value) - originalValue
           : feeInSenderCurrency,
-        assetScale: quote.sendAmount.assetScale,
-        assetCode: quote.sendAmount.assetCode
+        assetScale: quote.debitAmount.assetScale,
+        assetCode: quote.debitAmount.assetCode
       }
     }
   }

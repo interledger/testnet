@@ -27,16 +27,6 @@ type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
 }
 type SelectPaymentPointerOption = SelectOption & { url: string }
 
-function getIncomingPaymentUrl(
-  paymentId: string,
-  paymentPointers: SelectPaymentPointerOption[],
-  paymentPointerId: string
-): string {
-  return `${paymentPointers.find(
-    (paymentPointer) => paymentPointer.value === paymentPointerId
-  )?.url}/incoming-payments/${paymentId}`.replace('https://', '$')
-}
-
 const timeUnitOptions: SelectTimeUnitOption[] = [
   { value: 's', label: 'second(s)' },
   { value: 'm', label: 'minute(s)' },
@@ -110,11 +100,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               openDialog(
                 <SuccessDialog
                   onClose={closeDialog}
-                  copyToClipboard={getIncomingPaymentUrl(
-                    response.data?.paymentId || '',
-                    paymentPointers,
-                    requestForm.getValues('paymentPointerId.value')
-                  )}
+                  copyToClipboard={response.data?.url}
                   title="Funds requested."
                   content="Funds were successfully requested"
                   redirect={`/`}

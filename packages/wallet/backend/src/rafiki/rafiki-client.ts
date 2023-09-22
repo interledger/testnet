@@ -20,6 +20,9 @@ import {
   CreateQuoteInput,
   CreateQuoteMutation,
   CreateQuoteMutationVariables,
+  CreateReceiverInput,
+  CreateReceiverMutation,
+  CreateReceiverMutationVariables,
   DepositLiquidityMutation,
   DepositLiquidityMutationVariables,
   GetAssetQuery,
@@ -33,6 +36,7 @@ import {
   OutgoingPayment,
   QueryAssetsArgs,
   Quote,
+  Receiver,
   RevokePaymentPointerKeyMutation,
   RevokePaymentPointerKeyMutationVariables,
   UpdatePaymentPointerInput,
@@ -64,6 +68,7 @@ import {
   createQuoteMutation,
   getQuoteQuery
 } from './backend/request/quote.request'
+import { createReceiverMutation } from '@/rafiki/backend/request/receiver.request'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -77,14 +82,21 @@ interface RafikiClientDependencies {
   gqlClient: GraphQLClient
 }
 
-export type CreateIncomingPaymentParams = {
-  paymentPointerId: string
+type PaymentParams = {
   amount: bigint | null
   asset: Pick<Asset, 'code' | 'scale'>
   description?: string
   expiresAt?: Date
-  accountId: string
 }
+
+export type CreateIncomingPaymentParams = {
+  paymentPointerId: string
+  accountId: string
+} & PaymentParams
+
+export type CreateReceiverParams = {
+  paymentPointerUrl: string
+} & PaymentParams
 export class RafikiClient implements IRafikiClient {
   constructor(private deps: RafikiClientDependencies) {}
 
@@ -151,6 +163,39 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return paymentResponse.payment
+  }
+
+  public async createReceiver(params: CreateReceiverParams): Promise<Receiver> {
+    const input: CreateReceiverInput = {
+      paymentPointerUrl: params.paymentPointerUrl,
+      metadata: {
+        description: params.description
+      },
+      expiresAt: params.expiresAt?.toISOString(),
+      ...(params.amount && {
+        incomingAmount: {
+          value: params.amount,
+          assetCode: params.asset.code,
+          assetScale: params.asset.scale
+        }
+      })
+    }
+    const { createReceiver: paymentResponse } =
+      await this.deps.gqlClient.request<
+        CreateReceiverMutation,
+        CreateReceiverMutationVariables
+      >(createReceiverMutation, {
+        input
+      })
+
+    if (!paymentResponse.success) {
+      throw new Error(paymentResponse.message ?? 'Empty result')
+    }
+    if (!paymentResponse.receiver) {
+      throw new Error('Unable to fetch created payment pointer')
+    }
+
+    return paymentResponse.receiver as Receiver
   }
 
   public async withdrawLiqudity(eventId: string) {

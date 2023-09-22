@@ -1,6 +1,5 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
-import { Transaction } from '@/transaction/model'
 import {
   incomingPaymentSchema,
   paymentDetailsSchema
@@ -14,7 +13,7 @@ export interface PaymentDetails {
 }
 
 interface IIncomingPaymentController {
-  create: ControllerFunction<Transaction>
+  create: ControllerFunction<{ url: string }>
   getPaymentDetailsByUrl: ControllerFunction<PaymentDetails>
 }
 interface IncomingPaymentControllerDependencies {
@@ -26,7 +25,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
 
   create = async (
     req: Request,
-    res: CustomResponse<Transaction>,
+    res: CustomResponse<{ url: string }>,
     next: NextFunction
   ) => {
     try {
@@ -35,16 +34,14 @@ export class IncomingPaymentController implements IIncomingPaymentController {
         body: { paymentPointerId, amount, description, expiration }
       } = await validate(incomingPaymentSchema, req)
 
-      const transaction = await this.deps.incomingPaymentService.create(
+      const url = await this.deps.incomingPaymentService.create(
         userId,
         paymentPointerId,
         amount,
         description,
         expiration
       )
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', data: transaction })
+      res.status(200).json({ success: true, message: 'SUCCESS', data: { url } })
     } catch (e) {
       next(e)
     }

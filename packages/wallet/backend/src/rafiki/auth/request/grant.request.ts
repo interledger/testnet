@@ -29,7 +29,7 @@ export const getGrantsQuery = gql`
             type
             limits {
               receiver
-              sendAmount {
+              debitAmount {
                 value
                 assetCode
                 assetScale
@@ -69,7 +69,7 @@ export const getGrantByIdQuery = gql`
         type
         limits {
           receiver
-          sendAmount {
+          debitAmount {
             value
             assetCode
             assetScale
