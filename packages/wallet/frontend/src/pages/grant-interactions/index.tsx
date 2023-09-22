@@ -71,7 +71,7 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-xl text-green">
           <span className="font-semibold">{client}</span> wants to access your
           wallet account and send{' '}
-          {grant.access[0].limits?.sendAmount?.formattedAmount}.
+          {grant.access[0].limits?.debitAmount?.formattedAmount}.
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
@@ -138,11 +138,11 @@ export const getServerSideProps: GetServerSideProps<{
         ? access.limits.receiver.replace('https://', '$')
         : access.limits.receiver ?? null
 
-      if (access.limits.sendAmount) {
-        access.limits.sendAmount.formattedAmount = formatAmount({
-          value: access.limits.sendAmount.value ?? 0,
-          assetCode: access.limits.sendAmount.assetCode,
-          assetScale: access.limits.sendAmount.assetScale
+      if (access.limits.debitAmount) {
+        access.limits.debitAmount.formattedAmount = formatAmount({
+          value: access.limits.debitAmount.value ?? 0,
+          assetCode: access.limits.debitAmount.assetCode,
+          assetScale: access.limits.debitAmount.assetScale
         }).amount
       }
     }

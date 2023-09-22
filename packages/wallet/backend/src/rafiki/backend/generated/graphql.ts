@@ -70,8 +70,14 @@ export type Asset = Model & {
   id: Scalars['ID']['output'];
   /** Available liquidity */
   liquidity?: Maybe<Scalars['BigInt']['output']>;
+  /** Account Servicing Entity will be notified via a webhook event if liquidity falls below this value */
+  liquidityThreshold?: Maybe<Scalars['BigInt']['output']>;
+  /** The receiving fee structure for the asset */
+  receivingFee?: Maybe<Fee>;
   /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
   scale: Scalars['UInt8']['output'];
+  /** The sending fee structure for the asset */
+  sendingFee?: Maybe<Fee>;
   /** Minimum amount of liquidity that can be withdrawn from the asset */
   withdrawalThreshold?: Maybe<Scalars['BigInt']['output']>;
 };
@@ -108,6 +114,8 @@ export type CreateAssetInput = {
   code: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Account Servicing Entity will be notified via a webhook event if liquidity falls below this value */
+  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
   /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
   scale: Scalars['UInt8']['input'];
   /** Minimum amount of liquidity that can be withdrawn from the asset */
@@ -136,6 +144,31 @@ export type CreateIncomingPaymentInput = {
   metadata?: InputMaybe<Scalars['JSONObject']['input']>;
   /** Id of the payment pointer under which the incoming payment will be created */
   paymentPointerId: Scalars['String']['input'];
+};
+
+export type CreateOrUpdatePeerByUrlInput = {
+  /** Initial amount of liquidity to add for peer */
+  addedLiquidity?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Asset id of peering relationship */
+  assetId: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Account Servicing Entity will be notified via a webhook event if peer liquidity falls below this value */
+  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Maximum packet amount that the peer accepts */
+  maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Peer's internal name for overriding auto-peer's default naming */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Peer's URL address at which the peer accepts auto-peering requests */
+  peerUrl: Scalars['String']['input'];
+};
+
+export type CreateOrUpdatePeerByUrlMutationResponse = MutationResponse & {
+  __typename?: 'CreateOrUpdatePeerByUrlMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  peer?: Maybe<Peer>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type CreateOutgoingPaymentInput = {
@@ -200,6 +233,10 @@ export type CreatePeerInput = {
   http: HttpInput;
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Initial amount of liquidity to add for peer */
+  initialLiquidity?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Account Servicing Entity will be notified via a webhook event if peer liquidity falls below this value */
+  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
   /** Maximum packet amount that the peer accepts */
   maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
   /** Peer's internal name */
@@ -228,6 +265,8 @@ export type CreatePeerMutationResponse = MutationResponse & {
 };
 
 export type CreateQuoteInput = {
+  /** Amount to send (fixed send) */
+  debitAmount?: InputMaybe<AmountInput>;
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Id of the payment pointer under which the quote will be created */
@@ -236,8 +275,6 @@ export type CreateQuoteInput = {
   receiveAmount?: InputMaybe<AmountInput>;
   /** Payment pointer URL of the receiver */
   receiver: Scalars['String']['input'];
-  /** Amount to send (fixed send) */
-  sendAmount?: InputMaybe<AmountInput>;
 };
 
 export type CreateReceiverInput = {
@@ -284,6 +321,36 @@ export type DepositEventLiquidityInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey: Scalars['String']['input'];
 };
+
+export type Fee = Model & {
+  __typename?: 'Fee';
+  /** Asset id associated with the fee */
+  assetId: Scalars['ID']['output'];
+  /** Basis points fee. 1 basis point = 0.01%, 100 basis points = 1%, 10000 basis points = 100% */
+  basisPoints: Scalars['Int']['output'];
+  /** Date-time of creation */
+  createdAt: Scalars['String']['output'];
+  /** Fixed fee */
+  fixed: Scalars['BigInt']['output'];
+  /** Fee id */
+  id: Scalars['ID']['output'];
+  /** Type of fee (sending or receiving) */
+  type: FeeType;
+};
+
+export type FeeDetails = {
+  /** Basis points fee. Should be between 0 and 10000 (inclusive). 1 basis point = 0.01%, 100 basis points = 1%, 10000 basis points = 100% */
+  basisPoints: Scalars['Int']['input'];
+  /** A flat fee */
+  fixed: Scalars['BigInt']['input'];
+};
+
+export enum FeeType {
+  /** Receiver pays the fees */
+  Receiving = 'RECEIVING',
+  /** Sender pays the fees */
+  Sending = 'SENDING'
+}
 
 export type FilterString = {
   in: Array<Scalars['String']['input']>;
@@ -444,6 +511,8 @@ export type Mutation = {
   createAssetLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create an internal Open Payments Incoming Payment. The receiver has a payment pointer on this Rafiki instance. */
   createIncomingPayment: IncomingPaymentResponse;
+  /** Create a peer using a URL */
+  createOrUpdatePeerByUrl: CreateOrUpdatePeerByUrlMutationResponse;
   /** Create an Open Payments Outgoing Payment */
   createOutgoingPayment: OutgoingPaymentResponse;
   /** Create a payment pointer */
@@ -468,10 +537,12 @@ export type Mutation = {
   postLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Revoke a public key associated with a payment pointer. Open Payment requests using this key for request signatures will be denied going forward. */
   revokePaymentPointerKey?: Maybe<RevokePaymentPointerKeyMutationResponse>;
+  /** Set the fee on an asset */
+  setFee: SetFeeResponse;
   /** If automatic withdrawal of funds received via Web Monetization by the payment pointer are disabled, this mutation can be used to trigger up to n withdrawal events. */
   triggerPaymentPointerEvents: TriggerPaymentPointerEventsMutationResponse;
-  /** Update an asset's withdrawal threshold. The withdrawal threshold indicates the MINIMUM amount that can be withdrawn. */
-  updateAssetWithdrawalThreshold: AssetMutationResponse;
+  /** Update an asset */
+  updateAsset: AssetMutationResponse;
   /** Update a payment pointer */
   updatePaymentPointer: UpdatePaymentPointerMutationResponse;
   /** Update a peer */
@@ -505,6 +576,11 @@ export type MutationCreateAssetLiquidityWithdrawalArgs = {
 
 export type MutationCreateIncomingPaymentArgs = {
   input: CreateIncomingPaymentInput;
+};
+
+
+export type MutationCreateOrUpdatePeerByUrlArgs = {
+  input: CreateOrUpdatePeerByUrlInput;
 };
 
 
@@ -568,12 +644,17 @@ export type MutationRevokePaymentPointerKeyArgs = {
 };
 
 
+export type MutationSetFeeArgs = {
+  input: SetFeeInput;
+};
+
+
 export type MutationTriggerPaymentPointerEventsArgs = {
   input: TriggerPaymentPointerEventsInput;
 };
 
 
-export type MutationUpdateAssetWithdrawalThresholdArgs = {
+export type MutationUpdateAssetArgs = {
   input: UpdateAssetInput;
 };
 
@@ -607,6 +688,8 @@ export type OutgoingPayment = BasePayment & Model & {
   __typename?: 'OutgoingPayment';
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
+  /** Amount to send (fixed send) */
+  debitAmount: Amount;
   error?: Maybe<Scalars['String']['output']>;
   /** Outgoing payment id */
   id: Scalars['ID']['output'];
@@ -620,8 +703,6 @@ export type OutgoingPayment = BasePayment & Model & {
   receiveAmount: Amount;
   /** Payment pointer URL of the receiver */
   receiver: Scalars['String']['output'];
-  /** Amount to send (fixed send) */
-  sendAmount: Amount;
   /** Amount already sent */
   sentAmount: Amount;
   /** Outgoing payment state */
@@ -820,6 +901,8 @@ export type Peer = Model & {
   id: Scalars['ID']['output'];
   /** Available liquidity */
   liquidity?: Maybe<Scalars['BigInt']['output']>;
+  /** Account Servicing Entity will be notified via a webhook event if peer liquidity falls below this value */
+  liquidityThreshold?: Maybe<Scalars['BigInt']['output']>;
   /** Maximum packet amount that the peer accepts */
   maxPacketAmount?: Maybe<Scalars['BigInt']['output']>;
   /** Peer's public name */
@@ -949,6 +1032,8 @@ export type Quote = {
   __typename?: 'Quote';
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
+  /** Amount to send (fixed send) */
+  debitAmount: Amount;
   /** Date-time of expiration */
   expiresAt: Scalars['String']['output'];
   /** Upper bound of probed exchange rate */
@@ -967,8 +1052,6 @@ export type Quote = {
   receiveAmount: Amount;
   /** Payment pointer URL of the receiver */
   receiver: Scalars['String']['output'];
-  /** Amount to send (fixed send) */
-  sendAmount: Amount;
 };
 
 export type QuoteConnection = {
@@ -1028,6 +1111,25 @@ export type RevokePaymentPointerKeyMutationResponse = MutationResponse & {
   success: Scalars['Boolean']['output'];
 };
 
+export type SetFeeInput = {
+  /** Asset id to add the fee to */
+  assetId: Scalars['ID']['input'];
+  /** Fee values */
+  fee: FeeDetails;
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Type of fee (sending or receiving) */
+  type: FeeType;
+};
+
+export type SetFeeResponse = MutationResponse & {
+  __typename?: 'SetFeeResponse';
+  code: Scalars['String']['output'];
+  fee?: Maybe<Fee>;
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type TransferMutationResponse = MutationResponse & {
   __typename?: 'TransferMutationResponse';
   code: Scalars['String']['output'];
@@ -1056,6 +1158,8 @@ export type UpdateAssetInput = {
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Account Servicing Entity will be notified via a webhook event if liquidity falls below this new value */
+  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
   /** New minimum amount of liquidity that can be withdrawn from the asset */
   withdrawalThreshold?: InputMaybe<Scalars['BigInt']['input']>;
 };
@@ -1086,6 +1190,8 @@ export type UpdatePeerInput = {
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Account Servicing Entity will be notified via a webhook event if peer liquidity falls below this new value */
+  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
   /** New maximum packet amount that the peer accepts */
   maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
   /** Peer's new public name */
@@ -1175,6 +1281,13 @@ export type CreateIncomingPaymentMutationVariables = Exact<{
 
 export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, paymentPointerId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
+export type CreateReceiverMutationVariables = Exact<{
+  input: CreateReceiverInput;
+}>;
+
+
+export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, paymentPointerUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
   idempotencyKey: Scalars['String']['input'];
@@ -1196,7 +1309,7 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, paymentPointerId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, paymentPointerId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type CreatePaymentPointerKeyMutationVariables = Exact<{
   input: CreatePaymentPointerKeyInput;
@@ -1231,18 +1344,11 @@ export type CreateQuoteMutationVariables = Exact<{
 }>;
 
 
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sendAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type GetQuoteQueryVariables = Exact<{
   quoteId: Scalars['String']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, paymentPointerId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, sendAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
-
-export type CreateReceiverMutationVariables = Exact<{
-  input: CreateReceiverInput;
-}>;
-
-
-export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, paymentPointerUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, paymentPointerId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };

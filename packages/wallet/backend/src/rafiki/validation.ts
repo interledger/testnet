@@ -30,7 +30,7 @@ export const quoteSchema = z.object({
     paymentType: z.nativeEnum(PaymentType),
     paymentPointerId: z.string(),
     receiver: z.string(),
-    sendAmount: quoteAmountSchema,
+    debitAmount: quoteAmountSchema,
     receiveAmount: quoteAmountSchema,
     maxPacketAmount: z.bigint().optional(),
     minExchangeRate: z.number().optional(),

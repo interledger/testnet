@@ -290,4 +290,16 @@ export class PaymentPointerService implements IPaymentPointerService {
     const res = await axios.get(url, { headers })
     return res.data
   }
+
+  async findByIdWithoutValidation(id: string) {
+    const paymentPointer = await PaymentPointer.query()
+      .findById(id)
+      .where('active', true)
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
+
+    return paymentPointer
+  }
 }

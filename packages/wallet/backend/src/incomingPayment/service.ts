@@ -2,10 +2,7 @@ import { AccountService } from '@/account/service'
 import { NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
 import { PaymentPointer } from '@/paymentPointer/model'
-import {
-  CreateIncomingPaymentParams,
-  RafikiClient
-} from '@/rafiki/rafiki-client'
+import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
 import { Asset } from '@/rafiki/backend/generated/graphql'
@@ -17,11 +14,8 @@ interface IIncomingPaymentService {
     paymentPointerId: string,
     amount: number,
     description: string
-  ) => Promise<Transaction>
+  ) => Promise<string>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetails>
-  createIncomingPaymentTransactions: (
-    params: CreateIncomingPaymentParams
-  ) => Promise<Transaction>
 }
 
 interface IncomingPaymentServiceDependencies {
@@ -58,7 +52,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     amount: number,
     description?: string,
     expiration?: Expiration
-  ): Promise<Transaction> {
+  ): Promise<string> {
     const existingPaymentPointer =
       await PaymentPointer.query().findById(paymentPointerId)
     if (!existingPaymentPointer || !existingPaymentPointer.active) {
@@ -83,14 +77,15 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       )
     }
 
-    return this.createIncomingPaymentTransactions({
-      paymentPointerId,
+    const response = await this.deps.rafikiClient.createReceiver({
+      paymentPointerUrl: existingPaymentPointer.url,
       description,
       asset,
       amount: BigInt(amount * 10 ** asset.scale),
-      expiresAt: expiryDate,
-      accountId: existingPaymentPointer.accountId
+      expiresAt: expiryDate
     })
+
+    return response.id
   }
 
   // Instead of querying our Transaction model, should we fetch this information from Rafiki?
@@ -130,42 +125,10 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     }
   }
 
-  async createIncomingPaymentTransactions(
-    params: CreateIncomingPaymentParams
-  ): Promise<Transaction> {
-    const response = await this.deps.rafikiClient.createIncomingPayment(params)
-
-    return Transaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
-      accountId: params.accountId,
-      paymentId: response.id,
-      assetCode: params.asset.code,
-      expiresAt: params.expiresAt,
-      value: params.amount,
-      type: 'INCOMING',
-      status: 'PENDING',
-      description: params.description
-    })
-  }
-
   public async createReceiver(params: CreateReceiverParams): Promise<string> {
-    const existingPaymentPointer = await PaymentPointer.query().findOne({
-      url: params.paymentPointerUrl ?? ''
-    })
-
-    if (!existingPaymentPointer) {
-      const response = await this.deps.rafikiClient.createReceiver(params)
-      // id is the incoming payment url
-      return response.id
-    }
-
-    const response = await this.createIncomingPaymentTransactions({
-      ...params,
-      accountId: existingPaymentPointer.accountId,
-      paymentPointerId: existingPaymentPointer.id
-    })
-
-    return `${existingPaymentPointer.url}/incoming-payments/${response.paymentId}`
+    const response = await this.deps.rafikiClient.createReceiver(params)
+    // id is the incoming payment url
+    return response.id
   }
 
   private generateExpiryObject(expiry: number, unit: string): Duration {

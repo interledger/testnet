@@ -55,11 +55,11 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
           </div>
           {accessDetails.limits ? (
             <>
-              {accessDetails.limits.sendAmount ? (
+              {accessDetails.limits.debitAmount ? (
                 <div>
                   <span>Amount to send: </span>
                   <span className="font-light">
-                    {accessDetails.limits.sendAmount.formattedAmount}
+                    {accessDetails.limits.debitAmount.formattedAmount}
                   </span>
                 </div>
               ) : null}

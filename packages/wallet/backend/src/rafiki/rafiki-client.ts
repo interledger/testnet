@@ -97,7 +97,6 @@ export type CreateIncomingPaymentParams = {
 export type CreateReceiverParams = {
   paymentPointerUrl: string
 } & PaymentParams
-
 export class RafikiClient implements IRafikiClient {
   constructor(private deps: RafikiClientDependencies) {}
 
