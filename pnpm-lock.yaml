@@ -69,8 +69,8 @@ importers:
         specifier: 1.0.4
         version: 1.0.4
       '@interledger/open-payments':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^3.2.0
+        version: 3.2.0
       awilix:
         specifier: ^8.0.1
         version: 8.0.1
@@ -2132,15 +2132,6 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@interledger/http-signature-utils@1.0.3:
-    resolution: {integrity: sha512-jh+sVSvJYdub1gB9OHXIGziKrEiIvoFG3SFjW/fBCWyUabjq0Bt3RYmz5C29GjoKORvYTor+hO2m7e5EtJwdog==}
-    dependencies:
-      http-message-signatures: 0.1.2
-      httpbis-digest-headers: github.com/interledger/httpbis-digest-headers/eb2e41c25cb6f2b8c610b74a853f36c6be8dbb4b
-      jose: 4.13.1
-      uuid: 9.0.1
-    dev: false
-
   /@interledger/http-signature-utils@1.0.4:
     resolution: {integrity: sha512-iiHWGzB/c0bwjV9AxkkmOeqEmWO2CY0em372xyeqTQ3DT6GCkB90qhWZ4Tte2pxOgzpowkAfo1cXMW1NMCD8AA==}
     dependencies:
@@ -2150,11 +2141,20 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /@interledger/open-payments@2.0.0:
-    resolution: {integrity: sha512-qyLAIZwyH8lSXLDwJ7Eu75Aw3kpdoRJvn7L1/0yIktnhEnVWdCzZ9t6J9kadtn+JMVkjYBQooHPnG/gZCE/39w==}
+  /@interledger/http-signature-utils@1.1.0:
+    resolution: {integrity: sha512-vxNrrp9qk71Pgt5/AcTtPTITnKPNX3P/Ag8+Vwqb2xhYpU9cTTEJJKhRjzOsvxXJ+I4NQ20Bwo/OHyfki48ZRg==}
     dependencies:
-      '@interledger/http-signature-utils': 1.0.3
-      '@interledger/openapi': 1.0.3
+      http-message-signatures: 0.1.2
+      httpbis-digest-headers: 1.0.0
+      jose: 4.13.1
+      uuid: 9.0.1
+    dev: false
+
+  /@interledger/open-payments@3.2.0:
+    resolution: {integrity: sha512-52jae7P+JCl9hPyksgs6ELUQQZwbc/lpHLqC+Lu822LTLvqZJ2PTBjNa+8bXvAdaLlEpajQ40R4f1VIblsdMdA==}
+    dependencies:
+      '@interledger/http-signature-utils': 1.1.0
+      '@interledger/openapi': 1.1.0
       axios: 1.5.0
       base64url: 3.0.1
       http-message-signatures: 0.1.2
@@ -2165,8 +2165,8 @@ packages:
       - supports-color
     dev: false
 
-  /@interledger/openapi@1.0.3:
-    resolution: {integrity: sha512-Xx/Me2tj8DhHpQR9cVjioX/DAUmQnaXWjt8hEVPIru4pDSMHCGG0RmpU2dV+aIiVmkDM2OvJUfKoLGsPVStqrA==}
+  /@interledger/openapi@1.1.0:
+    resolution: {integrity: sha512-tCs2IBbSFdbquOkfO35RYMZ8IN161TupbtXniwvyEOu0yQHI5qiI0EWK6wNE4f8sx85+aiuGcOX61f0sjDM6rQ==}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 10.1.0
       ajv: 8.12.0
@@ -10598,14 +10598,4 @@ packages:
 
   /zod@3.22.2:
     resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
-    dev: false
-
-  github.com/interledger/httpbis-digest-headers/eb2e41c25cb6f2b8c610b74a853f36c6be8dbb4b:
-    resolution: {tarball: https://codeload.github.com/interledger/httpbis-digest-headers/tar.gz/eb2e41c25cb6f2b8c610b74a853f36c6be8dbb4b}
-    name: httpbis-digest-headers
-    version: 1.0.0
-    prepare: true
-    requiresBuild: true
-    dependencies:
-      structured-headers: 0.5.0
     dev: false

@@ -15,6 +15,7 @@ import {
 } from '@interledger/open-payments'
 import { randomUUID } from 'crypto'
 import { Logger } from 'winston'
+import { createHash } from 'crypto'
 
 interface PreparePaymentParams {
   order: Order
@@ -36,7 +37,7 @@ interface CreateOutgoingPaymentParams {
   authServer: string
   orderId: string
   paymentPointer: string
-  sendAmount: Amount
+  debitAmount: Amount
   receiveAmount: Amount
   nonce: string
 }
@@ -97,13 +98,12 @@ export class OpenPayments implements IOpenPayments {
       orderId: order.id,
       paymentPointer: customerPaymentPointer.id,
       authServer: customerPaymentPointer.authServer,
-      sendAmount: quote.sendAmount,
+      debitAmount: quote.debitAmount,
       receiveAmount: quote.receiveAmount,
       nonce: clientNonce
     })
 
-    // TODO: Remove replacing "auth/" when upgrading to the new version.
-    let continueUri = outgoingPaymentGrant.continue.uri.replace('auth/', '')
+    let continueUri = outgoingPaymentGrant.continue.uri
     if (this.env.NODE_ENV === 'development') {
       continueUri = continueUri.replace('localhost', 'rafiki-auth')
     }
@@ -170,7 +170,8 @@ export class OpenPayments implements IOpenPayments {
   // `interactUrl` should be the grant request endpoint when upgrading to alpha3
   public async verifyHash({
     interactRef,
-    receivedHash
+    receivedHash,
+    payment
   }: VerifyHashParams): Promise<void> {
     if (!interactRef) {
       this.logger.error('Missing interactRef.')
@@ -182,16 +183,24 @@ export class OpenPayments implements IOpenPayments {
       throw new InternalServerError()
     }
 
-    // const { clientNonce, interactNonce, interactUrl } = payment
-    // const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${interactUrl}`
-    // const hash = createHash('sha3-512').update(data).digest('base64')
+    const paymentPointer = await this.opClient.paymentPointer.get({
+      url: payment.paymentPointer
+    })
+    const { clientNonce, interactNonce } = payment
+    let url = paymentPointer.authServer
+    if (this.env.NODE_ENV === 'development') {
+      url = url.replace('rafiki-auth', 'localhost')
+    }
 
-    // if (hash !== receivedHash) {
-    //   this.logger.error(`Invalid hash for payment "${payment.id}"`)
-    //   this.logger.error(`Received hash: "${receivedHash}"`)
-    //   this.logger.error(`Calculated hash: "${hash}"`)
-    //   throw new InternalServerError()
-    // }
+    const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}/`
+    const hash = createHash('sha-256').update(data).digest('base64')
+
+    if (hash !== receivedHash) {
+      this.logger.error(`Invalid hash for payment "${payment.id}"`)
+      this.logger.error(`Received hash: "${receivedHash}"`)
+      this.logger.error(`Calculated hash: "${hash}"`)
+      throw new InternalServerError()
+    }
   }
 
   public async getIncomingPayment(url: string) {
@@ -239,10 +248,9 @@ export class OpenPayments implements IOpenPayments {
       authServer,
       orderId,
       paymentPointer,
-      sendAmount,
+      debitAmount,
       receiveAmount
     } = params
-    console.log(nonce)
     const grant = await this.opClient.grant
       .request(
         { url: authServer },
@@ -254,7 +262,7 @@ export class OpenPayments implements IOpenPayments {
                 actions: ['create', 'read', 'list'],
                 identifier: paymentPointer,
                 limits: {
-                  sendAmount,
+                  debitAmount,
                   receiveAmount
                 }
               }

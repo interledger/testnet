@@ -32,8 +32,13 @@ export type Access = Model & {
   type: Scalars['String']['output'];
 };
 
+export type FilterGrantState = {
+  in?: InputMaybe<Array<GrantState>>;
+  notIn?: InputMaybe<Array<GrantState>>;
+};
+
 export type FilterString = {
-  in: Array<Scalars['String']['input']>;
+  in?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type Grant = Model & {
@@ -44,6 +49,8 @@ export type Grant = Model & {
   client: Scalars['String']['output'];
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
+  /** Reason a grant was finalized */
+  finalizationReason?: Maybe<GrantFinalization>;
   /** Grant id */
   id: Scalars['ID']['output'];
   /** State of the grant */
@@ -58,17 +65,27 @@ export type GrantEdge = {
 
 export type GrantFilter = {
   identifier?: InputMaybe<FilterString>;
+  state?: InputMaybe<FilterGrantState>;
 };
 
-export enum GrantState {
-  /** grant was approved */
-  Granted = 'GRANTED',
-  /** grant request was created but grant was not approved yet */
-  Pending = 'PENDING',
+export enum GrantFinalization {
+  /** grant was issued */
+  Issued = 'ISSUED',
   /** grant was rejected */
   Rejected = 'REJECTED',
   /** grant was revoked */
   Revoked = 'REVOKED'
+}
+
+export enum GrantState {
+  /** grant was approved */
+  Approved = 'APPROVED',
+  /** grant was finalized and no more access tokens or interactions can be made on it */
+  Finalized = 'FINALIZED',
+  /** grant request is awaiting interaction */
+  Pending = 'PENDING',
+  /** grant request is determining what state to enter next */
+  Processing = 'PROCESSING'
 }
 
 export type GrantsConnection = {
@@ -79,14 +96,14 @@ export type GrantsConnection = {
 
 export type LimitData = {
   __typename?: 'LimitData';
+  /** Amount to debit */
+  debitAmount?: Maybe<PaymentAmount>;
   /** Interval between payments */
   interval?: Maybe<Scalars['String']['output']>;
   /** Amount to receive */
   receiveAmount?: Maybe<PaymentAmount>;
   /** Payment pointer URL of the receiver */
   receiver?: Maybe<Scalars['String']['output']>;
-  /** Amount to send */
-  sendAmount?: Maybe<PaymentAmount>;
 };
 
 export type Model = {
@@ -174,14 +191,14 @@ export type GetGrantsQueryVariables = Exact<{
 }>;
 
 
-export type GetGrantsQuery = { __typename?: 'Query', grants: { __typename?: 'GrantsConnection', edges: Array<{ __typename?: 'GrantEdge', cursor: string, node: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, sendAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null } | null }> } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type GetGrantsQuery = { __typename?: 'Query', grants: { __typename?: 'GrantsConnection', edges: Array<{ __typename?: 'GrantEdge', cursor: string, node: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, debitAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null } | null }> } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type GetGrantQueryVariables = Exact<{
   grantId: Scalars['ID']['input'];
 }>;
 
 
-export type GetGrantQuery = { __typename?: 'Query', grant: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, sendAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null } | null }> } };
+export type GetGrantQuery = { __typename?: 'Query', grant: { __typename?: 'Grant', id: string, client: string, state: GrantState, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, debitAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: bigint, assetCode: string, assetScale: number } | null } | null }> } };
 
 export type RevokeGrantMutationVariables = Exact<{
   grantId: Scalars['String']['input'];

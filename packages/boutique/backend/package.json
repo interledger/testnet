@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@interledger/http-signature-utils": "1.0.4",
-    "@interledger/open-payments": "^2.0.0",
+    "@interledger/open-payments": "^3.2.0",
     "awilix": "^8.0.1",
     "axios": "^1.5.0",
     "cors": "^2.8.5",
