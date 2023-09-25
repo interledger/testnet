@@ -152,6 +152,7 @@ export class OpenPayments implements IOpenPayments {
           {
             quoteId: order.payments.quoteId,
             metadata: {
+              description: 'Purchase at Rafiki Boutique',
               orderRef: order.id
             }
           }
