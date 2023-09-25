@@ -27,7 +27,7 @@
     "jest": "^29.7.0",
     "node-mocks-http": "^1.13.0",
     "ts-jest": "^29.1.1",
-    "tsc-alias": "^1.8.7",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.0.4"
   }
 }
