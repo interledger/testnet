@@ -32,7 +32,7 @@ export class App {
     Model.knex(knex)
 
     this.server = express.listen(env.PORT)
-    logger.info(`Commerce server started on port ${env.PORT}`)
+    logger.info(`Boutique server started on port ${env.PORT}`)
   }
 
   public stop = async (): Promise<void> => {
