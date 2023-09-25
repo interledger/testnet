@@ -45,8 +45,8 @@ importers:
   docker/dev/local-http-signatures:
     dependencies:
       '@interledger/http-signature-utils':
-        specifier: 1.0.4
-        version: 1.0.4
+        specifier: 1.1.0
+        version: 1.1.0
       koa:
         specifier: ^2.14.2
         version: 2.14.2
@@ -66,8 +66,8 @@ importers:
   packages/boutique/backend:
     dependencies:
       '@interledger/http-signature-utils':
-        specifier: 1.0.4
-        version: 1.0.4
+        specifier: 1.1.0
+        version: 1.1.0
       '@interledger/open-payments':
         specifier: ^3.2.0
         version: 3.2.0
@@ -2131,15 +2131,6 @@ packages:
   /@humanwhocodes/object-schema@1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
-
-  /@interledger/http-signature-utils@1.0.4:
-    resolution: {integrity: sha512-iiHWGzB/c0bwjV9AxkkmOeqEmWO2CY0em372xyeqTQ3DT6GCkB90qhWZ4Tte2pxOgzpowkAfo1cXMW1NMCD8AA==}
-    dependencies:
-      http-message-signatures: 0.1.2
-      httpbis-digest-headers: 1.0.0
-      jose: 4.13.1
-      uuid: 9.0.1
-    dev: false
 
   /@interledger/http-signature-utils@1.1.0:
     resolution: {integrity: sha512-vxNrrp9qk71Pgt5/AcTtPTITnKPNX3P/Ag8+Vwqb2xhYpU9cTTEJJKhRjzOsvxXJ+I4NQ20Bwo/OHyfki48ZRg==}
