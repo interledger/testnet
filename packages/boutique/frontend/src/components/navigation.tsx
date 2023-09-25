@@ -1,5 +1,5 @@
 import { Link, NavLink, NavLinkProps } from 'react-router-dom'
-import { Bars3, Logo, Orders, Products } from './icons.tsx'
+import { Bars3, Logo, Products } from './icons.tsx'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet.tsx'
 import { MenuBubbles } from './bubbles.tsx'
 import { ReactNode, useState } from 'react'
@@ -11,12 +11,12 @@ const NAV_LINKS = [
     to: '/products',
     name: 'Products',
     icon: <Products />
-  },
-  {
-    to: '/orders',
-    name: 'Orders',
-    icon: <Orders />
   }
+  // {
+  //   to: '/orders',
+  //   name: 'Orders',
+  //   icon: <Orders />
+  // }
 ]
 
 interface MainNavLinkProps extends Omit<NavLinkProps, 'className'> {}
