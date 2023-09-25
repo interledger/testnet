@@ -6,14 +6,14 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default('http://localhost:4004'),
   DATABASE_URL: z
     .string()
-    .default('postgres://postgres:password@localhost:5433/commerce_backend'),
+    .default('postgres://postgres:password@localhost:5433/boutique_backend'),
   AUTH_SERVER: z.string().url().default('http://rafiki-auth:3006'),
   PAYMENT_POINTER: z.string().default('http://rafiki-backend/shop'),
-  KEY_ID: z.string().default('8e5e109e-9ea8-44a0-9490-1792bf1e07cb'),
+  KEY_ID: z.string().default('1d4bb0d1-b4ba-45ed-b686-c9e877e8e4fe'),
   PRIVATE_KEY: z
     .string()
     .default(
-      'LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSU9LemxweFR5c0xhbS94VWZ5R2t2T2dpSmcraTEvT25STURWMElqNi9vVnQKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ=='
+      'LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUZlYnpCaEErSU00OWxtdjlIVkd2VFBVZXJoZXNVY2hxdlpCejJOblFtc2kKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ=='
     )
 })
 
