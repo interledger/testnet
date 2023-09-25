@@ -73,10 +73,11 @@ export const getFee = (quote: Quote): FormattedAmount => {
     })
   }
 
-  const fee = BigInt(quote.sendAmount.value) - BigInt(quote.receiveAmount.value)
+  const fee =
+    BigInt(quote.debitAmount.value) - BigInt(quote.receiveAmount.value)
   return formatAmount({
-    assetCode: quote.sendAmount.assetCode,
-    assetScale: quote.sendAmount.assetScale,
+    assetCode: quote.debitAmount.assetCode,
+    assetScale: quote.debitAmount.assetScale,
     value: fee.toString()
   })
 }

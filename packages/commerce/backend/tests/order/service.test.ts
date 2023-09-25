@@ -72,7 +72,6 @@ describe('Order Service', (): void => {
   describe('create', (): void => {
     test('can create an order without a user ID', async (): Promise<void> => {
       const params = {
-        quoteId: randomUUID(),
         orderItems
       }
       const order = await orderService.create(params, app.knex)

@@ -2,10 +2,12 @@ import { TokenCache } from '@/cache/token'
 import { Env } from '@/config/env'
 import { BadRequest, InternalServerError } from '@/errors'
 import { Order } from '@/order/model'
+import { Payment } from '@/payment/model'
 import {
   AuthenticatedClient,
   Grant,
   GrantRequest,
+  IncomingPayment,
   PaymentPointer,
   PendingGrant,
   Quote,
@@ -13,6 +15,7 @@ import {
 } from '@interledger/open-payments'
 import { randomUUID } from 'crypto'
 import { Logger } from 'winston'
+import { createHash } from 'crypto'
 
 interface PreparePaymentParams {
   order: Order
@@ -34,8 +37,9 @@ interface CreateOutgoingPaymentParams {
   authServer: string
   orderId: string
   paymentPointer: string
-  sendAmount: Amount
+  debitAmount: Amount
   receiveAmount: Amount
+  nonce: string
 }
 
 interface CreateIncomingPaymentParams {
@@ -44,9 +48,17 @@ interface CreateIncomingPaymentParams {
   order: Order
 }
 
+interface VerifyHashParams {
+  interactRef?: string
+  receivedHash?: string
+  payment: Payment
+}
+
 export interface IOpenPayments {
   preparePayment(params: PreparePaymentParams): Promise<PendingGrant>
   createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
+  verifyHash(params: VerifyHashParams): Promise<void>
+  getIncomingPayment(url: string): Promise<IncomingPayment>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -67,12 +79,7 @@ export class OpenPayments implements IOpenPayments {
       this.env.PAYMENT_POINTER
     )
 
-    const shopAccessToken = await this.tokenCache
-      .get('accessToken')
-      .catch(() => {
-        this.logger.error('Could not retrieve access token for IP grant.')
-        throw new InternalServerError()
-      })
+    const shopAccessToken = await this.getAccessToken()
 
     const incomingPayment = await this.createIncomingPayment({
       accessToken: shopAccessToken,
@@ -85,25 +92,32 @@ export class OpenPayments implements IOpenPayments {
       receiver: incomingPayment.id
     })
 
+    const clientNonce = randomUUID()
+
     const outgoingPaymentGrant = await this.createOutgoingPaymentGrant({
       orderId: order.id,
       paymentPointer: customerPaymentPointer.id,
       authServer: customerPaymentPointer.authServer,
-      sendAmount: quote.sendAmount,
-      receiveAmount: quote.receiveAmount
+      debitAmount: quote.debitAmount,
+      receiveAmount: quote.receiveAmount,
+      nonce: clientNonce
     })
 
-    // TODO: Remove replacing "auth/" when upgrading to the new version.
-    let continueUri = outgoingPaymentGrant.continue.uri.replace('auth/', '')
+    let continueUri = outgoingPaymentGrant.continue.uri
     if (this.env.NODE_ENV === 'development') {
       continueUri = continueUri.replace('localhost', 'rafiki-auth')
     }
 
-    await order.$query().patch({
+    await Payment.query().insert({
+      orderId: order.id,
       quoteId: quote.id,
-      paymentPointerUrl: customerPaymentPointer.id,
+      continueUri,
       continueToken: outgoingPaymentGrant.continue.access_token.value,
-      continueUri
+      interactUrl: outgoingPaymentGrant.interact.redirect,
+      interactNonce: outgoingPaymentGrant.interact.finish,
+      incomingPaymentUrl: incomingPayment.id,
+      clientNonce,
+      paymentPointer: customerPaymentPointer.id
     })
 
     return outgoingPaymentGrant
@@ -114,28 +128,11 @@ export class OpenPayments implements IOpenPayments {
     interactRef: string
   ): Promise<void> {
     try {
-      if (!order.paymentPointerUrl) {
-        this.logger.error("Order is missing customer's payment pointer.")
-        throw new InternalServerError()
-      }
-
-      if (!interactRef) {
-        this.logger.error('Missing "interactRef".')
-        throw new InternalServerError()
-      }
-
-      if (!order.continueToken || !order.continueUri) {
-        this.logger.debug(`continueToken - ${order.continueToken}`)
-        this.logger.debug(`continueUri - ${order.continueUri}`)
-        this.logger.error('Could not find order continuation token or URI.')
-        throw new InternalServerError()
-      }
-
       const continuation = await this.opClient.grant
         .continue(
           {
-            accessToken: order.continueToken,
-            url: order.continueUri
+            accessToken: order.payments.continueToken,
+            url: order.payments.continueUri
           },
           {
             interact_ref: interactRef
@@ -149,11 +146,11 @@ export class OpenPayments implements IOpenPayments {
       await this.opClient.outgoingPayment
         .create(
           {
-            paymentPointer: order.paymentPointerUrl,
+            paymentPointer: order.payments.paymentPointer,
             accessToken: continuation.access_token.value
           },
           {
-            quoteId: order.quoteId,
+            quoteId: order.payments.quoteId,
             metadata: {
               orderRef: order.id
             }
@@ -166,13 +163,64 @@ export class OpenPayments implements IOpenPayments {
           throw new InternalServerError()
         })
     } catch (err) {
-      await order.$query().patch({
-        quoteId: undefined,
-        continueToken: undefined,
-        continueUri: undefined
-      })
       throw new InternalServerError()
     }
+  }
+
+  // `interactUrl` should be the grant request endpoint when upgrading to alpha3
+  public async verifyHash({
+    interactRef,
+    receivedHash,
+    payment
+  }: VerifyHashParams): Promise<void> {
+    if (!interactRef) {
+      this.logger.error('Missing interactRef.')
+      throw new InternalServerError()
+    }
+
+    if (!receivedHash) {
+      this.logger.error('Missing received hash.')
+      throw new InternalServerError()
+    }
+
+    const paymentPointer = await this.opClient.paymentPointer.get({
+      url: payment.paymentPointer
+    })
+    const { clientNonce, interactNonce } = payment
+    let url = paymentPointer.authServer
+    if (this.env.NODE_ENV === 'development') {
+      url = url.replace('rafiki-auth', 'localhost')
+    }
+
+    const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}/`
+    const hash = createHash('sha-256').update(data).digest('base64')
+
+    if (hash !== receivedHash) {
+      this.logger.error(`Invalid hash for payment "${payment.id}"`)
+      this.logger.error(`Received hash: "${receivedHash}"`)
+      this.logger.error(`Calculated hash: "${hash}"`)
+      throw new InternalServerError()
+    }
+  }
+
+  public async getIncomingPayment(url: string) {
+    const accessToken = await this.getAccessToken()
+    return await this.opClient.incomingPayment
+      .get({
+        url,
+        accessToken
+      })
+      .catch(() => {
+        this.logger.error(`Could not fetch incoming payment "${url}"`)
+        throw new InternalServerError()
+      })
+  }
+
+  private async getAccessToken() {
+    return await this.tokenCache.get('accessToken').catch(() => {
+      this.logger.error('Could not retrieve access token for IP grant.')
+      throw new InternalServerError()
+    })
   }
 
   private async createNonInteractiveQuoteGrant(
@@ -195,8 +243,14 @@ export class OpenPayments implements IOpenPayments {
   private async createOutgoingPaymentGrant(
     params: CreateOutgoingPaymentParams
   ): Promise<PendingGrant> {
-    const { authServer, orderId, paymentPointer, sendAmount, receiveAmount } =
-      params
+    const {
+      nonce,
+      authServer,
+      orderId,
+      paymentPointer,
+      debitAmount,
+      receiveAmount
+    } = params
     const grant = await this.opClient.grant
       .request(
         { url: authServer },
@@ -208,7 +262,7 @@ export class OpenPayments implements IOpenPayments {
                 actions: ['create', 'read', 'list'],
                 identifier: paymentPointer,
                 limits: {
-                  sendAmount,
+                  debitAmount,
                   receiveAmount
                 }
               }
@@ -219,7 +273,7 @@ export class OpenPayments implements IOpenPayments {
             finish: {
               method: 'redirect',
               uri: `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${orderId}`,
-              nonce: randomUUID()
+              nonce
             }
           }
         }
@@ -243,7 +297,7 @@ export class OpenPayments implements IOpenPayments {
         url
       })
       .catch(() => {
-        this.logger.error(`Could not fetch customer payment pointer "${url}".`)
+        this.logger.error(`Could not fetch payment pointer "${url}".`)
         throw new BadRequest('Invalid payment pointer.')
       })
 

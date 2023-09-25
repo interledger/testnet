@@ -45,10 +45,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     <>
       <PageHeader title="Grant details" />
       <div className="flex flex-col items-start md:flex-col">
-        <GrantDetails
-          grant={grant}
-          isFinalizedInteraction={true}
-        ></GrantDetails>
+        <GrantDetails grant={grant}></GrantDetails>
         {grant.state !== 'REVOKED' && (
           <Button
             intent="secondary"
@@ -117,11 +114,11 @@ export const getServerSideProps: GetServerSideProps<{
         ? access.limits.receiver.replace('https://', '$')
         : access.limits.receiver
 
-      if (access.limits.sendAmount !== null) {
-        access.limits.sendAmount.formattedAmount = formatAmount({
-          value: access.limits.sendAmount.value ?? 0,
-          assetCode: access.limits.sendAmount.assetCode,
-          assetScale: access.limits.sendAmount.assetScale
+      if (access.limits.debitAmount !== null) {
+        access.limits.debitAmount.formattedAmount = formatAmount({
+          value: access.limits.debitAmount.value ?? 0,
+          assetCode: access.limits.debitAmount.assetCode,
+          assetScale: access.limits.debitAmount.assetScale
         }).amount
       }
 

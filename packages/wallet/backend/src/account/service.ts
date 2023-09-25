@@ -31,14 +31,14 @@ interface IAccountService {
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
-interface CountriesServiceDependencies {
+interface AccountServiceDependencies {
   rapyd: RapydClient
   rafiki: RafikiClient
   logger: Logger
 }
 
 export class AccountService implements IAccountService {
-  constructor(private deps: CountriesServiceDependencies) {}
+  constructor(private deps: AccountServiceDependencies) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
     const existingAccount = await Account.query()

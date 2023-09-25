@@ -18,25 +18,19 @@ export const webhookSchema = z.object({
   })
 })
 
-export const amountSchema = z.object({
-  value: z.bigint(),
-  assetCode: z.string(),
-  assetScale: z.number()
-})
-
 const quoteAmountSchema = z.object({
   value: z.coerce.bigint(),
   assetCode: z.string(),
   assetScale: z.number()
 })
 
-export const quoteSchmea = z.object({
+export const quoteSchema = z.object({
   body: z.object({
     id: z.string(),
     paymentType: z.nativeEnum(PaymentType),
     paymentPointerId: z.string(),
     receiver: z.string(),
-    sendAmount: quoteAmountSchema,
+    debitAmount: quoteAmountSchema,
     receiveAmount: quoteAmountSchema,
     maxPacketAmount: z.bigint().optional(),
     minExchangeRate: z.number().optional(),

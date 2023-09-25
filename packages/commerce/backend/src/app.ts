@@ -121,26 +121,26 @@ export class App {
     }
   }
 
-  private async processPendingOrders() {
-    const orderService = this.container.resolve('orderService')
+  private async processPendingPayments() {
+    const paymentService = this.container.resolve('paymentService')
     const logger = this.container.resolve('logger')
-    return orderService
-      .processPendingOrders()
+    return paymentService
+      .processPendingPayments()
       .catch((err) => {
-        logger.error('Error while trying to process pending orders')
+        logger.error('Error while trying to process pending payments')
         logger.error(err)
         return true
       })
       .then((trx) => {
         if (trx) {
-          process.nextTick(() => this.processPendingOrders())
+          process.nextTick(() => this.processPendingPayments())
         } else {
-          setTimeout(() => this.processPendingOrders(), 5000).unref()
+          setTimeout(() => this.processPendingPayments(), 5000).unref()
         }
       })
   }
 
   async processResources() {
-    process.nextTick(() => this.processPendingOrders())
+    process.nextTick(() => this.processPendingPayments())
   }
 }

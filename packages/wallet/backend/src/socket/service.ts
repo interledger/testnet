@@ -37,8 +37,13 @@ export class SocketService implements ISocketService {
 
     this.io.engine.use(withSession)
     this.io.on('connection', async (socket) => {
-      const userId = socket.request.session.user.id
+      const user = socket.request.session.user
+      if (!user) {
+        this.deps.logger.info(`The socket user is not still logged in...`)
+        return
+      }
 
+      const userId = user.id
       this.deps.logger.info(`A socket client ${userId} is connected...`)
       socket.join(userId)
 
