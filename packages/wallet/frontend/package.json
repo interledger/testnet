@@ -20,7 +20,9 @@
     "react-hook-form": "^7.46.1",
     "react-joyride": "^2.5.5",
     "react-select": "^5.7.4",
+    "tailwind-merge": "^1.14.0",
     "sharp": "^0.32.6",
+    "valtio": "^1.11.2",
     "zod": "^3.22.2"
   },
   "devDependencies": {

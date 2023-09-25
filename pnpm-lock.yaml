@@ -392,6 +392,12 @@ importers:
       socket.io-client:
         specifier: ^4.7.2
         version: 4.7.2
+      tailwind-merge:
+        specifier: ^1.14.0
+        version: 1.14.0
+      valtio:
+        specifier: ^1.11.2
+        version: 1.11.2(@types/react@18.2.22)(react@18.2.0)
       zod:
         specifier: ^3.22.2
         version: 3.22.2

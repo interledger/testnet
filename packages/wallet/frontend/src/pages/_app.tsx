@@ -29,11 +29,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     // Event listeners
     socket?.on('connect', () => {
-      console.log('Connected to server')
+      // console.log('Connected to server')
     })
 
     socket?.on('MONEY_RECEIVED', (data) => {
-      console.log(`Account ${data.name} updated`)
       toast({
         description: (
           <p>
@@ -45,21 +44,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       })
     })
 
-    socket?.on('MONEY_SENT', (data) => {
-      console.log(`Account ${data.name} updated`)
-      toast({
-        description: (
-          <p>
-            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            You sent some {data.assetCode} into account {data.name}.
-          </p>
-        ),
-        variant: 'success'
-      })
-    })
-
     socket?.on('disconnect', () => {
-      console.log('Disconnected from server')
+      // console.log('Disconnected from server')
     })
 
     // Clean up when the component unmounts
@@ -81,6 +67,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
           font-family: ${titilium.style.fontFamily};
         }
       `}</style>
+
       <AppProvider>
         <Progress />
         <Toaster />
