@@ -31,7 +31,6 @@ services:
       - '${WALLET_FRONTEND_PORT}:${WALLET_FRONTEND_PORT}'
     restart: always
 
-  # Testnet
   wallet-backend:
     build:
       context: ../..
@@ -65,6 +64,45 @@ services:
     ports:
       - '${WALLET_BACKEND_PORT}:${WALLET_BACKEND_PORT}'
     restart: always
+
+  boutique-frontend:
+    container_name: boutique-frontend
+    build:
+      context: ../..
+      dockerfile: ./packages/boutique/frontend/Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: ${BOUTIQUE_FRONTEND_API_BASE_URL}
+        PORT: ${BOUTIQUE_FRONTEND_API_BASE_URL}
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '${BOUTIQUE_FRONTEND_PORT}:${BOUTIQUE_FRONTEND_PORT}'
+
+  boutique-backend:
+    container_name: boutique-backend
+    build:
+      context: ../..
+      dockerfile: ./packages/boutique/backend/Dockerfile.prod
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BOUTIQUE_BACKEND_PORT}
+      FRONTEND_URL: ${BOUTIQUE_BACKEND_FRONTEND_URL}
+      DATABASE_URL: ${BOUTIQUE_BACKEND_DATABASE_URL}
+      PRIVATE_KEY: ${BOUTIQUE_BACKEND_PRIVATE_KEY}
+      KEY_ID: ${BOUTIQUE_BACKEND_KEY_ID}
+      PAYMENT_POINTER: ${BOUTIQUE_BACKEND_PAYMENT_POINTER}
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3004:3004'
 
   rafiki-auth:
     image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.3
