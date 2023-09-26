@@ -63,7 +63,6 @@ export class UserController implements IUserController {
         }
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -85,7 +84,6 @@ export class UserController implements IUserController {
         message: 'An email with reset password steps was sent to provided email'
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -108,7 +106,6 @@ export class UserController implements IUserController {
         message: 'Password was updated successfully'
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -129,7 +126,6 @@ export class UserController implements IUserController {
         data: { isValid }
       })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }

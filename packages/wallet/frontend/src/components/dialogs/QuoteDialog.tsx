@@ -20,10 +20,10 @@ export const QuoteDialog = ({ onClose, onAccept, quote }: QuoteDialogProps) => {
     assetScale: quote.receiveAmount.assetScale
   })
 
-  const sendAmount = formatAmount({
-    value: quote.sendAmount.value,
-    assetCode: quote.sendAmount.assetCode,
-    assetScale: quote.sendAmount.assetScale
+  const debitAmount = formatAmount({
+    value: quote.debitAmount.value,
+    assetCode: quote.debitAmount.assetCode,
+    assetScale: quote.debitAmount.assetScale
   })
 
   const fee = getFee(quote)
@@ -58,7 +58,7 @@ export const QuoteDialog = ({ onClose, onAccept, quote }: QuoteDialogProps) => {
                 <div className="flex flex-col items-center justify-center px-4">
                   <PaperPlane strokeWidth={2} className="h-16 w-16" />
                   <p className="text-center font-semibold text-turqoise">
-                    You send exactly: {sendAmount.amount}
+                    You send exactly: {debitAmount.amount}
                     <br />
                     Recepient gets: {receiveAmount.amount}
                     <br />

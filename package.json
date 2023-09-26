@@ -9,14 +9,14 @@
     "url": "https://github.com/interledger/testnet"
   },
   "scripts": {
+    "boutique:backend": "pnpm --filter @boutique/backend --",
+    "boutique:frontend": "pnpm --filter @boutique/frontend --",
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "commerce:backend": "pnpm --filter @commerce/backend --",
-    "commerce:frontend": "pnpm --filter @commerce/frontend --",
-    "dev": "pnpm localenv:start && concurrently -n 'WALLET,COMMERCE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm commerce:frontend dev'",
+    "dev": "pnpm localenv:start && concurrently -n 'WALLET,BOUTIQUE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm boutique:frontend dev'",
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint -c '.eslintrc.js' --max-warnings=0 .",
     "lint:fix": "eslint -c '.eslintrc.js' --max-warnings=0 --fix .",
@@ -33,24 +33,24 @@
     "wallet:frontend": "pnpm --filter @wallet/frontend --"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.4.1",
-    "@typescript-eslint/parser": "^6.4.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
+    "@typescript-eslint/parser": "^6.7.2",
     "concurrently": "^8.2.1",
-    "eslint": "^8.48.0",
+    "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "only-allow": "^1.1.1",
-    "prettier": "^3.0.2",
-    "prettier-plugin-tailwindcss": "^0.5.3",
+    "prettier": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.5.4",
     "typescript": "^5.0.4"
   },
   "engines": {
-    "pnpm": "^8.7.0",
+    "pnpm": "^8.7.5",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@8.7.0"
+  "packageManager": "pnpm@8.7.5"
 }

@@ -13,7 +13,8 @@ export enum EventType {
   IncomingPaymentExpired = 'incoming_payment.expired',
   OutgoingPaymentCreated = 'outgoing_payment.created',
   OutgoingPaymentCompleted = 'outgoing_payment.completed',
-  OutgoingPaymentFailed = 'outgoing_payment.failed'
+  OutgoingPaymentFailed = 'outgoing_payment.failed',
+  PaymentPointerNotFound = 'payment_pointer.not_found'
 }
 
 export interface WebHook {
@@ -45,7 +46,7 @@ export type Quote = {
   paymentType: PaymentType
   paymentPointerId: string
   receiver: string
-  sendAmount: Amount
+  debitAmount: Amount
   receiveAmount: Amount
   maxPacketAmount?: bigint
   minExchangeRate?: number
@@ -64,7 +65,6 @@ type Fee = {
 export type Fees = Record<string, Fee>
 
 interface IRafikiService {
-  createQuote: (receivedQuote: Quote) => Promise<Quote>
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
@@ -81,6 +81,15 @@ export class RafikiService implements IRafikiService {
   constructor(private deps: RafikiServiceDependencies) {}
 
   public async onWebHook(wh: WebHook): Promise<void> {
+    this.deps.logger.info(
+      `received webhook of type : ${wh.type} for : ${
+        wh.type === EventType.PaymentPointerNotFound
+          ? ''
+          : wh.data.incomingPayment
+          ? `incomingPayment ${wh.data.incomingPayment.id}}`
+          : `outgoingPayment ${wh.data.payment.id}}`
+      }`
+    )
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -95,9 +104,15 @@ export class RafikiService implements IRafikiService {
         await this.handleIncomingPaymentCompleted(wh)
         break
       case EventType.IncomingPaymentCreated:
-        return
+        await this.deps.transactionService.createIncomingTransaction(
+          wh.data.incomingPayment
+        )
+        break
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
+        break
+      case EventType.PaymentPointerNotFound:
+        this.deps.logger.warn(`${EventType.PaymentPointerNotFound} received`)
         break
       default:
         throw new BadRequest(`unknown event type, ${wh.type}`)
@@ -150,7 +165,7 @@ export class RafikiService implements IRafikiService {
         EventType.OutgoingPaymentCompleted
       ].includes(wh.type)
     ) {
-      amount = this.parseAmount(wh.data.payment.sendAmount as AmountJSON)
+      amount = this.parseAmount(wh.data.payment.debitAmount as AmountJSON)
     }
 
     if (
@@ -183,6 +198,8 @@ export class RafikiService implements IRafikiService {
     const amount = this.getAmountFromWebHook(wh)
 
     if (!this.validateAmount(amount, wh.type)) {
+      //* Only in case the expired incoming payment has no money received will it be set as expired.
+      //* Otherwise, it will complete, even if not all the money is yet sent.
       if (wh.type === EventType.IncomingPaymentExpired) {
         await this.deps.transactionService.updateTransaction(
           { paymentId: wh.data.incomingPayment.id },
@@ -233,6 +250,9 @@ export class RafikiService implements IRafikiService {
       return
     }
 
+    await this.deps.transactionService.createOutgoingTransaction(
+      wh.data.payment
+    )
     const holdResult = await this.deps.rapydClient.holdLiquidity({
       amount: this.amountToNumber(amount),
       currency: amount.assetCode,
@@ -257,15 +277,15 @@ export class RafikiService implements IRafikiService {
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
     const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
-    const sendAmount = this.getAmountFromWebHook(wh)
+    const debitAmount = this.getAmountFromWebHook(wh)
 
-    if (!this.validateAmount(sendAmount, wh.type)) {
+    if (!this.validateAmount(debitAmount, wh.type)) {
       return
     }
 
     const releaseResult = await this.deps.rapydClient.releaseLiquidity({
-      amount: this.amountToNumber(sendAmount),
-      currency: sendAmount.assetCode,
+      amount: this.amountToNumber(debitAmount),
+      currency: debitAmount.assetCode,
       ewallet: source_ewallet
     })
 
@@ -274,14 +294,14 @@ export class RafikiService implements IRafikiService {
         this.deps.logger.error(releaseResult.status.message)
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
-          sendAmount
+          debitAmount
         )} from ${source_ewallet}`
       )
     }
 
     const transferResult = await this.deps.rapydClient.transferLiquidity({
-      amount: this.amountToNumber(sendAmount),
-      currency: sendAmount.assetCode,
+      amount: this.amountToNumber(debitAmount),
+      currency: debitAmount.assetCode,
       destination_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET,
       source_ewallet
     })
@@ -299,12 +319,12 @@ export class RafikiService implements IRafikiService {
 
     await this.deps.transactionService.updateTransaction(
       { paymentId: wh.data.payment.id },
-      { status: 'COMPLETED', value: sendAmount.value }
+      { status: 'COMPLETED', value: debitAmount.value }
     )
 
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
-        sendAmount
+        debitAmount
       )} from ${source_ewallet} to settlement account on ${
         EventType.OutgoingPaymentCompleted
       }`
@@ -314,22 +334,22 @@ export class RafikiService implements IRafikiService {
   private async handleOutgoingPaymentFailed(wh: WebHook) {
     const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
 
-    const sendAmount = this.getAmountFromWebHook(wh)
+    const debitAmount = this.getAmountFromWebHook(wh)
 
-    if (!this.validateAmount(sendAmount, wh.type)) {
+    if (!this.validateAmount(debitAmount, wh.type)) {
       return
     }
 
     const releaseResult = await this.deps.rapydClient.releaseLiquidity({
-      amount: this.amountToNumber(sendAmount),
-      currency: sendAmount.assetCode,
+      amount: this.amountToNumber(debitAmount),
+      currency: debitAmount.assetCode,
       ewallet: source_ewallet
     })
 
     if (releaseResult.status?.status !== 'SUCCESS') {
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
-          sendAmount
+          debitAmount
         )} from ${source_ewallet} on ${
           EventType.OutgoingPaymentFailed
         }  error message:  ${releaseResult.status?.message || 'unknown'}`
@@ -387,109 +407,5 @@ export class RafikiService implements IRafikiService {
     )
 
     return false
-  }
-
-  public async createQuote(receivedQuote: Quote) {
-    const feeStructure: Fees = {
-      USD: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      },
-      EUR: {
-        fixed: 100,
-        percentage: 0.02,
-        scale: 2
-      }
-    }
-
-    if (
-      receivedQuote.sendAmount.assetCode !==
-      receivedQuote.receiveAmount.assetCode
-    ) {
-      this.deps.logger.debug(
-        `conversion fee (from rafiki) : ${
-          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
-        }`
-      )
-      this.deps.logger.debug(
-        `Send amount value: ${receivedQuote.sendAmount.value}`
-      )
-      this.deps.logger.debug(
-        `Receive amount: ${receivedQuote.receiveAmount.value} from rafiki which includes cross currency fees already.`
-      )
-    }
-
-    const actualFee = feeStructure[receivedQuote.sendAmount.assetCode]
-
-    if (receivedQuote.paymentType == PaymentType.FixedDelivery) {
-      if (
-        feeStructure[receivedQuote.sendAmount.assetCode] &&
-        receivedQuote.sendAmount.assetScale !==
-          feeStructure[receivedQuote.sendAmount.assetCode].scale
-      ) {
-        throw new BadRequest('Invalid quote sendAmount asset')
-      }
-      const sendAmountValue = BigInt(receivedQuote.sendAmount.value)
-
-      const fees =
-        // TODO: bigint/float multiplication
-        BigInt(Math.floor(Number(sendAmountValue) * actualFee.percentage)) +
-        BigInt(actualFee.fixed)
-
-      this.deps.logger.debug(
-        `wallet fees: (sendAmount (${Math.floor(
-          Number(sendAmountValue)
-        )}) * wallet percentage (${actualFee.percentage})) + fixed ${
-          actualFee.fixed
-        } = ${fees}`
-      )
-
-      receivedQuote.sendAmount.value = sendAmountValue + fees
-
-      this.deps.logger.debug(
-        `Will finally send: ${receivedQuote.sendAmount.value}`
-      )
-    } else if (receivedQuote.paymentType === PaymentType.FixedSend) {
-      if (
-        !Object.keys(feeStructure).includes(
-          receivedQuote.receiveAmount.assetCode
-        )
-      ) {
-        throw new BadRequest('Invalid quote receiveAmount asset')
-      }
-
-      const receiveAmountValue = BigInt(receivedQuote.receiveAmount.value)
-
-      const fees =
-        BigInt(Math.floor(Number(receiveAmountValue) * actualFee.percentage)) +
-        BigInt(actualFee.fixed)
-
-      this.deps.logger.debug(
-        `Wallet fee: ${Math.floor(Number(receiveAmountValue))}  * ${
-          actualFee.percentage
-        }  + fixed: ${BigInt(actualFee.fixed)}  = ${fees}`
-      )
-
-      if (receiveAmountValue <= fees) {
-        throw new BadRequest('Fees exceed quote receiveAmount')
-      }
-
-      receivedQuote.receiveAmount.value = receiveAmountValue - fees
-
-      this.deps.logger.debug(
-        `Sum of fees (conversion fee from rafiki + wallet fee): ${
-          receivedQuote.sendAmount.value - receivedQuote.receiveAmount.value
-        } + ${fees} ${receiveAmountValue - fees}`
-      )
-
-      this.deps.logger.debug(
-        `Will finally receive ${receivedQuote.receiveAmount.value}`
-      )
-    } else {
-      throw new BadRequest('Invalid paymentType')
-    }
-
-    return receivedQuote
   }
 }

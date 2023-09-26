@@ -7,7 +7,6 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import { AssetOP } from './asset'
-import { Transaction } from './transaction'
 
 export const sendSchema = z.object({
   paymentPointerId: z
@@ -99,7 +98,7 @@ interface Expiration {
 export interface Quote {
   id: string
   receiveAmount: AmountProps
-  sendAmount: AmountProps
+  debitAmount: AmountProps
   fee?: AmountProps
 }
 
@@ -113,7 +112,7 @@ type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
 type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
 
 type RequestArgs = z.infer<typeof requestSchema>
-type RequestResult = SuccessResponse<Transaction>
+type RequestResult = SuccessResponse<{ url: string }>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = RequestResult | RequestError
 
