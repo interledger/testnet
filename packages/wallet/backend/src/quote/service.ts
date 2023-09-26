@@ -5,11 +5,13 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
-import { PaymentPointerService } from '../paymentPointer/service'
+import {
+  createPaymentPointerIfFalsy,
+  PaymentPointerService
+} from '../paymentPointer/service'
 import { QuoteWithFees } from './controller'
 import { RatesService } from '../rates/service'
 import { Account } from '@/account/model'
-import { getRandomValues } from 'crypto'
 
 type CreateExchangeQuote = {
   userId: string
@@ -46,31 +48,17 @@ type ConvertParams = {
   amount: bigint
 }
 
-const createPaymentPointerIfFalsy = async ({
-  paymentPointer,
-  userId,
-  accountId,
-  publicName,
-  paymentPointerService
-}: {
-  paymentPointer: PaymentPointer
-  userId: string
-  accountId: string
-  publicName: string
-  paymentPointerService: PaymentPointerService
-}): Promise<PaymentPointer> => {
-  if (paymentPointer) {
-    return paymentPointer
-  }
+const getAccountWithPaymentPointerBy = async (where: Partial<Account>) => {
+  const account = await Account.query()
+    .where(where)
+    .withGraphFetched({ paymentPointers: true })
+    .modifyGraph('paymentPointers', (builder) => {
+      builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
+    })
+    .limit(1)
+    .first()
 
-  const newPaymentPointer = await paymentPointerService.create(
-    userId,
-    accountId,
-    getRandomValues(new Uint32Array(1))[0].toString(16),
-    publicName
-  )
-
-  return newPaymentPointer
+  return account
 }
 
 export class QuoteService implements IQuoteService {
@@ -218,13 +206,10 @@ export class QuoteService implements IQuoteService {
     assetCode,
     amount
   }: CreateExchangeQuote): Promise<QuoteWithFees> {
-    const accountFrom = await Account.query()
-      .findById(accountId)
-      .where('userId', userId)
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
+    const accountFrom = await getAccountWithPaymentPointerBy({
+      userId,
+      id: accountId
+    })
 
     if (!accountFrom) {
       throw new NotFound(`The source account does not exist for this user.`)
@@ -246,14 +231,7 @@ export class QuoteService implements IQuoteService {
     })
     const senderPpId = senderPp.id
 
-    let accountTo = await Account.query()
-      .where({ userId, assetCode })
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
-      .limit(1)
-      .first()
+    let accountTo = await getAccountWithPaymentPointerBy({ userId, assetCode })
 
     if (!accountTo) {
       accountTo = await this.deps.accountService.createAccount({
