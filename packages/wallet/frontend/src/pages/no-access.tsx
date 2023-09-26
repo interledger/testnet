@@ -1,24 +1,27 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-const NotFoundPage = () => {
+const NoAccessPage = () => {
   return (
     <div className="flex h-full flex-col items-center justify-center bg-turqoise text-center text-2xl font-semibold text-white">
       <h1>
-        You are trying to acces a page for a payment pointer that&apos;s not
+        You are trying to access a page for a payment pointer that&apos;s not
         yours.
       </h1>
       <div>
         Verify the payment pointer, or login with a new account that has access
         to the payment pointer.
       </div>
-      <Link href="/" className="text-xl font-semibold text-white underline">
+      <Link
+        href="/"
+        className="mt-5 text-xl font-semibold text-white underline"
+      >
         Go to home page
       </Link>
       <Image
         className="mt-10 object-cover"
-        src="/login-mobile.webp"
-        alt="You don't have access"
+        src="/bird-error.webp"
+        alt="No access to grant"
         quality={100}
         width={500}
         height={200}
@@ -27,4 +30,4 @@ const NotFoundPage = () => {
   )
 }
 
-export default NotFoundPage
+export default NoAccessPage

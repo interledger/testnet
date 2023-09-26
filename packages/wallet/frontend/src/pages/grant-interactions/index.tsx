@@ -124,6 +124,15 @@ export const getServerSideProps: GetServerSideProps<{
   )
 
   if (!grantInteractionResponse.success || !grantInteractionResponse.data) {
+    if (grantInteractionResponse.message === 'No access to grant') {
+      return {
+        redirect: {
+          permanent: false,
+          destination: '/no-access'
+        }
+      }
+    }
+
     return {
       notFound: true
     }
