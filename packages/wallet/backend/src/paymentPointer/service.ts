@@ -150,8 +150,7 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async belongsToUser(userId: string, url: string): Promise<boolean> {
     const paymentPointer = await PaymentPointer.query()
-      .where('url', url)
-      .first()
+      .findOne({ url })
       .withGraphFetched('account')
       .modifyGraph('account', (builder) => {
         builder.where({ userId })

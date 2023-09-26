@@ -42,7 +42,7 @@ export class GrantService implements IGrantService {
       !url ||
       !(await this.deps.paymentPointerService.belongsToUser(userId, url))
     ) {
-      throw new Forbidden('No access to grant')
+      throw new Forbidden('NO_ACCESS')
     }
 
     return grant
