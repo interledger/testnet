@@ -5,12 +5,24 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
-import { PaymentPointerService } from '../paymentPointer/service'
+import {
+  createPaymentPointerIfFalsy,
+  PaymentPointerService
+} from '../paymentPointer/service'
 import { QuoteWithFees } from './controller'
 import { RatesService } from '../rates/service'
+import { Account } from '@/account/model'
+
+type CreateExchangeQuote = {
+  userId: string
+  accountId: string
+  assetCode: string
+  amount: number
+}
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
+  createExchangeQuote: (args: CreateExchangeQuote) => Promise<QuoteWithFees>
 }
 
 interface QuoteServiceDependencies {
@@ -34,6 +46,19 @@ type ConvertParams = {
   from: string
   to: string
   amount: bigint
+}
+
+const getAccountWithPaymentPointerBy = async (where: Partial<Account>) => {
+  const account = await Account.query()
+    .where(where)
+    .withGraphFetched({ paymentPointers: true })
+    .modifyGraph('paymentPointers', (builder) => {
+      builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
+    })
+    .limit(1)
+    .first()
+
+  return account
 }
 
 export class QuoteService implements IQuoteService {
@@ -173,5 +198,67 @@ export class QuoteService implements IQuoteService {
     return BigInt(
       (Number(params.amount) * conversionRate.rates[params.to]).toFixed()
     )
+  }
+
+  public async createExchangeQuote({
+    userId,
+    accountId,
+    assetCode,
+    amount
+  }: CreateExchangeQuote): Promise<QuoteWithFees> {
+    const accountFrom = await getAccountWithPaymentPointerBy({
+      userId,
+      id: accountId
+    })
+
+    if (!accountFrom) {
+      throw new NotFound(`The source account does not exist for this user.`)
+    }
+
+    const rafikiAsset = await this.deps.rafikiClient.getRafikiAsset(assetCode)
+    if (!rafikiAsset) {
+      throw new NotFound(
+        `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
+      )
+    }
+
+    const senderPp = await createPaymentPointerIfFalsy({
+      paymentPointer: accountFrom.paymentPointers?.[0],
+      userId,
+      accountId: accountFrom.id,
+      publicName: `Exchange Payment Pointer (exchanging into ${assetCode})`,
+      paymentPointerService: this.deps.paymentPointerService
+    })
+    const senderPpId = senderPp.id
+
+    let accountTo = await getAccountWithPaymentPointerBy({ userId, assetCode })
+
+    if (!accountTo) {
+      accountTo = await this.deps.accountService.createAccount({
+        name: `${assetCode} account`,
+        userId,
+        assetId: rafikiAsset.id
+      })
+    }
+
+    const receiverPp = await createPaymentPointerIfFalsy({
+      paymentPointer: accountTo.paymentPointers?.[0],
+      userId,
+      accountId: accountTo.id,
+      publicName: `${assetCode} Payment Pointer`,
+      paymentPointerService: this.deps.paymentPointerService
+    })
+    const receiverPpUrl = receiverPp.url
+
+    const quote = await this.create({
+      userId,
+      paymentPointerId: senderPpId,
+      amount,
+      description: 'Currency exchange.',
+      isReceive: false,
+      receiver: receiverPpUrl
+    })
+
+    return quote
   }
 }

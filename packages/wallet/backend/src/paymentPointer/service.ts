@@ -5,7 +5,7 @@ import { Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
-import { generateKeyPairSync } from 'crypto'
+import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { PaymentPointer } from './model'
 
@@ -45,6 +45,33 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
+}
+
+export const createPaymentPointerIfFalsy = async ({
+  paymentPointer,
+  userId,
+  accountId,
+  publicName,
+  paymentPointerService
+}: {
+  paymentPointer: PaymentPointer
+  userId: string
+  accountId: string
+  publicName: string
+  paymentPointerService: PaymentPointerService
+}): Promise<PaymentPointer> => {
+  if (paymentPointer) {
+    return paymentPointer
+  }
+
+  const newPaymentPointer = await paymentPointerService.create(
+    userId,
+    accountId,
+    getRandomValues(new Uint32Array(1))[0].toString(16),
+    publicName
+  )
+
+  return newPaymentPointer
 }
 
 export class PaymentPointerService implements IPaymentPointerService {
