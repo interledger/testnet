@@ -168,7 +168,6 @@ export class OpenPayments implements IOpenPayments {
     }
   }
 
-  // `interactUrl` should be the grant request endpoint when upgrading to alpha3
   public async verifyHash({
     interactRef,
     receivedHash,
@@ -326,7 +325,8 @@ export class OpenPayments implements IOpenPayments {
             value: (order.total * 10 ** paymentPointer.assetScale).toFixed()
           },
           metadata: {
-            orderId: order.id
+            orderId: order.id,
+            description: 'Purchase at Rafiki Boutique'
           }
         }
       )
