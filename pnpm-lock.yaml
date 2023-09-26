@@ -63,7 +63,7 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0
 
-  packages/commerce/backend:
+  packages/boutique/backend:
     dependencies:
       '@interledger/http-signature-utils':
         specifier: 1.0.4
@@ -130,7 +130,7 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
 
-  packages/commerce/frontend:
+  packages/boutique/frontend:
     dependencies:
       '@hookform/resolvers':
         specifier: ^3.3.1
@@ -2159,7 +2159,7 @@ packages:
       http-message-signatures: 0.1.2
       httpbis-digest-headers: 1.0.0
       jose: 4.13.1
-      uuid: 9.0.0
+      uuid: 9.0.1
     dev: false
 
   /@interledger/http-signature-utils@1.1.0:
@@ -10316,11 +10316,6 @@ packages:
   /utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
-    dev: false
-
-  /uuid@9.0.0:
-    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
-    hasBin: true
     dev: false
 
   /uuid@9.0.1:
