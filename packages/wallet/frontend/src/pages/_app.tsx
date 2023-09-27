@@ -10,8 +10,6 @@ import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
-import { userService } from '@/lib/api/user'
-import { useRouter } from 'next/router'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -21,7 +19,6 @@ const titilium = Titillium_Web({
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
-  const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -74,7 +71,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     return () => {
       socket?.disconnect()
     }
-  }, [router, toast])
+  }, [toast])
 
   return (
     <>
