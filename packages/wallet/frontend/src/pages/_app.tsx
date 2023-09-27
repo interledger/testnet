@@ -65,10 +65,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     // log out the user when connection error occurs
     socket.on('connect_error', async () => {
-      const res = await userService.logout()
-      if (res.success) {
-        router.push('/auth')
-      }
+      setTimeout(() => {
+        socket?.connect()
+      }, 1000)
     })
 
     // Clean up when the component unmounts
