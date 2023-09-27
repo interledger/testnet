@@ -6,7 +6,7 @@
     "test": "jest --passWithNoTests --maxWorkers=2"
   },
   "dependencies": {
-    "@interledger/http-signature-utils": "1.0.4",
+    "@interledger/http-signature-utils": "1.1.0",
     "@interledger/open-payments": "^3.2.0",
     "awilix": "^8.0.1",
     "axios": "^1.5.1",
