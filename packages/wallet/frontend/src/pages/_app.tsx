@@ -25,7 +25,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     let socket: Socket | null = null
     // Connect to the Socket.IO server
     socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
-      withCredentials: true
+      withCredentials: true,
+      transports: ['websocket', 'polling']
     })
 
     // Event listeners
@@ -61,10 +62,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     })
 
     // log out the user when connection error occurs
-    socket.on('connect_error', async () => {
+    socket.on('connect_error', async (error) => {
+      console.error('Tryng to connect again. Connection error:', error)
       setTimeout(() => {
         socket?.connect()
       }, 1000)
+    })
+
+    socket.on('reconnect_error', (error) => {
+      console.error('Reconnection error:', error)
     })
 
     // Clean up when the component unmounts
