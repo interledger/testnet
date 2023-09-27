@@ -80,7 +80,7 @@ export const ToastClose = forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      'absolute right-2 top-2 rounded-md p-1 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-green-3 group-hover:opacity-100',
+      'absolute right-2 top-2 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-green-3',
       className
     )}
     {...props}
