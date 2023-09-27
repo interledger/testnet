@@ -8,14 +8,14 @@
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
-    "axios": "^1.5.0",
+    "axios": "^1.5.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
     "date-fns": "^2.30.0",
     "disposable-email-domains": "^1.0.62",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.0.1",
-    "graphql": "^16.8.0",
+    "express-rate-limit": "^7.0.2",
+    "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "hash-wasm": "^4.9.0",
     "helmet": "^7.0.0",
@@ -30,13 +30,13 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.0.2",
+    "@faker-js/faker": "^8.1.0",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@types/cors": "^2.8.14",
     "@types/crypto-js": "^4.1.2",
-    "@types/express": "^4.17.17",
+    "@types/express": "^4.17.18",
     "@types/jest": "^29.5.5",
     "@types/node": "^18.14.0",
     "@types/uuid": "^9.0.4",
@@ -44,7 +44,7 @@
     "node-mocks-http": "^1.13.0",
     "testcontainers": "^10.2.1",
     "ts-jest": "^29.1.1",
-    "tsc-alias": "^1.8.7",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.0.4"
   }
 }
