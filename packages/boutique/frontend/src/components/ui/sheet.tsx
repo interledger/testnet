@@ -12,14 +12,17 @@ import { X } from '@/components/icons'
 export const Sheet = SheetPrimitive.Root
 export const SheetTrigger = SheetPrimitive.Trigger
 export const SheetClose = SheetPrimitive.Close
+export const SheetPortal = SheetPrimitive.Portal
 
-export const SheetPortal = ({
-  className,
-  ...props
-}: SheetPrimitive.DialogPortalProps) => (
-  <SheetPrimitive.Portal className={cn(className)} {...props} />
-)
-SheetPortal.displayName = SheetPrimitive.Portal.displayName
+// https://github.com/radix-ui/primitives/issues/2410
+//
+// export const SheetPortal = ({
+//   className,
+//   ...props
+// }: SheetPrimitive.DialogPortalProps) => (
+//   <SheetPrimitive.Portal className={cn(className)} {...props} />
+// )
+// SheetPortal.displayName = SheetPrimitive.Portal.displayName
 
 export const SheetOverlay = forwardRef<
   ElementRef<typeof SheetPrimitive.Overlay>,

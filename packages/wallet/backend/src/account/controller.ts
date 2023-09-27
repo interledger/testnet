@@ -30,6 +30,7 @@ export class AccountController implements IAccountController {
       const {
         body: { name, assetId }
       } = await validate(accountSchema, req)
+
       const createAccountResult = await this.deps.accountService.createAccount({
         userId,
         name,

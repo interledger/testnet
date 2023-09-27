@@ -108,6 +108,7 @@ export class OrderController implements IOrderController {
           await this.paymentService.fail(order.payments, trx)
         })
         res.status(status).json({ success: isRejected, message })
+        return
       }
 
       await this.openPayments.verifyHash({
