@@ -3,6 +3,8 @@ import type { Account } from '@/lib/api/account'
 import { formatAmount } from '@/utils/helpers'
 import { useMemo } from 'react'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { balanceState } from '@/lib/balance'
+import { useSnapshot } from 'valtio'
 
 type AccountCardProps = {
   account: Account
@@ -11,16 +13,18 @@ type AccountCardProps = {
 
 export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
+  const { accountsSnapshot } = useSnapshot(balanceState)
 
-  const formattedAmount = useMemo(
-    () =>
-      formatAmount({
-        value: account.balance,
-        assetCode: account.assetCode,
-        assetScale: account.assetScale
-      }),
-    [account]
-  )
+  const formattedAmount = useMemo(() => {
+    const snapshotAccount = accountsSnapshot.find(
+      (item) => item.assetCode === account.assetCode
+    )
+    return formatAmount({
+      value: snapshotAccount?.balance || account.balance,
+      assetCode: account.assetCode,
+      assetScale: account.assetScale
+    })
+  }, [account, accountsSnapshot])
 
   return (
     <Link

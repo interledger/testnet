@@ -8,10 +8,20 @@ import { env } from '@/config/env'
 import { truncateTables } from '@/tests/tables'
 import { AuthService } from '@/auth/service'
 import { Request, Response } from 'express'
-import { mockCreateAccountReq, mockedListAssets, mockLogInRequest, mockRapyd } from '@/tests/mocks'
+import {
+  mockCreateAccountReq,
+  mockedListAssets,
+  mockLogInRequest,
+  mockRapyd
+} from '@/tests/mocks'
 import { AccountService } from '@/account/service'
 import { createUser } from '../helpers'
-import { createRequest, createResponse, MockRequest, MockResponse } from 'node-mocks-http'
+import {
+  createRequest,
+  createResponse,
+  MockRequest,
+  MockResponse
+} from 'node-mocks-http'
 import { withSession } from '@/middleware/withSession'
 import { applyMiddleware } from '../utils'
 import { User } from '@/user/model'
@@ -86,7 +96,10 @@ describe('Socket Service', () => {
 
   describe('emitMoney', () => {
     it('should return nothing in send', async () => {
-      const createdMockAccount = await accountService.createAccount({...mockCreateAccountReq, userId})
+      const createdMockAccount = await accountService.createAccount({
+        ...mockCreateAccountReq,
+        userId
+      })
       const spy = jest
         .spyOn(accountService, 'getAccountByAssetCode')
         .mockReturnValue(Promise.resolve(createdMockAccount))
@@ -101,7 +114,10 @@ describe('Socket Service', () => {
     })
 
     it('should return nothing in received', async () => {
-      const createdMockAccount = await accountService.createAccount({...mockCreateAccountReq, userId})
+      const createdMockAccount = await accountService.createAccount({
+        ...mockCreateAccountReq,
+        userId
+      })
       const spy = jest
         .spyOn(accountService, 'getAccountByAssetCode')
         .mockReturnValue(Promise.resolve(createdMockAccount))

@@ -69,6 +69,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
+
     setBalance(
       selectedAccount
         ? formatAmount({

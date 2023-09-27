@@ -9,6 +9,9 @@ import { MoneyBird } from '@/components/icons/MoneyBird'
 import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
+import { updateBalance } from '@/lib/balance'
+import { userService } from '@/lib/api/user'
+import { useRouter } from 'next/router'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -18,6 +21,7 @@ const titilium = Titillium_Web({
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
+  const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -28,10 +32,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     })
 
     // Event listeners
-    socket?.on('connect', () => {
-      // console.log('Connected to server')
-    })
-
     socket?.on('MONEY_RECEIVED', (data) => {
       toast({
         description: (
@@ -42,17 +42,41 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         ),
         variant: 'success'
       })
+      updateBalance(
+        {
+          balance: data.balance,
+          assetCode: data.assetCode,
+          assetScale: data.assetScale
+        },
+        data.balance
+      )
     })
 
-    socket?.on('disconnect', () => {
-      // console.log('Disconnected from server')
+    socket?.on('MONEY_SENT', (data) => {
+      updateBalance(
+        {
+          balance: data.balance,
+          assetCode: data.assetCode,
+          assetScale: data.assetScale
+        },
+        data.balance
+      )
+    })
+
+    // log out the user when connection error occurs
+    socket.on('connect_error', async () => {
+      const res = await userService.logout()
+      if (res.success) {
+        router.push('/auth')
+      }
     })
 
     // Clean up when the component unmounts
     return () => {
       socket?.disconnect()
     }
-  }, [toast])
+  }, [router, toast])
+
   return (
     <>
       <Head>
