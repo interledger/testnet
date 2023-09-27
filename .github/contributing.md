@@ -2,14 +2,14 @@
 
 ## Getting started <!-- omit in toc -->
 
-Thank you for contributing to Testnet, a Rafiki Playground :tada:
+Thank you for contributing to Testnet, a Rafiki Playground :tada: Your contributions are essential to making this project better.
 
-Before you begin:
+## Before you begin
 
 - Have you read the [code of conduct](CODE_OF_CONDUCT.md)?
 - Check out the [existing issues](https://github.com/interledger/testnet/issues) & see if we [accept contributions](#types-of-contributions) for your type of issue.
 
-### Table of Contents <!-- omit in toc -->
+## Table of Contents <!-- omit in toc -->
 
 - [Types of contributions](#types-of-contributions)
   - [:mega: Discussions](#mega-discussions)
@@ -24,6 +24,9 @@ Before you begin:
     - [Testing](#testing)
     - [Language](#language)
     - [CI](#ci)
+  - [Reporting Issues](#reporting-issues)
+  - [Submitting Pull Requests](#submitting-pull-requests)
+  - [Review Process](#review-process)
 
 ## Types of contributions
 
@@ -123,3 +126,32 @@ each package to suit the package's requirements.
 We use GitHub actions to manage our CI pipeline.
 
 The workflows can be found in `.github/workflows`
+
+### Reporting Issues
+
+If you encounter any issues or have a feature request, please [create a new issue](https://github.com/interledger/testnet/issues/new) and provide the following details:
+
+- A clear and descriptive title.
+- A detailed description of the issue, including steps to reproduce if applicable.
+- Information about your environment (e.g., operating system, browser, version).
+- Any relevant screenshots or error messages.
+
+### Submitting Pull Requests
+
+1. [Fork](https://github.com/interledger/testnet) the repository.
+2. Create a new branch from `main`.
+3. Make your changes and commit them.
+4. Create a pull request (PR) to `main`.
+5. Ensure your PR includes a clear title and description following the [Conventional Commits Specification](https://www.conventionalcommits.org/en/v1.0.0/).
+6. If your PR addresses an issue, reference the issue in the description using `Closes #123`.
+7. Be patient and be prepared to address feedback and make changes if needed.
+
+### Review Process
+
+- Project maintainers will review your PR for code quality, correctness, and adherence to guidelines.
+- Please respond to any feedback promptly and make necessary changes.
+- Once the PR is approved, it will be merged into the main branch.
+
+Thank you for contributing to Testnet, a Rafiki Playground! We appreciate your time and effort in helping make Testnet better. Join our community on [Slack](https://communityinviter.com/apps/interledger/interledger-working-groups-slack) to connect with other contributors and stay updated on project developments.
+
+Happy coding!
