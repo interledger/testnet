@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
-    "axios": "^1.5.0",
+    "axios": "^1.5.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
     "date-fns": "^2.30.0",
