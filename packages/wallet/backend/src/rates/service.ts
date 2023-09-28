@@ -40,22 +40,13 @@ export class RatesService implements IRatesService {
   }
 
   private async getApiRates(base: string): Promise<Record<string, number>> {
-    try {
-      const response = await axios.get('https://api.exchangerate.host/latest', {
-        params: { base },
-        timeout: 1000
-      })
+    const response = await axios.get(
+      'https://api.freecurrencyapi.com/v1/latest',
+      {
+        params: { apikey: this.deps.env.RATE_API_KEY, base_currency: base }
+      }
+    )
 
-      return response.data.rates
-    } catch (_e) {
-      const response = await axios.get(
-        'https://api.freecurrencyapi.com/v1/latest',
-        {
-          params: { apikey: this.deps.env.RATE_API_KEY, base_currency: base }
-        }
-      )
-
-      return response.data.data
-    }
+    return response.data.data
   }
 }
