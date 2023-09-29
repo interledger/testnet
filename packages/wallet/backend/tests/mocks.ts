@@ -3,6 +3,8 @@ import { logInSchema, signUpSchema } from '@/auth/validation'
 import z from 'zod'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
+import { kycSchema, walletSchema } from '@/rapyd/validation'
+import { uuid } from '@/tests/utils'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 
@@ -33,6 +35,180 @@ export const mockSignUpRequest = (
       ...overrides
     }
   }
+}
+
+type CreateWalletRequest = z.infer<typeof walletSchema>
+export const mockCreateWalletRequest = (): CreateWalletRequest => {
+  return {
+    body: {
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      address: faker.location.secondaryAddress(),
+      city: faker.location.city(),
+      country: faker.location.country(),
+      zip: faker.location.zipCode()
+    }
+  }
+}
+
+type VerifyIdentityRequest = z.infer<typeof kycSchema>
+export const mockVerifyIdentityRequest = (): VerifyIdentityRequest => {
+  return {
+    body: {
+      documentType: faker.lorem.slug(),
+      frontSideImage: faker.image.url(),
+      frontSideImageType: faker.lorem.slug(),
+      faceImage: faker.image.url(),
+      faceImageType: faker.lorem.slug()
+    }
+  }
+}
+
+export const mockRapyd = {
+  rapyd: {
+    issueVirtualAccount: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: {
+        id: 'mocked'
+      }
+    }),
+    simulateBankTransferToWallet: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: {
+        transactions: [
+          {
+            id: 'mocked'
+          }
+        ]
+      }
+    }),
+    withdrawFundsFromAccount: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: {
+        id: 'mocked'
+      }
+    }),
+    getAccountsBalance: () => ({
+      data: [
+        {
+          currency: mockedListAssets[0].code,
+          balance: 777
+        }
+      ] as Partial<RapydAccountBalance>
+    }),
+    getDocumentTypes: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: [
+        {
+          country: faker.location.country(),
+          type: faker.lorem.slug(),
+          name: faker.lorem.word(5),
+          is_back_required: true
+        }
+      ]
+    }),
+    getCountryNames: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: [
+        {
+          id: faker.lorem.slug(),
+          name: faker.lorem.word(5),
+          iso_alpha2: faker.location.countryCode('alpha-2'),
+          iso_alpha3: faker.location.countryCode('alpha-3')
+        }
+      ]
+    }),
+    createWallet: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: {
+        id: 'mocked',
+        type: 'person'
+      }
+    }),
+
+    verifyIdentity: () => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: {
+        id: uuid(),
+        reference_id: uuid()
+      }
+    }),
+
+    updateProfile: (profile: RapydProfile) => ({
+      status: {
+        status: 'SUCCESS'
+      },
+      data: {
+        id: 'mocked',
+        first_name: profile.first_name,
+        last_name: profile.last_name
+      }
+    })
+  }
+}
+
+const rapydFailResponse = () => ({
+  status: {
+    status: 'FAILURE',
+    message: 'Test message for failure'
+  }
+})
+export const mockFailureRapyd = {
+  rapyd: {
+    issueVirtualAccount: rapydFailResponse,
+    simulateBankTransferToWallet: rapydFailResponse,
+    withdrawFundsFromAccount: rapydFailResponse,
+    getAccountsBalance: rapydFailResponse,
+    getDocumentTypes: rapydFailResponse,
+    getCountryNames: rapydFailResponse,
+    createWallet: rapydFailResponse,
+    verifyIdentity: rapydFailResponse,
+    updateProfile: rapydFailResponse
+  }
+}
+
+export const mockedRapydService = {
+  getCountryNames: () => ({
+    lable: faker.location.country(),
+    valeu: faker.location.countryCode('alpha-2')
+  }),
+  getDocumentTypes: () => ({
+    type: faker.lorem.slug(),
+    name: faker.lorem.word(),
+    isBackRequired: true
+  }),
+  createWallet: (input: Record<string, string>) => ({
+    userId: input.id,
+    wallet: 'mocked_wallet'
+  }),
+
+  verifyIdentity: () => ({
+    id: uuid(),
+    reference_id: uuid()
+  }),
+  updateProfile: () => ({
+    email: faker.internet.email(),
+    category: 'general',
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    phone_number: faker.phone.number(),
+    status: 'ACT',
+    type: 'person'
+  })
 }
 
 export const mockedListAssets = [
