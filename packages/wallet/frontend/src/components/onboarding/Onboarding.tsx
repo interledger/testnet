@@ -93,7 +93,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 8
     target: '#sendReceive',
-    content: `Either you or the receiver will pay some fees: 'send' means that the fee will be substracted from the amount, 'receive' means that the fee will be added to the amount.`,
+    content: `You have to pay some fees in order to send payments. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest.`,
     disableOverlayClose: true,
     Icon: Switch
   },
