@@ -126,7 +126,7 @@ services:
     restart: always
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:main@sha256:c94709f75d27b366d35fe4ebf7641f8911664873813b9b929083c7cc18e3776c
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:1031475b63c333dd2850ad66fe0614e7bfd0ce592070b9719ee2a2b7a96d9b50
     container_name: rafiki-backend
     depends_on:
       - postgres
