@@ -187,7 +187,7 @@ export const mockFailureRapyd = {
 export const mockedRapydService = {
   getCountryNames: () => ({
     lable: faker.location.country(),
-    valeu: faker.location.countryCode('alpha-2')
+    value: faker.location.countryCode('alpha-2')
   }),
   getDocumentTypes: () => ({
     type: faker.lorem.slug(),

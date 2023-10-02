@@ -62,7 +62,7 @@ describe('Rapyd Service', () => {
   })
 
   describe('Get Document Types', () => {
-    it('Should return an array of RapydDocumentType', async () => {
+    it('should return an array of RapydDocumentType', async () => {
       await User.query().patchAndFetchById(userInfo.id, {
         country: faker.location.country()
       })
@@ -73,13 +73,13 @@ describe('Rapyd Service', () => {
       expect(result[0]).toHaveProperty('isBackRequired')
     })
 
-    it('Should return Country err', async () => {
+    it('should return Country err', async () => {
       await expect(
         rapydService.getDocumentTypes(userInfo.id)
       ).rejects.toThrowError(/User has no country/)
     })
 
-    it('Should return status failure', async () => {
+    it('should return status failure', async () => {
       Reflect.set(rapydService, 'deps', mockFailureRapyd)
       await User.query().patchAndFetchById(userInfo.id, {
         country: faker.location.country()
@@ -100,7 +100,7 @@ describe('Rapyd Service', () => {
       expect(result[0]).toHaveProperty('value')
     })
 
-    it('Should return status failure', async () => {
+    it('should return status failure', async () => {
       Reflect.set(rapydService, 'deps', mockFailureRapyd)
       await expect(rapydService.getCountryNames()).rejects.toThrowError(
         /Unable to retrieve country names from rapyd, Test message for failure/
@@ -113,7 +113,7 @@ describe('Rapyd Service', () => {
       body: { firstName, lastName, address, city, country, zip }
     } = mockCreateWalletRequest()
 
-    it('Should return RapydWallet', async () => {
+    it('should return RapydWallet', async () => {
       const { email, id } = userInfo
       const result = await rapydService.createWallet({
         firstName,
@@ -132,7 +132,7 @@ describe('Rapyd Service', () => {
       })
     })
 
-    it('Should return status failure', async () => {
+    it('should return status failure', async () => {
       const { email, id } = userInfo
       Reflect.set(rapydService, 'deps', mockFailureRapyd)
       await expect(
@@ -179,13 +179,13 @@ describe('Rapyd Service', () => {
       expect(result).toHaveProperty('reference_id')
     })
 
-    it('Should return Country err', async () => {
+    it('should return Country err', async () => {
       await expect(
         rapydService.getDocumentTypes(userInfo.id)
       ).rejects.toThrowError(/User has no country/)
     })
 
-    it('Should return status failure', async () => {
+    it('should return status failure', async () => {
       Reflect.set(rapydService, 'deps', mockFailureRapyd)
       await User.query().patchAndFetchById(userInfo.id, {
         country: faker.location.country()
@@ -221,7 +221,7 @@ describe('Rapyd Service', () => {
       })
     })
 
-    it('Should return status failure', async () => {
+    it('should return status failure', async () => {
       Reflect.set(rapydService, 'deps', mockFailureRapyd)
       const firstName = faker.person.firstName()
       const lastName = faker.person.lastName()
