@@ -144,7 +144,7 @@ export class TransactionService implements ITransactionService {
       value: amount.value,
       type: 'INCOMING',
       status: 'PENDING',
-      description: params.metadata.description
+      description: params.metadata?.description
     })
   }
 
@@ -163,7 +163,7 @@ export class TransactionService implements ITransactionService {
       value: amount.value,
       type: 'OUTGOING',
       status: 'PENDING',
-      description: params.metadata.description
+      description: params.metadata?.description
     })
   }
 }
