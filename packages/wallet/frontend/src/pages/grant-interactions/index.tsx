@@ -9,7 +9,6 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
-import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useRouter } from 'next/router'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
@@ -40,27 +39,8 @@ const GrantInteractionPage = ({
       return
     }
 
-    const title =
-      action === 'accept'
-        ? 'Grant Request Accepted.'
-        : 'Grant Request Declined.'
-    const content =
-      action === 'accept'
-        ? 'The grant request was successfully accepted.'
-        : 'The grant request was declined. No payments will be made.'
-    openDialog(
-      <SuccessDialog
-        onClose={closeDialog}
-        onSuccess={() => {
-          router.push(
-            `${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
-          )
-          closeDialog()
-        }}
-        title={title}
-        content={content}
-        redirectText="Finish"
-      />
+    router.push(
+      `${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
     )
   }
 
