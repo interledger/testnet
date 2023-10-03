@@ -113,7 +113,7 @@ describe('Socket Service', () => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toBeCalledWith(userId, {
         assetCode: mockedAmount.assetCode,
-        assetSCale: mockedAmount.assetScale,
+        assetScale: mockedAmount.assetScale,
         value: mockedAmount.value
       })
     })
@@ -135,7 +135,7 @@ describe('Socket Service', () => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toBeCalledWith(userId, {
         assetCode: mockedAmount.assetCode,
-        assetSCale: mockedAmount.assetScale,
+        assetScale: mockedAmount.assetScale,
         value: mockedAmount.value
       })
     })
