@@ -16,7 +16,7 @@ export const transformAmount = (
 }
 
 export const urlToPaymentPointer = (url: string) =>
-  url.split('/').slice(0, 4).join('/')
+  url.split('/incoming-payments/')[0]
 
 export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
