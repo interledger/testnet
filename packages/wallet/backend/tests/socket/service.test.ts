@@ -10,6 +10,7 @@ import { AuthService } from '@/auth/service'
 import { Request, Response } from 'express'
 import {
   mockCreateAccountReq,
+  mockedAmount,
   mockedListAssets,
   mockLogInRequest,
   mockRapyd
@@ -106,11 +107,11 @@ describe('Socket Service', () => {
 
       const result = await socketService.emitMoneySentByUserId(
         userId,
-        mockedListAssets[0].code
+        mockedAmount
       )
       expect(result).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toBeCalledWith(userId, mockedListAssets[0].code)
+      expect(spy).toBeCalledWith(userId, mockedAmount.assetCode)
     })
 
     it('should return nothing in received', async () => {
@@ -124,11 +125,11 @@ describe('Socket Service', () => {
 
       const result = await socketService.emitMoneyReceivedByUserId(
         userId,
-        mockedListAssets[0].code
+        mockedAmount
       )
       expect(result).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toBeCalledWith(userId, mockedListAssets[0].code)
+      expect(spy).toBeCalledWith(userId, mockedAmount.assetCode)
     })
   })
 })

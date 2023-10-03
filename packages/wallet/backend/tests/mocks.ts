@@ -66,6 +66,12 @@ export const mockedAccount = {
   updatedAt: faker.string.uuid()
 }
 
+export const mockedAmount = {
+  value: faker.number.bigInt(),
+  assetCode: mockedListAssets[0].code,
+  assetScale: mockedListAssets[0].scale,
+}
+
 export const mockRapyd = {
   rapyd: {
     issueVirtualAccount: () => ({
