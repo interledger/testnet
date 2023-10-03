@@ -111,7 +111,11 @@ describe('Socket Service', () => {
       )
       expect(result).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toBeCalledWith(userId, mockedAmount.assetCode)
+      expect(spy).toBeCalledWith(userId, {
+        assetCode: mockedAmount.assetCode,
+        assetSCale: mockedAmount.assetScale,
+        value: mockedAmount.value
+      })
     })
 
     it('should return nothing in received', async () => {
@@ -129,7 +133,11 @@ describe('Socket Service', () => {
       )
       expect(result).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toBeCalledWith(userId, mockedAmount.assetCode)
+      expect(spy).toBeCalledWith(userId, {
+        assetCode: mockedAmount.assetCode,
+        assetSCale: mockedAmount.assetScale,
+        value: mockedAmount.value
+      })
     })
   })
 })

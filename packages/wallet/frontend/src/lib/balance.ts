@@ -14,14 +14,7 @@ const state = {
   accountsSnapshot: []
 }
 
-export const balanceState = valtioPersist<AccountState>(state)
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function valtioPersist<TState extends Object>(
-  initialState?: TState
-): TState {
-  return proxy(initialState)
-}
+export const balanceState = proxy<AccountState>(state)
 
 export function updateBalance(accountUpdate: Account, balance: string): void {
   const currentAccount = balanceState.accountsSnapshot.find(
