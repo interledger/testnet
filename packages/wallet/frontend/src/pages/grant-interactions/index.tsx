@@ -9,7 +9,7 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
-import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
+import { useRouter } from 'next/router'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -23,6 +23,7 @@ const GrantInteractionPage = ({
 }: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
   const client = clientName ? clientName : grant.client
+  const router = useRouter()
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -38,22 +39,8 @@ const GrantInteractionPage = ({
       return
     }
 
-    const title =
-      action === 'accept'
-        ? 'Grant Request Accepted.'
-        : 'Grant Request Declined.'
-    const content =
-      action === 'accept'
-        ? 'The grant request was successfully accepted.'
-        : 'The grant request was declined. No payments will be made.'
-    openDialog(
-      <SuccessDialog
-        onClose={closeDialog}
-        title={title}
-        content={content}
-        redirect={`${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`}
-        redirectText="Finish"
-      />
+    router.push(
+      `${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
     )
   }
 
@@ -70,7 +57,7 @@ const GrantInteractionPage = ({
         />
         <div className="mt-20 text-xl text-green">
           <span className="font-semibold">{client}</span> wants to access your
-          wallet account and send{' '}
+          wallet account and withdraw{' '}
           {grant.access[0].limits?.debitAmount?.formattedAmount}.
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
