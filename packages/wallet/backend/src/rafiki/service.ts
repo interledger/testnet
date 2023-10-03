@@ -241,7 +241,7 @@ export class RafikiService implements IRafikiService {
     if (user)
       await this.deps.socketService.emitMoneyReceivedByUserId(
         user.id.toString(),
-        amount.assetCode
+        amount
       )
 
     this.deps.logger.info(
@@ -337,7 +337,7 @@ export class RafikiService implements IRafikiService {
     if (user)
       await this.deps.socketService.emitMoneySentByUserId(
         user.id.toString(),
-        debitAmount.assetCode
+        debitAmount
       )
 
     this.deps.logger.info(

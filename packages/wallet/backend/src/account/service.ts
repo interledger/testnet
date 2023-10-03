@@ -6,6 +6,7 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
+import { Amount } from '@/rafiki/service'
 
 type CreateAccountArgs = {
   userId: string
@@ -157,11 +158,11 @@ export class AccountService implements IAccountService {
 
   public async getAccountByAssetCode(
     userId: string,
-    assetCode: string
+    amount: Amount
   ): Promise<Account> {
     const account = await Account.query()
       .where('userId', userId)
-      .where('assetCode', assetCode)
+      .where('assetCode', amount.assetCode)
       .first()
 
     if (!account) {

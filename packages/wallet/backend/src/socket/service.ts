@@ -5,11 +5,12 @@ import http from 'http'
 import { AccountService } from '@/account/service'
 import MessageType from './messageType'
 import { withSession } from '@/middleware/withSession'
+import { Amount } from '@/rafiki/backend/generated/graphql'
 
 interface ISocketService {
   init(args: http.Server): void
-  emitMoneyReceivedByUserId(id: string, assetCode: string): void
-  emitMoneySentByUserId(id: string, assetCode: string): void
+  emitMoneyReceivedByUserId(id: string, amount: Amount): void
+  emitMoneySentByUserId(id: string, amount: Amount): void
 }
 
 interface SocketServiceDependencies {
@@ -59,19 +60,19 @@ export class SocketService implements ISocketService {
     })
   }
 
-  async emitMoneyReceivedByUserId(userId: string, assetCode: string) {
+  async emitMoneyReceivedByUserId(userId: string, amount: Amount) {
     const account = await this.deps.accountService.getAccountByAssetCode(
       userId,
-      assetCode
+      amount
     )
-    this.io?.to(userId).emit(MessageType.MONEY_RECEIVED, account)
+    this.io?.to(userId).emit(MessageType.MONEY_RECEIVED, account, amount)
   }
 
-  async emitMoneySentByUserId(userId: string, assetCode: string) {
+  async emitMoneySentByUserId(userId: string, amount: Amount) {
     const account = await this.deps.accountService.getAccountByAssetCode(
       userId,
-      assetCode
+      amount
     )
-    this.io?.to(userId).emit(MessageType.MONEY_SENT, account)
+    this.io?.to(userId).emit(MessageType.MONEY_SENT, account, amount)
   }
 }

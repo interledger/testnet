@@ -10,6 +10,7 @@ import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
+import { formatAmount } from '@/utils/helpers'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -30,34 +31,42 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     })
 
     // Event listeners
-    socket?.on('MONEY_RECEIVED', (data) => {
+    socket?.on('MONEY_RECEIVED', (account, amount) => {
       toast({
         description: (
           <p>
             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            You received some {data.assetCode} into account {data.name}.
+            You received{' '}
+            {
+              formatAmount({
+                value: amount.value,
+                assetCode: amount.assetCode,
+                assetScale: amount.assetScale
+              }).amount
+            }{' '}
+            into account {account.name}.
           </p>
         ),
         variant: 'success'
       })
       updateBalance(
         {
-          balance: data.balance,
-          assetCode: data.assetCode,
-          assetScale: data.assetScale
+          balance: account.balance,
+          assetCode: account.assetCode,
+          assetScale: account.assetScale
         },
-        data.balance
+        account.balance
       )
     })
 
-    socket?.on('MONEY_SENT', (data) => {
+    socket?.on('MONEY_SENT', (account) => {
       updateBalance(
         {
-          balance: data.balance,
-          assetCode: data.assetCode,
-          assetScale: data.assetScale
+          balance: account.balance,
+          assetCode: account.assetCode,
+          assetScale: account.assetScale
         },
-        data.balance
+        account.balance
       )
     })
 
