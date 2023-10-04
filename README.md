@@ -22,7 +22,7 @@ Never heard of Interledger before, or you would like to learn more? Here are som
 
 - [Good first issues](https://github.com/interledger/testnet/contribute)
 - [Interledger Explainer Video](https://twitter.com/Interledger/status/1567916000074678272)
-- [Interledger Website](https://interledger.org/developers/rfcs/interledger-protocol/)
+- [Interledger Website](https://interledger.org)
 - [Payment pointers](https://paymentpointers.org/)
 - [Web monetization](https://webmonetization.org/)
 
