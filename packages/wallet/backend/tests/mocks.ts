@@ -5,7 +5,7 @@ import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
-import {walletSchema} from "@/rapyd/validation";
+import { walletSchema } from '@/rapyd/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 
@@ -40,7 +40,7 @@ export const mockSignUpRequest = (
 
 type CreateWalletRequest = z.infer<typeof walletSchema>
 export const mockCreateWalletRequest = (
-    overrides?: Partial<CreateWalletRequest['body']>
+  overrides?: Partial<CreateWalletRequest['body']>
 ): CreateWalletRequest => {
   return {
     body: {
