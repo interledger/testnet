@@ -23,7 +23,7 @@
     "react-select": "^5.7.5",
     "sharp": "^0.32.6",
     "valtio": "^1.11.2",
-    "zod": "^3.22.2"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.12",

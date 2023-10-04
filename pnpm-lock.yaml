@@ -99,8 +99,8 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0
       zod:
-        specifier: ^3.22.2
-        version: 3.22.2
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@types/cors':
         specifier: ^2.8.14
@@ -179,7 +179,7 @@ importers:
         version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
       remix-params-helper:
         specifier: ^0.4.10
-        version: 0.4.10(zod@3.22.2)
+        version: 0.4.10(zod@3.22.4)
       tailwind-merge:
         specifier: ^1.14.0
         version: 1.14.0
@@ -190,8 +190,8 @@ importers:
         specifier: ^1.11.2
         version: 1.11.2(@types/react@18.2.24)(react@18.2.0)
       zod:
-        specifier: ^3.22.2
-        version: 3.22.2
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@tailwindcss/forms':
         specifier: ^0.5.6
@@ -290,8 +290,8 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0
       zod:
-        specifier: ^3.22.2
-        version: 3.22.2
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@faker-js/faker':
         specifier: ^8.1.0
@@ -399,8 +399,8 @@ importers:
         specifier: ^1.11.2
         version: 1.11.2(@types/react@18.2.24)(react@18.2.0)
       zod:
-        specifier: ^3.22.2
-        version: 3.22.2
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@next/bundle-analyzer':
         specifier: ^13.4.12
@@ -9023,12 +9023,12 @@ packages:
     resolution: {integrity: sha512-/62tYiOe6DzS5BqVsNpH/nkGlX45C/Sp6V+NtiN6JQNS1Viay7cWkazmRkrQrdFj2eshDe96SIQNIoMxqhzBOg==}
     dev: true
 
-  /remix-params-helper@0.4.10(zod@3.22.2):
+  /remix-params-helper@0.4.10(zod@3.22.4):
     resolution: {integrity: sha512-1LZ1FjxCtPekg4a1R50aKA0uB2+668Wd2a0ld7LDrQ0bJ2TzijnCVr822cs8epziS6MG2bG8ZHMPDAR2t4PK+Q==}
     peerDependencies:
       zod: ^3.11.6
     dependencies:
-      zod: 3.22.2
+      zod: 3.22.4
     dev: false
 
   /remove-trailing-separator@1.1.0:
@@ -10611,6 +10611,6 @@ packages:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
     dev: false
 
-  /zod@3.22.2:
-    resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
