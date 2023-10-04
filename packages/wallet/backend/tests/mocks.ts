@@ -244,6 +244,32 @@ export const mockedListAssets = [
   }
 ]
 
+export const mockedAccount = {
+  id: faker.string.uuid(),
+  name: faker.string.uuid(),
+  balance: faker.number,
+  virtualAccountId: faker.string.uuid(),
+  assetId: mockedListAssets[0].id,
+  assetCode: mockedListAssets[0].code,
+  assetScale: mockedListAssets[0].scale,
+  paymentPointers: [],
+  userId: faker.string.uuid(),
+  createdAt: faker.string.uuid(),
+  updatedAt: faker.string.uuid()
+}
+
+export const mockedAmount = {
+  value: faker.number.bigInt(),
+  assetCode: mockedListAssets[0].code,
+  assetScale: mockedListAssets[0].scale
+}
+
+export const mockCreateAccountReq = {
+  userId: faker.string.uuid(),
+  name: faker.string.uuid(),
+  assetId: mockedListAssets[0].id
+}
+
 export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({

@@ -45,6 +45,10 @@ export class UserService implements IUserService {
     return User.query().findById(id)
   }
 
+  public async getByWalletId(walletId: string): Promise<User | undefined> {
+    return User.query().findOne({ rapydWalletId: walletId })
+  }
+
   public async requestResetPassword(email: string): Promise<void> {
     const user = await this.getByEmail(email)
 

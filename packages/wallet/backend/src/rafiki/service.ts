@@ -6,6 +6,8 @@ import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
 import { RatesService } from '../rates/service'
 import { RafikiClient } from './rafiki-client'
+import { UserService } from '@/user/service'
+import { SocketService } from '@/socket/service'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -69,6 +71,8 @@ interface IRafikiService {
 }
 
 interface RafikiServiceDependencies {
+  userService: UserService
+  socketService: SocketService
   rapydClient: RapydClient
   ratesService: RatesService
   env: Env
@@ -233,6 +237,13 @@ export class RafikiService implements IRafikiService {
       { status: 'COMPLETED', value: amount.value }
     )
 
+    const user = await this.deps.userService.getByWalletId(receiverWalletId)
+    if (user)
+      await this.deps.socketService.emitMoneyReceivedByUserId(
+        user.id.toString(),
+        amount
+      )
+
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
         amount
@@ -321,6 +332,13 @@ export class RafikiService implements IRafikiService {
       { paymentId: wh.data.payment.id },
       { status: 'COMPLETED', value: debitAmount.value }
     )
+
+    const user = await this.deps.userService.getByWalletId(source_ewallet)
+    if (user)
+      await this.deps.socketService.emitMoneySentByUserId(
+        user.id.toString(),
+        debitAmount
+      )
 
     this.deps.logger.info(
       `Succesfully transfered ${this.amountToNumber(
