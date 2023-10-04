@@ -1,6 +1,8 @@
 # Testnet
 
-<img width="920" alt="testnet" src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg">
+<a href="#what-is-testnet">
+  <img src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg" width="920" alt="Testnet picture">
+</a>
 
 ## What is Testnet?
 
