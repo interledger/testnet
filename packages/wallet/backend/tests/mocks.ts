@@ -264,47 +264,6 @@ export const mockedAmount = {
   assetScale: mockedListAssets[0].scale
 }
 
-export const mockRapyd = {
-  rapyd: {
-    issueVirtualAccount: () => ({
-      status: {
-        status: 'SUCCESS'
-      },
-      data: {
-        id: 'mocked'
-      }
-    }),
-    simulateBankTransferToWallet: () => ({
-      status: {
-        status: 'SUCCESS'
-      },
-      data: {
-        transactions: [
-          {
-            id: 'mocked'
-          }
-        ]
-      }
-    }),
-    withdrawFundsFromAccount: () => ({
-      status: {
-        status: 'SUCCESS'
-      },
-      data: {
-        id: 'mocked'
-      }
-    }),
-    getAccountsBalance: () => ({
-      data: [
-        {
-          currency: mockedListAssets[0].code,
-          balance: 777
-        }
-      ] as Partial<RapydAccountBalance>
-    })
-  }
-}
-
 export const mockCreateAccountReq = {
   userId: faker.string.uuid(),
   name: faker.string.uuid(),
