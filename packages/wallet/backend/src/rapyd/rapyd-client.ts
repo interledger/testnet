@@ -179,16 +179,10 @@ export class RapydClient implements IRapydClient {
         RapydResponse<RapydSetTransferResponse>
       >('account/transfer', JSON.stringify(req))
 
-      const setTransferResponse = await this.setTransferResponse({
+      return await this.setTransferResponse({
         id: transferResponse.data.id,
         status: 'accept'
       })
-
-      if (setTransferResponse.status.status !== 'SUCCESS') {
-        throw new Error(`Unable to set accepted response of wallet transfer`)
-      }
-
-      return setTransferResponse
     } catch (err) {
       if (
         err instanceof AxiosError &&
@@ -202,7 +196,7 @@ export class RapydClient implements IRapydClient {
           req,
           this.deps.env.RAPYD_SETTLEMENT_EWALLET
         )
-        return this.transferLiquidity(req, true)
+        return await this.transferLiquidity(req, true)
       }
 
       throw err
