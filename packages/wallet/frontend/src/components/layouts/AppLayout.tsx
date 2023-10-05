@@ -2,7 +2,9 @@ import { ReactNode, useEffect } from 'react'
 import { Menu } from '@/components/Menu'
 import { Bubbles } from '@/ui/Bubbles'
 import dynamic from 'next/dynamic'
+import { usePathname } from 'next/navigation'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import Link from 'next/link'
 const Onboarding = dynamic(() => import('@/components/onboarding/Onboarding'), {
   ssr: false
 })
@@ -12,6 +14,9 @@ type AppLayoutProps = {
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
+  const pathname = usePathname()
+  const Path = pathname.split('/');
+  let currentPath = '';
   const { isUserFirstTime, setIsUserFirstTime } = useOnboardingContext()
 
   useEffect(() => {
@@ -24,6 +29,22 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
       <Menu />
+      <div className='fixed top-[84px] left-4 md:fixed md:top-2 md:left-64 flex text-[#003A2F] font-semibold'>
+        <Link href="/" className='underline'>Home</Link>
+        {
+          Path.filter(beta => beta != "").map((alpha, key) => {
+            currentPath += `/${alpha}`;
+            alpha = alpha.charAt(0).toUpperCase() + alpha.slice(1);
+            return (
+              <>
+                <p className='mx-1 pb-1'>{` > `}</p>
+                <Link href={currentPath} className='underline' key={key}>{alpha}</Link>
+              </>
+            )
+          })
+        }
+
+      </div>
       {isUserFirstTime && <Onboarding />}
       <div className="flex flex-1 flex-col pt-20 md:pl-60 md:pt-0">
         <main className="flex-1">
