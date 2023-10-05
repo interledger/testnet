@@ -5,7 +5,7 @@ import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
-import { walletSchema } from '@/rapyd/validation'
+import { kycSchema, walletSchema } from '@/rapyd/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 
