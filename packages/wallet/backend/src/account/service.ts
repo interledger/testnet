@@ -6,10 +6,7 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
-import { QuoteWithFees } from '@/quote/controller'
-import { QuoteService } from '@/quote/service'
-import { PaymentPointerService } from '@/paymentPointer/service'
-import { getRandomValues } from 'crypto'
+import { Amount } from '@/rafiki/service'
 
 type CreateAccountArgs = {
   userId: string
@@ -35,23 +32,14 @@ interface IAccountService {
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
-type CreateExchangeQuote = {
-  userId: string
-  accountId: string
-  assetCode: string
-  amount: number
-}
-
-interface CountriesServiceDependencies {
+interface AccountServiceDependencies {
   rapyd: RapydClient
   rafiki: RafikiClient
   logger: Logger
-  quoteServiceGetter: () => QuoteService
-  paymentPointerServiceGetter: () => PaymentPointerService
 }
 
 export class AccountService implements IAccountService {
-  constructor(private deps: CountriesServiceDependencies) {}
+  constructor(private deps: AccountServiceDependencies) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
     const existingAccount = await Account.query()
@@ -166,6 +154,27 @@ export class AccountService implements IAccountService {
     }
 
     return accounts
+  }
+
+  public async getAccountByAssetCode(
+    userId: string,
+    amount: Amount
+  ): Promise<Account> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('assetCode', amount.assetCode)
+      .first()
+
+    if (!account) {
+      throw new NotFound()
+    }
+
+    account.balance = transformBalance(
+      await this.getAccountBalance(userId, account.assetCode),
+      account.assetScale
+    )
+
+    return account
   }
 
   public async getAccountById(
@@ -307,85 +316,5 @@ export class AccountService implements IAccountService {
     })
 
     return account
-  }
-
-  public async createExchangeQuote({
-    userId,
-    accountId,
-    assetCode,
-    amount
-  }: CreateExchangeQuote): Promise<QuoteWithFees> {
-    const accountFrom = await Account.query()
-      .findById(accountId)
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
-
-    if (!accountFrom) {
-      throw new NotFound(`The source account does not exist.`)
-    }
-
-    const assetInRafiki = (
-      await this.deps.rafiki.listAssets({ first: 100 })
-    ).find((asset) => asset.code === assetCode)
-    if (!assetInRafiki) {
-      throw new NotFound(
-        `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
-      )
-    }
-
-    let senderPpId = accountFrom?.paymentPointers?.[0]?.id
-    if (!senderPpId) {
-      const paymentPointer = await this.deps
-        .paymentPointerServiceGetter()
-        .create(
-          userId,
-          accountFrom.id,
-          getRandomValues(new Uint32Array(1))[0].toString(16),
-          `${assetCode} Payment Pointer`
-        )
-      senderPpId = paymentPointer.id
-    }
-
-    let accountTo = await Account.query()
-      .where({ userId, assetCode })
-      .withGraphFetched({ paymentPointers: true })
-      .modifyGraph('paymentPointers', (builder) => {
-        builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-      })
-      .limit(1)
-      .first()
-    let receiverPp = accountTo?.paymentPointers?.[0]?.url
-
-    if (!accountTo) {
-      accountTo = await this.createAccount({
-        name: `${assetCode} account`,
-        userId,
-        assetId: assetInRafiki.id
-      })
-    }
-    if (!receiverPp) {
-      const paymentPointer = await this.deps
-        .paymentPointerServiceGetter()
-        .create(
-          userId,
-          accountTo.id,
-          getRandomValues(new Uint32Array(1))[0].toString(16),
-          `${assetCode} Payment Pointer`
-        )
-      receiverPp = paymentPointer.url
-    }
-
-    const quote = await this.deps.quoteServiceGetter().create({
-      userId,
-      paymentPointerId: senderPpId,
-      amount,
-      description: 'Currency exchange.',
-      isReceive: false,
-      receiver: receiverPp
-    })
-
-    return quote
   }
 }

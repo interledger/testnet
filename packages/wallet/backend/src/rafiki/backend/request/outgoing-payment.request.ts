@@ -26,7 +26,7 @@ export const createOutgoingPaymentMutation = gql`
             value
           }
           receiver
-          sendAmount {
+          debitAmount {
             assetCode
             assetScale
             value
@@ -38,7 +38,7 @@ export const createOutgoingPaymentMutation = gql`
           value
         }
         receiver
-        sendAmount {
+        debitAmount {
           assetCode
           assetScale
           value

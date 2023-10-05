@@ -1,0 +1,44 @@
+FROM node:18-alpine AS base
+
+WORKDIR /testnet
+
+RUN corepack enable
+RUN corepack prepare pnpm@8.8.0 --activate
+
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/boutique/frontend/package.json ./packages/boutique/frontend/package.json
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile
+
+FROM base AS builder
+
+WORKDIR /testnet
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json .eslintrc.js ./
+COPY packages/boutique/frontend /testnet/packages/boutique/frontend
+
+COPY --from=base /testnet/node_modules ./node_modules
+COPY --from=base /testnet/packages/boutique/frontend/node_modules ./packages/boutique/frontend/node_modules
+
+ARG PORT
+ARG VITE_API_BASE_URL
+
+ENV NODE_ENV=production
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL 
+
+RUN pnpm boutique:frontend build
+
+FROM nginx:stable-alpine AS runner
+
+COPY --from=builder /testnet/packages/boutique/frontend/dist /usr/share/nginx/html
+COPY packages/boutique/frontend/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE ${PORT}
+
+CMD ["nginx", "-g", "daemon off;"]

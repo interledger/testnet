@@ -3,10 +3,12 @@ import { PaymentPointerService } from '@/paymentPointer/service'
 import { validate } from '@/shared/validate'
 import { User } from '@/user/model'
 import { getRandomValues } from 'crypto'
+import { SocketService } from '@/socket/service'
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
+import { UserService } from '@/user/service'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -20,6 +22,8 @@ interface RapydControllerDependencies {
   paymentPointerService: PaymentPointerService
   logger: Logger
   rapydService: RapydService
+  socketService: SocketService
+  userService: UserService
 }
 
 export class RapydController implements IRapydController {
@@ -32,6 +36,7 @@ export class RapydController implements IRapydController {
   ) => {
     try {
       const countryNamesResult = await this.deps.rapydService.getCountryNames()
+
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: countryNamesResult })
@@ -47,7 +52,6 @@ export class RapydController implements IRapydController {
   ) => {
     try {
       const { id: userId } = req.session.user
-
       const documentTypesResult =
         await this.deps.rapydService.getDocumentTypes(userId)
       res

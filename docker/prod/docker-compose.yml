@@ -31,7 +31,6 @@ services:
       - '${WALLET_FRONTEND_PORT}:${WALLET_FRONTEND_PORT}'
     restart: always
 
-  # Testnet
   wallet-backend:
     build:
       context: ../..
@@ -57,16 +56,56 @@ services:
       SENDGRID_API_KEY: ${WALLET_BACKEND_SENDGRID_API_KEY}
       FROM_EMAIL: ${WALLET_BACKEND_FROM_EMAIL}
       SEND_EMAIL: ${WALLET_BACKEND_SEND_EMAIL}
-      IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
+      AUTH_IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
       AUTH_DOMAIN: ${WALLET_BACKEND_AUTH_DOMAIN}
+      RATE_API_KEY: ${WALLET_BACKEND_RATE_API_KEY}
     networks:
       - testnet
     ports:
       - '${WALLET_BACKEND_PORT}:${WALLET_BACKEND_PORT}'
     restart: always
 
+  boutique-frontend:
+    container_name: boutique-frontend
+    build:
+      context: ../..
+      dockerfile: ./packages/boutique/frontend/Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: ${BOUTIQUE_FRONTEND_API_BASE_URL}
+        PORT: ${BOUTIQUE_FRONTEND_API_BASE_URL}
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '${BOUTIQUE_FRONTEND_PORT}:${BOUTIQUE_FRONTEND_PORT}'
+
+  boutique-backend:
+    container_name: boutique-backend
+    build:
+      context: ../..
+      dockerfile: ./packages/boutique/backend/Dockerfile.prod
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BOUTIQUE_BACKEND_PORT}
+      FRONTEND_URL: ${BOUTIQUE_BACKEND_FRONTEND_URL}
+      DATABASE_URL: ${BOUTIQUE_BACKEND_DATABASE_URL}
+      PRIVATE_KEY: ${BOUTIQUE_BACKEND_PRIVATE_KEY}
+      KEY_ID: ${BOUTIQUE_BACKEND_KEY_ID}
+      PAYMENT_POINTER: ${BOUTIQUE_BACKEND_PAYMENT_POINTER}
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3004:3004'
+
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:fb3e052d99ca989bea0c4e724fbef30a4ef320e6c4e85ca86ca2e05bb4be2832
+    image: ghcr.io/interledger/rafiki-auth:main@sha256:690716fdc8f47a629ccb4c0b1f5422d07eafc8535b91897e5fd2b40acc3faa97
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -87,14 +126,13 @@ services:
     restart: always
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:main@sha256:d1743cfe58f26847dd6fb80704ea9a4cb91747675661911005798d4cd35bef6e
+    image: ghcr.io/interledger/rafiki-backend:main@sha256:c94709f75d27b366d35fe4ebf7641f8911664873813b9b929083c7cc18e3776c
     container_name: rafiki-backend
     depends_on:
       - postgres
       - redis
     environment:
       NODE_ENV: ${NODE_ENV}
-      PRIVATE_KEY_FILE: ${RAFIKI_BACKEND_PRIVATE_KEY_FILE}
       LOG_LEVEL: ${RAFIKI_BACKEND_LOG_LEVEL}
       ADMIN_PORT: ${RAFIKI_BACKEND_ADMIN_PORT}
       CONNECTOR_PORT: ${RAFIKI_BACKEND_CONNECTOR_PORT}
@@ -116,19 +154,23 @@ services:
       WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL}
       WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT}
       EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL}
-      QUOTE_URL: ${RAFIKI_BACKEND_QUOTE_URL}
+      ENABLE_AUTO_PEERING: true
+      AUTO_PEERING_SERVER_PORT: ${RAFIKI_BACKEND_AUTOPEERING_PORT}
+      ILP_CONNECTOR_ADDRESS: ${RAFIKI_ILP_CONNECTOR_ADDRESS}
     networks:
       - testnet
     ports:
       - '3010:80'
       - '3011:3001'
+      - '${RAFIKI_BACKEND_AUTOPEERING_PORT}:${RAFIKI_BACKEND_AUTOPEERING_PORT}'
+      - '${RAFIKI_BACKEND_CONNECTOR_PORT}:${RAFIKI_BACKEND_CONNECTOR_PORT}'
     privileged: true
     restart: always
     volumes:
       - ../temp/:/workspace/temp/
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:main@sha256:e8fd69d600a72f760fe175e695db852b351d37fa94065ef206ece051dfc68f8c
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:0bd89d6a0e62b89cd9ca2121763b2879953e0ccc6ee33ed2ccd7c5e8434c47cd
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend

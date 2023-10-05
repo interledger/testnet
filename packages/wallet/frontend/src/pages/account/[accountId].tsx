@@ -23,6 +23,8 @@ import type {
 import { useMemo } from 'react'
 import { useEffect } from 'react'
 import { z } from 'zod'
+import { useSnapshot } from 'valtio'
+import { balanceState } from '@/lib/balance'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -31,15 +33,17 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   paymentPointers
 }) => {
   const [openDialog, closeDialog] = useDialog()
-  const formattedAmount = useMemo(
-    () =>
-      formatAmount({
-        value: account.balance,
-        assetCode: account.assetCode,
-        assetScale: account.assetScale
-      }),
-    [account]
-  )
+  const { accountsSnapshot } = useSnapshot(balanceState)
+  const formattedAmount = useMemo(() => {
+    const snapshotAccount = accountsSnapshot.find(
+      (item) => item.assetCode === account.assetCode
+    )
+    return formatAmount({
+      value: snapshotAccount?.balance || account.balance,
+      assetCode: account.assetCode,
+      assetScale: account.assetScale
+    })
+  }, [account, accountsSnapshot])
 
   const { isUserFirstTime, setRunOnboarding, setStepIndex, stepIndex } =
     useOnboardingContext()

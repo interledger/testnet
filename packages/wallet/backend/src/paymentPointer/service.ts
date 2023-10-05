@@ -5,7 +5,7 @@ import { Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
-import { generateKeyPairSync } from 'crypto'
+import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { PaymentPointer } from './model'
 
@@ -45,6 +45,33 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
+}
+
+export const createPaymentPointerIfFalsy = async ({
+  paymentPointer,
+  userId,
+  accountId,
+  publicName,
+  paymentPointerService
+}: {
+  paymentPointer: PaymentPointer
+  userId: string
+  accountId: string
+  publicName: string
+  paymentPointerService: PaymentPointerService
+}): Promise<PaymentPointer> => {
+  if (paymentPointer) {
+    return paymentPointer
+  }
+
+  const newPaymentPointer = await paymentPointerService.create(
+    userId,
+    accountId,
+    getRandomValues(new Uint32Array(1))[0].toString(16),
+    publicName
+  )
+
+  return newPaymentPointer
 }
 
 export class PaymentPointerService implements IPaymentPointerService {
@@ -149,14 +176,14 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async belongsToUser(userId: string, url: string): Promise<boolean> {
-    const paymentPointers = await PaymentPointer.query()
-      .where('url', url)
+    const paymentPointer = await PaymentPointer.query()
+      .findOne({ url })
       .withGraphFetched('account')
       .modifyGraph('account', (builder) => {
         builder.where({ userId })
       })
 
-    return !!paymentPointers.length
+    return !!paymentPointer?.account
   }
 
   /**
@@ -289,5 +316,17 @@ export class PaymentPointerService implements IPaymentPointerService {
         : url
     const res = await axios.get(url, { headers })
     return res.data
+  }
+
+  async findByIdWithoutValidation(id: string) {
+    const paymentPointer = await PaymentPointer.query()
+      .findById(id)
+      .where('active', true)
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
+
+    return paymentPointer
   }
 }

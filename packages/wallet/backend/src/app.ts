@@ -39,6 +39,7 @@ import type { SessionService } from './session/service'
 import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
+import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
 
 export interface Bindings {
@@ -74,6 +75,7 @@ export interface Bindings {
   grantController: GrantController
   grantService: GrantService
   emailService: EmailService
+  socketService: SocketService
 }
 
 export class App {
@@ -86,6 +88,7 @@ export class App {
     const env = await this.container.resolve('env')
     const logger = await this.container.resolve('logger')
     const knex = await this.container.resolve('knex')
+    const socketService = await this.container.resolve('socketService')
 
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
@@ -94,6 +97,8 @@ export class App {
 
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
+
+    socketService.init(this.server)
   }
 
   public stop = async (): Promise<void> => {
@@ -262,13 +267,12 @@ export class App {
     router.post(
       '/accounts/:accountId/exchange',
       isAuth,
-      accountController.createExchangeQuote
+      quoteController.createExchangeQuote
     )
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
     router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
     router.get('/rates', rafikiController.getRates)
-    router.post('/quote', rafikiController.createQuote)
     router.post('/webhooks', rafikiController.onWebHook)
 
     // Return an error for invalid routes

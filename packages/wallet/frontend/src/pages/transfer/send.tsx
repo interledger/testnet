@@ -14,7 +14,7 @@ import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
@@ -28,6 +28,8 @@ import { useOnboardingContext } from '@/lib/context/onboarding'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
 import { AssetOP, assetService, ExchangeRates } from '@/lib/api/asset'
 import { ExchangeRate } from '@/components/ExchangeRate'
+import { useSnapshot } from 'valtio'
+import { balanceState } from '@/lib/balance'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -36,8 +38,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
-  const [balance, setBalance] = useState('')
-  const [selectedAsset, setSelectedAsset] = useState<AssetOP | null>(null)
+  const [selectedAccount, setSelectedAccount] =
+    useState<SelectAccountOption | null>(null)
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
   )
@@ -46,6 +48,22 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [convertAmount, setConvertAmount] = useState(0)
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
   const [incomingPaymentAmount, setIncomingPaymentAmount] = useState(0)
+  const { accountsSnapshot } = useSnapshot(balanceState)
+
+  const balanceSnapshot = useMemo(() => {
+    if (!selectedAccount) return ''
+
+    const snapshotAccount = accountsSnapshot.find(
+      (item) =>
+        item.assetCode === selectedAccount.assetCode &&
+        item.assetScale === selectedAccount.assetScale
+    )
+    return formatAmount({
+      value: snapshotAccount?.balance || selectedAccount.balance,
+      assetCode: selectedAccount.assetCode,
+      assetScale: selectedAccount.assetScale
+    }).amount
+  }, [accountsSnapshot, selectedAccount])
 
   const sendForm = useZodForm({
     schema: sendSchema,
@@ -69,15 +87,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
-    setBalance(
-      selectedAccount
-        ? formatAmount({
-            value: selectedAccount.balance,
-            assetCode: selectedAccount.assetCode,
-            assetScale: selectedAccount.assetScale
-          }).amount
-        : ''
-    )
+
+    setSelectedAccount(selectedAccount || null)
 
     sendForm.resetField('paymentPointerId', {
       defaultValue: null
@@ -107,11 +118,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     setPaymentPointers(paymentPointers)
 
     if (selectedAccount) {
-      setSelectedAsset({
-        assetCode: selectedAccount.assetCode,
-        assetScale: selectedAccount.assetScale
-      })
-
       const ratesResponse = await assetService.getExchangeRates(
         selectedAccount.assetCode
       )
@@ -154,13 +160,16 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setIncomingPaymentAmount(value)
         const responseAssetCode = response.data.assetCode
 
-        if (selectedAsset && selectedAsset.assetCode !== responseAssetCode) {
+        if (
+          selectedAccount &&
+          selectedAccount.assetCode !== responseAssetCode
+        ) {
           const ratesResponse =
             await assetService.getExchangeRates(responseAssetCode)
 
           if (ratesResponse.success && ratesResponse.data) {
             value = Number(
-              (value * ratesResponse.data[selectedAsset.assetCode]).toFixed(2)
+              (value * ratesResponse.data[selectedAccount.assetCode]).toFixed(2)
             )
           }
         }
@@ -235,7 +244,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="violet" balance={balance} />
+        <TransferHeader type="violet" balance={balanceSnapshot} />
         <Form
           form={sendForm}
           onSubmit={async (data) => {
@@ -373,7 +382,14 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               convertAmount={convertAmount}
               currentExchangeRates={currentExchangeRates}
               receiverAssetCode={receiverAssetCode}
-              selectedAsset={selectedAsset}
+              selectedAsset={
+                selectedAccount
+                  ? {
+                      assetCode: selectedAccount?.assetCode,
+                      assetScale: selectedAccount?.assetScale
+                    }
+                  : null
+              }
             />
             <Input {...sendForm.register('description')} label="Description" />
           </div>

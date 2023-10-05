@@ -10,6 +10,6 @@ CREATE USER wallet_backend WITH PASSWORD 'wallet_backend';
 CREATE DATABASE wallet_backend;
 ALTER DATABASE wallet_backend OWNER TO wallet_backend;
 
-CREATE USER commerce_backend WITH PASSWORD 'commerce_backend';
-CREATE DATABASE commerce_backend;
-ALTER DATABASE commerce_backend OWNER TO commerce_backend;
+CREATE USER boutique_backend WITH PASSWORD 'boutique_backend';
+CREATE DATABASE boutique_backend;
+ALTER DATABASE boutique_backend OWNER TO boutique_backend;

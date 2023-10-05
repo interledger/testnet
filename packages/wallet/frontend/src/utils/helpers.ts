@@ -1,5 +1,7 @@
 import { AssetOP } from '@/lib/api/asset'
+import { cx, CxOptions } from 'class-variance-authority'
 import { Quote } from '../lib/api/transfers'
+import { twMerge } from 'tailwind-merge'
 
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
@@ -13,6 +15,10 @@ export const getObjectKeys = Object.keys as <T extends object>(
 export type FormattedAmount = {
   amount: string
   symbol: string
+}
+
+export function cn(...inputs: CxOptions) {
+  return twMerge(cx(inputs))
 }
 
 export const getCurrencySymbol = (assetCode: string): string => {
@@ -67,10 +73,11 @@ export const getFee = (quote: Quote): FormattedAmount => {
     })
   }
 
-  const fee = BigInt(quote.sendAmount.value) - BigInt(quote.receiveAmount.value)
+  const fee =
+    BigInt(quote.debitAmount.value) - BigInt(quote.receiveAmount.value)
   return formatAmount({
-    assetCode: quote.sendAmount.assetCode,
-    assetScale: quote.sendAmount.assetScale,
+    assetCode: quote.debitAmount.assetCode,
+    assetScale: quote.debitAmount.assetScale,
     value: fee.toString()
   })
 }

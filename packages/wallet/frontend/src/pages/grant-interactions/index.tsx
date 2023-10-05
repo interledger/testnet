@@ -1,6 +1,3 @@
-import { AppLayout } from '@/components/layouts/AppLayout'
-import { PageHeader } from '@/components/PageHeader'
-import { NextPageWithLayout } from '@/lib/types/app'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -12,19 +9,21 @@ import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
-import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { GrantDetails } from '@/components/GrantDetails'
+import { useRouter } from 'next/router'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >
 
-const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
+const GrantInteractionPage = ({
   grant,
   interactionId,
-  nonce
-}) => {
+  nonce,
+  clientName
+}: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
+  const client = clientName ? clientName : grant.client
+  const router = useRouter()
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -40,34 +39,28 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
       return
     }
 
-    const title =
-      action === 'accept'
-        ? 'Grant Request Accepted.'
-        : 'Grant Request Declined.'
-    const content =
-      action === 'accept'
-        ? 'The grant request was successfully accepted.'
-        : 'The grant request was declined. No payments will be made.'
-    openDialog(
-      <SuccessDialog
-        onClose={closeDialog}
-        title={title}
-        content={content}
-        redirect={`${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`}
-        redirectText="Finish"
-      />
+    router.push(
+      `${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
     )
   }
 
   return (
-    <>
-      <PageHeader title="Grant request" />
-      <div className="flex w-full flex-col md:max-w-lg">
-        <GrantDetails
-          grant={grant}
-          isFinalizedInteraction={false}
-        ></GrantDetails>
-        <div className="flex justify-evenly">
+    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
+      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+        <Image
+          className="mx-auto object-cover"
+          src="/grants.webp"
+          alt="Grants"
+          quality={100}
+          width={500}
+          height={150}
+        />
+        <div className="mt-20 text-xl text-green">
+          <span className="font-semibold">{client}</span> wants to access your
+          wallet account and withdraw{' '}
+          {grant.access[0].limits?.debitAmount?.formattedAmount}.
+        </div>
+        <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
             aria-label="accept"
             onClick={() => {
@@ -87,28 +80,22 @@ const GrantInteractionPage: NextPageWithLayout<GrantInteractionPageProps> = ({
           </Button>
         </div>
       </div>
-      <Image
-        className="mt-20 object-cover"
-        src="/grants.webp"
-        alt="Grants"
-        quality={100}
-        width={500}
-        height={150}
-      />
-    </>
+    </div>
   )
 }
 
 const querySchema = z.object({
   interactId: z.string(),
   nonce: z.string(),
-  clientUri: z.string()
+  clientUri: z.string(),
+  clientName: z.string()
 })
 
 export const getServerSideProps: GetServerSideProps<{
   grant: Grant
   interactionId: string
   nonce: string
+  clientName: string
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -124,6 +111,15 @@ export const getServerSideProps: GetServerSideProps<{
   )
 
   if (!grantInteractionResponse.success || !grantInteractionResponse.data) {
+    if (grantInteractionResponse.message === 'NO_ACCESS') {
+      return {
+        redirect: {
+          permanent: false,
+          destination: '/no-access'
+        }
+      }
+    }
+
     return {
       notFound: true
     }
@@ -138,19 +134,11 @@ export const getServerSideProps: GetServerSideProps<{
         ? access.limits.receiver.replace('https://', '$')
         : access.limits.receiver ?? null
 
-      if (access.limits.sendAmount) {
-        access.limits.sendAmount.formattedAmount = formatAmount({
-          value: access.limits.sendAmount.value ?? 0,
-          assetCode: access.limits.sendAmount.assetCode,
-          assetScale: access.limits.sendAmount.assetScale
-        }).amount
-      }
-
-      if (access.limits.receiveAmount !== null) {
-        access.limits.receiveAmount.formattedAmount = formatAmount({
-          value: access.limits.receiveAmount.value ?? 0,
-          assetCode: access.limits.receiveAmount.assetCode,
-          assetScale: access.limits.receiveAmount.assetScale
+      if (access.limits.debitAmount) {
+        access.limits.debitAmount.formattedAmount = formatAmount({
+          value: access.limits.debitAmount.value ?? 0,
+          assetCode: access.limits.debitAmount.assetCode,
+          assetScale: access.limits.debitAmount.assetScale
         }).amount
       }
     }
@@ -161,13 +149,10 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       grant: grantInteractionResponse.data,
       interactionId: result.data.interactId,
-      nonce: result.data.nonce
+      nonce: result.data.nonce,
+      clientName: result.data.clientName
     }
   }
-}
-
-GrantInteractionPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
 }
 
 export default GrantInteractionPage

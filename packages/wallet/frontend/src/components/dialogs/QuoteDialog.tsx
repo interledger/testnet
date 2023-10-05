@@ -10,15 +10,9 @@ type QuoteDialogProps = {
   onClose: () => void
   onAccept: () => void
   quote: Quote
-  type: string
 }
 
-export const QuoteDialog = ({
-  onClose,
-  onAccept,
-  quote,
-  type
-}: QuoteDialogProps) => {
+export const QuoteDialog = ({ onClose, onAccept, quote }: QuoteDialogProps) => {
   const { setRunOnboarding, stepIndex, setStepIndex } = useOnboardingContext()
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
@@ -26,10 +20,10 @@ export const QuoteDialog = ({
     assetScale: quote.receiveAmount.assetScale
   })
 
-  const sendAmount = formatAmount({
-    value: quote.sendAmount.value,
-    assetCode: quote.sendAmount.assetCode,
-    assetScale: quote.sendAmount.assetScale
+  const debitAmount = formatAmount({
+    value: quote.debitAmount.value,
+    assetCode: quote.debitAmount.assetCode,
+    assetScale: quote.debitAmount.assetScale
   })
 
   const fee = getFee(quote)
@@ -64,15 +58,11 @@ export const QuoteDialog = ({
                 <div className="flex flex-col items-center justify-center px-4">
                   <PaperPlane strokeWidth={2} className="h-16 w-16" />
                   <p className="text-center font-semibold text-turqoise">
-                    {type === 'quote' ? 'You send exactly: ' : 'You exchange: '}
-                    {sendAmount.amount}
+                    You send exactly: {debitAmount.amount}
                     <br />
-                    {type === 'quote'
-                      ? 'Recepient gets: '
-                      : 'You get exactly: '}
-                    {receiveAmount.amount}
+                    Recepient gets: {receiveAmount.amount}
                     <br />
-                    {type === 'quote' ? 'Fee: ' : 'Exchange fee: '} {fee.amount}
+                    Fee: {fee.amount}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button

@@ -20,7 +20,7 @@ export const createQuoteMutation = gql`
           value
         }
         receiver
-        sendAmount {
+        debitAmount {
           assetCode
           assetScale
           value
@@ -36,7 +36,7 @@ export const getQuoteQuery = gql`
       id
       paymentPointerId
       receiver
-      sendAmount {
+      debitAmount {
         value
         assetCode
         assetScale

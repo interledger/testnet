@@ -31,14 +31,14 @@ jobs:
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:frontend build
 
-  build-commerce-frontend:
-    name: COMMERCE - Build frontend
+  build-boutique-frontend:
+    name: BOUTIQUE - Build frontend
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
-      - run: pnpm commerce:frontend build
+      - run: pnpm boutique:frontend build
 
   build-wallet-backend:
     name: WALLET - Build backend
@@ -49,14 +49,14 @@ jobs:
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:backend build
 
-  build-commerce-backend:
-    name: COMMERCE - Build backend
+  build-boutique-backend:
+    name: BOUTIQUE - Build backend
     runs-on: ubuntu-latest
     needs: checks
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
-      - run: pnpm commerce:backend build
+      - run: pnpm boutique:backend build
 
   test-wallet-backend:
     name: WALLET - Test backend
@@ -67,11 +67,11 @@ jobs:
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:backend test
 
-  test-commerce-backend:
-    name: COMMERCE - Test backend
+  test-boutique-backend:
+    name: BOUTIQUE - Test backend
     runs-on: ubuntu-latest
-    needs: build-commerce-backend
+    needs: build-boutique-backend
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
-      - run: pnpm commerce:backend test
+      - run: pnpm boutique:backend test

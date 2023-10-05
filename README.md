@@ -1,6 +1,8 @@
 # Testnet
 
-<img width="920" alt="testnet" src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg">
+<a href="#what-is-testnet">
+  <img src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg" width="920" alt="Testnet picture">
+</a>
 
 ## What is Testnet?
 
@@ -22,7 +24,7 @@ Never heard of Interledger before, or you would like to learn more? Here are som
 
 - [Good first issues](https://github.com/interledger/testnet/contribute)
 - [Interledger Explainer Video](https://twitter.com/Interledger/status/1567916000074678272)
-- [Interledger Website](https://interledger.org/rfcs/0027-interledger-protocol-4/)
+- [Interledger Website](https://interledger.org)
 - [Payment pointers](https://paymentpointers.org/)
 - [Web monetization](https://webmonetization.org/)
 
