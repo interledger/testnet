@@ -15,8 +15,8 @@ type AppLayoutProps = {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const pathname = usePathname()
-  const Path = pathname.split('/');
-  let currentPath = '';
+  const Path = pathname.split('/')
+  let currentPath = ''
   const { isUserFirstTime, setIsUserFirstTime } = useOnboardingContext()
 
   useEffect(() => {
@@ -29,21 +29,22 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
       <Menu />
-      <div className='fixed top-[84px] left-4 md:fixed md:top-2 md:left-64 flex text-[#003A2F] font-semibold'>
-        <Link href="/" className='underline'>Home</Link>
-        {
-          Path.filter(beta => beta != "").map((alpha, key) => {
-            currentPath += `/${alpha}`;
-            alpha = alpha.charAt(0).toUpperCase() + alpha.slice(1);
-            return (
-              <>
-                <p className='mx-1 pb-1'>{` > `}</p>
-                <Link href={currentPath} className='underline' key={key}>{alpha}</Link>
-              </>
-            )
-          })
-        }
-
+      <div className="fixed left-4 top-[84px] flex font-semibold text-[#003A2F] md:fixed md:left-64 md:top-2">
+        <Link href="/" className="underline">
+          Home
+        </Link>
+        {Path.filter((beta) => beta != '').map((alpha, key) => {
+          currentPath += `/${alpha}`
+          alpha = alpha.charAt(0).toUpperCase() + alpha.slice(1)
+          return (
+            <>
+              <p className="mx-1 pb-1">{` > `}</p>
+              <Link href={currentPath} className="underline" key={key}>
+                {alpha}
+              </Link>
+            </>
+          )
+        })}
       </div>
       {isUserFirstTime && <Onboarding />}
       <div className="flex flex-1 flex-col pt-20 md:pl-60 md:pt-0">

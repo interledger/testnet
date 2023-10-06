@@ -196,10 +196,31 @@ export const Menu = () => {
       <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
         <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
           <div className="flex items-center font-semibold text-green">
-            <button className='w-4 h-4 scale-125 md:fixed md:top-3 md:left-2 flex items-center mr-5 mt-[5px] active:scale-100' onClick={() => {
-              router.push('/');
-            }}>
-              <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 78.415 98.02" enableBackground="new 0 0 78.415 78.416" xmlSpace="preserve"><g><g><path fill="#003A2F" d="M0,39.208c0,21.654,17.554,39.208,39.208,39.208c21.653,0,39.207-17.554,39.207-39.208S60.861,0,39.208,0    C17.554,0,0,17.554,0,39.208z M24.924,36.816l18.511-18.512c0.66-0.66,1.525-0.99,2.391-0.99s1.731,0.33,2.391,0.99    c1.316,1.319,1.32,3.458,0,4.777L32.088,39.209l16.128,16.125c1.316,1.32,1.316,3.459,0,4.777c-1.32,1.32-3.461,1.32-4.775,0    L24.924,41.598C23.604,40.278,23.604,38.136,24.924,36.816z" /></g></g></svg>
+            <button
+              className="mr-5 mt-[5px] flex h-4 w-4 scale-125 items-center active:scale-100 md:fixed md:left-2 md:top-3"
+              onClick={() => {
+                router.push('/')
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                version="1.1"
+                x="0px"
+                y="0px"
+                viewBox="0 0 78.415 98.02"
+                enableBackground="new 0 0 78.415 78.416"
+                xmlSpace="preserve"
+              >
+                <g>
+                  <g>
+                    <path
+                      fill="#003A2F"
+                      d="M0,39.208c0,21.654,17.554,39.208,39.208,39.208c21.653,0,39.207-17.554,39.207-39.208S60.861,0,39.208,0    C17.554,0,0,17.554,0,39.208z M24.924,36.816l18.511-18.512c0.66-0.66,1.525-0.99,2.391-0.99s1.731,0.33,2.391,0.99    c1.316,1.319,1.32,3.458,0,4.777L32.088,39.209l16.128,16.125c1.316,1.32,1.316,3.459,0,4.777c-1.32,1.32-3.461,1.32-4.775,0    L24.924,41.598C23.604,40.278,23.604,38.136,24.924,36.816z"
+                    />
+                  </g>
+                </g>
+              </svg>
             </button>
             <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
             <div className="pl-2">
