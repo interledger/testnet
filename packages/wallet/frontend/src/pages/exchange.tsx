@@ -11,34 +11,49 @@ import type {
   GetServerSideProps,
   InferGetServerSidePropsType
 } from 'next/types'
-import { accountService, exchangeAssetSchema } from '@/lib/api/account'
-import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
+import { Account, accountService, exchangeAssetSchema } from '@/lib/api/account'
+import { formatAmount, getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { AssetOP, assetService, ExchangeRates } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { z } from 'zod'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useMemo, useState } from 'react'
 import { SimpleArrow } from '@/components/icons/Arrow'
 import { useRouter } from 'next/router'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
+import { balanceState } from '@/lib/balance'
+import { useSnapshot } from 'valtio'
 
 type ExchangeAssetProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
   assets,
   rates,
   asset,
-  accountId
+  account
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
   )
   const [convertAmount, setConvertAmount] = useState(0)
+  const { accountsSnapshot } = useSnapshot(balanceState)
   const exchangeAssetForm = useZodForm({
     schema: exchangeAssetSchema
   })
   const router = useRouter()
+
+  const formattedAmount = useMemo(() => {
+    const snapshotAccount = accountsSnapshot.find(
+      (item) => item.assetCode === account.assetCode
+    )
+    return formatAmount({
+      value: snapshotAccount?.balance || account.balance,
+      assetCode: account.assetCode,
+      assetScale: account.assetScale
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountsSnapshot])
 
   const onAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
     const amount = Number(event.currentTarget.value)
@@ -70,12 +85,15 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
 
   return (
     <>
-      <PageHeader title="Exchange Money" />
+      <PageHeader
+        title="Exchange Money"
+        message={`Available balance: ${formattedAmount.amount}`}
+      />
       <Form
         id="createAccountForm"
         form={exchangeAssetForm}
         onSubmit={async (data) => {
-          const response = await accountService.exchange(accountId, data)
+          const response = await accountService.exchange(account.id, data)
           if (response.success) {
             if (response.data) {
               const quoteId = response.data.id
@@ -193,23 +211,30 @@ export const getServerSideProps: GetServerSideProps<{
   assets: SelectOption[]
   rates: ExchangeRates
   asset: AssetOP
-  accountId: string
+  account: Account
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
     return { notFound: true }
   }
 
-  const [assetResponse, ratesResponse] = await Promise.all([
+  const [assetResponse, ratesResponse, accountResponse] = await Promise.all([
     assetService.list(ctx.req.headers.cookie),
-    assetService.getExchangeRates(result.data.assetCode)
+    assetService.getExchangeRates(result.data.assetCode),
+    accountService.get(result.data.id, ctx.req.headers.cookie)
   ])
 
-  if (!assetResponse.success || !ratesResponse.success) {
+  if (
+    !assetResponse.success ||
+    !ratesResponse.success ||
+    !accountResponse.success ||
+    !accountResponse.data
+  ) {
     return {
       notFound: true
     }
   }
+
   const assets = assetResponse.data?.map((asset) => ({
     value: asset.id,
     label: asset.code
@@ -223,7 +248,7 @@ export const getServerSideProps: GetServerSideProps<{
         assetCode: result.data.assetCode,
         assetScale: Number(result.data.assetScale)
       },
-      accountId: result.data.id
+      account: accountResponse.data
     }
   }
 }
