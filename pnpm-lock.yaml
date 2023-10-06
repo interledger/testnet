@@ -30,8 +30,8 @@ importers:
         specifier: ^4.6.0
         version: 4.6.0(eslint@8.50.0)
       only-allow:
-        specifier: ^1.2.0
-        version: 1.2.0
+        specifier: ^1.2.1
+        version: 1.2.1
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -8031,8 +8031,8 @@ packages:
       mimic-fn: 2.1.0
     dev: true
 
-  /only-allow@1.2.0:
-    resolution: {integrity: sha512-+Az7oIvw87Pduo9A7Bu3eZw8XLI6QJnUzOOUuTWoB0Y88aEjnf8GyoiF3Y3rMge0IB3HLDQ+U1amfpLir3VuMA==}
+  /only-allow@1.2.1:
+    resolution: {integrity: sha512-M7CJbmv7UCopc0neRKdzfoGWaVZC+xC1925GitKH9EAqYFzX9//25Q7oX4+jw0tiCCj+t5l6VZh8UPH23NZkMA==}
     hasBin: true
     dependencies:
       which-pm-runs: 1.1.0
