@@ -141,7 +141,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:main@sha256:0bd89d6a0e62b89cd9ca2121763b2879953e0ccc6ee33ed2ccd7c5e8434c47cd
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:5319762d3d5449d260a68e6ec44e30e0134ad7774c150a07d296ef83c2c4b207
     depends_on:
       - rafiki-backend
     restart: always
