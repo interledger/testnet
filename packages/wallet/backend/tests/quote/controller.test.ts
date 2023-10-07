@@ -55,9 +55,19 @@ describe('Quote Controller', () => {
     const quoteWithFees = isFailure
       ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
       : () => ({
+          debitAmount: {
+            assetCode: 'BRG',
+            assetScale: 2,
+            value: 100
+          },
+          receiveAmount: {
+            assetCode: 'BRG',
+            assetScale: 2,
+            value: 100
+          },
           fee: {
-            value: faker.finance.amount(),
-            assetCode: faker.finance.currencyCode(),
+            value: 100,
+            assetCode: 'BRG',
             assetScale: 2
           }
         })
@@ -101,7 +111,24 @@ describe('Quote Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'SUCCESS'
+        message: 'SUCCESS',
+        data: {
+          debitAmount: {
+            assetCode: 'BRG',
+            assetScale: 2,
+            value: 100
+          },
+          receiveAmount: {
+            assetCode: 'BRG',
+            assetScale: 2,
+            value: 100
+          },
+          fee: {
+            value: 100,
+            assetCode: 'BRG',
+            assetScale: 2
+          }
+        }
       })
     })
 
@@ -153,7 +180,24 @@ describe('Quote Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'SUCCESS'
+        message: 'SUCCESS',
+        data: {
+          debitAmount: {
+            assetCode: 'BRG',
+            assetScale: 2,
+            value: 100
+          },
+          receiveAmount: {
+            assetCode: 'BRG',
+            assetScale: 2,
+            value: 100
+          },
+          fee: {
+            value: 100,
+            assetCode: 'BRG',
+            assetScale: 2
+          }
+        }
       })
     })
 
