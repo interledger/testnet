@@ -324,8 +324,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       '@types/uuid':
-        specifier: ^9.0.4
-        version: 9.0.4
+        specifier: ^9.0.5
+        version: 9.0.5
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.18.3)
@@ -3702,8 +3702,8 @@ packages:
     resolution: {integrity: sha512-6tOUG+nVHn0cJbVp25JFayS5UE6+xlbcNF9Lo9mU7U0zk3zeUShZied4YEQZjy1JBF043FSkdXw8YkUJuVtB5g==}
     dev: false
 
-  /@types/uuid@9.0.4:
-    resolution: {integrity: sha512-zAuJWQflfx6dYJM62vna+Sn5aeSWhh3OB+wfUEACNcqUSc0AGc5JKl+ycL1vrH7frGTXhJchYjE1Hak8L819dA==}
+  /@types/uuid@9.0.5:
+    resolution: {integrity: sha512-xfHdwa1FMJ082prjSJpoEI57GZITiQz10r3vEJCHa2khEFQjKy91aWKz6+zybzssCvXUwE1LQWgWVwZ4nYUvHQ==}
     dev: true
 
   /@types/ws@8.5.6:
