@@ -248,8 +248,8 @@ importers:
         specifier: ^4.18.2
         version: 4.18.2
       express-rate-limit:
-        specifier: ^7.1.0
-        version: 7.1.0(express@4.18.2)
+        specifier: ^7.1.1
+        version: 7.1.1(express@4.18.2)
       graphql:
         specifier: ^16.8.1
         version: 16.8.1
@@ -382,7 +382,7 @@ importers:
         version: 7.47.0(react@18.2.0)
       react-joyride:
         specifier: ^2.6.0
-        version: 2.6.0(@types/react@18.2.24)(react-dom@18.2.0)(react@18.2.0)
+        version: 2.6.0(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
       react-select:
         specifier: ^5.7.7
         version: 5.7.7(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
@@ -5704,8 +5704,8 @@ packages:
       jest-util: 29.7.0
     dev: true
 
-  /express-rate-limit@7.1.0(express@4.18.2):
-    resolution: {integrity: sha512-pwKOMedrpJJeINON/9jhAa18udV2qwxPZSoklPZK8pmXxUyE5uXaptiwjGw8bZILbxqfUZ/p8pQA99ODjSgA5Q==}
+  /express-rate-limit@7.1.1(express@4.18.2):
+    resolution: {integrity: sha512-o5ye/a4EHCPQPju25Y4HChHybrCM9v37QtQDqXUDZGuD+HB7Cbu8ZhJP6/9RORcSNtkCpnEssa6oUgJgzc7ckQ==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: ^4 || ^5
@@ -8800,13 +8800,13 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-innertext@1.1.5(@types/react@18.2.24)(react@18.2.0):
+  /react-innertext@1.1.5(@types/react@18.2.25)(react@18.2.0):
     resolution: {integrity: sha512-PWAqdqhxhHIv80dT9znP2KvS+hfkbRovFp4zFYHFFlOoQLRiawIic81gKb3U1wEyJZgMwgs3JoLtwryASRWP3Q==}
     peerDependencies:
       '@types/react': '>=0.0.0 <=99'
       react: '>=0.0.0 <=99'
     dependencies:
-      '@types/react': 18.2.24
+      '@types/react': 18.2.25
       react: 18.2.0
     dev: false
 
@@ -8817,7 +8817,7 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-joyride@2.6.0(@types/react@18.2.24)(react-dom@18.2.0)(react@18.2.0):
+  /react-joyride@2.6.0(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-en+IEPEq3AGJ2lO8WQE5iTzrwPfg39tlPf+jE8M0ZkDIy6SomckoRp2EQCZTehC8FkjP8FOXqaJuSKOKjwW2Cg==}
     peerDependencies:
       react: 15 - 18
@@ -8831,7 +8831,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-floater: 0.7.6(react-dom@18.2.0)(react@18.2.0)
-      react-innertext: 1.1.5(@types/react@18.2.24)(react@18.2.0)
+      react-innertext: 1.1.5(@types/react@18.2.25)(react@18.2.0)
       react-is: 16.13.1
       scroll: 3.0.1
       scrollparent: 2.1.0
