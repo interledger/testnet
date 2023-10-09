@@ -96,8 +96,8 @@ importers:
         specifier: ^8.11.3
         version: 8.11.3
       winston:
-        specifier: ^3.10.0
-        version: 3.10.0
+        specifier: ^3.11.0
+        version: 3.11.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -287,8 +287,8 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
       winston:
-        specifier: ^3.10.0
-        version: 3.10.0
+        specifier: ^3.11.0
+        version: 3.11.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -382,7 +382,7 @@ importers:
         version: 7.47.0(react@18.2.0)
       react-joyride:
         specifier: ^2.6.0
-        version: 2.6.0(@types/react@18.2.24)(react-dom@18.2.0)(react@18.2.0)
+        version: 2.6.0(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
       react-select:
         specifier: ^5.7.7
         version: 5.7.7(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
@@ -1164,6 +1164,11 @@ packages:
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
+    engines: {node: '>=0.1.90'}
+    dev: false
+
+  /@colors/colors@1.6.0:
+    resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
     dev: false
 
@@ -8800,13 +8805,13 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-innertext@1.1.5(@types/react@18.2.24)(react@18.2.0):
+  /react-innertext@1.1.5(@types/react@18.2.25)(react@18.2.0):
     resolution: {integrity: sha512-PWAqdqhxhHIv80dT9znP2KvS+hfkbRovFp4zFYHFFlOoQLRiawIic81gKb3U1wEyJZgMwgs3JoLtwryASRWP3Q==}
     peerDependencies:
       '@types/react': '>=0.0.0 <=99'
       react: '>=0.0.0 <=99'
     dependencies:
-      '@types/react': 18.2.24
+      '@types/react': 18.2.25
       react: 18.2.0
     dev: false
 
@@ -8817,7 +8822,7 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-joyride@2.6.0(@types/react@18.2.24)(react-dom@18.2.0)(react@18.2.0):
+  /react-joyride@2.6.0(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-en+IEPEq3AGJ2lO8WQE5iTzrwPfg39tlPf+jE8M0ZkDIy6SomckoRp2EQCZTehC8FkjP8FOXqaJuSKOKjwW2Cg==}
     peerDependencies:
       react: 15 - 18
@@ -8831,7 +8836,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-floater: 0.7.6(react-dom@18.2.0)(react@18.2.0)
-      react-innertext: 1.1.5(@types/react@18.2.24)(react@18.2.0)
+      react-innertext: 1.1.5(@types/react@18.2.25)(react@18.2.0)
       react-is: 16.13.1
       scroll: 3.0.1
       scrollparent: 2.1.0
@@ -10456,11 +10461,11 @@ packages:
       triple-beam: 1.4.1
     dev: false
 
-  /winston@3.10.0:
-    resolution: {integrity: sha512-nT6SIDaE9B7ZRO0u3UvdrimG0HkB7dSTAgInQnNR2SOPJ4bvq5q79+pXLftKmP52lJGW15+H5MCK0nM9D3KB/g==}
+  /winston@3.11.0:
+    resolution: {integrity: sha512-L3yR6/MzZAOl0DsysUXHVjOwv8mKZ71TrA/41EIduGpOOV5LQVodqN+QdQ6BS6PJ/RdIshZhq84P/fStEZkk7g==}
     engines: {node: '>= 12.0.0'}
     dependencies:
-      '@colors/colors': 1.5.0
+      '@colors/colors': 1.6.0
       '@dabh/diagnostics': 2.0.3
       async: 3.2.4
       is-stream: 2.0.1
