@@ -294,38 +294,19 @@ export class RafikiService implements IRafikiService {
       return
     }
 
-    const releaseResult = await this.deps.rapydClient.releaseLiquidity({
+    await this.deps.rapydClient.releaseLiquidity({
       amount: this.amountToNumber(debitAmount),
       currency: debitAmount.assetCode,
       ewallet: source_ewallet
     })
 
-    if (releaseResult.status?.status !== 'SUCCESS') {
-      releaseResult.status?.message &&
-        this.deps.logger.error(releaseResult.status.message)
-      throw new Error(
-        `Unable to release amount ${this.amountToNumber(
-          debitAmount
-        )} from ${source_ewallet}`
-      )
-    }
-
-    const transferResult = await this.deps.rapydClient.transferLiquidity({
+    await this.deps.rapydClient.transferLiquidity({
       amount: this.amountToNumber(debitAmount),
       currency: debitAmount.assetCode,
       destination_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET,
       source_ewallet
     })
 
-    if (transferResult.status?.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to transfer from ${source_ewallet} into settlement account ${
-          this.deps.env.RAPYD_SETTLEMENT_EWALLET
-        } on ${EventType.OutgoingPaymentCompleted} error message: ${
-          transferResult.status.message || 'unknown'
-        }`
-      )
-    }
     await this.deps.rafikiClient.withdrawLiqudity(wh.id)
 
     await this.deps.transactionService.updateTransaction(
