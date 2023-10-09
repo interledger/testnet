@@ -14,13 +14,15 @@ import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { paymentPointerService } from '@/lib/api/paymentPointer'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Label } from '@/ui/forms/Label'
 import { FieldError } from '@/ui/forms/FieldError'
 import { AssetOP } from '@/lib/api/asset'
+import { useSnapshot } from 'valtio'
+import { balanceState } from '@/lib/balance'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -41,25 +43,34 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   const [paymentPointers, setPaymentPointers] = useState<
     SelectPaymentPointerOption[]
   >([])
-  const [balance, setBalance] = useState('')
+  const [selectedAccount, setSelectedAccount] =
+    useState<SelectAccountOption | null>(null)
+  const { accountsSnapshot } = useSnapshot(balanceState)
   const requestForm = useZodForm({
     schema: requestSchema,
     mode: 'onSubmit'
   })
 
+  const balanceSnapshot = useMemo(() => {
+    if (!selectedAccount) return ''
+
+    const snapshotAccount = accountsSnapshot.find(
+      (item) =>
+        item.assetCode === selectedAccount.assetCode &&
+        item.assetScale === selectedAccount.assetScale
+    )
+    return formatAmount({
+      value: snapshotAccount?.balance || selectedAccount.balance,
+      assetCode: selectedAccount.assetCode,
+      assetScale: selectedAccount.assetScale
+    }).amount
+  }, [accountsSnapshot, selectedAccount])
+
   const getPaymentPointers = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
-    setBalance(
-      selectedAccount
-        ? formatAmount({
-            value: selectedAccount.balance,
-            assetCode: selectedAccount.assetCode,
-            assetScale: selectedAccount.assetScale
-          }).amount
-        : ''
-    )
+    setSelectedAccount(selectedAccount || null)
 
     requestForm.resetField('paymentPointerId', { defaultValue: null })
 
@@ -91,7 +102,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="turqoise" balance={balance} />
+        <TransferHeader type="turqoise" balance={balanceSnapshot} />
         <Form
           form={requestForm}
           onSubmit={async (data) => {
