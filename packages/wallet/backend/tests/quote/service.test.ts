@@ -80,6 +80,11 @@ describe('Quote Service', () => {
             assetCode: 'BRG',
             assetScale: 3,
             value: 100
+          },
+          fee: {
+            value: 100,
+            assetCode: 'BRG',
+            assetScale: 2
           }
         }),
         getRafikiAsset: (assetCode: unknown) =>
@@ -184,6 +189,11 @@ describe('Quote Service', () => {
           assetCode: 'BRG',
           assetScale: 3,
           value: 100
+        },
+        fee: {
+          value: 100,
+          assetCode: 'BRG',
+          assetScale: 2
         }
       })
     })
