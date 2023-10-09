@@ -27,7 +27,7 @@ const SummarySection = ({ children }: { children: ReactNode }) => {
 }
 
 export const oneClickBuySetupSchema = z.object({
-  paymentPointerUrl: z.string(),
+  paymentPointer: z.string(),
   amount: z.coerce.number()
 })
 
@@ -43,11 +43,11 @@ export const Summary = () => {
     z.infer<typeof oneClickBuySetupSchema>,
     Record<string, string>,
     {
-      paymentPointerUrl: string
+      paymentPointer: string
       amount: number
     }
   >(
-    { endpoint: '/orders/setup' },
+    { endpoint: '/orders/setup-one-click' },
     {
       onError: function ({ message, errors }) {
         if (errors) {
@@ -114,9 +114,9 @@ export const Summary = () => {
               <Form
                 form={form}
                 disabled={form.formState.isSubmitting || isLoading || isSuccess}
-                onSubmit={form.handleSubmit(({ paymentPointerUrl, amount }) => {
+                onSubmit={form.handleSubmit(({ paymentPointer, amount }) => {
                   mutate({
-                    paymentPointerUrl,
+                    paymentPointer,
                     amount
                   })
                 })}
@@ -124,7 +124,7 @@ export const Summary = () => {
               >
                 <InputField
                   label="Payment pointer"
-                  {...form.register('paymentPointerUrl')}
+                  {...form.register('paymentPointer')}
                   className="w-full"
                 />
                 <InputField

@@ -80,6 +80,10 @@ export class App {
     router.get('/products/:slug', productController.get.bind(productController))
 
     router.post('/orders', orderController.create.bind(orderController))
+    router.post(
+      '/orders/setup-one-click',
+      orderController.setup.bind(orderController)
+    )
     router.patch('/orders/:id', orderController.finish.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {
@@ -140,7 +144,15 @@ export class App {
       })
   }
 
+  private async processOneClickCache() {
+    const oneClickCache = this.container.resolve('oneClickCache')
+    console.log('processing click cache')
+    oneClickCache.processExpired()
+    setTimeout(() => this.processOneClickCache(), 5000).unref()
+  }
+
   async processResources() {
     process.nextTick(() => this.processPendingPayments())
+    process.nextTick(() => this.processOneClickCache())
   }
 }

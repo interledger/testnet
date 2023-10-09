@@ -16,6 +16,7 @@ import {
 import { randomUUID } from 'crypto'
 import { Logger } from 'winston'
 import { createHash } from 'crypto'
+import { OneClickCache } from '@/cache/one-click'
 
 interface PreparePaymentParams {
   order: Order
@@ -35,7 +36,7 @@ interface Amount {
 
 interface CreateOutgoingPaymentParams {
   authServer: string
-  orderId: string
+  identifier: string
   paymentPointer: string
   debitAmount: Amount
   receiveAmount: Amount
@@ -59,6 +60,7 @@ export interface IOpenPayments {
   createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
   verifyHash(params: VerifyHashParams): Promise<void>
   getIncomingPayment(url: string): Promise<IncomingPayment>
+  setupOneClick(paymentPointerUrl: string, amount: number): Promise<string>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -66,7 +68,8 @@ export class OpenPayments implements IOpenPayments {
     private env: Env,
     private logger: Logger,
     private opClient: AuthenticatedClient,
-    private tokenCache: TokenCache
+    private tokenCache: TokenCache,
+    private oneClickCache: OneClickCache
   ) {}
 
   public async preparePayment(
@@ -95,7 +98,7 @@ export class OpenPayments implements IOpenPayments {
     const clientNonce = randomUUID()
 
     const outgoingPaymentGrant = await this.createOutgoingPaymentGrant({
-      orderId: order.id,
+      identifier: order.id,
       paymentPointer: customerPaymentPointer.id,
       authServer: customerPaymentPointer.authServer,
       debitAmount: quote.debitAmount,
@@ -216,28 +219,39 @@ export class OpenPayments implements IOpenPayments {
       })
   }
 
-  private async getAccessToken() {
-    return await this.tokenCache.get('accessToken').catch(() => {
-      this.logger.error('Could not retrieve access token for IP grant.')
-      throw new InternalServerError()
-    })
-  }
+  public async setupOneClick(
+    paymentPointerUrl: string,
+    amount: number
+  ): Promise<string> {
+    const paymentPointer = await this.getPaymentPointer(paymentPointerUrl)
+    const clientNonce = randomUUID()
+    const clientIdentifer = randomUUID()
 
-  private async createNonInteractiveQuoteGrant(
-    authServer: string,
-    options: Omit<GrantRequest, 'client'>
-  ): Promise<Grant> {
-    const grant = await this.opClient.grant.request(
-      { url: authServer },
-      options
-    )
-
-    if (isPendingGrant(grant)) {
-      this.logger.error('Expected non-interactive quote grant.')
-      throw new InternalServerError()
+    const amountData: Amount = {
+      value: (amount * 10 ** paymentPointer.assetScale).toFixed(),
+      assetCode: paymentPointer.assetCode,
+      assetScale: paymentPointer.assetScale
     }
 
-    return grant
+    const grant = await this.createOutgoingPaymentGrant({
+      nonce: clientNonce,
+      paymentPointer: paymentPointer.id,
+      authServer: paymentPointer.authServer,
+      identifier: clientIdentifer,
+      debitAmount: amountData,
+      receiveAmount: amountData
+    })
+
+    this.oneClickCache.set(
+      clientIdentifer,
+      {
+        continueUri: grant.continue.uri,
+        continueToken: grant.continue.access_token.value
+      },
+      6000 * 10 * 5
+    )
+
+    return grant.interact.redirect
   }
 
   private async createOutgoingPaymentGrant(
@@ -246,7 +260,7 @@ export class OpenPayments implements IOpenPayments {
     const {
       nonce,
       authServer,
-      orderId,
+      identifier,
       paymentPointer,
       debitAmount,
       receiveAmount
@@ -272,7 +286,7 @@ export class OpenPayments implements IOpenPayments {
             start: ['redirect'],
             finish: {
               method: 'redirect',
-              uri: `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${orderId}`,
+              uri: `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${identifier}`,
               nonce
             }
           }
@@ -285,6 +299,30 @@ export class OpenPayments implements IOpenPayments {
 
     if (!isPendingGrant(grant)) {
       this.logger.error('Expected interactive outgoing payment grant.')
+      throw new InternalServerError()
+    }
+
+    return grant
+  }
+
+  private async getAccessToken() {
+    return await this.tokenCache.get('accessToken').catch(() => {
+      this.logger.error('Could not retrieve access token for IP grant.')
+      throw new InternalServerError()
+    })
+  }
+
+  private async createNonInteractiveQuoteGrant(
+    authServer: string,
+    options: Omit<GrantRequest, 'client'>
+  ): Promise<Grant> {
+    const grant = await this.opClient.grant.request(
+      { url: authServer },
+      options
+    )
+
+    if (isPendingGrant(grant)) {
+      this.logger.error('Expected non-interactive quote grant.')
       throw new InternalServerError()
     }
 

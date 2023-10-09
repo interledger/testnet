@@ -6,7 +6,11 @@ import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
 import { IOpenPayments } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
-import { createOrderSchema, finishOrderSchema } from './validation'
+import {
+  createOrderSchema,
+  finishOrderSchema,
+  oneClickSetupSchema
+} from './validation'
 import { IPaymentService } from '@/payment/service'
 import { Knex } from 'knex'
 
@@ -22,6 +26,7 @@ export interface IOrderController {
   get: Controller<Order>
   create: Controller<CreateResponse>
   finish: Controller
+  setup: Controller<CreateResponse>
 }
 
 export class OrderController implements IOrderController {
@@ -119,6 +124,28 @@ export class OrderController implements IOrderController {
       await this.openPayments.createOutgoingPayment(order, interactRef)
 
       res.status(200).json({ success: true, message: 'SUCCESS' })
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async setup(
+    req: Request,
+    res: TypedResponse<CreateResponse>,
+    next: NextFunction
+  ) {
+    try {
+      const { paymentPointer, amount } = await validate(
+        oneClickSetupSchema,
+        req.body
+      )
+
+      const redirectUrl = await this.openPayments.setupOneClick(
+        paymentPointer,
+        amount
+      )
+
+      res.status(200).json(toSuccessReponse({ redirectUrl }))
     } catch (err) {
       next(err)
     }
