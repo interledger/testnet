@@ -4,7 +4,11 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
+import {
+  incomingPaymentRegexp,
+  transformBalance,
+  urlToPaymentPointer
+} from '@/utils/helpers'
 import {
   createPaymentPointerIfFalsy,
   PaymentPointerService
@@ -109,11 +113,27 @@ export class QuoteService implements IQuoteService {
       params.isReceive &&
       destinationPaymentPointer.assetCode !== asset.code
     ) {
-      const convertedValue = await this.convert({
-        from: assetCode,
-        to: destinationPaymentPointer.assetCode,
-        amount: value
-      })
+      let convertedValue
+      if (isIncomingPayment) {
+        const payment = await this.deps.incomingPaymentService.getReceiver(
+          params.receiver
+        )
+        convertedValue = payment?.value
+          ? transformBalance(
+              payment?.value,
+              destinationPaymentPointer.assetScale
+            )
+          : undefined
+      }
+
+      if (!convertedValue) {
+        convertedValue = await this.convert({
+          from: assetCode,
+          to: destinationPaymentPointer.assetCode,
+          amount: value
+        })
+      }
+
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
