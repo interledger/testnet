@@ -113,25 +113,27 @@ export class QuoteService implements IQuoteService {
       params.isReceive &&
       destinationPaymentPointer.assetCode !== asset.code
     ) {
-      let convertedValue
+      let convertedValue = await this.convert({
+        from: assetCode,
+        to: destinationPaymentPointer.assetCode,
+        amount: value
+      })
       if (isIncomingPayment) {
         const payment = await this.deps.incomingPaymentService.getReceiver(
           params.receiver
         )
-        convertedValue = payment?.value
+
+        const amount = payment?.value
           ? transformBalance(
               payment?.value,
               destinationPaymentPointer.assetScale
             )
           : undefined
-      }
 
-      if (!convertedValue) {
-        convertedValue = await this.convert({
-          from: assetCode,
-          to: destinationPaymentPointer.assetCode,
-          amount: value
-        })
+        // adjust the amount in case that after converting it to the receiver currency it is off by a small margin
+        if (amount && 1 - Number(amount) / Number(convertedValue) < 0.01) {
+          convertedValue = amount
+        }
       }
 
       value = convertedValue
