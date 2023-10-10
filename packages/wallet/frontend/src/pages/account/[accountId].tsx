@@ -61,10 +61,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   return (
     <>
-      <div className="flex">
-        <div>
-          <Backbutton />
-        </div>
+      <div className="flex items-center">
+        <Backbutton />
         <div className="text-green" id="balance">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
           <p className="text-2xl font-semibold md:text-4xl">

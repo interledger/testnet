@@ -8,7 +8,6 @@ type PageHeaderProps = {
 
 export const PageHeader = ({ title, message }: PageHeaderProps) => {
   const pathname = usePathname()
-  console.log('this is the path name', pathname)
   return (
     <div className="flex items-center">
       {pathname !== '/' && (
