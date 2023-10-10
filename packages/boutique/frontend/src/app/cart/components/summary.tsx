@@ -11,8 +11,8 @@ import { Form } from '@/components/ui/form/form'
 import { InputField } from '@/components/ui/form/input-field'
 import { useCartStore } from '@/hooks/use-cart-store.ts'
 import { useCustomMutation } from '@/hooks/use-custom-mutation'
+import { useTokenStore } from '@/hooks/use-token-store'
 import { useZodForm } from '@/hooks/use-zod-form'
-import { resetCart } from '@/lib/stores/cart-store'
 import { formatPrice, getObjectKeys } from '@/lib/utils.ts'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -32,6 +32,7 @@ export const oneClickBuySetupSchema = z.object({
 })
 
 export const Summary = () => {
+  const { token } = useTokenStore()
   const { totalAmount, items } = useCartStore()
   const orderSubTotal = useMemo(() => formatPrice(totalAmount), [totalAmount])
 
@@ -64,7 +65,6 @@ export const Summary = () => {
   )
 
   if (data?.data.redirectUrl) {
-    resetCart()
     window.location.href = data.data.redirectUrl
   }
 

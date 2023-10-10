@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import { useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { checkoutConfirmationSearchParamsSchema } from '../route-schemas.ts'
-import { Loader } from './components/loader.tsx'
+import { Loader } from '@/components/loader.tsx'
 
 export function Component() {
   const [{ orderId, hash, interact_ref, result }] = useZodSearchParams(

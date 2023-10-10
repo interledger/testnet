@@ -84,6 +84,10 @@ export class App {
       '/orders/setup-one-click',
       orderController.setup.bind(orderController)
     )
+    router.post(
+      '/orders/setup-one-click/finish',
+      orderController.setupFinish.bind(orderController)
+    )
     router.patch('/orders/:id', orderController.finish.bind(orderController))
 
     router.use('*', (req: Request, res: TypedResponse) => {

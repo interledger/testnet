@@ -1,18 +1,20 @@
 import { NextFunction, Request } from 'express'
 import { IOrderService } from './service'
 import { Order } from './model'
-import { BadRequest } from '@/errors'
+import { BadRequest, InternalServerError } from '@/errors'
 import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
-import { IOpenPayments } from '@/open-payments/service'
+import { IOpenPayments, TokenInfo } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
 import {
   createOrderSchema,
   finishOrderSchema,
-  oneClickSetupSchema
+  oneClickSetupSchema,
+  setupFinishSchema
 } from './validation'
 import { IPaymentService } from '@/payment/service'
 import { Knex } from 'knex'
+import { OneClickCache } from '@/cache/one-click'
 
 interface GetParams {
   id?: string
@@ -27,6 +29,7 @@ export interface IOrderController {
   create: Controller<CreateResponse>
   finish: Controller
   setup: Controller<CreateResponse>
+  setupFinish: Controller<TokenInfo>
 }
 
 export class OrderController implements IOrderController {
@@ -35,7 +38,8 @@ export class OrderController implements IOrderController {
     private logger: Logger,
     private openPayments: IOpenPayments,
     private orderService: IOrderService,
-    private paymentService: IPaymentService
+    private paymentService: IPaymentService,
+    private oneClickCache: OneClickCache
   ) {}
 
   public async get(
@@ -119,7 +123,9 @@ export class OrderController implements IOrderController {
       await this.openPayments.verifyHash({
         interactRef,
         receivedHash: hash,
-        payment: order.payments
+        clientNonce: order.payments.clientNonce,
+        interactNonce: order.payments.interactNonce,
+        paymentPointerUrl: order.payments.paymentPointer
       })
       await this.openPayments.createOutgoingPayment(order, interactRef)
 
@@ -146,6 +152,53 @@ export class OrderController implements IOrderController {
       )
 
       res.status(200).json(toSuccessReponse({ redirectUrl }))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async setupFinish(
+    req: Request,
+    res: TypedResponse<TokenInfo>,
+    next: NextFunction
+  ) {
+    try {
+      const { interactRef, hash, identifier, result } = await validate(
+        setupFinishSchema,
+        req.body
+      )
+
+      const indentiferData = await this.oneClickCache.get(identifier)
+
+      if (!indentiferData) {
+        this.logger.error(
+          `Could not find interaction data for identifier "${identifier}"`
+        )
+        throw new InternalServerError()
+      }
+
+      if (result) {
+        const isRejected = result === 'grant_rejected'
+        const status = isRejected ? 200 : 400
+        const message = isRejected ? 'SUCCESS' : 'FAILED'
+        res.status(status).json({ success: isRejected, message })
+        return
+      }
+
+      await this.openPayments.verifyHash({
+        interactRef,
+        receivedHash: hash,
+        clientNonce: indentiferData.clientNonce,
+        interactNonce: indentiferData.interactNonce,
+        paymentPointerUrl: indentiferData.paymentPointerUrl
+      })
+
+      const tokenInfo = await this.openPayments.continueGrant({
+        accessToken: indentiferData.continueToken,
+        url: indentiferData.continueUri,
+        interactRef
+      })
+      res.status(200).json(toSuccessReponse(tokenInfo))
     } catch (err) {
       next(err)
     }

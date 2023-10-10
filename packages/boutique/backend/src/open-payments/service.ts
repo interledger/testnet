@@ -41,6 +41,7 @@ interface CreateOutgoingPaymentParams {
   debitAmount: Amount
   receiveAmount: Amount
   nonce: string
+  finishUrl?: string
 }
 
 interface CreateIncomingPaymentParams {
@@ -52,7 +53,20 @@ interface CreateIncomingPaymentParams {
 interface VerifyHashParams {
   interactRef?: string
   receivedHash?: string
-  payment: Payment
+  paymentPointerUrl: string
+  clientNonce: string
+  interactNonce: string
+}
+
+interface ContinueGrantParams {
+  accessToken: string
+  url: string
+  interactRef?: string
+}
+
+export interface TokenInfo {
+  accessToken: string
+  url: string
 }
 
 export interface IOpenPayments {
@@ -61,6 +75,7 @@ export interface IOpenPayments {
   verifyHash(params: VerifyHashParams): Promise<void>
   getIncomingPayment(url: string): Promise<IncomingPayment>
   setupOneClick(paymentPointerUrl: string, amount: number): Promise<string>
+  continueGrant(params: ContinueGrantParams): Promise<TokenInfo>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -131,26 +146,17 @@ export class OpenPayments implements IOpenPayments {
     interactRef: string
   ): Promise<void> {
     try {
-      const continuation = await this.opClient.grant
-        .continue(
-          {
-            accessToken: order.payments.continueToken,
-            url: order.payments.continueUri
-          },
-          {
-            interact_ref: interactRef
-          }
-        )
-        .catch(() => {
-          this.logger.error('Could not finish the continuation request.')
-          throw new InternalServerError()
-        })
+      const continuation = await this.continueGrant({
+        accessToken: order.payments.continueToken,
+        url: order.payments.continueUri,
+        interactRef
+      })
 
       await this.opClient.outgoingPayment
         .create(
           {
             paymentPointer: order.payments.paymentPointer,
-            accessToken: continuation.access_token.value
+            accessToken: continuation.accessToken
           },
           {
             quoteId: order.payments.quoteId,
@@ -174,7 +180,9 @@ export class OpenPayments implements IOpenPayments {
   public async verifyHash({
     interactRef,
     receivedHash,
-    payment
+    clientNonce,
+    interactNonce,
+    paymentPointerUrl
   }: VerifyHashParams): Promise<void> {
     if (!interactRef) {
       this.logger.error('Missing interactRef.')
@@ -187,9 +195,9 @@ export class OpenPayments implements IOpenPayments {
     }
 
     const paymentPointer = await this.opClient.paymentPointer.get({
-      url: payment.paymentPointer
+      url: paymentPointerUrl
     })
-    const { clientNonce, interactNonce } = payment
+
     let url = paymentPointer.authServer
     if (this.env.NODE_ENV === 'development') {
       url = url.replace('rafiki-auth', 'localhost')
@@ -199,7 +207,7 @@ export class OpenPayments implements IOpenPayments {
     const hash = createHash('sha-256').update(data).digest('base64')
 
     if (hash !== receivedHash) {
-      this.logger.error(`Invalid hash for payment "${payment.id}"`)
+      this.logger.error(`Invalid hash.`)
       this.logger.error(`Received hash: "${receivedHash}"`)
       this.logger.error(`Calculated hash: "${hash}"`)
       throw new InternalServerError()
@@ -239,12 +247,16 @@ export class OpenPayments implements IOpenPayments {
       authServer: paymentPointer.authServer,
       identifier: clientIdentifer,
       debitAmount: amountData,
-      receiveAmount: amountData
+      receiveAmount: amountData,
+      finishUrl: `${this.env.FRONTEND_URL}/cart/finish?identifier=${clientIdentifer}`
     })
 
     this.oneClickCache.set(
       clientIdentifer,
       {
+        paymentPointerUrl: paymentPointer.id,
+        clientNonce: clientNonce,
+        interactNonce: grant.interact.finish,
         continueUri: grant.continue.uri,
         continueToken: grant.continue.access_token.value
       },
@@ -252,6 +264,37 @@ export class OpenPayments implements IOpenPayments {
     )
 
     return grant.interact.redirect
+  }
+
+  public async continueGrant({
+    accessToken,
+    url,
+    interactRef
+  }: ContinueGrantParams): Promise<TokenInfo> {
+    if (!interactRef) {
+      this.logger.error('Missing interactRef.')
+      throw new InternalServerError()
+    }
+
+    const continuation = await this.opClient.grant
+      .continue(
+        {
+          accessToken,
+          url
+        },
+        {
+          interact_ref: interactRef
+        }
+      )
+      .catch(() => {
+        this.logger.error('Could not finish the continuation request.')
+        throw new InternalServerError()
+      })
+
+    return {
+      accessToken: continuation.access_token.value,
+      url: continuation.continue.uri
+    }
   }
 
   private async createOutgoingPaymentGrant(
@@ -263,8 +306,14 @@ export class OpenPayments implements IOpenPayments {
       identifier,
       paymentPointer,
       debitAmount,
-      receiveAmount
+      receiveAmount,
+      finishUrl
     } = params
+
+    const finish =
+      finishUrl ??
+      `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${identifier}`
+
     const grant = await this.opClient.grant
       .request(
         { url: authServer },
@@ -286,7 +335,7 @@ export class OpenPayments implements IOpenPayments {
             start: ['redirect'],
             finish: {
               method: 'redirect',
-              uri: `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${identifier}`,
+              uri: finish,
               nonce
             }
           }

@@ -21,6 +21,10 @@ export const finishOrderSchema = z.object({
   interactRef: z.string().uuid().optional()
 })
 
+export const setupFinishSchema = finishOrderSchema.extend({
+  identifier: z.string().uuid()
+})
+
 export const oneClickSetupSchema = z.object({
   paymentPointer: z.string(),
   amount: z.number()
