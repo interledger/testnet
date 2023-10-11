@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
-import Backbutton from './BackButton'
 import { usePathname } from 'next/navigation'
+import BackButton from './BackButton'
 type PageHeaderProps = {
   title: string
   message?: ReactNode
@@ -12,7 +12,7 @@ export const PageHeader = ({ title, message }: PageHeaderProps) => {
     <div className="flex items-center">
       {pathname !== '/' && (
         <div className="md:hidden">
-          <Backbutton />
+          <BackButton />
         </div>
       )}
       <div className="text-turqoise">

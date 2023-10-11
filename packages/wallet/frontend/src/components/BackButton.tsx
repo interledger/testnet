@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-export default function Backbutton() {
+export default function BackButton() {
   const router = useRouter()
   return (
     <button
