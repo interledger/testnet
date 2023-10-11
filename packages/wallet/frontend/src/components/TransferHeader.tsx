@@ -1,5 +1,5 @@
 import { cx } from 'class-variance-authority'
-import Backbutton from './icons/Backbutton'
+import Backbutton from './BackButton'
 const TYPES = {
   pink: 'text-pink',
   violet: 'text-violet',
