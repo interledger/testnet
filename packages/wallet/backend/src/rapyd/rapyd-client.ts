@@ -115,13 +115,33 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public releaseLiquidity(
-    req: RapydReleaseRequest
+  public async releaseLiquidity(
+    req: RapydReleaseRequest,
+    isRetry: boolean = false
   ): Promise<RapydResponse<RapydReleaseResponse>> {
-    return this.post<RapydResponse<RapydReleaseResponse>>(
-      'account/balance/release',
-      JSON.stringify(req)
-    )
+    try {
+      return await this.post<RapydResponse<RapydReleaseResponse>>(
+        'account/balance/release',
+        JSON.stringify(req)
+      )
+    } catch (err) {
+      if (
+        err instanceof AxiosError &&
+        ['ERROR_WALLET_INSUFFICIENT_FUNDS', 'NOT_ENOUGH_FUNDS'].includes(
+          err.response?.data?.status?.error_code
+        ) &&
+        req.ewallet === this.deps.env.RAPYD_SETTLEMENT_EWALLET &&
+        !isRetry
+      ) {
+        await this.handleSettlementOutOfFunds(
+          req,
+          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        )
+        return await this.releaseLiquidity(req, true)
+      }
+
+      throw err
+    }
   }
 
   public getDocumentTypes(
@@ -151,31 +171,36 @@ export class RapydClient implements IRapydClient {
   }
 
   public async transferLiquidity(
-    req: RapydTransferRequest
+    req: RapydTransferRequest,
+    isRetry: boolean = false
   ): Promise<RapydResponse<RapydSetTransferResponse>> {
-    const transferResponse = await this.post<
-      RapydResponse<RapydSetTransferResponse>
-    >('account/transfer', JSON.stringify(req))
-    if (transferResponse.status.status !== 'SUCCESS') {
+    try {
+      const transferResponse = await this.post<
+        RapydResponse<RapydSetTransferResponse>
+      >('account/transfer', JSON.stringify(req))
+
+      return await this.setTransferResponse({
+        id: transferResponse.data.id,
+        status: 'accept'
+      })
+    } catch (err) {
       if (
-        transferResponse.status.error_code === 'NOT_ENOUGH_FUNDS' &&
-        req.source_ewallet === this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        err instanceof AxiosError &&
+        ['ERROR_WALLET_INSUFFICIENT_FUNDS', 'NOT_ENOUGH_FUNDS'].includes(
+          err.response?.data?.status?.error_code
+        ) &&
+        req.source_ewallet === this.deps.env.RAPYD_SETTLEMENT_EWALLET &&
+        !isRetry
       ) {
-        // await handleSettlementOutOfFunds(req, env.RAPYD_SETTLEMENT_EWALLET)
+        await this.handleSettlementOutOfFunds(
+          req,
+          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        )
+        return await this.transferLiquidity(req, true)
       }
-      throw new Error(transferResponse.status.message)
+
+      throw err
     }
-
-    const setTransferResponse = await this.setTransferResponse({
-      id: transferResponse.data.id,
-      status: 'accept'
-    })
-
-    if (setTransferResponse.status.status !== 'SUCCESS') {
-      throw new Error(`Unable to set accepted response of wallet transfer`)
-    }
-
-    return setTransferResponse
   }
 
   public getAccountsBalance(
@@ -316,12 +341,11 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  /*
-  const handleSettlementOutOfFunds = async (
-    req: RapydTransferRequest,
+  private handleSettlementOutOfFunds = async (
+    req: RapydTransferRequest | RapydReleaseRequest,
     settlementWallet: string
   ) => {
-    const depositResult = await rapydDepositLiquidity({
+    const depositResult = await this.depositLiquidity({
       amount: 100000,
       currency: req.currency,
       ewallet: settlementWallet
@@ -332,9 +356,7 @@ export class RapydClient implements IRapydClient {
         `Unable to automatically refund settlement account upon insufecient funds encountered`
       )
     }
-    return await rapydTransferLiquidity(req, true)
   }
-  */
 
   private get<T>(url: string) {
     return this.request<T>('get', url)
