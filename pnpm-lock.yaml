@@ -381,8 +381,8 @@ importers:
         specifier: ^7.47.0
         version: 7.47.0(react@18.2.0)
       react-joyride:
-        specifier: ^2.6.0
-        version: 2.6.0(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^2.6.1
+        version: 2.6.1(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0)
       react-select:
         specifier: ^5.7.7
         version: 5.7.7(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0)
@@ -8822,8 +8822,8 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-joyride@2.6.0(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-en+IEPEq3AGJ2lO8WQE5iTzrwPfg39tlPf+jE8M0ZkDIy6SomckoRp2EQCZTehC8FkjP8FOXqaJuSKOKjwW2Cg==}
+  /react-joyride@2.6.1(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-JgGxWcg3fhQx3DrSTfC7nBmexH1N1UTy8hKi+U5QAObo+ZqACi3/X62RWbauZDxloshCNX2c6Zpui14+6NYeow==}
     peerDependencies:
       react: 15 - 18
       react-dom: 15 - 18
