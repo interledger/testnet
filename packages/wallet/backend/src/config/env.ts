@@ -30,7 +30,10 @@ const envSchema = z.object({
   SEND_EMAIL: z
     .enum(['true', 'false'])
     .default('false')
-    .transform((value) => value === 'true')
+    .transform((value) => value === 'true'),
+  MAX_ASSET_SCALE: z.number().nonnegative().default(9),
+  WM_THRESHOLD: z.bigint().nonnegative().default(100_000_000n), // $0.1 in asset scale 9
+  DEBT_THRESHOLD: z.number().multipleOf(0.01).nonnegative().default(5.0) // $5.00
 })
 
 export type Env = z.infer<typeof envSchema>
