@@ -170,7 +170,7 @@ services:
       - ../temp/:/workspace/temp/
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:main@sha256:0bd89d6a0e62b89cd9ca2121763b2879953e0ccc6ee33ed2ccd7c5e8434c47cd
+    image: ghcr.io/interledger/rafiki-frontend:main@sha256:2a3ee24e6390aaa44b9cc1efd9cf7e882fb939743d8df5d011cf71a7e248f945
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
