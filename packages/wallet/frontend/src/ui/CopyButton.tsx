@@ -4,7 +4,9 @@ import { Button, ButtonProps } from './Button'
 import { cx } from 'class-variance-authority'
 
 function copyToClipboard(value: string, copyType?: string) {
-  navigator.clipboard.writeText(copyType === 'base64' ? btoa(value.trim()) : value)
+  navigator.clipboard.writeText(
+    copyType === 'base64' ? btoa(value.trim()) : value
+  )
 }
 
 type CopyButtonProps = Omit<ButtonProps, 'intent'> & {
