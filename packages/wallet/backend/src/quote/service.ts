@@ -4,7 +4,11 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
+import {
+  incomingPaymentRegexp,
+  urlToPaymentPointer,
+  urlToPaymentId
+} from '@/utils/helpers'
 import {
   createPaymentPointerIfFalsy,
   PaymentPointerService
@@ -12,7 +16,7 @@ import {
 import { QuoteWithFees } from './controller'
 import { RatesService } from '../rates/service'
 import { Account } from '@/account/model'
-
+import { Node_Cache } from '@/utils/helpers'
 type CreateExchangeQuote = {
   userId: string
   accountId: string
@@ -255,10 +259,14 @@ export class QuoteService implements IQuoteService {
       paymentPointerId: senderPpId,
       amount,
       description: 'Currency exchange.',
-      isReceive: false,
+      isReceive: true,
       receiver: receiverPpUrl
     })
 
+    //OUTCOME
+    Node_Cache.set(quote.id, quote)
+    //INCOME
+    Node_Cache.set(urlToPaymentId(quote.receiver), quote)
     return quote
   }
 }
