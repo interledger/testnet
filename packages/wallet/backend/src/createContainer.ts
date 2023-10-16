@@ -34,6 +34,10 @@ import knex from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
+import { WMPaymentPointerService } from './paymentPointer/webMonetization/service'
+import { CacheService } from './cache/service'
+import { RedisClient } from './cache/redis-client'
+import {Redis} from 'ioredis'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -179,6 +183,25 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () => new RatesService({ env: await container.resolve('env') })
   )
 
+  container.singleton('redisClient', async () => {
+    //config for redis connection is in the Redis constructor. Default to
+    const env = await container.resolve('env');
+    const redis = new Redis(env.REDIS_URL);
+    return new RedisClient(redis)
+  })
+
+  container.singleton('wmPaymentPointerService', async ()=>
+  {
+    const wmPaymentPointerCache = new CacheService(await container.resolve('redisClient'), 'WMPaymentPointers')
+    return new WMPaymentPointerService({
+      env: await container.resolve('env'),
+      rafikiClient: await container.resolve('rafikiClient'),
+      accountService: await container.resolve('accountService'),
+      cache: wmPaymentPointerCache
+    })
+  }
+  )
+
   container.singleton(
     'rapydController',
     async () =>
@@ -198,7 +221,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
       new PaymentPointerService({
         env: await container.resolve('env'),
         rafikiClient: await container.resolve('rafikiClient'),
-        accountService: await container.resolve('accountService')
+        accountService: await container.resolve('accountService'),
+        wmPaymentPointerService: await container.resolve('wmPaymentPointerService')
       })
   )
 
@@ -207,7 +231,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new PaymentPointerController({
         logger: await container.resolve('logger'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        paymentPointerService: await container.resolve('paymentPointerService'),
       })
   )
 

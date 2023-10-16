@@ -41,11 +41,14 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
+import { WMPaymentPointerService } from './paymentPointer/webMonetization/service'
+import { RedisClient } from './cache/redis-client'
 
 export interface Bindings {
   env: Env
   logger: Logger
-  knex: Knex
+  knex: Knex,
+  redisClient: RedisClient
   rapydClient: RapydClient
   rafikiClient: RafikiClient
   rafikiService: RafikiService
@@ -62,6 +65,7 @@ export interface Bindings {
   assetController: AssetController
   accountController: AccountController
   paymentPointerController: PaymentPointerController
+  wmPaymentPointerService: WMPaymentPointerService
   paymentPointerService: PaymentPointerService
   transactionController: TransactionController
   transactionService: TransactionService

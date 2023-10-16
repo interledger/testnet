@@ -8,8 +8,9 @@ import axios from 'axios'
 import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { PaymentPointer } from './model'
+import { WMPaymentPointerService } from './webMonetization/service'
 
-interface UpdatePaymentPointerArgs {
+export interface UpdatePaymentPointerArgs {
   userId: string
   accountId: string
   paymentPointerId: string
@@ -45,6 +46,7 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
+  wmPaymentPointerService: WMPaymentPointerService
 }
 
 export const createPaymentPointerIfFalsy = async ({
