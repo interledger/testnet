@@ -9,7 +9,7 @@ export class WMTransaction extends TransactionBaseModel {
   wmPaymentPointer!: WMPaymentPointer
 
   static relationMappings = () => ({
-    paymentPointer: {
+    wmPaymentPointer: {
       relation: Model.BelongsToOneRelation,
       modelClass: WMPaymentPointer,
       join: {

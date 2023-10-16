@@ -12,7 +12,7 @@ export class TransactionBaseModel extends BaseModel {
   paymentId!: string
   value!: bigint | null
   type!: 'INCOMING' | 'OUTGOING'
-  status!: 'PENDING' | 'COMPLETED' | 'REJECTED' | 'EXPIRED'
+  status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
   expiresAt!: Date | null
 }
 

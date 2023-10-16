@@ -7,13 +7,13 @@ exports.up = function (knex) {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.uuid('paymentId').notNullable()
 
-    table.uuid('paymentPointerId').notNullable()
-    table.foreign('paymentPointerId').references('wmPaymentPointers.id')
+    table.uuid('wmPaymentPointerId').notNullable()
+    table.foreign('wmPaymentPointerId').references('wmPaymentPointers.id')
 
     table.bigint('value').notNullable()
 
     table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
-    table.enum('status', ['PENDING', 'COMPLETED', 'REJECTED']).notNullable()
+    table.enum('status', ['PENDING', 'COMPLETED', 'FAILED']).notNullable()
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

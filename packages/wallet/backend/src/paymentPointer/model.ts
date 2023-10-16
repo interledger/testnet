@@ -10,7 +10,7 @@ interface PaymentPointerKey {
   createdOn: Date
 }
 
-export class BasePaymentPointerModel extends BaseModel {
+export class PaymentPointerBaseModel extends BaseModel {
   publicName!: string
   readonly id!: string
   readonly url!: string
@@ -21,7 +21,7 @@ export class BasePaymentPointerModel extends BaseModel {
   keyIds!: PaymentPointerKey | null
 }
 
-export class PaymentPointer extends BasePaymentPointerModel {
+export class PaymentPointer extends PaymentPointerBaseModel {
   static tableName = 'paymentPointers'
 
   static relationMappings = () => ({
