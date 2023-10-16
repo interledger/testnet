@@ -25,6 +25,7 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
+import BackButton from '@/components/BackButton'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -60,11 +61,14 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   return (
     <>
-      <div className="text-green" id="balance">
-        <h2 className="text-lg font-light md:text-xl">Balance</h2>
-        <p className="text-2xl font-semibold md:text-4xl">
-          {formattedAmount.amount}
-        </p>
+      <div className="flex items-center">
+        <BackButton />
+        <div className="text-green" id="balance">
+          <h2 className="text-lg font-light md:text-xl">Balance</h2>
+          <p className="text-2xl font-semibold md:text-4xl">
+            {formattedAmount.amount}
+          </p>
+        </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">
