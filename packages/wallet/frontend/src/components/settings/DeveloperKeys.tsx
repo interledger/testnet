@@ -285,10 +285,14 @@ const PaymentPointerCTA = () => {
                   value={privateKey}
                 />
                 <CopyButton
-                  ctaText="COPY BASE64 PRIVATE KEY"
-                  copyType="base64"
-                  aria-label="copy base64 private key"
+                  ctaText="COPY PRIVATE KEY"
+                  aria-label="copy private key"
                   value={privateKey}
+                />
+                <CopyButton
+                  ctaText="COPY BASE64 ENCODED PRIVATE KEY"
+                  aria-label="copy base64 encoded private key"
+                  value={btoa(privateKey.trim())}
                 />
               </div>
             </div>

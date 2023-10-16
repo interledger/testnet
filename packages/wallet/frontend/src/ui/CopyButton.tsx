@@ -3,24 +3,20 @@ import { useEffect, useState } from 'react'
 import { Button, ButtonProps } from './Button'
 import { cx } from 'class-variance-authority'
 
-function copyToClipboard(value: string, copyType?: string) {
-  navigator.clipboard.writeText(
-    copyType === 'base64' ? btoa(value.trim()) : value
-  )
+function copyToClipboard(value: string) {
+  navigator.clipboard.writeText(value)
 }
 
 type CopyButtonProps = Omit<ButtonProps, 'intent'> & {
   value: string
   ctaText?: string
   afterCtaText?: string
-  copyType?: string
 }
 
 export const CopyButton = ({
   value,
   afterCtaText,
   ctaText,
-  copyType,
   ...props
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false)
@@ -36,7 +32,7 @@ export const CopyButton = ({
       intent="outline"
       size="sm"
       onClick={() => {
-        copyToClipboard(value, copyType)
+        copyToClipboard(value)
         setIsCopied(true)
       }}
       {...props}
