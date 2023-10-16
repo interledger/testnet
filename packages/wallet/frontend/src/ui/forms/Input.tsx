@@ -40,9 +40,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const id = useId()
     return (
       <div>
-        <div className="mt-1">
+        <div
+          className={cx(
+            'mt-1',
+            type === 'checkbox' && 'flex flex-row-reverse justify-evenly'
+          )}
+        >
           {label && (
-            <Label htmlFor={id} hint={labelHint}>
+            <Label htmlFor={id} hint={labelHint} inputType={type}>
               {label}{' '}
               {props.required ? <span className="text-red-500">*</span> : null}
             </Label>
@@ -59,7 +64,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 ref={ref}
                 type={type ?? 'text'}
                 className={cx(
-                  'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
+                  'block min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
+                  type !== 'checkbox' && 'w-full',
+                  type === 'checkbox' && 'cursor-pointer text-green-3',
                   addOn && 'rounded-l-none',
                   trailing && 'rounded-r-none',
                   isLoading && 'pr-10',

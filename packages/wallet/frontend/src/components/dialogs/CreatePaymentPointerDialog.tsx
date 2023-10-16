@@ -120,6 +120,14 @@ export const CreatePaymentPointerDialog = ({
                       />
                     </div>
                     <Input
+                      type="checkbox"
+                      value=""
+                      label="I want to use this Payment Pointer for Web Monetization"
+                      {...createPaymentPointerForm.register(
+                        'isWebMonetizationPP'
+                      )}
+                    ></Input>
+                    <Input
                       required
                       label="Public name"
                       error={
