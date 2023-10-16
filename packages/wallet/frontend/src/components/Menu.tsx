@@ -200,7 +200,7 @@ export const Menu = () => {
               <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
               <div className="pl-2">
                 <div className="text-lg md:text-2xl">Interledger</div>
-                <div className="text-sm md:text-lg">testnet</div>
+                <div className="text-sm md:text-lg">testnet wallet</div>
               </div>
             </div>
           </Link>
