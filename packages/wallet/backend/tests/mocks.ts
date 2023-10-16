@@ -3,8 +3,9 @@ import { logInSchema, signUpSchema } from '@/auth/validation'
 import z from 'zod'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
-import { kycSchema, walletSchema } from '@/rapyd/validation'
+import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
+import { kycSchema, walletSchema } from '@/rapyd/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 
@@ -49,6 +50,21 @@ export const mockCreateWalletRequest = (
       city: faker.location.city(),
       country: faker.location.country(),
       zip: faker.location.zipCode(),
+      ...overrides
+    }
+  }
+}
+
+type CreateQuoteRequest = z.infer<typeof quoteSchema>
+export const mockCreateQuoteRequest = (
+  overrides?: Partial<CreateQuoteRequest['body']>
+): CreateQuoteRequest => {
+  return {
+    body: {
+      receiver: faker.internet.url(),
+      paymentPointerId: uuid(),
+      amount: Number(faker.finance.amount({ dec: 0 })),
+      isReceive: true,
       ...overrides
     }
   }

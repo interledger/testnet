@@ -13,6 +13,7 @@ import { EllipsisV } from '../icons/Ellipsis'
 import { PencilSquare } from '../icons/Pencil'
 import { Trash } from '../icons/Trash'
 import { EditPaymentPointerDialog } from '../dialogs/EditPaymentPointerDialog'
+import { CopyButton } from '@/ui/CopyButton'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
@@ -33,7 +34,7 @@ const PaymentPointerCardButton = forwardRef<
       ref={ref}
       className={cx(
         className,
-        'inline-flex items-center justify-center rounded-md px-2 font-medium text-white hover:shadow-md'
+        'mr-4 inline-flex items-center justify-center rounded-md px-2 font-medium text-white hover:shadow-md'
       )}
       onClick={() => {
         if (isUserFirstTime) {
@@ -56,14 +57,23 @@ export const PaymentPointerCard = ({
     <div className={cardStyles}>
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{paymentPointer.url}</span>
-        <PaymentPointerCardButton
-          href={`/transactions?paymentPointerId=${paymentPointer.id}`}
-          aria-label="view payment pointer"
-          id={idOnboarding}
-        >
-          View
-        </PaymentPointerCardButton>
+        <div className="flex">
+          <PaymentPointerCardButton
+            href={`/transactions?paymentPointerId=${paymentPointer.id}`}
+            aria-label="view payment pointer"
+            id={idOnboarding}
+          >
+            View
+          </PaymentPointerCardButton>
+          <CopyButton
+            aria-label="copy pp"
+            className="h-7 w-7"
+            size="sm"
+            value={paymentPointer.url}
+          />
+        </div>
       </div>
+
       <PaymentPointerOptions paymentPointer={paymentPointer} />
     </div>
   )
