@@ -8,20 +8,23 @@ export type TransactionExtended = Transaction & {
   accountName: Account['name']
 }
 
-export class Transaction extends BaseModel {
+export class TransactionBaseModel extends BaseModel {
+  paymentId!: string
+  value!: bigint | null
+  type!: 'INCOMING' | 'OUTGOING'
+  status!: 'PENDING' | 'COMPLETED' | 'REJECTED' | 'EXPIRED'
+  expiresAt!: Date | null
+}
+
+export class Transaction extends TransactionBaseModel {
   static tableName = 'transactions'
 
-  id!: string
-  paymentId!: string
   description?: string
   paymentPointerId?: string
   accountId!: string
   assetCode!: string
   value!: bigint | null
-  type!: 'INCOMING' | 'OUTGOING'
-  status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
   paymentPointer!: PaymentPointer
-  expiresAt!: Date | null
 
   static relationMappings = () => ({
     paymentPointer: {

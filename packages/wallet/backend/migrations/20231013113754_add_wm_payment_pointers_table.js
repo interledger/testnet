@@ -13,7 +13,7 @@ exports.up = function (knex) {
     table.boolean('active').notNullable().defaultTo(true)
     table.string('assetCode', 3).notNullable()
     table.smallint('assetScale').notNullable()
-    table.bigInteger('balance').notNullable().defaultTo(0)
+    table.decimal('balance', 10, 2).notNullable().defaultTo(0.0)
     table.jsonb('keyIds')
 
     table.timestamp('createdAt').notNullable()

@@ -31,6 +31,7 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+  BASE_ASSET_SCALE: z.number().nonnegative().default(2),
   MAX_ASSET_SCALE: z.number().nonnegative().default(9),
   WM_THRESHOLD: z.bigint().nonnegative().default(100_000_000n), // $0.1 in asset scale 9
   DEBT_THRESHOLD: z.number().multipleOf(0.01).nonnegative().default(5.0) // $5.00
