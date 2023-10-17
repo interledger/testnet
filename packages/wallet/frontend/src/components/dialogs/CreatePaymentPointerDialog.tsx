@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { Checkbox } from '@/ui/forms/Checkbox'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -119,14 +120,10 @@ export const CreatePaymentPointerDialog = ({
                         )}
                       />
                     </div>
-                    <Input
-                      type="checkbox"
-                      value=""
+                    <Checkbox
                       label="I want to use this Payment Pointer for Web Monetization"
-                      {...createPaymentPointerForm.register(
-                        'isWebMonetizationPP'
-                      )}
-                    ></Input>
+                      {...createPaymentPointerForm.register('isWM')}
+                    ></Checkbox>
                     <Input
                       required
                       label="Public name"
