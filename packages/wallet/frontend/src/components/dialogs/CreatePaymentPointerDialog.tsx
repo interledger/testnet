@@ -120,10 +120,6 @@ export const CreatePaymentPointerDialog = ({
                         )}
                       />
                     </div>
-                    <Checkbox
-                      label="I want to use this Payment Pointer for Web Monetization"
-                      {...createPaymentPointerForm.register('isWM')}
-                    ></Checkbox>
                     <Input
                       required
                       label="Public name"
@@ -133,6 +129,10 @@ export const CreatePaymentPointerDialog = ({
                       }
                       {...createPaymentPointerForm.register('publicName')}
                     />
+                    <Checkbox
+                      label="I want to use this payment pointer for Web Monetization"
+                      {...createPaymentPointerForm.register('isWM')}
+                    ></Checkbox>
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
                         aria-label="create payment pointer"
