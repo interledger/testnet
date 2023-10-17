@@ -8,7 +8,7 @@ import { RatesService } from '../rates/service'
 import { RafikiClient } from './rafiki-client'
 import { UserService } from '@/user/service'
 import { SocketService } from '@/socket/service'
-import { Node_Cache } from '@/utils/helpers'
+import { NodeCacheInstance } from '@/utils/helpers'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -239,7 +239,7 @@ export class RafikiService implements IRafikiService {
     )
 
     const user = await this.deps.userService.getByWalletId(receiverWalletId)
-    const isExchange = Node_Cache.get(wh.data.incomingPayment.id)
+    const isExchange = NodeCacheInstance.get(wh.data.incomingPayment.id)
     if (user && !isExchange)
       await this.deps.socketService.emitMoneyReceivedByUserId(
         user.id.toString(),
@@ -317,7 +317,7 @@ export class RafikiService implements IRafikiService {
     )
 
     const user = await this.deps.userService.getByWalletId(source_ewallet)
-    const isExchange = Node_Cache.get(wh.data.payment.id)
+    const isExchange = NodeCacheInstance.get(wh.data.payment.id)
     if (user && !isExchange)
       await this.deps.socketService.emitMoneySentByUserId(
         user.id.toString(),

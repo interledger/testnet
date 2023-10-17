@@ -85,4 +85,4 @@ export const prefixSomeObjectKeys = (
 
 import NodeCache from 'node-cache'
 
-export const Node_Cache = new NodeCache({ stdTTL: 60 * 60 })
+export const NodeCacheInstance = new NodeCache({ stdTTL: 60 * 60 })

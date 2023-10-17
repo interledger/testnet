@@ -17,7 +17,7 @@ import {
 import { QuoteWithFees } from './controller'
 import { RatesService } from '../rates/service'
 import { Account } from '@/account/model'
-import { Node_Cache } from '@/utils/helpers'
+import { NodeCacheInstance } from '@/utils/helpers'
 type CreateExchangeQuote = {
   userId: string
   accountId: string
@@ -283,9 +283,9 @@ export class QuoteService implements IQuoteService {
     })
 
     //OUTCOME
-    Node_Cache.set(quote.id, quote)
+    NodeCacheInstance.set(quote.id, true)
     //INCOME
-    Node_Cache.set(urlToPaymentId(quote.receiver), quote)
+    NodeCacheInstance.set(urlToPaymentId(quote.receiver), true)
     return quote
   }
 }
