@@ -16,7 +16,7 @@ export const createPaymentPointerSchema = z.object({
     message:
       'The public name of the payment pointer should be at least 3 characters long'
   }),
-  isWebMonetizationPP: z.boolean()
+  isWM: z.boolean()
 })
 
 export const updatePaymentPointerSchema = z.object({
