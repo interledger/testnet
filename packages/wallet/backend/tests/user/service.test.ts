@@ -69,7 +69,7 @@ describe('User Service', (): void => {
   })
 
   describe('verifyEmail', (): void => {
-    it('', async () => {
+    it('should return undefined', async () => {
       await userService.create(createUserArgs)
 
       const result = await userService.verifyEmail(emailToken)
