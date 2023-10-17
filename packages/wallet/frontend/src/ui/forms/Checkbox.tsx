@@ -22,7 +22,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           />
           <label
             htmlFor={id}
-            className="pl-1 text-md cursor-pointer font-medium leading-6 text-green-3"
+            className="text-md cursor-pointer pl-1 font-medium leading-6 text-green-3"
           >
             {label}
           </label>
