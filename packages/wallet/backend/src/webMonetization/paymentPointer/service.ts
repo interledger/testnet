@@ -106,13 +106,11 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
       .where('accountId', accountId)
       .where('active', true)
 
-    if (!wmPaymentPointer) {
-      return undefined
+    if(wmPaymentPointer){
+      await this.deps.cache.set(wmPaymentPointer.id, wmPaymentPointer, {
+        expiry: 60
+      })
     }
-
-    await this.deps.cache.set(wmPaymentPointer.id, wmPaymentPointer, {
-      expiry: 60
-    })
 
     return wmPaymentPointer
   }
