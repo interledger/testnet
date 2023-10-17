@@ -18,7 +18,7 @@ interface IWMPaymentPointerService {
     userId: string,
     accountId: string,
     id: string
-  ) => Promise<PaymentPointer>
+  ) => Promise<PaymentPointer | undefined>
   updateBalance: (args: UpdateWMPaymentPointerBalanceArgs) => Promise<void>
 }
 
@@ -94,7 +94,7 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
     return wmPaymentPointer
   }
 
-  async getById(accountId: string, id: string): Promise<WMPaymentPointer> {
+  async getById(accountId: string, id: string): Promise<WMPaymentPointer | undefined> {
     const cacheHit = await this.deps.cache.get<WMPaymentPointer>(id)
 
     if (cacheHit) {
@@ -107,7 +107,7 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
       .where('active', true)
 
     if (!wmPaymentPointer) {
-      throw new NotFound()
+      return undefined
     }
 
     await this.deps.cache.set(wmPaymentPointer.id, wmPaymentPointer, {
@@ -121,6 +121,9 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
     const { accountId, paymentPointerId, balance } = args
 
     const wmPaymentPointer = await this.getById(accountId, paymentPointerId)
+    if(!wmPaymentPointer){
+      throw new NotFound(`WM Payment pointer does not exist`);
+    }
     await wmPaymentPointer.$query().patch({ balance: BigInt(balance) })
   }
 }
