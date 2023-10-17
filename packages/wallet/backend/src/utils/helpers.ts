@@ -1,6 +1,11 @@
 import { bcrypt } from 'hash-wasm'
 import { ObjectWithAnyKeys } from '@/shared/types'
 import { randomBytes, createHash } from 'crypto'
+import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
+
+export function isWMPaymentPointer(data: unknown): data is WMPaymentPointer {
+  return (data as WMPaymentPointer).isWM === true
+}
 
 export const transformAmount = (
   amount: string | bigint,

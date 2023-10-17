@@ -2,6 +2,7 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
+import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
 import { ExternalPaymentPointer, PaymentPointerService } from './service'
 import {
   externalPaymentPointerSchema,
@@ -119,7 +120,7 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   getById = async (
     req: Request,
-    res: CustomResponse<PaymentPointer>,
+    res: CustomResponse<PaymentPointer | WMPaymentPointer>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id

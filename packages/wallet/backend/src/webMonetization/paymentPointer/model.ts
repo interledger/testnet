@@ -5,6 +5,7 @@ import { WMTransaction } from '../transaction/model'
 
 export class WMPaymentPointer extends PaymentPointerBaseModel {
   static tableName = 'wmPaymentPointers'
+  public isWM = true
 
   public balance!: bigint
   public assetCode!: string

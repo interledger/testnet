@@ -128,13 +128,17 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
+    //TODO: include wm pp on each account
     let query = Account.query().where('userId', userId)
     if (hasPaymentPointer)
       query = query
-        .withGraphFetched({ paymentPointers: true })
+        .withGraphFetched({ paymentPointers: true, wmPaymentPointers: true })
         .modifyGraph('paymentPointers', (builder) => {
           builder.where({ active: true }).orderBy('createdAt', 'ASC')
         })
+        .modifyGraph('wmPaymentPointers', (builder) =>
+          builder.where({ active: true }).orderBy('createdAt', 'ASC')
+        )
 
     const accounts = await query
 

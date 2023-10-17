@@ -47,7 +47,7 @@ import { RedisClient } from './cache/redis-client'
 export interface Bindings {
   env: Env
   logger: Logger
-  knex: Knex,
+  knex: Knex
   redisClient: RedisClient
   rapydClient: RapydClient
   rafikiClient: RafikiClient

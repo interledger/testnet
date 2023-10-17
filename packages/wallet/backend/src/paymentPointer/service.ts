@@ -10,6 +10,7 @@ import { v4 as uuid } from 'uuid'
 import { PaymentPointer } from './model'
 import { WMPaymentPointerService } from '../webMonetization/paymentPointer/service'
 import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
+import { isWMPaymentPointer } from '../utils/helpers'
 
 export interface UpdatePaymentPointerArgs {
   userId: string
@@ -77,7 +78,8 @@ export const createPaymentPointerIfFalsy = async ({
   return newPaymentPointer
 }
 
-export type PaymentPointerResponse = (WMPaymentPointer | PaymentPointer) & {isWM:boolean}
+// export type PaymentPointerResponse = (WMPaymentPointer | PaymentPointer) & {isWM:boolean}
+// type PaymentPointerResponse = (WMPaymentPointer & {isWM:true}) | (PaymentPointer & {isWM: false})
 export class PaymentPointerService implements IPaymentPointerService {
   constructor(private deps: PaymentPointerServiceDependencies) {}
 
@@ -149,20 +151,21 @@ export class PaymentPointerService implements IPaymentPointerService {
     })
   }
 
-
-  
   async getById(
     userId: string,
     accountId: string,
     id: string
-  ): Promise<PaymentPointerResponse> {
+  ): Promise<PaymentPointer | WMPaymentPointer> {
     // Validate that account id belongs to current user
     await this.deps.accountService.findAccountById(accountId, userId)
 
-    const wmPaymentPointer = await this.deps.wmPaymentPointerService.getById(accountId, id);
+    const wmPaymentPointer = await this.deps.wmPaymentPointerService.getById(
+      accountId,
+      id
+    )
 
-    if(wmPaymentPointer){
-      return {...wmPaymentPointer, isWM: true} as PaymentPointerResponse
+    if (wmPaymentPointer) {
+      return wmPaymentPointer
     }
 
     const paymentPointer = await PaymentPointer.query()
@@ -173,8 +176,7 @@ export class PaymentPointerService implements IPaymentPointerService {
     if (!paymentPointer) {
       throw new NotFound()
     }
-
-    return {...paymentPointer, isWM: false} as PaymentPointerResponse
+    return paymentPointer
   }
 
   async listIdentifiersByUserId(userId: string): Promise<string[]> {
@@ -254,7 +256,11 @@ export class PaymentPointerService implements IPaymentPointerService {
       createdOn: new Date()
     }
 
-    await PaymentPointer.query().findById(paymentPointerId).patch({
+    const query = isWMPaymentPointer(paymentPointer)
+      ? WMPaymentPointer.query()
+      : PaymentPointer.query()
+
+    await query.findById(paymentPointerId).patch({
       keyIds: key
     })
 
@@ -276,7 +282,10 @@ export class PaymentPointerService implements IPaymentPointerService {
       return
     }
 
-    const trx = await PaymentPointer.startTransaction()
+    const trx = isWMPaymentPointer(paymentPointer)
+      ? await WMPaymentPointer.startTransaction()
+      : await PaymentPointer.startTransaction()
+
     try {
       await Promise.all([
         paymentPointer.$query(trx).patch({ keyIds: null }),

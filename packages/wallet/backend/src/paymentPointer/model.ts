@@ -23,6 +23,7 @@ export class PaymentPointerBaseModel extends BaseModel {
 
 export class PaymentPointer extends PaymentPointerBaseModel {
   static tableName = 'paymentPointers'
+  public isWM = false
 
   static relationMappings = () => ({
     account: {

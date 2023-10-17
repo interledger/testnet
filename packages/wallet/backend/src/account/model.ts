@@ -2,6 +2,7 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { BaseModel } from '@/shared/model'
 import { User } from '@/user/model'
 import { Model } from 'objection'
+import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
 
 export class Account extends BaseModel {
   static tableName = 'accounts'
@@ -32,6 +33,15 @@ export class Account extends BaseModel {
         from: 'accounts.id',
         to: 'paymentPointers.accountId'
       }
+    },
+    wmPaymentPointers: {
+      relation: Model.HasManyRelation,
+      modelClass: WMPaymentPointer,
+      join: {
+        from: 'accounts.id',
+        to: 'wmPaymentPointers.accountId'
+      }
     }
+
   })
 }
