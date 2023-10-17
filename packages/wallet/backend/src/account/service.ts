@@ -128,7 +128,6 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    //TODO: include wm pp on each account
     let query = Account.query().where('userId', userId)
     if (hasPaymentPointer)
       query = query
