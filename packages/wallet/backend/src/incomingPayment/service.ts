@@ -7,6 +7,7 @@ import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
 import { Asset } from '@/rafiki/backend/generated/graphql'
 import { add } from 'date-fns'
+import { Logger } from 'winston'
 
 interface IIncomingPaymentService {
   create: (
@@ -21,6 +22,7 @@ interface IIncomingPaymentService {
 interface IncomingPaymentServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
+  logger: Logger
 }
 
 interface CreateReceiverParams {
@@ -122,6 +124,15 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       description: transaction.description,
       value: parseFloat(transformAmount(transaction.value ?? 0n, asset.scale)),
       assetCode: transaction.assetCode
+    }
+  }
+
+  public async getReceiver(receiver: string) {
+    try {
+      // @TODO: replace with get receiver from rafiki when implemented
+      return await this.getPaymentDetailsByUrl(receiver)
+    } catch (_e) {
+      this.deps.logger.info(`Could not find transaction for ${receiver}`)
     }
   }
 
