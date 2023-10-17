@@ -8,7 +8,8 @@ import axios from 'axios'
 import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { PaymentPointer } from './model'
-import { WMPaymentPointerService } from './webMonetization/service'
+import { WMPaymentPointerService } from '../webMonetization/paymentPointer/service'
+import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
 
 export interface UpdatePaymentPointerArgs {
   userId: string
@@ -76,6 +77,7 @@ export const createPaymentPointerIfFalsy = async ({
   return newPaymentPointer
 }
 
+export type PaymentPointerResponse = (WMPaymentPointer | PaymentPointer) & {isWM:boolean}
 export class PaymentPointerService implements IPaymentPointerService {
   constructor(private deps: PaymentPointerServiceDependencies) {}
 
@@ -147,13 +149,21 @@ export class PaymentPointerService implements IPaymentPointerService {
     })
   }
 
+
+  
   async getById(
     userId: string,
     accountId: string,
     id: string
-  ): Promise<PaymentPointer> {
+  ): Promise<PaymentPointerResponse> {
     // Validate that account id belongs to current user
     await this.deps.accountService.findAccountById(accountId, userId)
+
+    const wmPaymentPointer = await this.deps.wmPaymentPointerService.getById(accountId, id);
+
+    if(wmPaymentPointer){
+      return {...wmPaymentPointer, isWM: true} as PaymentPointerResponse
+    }
 
     const paymentPointer = await PaymentPointer.query()
       .findById(id)
@@ -164,7 +174,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       throw new NotFound()
     }
 
-    return paymentPointer
+    return {...paymentPointer, isWM: false} as PaymentPointerResponse
   }
 
   async listIdentifiersByUserId(userId: string): Promise<string[]> {

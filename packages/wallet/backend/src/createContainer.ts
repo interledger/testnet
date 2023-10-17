@@ -34,7 +34,7 @@ import knex from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
-import { WMPaymentPointerService } from './paymentPointer/webMonetization/service'
+import { WMPaymentPointerService } from './webMonetization/paymentPointer/service'
 import { CacheService } from './cache/service'
 import { RedisClient } from './cache/redis-client'
 import {Redis} from 'ioredis'
@@ -203,6 +203,17 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton(
+    'paymentPointerService',
+    async () =>
+      new PaymentPointerService({
+        env: await container.resolve('env'),
+        rafikiClient: await container.resolve('rafikiClient'),
+        accountService: await container.resolve('accountService'),
+        wmPaymentPointerService: await container.resolve('wmPaymentPointerService')
+      })
+  )
+
+  container.singleton(
     'rapydController',
     async () =>
       new RapydController({
@@ -212,17 +223,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
         rapydService: await container.resolve('rapydService'),
         socketService: await container.resolve('socketService'),
         userService: await container.resolve('userService')
-      })
-  )
-
-  container.singleton(
-    'paymentPointerService',
-    async () =>
-      new PaymentPointerService({
-        env: await container.resolve('env'),
-        rafikiClient: await container.resolve('rafikiClient'),
-        accountService: await container.resolve('accountService'),
-        wmPaymentPointerService: await container.resolve('wmPaymentPointerService')
       })
   )
 

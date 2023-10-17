@@ -7,6 +7,8 @@ export class WMPaymentPointer extends PaymentPointerBaseModel {
   static tableName = 'wmPaymentPointers'
 
   public balance!: bigint
+  public assetCode!: string
+  public assetScale!: number
 
   static relationMappings = () => ({
     account: {

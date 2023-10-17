@@ -41,7 +41,7 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
-import { WMPaymentPointerService } from './paymentPointer/webMonetization/service'
+import { WMPaymentPointerService } from './webMonetization/paymentPointer/service'
 import { RedisClient } from './cache/redis-client'
 
 export interface Bindings {

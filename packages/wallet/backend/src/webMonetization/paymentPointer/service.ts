@@ -2,18 +2,23 @@ import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
 import { Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { generateJwk } from '@/utils/jwk'
+import { generateKeyPairSync } from 'crypto'
+import { v4 as uuid } from 'uuid'
 import { CacheService } from '../../cache/service'
-import { PaymentPointer } from '../model'
-import { UpdatePaymentPointerArgs } from '../service'
+import { PaymentPointer } from '../../paymentPointer/model'
 import { WMPaymentPointer } from './model'
 
 
 
-type UpdateWMPaymentPointerArgs = UpdatePaymentPointerArgs & {
-    assetCode: string
-    assetScale: number
-    balance: number
-  }
+
+
+
+export type UpdateWMPaymentPointerBalanceArgs = {
+  accountId: string
+  paymentPointerId: string,
+  balance: number
+}
 
 interface IWMPaymentPointerService {
   create: (params: CreateWMPaymentPointerParams) => Promise<PaymentPointer>
@@ -22,8 +27,12 @@ interface IWMPaymentPointerService {
     accountId: string,
     id: string
   ) => Promise<PaymentPointer>
-  updateBalance: (args: UpdateWMPaymentPointerArgs) => Promise<void>
+  updateBalance: (args:  UpdateWMPaymentPointerBalanceArgs) => Promise<void>
 }
+
+
+
+
 
 interface WMPaymentPointerServiceDependencies {
   accountService: AccountService
@@ -87,7 +96,6 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
   }
 
   async getById(
-    userId: string,
     accountId: string,
     id: string
   ): Promise<WMPaymentPointer> {
@@ -96,9 +104,6 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
     if(cacheHit){
         return cacheHit
     }
-
-    // Validate that account id belongs to current user
-    await this.deps.accountService.findAccountById(accountId, userId)
 
     const wmPaymentPointer = await WMPaymentPointer.query()
       .findById(id)
@@ -115,34 +120,80 @@ export class WMPaymentPointerService implements IWMPaymentPointerService {
     
   }
 
+  async updateBalance(args: UpdateWMPaymentPointerBalanceArgs): Promise<void> {
+    const { accountId, paymentPointerId, balance } = args
 
-  async updateBalance(args: UpdateWMPaymentPointerArgs): Promise<void> {
-    const { userId, accountId, paymentPointerId, publicName } = args
-
-    const paymentPointer = await this.getById(
-      userId,
+    const wmPaymentPointer = await this.getById(
       accountId,
       paymentPointerId
     )
+    await wmPaymentPointer.$query().patch({ balance: BigInt(balance) })
+   
+  }
+  
 
-    const trx = await PaymentPointer.startTransaction()
+  async registerKey(
+    accountId: string,
+    wmPaymentPointerId: string
+  ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
+    const wmPaymentPointer = await this.getById(
+      accountId,
+      wmPaymentPointerId
+    )
 
+    const { privateKey, publicKey } = generateKeyPairSync('ed25519')
+    const publicKeyPEM = publicKey
+      .export({ type: 'spki', format: 'pem' })
+      .toString()
+    const privateKeyPEM = privateKey
+      .export({ type: 'pkcs8', format: 'pem' })
+      .toString()
+    const keyId = uuid()
+
+    const wmPaymentPointerKey = await this.deps.rafikiClient.createRafikiPaymentPointerKey(
+        generateJwk(privateKey, keyId),
+        wmPaymentPointer.id
+      )
+
+    const key = {
+      id: keyId,
+      rafikiId: wmPaymentPointerKey.id,
+      publicKey: publicKeyPEM,
+      createdOn: new Date()
+    }
+
+    await WMPaymentPointer.query().findById(wmPaymentPointerId).patch({
+      keyIds: key
+    })
+
+    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId: key.id }
+  }
+
+  async revokeKey(
+    accountId: string,
+    wmPaymentPointerId: string
+  ): Promise<void> {
+    const wmPaymentPointer = await this.getById(
+      accountId,
+      wmPaymentPointerId
+    )
+
+    if (!wmPaymentPointer.keyIds) {
+      return
+    }
+
+    const trx = await WMPaymentPointer.startTransaction()
     try {
       await Promise.all([
-        paymentPointer.$query(trx).patch({ publicName }),
-        this.deps.rafikiClient.updatePaymentPointer({
-          id: paymentPointerId,
-          publicName
-        })
+        wmPaymentPointer.$query(trx).patch({ keyIds: null }),
+        this.deps.rafikiClient.revokePaymentPointerKey(
+          wmPaymentPointer.keyIds.rafikiId
+        )
       ])
       await trx.commit()
     } catch (e) {
       await trx.rollback()
     }
-  }
-
-
-
-
+}
 
 }
