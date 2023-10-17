@@ -38,9 +38,11 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
       const { accountId } = req.params
       const {
-        body: { paymentPointerName, publicName }
+        body: { paymentPointerName, publicName, isWM }
       } = await validate(paymentPointerSchema, req)
 
+      console.log(isWM)
+      // @TODO: needs WMPP Service
       const paymentPointer = await this.deps.paymentPointerService.create(
         userId,
         accountId,
@@ -63,6 +65,7 @@ export class PaymentPointerController implements IPaymentPointerController {
     const userId = req.session.user.id
     const { accountId } = req.params
 
+    // @TODO: TBD - needs flag to also include WMPP
     try {
       const paymentPointers = await this.deps.paymentPointerService.list(
         userId,
@@ -84,6 +87,7 @@ export class PaymentPointerController implements IPaymentPointerController {
   ) => {
     const userId = req.session.user.id
 
+    // @TODO: TBD - needs flag to also include WMPP
     try {
       const paymentPointers =
         await this.deps.paymentPointerService.listAll(userId)
@@ -169,6 +173,7 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
       const { accountId, paymentPointerId } = req.params
 
+      // @TODO: needs WMPP Service
       const { privateKey, publicKey, keyId } =
         await this.deps.paymentPointerService.registerKey(
           userId,
@@ -190,6 +195,7 @@ export class PaymentPointerController implements IPaymentPointerController {
     try {
       const { accountId, paymentPointerId } = req.params
 
+      // @TODO: needs WMPP Service
       await this.deps.paymentPointerService.revokeKey(
         req.session.user.id,
         accountId,
