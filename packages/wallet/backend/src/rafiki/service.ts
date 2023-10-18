@@ -4,7 +4,7 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
-import { RatesService } from '../rates/service'
+import { RatesService } from '@/rates/service'
 import { RafikiClient } from './rafiki-client'
 import { UserService } from '@/user/service'
 import { SocketService } from '@/socket/service'
@@ -131,7 +131,7 @@ export class RafikiService implements IRafikiService {
   ): Promise<string> {
     const account = await Account.query()
       .findById(paymentPointer.accountId)
-      .withGraphFetched('.user')
+      .withGraphFetched('user')
 
     const user = account?.user
     if (!user || !user.rapydWalletId) {
