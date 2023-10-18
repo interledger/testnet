@@ -40,7 +40,6 @@ export type PaymentPointer = {
   keyIds: PaymentPointerKey | null
 }
 
-
 export type ListPaymentPointersResult = {
   wmPaymentPointers: Array<PaymentPointer>
   paymentPointers: Array<PaymentPointer>

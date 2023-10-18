@@ -2,7 +2,11 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { ExternalPaymentPointer, PaymentPointerList, PaymentPointerService } from './service'
+import {
+  ExternalPaymentPointer,
+  PaymentPointerList,
+  PaymentPointerService
+} from './service'
 import {
   externalPaymentPointerSchema,
   paymentPointerSchema,
@@ -67,7 +71,7 @@ export class PaymentPointerController implements IPaymentPointerController {
     try {
       const paymentPointers = await this.deps.paymentPointerService.list(
         userId,
-        accountId,
+        accountId
       )
       res
         .status(200)

@@ -189,7 +189,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return new RedisClient(redis)
   })
 
-
   container.singleton(
     'paymentPointerService',
     async () =>

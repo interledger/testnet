@@ -45,17 +45,14 @@ export type GetPaymentPointerArgs = {
   userId?: string
 }
 
-export type PaymentPointerList ={
-  wmPaymentPointers:PaymentPointer[], paymentPointers: PaymentPointer[]
+export type PaymentPointerList = {
+  wmPaymentPointers: PaymentPointer[]
+  paymentPointers: PaymentPointer[]
 }
 interface IPaymentPointerService {
   create: (params: CreatePaymentPointerArgs) => Promise<PaymentPointer>
   update: (args: UpdatePaymentPointerArgs) => Promise<void>
-  list: (
-    userId: string,
-    accountId: string,
-   
-  ) => Promise<PaymentPointerList>
+  list: (userId: string, accountId: string) => Promise<PaymentPointerList>
   getById: (args: GetPaymentPointerArgs) => Promise<PaymentPointer>
   softDelete: (userId: string, id: string) => Promise<void>
 }
@@ -172,33 +169,32 @@ export class PaymentPointerService implements IPaymentPointerService {
     return paymentPointer
   }
 
-  async list(
-    userId: string,
-    accountId: string,
-  ): Promise<PaymentPointerList> {
+  async list(userId: string, accountId: string): Promise<PaymentPointerList> {
     const account = await this.deps.accountService.findAccountById(
       accountId,
       userId
     )
 
-    const paymentPointersResult = await  PaymentPointer.query()
+    const paymentPointersResult = await PaymentPointer.query()
       .where('accountId', account.id)
       .where('active', true)
 
-      const result = paymentPointersResult.reduce(
-        (acc, pp) => {
-          if (pp.isWM) {
-            acc.wmPaymentPointers.push(pp);
-          } else {
-            acc.paymentPointers.push(pp);
-          }
-          return acc;
-        },
-        { wmPaymentPointers: [] as PaymentPointer[], paymentPointers: [] as PaymentPointer[] }
-      );
-      
-      return result;
-   
+    const result = paymentPointersResult.reduce(
+      (acc, pp) => {
+        if (pp.isWM) {
+          acc.wmPaymentPointers.push(pp)
+        } else {
+          acc.paymentPointers.push(pp)
+        }
+        return acc
+      },
+      {
+        wmPaymentPointers: [] as PaymentPointer[],
+        paymentPointers: [] as PaymentPointer[]
+      }
+    )
+
+    return result
   }
 
   async listAll(userId: string): Promise<PaymentPointer[]> {
@@ -213,9 +209,7 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async getById(args: GetPaymentPointerArgs): Promise<PaymentPointer> {
     //* Cache only contains PaymentPointers with isWM = true
-    const cacheHit = await this.deps.cache.get(
-      args.paymentPointerId
-    )
+    const cacheHit = await this.deps.cache.get(args.paymentPointerId)
     if (cacheHit) {
       //* TODO: reset ttl
       return cacheHit

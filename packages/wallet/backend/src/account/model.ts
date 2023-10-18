@@ -32,6 +32,6 @@ export class Account extends BaseModel {
         from: 'accounts.id',
         to: 'paymentPointers.accountId'
       }
-    },
+    }
   })
 }
