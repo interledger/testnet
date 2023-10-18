@@ -106,15 +106,15 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       return
     }
 
-    const paymentPointers = paymentPointersResponse.data.map(
-      (paymentPointer) => ({
+    const paymentPointers = paymentPointersResponse.data.paymentPointers
+      .concat(paymentPointersResponse.data.wmPaymentPointers)
+      .map((paymentPointer) => ({
         label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
           'https://',
           '$'
         )})`,
         value: paymentPointer.id
-      })
-    )
+      }))
     setPaymentPointers(paymentPointers)
 
     if (selectedAccount) {
