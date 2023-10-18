@@ -6,7 +6,7 @@ export interface ICacheService<T> {
   delete(key: string): Promise<number>
 }
 
-export class CacheService<T> implements ICacheService<T> {
+export class Cache<T> implements ICacheService<T> {
   private namespace: string = 'Testnet:'
 
   constructor(

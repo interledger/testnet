@@ -7,7 +7,7 @@ import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
 import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
-import { CacheService } from '../cache/service'
+import { Cache } from '../cache/service'
 import { PaymentPointer } from './model'
 
 export interface UpdatePaymentPointerArgs {
@@ -49,7 +49,7 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
-  cache: CacheService<PaymentPointer>
+  cache: Cache<PaymentPointer>
 }
 
 export const createPaymentPointerIfFalsy = async ({

@@ -34,7 +34,7 @@ import knex from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
-import { CacheService } from './cache/service'
+import { Cache } from './cache/service'
 import { RedisClient } from './cache/redis-client'
 import { Redis } from 'ioredis'
 import { PaymentPointer } from './paymentPointer/model'
@@ -197,7 +197,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
         env: await container.resolve('env'),
         rafikiClient: await container.resolve('rafikiClient'),
         accountService: await container.resolve('accountService'),
-        cache: new CacheService<PaymentPointer>(
+        cache: new Cache<PaymentPointer>(
           await container.resolve('redisClient'),
           'WMPaymentPointers'
         )
