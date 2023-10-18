@@ -41,7 +41,7 @@ export type UpdatePaymentPointerBalanceArgs = {
 
 export type GetPaymentPointerArgs = {
   paymentPointerId: string
-  accountId: string
+  accountId?: string
   userId?: string
 }
 
@@ -199,11 +199,10 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async listAll(userId: string): Promise<PaymentPointer[]> {
     return PaymentPointer.query()
-      .where({ isWM: false })
+      .where({ isWM: false, active: true })
       .joinRelated('account')
       .where({
         'account.userId': userId,
-        'paymentPointers.active': true
       })
   }
 
@@ -215,17 +214,18 @@ export class PaymentPointerService implements IPaymentPointerService {
       return cacheHit
     }
 
-    if (args.userId) {
+    if (args.userId && args.accountId) {
       await this.deps.accountService.findAccountById(
         args.accountId,
         args.userId
       )
     }
 
-    const paymentPointer = await PaymentPointer.query()
-      .findById(args.paymentPointerId)
-      .where('accountId', args.accountId)
-      .where('active', true)
+    const query = PaymentPointer.query().findById(args.paymentPointerId).where('active', true)
+    if(args.accountId){
+      query.where('accountId', args.accountId)
+    }
+    const paymentPointer = await query
 
     if (!paymentPointer) {
       throw new NotFound()
