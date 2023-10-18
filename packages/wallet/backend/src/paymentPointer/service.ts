@@ -34,7 +34,6 @@ export interface CreatePaymentPointerArgs {
 }
 
 export type UpdatePaymentPointerBalanceArgs = {
-  accountId: string
   paymentPointerId: string
   balance: number
 }
@@ -241,9 +240,9 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async updateBalance(args: UpdatePaymentPointerBalanceArgs): Promise<void> {
-    const { accountId, paymentPointerId, balance } = args
+    const { paymentPointerId, balance } = args
 
-    const paymentPointer = await this.getById({ accountId, paymentPointerId })
+    const paymentPointer = await this.getById({ paymentPointerId })
     if (!paymentPointer) {
       throw new NotFound(`WM Payment pointer does not exist`)
     }
