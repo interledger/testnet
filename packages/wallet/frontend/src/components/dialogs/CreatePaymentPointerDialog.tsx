@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { Checkbox } from '@/ui/forms/Checkbox'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -127,6 +128,10 @@ export const CreatePaymentPointerDialog = ({
                           ?.message
                       }
                       {...createPaymentPointerForm.register('publicName')}
+                    />
+                    <Checkbox
+                      label="I want to use this payment pointer for Web Monetization"
+                      {...createPaymentPointerForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
