@@ -7,10 +7,8 @@ import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
 import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
+import { CacheService } from '../cache/service'
 import { PaymentPointer } from './model'
-import { WMPaymentPointerService } from '../webMonetization/paymentPointer/service'
-import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
-import { isWMPaymentPointer } from '../utils/helpers'
 
 export interface UpdatePaymentPointerArgs {
   userId: string
@@ -27,20 +25,23 @@ export interface ExternalPaymentPointer {
   authServer: string
 }
 
+export interface CreatePaymentPointerArgs {
+  userId: string
+  accountId: string
+  paymentPointerName: string
+  publicName: string
+  isWM: boolean
+}
+
 interface IPaymentPointerService {
-  create: (
-    userId: string,
-    accountId: string,
-    paymentPointerName: string,
-    publicName: string
-  ) => Promise<PaymentPointer>
+  create: (params: CreatePaymentPointerArgs) => Promise<PaymentPointer>
   update: (args: UpdatePaymentPointerArgs) => Promise<void>
-  list: (userId: string, accountId: string) => Promise<PaymentPointer[]>
-  getById: (
+  list: (
     userId: string,
     accountId: string,
-    id: string
-  ) => Promise<PaymentPointer>
+    isWM: boolean
+  ) => Promise<PaymentPointer[]>
+  getById: (args: GetPaymentPointerArgs) => Promise<PaymentPointer>
   softDelete: (userId: string, id: string) => Promise<void>
 }
 
@@ -48,7 +49,7 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
-  wmPaymentPointerService: WMPaymentPointerService
+  cache: CacheService
 }
 
 export const createPaymentPointerIfFalsy = async ({
@@ -68,47 +69,55 @@ export const createPaymentPointerIfFalsy = async ({
     return paymentPointer
   }
 
-  const newPaymentPointer = await paymentPointerService.create(
+  const newPaymentPointer = await paymentPointerService.create({
     userId,
     accountId,
-    getRandomValues(new Uint32Array(1))[0].toString(16),
-    publicName
-  )
+    paymentPointerName: getRandomValues(new Uint32Array(1))[0].toString(16),
+    publicName,
+    isWM: false
+  })
 
   return newPaymentPointer
 }
+export type UpdatePaymentPointerBalanceArgs = {
+  accountId: string
+  paymentPointerId: string
+  balance: number
+}
 
-// export type PaymentPointerResponse = (WMPaymentPointer | PaymentPointer) & {isWM:boolean}
-// type PaymentPointerResponse = (WMPaymentPointer & {isWM:true}) | (PaymentPointer & {isWM: false})
+export type GetPaymentPointerArgs = {
+  paymentPointerId: string
+  accountId: string
+  userId?: string
+}
+
 export class PaymentPointerService implements IPaymentPointerService {
   constructor(private deps: PaymentPointerServiceDependencies) {}
 
-  async create(
-    userId: string,
-    accountId: string,
-    paymentPointerName: string,
-    publicName: string
-  ): Promise<PaymentPointer> {
+  async create(args: CreatePaymentPointerArgs): Promise<PaymentPointer> {
     const account = await this.deps.accountService.findAccountById(
-      accountId,
-      userId
+      args.accountId,
+      args.userId
     )
-    const url = `${this.deps.env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
+    const url = `${this.deps.env.OPEN_PAYMENTS_HOST}/${args.paymentPointerName}`
     let paymentPointer = await PaymentPointer.query().findOne({ url })
 
     if (paymentPointer) {
-      if (paymentPointer.accountId != accountId || account.userId !== userId) {
+      if (
+        paymentPointer.accountId != args.accountId ||
+        account.userId !== args.userId
+      ) {
         throw new Conflict(
           'This payment pointer already exists. Please choose another name.'
         )
       } else if (
-        paymentPointer.accountId === accountId &&
-        account.userId === userId
+        paymentPointer.accountId === args.accountId &&
+        account.userId === args.userId
       ) {
         paymentPointer = await PaymentPointer.query().patchAndFetchById(
           paymentPointer.id,
           {
-            publicName,
+            publicName: args.publicName,
             active: true
           }
         )
@@ -116,67 +125,119 @@ export class PaymentPointerService implements IPaymentPointerService {
     } else {
       const rafikiPaymentPointer =
         await this.deps.rafikiClient.createRafikiPaymentPointer(
-          publicName,
+          args.publicName,
           account.assetId,
           url
         )
 
+      let assetScale = null
+      let assetCode = null
+      if (args.isWM) {
+        //* Web monetization feature requires an asset with scale MAX_ASSET_SCALE to exist. It's default assetCode is USD for now
+        const webMonetizationAsset =
+          await this.deps.rafikiClient.getRafikiAsset(
+            'USD',
+            this.deps.env.MAX_ASSET_SCALE
+          )
+
+        if (!webMonetizationAsset) {
+          throw new NotFound('Web monetization asset not found')
+        }
+
+        assetScale = webMonetizationAsset.scale
+        assetCode = webMonetizationAsset.code
+      }
+
       paymentPointer = await PaymentPointer.query().insert({
         url: rafikiPaymentPointer.url,
-        publicName,
-        accountId,
-        id: rafikiPaymentPointer.id
+        publicName: args.publicName,
+        accountId: args.accountId,
+        id: rafikiPaymentPointer.id,
+        assetCode,
+        assetScale,
+        balance: 0,
+        isWM: args.isWM
+      })
+
+      args.isWM &&
+        (await this.deps.cache.set(paymentPointer.id, paymentPointer, {
+          expiry: 60
+        }))
+    }
+
+    return paymentPointer
+  }
+
+  async list(
+    userId: string,
+    accountId: string,
+    isWM: boolean
+  ): Promise<PaymentPointer[]> {
+    // Validate that account id belongs to current user
+    const account = await this.deps.accountService.findAccountById(
+      accountId,
+      userId
+    )
+    return PaymentPointer.query()
+      .where('accountId', account.id)
+      .where('active', true)
+      .where('isWM', isWM)
+  }
+
+  async listAll(userId: string): Promise<PaymentPointer[]> {
+    return PaymentPointer.query()
+      .where({ isWM: false })
+      .joinRelated('account')
+      .where({
+        'account.userId': userId,
+        'paymentPointers.active': true
+      })
+  }
+
+  async getById(args: GetPaymentPointerArgs): Promise<PaymentPointer> {
+    //* Cache only contains PaymentPointers with isWM = true
+    const cacheHit = await this.deps.cache.get<PaymentPointer>(
+      args.paymentPointerId
+    )
+    if (cacheHit) {
+      //* TODO: reset ttl
+      return cacheHit
+    }
+
+    // Validate that account id belongs to current user
+    if (args.userId) {
+      await this.deps.accountService.findAccountById(
+        args.accountId,
+        args.userId
+      )
+    }
+
+    const paymentPointer = await PaymentPointer.query()
+      .findById(args.paymentPointerId)
+      .where('accountId', args.accountId)
+      .where('active', true)
+
+    if (!paymentPointer) {
+      throw new NotFound()
+    }
+
+    if (paymentPointer.isWM) {
+      await this.deps.cache.set(paymentPointer.id, paymentPointer, {
+        expiry: 60
       })
     }
 
     return paymentPointer
   }
 
-  async list(userId: string, accountId: string): Promise<PaymentPointer[]> {
-    // Validate that account id belongs to current user
-    const account = await this.deps.accountService.findAccountById(
-      accountId,
-      userId
-    )
+  async updateBalance(args: UpdatePaymentPointerBalanceArgs): Promise<void> {
+    const { accountId, paymentPointerId, balance } = args
 
-    return PaymentPointer.query()
-      .where('accountId', account.id)
-      .where('active', true)
-  }
-
-  async listAll(userId: string): Promise<PaymentPointer[]> {
-    return PaymentPointer.query().joinRelated('account').where({
-      'account.userId': userId,
-      'paymentPointers.active': true
-    })
-  }
-
-  async getById(
-    userId: string,
-    accountId: string,
-    id: string
-  ): Promise<PaymentPointer | WMPaymentPointer> {
-    // Validate that account id belongs to current user
-    await this.deps.accountService.findAccountById(accountId, userId)
-
-    const wmPaymentPointer = await this.deps.wmPaymentPointerService.getById(
-      accountId,
-      id
-    )
-
-    if (wmPaymentPointer) {
-      return wmPaymentPointer
-    }
-
-    const paymentPointer = await PaymentPointer.query()
-      .findById(id)
-      .where('accountId', accountId)
-      .where('active', true)
-
+    const paymentPointer = await this.getById({ accountId, paymentPointerId })
     if (!paymentPointer) {
-      throw new NotFound()
+      throw new NotFound(`WM Payment pointer does not exist`)
     }
-    return paymentPointer
+    await paymentPointer.$query().patch({ balance })
   }
 
   async listIdentifiersByUserId(userId: string): Promise<string[]> {
@@ -228,12 +289,11 @@ export class PaymentPointerService implements IPaymentPointerService {
     accountId: string,
     paymentPointerId: string
   ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
-    const paymentPointer = await this.getById(
+    const paymentPointer = await this.getById({
       userId,
       accountId,
       paymentPointerId
-    )
-
+    })
     const { privateKey, publicKey } = generateKeyPairSync('ed25519')
     const publicKeyPEM = publicKey
       .export({ type: 'spki', format: 'pem' })
@@ -256,11 +316,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       createdOn: new Date()
     }
 
-    const query = isWMPaymentPointer(paymentPointer)
-      ? WMPaymentPointer.query()
-      : PaymentPointer.query()
-
-    await query.findById(paymentPointerId).patch({
+    await PaymentPointer.query().findById(paymentPointerId).patch({
       keyIds: key
     })
 
@@ -272,19 +328,17 @@ export class PaymentPointerService implements IPaymentPointerService {
     accountId: string,
     paymentPointerId: string
   ): Promise<void> {
-    const paymentPointer = await this.getById(
+    const paymentPointer = await this.getById({
       userId,
       accountId,
       paymentPointerId
-    )
+    })
 
     if (!paymentPointer.keyIds) {
       return
     }
 
-    const trx = isWMPaymentPointer(paymentPointer)
-      ? await WMPaymentPointer.startTransaction()
-      : await PaymentPointer.startTransaction()
+    const trx = await PaymentPointer.startTransaction()
 
     try {
       await Promise.all([
@@ -301,11 +355,11 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async update(args: UpdatePaymentPointerArgs): Promise<void> {
     const { userId, accountId, paymentPointerId, publicName } = args
-    const paymentPointer = await this.getById(
+    const paymentPointer = await this.getById({
       userId,
       accountId,
       paymentPointerId
-    )
+    })
 
     const trx = await PaymentPointer.startTransaction()
 

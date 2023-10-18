@@ -96,12 +96,8 @@ export class RapydController implements IRapydController {
         getRandomValues(typedArray)
         const paymentPointerName = typedArray[0].toString(16)
 
-        await this.deps.paymentPointerService.create(
-          id,
-          defaultAccount.id,
-          paymentPointerName,
-          'Default Payment Pointer'
-        )
+        await this.deps.paymentPointerService.create({accountId: defaultAccount.id,paymentPointerName, publicName: 'Default Payment Pointer', userId: id, isWM: false })
+        
       }
 
       res.status(200).json({

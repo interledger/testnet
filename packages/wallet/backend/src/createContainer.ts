@@ -34,7 +34,6 @@ import knex from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
-import { WMPaymentPointerService } from './webMonetization/paymentPointer/service'
 import { CacheService } from './cache/service'
 import { RedisClient } from './cache/redis-client'
 import { Redis } from 'ioredis'
@@ -190,18 +189,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
     return new RedisClient(redis)
   })
 
-  container.singleton('wmPaymentPointerService', async () => {
-    const wmPaymentPointerCache = new CacheService(
-      await container.resolve('redisClient'),
-      'WMPaymentPointers'
-    )
-    return new WMPaymentPointerService({
-      env: await container.resolve('env'),
-      rafikiClient: await container.resolve('rafikiClient'),
-      accountService: await container.resolve('accountService'),
-      cache: wmPaymentPointerCache
-    })
-  })
 
   container.singleton(
     'paymentPointerService',
@@ -210,8 +197,9 @@ export const createContainer = (config: Env): Container<Bindings> => {
         env: await container.resolve('env'),
         rafikiClient: await container.resolve('rafikiClient'),
         accountService: await container.resolve('accountService'),
-        wmPaymentPointerService: await container.resolve(
-          'wmPaymentPointerService'
+        cache: new CacheService(
+          await container.resolve('redisClient'),
+          'WMPaymentPointers'
         )
       })
   )

@@ -10,10 +10,7 @@ interface PaymentPointerKey {
   createdOn: Date
 }
 
-
 export class PaymentPointer extends BaseModel {
-
-  
   static tableName = 'paymentPointers'
 
   publicName!: string

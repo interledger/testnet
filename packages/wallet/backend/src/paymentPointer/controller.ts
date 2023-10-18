@@ -2,7 +2,6 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { WMPaymentPointer } from '../webMonetization/paymentPointer/model'
 import { ExternalPaymentPointer, PaymentPointerService } from './service'
 import {
   externalPaymentPointerSchema,
@@ -39,15 +38,16 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
       const { accountId } = req.params
       const {
-        body: { paymentPointerName, publicName }
+        body: { paymentPointerName, publicName, isWM }
       } = await validate(paymentPointerSchema, req)
 
-      const paymentPointer = await this.deps.paymentPointerService.create(
+      const paymentPointer = await this.deps.paymentPointerService.create({
         userId,
         accountId,
         paymentPointerName,
-        publicName
-      )
+        publicName,
+        isWM
+      })
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: paymentPointer })
@@ -63,11 +63,13 @@ export class PaymentPointerController implements IPaymentPointerController {
   ) => {
     const userId = req.session.user.id
     const { accountId } = req.params
+    const isWM = req.query.isWM as unknown as boolean
 
     try {
       const paymentPointers = await this.deps.paymentPointerService.list(
         userId,
-        accountId
+        accountId,
+        isWM
       )
 
       res
@@ -120,18 +122,18 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   getById = async (
     req: Request,
-    res: CustomResponse<PaymentPointer | WMPaymentPointer>,
+    res: CustomResponse<PaymentPointer>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
-    const { accountId, id } = req.params
+    const { accountId, id: paymentPointerId } = req.params
 
     try {
-      const paymentPointer = await this.deps.paymentPointerService.getById(
+      const paymentPointer = await this.deps.paymentPointerService.getById({
         userId,
         accountId,
-        id
-      )
+        paymentPointerId
+      })
 
       res
         .status(200)
