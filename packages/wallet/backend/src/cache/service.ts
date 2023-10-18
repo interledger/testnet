@@ -1,12 +1,12 @@
 import { EntryOptions, IRedisClient } from './redis-client'
 
-export interface ICacheService {
-  set<T>(key: string, value: T | string): Promise<string>
-  get<T>(key: string): Promise<T | null>
+export interface ICacheService<T> {
+  set(key: string, value: T | string): Promise<string>
+  get(key: string): Promise<T | null>
   delete(key: string): Promise<number>
 }
 
-export class CacheService implements ICacheService {
+export class CacheService<T> implements ICacheService<T> {
   private namespace: string = 'Testnet:'
 
   constructor(
@@ -16,18 +16,18 @@ export class CacheService implements ICacheService {
     this.namespace = this.namespace + namespace + ':'
   }
 
-  async set<T>(
+  async set(
     key: string,
     value: T | string,
     options?: EntryOptions
   ): Promise<string> {
     const namespacedKey = this.namespace + key
-    return await this.cache.set(namespacedKey, value, options)
+    return await this.cache.set<T>(namespacedKey, value, options)
   }
 
-  async get<T>(key: string): Promise<T | null> {
+  async get(key: string): Promise<T | null> {
     const namespacedKey = this.namespace + key
-    return await this.cache.get(namespacedKey)
+    return await this.cache.get<T>(namespacedKey)
   }
 
   async delete(key: string): Promise<number> {

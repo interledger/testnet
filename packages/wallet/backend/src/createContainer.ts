@@ -37,6 +37,7 @@ import { RatesService } from './rates/service'
 import { CacheService } from './cache/service'
 import { RedisClient } from './cache/redis-client'
 import { Redis } from 'ioredis'
+import { PaymentPointer } from './paymentPointer/model'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -183,7 +184,6 @@ export const createContainer = (config: Env): Container<Bindings> => {
   )
 
   container.singleton('redisClient', async () => {
-    //config for redis connection is in the Redis constructor. Default to
     const env = await container.resolve('env')
     const redis = new Redis(env.REDIS_URL)
     return new RedisClient(redis)
@@ -197,7 +197,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
         env: await container.resolve('env'),
         rafikiClient: await container.resolve('rafikiClient'),
         accountService: await container.resolve('accountService'),
-        cache: new CacheService(
+        cache: new CacheService<PaymentPointer>(
           await container.resolve('redisClient'),
           'WMPaymentPointers'
         )

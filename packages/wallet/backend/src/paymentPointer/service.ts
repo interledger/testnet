@@ -49,7 +49,7 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
-  cache: CacheService
+  cache: CacheService<PaymentPointer>
 }
 
 export const createPaymentPointerIfFalsy = async ({
@@ -173,7 +173,6 @@ export class PaymentPointerService implements IPaymentPointerService {
     accountId: string,
     isWM: boolean
   ): Promise<PaymentPointer[]> {
-    // Validate that account id belongs to current user
     const account = await this.deps.accountService.findAccountById(
       accountId,
       userId
@@ -196,7 +195,7 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async getById(args: GetPaymentPointerArgs): Promise<PaymentPointer> {
     //* Cache only contains PaymentPointers with isWM = true
-    const cacheHit = await this.deps.cache.get<PaymentPointer>(
+    const cacheHit = await this.deps.cache.get(
       args.paymentPointerId
     )
     if (cacheHit) {
@@ -204,7 +203,6 @@ export class PaymentPointerService implements IPaymentPointerService {
       return cacheHit
     }
 
-    // Validate that account id belongs to current user
     if (args.userId) {
       await this.deps.accountService.findAccountById(
         args.accountId,
