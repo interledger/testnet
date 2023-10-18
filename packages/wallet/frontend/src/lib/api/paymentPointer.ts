@@ -40,6 +40,12 @@ export type PaymentPointer = {
   keyIds: PaymentPointerKey | null
 }
 
+
+export type ListPaymentPointersResult = {
+  wmPaymentPointers: Array<PaymentPointer>
+  paymentPointers: Array<PaymentPointer>
+}
+
 type PaymentPointerKeyDetails = {
   privateKey: string
   publicKey: string
@@ -61,7 +67,7 @@ type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
-type ListPaymentPointerResult = SuccessResponse<PaymentPointer[]>
+type ListPaymentPointerResult = SuccessResponse<ListPaymentPointersResult>
 type ListPaymentPointerResponse = ListPaymentPointerResult | ErrorResponse
 
 type CreatePaymentPointerArgs = z.infer<typeof createPaymentPointerSchema>
