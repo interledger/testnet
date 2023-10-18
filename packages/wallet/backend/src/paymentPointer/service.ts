@@ -141,7 +141,7 @@ export class PaymentPointerService implements IPaymentPointerService {
           )
 
         if (!webMonetizationAsset) {
-          throw new NotFound('Web monetization asset not found')
+          throw new NotFound('Web monetization asset not found.')
         }
 
         assetScale = webMonetizationAsset.scale
@@ -201,7 +201,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       .where({ isWM: false, active: true })
       .joinRelated('account')
       .where({
-        'account.userId': userId,
+        'account.userId': userId
       })
   }
 
@@ -220,8 +220,10 @@ export class PaymentPointerService implements IPaymentPointerService {
       )
     }
 
-    const query = PaymentPointer.query().findById(args.paymentPointerId).where('active', true)
-    if(args.accountId){
+    const query = PaymentPointer.query()
+      .findById(args.paymentPointerId)
+      .where('active', true)
+    if (args.accountId) {
       query.where('accountId', args.accountId)
     }
     const paymentPointer = await query
@@ -244,7 +246,7 @@ export class PaymentPointerService implements IPaymentPointerService {
 
     const paymentPointer = await this.getById({ paymentPointerId })
     if (!paymentPointer) {
-      throw new NotFound(`WM Payment pointer does not exist`)
+      throw new NotFound(`Web monetization payment pointer does not exist.`)
     }
     await paymentPointer.$query().patch({ balance })
   }
