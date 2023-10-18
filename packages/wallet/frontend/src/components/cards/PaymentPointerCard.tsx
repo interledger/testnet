@@ -69,9 +69,7 @@ export const PaymentPointerCard = ({
               View
             </PaymentPointerCardButton>
           ) : null}
-          {isWM ? (
-            <span>Balance</span>
-          ) : null}
+          {isWM ? <span>Balance</span> : null}
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"
