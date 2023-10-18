@@ -8,6 +8,9 @@ import { RatesService } from '../rates/service'
 import { RafikiClient } from './rafiki-client'
 import { UserService } from '@/user/service'
 import { SocketService } from '@/socket/service'
+import { PaymentPointerService } from '@/paymentPointer/service'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
+import { Account } from '@/account/model'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -79,6 +82,8 @@ interface RafikiServiceDependencies {
   logger: Logger
   rafikiClient: RafikiClient
   transactionService: TransactionService
+  paymentPointerService: PaymentPointerService
+  wmTransactionService: WMTransactionService
 }
 
 export class RafikiService implements IRafikiService {
@@ -108,9 +113,7 @@ export class RafikiService implements IRafikiService {
         await this.handleIncomingPaymentCompleted(wh)
         break
       case EventType.IncomingPaymentCreated:
-        await this.deps.transactionService.createIncomingTransaction(
-          wh.data.incomingPayment
-        )
+        await this.handleIncomingPaymentCreated(wh)
         break
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
@@ -123,33 +126,14 @@ export class RafikiService implements IRafikiService {
     }
   }
 
-  private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
-    let ppId = ''
-    if (
-      [
-        EventType.IncomingPaymentCompleted,
-        EventType.IncomingPaymentExpired
-      ].includes(wh.type)
-    ) {
-      ppId = wh.data.incomingPayment.paymentPointerId as string
-    }
-    if (
-      [
-        EventType.OutgoingPaymentCreated,
-        EventType.OutgoingPaymentCompleted
-      ].includes(wh.type)
-    ) {
-      ppId = wh.data.payment.paymentPointerId as string
-    }
+  private async getRapydWalletId(
+    paymentPointer: PaymentPointer
+  ): Promise<string> {
+    const account = await Account.query()
+      .findById(paymentPointer.accountId)
+      .withGraphFetched('.user')
 
-    const pp = await PaymentPointer.query()
-      .findById(ppId)
-      .withGraphFetched('account.user')
-    if (!pp) {
-      throw new BadRequest('Invalid payment pointer')
-    }
-
-    const user = pp.account.user
+    const user = account?.user
     if (!user || !user.rapydWalletId) {
       throw new BadRequest('No user associated to the provided payment pointer')
     }
@@ -197,9 +181,19 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
-    const receiverWalletId = await this.getRapydWalletIdFromWebHook(wh)
-
+    const paymentPointer = await this.getPaymentPointer(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    if (paymentPointer.isWM) {
+      await this.deps.wmTransactionService.updateTransaction(
+        { paymentId: wh.data.incomingPayment.id },
+        { status: 'COMPLETED', value: amount.value }
+      )
+
+      return
+    }
+
+    const receiverWalletId = await this.getRapydWalletId(paymentPointer)
 
     if (!this.validateAmount(amount, wh.type)) {
       //* Only in case the expired incoming payment has no money received will it be set as expired.
@@ -253,16 +247,44 @@ export class RafikiService implements IRafikiService {
     )
   }
 
+  private async handleIncomingPaymentCreated(wh: WebHook) {
+    const paymentPointer = await this.getPaymentPointer(wh)
+
+    if (paymentPointer.isWM) {
+      await this.deps.wmTransactionService.createIncomingTransaction(
+        wh.data.incomingPayment
+      )
+
+      return
+    }
+
+    await this.deps.transactionService.createIncomingTransaction(
+      wh.data.incomingPayment,
+      paymentPointer
+    )
+  }
+
   private async handleOutgoingPaymentCreated(wh: WebHook) {
-    const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
+    const paymentPointer = await this.getPaymentPointer(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    if (paymentPointer.isWM) {
+      await this.deps.wmTransactionService.createOutgoingTransaction(
+        wh.data.payment
+      )
+
+      return
+    }
+
+    const rapydWalletId = await this.getRapydWalletId(paymentPointer)
 
     if (!this.validateAmount(amount, wh.type)) {
       return
     }
 
     await this.deps.transactionService.createOutgoingTransaction(
-      wh.data.payment
+      wh.data.payment,
+      paymentPointer
     )
     const holdResult = await this.deps.rapydClient.holdLiquidity({
       amount: this.amountToNumber(amount),
@@ -287,8 +309,19 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
-    const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
+    const paymentPointer = await this.getPaymentPointer(wh)
     const debitAmount = this.getAmountFromWebHook(wh)
+
+    if (paymentPointer.isWM) {
+      await this.deps.wmTransactionService.updateTransaction(
+        { paymentId: wh.data.payment.id },
+        { status: 'COMPLETED', value: debitAmount.value }
+      )
+
+      return
+    }
+
+    const source_ewallet = await this.getRapydWalletId(paymentPointer)
 
     if (!this.validateAmount(debitAmount, wh.type)) {
       return
@@ -331,7 +364,18 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleOutgoingPaymentFailed(wh: WebHook) {
-    const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
+    const paymentPointer = await this.getPaymentPointer(wh)
+
+    if (paymentPointer.isWM) {
+      await this.deps.wmTransactionService.updateTransaction(
+        { paymentId: wh.data.payment.id },
+        { status: 'FAILED', value: 0n }
+      )
+
+      return
+    }
+
+    const source_ewallet = await this.getRapydWalletId(paymentPointer)
 
     const debitAmount = this.getAmountFromWebHook(wh)
 
@@ -406,5 +450,12 @@ export class RafikiService implements IRafikiService {
     )
 
     return false
+  }
+
+  async getPaymentPointer(wh: WebHook) {
+    const ppId: string =
+      wh.data.incomingPayment?.paymentPointerId ||
+      wh.data.payment?.paymentPointerId
+    return await this.deps.paymentPointerService.findByIdWithoutValidation(ppId)
   }
 }
