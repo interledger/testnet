@@ -1,7 +1,7 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { DeveloperKeys } from '@/components/settings/DeveloperKeys'
-import { SettingsTabs } from '@/components/SettingsTabs'
+import { SettingsTabs } from '@/components/tabs/SettingsTabs'
 import { Account, accountService } from '@/lib/api/account'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { formatDate } from '@/utils/helpers'

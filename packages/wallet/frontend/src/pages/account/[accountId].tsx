@@ -26,6 +26,7 @@ import { z } from 'zod'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import BackButton from '@/components/BackButton'
+import { AccountTabs } from '@/components/tabs/AccountTabs'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -70,6 +71,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           </p>
         </div>
       </div>
+      <AccountTabs accountId={account.id} />
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">
           <button

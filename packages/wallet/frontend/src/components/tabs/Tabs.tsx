@@ -2,18 +2,16 @@ import { Link } from '@/ui/Link'
 import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
 
-const tabs = [
-  {
-    name: 'Account',
-    href: '/settings'
-  },
-  {
-    name: 'Developer Keys',
-    href: '/settings/developer-keys'
-  }
-]
+type Tab = {
+  name: string
+  href: string
+}
 
-export const SettingsTabs = () => {
+type TabsProps = {
+  tabs: Tab[]
+}
+
+export const Tabs = ({ tabs }: TabsProps) => {
   const { pathname } = useRouter()
 
   return (

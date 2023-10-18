@@ -17,6 +17,7 @@ import { CopyButton } from '@/ui/CopyButton'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
+  isWM?: boolean
   idOnboarding?: string
 }
 
@@ -51,6 +52,7 @@ PaymentPointerCardButton.displayName = 'PaymentPointerCardButton'
 
 export const PaymentPointerCard = ({
   paymentPointer,
+  isWM,
   idOnboarding
 }: PaymentPointerCardProps) => {
   return (
@@ -58,13 +60,18 @@ export const PaymentPointerCard = ({
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{paymentPointer.url}</span>
         <div className="flex">
-          <PaymentPointerCardButton
-            href={`/transactions?paymentPointerId=${paymentPointer.id}`}
-            aria-label="view payment pointer"
-            id={idOnboarding}
-          >
-            View
-          </PaymentPointerCardButton>
+          {!isWM ? (
+            <PaymentPointerCardButton
+              href={`/transactions?paymentPointerId=${paymentPointer.id}`}
+              aria-label="view payment pointer"
+              id={idOnboarding}
+            >
+              View
+            </PaymentPointerCardButton>
+          ) : null}
+          {isWM ? (
+            <span>Balance</span>
+          ) : null}
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"
