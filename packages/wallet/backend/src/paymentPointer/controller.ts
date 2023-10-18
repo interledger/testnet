@@ -2,7 +2,7 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { ExternalPaymentPointer, PaymentPointerService } from './service'
+import { ExternalPaymentPointer, PaymentPointerList, PaymentPointerService } from './service'
 import {
   externalPaymentPointerSchema,
   paymentPointerSchema,
@@ -11,7 +11,7 @@ import {
 
 interface IPaymentPointerController {
   create: ControllerFunction<PaymentPointer>
-  list: ControllerFunction<PaymentPointer[]>
+  list: ControllerFunction<PaymentPointerList>
   getById: ControllerFunction<PaymentPointer>
   softDelete: ControllerFunction
 }
@@ -58,20 +58,17 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   list = async (
     req: Request,
-    res: CustomResponse<PaymentPointer[]>,
+    res: CustomResponse<PaymentPointerList>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
     const { accountId } = req.params
-    const isWM = req.query.isWM as unknown as boolean
 
     try {
       const paymentPointers = await this.deps.paymentPointerService.list(
         userId,
         accountId,
-        isWM
       )
-
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: paymentPointers })
