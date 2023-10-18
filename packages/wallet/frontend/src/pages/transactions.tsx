@@ -326,7 +326,7 @@ export const getServerSideProps: GetServerSideProps<
     })
   )
 
-  paymentPointersResponse.data.map((pp) =>
+  paymentPointersResponse.data.paymentPointers.concat(paymentPointersResponse.data.wmPaymentPointers).map((pp) =>
     paymentPointers.push({
       label: pp.url,
       value: pp.id,
