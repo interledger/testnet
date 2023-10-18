@@ -42,6 +42,7 @@ import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
 import { RedisClient } from './cache/redis-client'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
 
 export interface Bindings {
   env: Env
@@ -78,6 +79,7 @@ export interface Bindings {
   grantService: GrantService
   emailService: EmailService
   socketService: SocketService
+  wmTransactionService: WMTransactionService
 }
 
 export class App {
