@@ -86,16 +86,16 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       return
     }
 
-    const paymentPointers = paymentPointersResponse.data.map(
-      (paymentPointer) => ({
+    const paymentPointers = paymentPointersResponse.data.paymentPointers
+      .concat(paymentPointersResponse.data.wmPaymentPointers)
+      .map((paymentPointer) => ({
         label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
           'https://',
           '$'
         )})`,
         value: paymentPointer.id,
         url: paymentPointer.url
-      })
-    )
+      }))
     setPaymentPointers(paymentPointers)
   }
 
