@@ -10,20 +10,24 @@ interface PaymentPointerKey {
   createdOn: Date
 }
 
-export class PaymentPointerBaseModel extends BaseModel {
+
+export class PaymentPointer extends BaseModel {
+
+  
+  static tableName = 'paymentPointers'
+
   publicName!: string
   readonly id!: string
   readonly url!: string
   readonly accountId!: string
+  isWM!: boolean
+  assetCode!: string | null
+  assetScale!: number | null
+  balance!: number
   active!: boolean
   account!: Account
   transactions!: Array<Transaction>
   keyIds!: PaymentPointerKey | null
-}
-
-export class PaymentPointer extends PaymentPointerBaseModel {
-  static tableName = 'paymentPointers'
-  public isWM = false
 
   static relationMappings = () => ({
     account: {
