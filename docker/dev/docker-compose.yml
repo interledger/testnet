@@ -45,10 +45,11 @@ services:
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL}
       RATE_API_KEY: ${RATE_API_KEY}
-      BASE_ASSET_SCALE: 2,
-      MAX_ASSET_SCALE: 9,
+      BASE_ASSET_SCALE: 2
+      MAX_ASSET_SCALE: 9
       WM_THRESHOLD: 100000000
       DEBT_THRESHOLD: 5
+      REDIS_URL: ${REDIS_URL}
     restart: always
     networks:
       - testnet
