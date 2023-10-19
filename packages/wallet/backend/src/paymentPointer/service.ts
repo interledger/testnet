@@ -9,6 +9,10 @@ import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { Cache } from '../cache/service'
 import { PaymentPointer } from './model'
+import { Knex } from 'knex'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
+import { raw } from 'objection'
+import { RapydClient } from '@/rapyd/rapyd-client'
 
 export interface UpdatePaymentPointerArgs {
   userId: string
@@ -61,6 +65,9 @@ interface PaymentPointerServiceDependencies {
   rafikiClient: RafikiClient
   env: Env
   cache: Cache<PaymentPointer>
+  knex: Knex
+  wmTransactionService: WMTransactionService
+  rapydClient: RapydClient
 }
 
 export const createPaymentPointerIfFalsy = async ({
@@ -427,5 +434,71 @@ export class PaymentPointerService implements IPaymentPointerService {
     }
 
     return paymentPointer
+  }
+
+  async processPendingIncomingPayments(): Promise<void> {
+    return this.deps.knex.transaction(async (trx) => {
+      const paymentPointers = await PaymentPointer.query(trx).where({
+        isWM: true,
+        active: true
+      })
+
+      for (const paymentPointer of paymentPointers) {
+        // @TODO: _TBD_
+        const [incomingValue, outgoingValue] = (await Promise.all([
+          this.deps.wmTransactionService.sumByPaymentPointerId(
+            paymentPointer.id,
+            'INCOMING',
+            trx
+          ),
+          this.deps.wmTransactionService.sumByPaymentPointerId(
+            paymentPointer.id,
+            'OUTGOING',
+            trx
+          )
+        ])) as unknown as [bigint, bigint]
+
+        const tmp = (await paymentPointer
+          .$query(trx)
+          .update({
+            //@ts-expect-error not defined in model
+            incomingBalance: raw('?? + ?', ['incomingBalance', incomingValue]),
+            outgoingBalance: raw('?? + ?', ['incomingBalance', outgoingValue])
+          })
+          .where({
+            id: paymentPointer.id
+          })
+          .returning('*')) as unknown as {
+          incomingBalance: bigint
+          outgoingBalance: bigint
+        }
+
+        // @TODO: concat all ids and delete in one query
+        await this.deps.wmTransactionService.deleteByTransactionIds([])
+
+        const incomingBalance = tmp.incomingBalance / this.deps.env.WM_THRESHOLD
+        const outgoingBalance = tmp.outgoingBalance / this.deps.env.WM_THRESHOLD
+
+        if (incomingBalance > 0n) {
+          await this.deps.rapydClient.transferLiquidity({
+            amount: 2,
+            currency: paymentPointer.assetCode!,
+            destination_ewallet: paymentPointer.account.virtualAccountId,
+            source_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET
+          })
+          // insert transaction
+        }
+
+        if (outgoingBalance > 0n) {
+          await this.deps.rapydClient.transferLiquidity({
+            amount: 2,
+            currency: paymentPointer.assetCode!,
+            destination_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET,
+            source_ewallet: paymentPointer.account.virtualAccountId
+          })
+          // insert transaction
+        }
+      }
+    })
   }
 }

@@ -398,6 +398,9 @@ importers:
       tailwind-merge:
         specifier: ^1.14.0
         version: 1.14.0
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.3.3)
       valtio:
         specifier: ^1.11.2
         version: 1.11.2(@types/react@18.2.28)(react@18.2.0)
