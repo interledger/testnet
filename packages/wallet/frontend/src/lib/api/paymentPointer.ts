@@ -38,6 +38,9 @@ export type PaymentPointer = {
   publicName: string
   accountId: string
   keyIds: PaymentPointerKey | null
+  balance?: string
+  assetCode?: string
+  assetScale?: number
 }
 
 export type ListPaymentPointers = {

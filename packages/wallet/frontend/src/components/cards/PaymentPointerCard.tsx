@@ -14,6 +14,7 @@ import { PencilSquare } from '../icons/Pencil'
 import { Trash } from '../icons/Trash'
 import { EditPaymentPointerDialog } from '../dialogs/EditPaymentPointerDialog'
 import { CopyButton } from '@/ui/CopyButton'
+import { formatAmount } from '@/utils/helpers'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
@@ -23,6 +24,13 @@ type PaymentPointerCardProps = {
 
 type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
+}
+const formattedAmount = (paymentPointer: PaymentPointer) => {
+  return formatAmount({
+    value: paymentPointer.balance || '',
+    assetCode: paymentPointer.assetCode || '',
+    assetScale: paymentPointer.assetScale || 2
+  })
 }
 
 const PaymentPointerCardButton = forwardRef<
@@ -60,6 +68,11 @@ export const PaymentPointerCard = ({
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{paymentPointer.url}</span>
         <div className="flex">
+          {isWM ? (
+            <span className="flex items-center justify-center px-3">
+              {formattedAmount(paymentPointer).amount}
+            </span>
+          ) : null}
           {!isWM ? (
             <PaymentPointerCardButton
               href={`/transactions?paymentPointerId=${paymentPointer.id}`}
@@ -69,7 +82,6 @@ export const PaymentPointerCard = ({
               View
             </PaymentPointerCardButton>
           ) : null}
-          {isWM ? <span>Balance</span> : null}
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"

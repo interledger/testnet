@@ -62,6 +62,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   return (
     <>
+      <AccountTabs accountId={account.id} />
       <div className="flex items-center">
         <BackButton />
         <div className="text-green" id="balance">
@@ -71,7 +72,6 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           </p>
         </div>
       </div>
-      <AccountTabs accountId={account.id} />
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
         <div className="my-5 flex justify-between space-x-2">
           <button

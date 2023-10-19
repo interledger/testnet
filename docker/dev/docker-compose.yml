@@ -49,7 +49,7 @@ services:
       MAX_ASSET_SCALE: 9
       WM_THRESHOLD: 100000000
       DEBT_THRESHOLD: 5
-      REDIS_URL: ${REDIS_URL}
+      REDIS_URL: redis://redis:6379/0
     restart: always
     networks:
       - testnet
