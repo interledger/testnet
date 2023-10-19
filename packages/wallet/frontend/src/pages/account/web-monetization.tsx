@@ -69,7 +69,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const wmPaymentPointers = wmPaymentPointersResponse.data.map((pp) => ({
+  const wmPaymentPointers = wmPaymentPointersResponse.data.wmPaymentPointers.map((pp) => ({
     ...pp,
     url: pp.url.replace('https://', '$')
   }))

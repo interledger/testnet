@@ -40,7 +40,7 @@ export type PaymentPointer = {
   keyIds: PaymentPointerKey | null
 }
 
-export type ListPaymentPointersResult = {
+export type ListPaymentPointers = {
   wmPaymentPointers: Array<PaymentPointer>
   paymentPointers: Array<PaymentPointer>
 }
@@ -66,7 +66,7 @@ type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
-type ListPaymentPointerResult = SuccessResponse<ListPaymentPointersResult>
+type ListPaymentPointerResult = SuccessResponse<ListPaymentPointers>
 type ListPaymentPointerResponse = ListPaymentPointerResult | ErrorResponse
 
 type ListAllPaymentPointerResult = SuccessResponse<PaymentPointer[]>
