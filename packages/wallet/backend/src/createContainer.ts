@@ -289,8 +289,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
     'wmTransactionService',
     async () =>
       new WMTransactionService({
-        logger: await container.resolve('logger'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        logger: await container.resolve('logger')
       })
   )
 
