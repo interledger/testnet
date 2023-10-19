@@ -11,6 +11,7 @@ import { SocketService } from '@/socket/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Account } from '@/account/model'
+import { WMTransaction } from '@/webMonetization/transaction/model'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -185,6 +186,8 @@ export class RafikiService implements IRafikiService {
     const amount = this.getAmountFromWebHook(wh)
 
     if (paymentPointer.isWM) {
+      await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+
       await this.deps.wmTransactionService.updateTransaction(
         { paymentId: wh.data.incomingPayment.id },
         { status: 'COMPLETED', value: amount.value }
@@ -269,6 +272,8 @@ export class RafikiService implements IRafikiService {
     const amount = this.getAmountFromWebHook(wh)
 
     if (paymentPointer.isWM) {
+      await this.deps.rafikiClient.depositLiquidity(wh.id)
+
       await this.deps.wmTransactionService.createOutgoingTransaction(
         wh.data.payment
       )
@@ -313,6 +318,8 @@ export class RafikiService implements IRafikiService {
     const debitAmount = this.getAmountFromWebHook(wh)
 
     if (paymentPointer.isWM) {
+      await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+
       await this.deps.wmTransactionService.updateTransaction(
         { paymentId: wh.data.payment.id },
         { status: 'COMPLETED', value: debitAmount.value }
@@ -365,23 +372,31 @@ export class RafikiService implements IRafikiService {
 
   private async handleOutgoingPaymentFailed(wh: WebHook) {
     const paymentPointer = await this.getPaymentPointer(wh)
+    const debitAmount = this.getAmountFromWebHook(wh)
+
+    if (!this.validateAmount(debitAmount, wh.type)) {
+      return
+    }
+
+    const sentAmount = this.parseAmount(
+      wh.data.payment.sentAmount as AmountJSON
+    )
 
     if (paymentPointer.isWM) {
+      await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+
+      const update: Partial<WMTransaction> = sentAmount.value
+        ? { status: 'COMPLETED', value: sentAmount.value }
+        : { status: 'FAILED', value: 0n }
       await this.deps.wmTransactionService.updateTransaction(
         { paymentId: wh.data.payment.id },
-        { status: 'FAILED', value: 0n }
+        update
       )
 
       return
     }
 
     const source_ewallet = await this.getRapydWalletId(paymentPointer)
-
-    const debitAmount = this.getAmountFromWebHook(wh)
-
-    if (!this.validateAmount(debitAmount, wh.type)) {
-      return
-    }
 
     const releaseResult = await this.deps.rapydClient.releaseLiquidity({
       amount: this.amountToNumber(debitAmount),
@@ -404,9 +419,6 @@ export class RafikiService implements IRafikiService {
       { status: 'FAILED', value: 0n }
     )
 
-    const sentAmount = this.parseAmount(
-      wh.data.payment.sentAmount as AmountJSON
-    )
     if (!sentAmount.value) {
       return
     }
