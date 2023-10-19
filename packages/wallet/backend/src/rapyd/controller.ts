@@ -1,14 +1,14 @@
 import { AccountService } from '@/account/service'
 import { PaymentPointerService } from '@/paymentPointer/service'
 import { validate } from '@/shared/validate'
-import { User } from '@/user/model'
-import { getRandomValues } from 'crypto'
 import { SocketService } from '@/socket/service'
+import { User } from '@/user/model'
+import { UserService } from '@/user/service'
+import { getRandomValues } from 'crypto'
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
-import { UserService } from '@/user/service'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -96,12 +96,13 @@ export class RapydController implements IRapydController {
         getRandomValues(typedArray)
         const paymentPointerName = typedArray[0].toString(16)
 
-        await this.deps.paymentPointerService.create(
-          id,
-          defaultAccount.id,
+        await this.deps.paymentPointerService.create({
+          accountId: defaultAccount.id,
           paymentPointerName,
-          'Default Payment Pointer'
-        )
+          publicName: 'Default Payment Pointer',
+          userId: id,
+          isWM: false
+        })
       }
 
       res.status(200).json({

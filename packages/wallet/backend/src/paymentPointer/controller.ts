@@ -2,7 +2,11 @@ import { PaymentPointer } from '@/paymentPointer/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import { ExternalPaymentPointer, PaymentPointerService } from './service'
+import {
+  ExternalPaymentPointer,
+  PaymentPointerList,
+  PaymentPointerService
+} from './service'
 import {
   externalPaymentPointerSchema,
   paymentPointerSchema,
@@ -11,7 +15,7 @@ import {
 
 interface IPaymentPointerController {
   create: ControllerFunction<PaymentPointer>
-  list: ControllerFunction<PaymentPointer[]>
+  list: ControllerFunction<PaymentPointerList>
   getById: ControllerFunction<PaymentPointer>
   softDelete: ControllerFunction
 }
@@ -38,15 +42,16 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
       const { accountId } = req.params
       const {
-        body: { paymentPointerName, publicName }
+        body: { paymentPointerName, publicName, isWM }
       } = await validate(paymentPointerSchema, req)
 
-      const paymentPointer = await this.deps.paymentPointerService.create(
+      const paymentPointer = await this.deps.paymentPointerService.create({
         userId,
         accountId,
         paymentPointerName,
-        publicName
-      )
+        publicName,
+        isWM
+      })
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: paymentPointer })
@@ -57,7 +62,7 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   list = async (
     req: Request,
-    res: CustomResponse<PaymentPointer[]>,
+    res: CustomResponse<PaymentPointerList>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
@@ -68,7 +73,6 @@ export class PaymentPointerController implements IPaymentPointerController {
         userId,
         accountId
       )
-
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: paymentPointers })
@@ -123,14 +127,14 @@ export class PaymentPointerController implements IPaymentPointerController {
     next: NextFunction
   ) => {
     const userId = req.session.user.id
-    const { accountId, id } = req.params
+    const { accountId, id: paymentPointerId } = req.params
 
     try {
-      const paymentPointer = await this.deps.paymentPointerService.getById(
+      const paymentPointer = await this.deps.paymentPointerService.getById({
         userId,
         accountId,
-        id
-      )
+        paymentPointerId
+      })
 
       res
         .status(200)

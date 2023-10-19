@@ -41,11 +41,13 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
+import { RedisClient } from './cache/redis-client'
 
 export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
+  redisClient: RedisClient
   rapydClient: RapydClient
   rafikiClient: RafikiClient
   rafikiService: RafikiService
