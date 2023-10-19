@@ -58,7 +58,8 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const wmPaymentPointersResponse = await paymentPointerService.listAll(
+  const wmPaymentPointersResponse = await paymentPointerService.list(
+    result.data.accountId,
     ctx.req.headers.cookie
   )
 
