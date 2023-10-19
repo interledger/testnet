@@ -7,8 +7,8 @@ exports.up = function (knex) {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.uuid('paymentId').notNullable()
 
-    table.uuid('wmPaymentPointerId').notNullable()
-    table.foreign('wmPaymentPointerId').references('wmPaymentPointers.id')
+    table.uuid('paymentPointerId').notNullable()
+    table.foreign('paymentPointerId').references('paymentPointers.id')
 
     table.bigint('value').notNullable()
 

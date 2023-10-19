@@ -106,7 +106,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       return
     }
 
-    const paymentPointers = paymentPointersResponse.data.map(
+    const paymentPointers = paymentPointersResponse.data.paymentPointers.map(
       (paymentPointer) => ({
         label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
           'https://',
