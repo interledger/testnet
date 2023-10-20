@@ -38,6 +38,7 @@ import { Cache } from './cache/service'
 import { RedisClient } from './cache/redis-client'
 import { Redis } from 'ioredis'
 import { PaymentPointer } from './paymentPointer/model'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -285,6 +286,14 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
+  container.singleton(
+    'wmTransactionService',
+    async () =>
+      new WMTransactionService({
+        logger: await container.resolve('logger')
+      })
+  )
+
   container.singleton('rafikiService', async () => {
     const rapydClient = await container.resolve('rapydClient')
     const env = await container.resolve('env')
@@ -294,6 +303,10 @@ export const createContainer = (config: Env): Container<Bindings> => {
     const socketService = await container.resolve('socketService')
     const userService = await container.resolve('userService')
     const ratesService = await container.resolve('ratesService')
+    const wmTransactionService = await container.resolve('wmTransactionService')
+    const paymentPointerService = await container.resolve(
+      'paymentPointerService'
+    )
 
     return new RafikiService({
       rafikiClient,
@@ -303,7 +316,9 @@ export const createContainer = (config: Env): Container<Bindings> => {
       logger,
       transactionService,
       socketService,
-      userService
+      userService,
+      wmTransactionService,
+      paymentPointerService
     })
   })
 

@@ -3,6 +3,7 @@ import { BaseModel } from '@/shared/model'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Account } from '@/account/model'
 
+export type TransactionType = 'INCOMING' | 'OUTGOING'
 export type TransactionExtended = Transaction & {
   paymentPointerUrl: PaymentPointer['url']
   accountName: Account['name']
@@ -11,7 +12,7 @@ export type TransactionExtended = Transaction & {
 export class TransactionBaseModel extends BaseModel {
   paymentId!: string
   value!: bigint | null
-  type!: 'INCOMING' | 'OUTGOING'
+  type!: TransactionType
   status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
   expiresAt!: Date | null
 }

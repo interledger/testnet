@@ -10,6 +10,7 @@ import {
   OutgoingPayment
 } from '@/rafiki/backend/generated/graphql'
 import { PaymentPointerService } from '@/paymentPointer/service'
+import { PaymentPointer } from '@/paymentPointer/model'
 
 type ListAllTransactionsInput = {
   userId: string
@@ -128,12 +129,10 @@ export class TransactionService implements ITransactionService {
     })
   }
 
-  async createIncomingTransaction(params: IncomingPayment) {
-    const paymentPointer =
-      await this.deps.paymentPointerService.findByIdWithoutValidation(
-        params.paymentPointerId
-      )
-
+  async createIncomingTransaction(
+    params: IncomingPayment,
+    paymentPointer: PaymentPointer
+  ) {
     const amount = params.incomingAmount || params.receivedAmount
     return Transaction.query().insert({
       paymentPointerId: params.paymentPointerId,
@@ -148,12 +147,10 @@ export class TransactionService implements ITransactionService {
     })
   }
 
-  async createOutgoingTransaction(params: OutgoingPayment) {
-    const paymentPointer =
-      await this.deps.paymentPointerService.findByIdWithoutValidation(
-        params.paymentPointerId
-      )
-
+  async createOutgoingTransaction(
+    params: OutgoingPayment,
+    paymentPointer: PaymentPointer
+  ) {
     const amount = params.debitAmount
     return Transaction.query().insert({
       paymentPointerId: params.paymentPointerId,
