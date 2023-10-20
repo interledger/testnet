@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/ui/Link'
 import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
 
