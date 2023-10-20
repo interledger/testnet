@@ -18,7 +18,7 @@ import { formatAmount } from '@/utils/helpers'
 
 type PaymentPointerCardProps = {
   paymentPointer: PaymentPointer
-  isWM?: boolean
+  isWM: boolean
   idOnboarding?: string
 }
 
@@ -72,8 +72,7 @@ export const PaymentPointerCard = ({
             <span className="flex items-center justify-center px-3">
               {formattedAmount(paymentPointer).amount}
             </span>
-          ) : null}
-          {!isWM ? (
+          ) : (
             <PaymentPointerCardButton
               href={`/transactions?paymentPointerId=${paymentPointer.id}`}
               aria-label="view payment pointer"
@@ -81,7 +80,7 @@ export const PaymentPointerCard = ({
             >
               View
             </PaymentPointerCardButton>
-          ) : null}
+          )}
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"

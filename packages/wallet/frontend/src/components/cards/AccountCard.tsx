@@ -28,7 +28,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
 
   return (
     <Link
-      href={`account/${account.id}`}
+      href={`account/${account.id}?type=pp`}
       className={`
         rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md
         [&:nth-child(4n+1)]:bg-gradient-primary 

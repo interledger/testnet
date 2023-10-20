@@ -8,11 +8,11 @@ export const AccountTabs = ({ accountId }: AccountTabsProps) => {
   const tabs = [
     {
       name: 'Account',
-      href: `/account/${accountId}`
+      href: `/account/${accountId}?type=pp`
     },
     {
       name: 'Web Monetization',
-      href: `/account/web-monetization?accountId=${accountId}`
+      href: `/account/${accountId}?type=wm`
     }
   ]
 

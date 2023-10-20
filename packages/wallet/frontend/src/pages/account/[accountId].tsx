@@ -15,7 +15,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 
 import { Link } from '@/ui/Link'
-import { formatAmount } from '@/utils/helpers'
+import { FormattedAmount, formatAmount } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -32,7 +32,9 @@ type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  paymentPointers
+  paymentPointers,
+  balance,
+  isWM
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const { accountsSnapshot } = useSnapshot(balanceState)
@@ -68,79 +70,89 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         <div className="text-green" id="balance">
           <h2 className="text-lg font-light md:text-xl">Balance</h2>
           <p className="text-2xl font-semibold md:text-4xl">
-            {formattedAmount.amount}
+            {isWM ? balance.amount : formattedAmount.amount}
           </p>
         </div>
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        <div className="my-5 flex justify-between space-x-2">
-          <button
-            id="paymentPointer"
-            onClick={() => {
-              if (isUserFirstTime) {
-                setRunOnboarding(false)
-              }
-              openDialog(
-                <CreatePaymentPointerDialog
-                  accountName={account.name}
-                  onClose={closeDialog}
-                />
-              )
-            }}
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <New className="h-9 w-7" />
-            <div className="-space-y-2 text-[15px]">
-              <p className="font-medium text-green-5 group-hover:text-green-6">
-                Add payment{' '}
-              </p>
-              <p className="font-medium text-green-5 group-hover:text-green-6">
-                pointer
-              </p>
+        {!isWM ? (
+          <>
+            <div className="my-5 flex justify-between space-x-2">
+              <button
+                id="paymentPointer"
+                onClick={() => {
+                  if (isUserFirstTime) {
+                    setRunOnboarding(false)
+                  }
+                  openDialog(
+                    <CreatePaymentPointerDialog
+                      accountName={account.name}
+                      onClose={closeDialog}
+                    />
+                  )
+                }}
+                className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+              >
+                <New className="h-9 w-7" />
+                <div className="-space-y-2 text-[15px]">
+                  <p className="font-medium text-green-5 group-hover:text-green-6">
+                    Add payment{' '}
+                  </p>
+                  <p className="font-medium text-green-5 group-hover:text-green-6">
+                    pointer
+                  </p>
+                </div>
+              </button>
+              <Link
+                id="fund"
+                onClick={() => {
+                  if (isUserFirstTime) {
+                    setRunOnboarding(false)
+                  }
+                  openDialog(
+                    <FundAccountDialog
+                      account={account}
+                      onClose={closeDialog}
+                    />
+                  )
+                }}
+                className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+              >
+                <Request className="h-8 w-8" />
+                <span className="font-medium text-green-5 group-hover:text-green-6">
+                  Add money
+                </span>
+              </Link>
+              <Link
+                onClick={() =>
+                  openDialog(
+                    <WithdrawFundsDialog
+                      account={account}
+                      onClose={closeDialog}
+                    />
+                  )
+                }
+                className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+              >
+                <Withdraw className="h-8 w-8" />
+                <span className="font-medium text-green-5 group-hover:text-green-6">
+                  Withdraw
+                </span>
+              </Link>
+              <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+                <Exchange className="h-8 w-8" />
+                <span className="font-medium text-green-5 group-hover:text-green-6">
+                  Exchange
+                </span>
+              </Link>
             </div>
-          </button>
-          <Link
-            id="fund"
-            onClick={() => {
-              if (isUserFirstTime) {
-                setRunOnboarding(false)
-              }
-              openDialog(
-                <FundAccountDialog account={account} onClose={closeDialog} />
-              )
-            }}
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Request className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Add money
-            </span>
-          </Link>
-          <Link
-            onClick={() =>
-              openDialog(
-                <WithdrawFundsDialog account={account} onClose={closeDialog} />
-              )
-            }
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Withdraw className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Withdraw
-            </span>
-          </Link>
-          <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-            <Exchange className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Exchange
-            </span>
-          </Link>
-        </div>
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold leading-none text-green">
-            Account
-          </h3>
-        </div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold leading-none text-green">
+                Account
+              </h3>
+            </div>
+          </>
+        ) : null}
         <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
           <span className="font-semibold text-green">{account.name}</span>
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
@@ -153,6 +165,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
               <PaymentPointerCard
                 key={paymentPointer.id}
                 paymentPointer={paymentPointer}
+                isWM={isWM}
                 idOnboarding={
                   account.assetCode === 'USD' && index === 0
                     ? `viewTransactions`
@@ -162,7 +175,11 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             ))
           ) : (
             <div className="flex items-center justify-center p-4 text-green">
-              No payment pointers found for this account.
+              {isWM ? (
+                <span>No payment pointers found for Web Monetization.</span>
+              ) : (
+                <span>No payment pointers found for this account.</span>
+              )}
             </div>
           )}
         </div>
@@ -172,15 +189,17 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 }
 
 const querySchema = z.object({
-  accountId: z.string().uuid()
+  accountId: z.string().uuid(),
+  type: z.string()
 })
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   paymentPointers: PaymentPointer[]
+  balance: FormattedAmount
+  isWM: boolean
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
-
   if (!result.success) {
     return {
       notFound: true
@@ -192,29 +211,42 @@ export const getServerSideProps: GetServerSideProps<{
     paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
   ])
 
-  if (!accountResponse.success || !paymentPointersResponse.success) {
+  if (
+    !accountResponse.success ||
+    !paymentPointersResponse.success ||
+    !accountResponse.data ||
+    !paymentPointersResponse.data
+  ) {
     return {
       notFound: true
     }
   }
 
-  if (!accountResponse.data || !paymentPointersResponse.data) {
-    return {
-      notFound: true
-    }
-  }
+  const isWM = result.data.type === 'wm'
+  let balance = isWM ? 0 : Number(accountResponse.data.balance)
+  const assetScalePP = isWM
+    ? paymentPointersResponse.data.wmPaymentPointers[0].assetScale || 2
+    : accountResponse.data.assetScale
 
-  const paymentPointers = paymentPointersResponse.data.paymentPointers.map(
-    (pp) => ({
-      ...pp,
-      url: pp.url.replace('https://', '$')
-    })
-  )
+  paymentPointersResponse.data.wmPaymentPointers.map((pp) => {
+    pp.url = pp.url.replace('https://', '$')
+    if (isWM) {
+      balance += Number(pp.balance)
+    }
+  })
 
   return {
     props: {
       account: accountResponse.data,
-      paymentPointers
+      paymentPointers: isWM
+        ? paymentPointersResponse.data.wmPaymentPointers
+        : paymentPointersResponse.data.paymentPointers,
+      balance: formatAmount({
+        value: balance.toString(),
+        assetCode: accountResponse.data.assetCode,
+        assetScale: assetScalePP || accountResponse.data.assetScale
+      }),
+      isWM: isWM
     }
   }
 }
