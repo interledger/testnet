@@ -9,7 +9,10 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 
 import { PaymentPointerCard } from '@/components/cards/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
-import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
+import {
+  ListPaymentPointers,
+  paymentPointerService
+} from '@/lib/api/paymentPointer'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -26,15 +29,15 @@ import { z } from 'zod'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import BackButton from '@/components/BackButton'
-import { AccountTabs } from '@/components/tabs/AccountTabs'
+import { Tab } from '@headlessui/react'
+import { cx } from 'class-variance-authority'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  paymentPointers,
-  balance,
-  isWM
+  allPaymentPointers,
+  balance
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const { accountsSnapshot } = useSnapshot(balanceState)
@@ -64,140 +67,230 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   return (
     <>
-      <AccountTabs accountId={account.id} />
-      <div className="flex items-center">
-        <BackButton />
-        <div className="text-green" id="balance">
-          <h2 className="text-lg font-light md:text-xl">Balance</h2>
-          <p className="text-2xl font-semibold md:text-4xl">
-            {isWM ? balance.amount : formattedAmount.amount}
-          </p>
-        </div>
-      </div>
-      <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        {!isWM ? (
-          <>
-            <div className="my-5 flex justify-between space-x-2">
-              <button
-                id="paymentPointer"
-                onClick={() => {
-                  if (isUserFirstTime) {
-                    setRunOnboarding(false)
-                  }
-                  openDialog(
-                    <CreatePaymentPointerDialog
-                      accountName={account.name}
-                      onClose={closeDialog}
-                    />
-                  )
-                }}
-                className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-              >
-                <New className="h-9 w-7" />
-                <div className="-space-y-2 text-[15px]">
-                  <p className="font-medium text-green-5 group-hover:text-green-6">
-                    Add payment{' '}
-                  </p>
-                  <p className="font-medium text-green-5 group-hover:text-green-6">
-                    pointer
-                  </p>
+      <Tab.Group>
+        <Tab.List>
+          <div className="my-5 flex flex-row items-center justify-between p-1 md:max-w-lg">
+            <Tab>
+              {({ selected }) => (
+                <div
+                  className={cx(
+                    'group relative px-10 py-2.5 text-center text-lg font-medium leading-5',
+                    selected ? 'text-green' : 'text-green-3 hover:text-green'
+                  )}
+                >
+                  Account
+                  <div
+                    className={cx(
+                      'absolute inset-x-0 bottom-0 h-1 rounded-full',
+                      selected
+                        ? 'bg-green'
+                        : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
+                    )}
+                  />
                 </div>
-              </button>
-              <Link
-                id="fund"
-                onClick={() => {
-                  if (isUserFirstTime) {
-                    setRunOnboarding(false)
-                  }
-                  openDialog(
-                    <FundAccountDialog
-                      account={account}
-                      onClose={closeDialog}
-                    />
-                  )
-                }}
-                className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-              >
-                <Request className="h-8 w-8" />
-                <span className="font-medium text-green-5 group-hover:text-green-6">
-                  Add money
-                </span>
-              </Link>
-              <Link
-                onClick={() =>
-                  openDialog(
-                    <WithdrawFundsDialog
-                      account={account}
-                      onClose={closeDialog}
-                    />
-                  )
-                }
-                className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-              >
-                <Withdraw className="h-8 w-8" />
-                <span className="font-medium text-green-5 group-hover:text-green-6">
-                  Withdraw
-                </span>
-              </Link>
-              <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
-                <Exchange className="h-8 w-8" />
-                <span className="font-medium text-green-5 group-hover:text-green-6">
-                  Exchange
-                </span>
-              </Link>
-            </div>
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold leading-none text-green">
-                Account
-              </h3>
-            </div>
-          </>
-        ) : null}
-        <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
-          <span className="font-semibold text-green">{account.name}</span>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
-            {formattedAmount.symbol}
-          </span>
-        </div>
-        <div className="flex flex-col">
-          {paymentPointers.length > 0 ? (
-            paymentPointers.map((paymentPointer, index) => (
-              <PaymentPointerCard
-                key={paymentPointer.id}
-                paymentPointer={paymentPointer}
-                isWM={isWM}
-                idOnboarding={
-                  account.assetCode === 'USD' && index === 0
-                    ? `viewTransactions`
-                    : ''
-                }
-              />
-            ))
-          ) : (
-            <div className="flex items-center justify-center p-4 text-green">
-              {isWM ? (
-                <span>No payment pointers found for Web Monetization.</span>
-              ) : (
-                <span>No payment pointers found for this account.</span>
               )}
+            </Tab>
+            <Tab>
+              {({ selected }) => (
+                <div
+                  className={cx(
+                    'group relative px-10 py-2.5 text-center text-lg font-medium leading-5',
+                    selected ? 'text-green' : 'text-green-3 hover:text-green'
+                  )}
+                >
+                  Web Monetization
+                  <div
+                    className={cx(
+                      'absolute inset-x-0 bottom-0 h-1 rounded-full',
+                      selected
+                        ? 'bg-green'
+                        : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
+                    )}
+                  />
+                </div>
+              )}
+            </Tab>
+          </div>
+        </Tab.List>
+        <Tab.Panels>
+          <Tab.Panel>
+            <div className="flex items-center">
+              <BackButton />
+              <div className="text-green" id="balance">
+                <h2 className="text-lg font-light md:text-xl">Balance</h2>
+                <p className="text-2xl font-semibold md:text-4xl">
+                  {formattedAmount.amount}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+            <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
+              <div className="my-5 flex justify-between space-x-2">
+                <button
+                  id="paymentPointer"
+                  onClick={() => {
+                    if (isUserFirstTime) {
+                      setRunOnboarding(false)
+                    }
+                    openDialog(
+                      <CreatePaymentPointerDialog
+                        accountName={account.name}
+                        onClose={closeDialog}
+                      />
+                    )
+                  }}
+                  className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+                >
+                  <New className="h-9 w-7" />
+                  <div className="-space-y-2 text-[15px]">
+                    <p className="font-medium text-green-5 group-hover:text-green-6">
+                      Add payment{' '}
+                    </p>
+                    <p className="font-medium text-green-5 group-hover:text-green-6">
+                      pointer
+                    </p>
+                  </div>
+                </button>
+                <Link
+                  id="fund"
+                  onClick={() => {
+                    if (isUserFirstTime) {
+                      setRunOnboarding(false)
+                    }
+                    openDialog(
+                      <FundAccountDialog
+                        account={account}
+                        onClose={closeDialog}
+                      />
+                    )
+                  }}
+                  className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+                >
+                  <Request className="h-8 w-8" />
+                  <span className="font-medium text-green-5 group-hover:text-green-6">
+                    Add money
+                  </span>
+                </Link>
+                <Link
+                  onClick={() =>
+                    openDialog(
+                      <WithdrawFundsDialog
+                        account={account}
+                        onClose={closeDialog}
+                      />
+                    )
+                  }
+                  className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+                >
+                  <Withdraw className="h-8 w-8" />
+                  <span className="font-medium text-green-5 group-hover:text-green-6">
+                    Withdraw
+                  </span>
+                </Link>
+                <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+                  <Exchange className="h-8 w-8" />
+                  <span className="font-medium text-green-5 group-hover:text-green-6">
+                    Exchange
+                  </span>
+                </Link>
+              </div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold leading-none text-green">
+                  Account
+                </h3>
+              </div>
+              <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
+                <span className="font-semibold text-green">{account.name}</span>
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
+                  {formattedAmount.symbol}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                {allPaymentPointers.paymentPointers.length > 0 ? (
+                  allPaymentPointers.paymentPointers.map(
+                    (paymentPointer, index) => (
+                      <PaymentPointerCard
+                        key={paymentPointer.id}
+                        paymentPointer={paymentPointer}
+                        isWM={false}
+                        idOnboarding={
+                          account.assetCode === 'USD' && index === 0
+                            ? `viewTransactions`
+                            : ''
+                        }
+                      />
+                    )
+                  )
+                ) : (
+                  <div className="flex items-center justify-center p-4 text-green">
+                    <span>No payment pointers found for this account.</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Tab.Panel>
+          <Tab.Panel>
+            <div className="flex items-center">
+              <BackButton />
+              <div className="text-green" id="balance">
+                <h2 className="text-lg font-light md:text-xl">Balance</h2>
+                <p className="text-2xl font-semibold md:text-4xl">
+                  {balance.amount}
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold leading-none text-green">
+                  Account
+                </h3>
+              </div>
+              <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
+                <span className="font-semibold text-green">{account.name}</span>
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
+                  {formattedAmount.symbol}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                {allPaymentPointers.wmPaymentPointers.length > 0 ? (
+                  allPaymentPointers.wmPaymentPointers.map(
+                    (paymentPointer, index) => (
+                      <PaymentPointerCard
+                        key={paymentPointer.id}
+                        paymentPointer={paymentPointer}
+                        isWM={true}
+                        idOnboarding={
+                          account.assetCode === 'USD' && index === 0
+                            ? `viewTransactions`
+                            : ''
+                        }
+                      />
+                    )
+                  )
+                ) : (
+                  <div className="flex items-center justify-center p-4 text-green">
+                    <span>
+                      No web monetization payment pointers found for this
+                      account.
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
     </>
   )
 }
 
 const querySchema = z.object({
-  accountId: z.string().uuid(),
-  type: z.string()
+  accountId: z.string().uuid()
 })
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
-  paymentPointers: PaymentPointer[]
+  allPaymentPointers: ListPaymentPointers
   balance: FormattedAmount
-  isWM: boolean
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -222,31 +315,24 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const isWM = result.data.type === 'wm'
-  let balance = isWM ? 0 : Number(accountResponse.data.balance)
-  const assetScalePP = isWM
-    ? paymentPointersResponse.data.wmPaymentPointers[0].assetScale || 2
-    : accountResponse.data.assetScale
+  let balance = 0
+  const assetScalePP =
+    paymentPointersResponse.data.wmPaymentPointers[0].assetScale || 2
 
   paymentPointersResponse.data.wmPaymentPointers.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
-    if (isWM) {
-      balance += Number(pp.balance)
-    }
+    balance += Number(pp.balance)
   })
 
   return {
     props: {
       account: accountResponse.data,
-      paymentPointers: isWM
-        ? paymentPointersResponse.data.wmPaymentPointers
-        : paymentPointersResponse.data.paymentPointers,
+      allPaymentPointers: paymentPointersResponse.data,
       balance: formatAmount({
         value: balance.toString(),
         assetCode: accountResponse.data.assetCode,
         assetScale: assetScalePP || accountResponse.data.assetScale
-      }),
-      isWM: isWM
+      })
     }
   }
 }

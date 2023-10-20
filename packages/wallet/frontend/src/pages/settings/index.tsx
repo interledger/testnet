@@ -1,7 +1,7 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PersonalSettingsForm } from '@/components/settings/PersonalSettingsForm'
-import { SettingsTabs } from '@/components/tabs/SettingsTabs'
+import { SettingsTabs } from '@/components/SettingsTabs'
 import { type User, userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { SmallBubbles } from '@/ui/Bubbles'

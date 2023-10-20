@@ -1,18 +1,20 @@
-import { Link } from '@/ui/Link'
+import Link from 'next/link'
 import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
 
-type Tab = {
-  name: string
-  href: string
-}
+const tabs = [
+  {
+    name: 'Account',
+    href: '/settings'
+  },
+  {
+    name: 'Developer Keys',
+    href: '/settings/developer-keys'
+  }
+]
 
-type TabsProps = {
-  tabs: Tab[]
-}
-
-export const Tabs = ({ tabs }: TabsProps) => {
-  const router = useRouter()
+export const SettingsTabs = () => {
+  const { pathname } = useRouter()
 
   return (
     <div className="flex w-full flex-col space-y-5 md:max-w-lg">
@@ -23,7 +25,7 @@ export const Tabs = ({ tabs }: TabsProps) => {
             href={tab.href}
             className={cx(
               'group relative px-10 py-2.5 text-center text-lg font-medium leading-5',
-              router.asPath === tab.href
+              pathname === tab.href
                 ? 'text-green'
                 : 'text-green-3 hover:text-green'
             )}
@@ -33,7 +35,7 @@ export const Tabs = ({ tabs }: TabsProps) => {
               <div
                 className={cx(
                   'absolute inset-x-0 bottom-0 h-1 rounded-full',
-                  router.asPath === tab.href
+                  pathname === tab.href
                     ? 'bg-green'
                     : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
                 )}
