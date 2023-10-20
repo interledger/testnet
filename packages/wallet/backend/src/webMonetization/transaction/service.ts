@@ -31,14 +31,12 @@ export class WMTransactionService implements IWMTransactionService {
     }
   }
   async createIncomingTransaction(params: IncomingPayment) {
-    const amount = params.incomingAmount || params.receivedAmount || 0
     return WMTransaction.query().insert({
       paymentPointerId: params.paymentPointerId,
       paymentId: params.id,
       expiresAt: params.expiresAt
         ? new Date(params.expiresAt)
         : addMinutes(new Date(), 10),
-      value: amount.value,
       type: 'INCOMING',
       status: 'PENDING'
     })
