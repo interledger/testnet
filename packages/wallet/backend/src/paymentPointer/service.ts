@@ -405,12 +405,25 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async findByIdWithoutValidation(id: string) {
+    //* Cache only contains PaymentPointers with isWM = true
+    const cacheHit = await this.deps.cache.get(id)
+    if (cacheHit) {
+      //* TODO: reset ttl
+      return cacheHit
+    }
+
     const paymentPointer = await PaymentPointer.query()
       .findById(id)
       .where('active', true)
 
     if (!paymentPointer) {
       throw new NotFound()
+    }
+
+    if (paymentPointer.isWM) {
+      await this.deps.cache.set(paymentPointer.id, paymentPointer, {
+        expiry: 60
+      })
     }
 
     return paymentPointer

@@ -25,6 +25,7 @@ services:
     depends_on:
       - postgres
       - rafiki-backend
+      - redis
     environment:
       NODE_ENV: development
       PORT: 3003
