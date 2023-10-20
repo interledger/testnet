@@ -6,6 +6,7 @@ import {
   OutgoingPayment
 } from '@/rafiki/backend/generated/graphql'
 import { TransactionType } from '@/transaction/model'
+import { addMinutes } from 'date-fns'
 
 export interface IWMTransactionService {}
 
@@ -30,11 +31,13 @@ export class WMTransactionService implements IWMTransactionService {
     }
   }
   async createIncomingTransaction(params: IncomingPayment) {
-    const amount = params.incomingAmount || params.receivedAmount
+    const amount = params.incomingAmount || params.receivedAmount || 0
     return WMTransaction.query().insert({
       paymentPointerId: params.paymentPointerId,
       paymentId: params.id,
-      expiresAt: params.expiresAt ? new Date(params.expiresAt) : undefined,
+      expiresAt: params.expiresAt
+        ? new Date(params.expiresAt)
+        : addMinutes(new Date(), 10),
       value: amount.value,
       type: 'INCOMING',
       status: 'PENDING'
