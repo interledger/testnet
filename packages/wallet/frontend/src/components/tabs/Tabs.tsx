@@ -17,8 +17,7 @@ export const Tabs = ({ tabs }: TabsProps) => {
   return (
     <div className="flex w-full flex-col space-y-5 md:max-w-lg">
       <div className="my-5 flex justify-between space-x-10 p-1">
-        {
-        tabs.map((tab) => (
+        {tabs.map((tab) => (
           <Link
             key={tab.name}
             href={tab.href}
