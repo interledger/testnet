@@ -313,7 +313,33 @@ export class App {
       })
   }
 
+  private async processWMPaymentPointers() {
+    const logger = await this.container.resolve('logger')
+    const paymentPointerService = await this.container.resolve(
+      'paymentPointerService'
+    )
+
+    return paymentPointerService
+      .processWMPaymentPointers()
+      .catch((e) => {
+        logger.error('Error processing WM payment pointers')
+        logger.error(e)
+        return false
+      })
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processWMPaymentPointers())
+        } else {
+          setTimeout(
+            () => this.processWMPaymentPointers(),
+            1000 * 60 * 5
+          ).unref()
+        }
+      })
+  }
+
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
+    process.nextTick(() => this.processWMPaymentPointers())
   }
 }
