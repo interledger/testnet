@@ -103,7 +103,7 @@ type AccountPanelProps = {
 const AccountPanel = ({ paymentPointers }: AccountPanelProps) => {
   return (
     <Transition
-      className="overflow-hidden"
+      className="overflow-scroll px-2"
       enter="transition-all ease-in-out duration-300"
       enterFrom="transform max-h-0"
       enterTo="transform max-h-screen"

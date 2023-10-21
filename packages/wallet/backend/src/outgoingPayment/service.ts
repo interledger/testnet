@@ -17,16 +17,10 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
     const quote = await this.deps.rafikiClient.getQuote(quoteId)
     const paymentPointerId = quote.paymentPointerId
 
-    let description
-    try {
-      const incomingPayment =
-        await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
-          quote.receiver
-        )
-      description = incomingPayment.description
-    } catch (_e) {
-      // @todo: find another way to get payment description
-    }
+    const incomingPayment = await this.deps.incomingPaymentService.getReceiver(
+      quote.receiver
+    )
+    const description = incomingPayment?.description
 
     await this.deps.rafikiClient.createOutgoingPayment({
       paymentPointerId,
