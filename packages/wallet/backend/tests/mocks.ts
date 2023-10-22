@@ -6,8 +6,12 @@ import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { kycSchema, walletSchema } from '@/rapyd/validation'
+import { ratesSchema, webhookSchema } from '@/rafiki/validation'
+import { EventType } from '@/rafiki/service'
 
 export type LogInRequest = z.infer<typeof logInSchema>
+export type GetRatesRequest = z.infer<typeof ratesSchema>
+
 
 export const fakeLoginData = () => {
   return {
@@ -309,3 +313,43 @@ export const mockedTransactionInsertObjs: Array<
   generateMockedTransaction(),
   generateMockedTransaction({ type: 'OUTGOING' })
 ]
+
+export const mockGetRatesRequest = (
+  overrides?: Partial<GetRatesRequest['query']>
+): GetRatesRequest => {
+  return {
+    query: {
+      base: faker.string.alpha(3).toUpperCase(),
+      ...overrides
+    }
+  }
+}
+
+export const mockRatesService = {
+  getRates: (base: string) => ({
+    base: base,
+    rates: {
+      [faker.string.alpha(3).toUpperCase()]: faker.number.float(),
+      [faker.string.alpha(3).toUpperCase()]: faker.number.float(),
+      [faker.string.alpha(3).toUpperCase()]: faker.number.float()
+    }
+  })
+}
+
+export type OnWebHook = z.infer<typeof webhookSchema>
+
+export const mockOnWebhookRequest = (overrides?: Partial<OnWebHook>): OnWebHook => {
+  return {
+    body: { 
+      id: faker.string.alpha(10),
+      type: EventType.IncomingPaymentCreated,
+      data: {}
+    },
+    ...overrides 
+  }
+}
+ 
+
+export const mockRafikiService = {
+  onWebHook: () => {}
+}
