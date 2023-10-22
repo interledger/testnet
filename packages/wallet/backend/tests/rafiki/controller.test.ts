@@ -46,7 +46,7 @@ describe("Rafiki controller", () => {
             req = createRequest();
             res = createResponse();
         });
-        it("should call method getRates() in ratesService.", async () => {
+        it("should call method getRates() in ratesService", async () => {
             const ratesSpy = jest.spyOn(mockRatesService, "getRates");
             req.query = mockGetRatesRequest({ base: "USD" }).query;
             await rafikiController.getRates(req, res, next);
