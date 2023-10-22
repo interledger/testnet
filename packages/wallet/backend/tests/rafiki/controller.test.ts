@@ -54,7 +54,7 @@ describe("Rafiki controller", () => {
             expect(ratesSpy).toHaveBeenCalledTimes(1);
             expect(ratesSpy).toHaveBeenCalledWith("USD");
         }),
-        it("should return rates with base USD.", async () => {
+        it("should return rates with base USD", async () => {
             req.query = mockGetRatesRequest({ base: "USD" }).query;
             await rafikiController.getRates(req, res, next);
             expect(res.statusCode).toBe(200);
