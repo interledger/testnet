@@ -1,21 +1,21 @@
 import { env } from "@/config/env";
 import { createContainer } from "@/createContainer";
+import { errorHandler } from "@/middleware/errorHandler";
 import { RafikiController } from "@/rafiki/controller";
 import { NextFunction, Request, Response } from "express";
 import {
-    createRequest,
-    createResponse,
-    MockRequest,
-    MockResponse,
+MockRequest,
+MockResponse,
+createRequest,
+createResponse,
 } from "node-mocks-http";
-import {
-    mockGetRatesRequest,
-    mockOnWebhookRequest,
-    mockRafikiService,
-    mockRatesService,
-} from "../mocks";
 import { Logger } from "winston";
-import { errorHandler } from "@/middleware/errorHandler";
+import {
+mockGetRatesRequest,
+mockOnWebhookRequest,
+mockRafikiService,
+mockRatesService,
+} from "../mocks";
 
 describe("Rafiki controller", () => {
     let req: MockRequest<Request>;
@@ -46,8 +46,7 @@ describe("Rafiki controller", () => {
             req = createRequest();
             res = createResponse();
         });
-
-        it("should call method getRates in ratesService.", async () => {
+        it("should call method getRates() in ratesService.", async () => {
             const ratesSpy = jest.spyOn(mockRatesService, "getRates");
             req.query = mockGetRatesRequest({ base: "USD" }).query;
             await rafikiController.getRates(req, res, next);
@@ -55,15 +54,15 @@ describe("Rafiki controller", () => {
             expect(ratesSpy).toHaveBeenCalledTimes(1);
             expect(ratesSpy).toHaveBeenCalledWith("USD");
         }),
-            it("should return get rates of USD.", async () => {
-                req.query = mockGetRatesRequest({ base: "USD" }).query;
-                await rafikiController.getRates(req, res, next);
-                expect(res.statusCode).toBe(200);
-                expect(res._getJSONData()).toMatchObject({
-                    base: "USD",
-                    rates: {},
-                });
+        it("should return rates with base USD.", async () => {
+            req.query = mockGetRatesRequest({ base: "USD" }).query;
+            await rafikiController.getRates(req, res, next);
+            expect(res.statusCode).toBe(200);
+            expect(res._getJSONData()).toMatchObject({
+                base: "USD",
+                rates: {},
             });
+        });
         it("should not call method getRates in RatesService if the request body is not valid", async () => {
             req.query = mockGetRatesRequest().query;
             delete req.query.base;
@@ -87,6 +86,7 @@ describe("Rafiki controller", () => {
             });
         });
     });
+
     describe("On Webhook", () => {
         it("should call onWebHook in rafikiService.", async () => {
             req.body = mockOnWebhookRequest().body;
@@ -96,7 +96,7 @@ describe("Rafiki controller", () => {
             expect(onWebHookSpy).toHaveBeenCalledTimes(1);
             expect(onWebHookSpy).toHaveBeenCalledWith(req.body);
         });
-        it("should send webhook.", async () => {
+        it("should call onWebHoohk and return status 200", async () => {
             req.body = mockOnWebhookRequest().body;
             const resSpy = jest.spyOn(res, "send");
             await rafikiController.onWebHook(req, res, next);
