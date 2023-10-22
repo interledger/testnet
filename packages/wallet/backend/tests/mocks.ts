@@ -7,11 +7,10 @@ import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { kycSchema, walletSchema } from '@/rapyd/validation'
 import { ratesSchema, webhookSchema } from '@/rafiki/validation'
-import { EventType } from '@/rafiki/service'
+import { EventType, WebHook } from '@/rafiki/service'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>
-
 
 export const fakeLoginData = () => {
   return {
@@ -19,6 +18,7 @@ export const fakeLoginData = () => {
     password: faker.internet.password()
   }
 }
+
 export const mockLogInRequest = (
   overrides?: Partial<LogInRequest['body']>
 ): LogInRequest => ({
@@ -308,11 +308,11 @@ export const generateMockedTransaction = (
 export const mockedTransactionInsertObjs: Array<
   PartialModelObject<Transaction>
 > = [
-  generateMockedTransaction(),
-  generateMockedTransaction(),
-  generateMockedTransaction(),
-  generateMockedTransaction({ type: 'OUTGOING' })
-]
+    generateMockedTransaction(),
+    generateMockedTransaction(),
+    generateMockedTransaction(),
+    generateMockedTransaction({ type: 'OUTGOING' })
+  ]
 
 export const mockGetRatesRequest = (
   overrides?: Partial<GetRatesRequest['query']>
@@ -340,16 +340,29 @@ export type OnWebHook = z.infer<typeof webhookSchema>
 
 export const mockOnWebhookRequest = (overrides?: Partial<OnWebHook>): OnWebHook => {
   return {
-    body: { 
+    body: {
       id: faker.string.alpha(10),
       type: EventType.IncomingPaymentCreated,
       data: {}
     },
-    ...overrides 
+    ...overrides
   }
 }
- 
+
 
 export const mockRafikiService = {
-  onWebHook: () => {}
+  onWebHook: () => { }
+}
+
+export function mockOutgoingPaymenteCreatedEvent(wh: Partial<WebHook>): WebHook {
+  return {
+    id: "mockedId",
+    type: EventType.OutgoingPaymentCreated,
+    data: wh.data || {
+      payment: {
+        paymentPointerId: "e874f0c2-e123-4a6a-9f61-1267d598f6a4",
+        debitAmount: 0.0
+      }
+    }
+  }
 }
