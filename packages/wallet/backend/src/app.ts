@@ -322,7 +322,6 @@ export class App {
     return paymentPointerService
       .processWMPaymentPointers()
       .catch((e) => {
-        logger.error('Error processing WM payment pointers')
         logger.error(e)
         return false
       })

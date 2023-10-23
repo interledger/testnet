@@ -203,7 +203,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
           'WMPaymentPointers'
         ),
         wmTransactionService: await container.resolve('wmTransactionService'),
-        rapydClient: await container.resolve('rapydClient')
+        rapydClient: await container.resolve('rapydClient'),
+        logger: await container.resolve('logger')
       })
   )
 

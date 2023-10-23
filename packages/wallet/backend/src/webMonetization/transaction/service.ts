@@ -74,7 +74,7 @@ export class WMTransactionService implements IWMTransactionService {
 
     return {
       ids,
-      sum: sumResult[0].sum
+      sum: sumResult[0].sum ?? 0n
     }
   }
 }

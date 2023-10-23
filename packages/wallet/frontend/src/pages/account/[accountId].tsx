@@ -6,7 +6,6 @@ import { New } from '@/components/icons/New'
 import { Withdraw } from '@/components/icons/Withdraw'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
-
 import { PaymentPointerCard } from '@/components/cards/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import {
@@ -16,7 +15,6 @@ import {
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-
 import { Link } from '@/ui/Link'
 import { FormattedAmount, formatAmount } from '@/utils/helpers'
 import type {
@@ -316,12 +314,10 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   let balance = 0
-  const assetScalePP =
-    paymentPointersResponse.data.wmPaymentPointers[0].assetScale || 2
 
   paymentPointersResponse.data.wmPaymentPointers.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
-    balance += Number(pp.balance)
+    balance += Number(pp.incomingBalance)
   })
 
   return {
@@ -331,7 +327,7 @@ export const getServerSideProps: GetServerSideProps<{
       balance: formatAmount({
         value: balance.toString(),
         assetCode: accountResponse.data.assetCode,
-        assetScale: assetScalePP || accountResponse.data.assetScale
+        assetScale: 9
       })
     }
   }

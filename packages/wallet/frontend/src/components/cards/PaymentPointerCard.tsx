@@ -27,7 +27,7 @@ type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
 }
 const formattedAmount = (paymentPointer: PaymentPointer) => {
   return formatAmount({
-    value: paymentPointer.balance || '',
+    value: paymentPointer.incomingBalance || '',
     assetCode: paymentPointer.assetCode || '',
     assetScale: paymentPointer.assetScale || 2
   })

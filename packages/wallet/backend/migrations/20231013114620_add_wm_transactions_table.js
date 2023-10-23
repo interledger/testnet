@@ -10,11 +10,12 @@ exports.up = function (knex) {
     table.uuid('paymentPointerId').notNullable()
     table.foreign('paymentPointerId').references('paymentPointers.id')
 
-    table.bigint('value').notNullable()
+    table.bigint('value')
 
     table.enum('type', ['INCOMING', 'OUTGOING']).notNullable()
     table.enum('status', ['PENDING', 'COMPLETED', 'FAILED']).notNullable()
 
+    table.timestamp('expiresAt')
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()
   })

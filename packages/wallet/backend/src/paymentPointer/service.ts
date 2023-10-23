@@ -14,6 +14,7 @@ import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionType } from '@/transaction/model'
+import { Logger } from 'winston'
 
 interface HandleBalanceParams {
   type: TransactionType
@@ -75,6 +76,7 @@ interface PaymentPointerServiceDependencies {
   knex: Knex
   wmTransactionService: WMTransactionService
   rapydClient: RapydClient
+  logger: Logger
 }
 
 export const createPaymentPointerIfFalsy = async ({
@@ -137,15 +139,6 @@ export class PaymentPointerService implements IPaymentPointerService {
         )
       }
     } else {
-      const rafikiPaymentPointer =
-        await this.deps.rafikiClient.createRafikiPaymentPointer(
-          args.publicName,
-          account.assetId,
-          url
-        )
-
-      let assetScale = null
-      let assetCode = null
       if (args.isWM) {
         //* Web monetization feature requires an asset with scale MAX_ASSET_SCALE to exist. It's default assetCode is USD for now
         const webMonetizationAsset =
@@ -158,19 +151,38 @@ export class PaymentPointerService implements IPaymentPointerService {
           throw new NotFound('Web monetization asset not found.')
         }
 
-        assetScale = webMonetizationAsset.scale
-        assetCode = webMonetizationAsset.code
-      }
+        const rafikiPaymentPointer =
+          await this.deps.rafikiClient.createRafikiPaymentPointer(
+            args.publicName,
+            webMonetizationAsset.id,
+            url
+          )
 
-      paymentPointer = await PaymentPointer.query().insert({
-        url: rafikiPaymentPointer.url,
-        publicName: args.publicName,
-        accountId: args.accountId,
-        id: rafikiPaymentPointer.id,
-        assetCode,
-        assetScale,
-        isWM: args.isWM
-      })
+        paymentPointer = await PaymentPointer.query().insert({
+          url: rafikiPaymentPointer.url,
+          publicName: args.publicName,
+          accountId: args.accountId,
+          id: rafikiPaymentPointer.id,
+          isWM: args.isWM,
+          assetCode: webMonetizationAsset.code,
+          assetScale: webMonetizationAsset.scale
+        })
+      } else {
+        const rafikiPaymentPointer =
+          await this.deps.rafikiClient.createRafikiPaymentPointer(
+            args.publicName,
+            account.assetId,
+            url
+          )
+
+        paymentPointer = await PaymentPointer.query().insert({
+          url: rafikiPaymentPointer.url,
+          publicName: args.publicName,
+          accountId: args.accountId,
+          id: rafikiPaymentPointer.id,
+          isWM: args.isWM
+        })
+      }
 
       args.isWM &&
         (await this.deps.cache.set(paymentPointer.id, paymentPointer, {
@@ -446,21 +458,32 @@ export class PaymentPointerService implements IPaymentPointerService {
     { type, balance, paymentPointer }: HandleBalanceParams,
     trx: TransactionOrKnex
   ): Promise<void> {
+    if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
+      throw new Error(
+        `Missing asset information for payment pointer "${paymentPointer.url} (ID: ${paymentPointer.id})"`
+      )
+    }
     const amount =
       Number(balance * this.deps.env.WM_THRESHOLD) *
-      10 ** -paymentPointer.assetScale!
+      10 ** -paymentPointer.assetScale
 
-    let destination = paymentPointer.account.virtualAccountId
+    if (!paymentPointer.account.user.rapydWalletId) {
+      throw new Error(
+        `Missing Rapyd wallet ID for user "${paymentPointer.account.user.id}"`
+      )
+    }
+
+    let destination = paymentPointer.account.user.rapydWalletId
     let source = this.deps.env.RAPYD_SETTLEMENT_EWALLET
 
     if (type === 'OUTGOING') {
       destination = this.deps.env.RAPYD_SETTLEMENT_EWALLET
-      source = paymentPointer.account.virtualAccountId
+      source = paymentPointer.account.user.rapydWalletId
     }
 
     const transfer = await this.deps.rapydClient.transferLiquidity({
       amount,
-      currency: paymentPointer.assetCode!,
+      currency: paymentPointer.assetCode,
       destination_ewallet: destination,
       source_ewallet: source
     })
@@ -511,74 +534,75 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async processWMPaymentPointers(): Promise<void> {
-    console.log('Processing WM payment pointers')
-    return this.deps.knex.transaction(async (trx) => {
-      const paymentPointers = await PaymentPointer.query(trx)
-        .where({
-          isWM: true,
-          active: true
-        })
-        .withGraphFetched('account')
-
-      for (const paymentPointer of paymentPointers) {
-        if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
-          throw new Error('Asset code or scale is missing')
-        }
-
-        const [incoming, outgoing] = await Promise.all([
-          this.deps.wmTransactionService.sumByPaymentPointerId(
-            paymentPointer.id,
-            'INCOMING',
-            trx
-          ),
-          this.deps.wmTransactionService.sumByPaymentPointerId(
-            paymentPointer.id,
-            'OUTGOING',
-            trx
-          )
-        ])
-
-        console.log(incoming)
-        console.log(outgoing)
-
-        const tmpPaymentPointer = await paymentPointer
-          .$query(trx)
-          .updateAndFetchById(paymentPointer.id, {
-            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
-            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
+    try {
+      return this.deps.knex.transaction(async (trx) => {
+        const paymentPointers = await PaymentPointer.query(trx)
+          .where({
+            isWM: true,
+            active: true
           })
+          .withGraphFetched('account.user')
 
-        await this.deps.wmTransactionService.deleteByTransactionIds(
-          incoming.ids.concat(outgoing.ids)
-        )
+        for (const paymentPointer of paymentPointers) {
+          if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
+            throw new Error('Asset code or scale is missing')
+          }
 
-        const incomingBalance =
-          tmpPaymentPointer.incomingBalance / this.deps.env.WM_THRESHOLD
-        const outgoingBalance =
-          tmpPaymentPointer.outgoingBalance / this.deps.env.WM_THRESHOLD
+          const [incoming, outgoing] = await Promise.all([
+            this.deps.wmTransactionService.sumByPaymentPointerId(
+              paymentPointer.id,
+              'INCOMING',
+              trx
+            ),
+            this.deps.wmTransactionService.sumByPaymentPointerId(
+              paymentPointer.id,
+              'OUTGOING',
+              trx
+            )
+          ])
 
-        if (incomingBalance > 0n) {
-          await this.handleBalance(
-            {
-              balance: incomingBalance,
-              paymentPointer,
-              type: 'INCOMING'
-            },
-            trx
+          const tmpPaymentPointer = await paymentPointer
+            .$query(trx)
+            .updateAndFetchById(paymentPointer.id, {
+              incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
+              outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
+            })
+
+          await this.deps.wmTransactionService.deleteByTransactionIds(
+            incoming.ids.concat(outgoing.ids)
           )
-        }
 
-        if (outgoingBalance > 0n) {
-          await this.handleBalance(
-            {
-              balance: outgoingBalance,
-              paymentPointer,
-              type: 'OUTGOING'
-            },
-            trx
-          )
+          const incomingBalance =
+            tmpPaymentPointer.incomingBalance / this.deps.env.WM_THRESHOLD
+          const outgoingBalance =
+            tmpPaymentPointer.outgoingBalance / this.deps.env.WM_THRESHOLD
+
+          if (incomingBalance > 0n) {
+            await this.handleBalance(
+              {
+                balance: incomingBalance,
+                paymentPointer,
+                type: 'INCOMING'
+              },
+              trx
+            )
+          }
+
+          if (outgoingBalance > 0n) {
+            await this.handleBalance(
+              {
+                balance: outgoingBalance,
+                paymentPointer,
+                type: 'OUTGOING'
+              },
+              trx
+            )
+          }
         }
-      }
-    })
+      })
+    } catch (e) {
+      this.deps.logger.error(e)
+      throw new Error('Error while processing WM payment pointers.')
+    }
   }
 }
