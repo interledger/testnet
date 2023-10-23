@@ -7,13 +7,14 @@ import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
 import { faker } from '@faker-js/faker'
 import type { UserService } from '@/user/service'
-import { getRandomToken } from '@/utils/helpers'
+import { getRandomToken, hashToken } from '@/utils/helpers'
 
 describe('User Service', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let userService: UserService
+  const emailToken = getRandomToken()
 
   const args = {
     email: faker.internet.email(),
@@ -22,7 +23,7 @@ describe('User Service', (): void => {
 
   const createUserArgs = {
     ...args,
-    verifyEmailToken: getRandomToken()
+    verifyEmailToken: hashToken(emailToken)
   }
 
   beforeAll(async (): Promise<void> => {
@@ -64,6 +65,15 @@ describe('User Service', (): void => {
       await expect(userService.getById(user.id)).resolves.toMatchObject({
         email: args.email
       })
+    })
+  })
+
+  describe('verifyEmail', (): void => {
+    it('should return undefined', async () => {
+      await userService.create(createUserArgs)
+
+      const result = await userService.verifyEmail(emailToken)
+      expect(result).toBeUndefined()
     })
   })
 })

@@ -4,7 +4,12 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { PaymentPointer } from '@/paymentPointer/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
+import {
+  incomingPaymentRegexp,
+  transformBalance,
+  urlToPaymentPointer,
+  urlToPaymentId
+} from '@/utils/helpers'
 import {
   createPaymentPointerIfFalsy,
   PaymentPointerService
@@ -12,7 +17,7 @@ import {
 import { QuoteWithFees } from './controller'
 import { RatesService } from '../rates/service'
 import { Account } from '@/account/model'
-
+import { NodeCacheInstance } from '@/utils/helpers'
 type CreateExchangeQuote = {
   userId: string
   accountId: string
@@ -109,11 +114,29 @@ export class QuoteService implements IQuoteService {
       params.isReceive &&
       destinationPaymentPointer.assetCode !== asset.code
     ) {
-      const convertedValue = await this.convert({
+      let convertedValue = await this.convert({
         from: assetCode,
         to: destinationPaymentPointer.assetCode,
         amount: value
       })
+      if (isIncomingPayment) {
+        const payment = await this.deps.incomingPaymentService.getReceiver(
+          params.receiver
+        )
+
+        const amount = payment?.value
+          ? transformBalance(
+              payment?.value,
+              destinationPaymentPointer.assetScale
+            )
+          : undefined
+
+        // adjust the amount in case that after converting it to the receiver currency it is off by a small margin
+        if (amount && 1 - Number(amount) / Number(convertedValue) < 0.01) {
+          convertedValue = amount
+        }
+      }
+
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
@@ -255,10 +278,14 @@ export class QuoteService implements IQuoteService {
       paymentPointerId: senderPpId,
       amount,
       description: 'Currency exchange.',
-      isReceive: false,
+      isReceive: true,
       receiver: receiverPpUrl
     })
 
+    //OUTCOME
+    NodeCacheInstance.set(quote.id, true)
+    //INCOME
+    NodeCacheInstance.set(urlToPaymentId(quote.receiver), true)
     return quote
   }
 }

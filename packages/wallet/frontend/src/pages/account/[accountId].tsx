@@ -6,14 +6,12 @@ import { New } from '@/components/icons/New'
 import { Withdraw } from '@/components/icons/Withdraw'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
-
 import { PaymentPointerCard } from '@/components/cards/PaymentPointerCard'
 import { Account, accountService } from '@/lib/api/account'
 import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-
 import { Link } from '@/ui/Link'
 import { formatAmount } from '@/utils/helpers'
 import type {
@@ -25,7 +23,7 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
-import BackButton from '@/components/BackButton'
+import { BackButton } from '@/components/BackButton'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 

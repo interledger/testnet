@@ -238,7 +238,8 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new IncomingPaymentService({
         accountService: await container.resolve('accountService'),
-        rafikiClient: await container.resolve('rafikiClient')
+        rafikiClient: await container.resolve('rafikiClient'),
+        logger: await container.resolve('logger')
       })
   )
 
