@@ -19,7 +19,7 @@ import { mockLogInRequest } from '../mocks'
 import { createUser } from '@/tests/helpers'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 
-describe('outgoingPayment Controller', (): void => {
+describe('OutgoingPayment Controller', (): void => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
