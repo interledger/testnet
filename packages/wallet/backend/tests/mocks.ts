@@ -308,11 +308,11 @@ export const generateMockedTransaction = (
 export const mockedTransactionInsertObjs: Array<
   PartialModelObject<Transaction>
 > = [
-    generateMockedTransaction(),
-    generateMockedTransaction(),
-    generateMockedTransaction(),
-    generateMockedTransaction({ type: 'OUTGOING' })
-  ]
+  generateMockedTransaction(),
+  generateMockedTransaction(),
+  generateMockedTransaction(),
+  generateMockedTransaction({ type: 'OUTGOING' })
+]
 
 export const mockGetRatesRequest = (
   overrides?: Partial<GetRatesRequest['query']>
@@ -338,7 +338,9 @@ export const mockRatesService = {
 
 export type OnWebHook = z.infer<typeof webhookSchema>
 
-export const mockOnWebhookRequest = (overrides?: Partial<OnWebHook>): OnWebHook => {
+export const mockOnWebhookRequest = (
+  overrides?: Partial<OnWebHook>
+): OnWebHook => {
   return {
     body: {
       id: faker.string.alpha(10),
@@ -349,18 +351,19 @@ export const mockOnWebhookRequest = (overrides?: Partial<OnWebHook>): OnWebHook 
   }
 }
 
-
 export const mockRafikiService = {
-  onWebHook: () => { }
+  onWebHook: () => {}
 }
 
-export function mockOutgoingPaymenteCreatedEvent(wh: Partial<WebHook>): WebHook {
+export function mockOutgoingPaymenteCreatedEvent(
+  wh: Partial<WebHook>
+): WebHook {
   return {
-    id: "mockedId",
+    id: 'mockedId',
     type: EventType.OutgoingPaymentCreated,
     data: wh.data || {
       payment: {
-        paymentPointerId: "e874f0c2-e123-4a6a-9f61-1267d598f6a4",
+        paymentPointerId: 'e874f0c2-e123-4a6a-9f61-1267d598f6a4',
         debitAmount: 0.0
       }
     }
