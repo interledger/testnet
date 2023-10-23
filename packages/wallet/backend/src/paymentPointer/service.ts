@@ -11,8 +11,15 @@ import { Cache } from '../cache/service'
 import { PaymentPointer } from './model'
 import { Knex } from 'knex'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
-import { raw } from 'objection'
+import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
 import { RapydClient } from '@/rapyd/rapyd-client'
+import { TransactionType } from '@/transaction/model'
+
+interface HandleBalanceParams {
+  type: TransactionType
+  balance: bigint
+  paymentPointer: PaymentPointer
+}
 
 export interface UpdatePaymentPointerArgs {
   userId: string
@@ -435,7 +442,76 @@ export class PaymentPointerService implements IPaymentPointerService {
     return paymentPointer
   }
 
+  private async handleBalance(
+    { type, balance, paymentPointer }: HandleBalanceParams,
+    trx: TransactionOrKnex
+  ): Promise<void> {
+    const amount =
+      Number(balance * this.deps.env.WM_THRESHOLD) *
+      10 ** -paymentPointer.assetScale!
+
+    let destination = paymentPointer.account.virtualAccountId
+    let source = this.deps.env.RAPYD_SETTLEMENT_EWALLET
+
+    if (type === 'OUTGOING') {
+      destination = this.deps.env.RAPYD_SETTLEMENT_EWALLET
+      source = paymentPointer.account.virtualAccountId
+    }
+
+    const transfer = await this.deps.rapydClient.transferLiquidity({
+      amount,
+      currency: paymentPointer.assetCode!,
+      destination_ewallet: destination,
+      source_ewallet: source
+    })
+
+    if (transfer.status?.status !== 'SUCCESS') {
+      if (type === 'OUTGOING') {
+        await paymentPointer.$relatedQuery('account', trx).patch({
+          debt: raw('?? + ?', ['debt', amount])
+        })
+        return
+      }
+
+      throw new Error(
+        `Unable to transfer from ${source} into ${destination} error message: ${
+          transfer.status?.message || 'unknown'
+        }`
+      )
+    }
+
+    let updatePart: PartialModelObject<PaymentPointer> = {
+      incomingBalance: raw('?? - ?', [
+        'incomingBalance',
+        this.deps.env.WM_THRESHOLD * balance
+      ])
+    }
+
+    if (type === 'OUTGOING') {
+      updatePart = {
+        outgoingBalance: raw('?? - ?', [
+          'outgoingBalance',
+          this.deps.env.WM_THRESHOLD * balance
+        ])
+      }
+    }
+
+    Promise.all([
+      paymentPointer.$relatedQuery('transactions', trx).insert({
+        accountId: paymentPointer.accountId,
+        paymentId: transfer.data.id,
+        assetCode: paymentPointer.assetCode!,
+        value: BigInt(amount * 10 ** this.deps.env.BASE_ASSET_SCALE),
+        type,
+        status: 'COMPLETED',
+        description: 'Web Monetization'
+      }),
+      paymentPointer.$query(trx).update(updatePart)
+    ])
+  }
+
   async processWMPaymentPointers(): Promise<void> {
+    console.log('Processing WM payment pointers')
     return this.deps.knex.transaction(async (trx) => {
       const paymentPointers = await PaymentPointer.query(trx)
         .where({
@@ -462,7 +538,10 @@ export class PaymentPointerService implements IPaymentPointerService {
           )
         ])
 
-        const tmp = await paymentPointer
+        console.log(incoming)
+        console.log(outgoing)
+
+        const tmpPaymentPointer = await paymentPointer
           .$query(trx)
           .updateAndFetchById(paymentPointer.id, {
             incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
@@ -473,87 +552,31 @@ export class PaymentPointerService implements IPaymentPointerService {
           incoming.ids.concat(outgoing.ids)
         )
 
-        const incomingBalance = tmp.incomingBalance / this.deps.env.WM_THRESHOLD
-        const outgoingBalance = tmp.outgoingBalance / this.deps.env.WM_THRESHOLD
+        const incomingBalance =
+          tmpPaymentPointer.incomingBalance / this.deps.env.WM_THRESHOLD
+        const outgoingBalance =
+          tmpPaymentPointer.outgoingBalance / this.deps.env.WM_THRESHOLD
 
         if (incomingBalance > 0n) {
-          const amount =
-            Number(incomingBalance * this.deps.env.WM_THRESHOLD) *
-            10 ** -paymentPointer.assetScale
-          const transfer = await this.deps.rapydClient.transferLiquidity({
-            amount,
-            currency: paymentPointer.assetCode,
-            destination_ewallet: paymentPointer.account.virtualAccountId,
-            source_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET
-          })
-
-          if (transfer.status?.status !== 'SUCCESS') {
-            throw new Error(
-              `Unable to transfer from ${
-                this.deps.env.RAPYD_SETTLEMENT_EWALLET
-              } into ${
-                paymentPointer.account.virtualAccountId
-              } error message: ${transfer.status?.message || 'unknown'}`
-            )
-          }
-
-          Promise.all([
-            paymentPointer.$relatedQuery('transactions', trx).insert({
-              accountId: paymentPointer.accountId,
-              paymentId: transfer.data.id,
-              assetCode: paymentPointer.assetCode,
-              value: BigInt(amount * 10 ** this.deps.env.BASE_ASSET_SCALE),
-              type: 'INCOMING',
-              status: 'COMPLETED',
-              description: 'Web Monetization'
-            }),
-            paymentPointer.$query(trx).update({
-              incomingBalance: raw('?? - ?', [
-                'incomingBalance',
-                this.deps.env.WM_THRESHOLD * incomingBalance
-              ])
-            })
-          ])
+          await this.handleBalance(
+            {
+              balance: incomingBalance,
+              paymentPointer,
+              type: 'INCOMING'
+            },
+            trx
+          )
         }
 
         if (outgoingBalance > 0n) {
-          const amount =
-            Number(outgoingBalance * this.deps.env.WM_THRESHOLD) *
-            10 ** -paymentPointer.assetScale
-          const transfer = await this.deps.rapydClient.transferLiquidity({
-            amount: 2,
-            currency: paymentPointer.assetCode,
-            destination_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET,
-            source_ewallet: paymentPointer.account.virtualAccountId
-          })
-
-          if (transfer.status?.status !== 'SUCCESS') {
-            throw new Error(
-              `Unable to transfer from ${
-                paymentPointer.account.virtualAccountId
-              } into ${this.deps.env.RAPYD_SETTLEMENT_EWALLET} error message: ${
-                transfer.status?.message || 'unknown'
-              }`
-            )
-          }
-
-          Promise.all([
-            paymentPointer.$relatedQuery('transactions', trx).insert({
-              accountId: paymentPointer.accountId,
-              paymentId: transfer.data.id,
-              assetCode: paymentPointer.assetCode,
-              value: BigInt(amount * 10 ** this.deps.env.BASE_ASSET_SCALE),
-              type: 'OUTGOING',
-              status: 'COMPLETED',
-              description: 'Web Monetization'
-            }),
-            paymentPointer.$query(trx).update({
-              outgoingBalance: raw('?? - ?', [
-                'outgoingBalance',
-                this.deps.env.WM_THRESHOLD * outgoingBalance
-              ])
-            })
-          ])
+          await this.handleBalance(
+            {
+              balance: outgoingBalance,
+              paymentPointer,
+              type: 'OUTGOING'
+            },
+            trx
+          )
         }
       }
     })

@@ -330,10 +330,7 @@ export class App {
         if (trx) {
           process.nextTick(() => this.processWMPaymentPointers())
         } else {
-          setTimeout(
-            () => this.processWMPaymentPointers(),
-            1000 * 60 * 5
-          ).unref()
+          setTimeout(() => this.processWMPaymentPointers(), 5000).unref()
         }
       })
   }
