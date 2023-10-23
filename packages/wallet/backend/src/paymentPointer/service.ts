@@ -481,20 +481,15 @@ export class PaymentPointerService implements IPaymentPointerService {
       )
     }
 
-    let updatePart: PartialModelObject<PaymentPointer> = {
-      incomingBalance: raw('?? - ?', [
-        'incomingBalance',
+    const updatedField: keyof Pick<
+      PartialModelObject<PaymentPointer>,
+      'incomingBalance' | 'outgoingBalance'
+    > = type === 'OUTGOING' ? 'outgoingBalance' : 'incomingBalance'
+    const updatePart: PartialModelObject<PaymentPointer> = {
+      [updatedField]: raw('?? - ?', [
+        updatedField,
         this.deps.env.WM_THRESHOLD * balance
       ])
-    }
-
-    if (type === 'OUTGOING') {
-      updatePart = {
-        outgoingBalance: raw('?? - ?', [
-          'outgoingBalance',
-          this.deps.env.WM_THRESHOLD * balance
-        ])
-      }
     }
 
     await Promise.all([
