@@ -71,6 +71,10 @@ describe('Quote Service', () => {
           mockedListAssets.find((asset) => asset.id === id),
 
         createQuote: () => ({
+          id: uuid(),
+          receiver: `${faker.internet.url({
+            appendSlash: true
+          })}incoming-payments/${uuid()}`,
           receiveAmount: {
             assetCode: 'BRG',
             assetScale: 3,
