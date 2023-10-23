@@ -187,18 +187,6 @@ services:
         ls /var/lib/tigerbeetle
         ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
 
-  rafiki-local-http-signatures:
-    build:
-      context: ../../
-      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
-    volumes:
-      - ../temp/:/workspace/temp/
-    restart: always
-    ports:
-      - '3040:3000'
-    environment:
-      KEY_FILE: ./temp/private-key.pem
-
   redis:
     image: 'redis:7'
     restart: unless-stopped

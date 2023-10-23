@@ -139,50 +139,35 @@ export class PaymentPointerService implements IPaymentPointerService {
         )
       }
     } else {
+      let webMonetizationAsset
       if (args.isWM) {
-        //* Web monetization feature requires an asset with scale MAX_ASSET_SCALE to exist. It's default assetCode is USD for now
-        const webMonetizationAsset =
-          await this.deps.rafikiClient.getRafikiAsset(
-            'USD',
-            this.deps.env.MAX_ASSET_SCALE
-          )
+        webMonetizationAsset = await this.deps.rafikiClient.getRafikiAsset(
+          'USD',
+          this.deps.env.MAX_ASSET_SCALE
+        )
 
         if (!webMonetizationAsset) {
           throw new NotFound('Web monetization asset not found.')
         }
-
-        const rafikiPaymentPointer =
-          await this.deps.rafikiClient.createRafikiPaymentPointer(
-            args.publicName,
-            webMonetizationAsset.id,
-            url
-          )
-
-        paymentPointer = await PaymentPointer.query().insert({
-          url: rafikiPaymentPointer.url,
-          publicName: args.publicName,
-          accountId: args.accountId,
-          id: rafikiPaymentPointer.id,
-          isWM: args.isWM,
-          assetCode: webMonetizationAsset.code,
-          assetScale: webMonetizationAsset.scale
-        })
-      } else {
-        const rafikiPaymentPointer =
-          await this.deps.rafikiClient.createRafikiPaymentPointer(
-            args.publicName,
-            account.assetId,
-            url
-          )
-
-        paymentPointer = await PaymentPointer.query().insert({
-          url: rafikiPaymentPointer.url,
-          publicName: args.publicName,
-          accountId: args.accountId,
-          id: rafikiPaymentPointer.id,
-          isWM: args.isWM
-        })
       }
+
+      const assetId = webMonetizationAsset?.id || account.assetId
+      const rafikiPaymentPointer =
+        await this.deps.rafikiClient.createRafikiPaymentPointer(
+          args.publicName,
+          assetId,
+          url
+        )
+
+      paymentPointer = await PaymentPointer.query().insert({
+        url: rafikiPaymentPointer.url,
+        publicName: args.publicName,
+        accountId: args.accountId,
+        id: rafikiPaymentPointer.id,
+        isWM: args.isWM,
+        assetCode: webMonetizationAsset?.code,
+        assetScale: webMonetizationAsset?.scale
+      })
 
       args.isWM &&
         (await this.deps.cache.set(paymentPointer.id, paymentPointer, {
@@ -453,9 +438,12 @@ export class PaymentPointerService implements IPaymentPointerService {
         `Missing asset information for payment pointer "${paymentPointer.url} (ID: ${paymentPointer.id})"`
       )
     }
-    const amount =
-      Number(balance * this.deps.env.WM_THRESHOLD) *
-      10 ** -paymentPointer.assetScale
+    const amount = Number(
+      (
+        Number(balance * this.deps.env.WM_THRESHOLD) *
+        10 ** -paymentPointer.assetScale
+      ).toPrecision(2)
+    )
 
     if (!paymentPointer.account.user.rapydWalletId) {
       throw new Error(
@@ -509,7 +497,7 @@ export class PaymentPointerService implements IPaymentPointerService {
       }
     }
 
-    Promise.all([
+    await Promise.all([
       paymentPointer.$relatedQuery('transactions', trx).insert({
         accountId: paymentPointer.accountId,
         paymentId: transfer.data.id,
@@ -521,6 +509,10 @@ export class PaymentPointerService implements IPaymentPointerService {
       }),
       paymentPointer.$query(trx).update(updatePart)
     ])
+
+    this.deps.logger.info(
+      `Proccesed WM transactions for payment pointer ${paymentPointer.url}. Type: ${type} | Amount: ${amount}`
+    )
   }
 
   async processWMPaymentPointers(): Promise<void> {
@@ -591,10 +583,10 @@ export class PaymentPointerService implements IPaymentPointerService {
           )
         }
       }
-      trx.commit()
+      await trx.commit()
     } catch (e) {
       this.deps.logger.error(e)
-      trx.rollback()
+      await trx.rollback()
       throw new Error('Error while processing WM payment pointers.')
     }
   }
