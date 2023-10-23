@@ -53,8 +53,8 @@ export class WMTransactionService implements IWMTransactionService {
     })
   }
 
-  async deleteByTransactionIds(ids: string[]) {
-    return WMTransaction.query().del().whereIn('id', ids)
+  async deleteByTransactionIds(ids: string[], trx?: TransactionOrKnex) {
+    return WMTransaction.query(trx).del().whereIn('id', ids)
   }
 
   async sumByPaymentPointerId(

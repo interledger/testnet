@@ -266,16 +266,6 @@ export class PaymentPointerService implements IPaymentPointerService {
     return paymentPointer
   }
 
-  // async updateBalance(args: UpdatePaymentPointerBalanceArgs): Promise<void> {
-  //   const { paymentPointerId, balance } = args
-
-  //   const paymentPointer = await this.getById({ paymentPointerId })
-  //   if (!paymentPointer) {
-  //     throw new NotFound(`Web monetization payment pointer does not exist.`)
-  //   }
-  //   await paymentPointer.$query().patch({ balance })
-  // }
-
   async listIdentifiersByUserId(userId: string): Promise<string[]> {
     const accounts = await Account.query()
       .where('userId', userId)
@@ -534,74 +524,77 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async processWMPaymentPointers(): Promise<void> {
+    const trx = await PaymentPointer.startTransaction()
+
     try {
-      return this.deps.knex.transaction(async (trx) => {
-        const paymentPointers = await PaymentPointer.query(trx)
-          .where({
-            isWM: true,
-            active: true
-          })
-          .withGraphFetched('account.user')
+      const paymentPointers = await PaymentPointer.query(trx)
+        .where({
+          isWM: true,
+          active: true
+        })
+        .withGraphFetched('account.user')
 
-        for (const paymentPointer of paymentPointers) {
-          if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
-            throw new Error('Asset code or scale is missing')
-          }
-
-          const [incoming, outgoing] = await Promise.all([
-            this.deps.wmTransactionService.sumByPaymentPointerId(
-              paymentPointer.id,
-              'INCOMING',
-              trx
-            ),
-            this.deps.wmTransactionService.sumByPaymentPointerId(
-              paymentPointer.id,
-              'OUTGOING',
-              trx
-            )
-          ])
-
-          const tmpPaymentPointer = await paymentPointer
-            .$query(trx)
-            .updateAndFetchById(paymentPointer.id, {
-              incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
-              outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
-            })
-
-          await this.deps.wmTransactionService.deleteByTransactionIds(
-            incoming.ids.concat(outgoing.ids)
-          )
-
-          const incomingBalance =
-            tmpPaymentPointer.incomingBalance / this.deps.env.WM_THRESHOLD
-          const outgoingBalance =
-            tmpPaymentPointer.outgoingBalance / this.deps.env.WM_THRESHOLD
-
-          if (incomingBalance > 0n) {
-            await this.handleBalance(
-              {
-                balance: incomingBalance,
-                paymentPointer,
-                type: 'INCOMING'
-              },
-              trx
-            )
-          }
-
-          if (outgoingBalance > 0n) {
-            await this.handleBalance(
-              {
-                balance: outgoingBalance,
-                paymentPointer,
-                type: 'OUTGOING'
-              },
-              trx
-            )
-          }
+      for (const paymentPointer of paymentPointers) {
+        if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
+          throw new Error('Asset code or scale is missing')
         }
-      })
+
+        const [incoming, outgoing] = await Promise.all([
+          this.deps.wmTransactionService.sumByPaymentPointerId(
+            paymentPointer.id,
+            'INCOMING',
+            trx
+          ),
+          this.deps.wmTransactionService.sumByPaymentPointerId(
+            paymentPointer.id,
+            'OUTGOING',
+            trx
+          )
+        ])
+
+        const tmpPaymentPointer = await paymentPointer
+          .$query(trx)
+          .updateAndFetchById(paymentPointer.id, {
+            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
+            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
+          })
+
+        await this.deps.wmTransactionService.deleteByTransactionIds(
+          incoming.ids.concat(outgoing.ids),
+          trx
+        )
+
+        const incomingBalance =
+          tmpPaymentPointer.incomingBalance / this.deps.env.WM_THRESHOLD
+        const outgoingBalance =
+          tmpPaymentPointer.outgoingBalance / this.deps.env.WM_THRESHOLD
+
+        if (incomingBalance > 0n) {
+          await this.handleBalance(
+            {
+              balance: incomingBalance,
+              paymentPointer,
+              type: 'INCOMING'
+            },
+            trx
+          )
+        }
+
+        if (outgoingBalance > 0n) {
+          await this.handleBalance(
+            {
+              balance: outgoingBalance,
+              paymentPointer,
+              type: 'OUTGOING'
+            },
+            trx
+          )
+        }
+      }
+      trx.commit()
     } catch (e) {
       this.deps.logger.error(e)
+      trx.rollback()
       throw new Error('Error while processing WM payment pointers.')
     }
   }
