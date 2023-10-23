@@ -20,7 +20,8 @@ export class PaymentPointer extends BaseModel {
   isWM!: boolean
   assetCode!: string | null
   assetScale!: number | null
-  balance!: number
+  incomingBalance!: bigint
+  outgoingBalance!: bigint
   active!: boolean
   account!: Account
   transactions!: Array<Transaction>

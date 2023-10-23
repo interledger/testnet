@@ -314,12 +314,10 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   let balance = 0
-  const assetScalePP =
-    paymentPointersResponse.data.wmPaymentPointers[0].assetScale || 2
 
   paymentPointersResponse.data.wmPaymentPointers.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
-    balance += Number(pp.balance)
+    balance += Number(pp.incomingBalance)
   })
 
   return {
@@ -329,7 +327,7 @@ export const getServerSideProps: GetServerSideProps<{
       balance: formatAmount({
         value: balance.toString(),
         assetCode: accountResponse.data.assetCode,
-        assetScale: assetScalePP || accountResponse.data.assetScale
+        assetScale: 9
       })
     }
   }

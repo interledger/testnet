@@ -7,7 +7,8 @@ exports.up = function (knex) {
     table.boolean('isWM').defaultTo(false)
     table.string('assetCode', 3)
     table.smallint('assetScale')
-    table.decimal('balance', 10, 2).defaultTo(0)
+    table.bigint('incomingBalance').notNullable().defaultTo(0n)
+    table.bigint('outgoingBalance').notNullable().defaultTo(0n)
   })
 }
 

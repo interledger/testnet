@@ -1,5 +1,5 @@
 import { WMTransaction } from './model'
-import { PartialModelObject } from 'objection'
+import { PartialModelObject, TransactionOrKnex } from 'objection'
 import { Logger } from 'winston'
 import {
   IncomingPayment,
@@ -53,24 +53,28 @@ export class WMTransactionService implements IWMTransactionService {
     })
   }
 
-  async deleteByTransactionIds(ids: string[]) {
-    return WMTransaction.query().del().whereIn('id', ids)
+  async deleteByTransactionIds(ids: string[], trx?: TransactionOrKnex) {
+    return WMTransaction.query(trx).del().whereIn('id', ids)
   }
 
-  async sumByPaymentPointerId(paymentPointerId: string, type: TransactionType) {
-    const transactions = await WMTransaction.query().where({
+  async sumByPaymentPointerId(
+    paymentPointerId: string,
+    type: TransactionType,
+    trx?: TransactionOrKnex
+  ) {
+    const transactions = await WMTransaction.query(trx).where({
       paymentPointerId,
       type,
       status: 'COMPLETED'
     })
     const ids = transactions.map(({ id }) => id)
-    const sumResult = (await WMTransaction.query()
+    const sumResult = (await WMTransaction.query(trx)
       .whereIn('id', ids)
       .sum('value')) as unknown as [{ sum: bigint }]
 
     return {
       ids,
-      sum: sumResult[0].sum
+      sum: sumResult[0].sum ?? 0n
     }
   }
 }

@@ -275,11 +275,9 @@ export class RafikiService implements IRafikiService {
 
     if (paymentPointer.isWM) {
       await this.deps.rafikiClient.depositLiquidity(wh.id)
-
       await this.deps.wmTransactionService.createOutgoingTransaction(
         wh.data.payment
       )
-
       return
     }
 

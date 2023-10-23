@@ -135,10 +135,12 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const assets = response.data?.map((asset) => ({
-    value: asset.id,
-    label: asset.code
-  }))
+  const assets = response.data
+    ?.filter((asset) => asset.scale <= 2)
+    ?.map((asset) => ({
+      value: asset.id,
+      label: asset.code
+    }))
 
   return {
     props: {

@@ -195,12 +195,16 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new PaymentPointerService({
         env: await container.resolve('env'),
+        knex: await container.resolve('knex'),
         rafikiClient: await container.resolve('rafikiClient'),
         accountService: await container.resolve('accountService'),
         cache: new Cache<PaymentPointer>(
           await container.resolve('redisClient'),
           'WMPaymentPointers'
-        )
+        ),
+        wmTransactionService: await container.resolve('wmTransactionService'),
+        rapydClient: await container.resolve('rapydClient'),
+        logger: await container.resolve('logger')
       })
   )
 
