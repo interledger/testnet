@@ -360,7 +360,7 @@ export function mockOutgoingPaymenteCreatedEvent(
 ): WebHook {
   return {
     id: 'mockedId',
-    type: EventType.OutgoingPaymentCreated,
+    type: wh.type || EventType.OutgoingPaymentCreated,
     data: wh.data || {
       payment: {
         paymentPointerId: 'e874f0c2-e123-4a6a-9f61-1267d598f6a4',

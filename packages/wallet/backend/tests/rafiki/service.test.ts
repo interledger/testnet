@@ -1,7 +1,7 @@
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
 import { createContainer } from '@/createContainer'
-import { RafikiService } from '@/rafiki/service'
+import { EventType, RafikiService } from '@/rafiki/service'
 import { Container } from '@/shared/container'
 import { Knex } from 'knex'
 import { TestApp, createApp } from '../app'
@@ -36,6 +36,15 @@ describe('Rafiki Service', () => {
 
       await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
         /Invalid payment pointer/
+      )
+    })
+
+    it('should throw an error unknow event type mock-event', async () => {
+      // eslint-disable-next-line no-use-before-define
+      const webHook = mockOutgoingPaymenteCreatedEvent({type: "mock-event"})
+
+      await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
+        /unknow event type mock-event/
       )
     })
   })
