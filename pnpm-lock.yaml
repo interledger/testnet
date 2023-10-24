@@ -187,8 +187,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.3.3)
       valtio:
-        specifier: ^1.11.2
-        version: 1.11.2(@types/react@18.2.31)(react@18.2.0)
+        specifier: ^1.11.3
+        version: 1.11.3(@types/react@18.2.31)(react@18.2.0)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -396,8 +396,8 @@ importers:
         specifier: ^1.14.0
         version: 1.14.0
       valtio:
-        specifier: ^1.11.2
-        version: 1.11.2(@types/react@18.2.31)(react@18.2.0)
+        specifier: ^1.11.3
+        version: 1.11.3(@types/react@18.2.31)(react@18.2.0)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -10263,8 +10263,8 @@ packages:
       convert-source-map: 1.9.0
     dev: true
 
-  /valtio@1.11.2(@types/react@18.2.31)(react@18.2.0):
-    resolution: {integrity: sha512-1XfIxnUXzyswPAPXo1P3Pdx2mq/pIqZICkWN60Hby0d9Iqb+MEIpqgYVlbflvHdrp2YR/q3jyKWRPJJ100yxaw==}
+  /valtio@1.11.3(@types/react@18.2.31)(react@18.2.0):
+    resolution: {integrity: sha512-HL50LlM6YrYfai5H9QKSU0HJYOkghyGvZeRMCJSI6q79DWSng0PdCzT3S3M2UAcvtqBSteThqmhh6jHYyxPUTg==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=16.8'
