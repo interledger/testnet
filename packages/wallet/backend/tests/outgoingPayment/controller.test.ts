@@ -35,60 +35,58 @@ describe('OutgoingPayment controller', () => {
     )
   }
 
-  describe('Get Rates', () => {
-    beforeAll(async () => {
-      const container = createContainer(env)
-      outgoingPaymentController = await container.resolve(
-        'outgoingPaymentController'
-      )
+  beforeAll(async () => {
+    const container = createContainer(env)
+    outgoingPaymentController = await container.resolve(
+      'outgoingPaymentController'
+    )
 
-      createOutgoingPaymentControllerDepsMocked(false)
+    createOutgoingPaymentControllerDepsMocked(false)
+  })
+
+  beforeEach(async (): Promise<void> => {
+    req = createRequest()
+    res = createResponse()
+  })
+
+  it('should call createByQuoteId in outgoingPaymentService.', async () => {
+    req.body = mockOutgoingPaymentRequest().body
+    const createByQuoteIdSpy = jest.spyOn(
+      mockOutgoingPaymentService,
+      'createByQuoteId'
+    )
+
+    await outgoingPaymentController.create(req, res, next)
+
+    expect(createByQuoteIdSpy).toHaveBeenCalled()
+    expect(createByQuoteIdSpy).toHaveBeenCalledTimes(1)
+    expect(createByQuoteIdSpy).toHaveBeenCalledWith(req.body.quoteId)
+  })
+
+  it('should return status 400 if the request body is invalid', async () => {
+    req.body = mockOutgoingPaymentRequest().body
+    delete req.body.quoteId
+
+    await outgoingPaymentController.create(req, res, (err) => {
+      next()
+      errorHandler(err, req, res, next)
     })
 
-    beforeEach(async (): Promise<void> => {
-      req = createRequest()
-      res = createResponse()
+    expect(next).toBeCalled()
+    expect(next).toBeCalledTimes(1)
+    expect(res.statusCode).toBe(400)
+  })
+
+  it('should return status 500 on unexpected error', async () => {
+    createOutgoingPaymentControllerDepsMocked(true)
+    req.body = mockOutgoingPaymentRequest().body
+
+    await outgoingPaymentController.create(req, res, (err) => {
+      next()
+      errorHandler(err, req, res, next)
     })
-
-    it('should call createByQuoteId in outgoingPaymentService.', async () => {
-      req.body = mockOutgoingPaymentRequest().body
-      const createByQuoteIdSpy = jest.spyOn(
-        mockOutgoingPaymentService,
-        'createByQuoteId'
-      )
-
-      await outgoingPaymentController.create(req, res, next)
-
-      expect(createByQuoteIdSpy).toHaveBeenCalled()
-      expect(createByQuoteIdSpy).toHaveBeenCalledTimes(1)
-      expect(createByQuoteIdSpy).toHaveBeenCalledWith(req.body.quoteId)
-    })
-
-    it('should return status 400 if the request body is invalid', async () => {
-      req.body = mockOutgoingPaymentRequest().body
-      delete req.body.quoteId
-
-      await outgoingPaymentController.create(req, res, (err) => {
-        next()
-        errorHandler(err, req, res, next)
-      })
-
-      expect(next).toBeCalled()
-      expect(next).toBeCalledTimes(1)
-      expect(res.statusCode).toBe(400)
-    })
-
-    it('should return status 500 on unexpected error', async () => {
-      createOutgoingPaymentControllerDepsMocked(true)
-      req.body = mockOutgoingPaymentRequest().body
-
-      await outgoingPaymentController.create(req, res, (err) => {
-        next()
-        errorHandler(err, req, res, next)
-      })
-      expect(next).toBeCalled()
-      expect(next).toBeCalledTimes(1)
-      expect(res.statusCode).toBe(500)
-    })
+    expect(next).toBeCalled()
+    expect(next).toBeCalledTimes(1)
+    expect(res.statusCode).toBe(500)
   })
 })
