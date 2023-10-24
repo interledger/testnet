@@ -6,6 +6,7 @@ import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { kycSchema, walletSchema } from '@/rapyd/validation'
+import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 
@@ -309,3 +310,26 @@ export const mockedTransactionInsertObjs: Array<
   generateMockedTransaction(),
   generateMockedTransaction({ type: 'OUTGOING' })
 ]
+
+export type OutgoingPayment = z.infer<typeof outgoingPaymentSchema>
+
+export const mockOutgoingPaymentRequest = (
+  overrides?: Partial<OutgoingPayment>
+): OutgoingPayment => {
+  return {
+    body: {
+      quoteId: faker.string.alpha(10)
+    },
+    ...overrides
+  }
+}
+
+export const mockOutgoingPaymentService = {
+  createByQuoteId: () => ({})
+}
+
+export const mockedOutgoingPaymentFailureService = {
+  createByQuoteId: jest
+  .fn()
+  .mockRejectedValueOnce(new Error('Unexpected error'))
+}

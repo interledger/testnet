@@ -1,85 +1,94 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
-import { createApp, TestApp } from '@/tests/app'
-import { Knex } from 'knex'
-import { truncateTables } from '@/tests/tables'
-import { Request, Response } from 'express'
+import { createContainer } from '@/createContainer'
+import { NextFunction, Request, Response } from 'express'
 import {
-  createRequest,
-  createResponse,
   MockRequest,
-  MockResponse
+  MockResponse,
+  createRequest,
+  createResponse
 } from 'node-mocks-http'
-import type { AuthService } from '@/auth/service'
-import { applyMiddleware } from '@/tests/utils'
-import { withSession } from '@/middleware/withSession'
-import { mockLogInRequest } from '../mocks'
-import { createUser } from '@/tests/helpers'
+import {
+  mockOutgoingPaymentFailureService,
+  mockOutgoingPaymentRequest,
+  mockOutgoingPaymentService
+} from '../mocks'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
+import { errorHandler } from '@/middleware/errorHandler'
 
-describe('OutgoingPayment Controller', (): void => {
-  let bindings: Container<Bindings>
-  let appContainer: TestApp
-  let knex: Knex
-  let authService: AuthService
-  let outgoingPaymentController: OutgoingPaymentController
+describe('OutgoingPayment controller', () => {
   let req: MockRequest<Request>
   let res: MockResponse<Response>
+  let outgoingPaymentController: OutgoingPaymentController
 
-  const next = jest.fn()
-  const args = mockLogInRequest().body
+  const next = jest.fn() as unknown as NextFunction
 
-  beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
-    appContainer = await createApp(bindings)
-    knex = appContainer.knex
-    authService = await bindings.resolve('authService')
-    outgoingPaymentController = await bindings.resolve(
-      'outgoingPaymentController'
-    )
-  })
-
-  beforeEach(async (): Promise<void> => {
-    res = createResponse()
-    req = createRequest()
-
-    req.body = args
-
-    await createUser({ ...args, isEmailVerified: true })
-    await applyMiddleware(withSession, req, res)
-
-    const { user, session } = await authService.authorize(args)
-    req.session.id = session.id
-    req.session.user = {
-      id: user.id,
-      email: user.email,
-      needsWallet: !user.rapydWalletId,
-      needsIDProof: !user.kycId
+  const createOutgoingPaymentControllerDepsMocked = (isFailure: boolean) => {
+    const outgoingPaymentControllerDepsMocked = {
+      outgoingPaymentService: isFailure
+        ? mockOutgoingPaymentFailureService
+        : mockOutgoingPaymentService
     }
-  })
+    Reflect.set(
+      outgoingPaymentController,
+      'deps',
+      outgoingPaymentControllerDepsMocked
+    )
+  }
 
-  afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
-  })
+  describe('Get Rates', () => {
+    beforeAll(async () => {
+      const container = createContainer(env)
+      outgoingPaymentController = await container.resolve(
+        'outgoingPaymentController'
+      )
 
-  afterEach(async (): Promise<void> => {
-    await truncateTables(knex)
-  })
+      createOutgoingPaymentControllerDepsMocked(false)
+    })
 
-  describe('create', (): void => {
-    it('should create quote by id', async (): Promise<void> => {
-      const depsMocked = {
-        outgoingPaymentService: {
-          createByQuoteId: () => {}
-        }
-      }
-      Reflect.set(outgoingPaymentController, 'deps', depsMocked)
+    beforeEach(async (): Promise<void> => {
+      req = createRequest()
+      res = createResponse()
+    })
+
+    it('should call createByQuoteId in outgoingPaymentService.', async () => {
+      req.body = mockOutgoingPaymentRequest().body
+      const createByQuoteIdSpy = jest.spyOn(
+        mockOutgoingPaymentService,
+        'createByQuoteId'
+      )
 
       await outgoingPaymentController.create(req, res, next)
-      expect(res.statusCode).toBe(200)
+
+      expect(createByQuoteIdSpy).toHaveBeenCalled()
+      expect(createByQuoteIdSpy).toHaveBeenCalledTimes(1)
+      expect(createByQuoteIdSpy).toHaveBeenCalledWith(req.body.quoteId)
+    })
+
+    it('should return status 400 if the request body is invalid', async () => {
+      req.body = mockOutgoingPaymentRequest().body
+      delete req.body.quoteId
+
+      await outgoingPaymentController.create(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('should return status 500 on unexpected error', async () => {
+      createOutgoingPaymentControllerDepsMocked(true)
+      req.body = mockOutgoingPaymentRequest().body
+
+      await outgoingPaymentController.create(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(500)
     })
   })
 })
