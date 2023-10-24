@@ -8,12 +8,17 @@ import { uuid } from '@/tests/utils'
 import { kycSchema, walletSchema } from '@/rapyd/validation'
 import { ratesSchema, webhookSchema } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
-import { incomingPaymentSchema } from '@/incomingPayment/validation'
+import {
+  incomingPaymentSchema,
+  paymentDetailsSchema
+} from '@/incomingPayment/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>
 export type OnWebHook = z.infer<typeof webhookSchema>
 export type IncomingPaymentCreated = z.infer<typeof incomingPaymentSchema>
+export type IncomingPaymentRequest = z.infer<typeof incomingPaymentSchema>
+export type GetPaymentDetailsByUrl = z.infer<typeof paymentDetailsSchema>
 
 export const fakeLoginData = () => {
   return {
@@ -388,8 +393,6 @@ export function mockIncomingPaymentRequest(
   }
 }
 
-export type IncomingPaymentRequest = z.infer<typeof incomingPaymentSchema>
-
 export type IncomingPaymentRequestSession = {
   user: {
     id: string
@@ -413,7 +416,22 @@ export function mockIncomingPaymentRequestSession(
   }
 }
 
-export const mockIncomingPaymentService = {
-  create: () => ("https://www.some-domain.com")
+export function mockIncomingPaymentGetPaymentDetailsByUrlRequest(
+  overrides?: Partial<GetPaymentDetailsByUrl['query']>
+): GetPaymentDetailsByUrl {
+  return {
+    query: {
+      url: '/testpath/incoming-payments/12345678-1234-1234-1234-123456789012',
+      ...overrides
+    }
+  }
 }
 
+export const mockIncomingPaymentService = {
+  create: () => 'https://www.some-domain.com',
+  getPaymentDetailsByUrl: () => ({
+    value: faker.number.float(),
+    description: faker.lorem.paragraph(2),
+    assetCode: 'USD'
+  })
+}
