@@ -21,7 +21,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.47.0",
-    "react-router-dom": "^6.16.0",
+    "react-router-dom": "^6.17.0",
     "remix-params-helper": "^0.4.10",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
