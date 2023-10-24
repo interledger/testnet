@@ -318,7 +318,7 @@ export const mockOutgoingPaymentRequest = (
 ): OutgoingPayment => {
   return {
     body: {
-      quoteId: faker.string.alpha(10)
+      quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e'
     },
     ...overrides
   }
@@ -328,8 +328,8 @@ export const mockOutgoingPaymentService = {
   createByQuoteId: () => ({})
 }
 
-export const mockedOutgoingPaymentFailureService = {
+export const mockOutgoingPaymentFailureService = {
   createByQuoteId: jest
-  .fn()
-  .mockRejectedValueOnce(new Error('Unexpected error'))
+    .fn()
+    .mockRejectedValueOnce(new Error('Unexpected error'))
 }
