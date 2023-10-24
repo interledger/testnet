@@ -30,7 +30,7 @@
     "@next/eslint-plugin-next": "^13.4.12",
     "@tailwindcss/forms": "^0.5.6",
     "@types/node": "^18.14.0",
-    "@types/nprogress": "^0.2.1",
+    "@types/nprogress": "^0.2.2",
     "@types/react": "18.2.28",
     "@types/react-dom": "18.2.13",
     "autoprefixer": "^10.4.16",
