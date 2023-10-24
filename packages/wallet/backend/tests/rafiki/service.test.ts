@@ -1,12 +1,12 @@
 import { Bindings } from '@/app'
 import { env } from '@/config/env'
 import { createContainer } from '@/createContainer'
-import { EventType, RafikiService } from '@/rafiki/service'
+import { RafikiService } from '@/rafiki/service'
 import { Container } from '@/shared/container'
 import { Knex } from 'knex'
 import { TestApp, createApp } from '../app'
-import { truncateTables } from '../tables'
 import { mockOutgoingPaymenteCreatedEvent } from '../mocks'
+import { truncateTables } from '../tables'
 
 describe('Rafiki Service', () => {
   let bindings: Container<Bindings>
