@@ -1,5 +1,6 @@
 import { EmailService } from '@/email/service'
 import { GrantController } from '@/grant/controller'
+import { GrantService } from '@/grant/service'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { setRateLimit } from '@/middleware/rateLimit'
@@ -37,10 +38,9 @@ import { RapydService } from './rapyd/service'
 import { RatesService } from './rates/service'
 import type { SessionService } from './session/service'
 import { Container } from './shared/container'
+import { SocketService } from './socket/service'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
-import { SocketService } from './socket/service'
-import { GrantService } from '@/grant/service'
 
 export interface Bindings {
   env: Env
@@ -160,6 +160,9 @@ export class App {
     router.post('/signup', setRateLimit(2, 5 * 60, true), authController.signUp)
     router.post('/login', authController.logIn)
     router.post('/logout', isAuth, authController.logOut)
+
+    // Change Password Routes
+    router.post("/change-password", userController.changePassword)
 
     // Reset password routes
     router.post('/forgot-password', userController.requestResetPassword)

@@ -1,12 +1,11 @@
-import { getError } from '../httpClient'
+import { SelectOption } from '@/ui/forms/Select'
+import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 import { z } from 'zod'
 import {
-  httpClient,
+  getError, httpClient,
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
-import { SelectOption } from '@/ui/forms/Select'
 
 export const signUpSchema = z
   .object({
@@ -114,6 +113,25 @@ export const resetPasswordSchema = z
     }
   })
 
+
+export const changePasswordSchema = z
+.object({
+  oldPassword: z.string(),
+  newPassword: z.string().min(6, {
+    message: 'Your new password has to be at least 6 characters long.'
+  }),
+  confirmNewPassword: z.string()
+})
+.superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+  if (confirmNewPassword !== newPassword) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Passwords must match.',
+      path: ['confirmNewPassword']
+    })
+  }
+})
+
 export const verifyEmailSchema = z.object({
   token: z.string()
 })
@@ -151,6 +169,10 @@ type ForgotPasswordArgs = z.infer<typeof forgotPasswordSchema>
 type ForgotPasswordError = ErrorResponse<ForgotPasswordArgs | undefined>
 type ForgotPasswordResponse = SuccessResponse | ForgotPasswordError
 
+type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
+type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
+type ChangePasswordResponse = SuccessResponse | ChangePasswordError
+
 type ResetPasswordArgs = z.infer<typeof resetPasswordSchema>
 type ResetPasswordError = ErrorResponse<ResetPasswordArgs | undefined>
 type ResetPasswordResponse = SuccessResponse | ResetPasswordError
@@ -182,6 +204,7 @@ interface UserService {
   login: (args: LoginArgs) => Promise<LoginResponse>
   logout: () => Promise<LogoutResponse>
   forgotPassword: (args: ForgotPasswordArgs) => Promise<ForgotPasswordResponse>
+  changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
   resetPassword: (args: ResetPasswordArgs) => Promise<ResetPasswordResponse>
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
   verifyEmail: (args: VerifyEmailArgs) => Promise<VerifyEmailResponse>
@@ -252,6 +275,19 @@ const createUserService = (): UserService => ({
         error,
         'Something went wrong. Please try again.'
       )
+    }
+  },
+
+  async changePassword(args) {
+    try {
+      const response = await httpClient.post("change-password", {
+        json: args
+      })
+      .json<SuccessResponse>()
+
+      return response
+    }catch(error) {
+      return getError<ChangePasswordArgs>(error, "We could not update your passowrd. Please try again.")
     }
   },
 

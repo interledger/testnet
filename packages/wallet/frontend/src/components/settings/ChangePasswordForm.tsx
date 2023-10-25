@@ -1,28 +1,13 @@
+import { changePasswordSchema, userService } from '@/lib/api/user'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
-import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { z } from 'zod'
-
-const changePasswordSchema = z
-  .object({
-    oldPassword: z.string(),
-    newPassword: z.string().min(6, {
-      message: 'Your new password has to be at least 6 characters long.'
-    }),
-    confirmNewPassword: z.string()
-  })
-  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
-    if (confirmNewPassword !== newPassword) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Passwords must match.',
-        path: ['confirmNewPassword']
-      })
-    }
-  })
+import { SuccessDialog } from '../dialogs/SuccessDialog'
 
 export const ChangePasswordForm = () => {
+  const [openDialog, closeDialog] = useDialog()
   const form = useZodForm({
     schema: changePasswordSchema
   })
@@ -34,8 +19,20 @@ export const ChangePasswordForm = () => {
       </div>
       <Form
         form={form}
-        onSubmit={(data) => {
-          console.log(data)
+        onSubmit={async (data) => {
+          const response = await   userService.changePassword(data)
+
+          if(response.success) {
+            openDialog(
+              <SuccessDialog
+                onClose={closeDialog}
+                title="Password updated sucessfully."
+                content="Please check your inbox. Click on the provided link and reset your password."
+                redirect={'settings'}
+              />
+            )
+            form.reset();
+          }
         }}
       >
         <Input

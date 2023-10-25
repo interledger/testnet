@@ -1,8 +1,8 @@
-import { BadRequest, Conflict } from '@/errors'
-import { User } from './model'
 import { EmailService } from '@/email/service'
+import { BadRequest, Conflict } from '@/errors'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
+import { User } from './model'
 
 interface CreateUserArgs {
   email: string
@@ -10,10 +10,17 @@ interface CreateUserArgs {
   verifyEmailToken: string
 }
 
+interface ChangePasswordArgs {
+  email: string;
+  newPassword: string;
+  oldPassword: string
+}
+
 interface IUserService {
   create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
   getById(id: string): Promise<User | undefined>
+  changePassword(ags: ChangePasswordArgs): Promise<void>
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
   validateToken(token: string): Promise<boolean>
@@ -43,6 +50,23 @@ export class UserService implements IUserService {
 
   public async getById(id: string): Promise<User | undefined> {
     return User.query().findById(id)
+  }
+
+  public async changePassword(args: ChangePasswordArgs): Promise<void> {
+    const existingUser = await this.getByEmail(args.email)
+    const userModel = new User()
+
+    if (!existingUser) {
+      throw new BadRequest("User email not found")
+    }
+
+    if(!(await userModel.verifyPassword(args.oldPassword))) {
+      throw new BadRequest("Incorrect old password")
+    }
+
+    await User.query().findById(existingUser.id).patch({
+      newPassword: args.newPassword,
+    })
   }
 
   public async getByWalletId(walletId: string): Promise<User | undefined> {

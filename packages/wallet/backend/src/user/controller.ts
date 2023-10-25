@@ -1,16 +1,17 @@
 import { Unauthorized } from '@/errors'
+import type { SessionService } from '@/session/service'
+import { validate } from '@/shared/validate'
+import { changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from '@/user/validation'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
-import type { UserService } from './service'
-import type { SessionService } from '@/session/service'
 import type { User } from './model'
-import { validate } from '@/shared/validate'
-import { forgotPasswordSchema, resetPasswordSchema } from '@/user/validation'
+import type { UserService } from './service'
 
 interface UserFlags {
   needsWallet: boolean
   needsIDProof: boolean
 }
+
 interface TokenValidity {
   isValid: boolean
 }
@@ -19,8 +20,10 @@ interface IUserController {
   me: ControllerFunction<UserFlags>
   requestResetPassword: ControllerFunction
   resetPassword: ControllerFunction
+  changePassword: ControllerFunction
   checkToken: ControllerFunction<TokenValidity>
 }
+
 interface UserControllerDependencies {
   userService: UserService
   sessionService: SessionService
@@ -63,6 +66,21 @@ export class UserController implements IUserController {
         }
       })
     } catch (e) {
+      next(e)
+    }
+  }
+
+  changePassword = async (req: Request, res: CustomResponse, next: NextFunction) => {
+    try {
+      const {body: { email, oldPassword, password }} = await validate(changePasswordSchema, req);
+
+      await this.deps.userService.changePassword({email, newPassword: password, oldPassword})
+
+      res.json({
+        success: true,
+        message: "Password has been updated successfully"
+      })
+    }catch(e){
       next(e)
     }
   }
