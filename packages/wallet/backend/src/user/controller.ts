@@ -1,7 +1,11 @@
 import { Unauthorized } from '@/errors'
 import type { SessionService } from '@/session/service'
 import { validate } from '@/shared/validate'
-import { changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from '@/user/validation'
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
+} from '@/user/validation'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import type { User } from './model'
@@ -70,17 +74,27 @@ export class UserController implements IUserController {
     }
   }
 
-  changePassword = async (req: Request, res: CustomResponse, next: NextFunction) => {
+  changePassword = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
     try {
-      const {body: { email, oldPassword, password }} = await validate(changePasswordSchema, req);
+      const {
+        body: { email, oldPassword, password }
+      } = await validate(changePasswordSchema, req)
 
-      await this.deps.userService.changePassword({email, newPassword: password, oldPassword})
+      await this.deps.userService.changePassword({
+        email,
+        newPassword: password,
+        oldPassword
+      })
 
       res.json({
         success: true,
-        message: "Password has been updated successfully"
+        message: 'Password has been updated successfully'
       })
-    }catch(e){
+    } catch (e) {
       next(e)
     }
   }

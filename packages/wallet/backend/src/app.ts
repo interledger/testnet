@@ -162,7 +162,7 @@ export class App {
     router.post('/logout', isAuth, authController.logOut)
 
     // Change Password Routes
-    router.post("/change-password", userController.changePassword)
+    router.post('/change-password', userController.changePassword)
 
     // Reset password routes
     router.post('/forgot-password', userController.requestResetPassword)

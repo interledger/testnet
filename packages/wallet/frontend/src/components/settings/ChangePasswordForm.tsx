@@ -20,9 +20,9 @@ export const ChangePasswordForm = () => {
       <Form
         form={form}
         onSubmit={async (data) => {
-          const response = await   userService.changePassword(data)
+          const response = await userService.changePassword(data)
 
-          if(response.success) {
+          if (response.success) {
             openDialog(
               <SuccessDialog
                 onClose={closeDialog}
@@ -31,7 +31,7 @@ export const ChangePasswordForm = () => {
                 redirect={'settings'}
               />
             )
-            form.reset();
+            form.reset()
           }
         }}
       >

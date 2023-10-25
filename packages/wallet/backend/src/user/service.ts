@@ -11,8 +11,8 @@ interface CreateUserArgs {
 }
 
 interface ChangePasswordArgs {
-  email: string;
-  newPassword: string;
+  email: string
+  newPassword: string
   oldPassword: string
 }
 
@@ -57,15 +57,15 @@ export class UserService implements IUserService {
     const userModel = new User()
 
     if (!existingUser) {
-      throw new BadRequest("User email not found")
+      throw new BadRequest('User email not found')
     }
 
-    if(!(await userModel.verifyPassword(args.oldPassword))) {
-      throw new BadRequest("Incorrect old password")
+    if (!(await userModel.verifyPassword(args.oldPassword))) {
+      throw new BadRequest('Incorrect old password')
     }
 
     await User.query().findById(existingUser.id).patch({
-      newPassword: args.newPassword,
+      newPassword: args.newPassword
     })
   }
 

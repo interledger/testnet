@@ -2,7 +2,8 @@ import { SelectOption } from '@/ui/forms/Select'
 import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 import { z } from 'zod'
 import {
-  getError, httpClient,
+  getError,
+  httpClient,
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
@@ -113,24 +114,23 @@ export const resetPasswordSchema = z
     }
   })
 
-
 export const changePasswordSchema = z
-.object({
-  oldPassword: z.string(),
-  newPassword: z.string().min(6, {
-    message: 'Your new password has to be at least 6 characters long.'
-  }),
-  confirmNewPassword: z.string()
-})
-.superRefine(({ confirmNewPassword, newPassword }, ctx) => {
-  if (confirmNewPassword !== newPassword) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Passwords must match.',
-      path: ['confirmNewPassword']
-    })
-  }
-})
+  .object({
+    oldPassword: z.string(),
+    newPassword: z.string().min(6, {
+      message: 'Your new password has to be at least 6 characters long.'
+    }),
+    confirmNewPassword: z.string()
+  })
+  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+    if (confirmNewPassword !== newPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Passwords must match.',
+        path: ['confirmNewPassword']
+      })
+    }
+  })
 
 export const verifyEmailSchema = z.object({
   token: z.string()
@@ -280,14 +280,18 @@ const createUserService = (): UserService => ({
 
   async changePassword(args) {
     try {
-      const response = await httpClient.post("change-password", {
-        json: args
-      })
-      .json<SuccessResponse>()
+      const response = await httpClient
+        .post('change-password', {
+          json: args
+        })
+        .json<SuccessResponse>()
 
       return response
-    }catch(error) {
-      return getError<ChangePasswordArgs>(error, "We could not update your passowrd. Please try again.")
+    } catch (error) {
+      return getError<ChangePasswordArgs>(
+        error,
+        'We could not update your passowrd. Please try again.'
+      )
     }
   },
 
