@@ -189,6 +189,7 @@ describe('Payment Pointer', () => {
       expect(res._getJSONData()).toHaveProperty('data')
     })
   })
+
   describe('Get List All of Payment Pointer', () => {
     it('should return array of Payment Pointer', async () => {
       const { account } = await preparePPDependencies()
@@ -204,6 +205,7 @@ describe('Payment Pointer', () => {
       expect(res._getJSONData()).toHaveProperty('data')
     })
   })
+
   describe('Get External Payment Pointer', () => {
     it('should return a Payment Pointer', async () => {
       req.query = {
@@ -235,6 +237,7 @@ describe('Payment Pointer', () => {
       expect(res._getJSONData()).toHaveProperty('data')
     })
   })
+
   describe('Soft Delete Payment Pointer', () => {
     it('should return confirmation message', async () => {
       req.params = {
@@ -248,6 +251,7 @@ describe('Payment Pointer', () => {
       })
     })
   })
+
   describe('Register Key', () => {
     it('should return object with private & public key', async () => {
       const { account, paymentPointer } = await preparePPDependencies()
@@ -267,6 +271,7 @@ describe('Payment Pointer', () => {
       expect(res._getJSONData()['data']).toHaveProperty('keyId')
     })
   })
+
   describe('Revoke Key', () => {
     it('should return confirmation message', async () => {
       const { account, paymentPointer } = await preparePPDependencies()
@@ -282,6 +287,7 @@ describe('Payment Pointer', () => {
       })
     })
   })
+
   describe('Update', () => {
     it('should return confirmation message', async () => {
       const { account, paymentPointer } = await preparePPDependencies()
