@@ -135,7 +135,7 @@ describe('Rafiki controller', () => {
       expect(next).toBeCalledTimes(1)
       expect(res.statusCode).toBe(400)
     })
-    
+
     it('should not call onWebHook in rafikiService if the request body is invalid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
