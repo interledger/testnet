@@ -83,6 +83,10 @@ cp ./docker/dev/.env.example ./docker/dev/.env
 Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
 The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in your Rapyd Sandbox account, under the Developers menu item. The `RAPYD_SETTLEMENT_EWALLET` variable value can be found in your Rapyd Sandbox account details.
 
+In order to create a new Testnet Wallet Account, a verification email will be sent to the email address provided. If you have a personal Sendgrid account, then set `SEND_EMAIL` to `true` and add the values for `SENDGRID_API_KEY` and `FROM_EMAIL`. If you don't have a personal Sendgrid account, then set `SEND_EMAIL` to `false` and use the verification link for the testnet account in the docker wallet-backend logs to continue registration of new user.
+
+Cross currency asset transfers are available, for these to work you can register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and set `RATE_API_KEY`.
+
 ### Local Playground
 
 Navigate to the project's root directory and execute:
