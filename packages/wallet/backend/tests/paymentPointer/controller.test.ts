@@ -122,8 +122,8 @@ describe('Payment Pointer', () => {
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {
@@ -187,6 +187,11 @@ describe('Payment Pointer', () => {
         message: 'SUCCESS'
       })
       expect(res._getJSONData()).toHaveProperty('data')
+      const data = res._getJSONData().data
+      expect(data).toHaveLength(1)
+      expect(data[0]).toHaveProperty('id')
+      expect(data[0]).toHaveProperty('url')
+      expect(data[0]).toHaveProperty('publicName')
     })
   })
 
