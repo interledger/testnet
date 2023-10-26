@@ -14,6 +14,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { Checkbox } from '@/ui/forms/Checkbox'
+import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -67,6 +68,7 @@ export const CreatePaymentPointerDialog = ({
                 </Dialog.Title>
 
                 <div className="px-4">
+                  <TemporaryWMNotice />
                   <Form
                     form={createPaymentPointerForm}
                     onSubmit={async (data) => {

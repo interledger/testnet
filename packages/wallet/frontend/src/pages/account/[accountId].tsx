@@ -29,6 +29,7 @@ import { balanceState } from '@/lib/balance'
 import { BackButton } from '@/components/BackButton'
 import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
+import { TemporaryWMNotice } from '@/components/TemporaryWMNotice'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -227,53 +228,61 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             </div>
           </Tab.Panel>
           <Tab.Panel>
-            <div className="flex items-center">
-              <BackButton />
-              <div className="text-green" id="balance">
-                <h2 className="text-lg font-light md:text-xl">Balance</h2>
-                <p className="text-2xl font-semibold md:text-4xl">
-                  {balance.amount}
-                </p>
-              </div>
-            </div>
-            <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold leading-none text-green">
-                  Account
-                </h3>
-              </div>
-              <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
-                <span className="font-semibold text-green">{account.name}</span>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
-                  {formattedAmount.symbol}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                {allPaymentPointers.wmPaymentPointers.length > 0 ? (
-                  allPaymentPointers.wmPaymentPointers.map(
-                    (paymentPointer, index) => (
-                      <PaymentPointerCard
-                        key={paymentPointer.id}
-                        paymentPointer={paymentPointer}
-                        isWM={true}
-                        idOnboarding={
-                          account.assetCode === 'USD' && index === 0
-                            ? `viewTransactions`
-                            : ''
-                        }
-                      />
-                    )
-                  )
-                ) : (
-                  <div className="flex items-center justify-center p-4 text-green">
-                    <span>
-                      No web monetization payment pointers found for this
-                      account.
+            {account.assetCode === 'USD' ? (
+              <>
+                <div className="flex items-center">
+                  <BackButton />
+                  <div className="text-green" id="balance">
+                    <h2 className="text-lg font-light md:text-xl">Balance</h2>
+                    <p className="text-2xl font-semibold md:text-4xl">
+                      {balance.amount}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold leading-none text-green">
+                      Account
+                    </h3>
+                  </div>
+                  <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
+                    <span className="font-semibold text-green">
+                      {account.name}
+                    </span>
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
+                      {formattedAmount.symbol}
                     </span>
                   </div>
-                )}
-              </div>
-            </div>
+                  <div className="flex flex-col">
+                    {allPaymentPointers.wmPaymentPointers.length > 0 ? (
+                      allPaymentPointers.wmPaymentPointers.map(
+                        (paymentPointer, index) => (
+                          <PaymentPointerCard
+                            key={paymentPointer.id}
+                            paymentPointer={paymentPointer}
+                            isWM={true}
+                            idOnboarding={
+                              account.assetCode === 'USD' && index === 0
+                                ? `viewTransactions`
+                                : ''
+                            }
+                          />
+                        )
+                      )
+                    ) : (
+                      <div className="flex items-center justify-center p-4 text-green">
+                        <span>
+                          No web monetization payment pointers found for this
+                          account.
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <TemporaryWMNotice />
+            )}
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
