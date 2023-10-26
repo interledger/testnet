@@ -5,6 +5,7 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
+import { ErrorDialog } from '../dialogs/ErrorDialog'
 
 type ChangePasswordProps = {
   user: User
@@ -30,6 +31,16 @@ export const ChangePasswordForm = ({ user }: ChangePasswordProps) => {
             newPassword,
             confirmNewPassword
           })
+
+          if (!response) {
+            openDialog(
+              <ErrorDialog
+                onClose={closeDialog}
+                content="Update profile failed. Please try again."
+              />
+            )
+            return
+          }
  
           if (response.success) {
             openDialog(
@@ -37,7 +48,6 @@ export const ChangePasswordForm = ({ user }: ChangePasswordProps) => {
                 onClose={closeDialog}
                 title="Password updated."
                 content="Your password has been updated successfully."
-                redirect={'settings'}
               />
             )
             form.reset()
