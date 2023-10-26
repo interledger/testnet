@@ -20,7 +20,7 @@ interface IUserService {
   create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
   getById(id: string): Promise<User | undefined>
-  changePassword(ags: ChangePasswordArgs): Promise<void>
+  changePassword(args: ChangePasswordArgs): Promise<void>
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
   validateToken(token: string): Promise<boolean>
