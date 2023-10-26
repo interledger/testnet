@@ -41,11 +41,14 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
+import { RedisClient } from './cache/redis-client'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
 
 export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
+  redisClient: RedisClient
   rapydClient: RapydClient
   rafikiClient: RafikiClient
   rafikiService: RafikiService
@@ -76,6 +79,7 @@ export interface Bindings {
   grantService: GrantService
   emailService: EmailService
   socketService: SocketService
+  wmTransactionService: WMTransactionService
 }
 
 export class App {
@@ -309,7 +313,32 @@ export class App {
       })
   }
 
+  private async processWMPaymentPointers() {
+    const logger = await this.container.resolve('logger')
+    const paymentPointerService = await this.container.resolve(
+      'paymentPointerService'
+    )
+
+    return paymentPointerService
+      .processWMPaymentPointers()
+      .catch((e) => {
+        logger.error(e)
+        return false
+      })
+      .then((trx) => {
+        if (trx) {
+          process.nextTick(() => this.processWMPaymentPointers())
+        } else {
+          setTimeout(
+            () => this.processWMPaymentPointers(),
+            1000 * 60 * 5
+          ).unref()
+        }
+      })
+  }
+
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
+    process.nextTick(() => this.processWMPaymentPointers())
   }
 }

@@ -25,6 +25,7 @@ services:
     depends_on:
       - postgres
       - rafiki-backend
+      - redis
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -45,6 +46,11 @@ services:
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL}
       RATE_API_KEY: ${RATE_API_KEY}
+      BASE_ASSET_SCALE: 2
+      MAX_ASSET_SCALE: 9
+      WM_THRESHOLD: 100000000
+      DEBT_THRESHOLD: 5
+      REDIS_URL: redis://redis:6379/0
     restart: always
     networks:
       - testnet
@@ -180,18 +186,6 @@ services:
         hostname -i
         ls /var/lib/tigerbeetle
         ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
-
-  rafiki-local-http-signatures:
-    build:
-      context: ../../
-      dockerfile: ./docker/dev/local-http-signatures/Dockerfile
-    volumes:
-      - ../temp/:/workspace/temp/
-    restart: always
-    ports:
-      - '3040:3000'
-    environment:
-      KEY_FILE: ./temp/private-key.pem
 
   redis:
     image: 'redis:7'

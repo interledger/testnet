@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:hydrogen-slim
 
 RUN apt-get update && \
     apt-get install -y python3 build-essential && \

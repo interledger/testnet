@@ -15,7 +15,8 @@ export const createPaymentPointerSchema = z.object({
   publicName: z.string().min(3, {
     message:
       'The public name of the payment pointer should be at least 3 characters long'
-  })
+  }),
+  isWM: z.boolean()
 })
 
 export const updatePaymentPointerSchema = z.object({
@@ -37,6 +38,15 @@ export type PaymentPointer = {
   publicName: string
   accountId: string
   keyIds: PaymentPointerKey | null
+  incomingBalance: string
+  outgoingBalance: string
+  assetCode?: string
+  assetScale?: number
+}
+
+export type ListPaymentPointers = {
+  wmPaymentPointers: Array<PaymentPointer>
+  paymentPointers: Array<PaymentPointer>
 }
 
 type PaymentPointerKeyDetails = {
@@ -60,8 +70,11 @@ type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
 type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
 type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
 
-type ListPaymentPointerResult = SuccessResponse<PaymentPointer[]>
+type ListPaymentPointerResult = SuccessResponse<ListPaymentPointers>
 type ListPaymentPointerResponse = ListPaymentPointerResult | ErrorResponse
+
+type ListAllPaymentPointerResult = SuccessResponse<PaymentPointer[]>
+type ListAllPaymentPointerResponse = ListAllPaymentPointerResult | ErrorResponse
 
 type CreatePaymentPointerArgs = z.infer<typeof createPaymentPointerSchema>
 type CreatePaymentPointerResult = SuccessResponse<PaymentPointer>
@@ -102,7 +115,7 @@ interface PaymentPointerService {
     accountId: string,
     cookies?: string
   ) => Promise<ListPaymentPointerResponse>
-  listAll: (cookies?: string) => Promise<ListPaymentPointerResponse>
+  listAll: (cookies?: string) => Promise<ListAllPaymentPointerResponse>
   create: (
     accountId: string,
     args: CreatePaymentPointerArgs
@@ -161,7 +174,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<ListPaymentPointerResult>()
+        .json<ListAllPaymentPointerResponse>()
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch payment pointers.')

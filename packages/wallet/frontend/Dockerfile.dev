@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:hydrogen-slim
 
 # Set the working directory
 WORKDIR /home/testnet
