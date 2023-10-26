@@ -13,17 +13,7 @@ const publicPaths = ['/auth*']
 export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const nextPage = req.nextUrl.searchParams.get('next')
-  let cookieName = 'testnet.cookie'
-
-  if (process.env.NODE_ENV === 'production') {
-    if (!process.env.COOKIE_NAME) {
-      console.log(
-        `Environment variable "COOKIE_NAME" is not set. Falling back to default cookie name "${cookieName}" `
-      )
-    } else {
-      cookieName = process.env.COOKIE_NAME
-    }
-  }
+  const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
   const response = await userService.me(
     `${cookieName}=${req.cookies.get(cookieName)?.value}`
