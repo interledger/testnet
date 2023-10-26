@@ -68,7 +68,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       <Tab.Group>
         <Tab.List>
           <div className="my-5 flex flex-row items-center justify-between p-1 md:max-w-lg">
-            <Tab>
+            <Tab className="focus:outline-none">
               {({ selected }) => (
                 <div
                   className={cx(
@@ -88,7 +88,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 </div>
               )}
             </Tab>
-            <Tab>
+            <Tab className="focus:outline-none">
               {({ selected }) => (
                 <div
                   className={cx(
@@ -315,6 +315,9 @@ export const getServerSideProps: GetServerSideProps<{
 
   let balance = 0
 
+  paymentPointersResponse.data.paymentPointers.map((pp) => {
+    pp.url = pp.url.replace('https://', '$')
+  })
   paymentPointersResponse.data.wmPaymentPointers.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
     balance += Number(pp.incomingBalance)
