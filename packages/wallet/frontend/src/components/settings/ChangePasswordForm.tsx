@@ -41,7 +41,7 @@ export const ChangePasswordForm = ({ user }: ChangePasswordProps) => {
             )
             return
           }
- 
+
           if (response.success) {
             openDialog(
               <SuccessDialog
