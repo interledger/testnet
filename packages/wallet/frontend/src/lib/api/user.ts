@@ -290,7 +290,7 @@ const createUserService = (): UserService => ({
     } catch (error) {
       return getError<ChangePasswordArgs>(
         error,
-        'We could not update your passowrd. Please try again.'
+        'We could not update your password. Please try again.'
       )
     }
   },
