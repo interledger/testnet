@@ -1,7 +1,7 @@
 import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
-import { Conflict, NotFound } from '@/errors'
+import { BadRequest, Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
@@ -141,6 +141,13 @@ export class PaymentPointerService implements IPaymentPointerService {
     } else {
       let webMonetizationAsset
       if (args.isWM) {
+        // @TEMPORARY: Enable WM only for USD
+        if (account.assetCode !== 'USD') {
+          throw new BadRequest(
+            'Web Monetization is enabled exclusively for USD.'
+          )
+        }
+
         webMonetizationAsset = await this.deps.rafikiClient.getRafikiAsset(
           'USD',
           this.deps.env.MAX_ASSET_SCALE
