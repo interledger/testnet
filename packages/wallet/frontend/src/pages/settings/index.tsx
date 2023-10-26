@@ -1,10 +1,12 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm'
 import { PersonalSettingsForm } from '@/components/settings/PersonalSettingsForm'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { type User, userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { SmallBubbles } from '@/ui/Bubbles'
+import { Divider } from '@/ui/Divider'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
 
@@ -21,8 +23,8 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />
-        {/* <Divider />
-        <ChangePasswordForm /> */}
+        <Divider />
+        <ChangePasswordForm user={user} />
       </div>
       <SmallBubbles className="mt-10 block w-full md:hidden" />
       <Image

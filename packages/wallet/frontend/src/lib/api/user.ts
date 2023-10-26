@@ -116,6 +116,7 @@ export const resetPasswordSchema = z
 
 export const changePasswordSchema = z
   .object({
+    email: z.string().email({ message: 'Email is required' }),
     oldPassword: z.string(),
     newPassword: z.string().min(6, {
       message: 'Your new password has to be at least 6 characters long.'

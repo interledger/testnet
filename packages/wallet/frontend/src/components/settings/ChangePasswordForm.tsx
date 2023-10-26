@@ -1,4 +1,4 @@
-import { changePasswordSchema, userService } from '@/lib/api/user'
+import { User, changePasswordSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Button } from '@/ui/Button'
@@ -6,7 +6,11 @@ import { Form } from '@/ui/forms/Form'
 import { Input } from '@/ui/forms/Input'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 
-export const ChangePasswordForm = () => {
+type ChangePasswordProps = {
+  user: User
+}
+
+export const ChangePasswordForm = ({ user }: ChangePasswordProps) => {
   const [openDialog, closeDialog] = useDialog()
   const form = useZodForm({
     schema: changePasswordSchema
@@ -19,15 +23,20 @@ export const ChangePasswordForm = () => {
       </div>
       <Form
         form={form}
-        onSubmit={async (data) => {
-          const response = await userService.changePassword(data)
-
+        onSubmit={async ({ oldPassword, newPassword, confirmNewPassword }) => {
+          const response = await userService.changePassword({
+            email: user.email,
+            oldPassword,
+            newPassword,
+            confirmNewPassword
+          })
+ 
           if (response.success) {
             openDialog(
               <SuccessDialog
                 onClose={closeDialog}
-                title="Password updated sucessfully."
-                content="Please check your inbox. Click on the provided link and reset your password."
+                title="Password updated."
+                content="Your password has been updated successfully."
                 redirect={'settings'}
               />
             )
