@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 export const createOrderSchema = z.object({
-  paymentPointerUrl: z
+  walletAddressUrl: z
     .string()
     .transform((val) => val.replace('$', 'https://'))
-    .pipe(z.string().url({ message: 'Invalid payment pointer.' })),
+    .pipe(z.string().url({ message: 'Invalid wallet address.' })),
   products: z
     .array(
       z.object({

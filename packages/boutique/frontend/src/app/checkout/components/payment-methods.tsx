@@ -64,9 +64,9 @@ const OpenPaymentsForm = () => {
     <Form
       form={form}
       disabled={form.formState.isSubmitting || isLoading || isSuccess}
-      onSubmit={form.handleSubmit(({ paymentPointerUrl }) =>
+      onSubmit={form.handleSubmit(({ walletAddressUrl }) =>
         mutate({
-          paymentPointerUrl,
+          walletAddressUrl,
           products: items.map((item) => ({
             productId: item.id,
             quantity: item.quantity
@@ -76,8 +76,8 @@ const OpenPaymentsForm = () => {
       className="relative my-5 items-center justify-between border-t border-gray-200 pt-6"
     >
       <InputField
-        label="Payment pointer"
-        {...form.register('paymentPointerUrl')}
+        label="Wallet address"
+        {...form.register('walletAddressUrl')}
       />
       <PayButton className="mt-5 w-full" />
     </Form>

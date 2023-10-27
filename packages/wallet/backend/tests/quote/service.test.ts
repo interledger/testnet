@@ -10,7 +10,7 @@ import { mockedListAssets, mockRapyd } from '@/tests/mocks'
 import { AccountService } from '@/account/service'
 import { faker } from '@faker-js/faker'
 import { Account } from '@/account/model'
-import { PaymentPointer } from '@/walletAddress/model'
+import { WalletAddress } from '@/walletAddress/model'
 import { loginUser, uuid } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
 
@@ -33,7 +33,7 @@ describe('Quote Service', () => {
       virtualAccountId: 'mocked'
     })
 
-    const paymentPointer = await PaymentPointer.query().insert({
+    const walletAddress = await WalletAddress.query().insert({
       url: faker.string.alpha(10),
       publicName: faker.string.alpha(10),
       accountId: account.id,
@@ -42,7 +42,7 @@ describe('Quote Service', () => {
 
     return {
       account,
-      paymentPointer
+      walletAddress
     }
   }
 
@@ -94,8 +94,8 @@ describe('Quote Service', () => {
         getRafikiAsset: (assetCode: unknown) =>
           mockedListAssets.find((asset) => asset.code === assetCode)
       },
-      paymentPointerService: {
-        getExternalPaymentPointer: () => ({
+      walletAddressService: {
+        getExternalWalletAddress: () => ({
           assetCode: 'BRG',
           assetScale: 3
         }),
@@ -112,7 +112,14 @@ describe('Quote Service', () => {
         })
       },
       incomingPaymentService: {
-        createReceiver: () => faker.internet.url()
+        createReceiver: () => faker.internet.url(),
+        getExternalPayment: () => ({
+          receivedAmount: {
+            assetCode: 'BRG',
+            assetScale: 3,
+            value: 0
+          }
+        })
       }
     }
 
@@ -146,12 +153,12 @@ describe('Quote Service', () => {
 
   describe('Create Quote', () => {
     it('should create quote or quote with fee', async () => {
-      const { paymentPointer } = await prepareQuoteDependencies()
+      const { walletAddress } = await prepareQuoteDependencies()
 
       const result = await quoteService.create({
         userId: userInfo.id,
         amount: 100,
-        paymentPointerId: paymentPointer.id,
+        walletAddressId: walletAddress.id,
         receiver:
           'https://rafiki-backend/work-acc/incoming-payments/d2697d29-ee3c-499f-bdbf-db49f57b1137',
         isReceive: true

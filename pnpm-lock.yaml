@@ -48,8 +48,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       '@interledger/open-payments':
-        specifier: ^3.2.0
-        version: 3.2.0
+        specifier: ^5.3.1
+        version: 5.3.1
       awilix:
         specifier: ^9.0.0
         version: 9.0.0
@@ -2127,11 +2127,11 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /@interledger/open-payments@3.2.0:
-    resolution: {integrity: sha512-52jae7P+JCl9hPyksgs6ELUQQZwbc/lpHLqC+Lu822LTLvqZJ2PTBjNa+8bXvAdaLlEpajQ40R4f1VIblsdMdA==}
+  /@interledger/open-payments@5.3.1:
+    resolution: {integrity: sha512-bFBoEKk6veFN2fwwkNGV4zrR+3GrIkv99ZWjIsHwV17lDht6NhsP3DttS0SwfYaR3VUIhmzAnCiHGOEKYkrybg==}
     dependencies:
       '@interledger/http-signature-utils': 1.1.0
-      '@interledger/openapi': 1.1.0
+      '@interledger/openapi': 1.2.1
       axios: 1.5.1
       base64url: 3.0.1
       http-message-signatures: 0.1.2
@@ -2142,8 +2142,8 @@ packages:
       - supports-color
     dev: false
 
-  /@interledger/openapi@1.1.0:
-    resolution: {integrity: sha512-tCs2IBbSFdbquOkfO35RYMZ8IN161TupbtXniwvyEOu0yQHI5qiI0EWK6wNE4f8sx85+aiuGcOX61f0sjDM6rQ==}
+  /@interledger/openapi@1.2.1:
+    resolution: {integrity: sha512-CVEMjLH94svT5ikaojplgZ3YlZAe7ml6G6bt0ZCbqkbwHszUwY1E6RexZZejiGju5QvwS/6Jl/Op5ymv/ECaLg==}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 10.1.0
       ajv: 8.12.0
