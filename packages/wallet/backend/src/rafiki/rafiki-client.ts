@@ -212,6 +212,11 @@ export class RafikiClient implements IRafikiClient {
       if (response.withdrawEventLiquidity?.message === 'Transfer exists') {
         return true
       }
+
+      if (response.withdrawEventLiquidity?.message === 'Invalid id') {
+        this.deps.logger.debug(`Nothing to withdraw for event ${eventId}`)
+        return true
+      }
       throw new BadRequest(
         response.withdrawEventLiquidity?.message ||
           'Unable to withdrawLiquidity from rafiki'
