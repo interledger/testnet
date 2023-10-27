@@ -9,7 +9,7 @@ export const start = async (app: App): Promise<void> => {
 async function bootstrap() {
   const container = await createContainer(env)
   const app = new App(container)
-  start(app).catch(async (e): Promise<void> => {
+  await start(app).catch(async (e): Promise<void> => {
     console.log(e)
   })
   await app.processResources()
