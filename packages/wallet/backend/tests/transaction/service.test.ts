@@ -12,7 +12,7 @@ import { Transaction } from '@/transaction/model'
 import { faker } from '@faker-js/faker'
 import { loginUser } from '@/tests/utils'
 import { Account } from '@/account/model'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { PaymentPointer } from '@/walletAddress/model'
 
 describe('Transaction Controller', (): void => {
   let bindings: Container<Bindings>

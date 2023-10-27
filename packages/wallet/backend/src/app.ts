@@ -5,8 +5,8 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { setRateLimit } from '@/middleware/rateLimit'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
-import { PaymentPointerController } from '@/paymentPointer/controller'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddressController } from '@/walletAddress/controller'
+import { WalletAddressService } from '@/walletAddress/service'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
@@ -64,8 +64,8 @@ export interface Bindings {
   authController: AuthController
   assetController: AssetController
   accountController: AccountController
-  paymentPointerController: PaymentPointerController
-  paymentPointerService: PaymentPointerService
+  walletAddressController: WalletAddressController
+  walletAddressService: WalletAddressService
   transactionController: TransactionController
   transactionService: TransactionService
   incomingPaymentController: IncomingPaymentController
@@ -125,8 +125,8 @@ export class App {
     const env = await this.container.resolve('env')
     const authController = await this.container.resolve('authController')
     const userController = await this.container.resolve('userController')
-    const paymentPointerController = await this.container.resolve(
-      'paymentPointerController'
+    const walletAddressController = await this.container.resolve(
+      'walletAddressController'
     )
     const transactionController = await this.container.resolve(
       'transactionController'
@@ -174,57 +174,57 @@ export class App {
     // Me Endpoint
     router.get('/me', userController.me)
 
-    // payment pointer routes
+    // wallet address routes
     router.post(
-      '/accounts/:accountId/payment-pointers',
+      '/accounts/:accountId/wallet-addresses',
       isAuth,
-      paymentPointerController.create
+      walletAddressController.create
     )
     router.get(
-      '/accounts/:accountId/payment-pointers',
+      '/accounts/:accountId/wallet-addresses',
       isAuth,
-      paymentPointerController.list
+      walletAddressController.list
     )
     router.get(
-      '/accounts/:accountId/payment-pointers/:id',
+      '/accounts/:accountId/wallet-addresses/:id',
       isAuth,
-      paymentPointerController.getById
+      walletAddressController.getById
     )
     router.get(
-      '/external-payment-pointers',
+      '/external-wallet-addresses',
       isAuth,
-      paymentPointerController.getExternalPaymentPointer
+      walletAddressController.getExternalWalletAddress
     )
     router.patch(
-      '/accounts/:accountId/payment-pointers/:paymentPointerId',
+      '/accounts/:accountId/wallet-addresses/:walletAddressId',
       isAuth,
-      paymentPointerController.update
+      walletAddressController.update
     )
     router.delete(
-      '/payment-pointer/:id',
+      '/wallet-addresses/:id',
       isAuth,
-      paymentPointerController.softDelete
+      walletAddressController.softDelete
     )
 
-    router.get('/payment-pointers', isAuth, paymentPointerController.listAll)
+    router.get('/wallet-addresses', isAuth, walletAddressController.listAll)
 
     // transactions routes
     router.get(
-      '/accounts/:accountId/payment-pointers/:paymentPointerId/transactions',
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/transactions',
       isAuth,
       transactionController.list
     )
     router.get('/transactions', isAuth, transactionController.listAll)
 
     router.post(
-      '/accounts/:accountId/payment-pointers/:paymentPointerId/register-key',
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/register-key',
       isAuth,
-      paymentPointerController.registerKey
+      walletAddressController.registerKey
     )
     router.patch(
-      '/accounts/:accountId/payment-pointers/:paymentPointerId/revoke-key',
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/revoke-key',
       isAuth,
-      paymentPointerController.revokeKey
+      walletAddressController.revokeKey
     )
 
     // incoming payment routes
@@ -313,24 +313,24 @@ export class App {
       })
   }
 
-  private async processWMPaymentPointers() {
+  private async processWMWalletAddresses() {
     const logger = await this.container.resolve('logger')
-    const paymentPointerService = await this.container.resolve(
-      'paymentPointerService'
+    const walletAddressService = await this.container.resolve(
+      'walletAddressService'
     )
 
-    return paymentPointerService
-      .processWMPaymentPointers()
+    return walletAddressService
+      .processWMWalletAddresses()
       .catch((e) => {
         logger.error(e)
         return false
       })
       .then((trx) => {
         if (trx) {
-          process.nextTick(() => this.processWMPaymentPointers())
+          process.nextTick(() => this.processWMWalletAddresses())
         } else {
           setTimeout(
-            () => this.processWMPaymentPointers(),
+            () => this.processWMWalletAddresses(),
             1000 * 60 * 5
           ).unref()
         }
@@ -339,6 +339,6 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-    process.nextTick(() => this.processWMPaymentPointers())
+    process.nextTick(() => this.processWMWalletAddresses())
   }
 }

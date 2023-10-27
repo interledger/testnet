@@ -13,10 +13,10 @@ import {
   CreateOutgoingPaymentInput,
   CreateOutgoingPaymentMutation,
   CreateOutgoingPaymentMutationVariables,
-  CreatePaymentPointerKeyMutation,
-  CreatePaymentPointerKeyMutationVariables,
-  CreatePaymentPointerMutation,
-  CreatePaymentPointerMutationVariables,
+  CreateWalletAddressKeyMutation,
+  CreateWalletAddressKeyMutationVariables,
+  CreateWalletAddressMutation,
+  CreateWalletAddressMutationVariables,
   CreateQuoteInput,
   CreateQuoteMutation,
   CreateQuoteMutationVariables,
@@ -37,11 +37,11 @@ import {
   QueryAssetsArgs,
   Quote,
   Receiver,
-  RevokePaymentPointerKeyMutation,
-  RevokePaymentPointerKeyMutationVariables,
-  UpdatePaymentPointerInput,
-  UpdatePaymentPointerMutation,
-  UpdatePaymentPointerMutationVariables,
+  RevokeWalletAddressKeyMutation,
+  RevokeWalletAddressKeyMutationVariables,
+  UpdateWalletAddressInput,
+  UpdateWalletAddressMutation,
+  UpdateWalletAddressMutationVariables,
   WithdrawLiquidityMutation,
   WithdrawLiquidityMutationVariables
 } from './backend/generated/graphql'
@@ -57,13 +57,13 @@ import {
 } from './backend/request/liquidity.request'
 import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
 import {
-  createPaymentPointerKeyMutation,
-  revokePaymentPointerKeyMutation
-} from './backend/request/payment-pointer-key.request'
+  createWalletAddressKeyMutation,
+  revokeWalletAddressKeyMutation
+} from './backend/request/wallet-address-key.request'
 import {
-  createPaymentPointerMutation,
-  updatePaymentPointerMutation
-} from './backend/request/payment-pointer.request'
+  createWalletAddressMutation,
+  updateWalletAddressMutation
+} from './backend/request/wallet-address.request'
 import {
   createQuoteMutation,
   getQuoteQuery
@@ -91,12 +91,12 @@ type PaymentParams = {
 }
 
 export type CreateIncomingPaymentParams = {
-  paymentPointerId: string
+  walletAddressId: string
   accountId: string
 } & PaymentParams
 
 export type CreateReceiverParams = {
-  paymentPointerUrl: string
+  walletAddressUrl: string
 } & PaymentParams
 export class RafikiClient implements IRafikiClient {
   constructor(private deps: RafikiClientDependencies) {}
@@ -135,7 +135,7 @@ export class RafikiClient implements IRafikiClient {
     params: CreateIncomingPaymentParams
   ): Promise<IncomingPayment> {
     const input: CreateIncomingPaymentInput = {
-      paymentPointerId: params.paymentPointerId,
+      walletAddressId: params.walletAddressId,
       metadata: {
         description: params.description
       },
@@ -160,7 +160,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }
     if (!paymentResponse.payment) {
-      throw new Error('Unable to fetch created payment pointer')
+      throw new Error('Unable to fetch created wallet address')
     }
 
     return paymentResponse.payment
@@ -168,7 +168,7 @@ export class RafikiClient implements IRafikiClient {
 
   public async createReceiver(params: CreateReceiverParams): Promise<Receiver> {
     const input: CreateReceiverInput = {
-      paymentPointerUrl: params.paymentPointerUrl,
+      walletAddressUrl: params.walletAddressUrl,
       metadata: {
         description: params.description
       },
@@ -193,7 +193,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }
     if (!paymentResponse.receiver) {
-      throw new Error('Unable to fetch created payment pointer')
+      throw new Error('Unable to fetch created wallet address')
     }
 
     return paymentResponse.receiver as Receiver
@@ -254,21 +254,21 @@ export class RafikiClient implements IRafikiClient {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }
     if (!paymentResponse.payment) {
-      throw new Error('Unable to fetch created payment pointer')
+      throw new Error('Unable to fetch created wallet address')
     }
 
     return paymentResponse.payment
   }
 
-  public async createRafikiPaymentPointer(
+  public async createRafikiWalletAddress(
     publicName: string,
     assetId: string,
     url: string
   ) {
     const response = await this.deps.gqlClient.request<
-      CreatePaymentPointerMutation,
-      CreatePaymentPointerMutationVariables
-    >(createPaymentPointerMutation, {
+      CreateWalletAddressMutation,
+      CreateWalletAddressMutationVariables
+    >(createWalletAddressMutation, {
       input: {
         assetId,
         publicName,
@@ -276,65 +276,65 @@ export class RafikiClient implements IRafikiClient {
       }
     })
 
-    if (!response.createPaymentPointer.success) {
-      throw new Error(response.createPaymentPointer.message)
+    if (!response.createWalletAddress.success) {
+      throw new Error(response.createWalletAddress.message)
     }
-    if (!response.createPaymentPointer.paymentPointer) {
-      throw new Error('Unable to fetch created payment pointer')
+    if (!response.createWalletAddress.walletAddress) {
+      throw new Error('Unable to fetch created wallet address')
     }
 
-    return response.createPaymentPointer.paymentPointer
+    return response.createWalletAddress.walletAddress
   }
 
-  public async updatePaymentPointer(
-    args: UpdatePaymentPointerInput
+  public async updateWalletAddress(
+    args: UpdateWalletAddressInput
   ): Promise<void> {
     const response = await this.deps.gqlClient.request<
-      UpdatePaymentPointerMutation,
-      UpdatePaymentPointerMutationVariables
-    >(updatePaymentPointerMutation, {
+      UpdateWalletAddressMutation,
+      UpdateWalletAddressMutationVariables
+    >(updateWalletAddressMutation, {
       input: args
     })
 
-    if (!response.updatePaymentPointer.success) {
-      throw new Error(response.updatePaymentPointer.message)
+    if (!response.updateWalletAddress.success) {
+      throw new Error(response.updateWalletAddress.message)
     }
   }
 
-  public async createRafikiPaymentPointerKey(
+  public async createRafikiWalletAddressKey(
     jwk: JwkInput,
-    paymentPointerId: string
+    walletAddressId: string
   ) {
     const response = await this.deps.gqlClient.request<
-      CreatePaymentPointerKeyMutation,
-      CreatePaymentPointerKeyMutationVariables
-    >(createPaymentPointerKeyMutation, {
+      CreateWalletAddressKeyMutation,
+      CreateWalletAddressKeyMutationVariables
+    >(createWalletAddressKeyMutation, {
       input: {
-        paymentPointerId,
+        walletAddressId,
         jwk
       }
     })
 
-    if (!response.createPaymentPointerKey?.success) {
-      throw new Error(response.createPaymentPointerKey?.message)
+    if (!response.createWalletAddressKey?.success) {
+      throw new Error(response.createWalletAddressKey?.message)
     }
-    if (!response.createPaymentPointerKey.paymentPointerKey) {
-      throw new Error('Unable to fetch created payment pointer key')
+    if (!response.createWalletAddressKey.walletAddressKey) {
+      throw new Error('Unable to fetch created wallet address key')
     }
 
-    return response.createPaymentPointerKey.paymentPointerKey
+    return response.createWalletAddressKey.walletAddressKey
   }
 
-  public async revokePaymentPointerKey(id: string): Promise<void> {
+  public async revokeWalletAddressKey(id: string): Promise<void> {
     const response = await this.deps.gqlClient.request<
-      RevokePaymentPointerKeyMutation,
-      RevokePaymentPointerKeyMutationVariables
-    >(revokePaymentPointerKeyMutation, {
+      RevokeWalletAddressKeyMutation,
+      RevokeWalletAddressKeyMutationVariables
+    >(revokeWalletAddressKeyMutation, {
       input: { id }
     })
 
-    if (!response.revokePaymentPointerKey?.success) {
-      throw new Error(response.revokePaymentPointerKey?.message)
+    if (!response.revokeWalletAddressKey?.success) {
+      throw new Error(response.revokeWalletAddressKey?.message)
     }
   }
 

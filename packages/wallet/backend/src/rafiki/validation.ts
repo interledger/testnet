@@ -28,7 +28,7 @@ export const quoteSchema = z.object({
   body: z.object({
     id: z.string(),
     paymentType: z.nativeEnum(PaymentType),
-    paymentPointerId: z.string(),
+    walletAddressId: z.string(),
     receiver: z.string(),
     debitAmount: quoteAmountSchema,
     receiveAmount: quoteAmountSchema,

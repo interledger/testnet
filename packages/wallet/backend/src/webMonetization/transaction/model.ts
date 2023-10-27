@@ -1,20 +1,20 @@
 import { TransactionBaseModel } from '@/transaction/model'
 import { Model } from 'objection'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 
 export class WMTransaction extends TransactionBaseModel {
   static tableName = 'wmTransactions'
 
-  paymentPointerId!: string
-  paymentPointer!: PaymentPointer
+  walletAddressId!: string
+  walletAddress!: WalletAddress
 
   static relationMappings = () => ({
-    wmPaymentPointer: {
+    wmWalletAddress: {
       relation: Model.BelongsToOneRelation,
-      modelClass: PaymentPointer,
+      modelClass: WalletAddress,
       join: {
-        from: 'wmTransactions.paymentPointerId',
-        to: 'paymentPointers.id'
+        from: 'wmTransactions.walletAddressId',
+        to: 'walletAddresses.id'
       }
     }
   })

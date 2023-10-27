@@ -15,7 +15,7 @@ export const transformAmount = (
   return `${integerPart}.${fractionalPart}`
 }
 
-export const urlToPaymentPointer = (url: string) =>
+export const urlToWalletAddress = (url: string) =>
   url.split('/incoming-payments/')[0]
 
 export const urlToPaymentId = (url: string) =>

@@ -1,7 +1,7 @@
 import { Account } from '@/lib/api/account'
 import { Disclosure, Transition } from '@headlessui/react'
 import { Chevron } from '../icons/Chevron'
-import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
+import { WalletAddress, walletAddressService } from '@/lib/api/walletAddress'
 import { cx } from 'class-variance-authority'
 import { CopyButton } from '@/ui/CopyButton'
 import { Button } from '@/ui/Button'
@@ -13,42 +13,42 @@ import { useRouter } from 'next/router'
 import { generateAndDownloadFile } from '@/utils/helpers'
 import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
 
-type PaymentPointerContextType = {
-  paymentPointer: PaymentPointer
-  paymentPointersCount: number
-  paymentPointerIdx: number
+type WalletAddressContextType = {
+  walletAddress: WalletAddress
+  walletAddressesCount: number
+  walletAddressIdx: number
 }
 
-const PaymentPointerContext = createContext<
-  PaymentPointerContextType | undefined
+const WalletAddressContext = createContext<
+  WalletAddressContextType | undefined
 >(undefined)
 
-type PaymentPointerProviderProps = PaymentPointerContextType & {
+type WalletAddressProviderProps = WalletAddressContextType & {
   children: ReactNode
 }
 
-export const usePaymentPointerContext = (): PaymentPointerContextType => {
-  const context = useContext(PaymentPointerContext)
+export const useWalletAddressContext = (): WalletAddressContextType => {
+  const context = useContext(WalletAddressContext)
   if (!context) {
     throw new Error(
-      'usePaymentPointerContext must be used within an PaymentPointerProvider'
+      'useWalletAddressContext must be used within an WalletAddressProvider'
     )
   }
   return context
 }
 
-export const PaymentPointerProvider = ({
+export const WalletAddressProvider = ({
   children,
-  paymentPointer,
-  paymentPointerIdx,
-  paymentPointersCount
-}: PaymentPointerProviderProps) => {
+  walletAddress,
+  walletAddressIdx,
+  walletAddressesCount
+}: WalletAddressProviderProps) => {
   return (
-    <PaymentPointerContext.Provider
-      value={{ paymentPointer, paymentPointersCount, paymentPointerIdx }}
+    <WalletAddressContext.Provider
+      value={{ walletAddress, walletAddressesCount, walletAddressIdx }}
     >
       {children}
-    </PaymentPointerContext.Provider>
+    </WalletAddressContext.Provider>
   )
 }
 
@@ -64,7 +64,7 @@ export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
           {({ open }) => (
             <>
               <AccountHeader name={account.name} isOpen={open} />
-              <AccountPanel paymentPointers={account.paymentPointers} />
+              <AccountPanel walletAddresses={account.walletAddresses} />
             </>
           )}
         </Disclosure>
@@ -97,10 +97,10 @@ const AccountHeader = ({ name, isOpen }: AccountHeaderProps) => {
 }
 
 type AccountPanelProps = {
-  paymentPointers: PaymentPointer[]
+  walletAddresses: WalletAddress[]
 }
 
-const AccountPanel = ({ paymentPointers }: AccountPanelProps) => {
+const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
   return (
     <Transition
       className="overflow-scroll px-2"
@@ -113,15 +113,15 @@ const AccountPanel = ({ paymentPointers }: AccountPanelProps) => {
     >
       <Disclosure.Panel as="dd" className="mt-6 px-2">
         <ul role="list" className="space-y-6">
-          {paymentPointers.map((paymentPointer, paymentPointerIdx) => (
-            <PaymentPointerProvider
-              key={paymentPointer.id}
-              paymentPointer={paymentPointer}
-              paymentPointersCount={paymentPointers.length}
-              paymentPointerIdx={paymentPointerIdx}
+          {walletAddresses.map((walletAddress, walletAddressIdx) => (
+            <WalletAddressProvider
+              key={walletAddress.id}
+              walletAddress={walletAddress}
+              walletAddressesCount={walletAddresses.length}
+              walletAddressIdx={walletAddressIdx}
             >
-              <PaymentPointer />
-            </PaymentPointerProvider>
+              <WalletAddress />
+            </WalletAddressProvider>
           ))}
         </ul>
       </Disclosure.Panel>
@@ -129,30 +129,30 @@ const AccountPanel = ({ paymentPointers }: AccountPanelProps) => {
   )
 }
 
-const PaymentPointer = () => {
-  const { paymentPointer } = usePaymentPointerContext()
+const WalletAddress = () => {
+  const { walletAddress } = useWalletAddressContext()
   return (
-    <li key={paymentPointer.url} className="relative flex gap-x-1 text-green">
-      <PaymentPointerKeyStatus />
+    <li key={walletAddress.url} className="relative flex gap-x-1 text-green">
+      <WalletAddressKeyStatus />
       <div className="max-h flex-auto space-y-2 leading-6">
-        <p className="font-semibold">{paymentPointer.url}</p>
+        <p className="font-semibold">{walletAddress.url}</p>
         <hr />
         <div className="flex-none py-0.5 text-sm leading-5">
-          <PaymentPointerKeyInfo />
+          <WalletAddressKeyInfo />
         </div>
       </div>
     </li>
   )
 }
 
-const PaymentPointerKeyStatus = () => {
-  const { paymentPointer, paymentPointerIdx, paymentPointersCount } =
-    usePaymentPointerContext()
+const WalletAddressKeyStatus = () => {
+  const { walletAddress, walletAddressIdx, walletAddressesCount } =
+    useWalletAddressContext()
   return (
     <>
       <div
         className={cx(
-          paymentPointerIdx === paymentPointersCount - 1 ? 'h-6' : '-bottom-6',
+          walletAddressIdx === walletAddressesCount - 1 ? 'h-6' : '-bottom-6',
           'absolute left-0 top-0 flex w-6 justify-center'
         )}
       >
@@ -163,7 +163,7 @@ const PaymentPointerKeyStatus = () => {
         <div
           className={cx(
             'h-1.5 w-1.5 rounded-full ring-1',
-            paymentPointer.keyIds
+            walletAddress.keyIds
               ? 'bg-green-4 ring-green-3'
               : 'bg-gray-100 ring-gray-300'
           )}
@@ -173,50 +173,48 @@ const PaymentPointerKeyStatus = () => {
   )
 }
 
-const PaymentPointerKeyInfo = () => {
-  const { paymentPointer } = usePaymentPointerContext()
+const WalletAddressKeyInfo = () => {
+  const { walletAddress } = useWalletAddressContext()
 
   return (
     <div className="flex flex-col space-y-4">
-      {paymentPointer.keyIds ? (
+      {walletAddress.keyIds ? (
         <>
           <div className="flex flex-col justify-between">
             <p className="font-normal">Key ID</p>
             <div className="flex items-center justify-between">
-              <span className="font-extralight">
-                {paymentPointer.keyIds.id}
-              </span>
+              <span className="font-extralight">{walletAddress.keyIds.id}</span>
               <CopyButton
                 aria-label="copy key id"
                 className="h-10 w-10"
-                value={paymentPointer.keyIds.id}
+                value={walletAddress.keyIds.id}
               />
             </div>
           </div>
           <div>
             <p className="font-normal">Created on</p>
             <span className="font-extralight leading-10">
-              {paymentPointer.keyIds.createdOn}
+              {walletAddress.keyIds.createdOn}
             </span>
           </div>
 
-          <PublicKeyContainer publicKey={paymentPointer.keyIds.publicKey} />
+          <PublicKeyContainer publicKey={walletAddress.keyIds.publicKey} />
         </>
       ) : null}
-      <PaymentPointerCTA />
+      <WalletAddressCTA />
     </div>
   )
 }
 
-const PaymentPointerCTA = () => {
-  const { paymentPointer } = usePaymentPointerContext()
+const WalletAddressCTA = () => {
+  const { walletAddress } = useWalletAddressContext()
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
 
   async function revokePublicAndPrivateKeys() {
-    const response = await paymentPointerService.revokeKey({
-      accountId: paymentPointer.accountId,
-      paymentPointerId: paymentPointer.id
+    const response = await walletAddressService.revokeKey({
+      accountId: walletAddress.accountId,
+      walletAddressId: walletAddress.id
     })
 
     if (!response.success) {
@@ -244,9 +242,9 @@ const PaymentPointerCTA = () => {
   }
 
   async function generatePublicAndPrivateKeys() {
-    const response = await paymentPointerService.generateKey({
-      accountId: paymentPointer.accountId,
-      paymentPointerId: paymentPointer.id
+    const response = await walletAddressService.generateKey({
+      accountId: walletAddress.accountId,
+      walletAddressId: walletAddress.id
     })
 
     if (!response.success) {
@@ -271,7 +269,7 @@ const PaymentPointerCTA = () => {
           size="lg"
           content={
             <div className="text-base">
-              <p>Your payment pointer keys were successfully generated.</p>
+              <p>Your wallet address keys were successfully generated.</p>
               <div className="mt-4 space-y-2">
                 <p className="text-base">
                   The private key has been automatically downloaded to your
@@ -308,14 +306,14 @@ const PaymentPointerCTA = () => {
 
   return (
     <div className="pt-4">
-      {paymentPointer.keyIds ? (
+      {walletAddress.keyIds ? (
         <Button
           intent="secondary"
           aria-label="generate keys"
           onClick={() =>
             openDialog(
               <ConfirmationDialog
-                confirmText="Revoke payment pointer key"
+                confirmText="Revoke wallet address key"
                 onConfirm={() => revokePublicAndPrivateKeys()}
                 onClose={closeDialog}
               />

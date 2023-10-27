@@ -15,7 +15,7 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
-import { paymentPointerService } from '@/lib/api/paymentPointer'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -37,7 +37,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
-  const [paymentPointers, setPaymentPointers] = useState<SelectOption[]>([])
+  const [walletAddresses, setWalletAddresses] = useState<SelectOption[]>([])
   const [selectedAccount, setSelectedAccount] =
     useState<SelectAccountOption | null>(null)
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
@@ -90,32 +90,32 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
 
     setSelectedAccount(selectedAccount || null)
 
-    sendForm.resetField('paymentPointerId', {
+    sendForm.resetField('walletAddressId', {
       defaultValue: null
     })
 
-    const paymentPointersResponse = await paymentPointerService.list(accountId)
-    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
-      setPaymentPointers([])
+    const walletAddressesResponse = await walletAddressService.list(accountId)
+    if (!walletAddressesResponse.success || !walletAddressesResponse.data) {
+      setWalletAddresses([])
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again."
+          content="Could not load wallet addresses. Please try again."
         />
       )
       return
     }
 
-    const paymentPointers = paymentPointersResponse.data.paymentPointers.map(
-      (paymentPointer) => ({
-        label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
+    const walletAddresses = walletAddressesResponse.data.walletAddresses.map(
+      (walletAddress) => ({
+        label: `${walletAddress.publicName} (${walletAddress.url.replace(
           'https://',
           '$'
         )})`,
-        value: paymentPointer.id
+        value: walletAddress.id
       })
     )
-    setPaymentPointers(paymentPointers)
+    setWalletAddresses(walletAddresses)
 
     if (selectedAccount) {
       const ratesResponse = await assetService.getExchangeRates(
@@ -146,7 +146,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     }
   }
 
-  const onPaymentPointerChange = async (url: string): Promise<void> => {
+  const onWalletAddressChange = async (url: string): Promise<void> => {
     if (url === '') {
       setReceiverAssetCode(null)
       return
@@ -187,17 +187,17 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setReceiverAssetCode(null)
       }
     } else {
-      const paymentPointerAssetCodeResponse =
-        await paymentPointerService.getExternal(url)
+      const walletAddressAssetCodeResponse =
+        await walletAddressService.getExternal(url)
       if (
-        !paymentPointerAssetCodeResponse.success ||
-        !paymentPointerAssetCodeResponse.data
+        !walletAddressAssetCodeResponse.success ||
+        !walletAddressAssetCodeResponse.data
       ) {
         setReceiverAssetCode(null)
         return
       }
 
-      setReceiverAssetCode(paymentPointerAssetCodeResponse.data.assetCode)
+      setReceiverAssetCode(walletAddressAssetCodeResponse.data.assetCode)
     }
 
     if (isToggleDisabled) setIsToggleDisabled(false)
@@ -301,24 +301,22 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               }}
             />
             <Controller
-              name="paymentPointerId"
+              name="walletAddressId"
               control={sendForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
                   required
-                  label="Payment pointer"
-                  options={paymentPointers}
+                  label="Wallet address"
+                  options={walletAddresses}
                   aria-invalid={
-                    sendForm.formState.errors.paymentPointerId
-                      ? 'true'
-                      : 'false'
+                    sendForm.formState.errors.walletAddressId ? 'true' : 'false'
                   }
-                  error={sendForm.formState.errors.paymentPointerId?.message}
-                  placeholder="Select payment pointer..."
+                  error={sendForm.formState.errors.walletAddressId?.message}
+                  placeholder="Select wallet address..."
                   value={value}
                   onChange={(option) => {
                     if (option) {
-                      sendForm.setValue('paymentPointerId', { ...option })
+                      sendForm.setValue('walletAddressId', { ...option })
                     }
                   }}
                 />
@@ -335,9 +333,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                   <DebouncedInput
                     required
                     error={sendForm.formState.errors.receiver?.message}
-                    label="Payment pointer or Incoming payment URL"
+                    label="Wallet address or Incoming payment URL"
                     value={value}
-                    onChange={onPaymentPointerChange}
+                    onChange={onWalletAddressChange}
                   />
                 )
               }}

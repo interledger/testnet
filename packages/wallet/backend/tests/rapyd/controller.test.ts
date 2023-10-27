@@ -29,7 +29,7 @@ import {
 } from '@/tests/mocks'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { PaymentPointerService } from '@/walletAddress/service'
 import { errorHandler } from '@/middleware/errorHandler'
 
 describe('Rapyd Controller', () => {

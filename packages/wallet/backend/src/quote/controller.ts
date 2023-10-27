@@ -27,12 +27,12 @@ export class QuoteController implements IQuoteController {
     try {
       const userId = req.session.user.id
       const {
-        body: { receiver, paymentPointerId, amount, isReceive, description }
+        body: { receiver, walletAddressId, amount, isReceive, description }
       } = await validate(quoteSchema, req)
 
       const quote = await this.deps.quoteService.create({
         userId,
-        paymentPointerId,
+        walletAddressId,
         amount,
         isReceive,
         receiver,

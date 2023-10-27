@@ -58,8 +58,8 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 4
-    target: '#paymentPointer',
-    content: `In order to send and receive money, all accounts need at least a payment pointer, so let's add a payment pointer to your account.`,
+    target: '#walletAddress',
+    content: `In order to send and receive money, all accounts need at least a wallet address, so let's add a wallet address to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Plus
@@ -85,7 +85,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 7
     target: '#send',
     content:
-      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
+      'Now that you have created your account and added a wallet address, we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: MoneyOut
@@ -139,7 +139,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 14
     target: '#transactionsList',
-    content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Testnet. Continue to play around.`,
+    content: `Here you can see the transaction list for this wallet address. Now you are familiar with the basics of Testnet. Continue to play around.`,
     disableOverlayClose: true,
     Icon: HomeRooftop
   }

@@ -10,7 +10,7 @@ import { mockedListAssets, mockRapyd } from '@/tests/mocks'
 import { AccountService } from '@/account/service'
 import { faker } from '@faker-js/faker'
 import { Account } from '@/account/model'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { PaymentPointer } from '@/walletAddress/model'
 import { loginUser, uuid } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
 
