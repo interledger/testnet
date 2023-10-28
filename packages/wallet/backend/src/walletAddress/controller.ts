@@ -157,7 +157,7 @@ export class WalletAddressController implements IWalletAddressController {
 
       res.status(200).json({
         success: true,
-        message: 'Wallet address was successfully deleted'
+        message: 'Payment pointer was successfully deleted'
       })
     } catch (e) {
       next(e)
@@ -226,7 +226,7 @@ export class WalletAddressController implements IWalletAddressController {
 
       res.status(200).json({
         success: true,
-        message: 'Wallet address was successfully updated.'
+        message: 'Payment pointer was successfully updated.'
       })
     } catch (e) {
       next(e)

@@ -133,7 +133,7 @@ export class RafikiService implements IRafikiService {
 
     const user = account?.user
     if (!user || !user.rapydWalletId) {
-      throw new BadRequest('No user associated to the provided wallet address')
+      throw new BadRequest('No user associated to the provided payment pointer')
     }
 
     return user.rapydWalletId

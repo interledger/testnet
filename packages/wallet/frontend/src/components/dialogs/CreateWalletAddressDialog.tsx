@@ -64,7 +64,7 @@ export const CreateWalletAddressDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Create Wallet Address
+                  Create Payment Pointer
                 </Dialog.Title>
 
                 <div className="px-4">
@@ -112,7 +112,7 @@ export const CreateWalletAddressDialog = ({
                       <Input
                         addOn={OPEN_PAYMENTS_HOST}
                         required
-                        label="Wallet Address name"
+                        label="Payment Pointer name"
                         error={
                           createWalletAddressForm.formState?.errors
                             ?.walletAddressName?.message
@@ -132,12 +132,12 @@ export const CreateWalletAddressDialog = ({
                       {...createWalletAddressForm.register('publicName')}
                     />
                     <Checkbox
-                      label="I want to use this wallet address for Web Monetization"
+                      label="I want to use this payment pointer for Web Monetization"
                       {...createWalletAddressForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
-                        aria-label="create wallet address"
+                        aria-label="create payment pointer"
                         type="submit"
                         loading={createWalletAddressForm.formState.isSubmitting}
                       >

@@ -38,7 +38,7 @@ describe('Product Service', (): void => {
       })
     })
 
-    it('should throw an error when trying to create a new user with an already existing wallet address', async (): Promise<void> => {
+    it('should throw an error when trying to create a new user with an already existing payment pointer', async (): Promise<void> => {
       await userService.create(walletAddress)
       await expect(userService.create(walletAddress)).rejects.toThrowError(
         /value violates unique constraint/
@@ -51,7 +51,7 @@ describe('Product Service', (): void => {
       await expect(userService.get('id', randomUUID())).resolves.toBeUndefined()
     })
 
-    it('should return undefined if the user with the given wallet address does not exist', async (): Promise<void> => {
+    it('should return undefined if the user with the given payment pointer does not exist', async (): Promise<void> => {
       await expect(
         userService.get('walletAddress', walletAddress)
       ).resolves.toBeUndefined()

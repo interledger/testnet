@@ -4,7 +4,7 @@ export const createOrderSchema = z.object({
   walletAddressUrl: z
     .string()
     .transform((val) => val.replace('$', 'https://'))
-    .pipe(z.string().url({ message: 'Invalid wallet address.' })),
+    .pipe(z.string().url({ message: 'Invalid payment pointer.' })),
   products: z
     .array(
       z.object({

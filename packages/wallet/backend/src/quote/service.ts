@@ -74,7 +74,7 @@ export class QuoteService implements IQuoteService {
     )
 
     if (!existingWalletAddress || !existingWalletAddress.active) {
-      throw new BadRequest('Invalid wallet address')
+      throw new BadRequest('Invalid payment pointer')
     }
 
     const { assetId, assetCode } =

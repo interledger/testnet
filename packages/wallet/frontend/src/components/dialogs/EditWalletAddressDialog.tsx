@@ -64,7 +64,7 @@ export const EditWalletAddressDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Edit Wallet Address
+                  Edit Payment Pointer
                 </Dialog.Title>
 
                 <div className="px-4">
@@ -108,7 +108,7 @@ export const EditWalletAddressDialog = ({
                       disabled
                       readOnly
                       value={walletAddress.url.split('/')[1]}
-                      label="Wallet Address name"
+                      label="Payment Pointer name"
                     />
                     <Input
                       required
@@ -118,7 +118,7 @@ export const EditWalletAddressDialog = ({
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
-                        aria-label="save wallet address"
+                        aria-label="save payment pointer"
                         type="submit"
                         loading={form.formState.isSubmitting}
                       >

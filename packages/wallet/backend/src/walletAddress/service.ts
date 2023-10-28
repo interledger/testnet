@@ -124,7 +124,7 @@ export class WalletAddressService implements IWalletAddressService {
         account.userId !== args.userId
       ) {
         throw new Conflict(
-          'This wallet address already exists. Please choose another name.'
+          'This payment pointer already exists. Please choose another name.'
         )
       } else if (
         walletAddress.accountId === args.accountId &&
@@ -442,7 +442,7 @@ export class WalletAddressService implements IWalletAddressService {
   ): Promise<void> {
     if (!walletAddress.assetCode || !walletAddress.assetScale) {
       throw new Error(
-        `Missing asset information for wallet address "${walletAddress.url} (ID: ${walletAddress.id})"`
+        `Missing asset information for payment pointer "${walletAddress.url} (ID: ${walletAddress.id})"`
       )
     }
     const amount = Number(
@@ -513,7 +513,7 @@ export class WalletAddressService implements IWalletAddressService {
     ])
 
     this.deps.logger.info(
-      `Proccesed WM transactions for wallet address ${walletAddress.url}. Type: ${type} | Amount: ${amount}`
+      `Proccesed WM transactions for payment pointer ${walletAddress.url}. Type: ${type} | Amount: ${amount}`
     )
   }
 
@@ -589,7 +589,7 @@ export class WalletAddressService implements IWalletAddressService {
     } catch (e) {
       this.deps.logger.error(e)
       await trx.rollback()
-      throw new Error('Error while processing WM wallet addresss.')
+      throw new Error('Error while processing WM payment pointers.')
     }
   }
 }

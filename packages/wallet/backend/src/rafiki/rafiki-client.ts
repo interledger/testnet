@@ -160,7 +160,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }
     if (!paymentResponse.payment) {
-      throw new Error('Unable to fetch created wallet address')
+      throw new Error('Unable to fetch created incoming payment')
     }
 
     return paymentResponse.payment
@@ -193,7 +193,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }
     if (!paymentResponse.receiver) {
-      throw new Error('Unable to fetch created wallet address')
+      throw new Error('Unable to fetch created receiver')
     }
 
     return paymentResponse.receiver as Receiver
@@ -259,7 +259,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error(paymentResponse.message ?? 'Empty result')
     }
     if (!paymentResponse.payment) {
-      throw new Error('Unable to fetch created wallet address')
+      throw new Error('Unable to fetch created outgoing payment')
     }
 
     return paymentResponse.payment

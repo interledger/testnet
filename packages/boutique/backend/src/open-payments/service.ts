@@ -297,11 +297,11 @@ export class OpenPayments implements IOpenPayments {
         url
       })
       .catch(() => {
-        this.logger.error(`Could not fetch wallet address "${url}".`)
-        throw new BadRequest('Invalid wallet address.')
+        this.logger.error(`Could not fetch payment pointer "${url}".`)
+        throw new BadRequest('Invalid payment pointer.')
       })
 
-    this.logger.debug('Wallet address information', walletAddress)
+    this.logger.debug('Payment pointer information', walletAddress)
     this.logger.debug(JSON.stringify(walletAddress, null, 2))
 
     return walletAddress

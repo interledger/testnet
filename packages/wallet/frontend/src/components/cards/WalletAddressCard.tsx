@@ -75,7 +75,7 @@ export const WalletAddressCard = ({
           ) : (
             <WalletAddressCardButton
               href={`/transactions?walletAddressId=${walletAddress.id}`}
-              aria-label="view wallet address"
+              aria-label="view payment pointer"
               id={idOnboarding}
             >
               View
@@ -162,7 +162,7 @@ const WalletAddressOptions = ({ walletAddress }: WalletAddressOptionsProps) => {
                   <Option
                     name="Edit"
                     Icon={PencilSquare}
-                    aria-label="Edit wallet address"
+                    aria-label="Edit payment pointer"
                     action={() =>
                       openDialog(
                         <EditWalletAddressDialog
@@ -176,11 +176,11 @@ const WalletAddressOptions = ({ walletAddress }: WalletAddressOptionsProps) => {
                     name="Delete"
                     intent="danger"
                     Icon={Trash}
-                    aria-label="delete wallet address"
+                    aria-label="delete payment pointer"
                     action={() =>
                       openDialog(
                         <ConfirmationDialog
-                          confirmText="Delete wallet address"
+                          confirmText="Delete payment pointer"
                           onConfirm={() =>
                             handleDeleteConfirmation(walletAddress.id)
                           }

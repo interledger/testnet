@@ -142,10 +142,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                   <New className="h-9 w-7" />
                   <div className="-space-y-2 text-[15px]">
                     <p className="font-medium text-green-5 group-hover:text-green-6">
-                      Add wallet{' '}
+                      Add payment{' '}
                     </p>
                     <p className="font-medium text-green-5 group-hover:text-green-6">
-                      address
+                      pointer
                     </p>
                   </div>
                 </button>
@@ -221,7 +221,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                   )
                 ) : (
                   <div className="flex items-center justify-center p-4 text-green">
-                    <span>No wallet addresses found for this account.</span>
+                    <span>No payment pointers found for this account.</span>
                   </div>
                 )}
               </div>
@@ -272,7 +272,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     ) : (
                       <div className="flex items-center justify-center p-4 text-green">
                         <span>
-                          No web monetization wallet addresses found for this
+                          No web monetization payment pointers found for this
                           account.
                         </span>
                       </div>

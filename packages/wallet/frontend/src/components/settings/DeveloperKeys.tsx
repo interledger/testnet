@@ -269,7 +269,7 @@ const WalletAddressCTA = () => {
           size="lg"
           content={
             <div className="text-base">
-              <p>Your wallet address keys were successfully generated.</p>
+              <p>Your payment pointer keys were successfully generated.</p>
               <div className="mt-4 space-y-2">
                 <p className="text-base">
                   The private key has been automatically downloaded to your
@@ -313,7 +313,7 @@ const WalletAddressCTA = () => {
           onClick={() =>
             openDialog(
               <ConfirmationDialog
-                confirmText="Revoke wallet address key"
+                confirmText="Revoke payment pointer key"
                 onConfirm={() => revokePublicAndPrivateKeys()}
                 onClose={closeDialog}
               />

@@ -20,7 +20,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import {
-  INTERLEDGER_PAYMENT_POINTER,
+  INTERLEDGER_WALLET_ADDRESS,
   PAYMENT_RECEIVE,
   PAYMENT_SEND
 } from '@/utils/constants'
@@ -69,7 +69,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     schema: sendSchema,
     defaultValues: {
       paymentType: PAYMENT_SEND,
-      receiver: isUserFirstTime ? INTERLEDGER_PAYMENT_POINTER : ''
+      receiver: isUserFirstTime ? INTERLEDGER_WALLET_ADDRESS : ''
     }
   })
 
@@ -100,7 +100,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load wallet addresses. Please try again."
+          content="Could not load payment pointers. Please try again."
         />
       )
       return
@@ -306,13 +306,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               render={({ field: { value } }) => (
                 <Select<SelectOption>
                   required
-                  label="Wallet address"
+                  label="Payment pointer"
                   options={walletAddresses}
                   aria-invalid={
                     sendForm.formState.errors.walletAddressId ? 'true' : 'false'
                   }
                   error={sendForm.formState.errors.walletAddressId?.message}
-                  placeholder="Select wallet address..."
+                  placeholder="Select payment pointer..."
                   value={value}
                   onChange={(option) => {
                     if (option) {
@@ -333,7 +333,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                   <DebouncedInput
                     required
                     error={sendForm.formState.errors.receiver?.message}
-                    label="Wallet address or Incoming payment URL"
+                    label="Payment pointer or Incoming payment URL"
                     value={value}
                     onChange={onWalletAddressChange}
                   />

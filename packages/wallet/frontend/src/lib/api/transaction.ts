@@ -75,7 +75,7 @@ export const createTransactionService = (): TransactionService => {
           .json<ListTransactionsResult>()
         return response
       } catch (error) {
-        return getError(error, 'Unable to fetch wallet addresses.')
+        return getError(error, 'Unable to fetch payment pointers.')
       }
     }
   }

@@ -134,8 +134,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     (pp) => pp.accountId === currentAccount.value
                   )
             }
-            label="Wallet Address"
-            placeholder="Select wallet address..."
+            label="Payment Pointer"
+            placeholder="Select payment pointer..."
             value={
               currentWalletAddress.accountId !== currentAccount.value &&
               currentAccount.value !== ''
@@ -204,7 +204,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               columns={[
                 '',
                 'Account',
-                'Wallet address',
+                'Payment pointer',
                 'Description',
                 'Amount',
                 'Status',
