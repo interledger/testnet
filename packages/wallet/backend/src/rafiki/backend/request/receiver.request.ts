@@ -15,7 +15,7 @@ export const createReceiverMutation = gql`
           assetScale
           value
         }
-        paymentPointerUrl
+        walletAddressUrl
         receivedAmount {
           assetCode
           assetScale

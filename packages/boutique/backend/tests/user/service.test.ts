@@ -13,7 +13,7 @@ describe('Product Service', (): void => {
   let knex: Knex
   let userService: IUserService
 
-  const paymentPointer = 'https://ilp.example.com'
+  const walletAddress = 'https://ilp.example.com'
 
   beforeAll(async (): Promise<void> => {
     container = await createContainer(env)
@@ -33,14 +33,14 @@ describe('Product Service', (): void => {
 
   describe('create', (): void => {
     it('should create a new user', async (): Promise<void> => {
-      await expect(userService.create(paymentPointer)).resolves.toMatchObject({
-        paymentPointer
+      await expect(userService.create(walletAddress)).resolves.toMatchObject({
+        walletAddress
       })
     })
 
     it('should throw an error when trying to create a new user with an already existing payment pointer', async (): Promise<void> => {
-      await userService.create(paymentPointer)
-      await expect(userService.create(paymentPointer)).rejects.toThrowError(
+      await userService.create(walletAddress)
+      await expect(userService.create(walletAddress)).rejects.toThrowError(
         /value violates unique constraint/
       )
     })
@@ -53,7 +53,7 @@ describe('Product Service', (): void => {
 
     it('should return undefined if the user with the given payment pointer does not exist', async (): Promise<void> => {
       await expect(
-        userService.get('paymentPointer', paymentPointer)
+        userService.get('walletAddress', walletAddress)
       ).resolves.toBeUndefined()
     })
   })

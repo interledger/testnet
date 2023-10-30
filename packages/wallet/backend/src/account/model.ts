@@ -1,4 +1,4 @@
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 import { BaseModel } from '@/shared/model'
 import { User } from '@/user/model'
 import { Model } from 'objection'
@@ -14,7 +14,7 @@ export class Account extends BaseModel {
   public readonly assetScale!: number
   public readonly userId!: string
   public user!: User
-  public paymentPointers!: Array<PaymentPointer>
+  public walletAddresses!: Array<WalletAddress>
   public debt!: number
 
   static relationMappings = () => ({
@@ -26,12 +26,12 @@ export class Account extends BaseModel {
         to: 'users.id'
       }
     },
-    paymentPointers: {
+    walletAddresses: {
       relation: Model.HasManyRelation,
-      modelClass: PaymentPointer,
+      modelClass: WalletAddress,
       join: {
         from: 'accounts.id',
-        to: 'paymentPointers.accountId'
+        to: 'walletAddresses.accountId'
       }
     }
   })

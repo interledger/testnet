@@ -29,7 +29,7 @@ import {
 } from '@/tests/mocks'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddressService } from '@/walletAddress/service'
 import { errorHandler } from '@/middleware/errorHandler'
 
 describe('Rapyd Controller', () => {
@@ -39,7 +39,7 @@ describe('Rapyd Controller', () => {
   let authService: AuthService
   let rapydController: RapydController
   let accountService: AccountService
-  let paymentPointerService: PaymentPointerService
+  let walletAddressService: WalletAddressService
   let req: MockRequest<Request>
   let res: MockResponse<Response>
   let userId: string
@@ -69,7 +69,7 @@ describe('Rapyd Controller', () => {
   const createRapydControllerDepsMocked = (isFailure?: boolean) => {
     const rapydControllerDepsMocked = {
       accountService,
-      paymentPointerService,
+      walletAddressService,
       rapydService: isFailure ? mockedRapydFailureService : mockedRapydService
     }
     Reflect.set(rapydController, 'deps', rapydControllerDepsMocked)
@@ -81,7 +81,7 @@ describe('Rapyd Controller', () => {
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
     accountService = await bindings.resolve('accountService')
-    paymentPointerService = await bindings.resolve('paymentPointerService')
+    walletAddressService = await bindings.resolve('walletAddressService')
     rapydController = await bindings.resolve('rapydController')
 
     const accountServiceDepsMocked = {
@@ -94,16 +94,16 @@ describe('Rapyd Controller', () => {
     }
     Reflect.set(accountService, 'deps', accountServiceDepsMocked)
 
-    const paymentPointerServiceDepsMocked = {
+    const walletAddressServiceDepsMocked = {
       accountService,
       rafikiClient: {
-        createRafikiPaymentPointer: () => ({
+        createRafikiWalletAddress: () => ({
           id: uuid(),
           url: faker.internet.url()
         })
       }
     }
-    Reflect.set(paymentPointerService, 'deps', paymentPointerServiceDepsMocked)
+    Reflect.set(walletAddressService, 'deps', walletAddressServiceDepsMocked)
 
     createRapydControllerDepsMocked()
   })

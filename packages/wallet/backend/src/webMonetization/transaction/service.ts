@@ -32,7 +32,7 @@ export class WMTransactionService implements IWMTransactionService {
   }
   async createIncomingTransaction(params: IncomingPayment) {
     return WMTransaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
+      walletAddressId: params.walletAddressId,
       paymentId: params.id,
       expiresAt: params.expiresAt
         ? new Date(params.expiresAt)
@@ -45,7 +45,7 @@ export class WMTransactionService implements IWMTransactionService {
   async createOutgoingTransaction(params: OutgoingPayment) {
     const amount = params.debitAmount
     return WMTransaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
+      walletAddressId: params.walletAddressId,
       paymentId: params.id,
       value: amount.value,
       type: 'OUTGOING',
@@ -57,13 +57,13 @@ export class WMTransactionService implements IWMTransactionService {
     return WMTransaction.query(trx).del().whereIn('id', ids)
   }
 
-  async sumByPaymentPointerId(
-    paymentPointerId: string,
+  async sumByWalletAddressId(
+    walletAddressId: string,
     type: TransactionType,
     trx?: TransactionOrKnex
   ) {
     const transactions = await WMTransaction.query(trx).where({
-      paymentPointerId,
+      walletAddressId,
       type,
       status: 'COMPLETED'
     })

@@ -31,7 +31,7 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (ctx) => {
   const response = await accountService.list(
     ctx.req.headers.cookie,
-    'paymentPointers'
+    'walletAddresses'
   )
 
   if (!response.success || !response.data) {
@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   const accounts = response.data.map((account) => ({
     ...account,
-    paymentPointers: account.paymentPointers.map((pp) => ({
+    walletAddresses: account.walletAddresses.map((pp) => ({
       ...pp,
       url: pp.url.replace('https://', '$'),
       keyIds: pp.keyIds

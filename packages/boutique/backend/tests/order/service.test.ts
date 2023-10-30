@@ -21,7 +21,7 @@ describe('Order Service', (): void => {
   let orderService: IOrderService
   let order: Order
 
-  const paymentPointer = 'https://ilp.example.com'
+  const walletAddress = 'https://ilp.example.com'
   const productOne = mockProduct()
   const productTwo = mockProduct({ name: 'Product #2', price: 20 })
   const orderItems = [
@@ -38,7 +38,7 @@ describe('Order Service', (): void => {
   async function createOrder(): Promise<Order> {
     await createProducts([productOne, productTwo])
 
-    const user = await userService.create(paymentPointer)
+    const user = await userService.create(walletAddress)
     return await orderService.create(
       {
         userId: user.id,
@@ -81,7 +81,7 @@ describe('Order Service', (): void => {
     })
 
     test('can create an order with a user ID', async (): Promise<void> => {
-      const user = await userService.create(paymentPointer + '/alice')
+      const user = await userService.create(walletAddress + '/alice')
       const params = {
         userId: user.id,
         orderItems
