@@ -139,7 +139,8 @@ describe('Payment Pointer', () => {
       }
       req.body = {
         paymentPointerName: faker.lorem.slug(),
-        publicName: faker.lorem.words({ min: 2, max: 2 })
+        publicName: faker.lorem.words({ min: 2, max: 2 }),
+        isWM: false
       }
       await ppController.create(req, res, next)
       expect(res.statusCode).toBe(200)
@@ -159,7 +160,8 @@ describe('Payment Pointer', () => {
       }
       req.body = {
         paymentPointerName: faker.lorem.slug(),
-        publicName: faker.lorem.words({ min: 2, max: 2 })
+        publicName: faker.lorem.words({ min: 2, max: 2 }),
+        isWM: false
       }
       await ppController.create(req, res, (err) => {
         next()
