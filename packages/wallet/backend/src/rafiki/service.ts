@@ -337,7 +337,9 @@ export class RafikiService implements IRafikiService {
       source_ewallet
     })
 
-    await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+    if (wh.data.balance !== '0') {
+      await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+    }
 
     await this.deps.transactionService.updateTransaction(
       { paymentId: wh.data.id },
