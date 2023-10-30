@@ -1,15 +1,28 @@
 import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
-import { Conflict, NotFound } from '@/errors'
+import { BadRequest, Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
 import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
+import { Cache } from '../cache/service'
 import { PaymentPointer } from './model'
+import { Knex } from 'knex'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
+import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
+import { RapydClient } from '@/rapyd/rapyd-client'
+import { TransactionType } from '@/transaction/model'
+import { Logger } from 'winston'
 
-interface UpdatePaymentPointerArgs {
+interface HandleBalanceParams {
+  type: TransactionType
+  balance: bigint
+  paymentPointer: PaymentPointer
+}
+
+export interface UpdatePaymentPointerArgs {
   userId: string
   accountId: string
   paymentPointerId: string
@@ -24,20 +37,34 @@ export interface ExternalPaymentPointer {
   authServer: string
 }
 
+export interface CreatePaymentPointerArgs {
+  userId: string
+  accountId: string
+  paymentPointerName: string
+  publicName: string
+  isWM: boolean
+}
+
+export type UpdatePaymentPointerBalanceArgs = {
+  paymentPointerId: string
+  balance: number
+}
+
+export type GetPaymentPointerArgs = {
+  paymentPointerId: string
+  accountId?: string
+  userId?: string
+}
+
+export type PaymentPointerList = {
+  wmPaymentPointers: PaymentPointer[]
+  paymentPointers: PaymentPointer[]
+}
 interface IPaymentPointerService {
-  create: (
-    userId: string,
-    accountId: string,
-    paymentPointerName: string,
-    publicName: string
-  ) => Promise<PaymentPointer>
+  create: (params: CreatePaymentPointerArgs) => Promise<PaymentPointer>
   update: (args: UpdatePaymentPointerArgs) => Promise<void>
-  list: (userId: string, accountId: string) => Promise<PaymentPointer[]>
-  getById: (
-    userId: string,
-    accountId: string,
-    id: string
-  ) => Promise<PaymentPointer>
+  list: (userId: string, accountId: string) => Promise<PaymentPointerList>
+  getById: (args: GetPaymentPointerArgs) => Promise<PaymentPointer>
   softDelete: (userId: string, id: string) => Promise<void>
 }
 
@@ -45,6 +72,11 @@ interface PaymentPointerServiceDependencies {
   accountService: AccountService
   rafikiClient: RafikiClient
   env: Env
+  cache: Cache<PaymentPointer>
+  knex: Knex
+  wmTransactionService: WMTransactionService
+  rapydClient: RapydClient
+  logger: Logger
 }
 
 export const createPaymentPointerIfFalsy = async ({
@@ -64,12 +96,13 @@ export const createPaymentPointerIfFalsy = async ({
     return paymentPointer
   }
 
-  const newPaymentPointer = await paymentPointerService.create(
+  const newPaymentPointer = await paymentPointerService.create({
     userId,
     accountId,
-    getRandomValues(new Uint32Array(1))[0].toString(16),
-    publicName
-  )
+    paymentPointerName: getRandomValues(new Uint32Array(1))[0].toString(16),
+    publicName,
+    isWM: false
+  })
 
   return newPaymentPointer
 }
@@ -77,89 +110,149 @@ export const createPaymentPointerIfFalsy = async ({
 export class PaymentPointerService implements IPaymentPointerService {
   constructor(private deps: PaymentPointerServiceDependencies) {}
 
-  async create(
-    userId: string,
-    accountId: string,
-    paymentPointerName: string,
-    publicName: string
-  ): Promise<PaymentPointer> {
+  async create(args: CreatePaymentPointerArgs): Promise<PaymentPointer> {
     const account = await this.deps.accountService.findAccountById(
-      accountId,
-      userId
+      args.accountId,
+      args.userId
     )
-    const url = `${this.deps.env.OPEN_PAYMENTS_HOST}/${paymentPointerName}`
+    const url = `${this.deps.env.OPEN_PAYMENTS_HOST}/${args.paymentPointerName}`
     let paymentPointer = await PaymentPointer.query().findOne({ url })
 
     if (paymentPointer) {
-      if (paymentPointer.accountId != accountId || account.userId !== userId) {
+      if (
+        paymentPointer.accountId != args.accountId ||
+        account.userId !== args.userId
+      ) {
         throw new Conflict(
           'This payment pointer already exists. Please choose another name.'
         )
       } else if (
-        paymentPointer.accountId === accountId &&
-        account.userId === userId
+        paymentPointer.accountId === args.accountId &&
+        account.userId === args.userId
       ) {
         paymentPointer = await PaymentPointer.query().patchAndFetchById(
           paymentPointer.id,
           {
-            publicName,
+            publicName: args.publicName,
             active: true
           }
         )
       }
     } else {
+      let webMonetizationAsset
+      if (args.isWM) {
+        // @TEMPORARY: Enable WM only for USD
+        if (account.assetCode !== 'USD') {
+          throw new BadRequest(
+            'Web Monetization is enabled exclusively for USD.'
+          )
+        }
+
+        webMonetizationAsset = await this.deps.rafikiClient.getRafikiAsset(
+          'USD',
+          this.deps.env.MAX_ASSET_SCALE
+        )
+
+        if (!webMonetizationAsset) {
+          throw new NotFound('Web monetization asset not found.')
+        }
+      }
+
+      const assetId = webMonetizationAsset?.id || account.assetId
       const rafikiPaymentPointer =
         await this.deps.rafikiClient.createRafikiPaymentPointer(
-          publicName,
-          account.assetId,
+          args.publicName,
+          assetId,
           url
         )
 
       paymentPointer = await PaymentPointer.query().insert({
         url: rafikiPaymentPointer.url,
-        publicName,
-        accountId,
-        id: rafikiPaymentPointer.id
+        publicName: args.publicName,
+        accountId: args.accountId,
+        id: rafikiPaymentPointer.id,
+        isWM: args.isWM,
+        assetCode: webMonetizationAsset?.code,
+        assetScale: webMonetizationAsset?.scale
       })
+
+      args.isWM &&
+        (await this.deps.cache.set(paymentPointer.id, paymentPointer, {
+          expiry: 60
+        }))
     }
 
     return paymentPointer
   }
 
-  async list(userId: string, accountId: string): Promise<PaymentPointer[]> {
-    // Validate that account id belongs to current user
+  async list(userId: string, accountId: string): Promise<PaymentPointerList> {
     const account = await this.deps.accountService.findAccountById(
       accountId,
       userId
     )
 
-    return PaymentPointer.query()
+    const paymentPointersResult = await PaymentPointer.query()
       .where('accountId', account.id)
       .where('active', true)
+
+    const result = paymentPointersResult.reduce(
+      (acc, pp) => {
+        if (pp.isWM) {
+          acc.wmPaymentPointers.push(pp)
+        } else {
+          acc.paymentPointers.push(pp)
+        }
+        return acc
+      },
+      {
+        wmPaymentPointers: [] as PaymentPointer[],
+        paymentPointers: [] as PaymentPointer[]
+      }
+    )
+
+    return result
   }
 
   async listAll(userId: string): Promise<PaymentPointer[]> {
-    return PaymentPointer.query().joinRelated('account').where({
-      'account.userId': userId,
-      'paymentPointers.active': true
-    })
+    return PaymentPointer.query()
+      .where({ isWM: false, active: true })
+      .joinRelated('account')
+      .where({
+        'account.userId': userId
+      })
   }
 
-  async getById(
-    userId: string,
-    accountId: string,
-    id: string
-  ): Promise<PaymentPointer> {
-    // Validate that account id belongs to current user
-    await this.deps.accountService.findAccountById(accountId, userId)
+  async getById(args: GetPaymentPointerArgs): Promise<PaymentPointer> {
+    //* Cache only contains PaymentPointers with isWM = true
+    const cacheHit = await this.deps.cache.get(args.paymentPointerId)
+    if (cacheHit) {
+      //* TODO: reset ttl
+      return cacheHit
+    }
 
-    const paymentPointer = await PaymentPointer.query()
-      .findById(id)
-      .where('accountId', accountId)
+    if (args.userId && args.accountId) {
+      await this.deps.accountService.findAccountById(
+        args.accountId,
+        args.userId
+      )
+    }
+
+    const query = PaymentPointer.query()
+      .findById(args.paymentPointerId)
       .where('active', true)
+    if (args.accountId) {
+      query.where('accountId', args.accountId)
+    }
+    const paymentPointer = await query
 
     if (!paymentPointer) {
       throw new NotFound()
+    }
+
+    if (paymentPointer.isWM) {
+      await this.deps.cache.set(paymentPointer.id, paymentPointer, {
+        expiry: 60
+      })
     }
 
     return paymentPointer
@@ -214,12 +307,11 @@ export class PaymentPointerService implements IPaymentPointerService {
     accountId: string,
     paymentPointerId: string
   ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
-    const paymentPointer = await this.getById(
+    const paymentPointer = await this.getById({
       userId,
       accountId,
       paymentPointerId
-    )
-
+    })
     const { privateKey, publicKey } = generateKeyPairSync('ed25519')
     const publicKeyPEM = publicKey
       .export({ type: 'spki', format: 'pem' })
@@ -254,17 +346,18 @@ export class PaymentPointerService implements IPaymentPointerService {
     accountId: string,
     paymentPointerId: string
   ): Promise<void> {
-    const paymentPointer = await this.getById(
+    const paymentPointer = await this.getById({
       userId,
       accountId,
       paymentPointerId
-    )
+    })
 
     if (!paymentPointer.keyIds) {
       return
     }
 
     const trx = await PaymentPointer.startTransaction()
+
     try {
       await Promise.all([
         paymentPointer.$query(trx).patch({ keyIds: null }),
@@ -280,11 +373,11 @@ export class PaymentPointerService implements IPaymentPointerService {
 
   async update(args: UpdatePaymentPointerArgs): Promise<void> {
     const { userId, accountId, paymentPointerId, publicName } = args
-    const paymentPointer = await this.getById(
+    const paymentPointer = await this.getById({
       userId,
       accountId,
       paymentPointerId
-    )
+    })
 
     const trx = await PaymentPointer.startTransaction()
 
@@ -319,6 +412,13 @@ export class PaymentPointerService implements IPaymentPointerService {
   }
 
   async findByIdWithoutValidation(id: string) {
+    //* Cache only contains PaymentPointers with isWM = true
+    const cacheHit = await this.deps.cache.get(id)
+    if (cacheHit) {
+      //* TODO: reset ttl
+      return cacheHit
+    }
+
     const paymentPointer = await PaymentPointer.query()
       .findById(id)
       .where('active', true)
@@ -327,6 +427,169 @@ export class PaymentPointerService implements IPaymentPointerService {
       throw new NotFound()
     }
 
+    if (paymentPointer.isWM) {
+      await this.deps.cache.set(paymentPointer.id, paymentPointer, {
+        expiry: 60
+      })
+    }
+
     return paymentPointer
+  }
+
+  private async handleBalance(
+    { type, balance, paymentPointer }: HandleBalanceParams,
+    trx: TransactionOrKnex
+  ): Promise<void> {
+    if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
+      throw new Error(
+        `Missing asset information for payment pointer "${paymentPointer.url} (ID: ${paymentPointer.id})"`
+      )
+    }
+    const amount = Number(
+      (
+        Number(balance * this.deps.env.WM_THRESHOLD) *
+        10 ** -paymentPointer.assetScale
+      ).toPrecision(2)
+    )
+
+    if (!paymentPointer.account.user.rapydWalletId) {
+      throw new Error(
+        `Missing Rapyd wallet ID for user "${paymentPointer.account.user.id}"`
+      )
+    }
+
+    let destination = paymentPointer.account.user.rapydWalletId
+    let source = this.deps.env.RAPYD_SETTLEMENT_EWALLET
+
+    if (type === 'OUTGOING') {
+      destination = this.deps.env.RAPYD_SETTLEMENT_EWALLET
+      source = paymentPointer.account.user.rapydWalletId
+    }
+
+    const transfer = await this.deps.rapydClient.transferLiquidity({
+      amount,
+      currency: paymentPointer.assetCode,
+      destination_ewallet: destination,
+      source_ewallet: source
+    })
+
+    if (transfer.status?.status !== 'SUCCESS') {
+      if (type === 'OUTGOING') {
+        await paymentPointer.$relatedQuery('account', trx).patch({
+          debt: raw('?? + ?', ['debt', amount])
+        })
+        return
+      }
+
+      throw new Error(
+        `Unable to transfer from ${source} into ${destination} error message: ${
+          transfer.status?.message || 'unknown'
+        }`
+      )
+    }
+
+    const updatedField: keyof Pick<
+      PartialModelObject<PaymentPointer>,
+      'incomingBalance' | 'outgoingBalance'
+    > = type === 'OUTGOING' ? 'outgoingBalance' : 'incomingBalance'
+    const updatePart: PartialModelObject<PaymentPointer> = {
+      [updatedField]: raw('?? - ?', [
+        updatedField,
+        this.deps.env.WM_THRESHOLD * balance
+      ])
+    }
+
+    await Promise.all([
+      paymentPointer.$relatedQuery('transactions', trx).insert({
+        accountId: paymentPointer.accountId,
+        paymentId: transfer.data.id,
+        assetCode: paymentPointer.assetCode!,
+        value: BigInt(amount * 10 ** this.deps.env.BASE_ASSET_SCALE),
+        type,
+        status: 'COMPLETED',
+        description: 'Web Monetization'
+      }),
+      paymentPointer.$query(trx).update(updatePart)
+    ])
+
+    this.deps.logger.info(
+      `Proccesed WM transactions for payment pointer ${paymentPointer.url}. Type: ${type} | Amount: ${amount}`
+    )
+  }
+
+  async processWMPaymentPointers(): Promise<void> {
+    const trx = await PaymentPointer.startTransaction()
+
+    try {
+      const paymentPointers = await PaymentPointer.query(trx)
+        .where({
+          isWM: true,
+          active: true
+        })
+        .withGraphFetched('account.user')
+
+      for (const paymentPointer of paymentPointers) {
+        if (!paymentPointer.assetCode || !paymentPointer.assetScale) {
+          throw new Error('Asset code or scale is missing')
+        }
+
+        const [incoming, outgoing] = await Promise.all([
+          this.deps.wmTransactionService.sumByPaymentPointerId(
+            paymentPointer.id,
+            'INCOMING',
+            trx
+          ),
+          this.deps.wmTransactionService.sumByPaymentPointerId(
+            paymentPointer.id,
+            'OUTGOING',
+            trx
+          )
+        ])
+
+        const tmpPaymentPointer = await paymentPointer
+          .$query(trx)
+          .updateAndFetchById(paymentPointer.id, {
+            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
+            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
+          })
+
+        await this.deps.wmTransactionService.deleteByTransactionIds(
+          incoming.ids.concat(outgoing.ids),
+          trx
+        )
+
+        const incomingBalance =
+          tmpPaymentPointer.incomingBalance / this.deps.env.WM_THRESHOLD
+        const outgoingBalance =
+          tmpPaymentPointer.outgoingBalance / this.deps.env.WM_THRESHOLD
+
+        if (incomingBalance > 0n) {
+          await this.handleBalance(
+            {
+              balance: incomingBalance,
+              paymentPointer,
+              type: 'INCOMING'
+            },
+            trx
+          )
+        }
+
+        if (outgoingBalance > 0n) {
+          await this.handleBalance(
+            {
+              balance: outgoingBalance,
+              paymentPointer,
+              type: 'OUTGOING'
+            },
+            trx
+          )
+        }
+      }
+      await trx.commit()
+    } catch (e) {
+      this.deps.logger.error(e)
+      await trx.rollback()
+      throw new Error('Error while processing WM payment pointers.')
+    }
   }
 }

@@ -373,10 +373,15 @@ export class RafikiClient implements IRafikiClient {
     return getQuote.quote
   }
 
-  public async getRafikiAsset(assetCode: string) {
-    const assetInRafiki = (await this.listAssets({ first: 100 })).find(
-      (asset) => asset.code === assetCode
-    )
+  public async getRafikiAsset(assetCode: string, assetScale?: number) {
+    const assets = await this.listAssets({ first: 100 })
+
+    const assetInRafiki = assets.find((asset) => {
+      if (!assetScale) {
+        return asset.code === assetCode
+      }
+      return asset.code === assetCode && asset.scale === assetScale
+    })
 
     return assetInRafiki
   }

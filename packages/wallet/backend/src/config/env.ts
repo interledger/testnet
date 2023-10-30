@@ -6,6 +6,7 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .default('postgres://postgres:password@localhost:5433/wallet_backend'),
+  REDIS_URL: z.string().default('redis://redis:6379/0'),
   COOKIE_NAME: z.string().default('testnet.cookie'),
   COOKIE_PASSWORD: z
     .string()
@@ -30,7 +31,11 @@ const envSchema = z.object({
   SEND_EMAIL: z
     .enum(['true', 'false'])
     .default('false')
-    .transform((value) => value === 'true')
+    .transform((value) => value === 'true'),
+  BASE_ASSET_SCALE: z.coerce.number().nonnegative().default(2),
+  MAX_ASSET_SCALE: z.coerce.number().nonnegative().default(9),
+  WM_THRESHOLD: z.coerce.bigint().nonnegative().default(100_000_000n), // $0.1 in asset scale 9
+  DEBT_THRESHOLD: z.coerce.number().multipleOf(0.01).nonnegative().default(5.0) // $5.00
 })
 
 export type Env = z.infer<typeof envSchema>
