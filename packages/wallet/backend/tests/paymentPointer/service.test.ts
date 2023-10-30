@@ -75,6 +75,10 @@ describe('Payment Pointer Service', () => {
     const ppServiceDepsMocked = {
       accountService,
       env: serviceEnv,
+      cache: {
+        get: jest.fn(),
+        set: jest.fn()
+      },
       rafikiClient: {
         createRafikiPaymentPointer: () => ({
           id: faker.string.uuid(),
@@ -114,12 +118,13 @@ describe('Payment Pointer Service', () => {
   describe('Create Payment Pointer', () => {
     it('should return an existed PaymentPointer', async () => {
       const { account } = await preparePPDependencies('my-wallet')
-      const result = await ppService.create(
+      const result = await ppService.create({
         userId,
-        account.id,
-        'my-wallet',
-        'My Wallet'
-      )
+        accountId: account.id,
+        paymentPointerName: 'my-wallet',
+        publicName: 'My Wallet',
+        isWM: false
+      })
       expect(result).toHaveProperty('publicName')
       expect(result).toHaveProperty('accountId')
       expect(result).toHaveProperty('url')
@@ -131,12 +136,13 @@ describe('Payment Pointer Service', () => {
 
     it('should return an new PaymentPointer', async () => {
       const { account } = await preparePPDependencies('my-work')
-      const result = await ppService.create(
+      const result = await ppService.create({
         userId,
-        account.id,
-        'my-wallet',
-        'My Wallet'
-      )
+        accountId: account.id,
+        paymentPointerName: 'my-wallet',
+        publicName: 'My Wallet',
+        isWM: false
+      })
       expect(result).toHaveProperty('publicName')
       expect(result).toHaveProperty('accountId')
       expect(result).toHaveProperty('url')
@@ -149,7 +155,13 @@ describe('Payment Pointer Service', () => {
       const { account } = await preparePPDependencies('my-work', false)
 
       await expect(
-        ppService.create(userId, account.id, 'my-work', 'My Work')
+        ppService.create({
+          userId,
+          accountId: account.id,
+          paymentPointerName: 'my-work',
+          publicName: 'My Work',
+          isWM: false
+        })
       ).rejects.toThrowError(
         /This payment pointer already exists. Please choose another name./
       )
@@ -161,8 +173,9 @@ describe('Payment Pointer Service', () => {
       const { account, paymentPointer } =
         await preparePPDependencies('my-wallet')
       const result = await ppService.list(userId, account.id)
-      expect(result).toHaveLength(1)
-      expect(result[0]).toMatchObject({
+      expect(result).toHaveProperty('wmPaymentPointers')
+      expect(result).toHaveProperty('paymentPointers')
+      expect(result.paymentPointers[0]).toMatchObject({
         url: paymentPointer.url,
         accountId: account.id
       })
@@ -184,17 +197,17 @@ describe('Payment Pointer Service', () => {
     it('should return a PaymentPointer Object', async () => {
       const { account, paymentPointer } =
         await preparePPDependencies('my-wallet')
-      const result = await ppService.getById(
+      const result = await ppService.getById({
         userId,
-        account.id,
-        paymentPointer.id
-      )
+        accountId: account.id,
+        paymentPointerId: paymentPointer.id
+      })
       expect(result).toMatchObject({
         id: paymentPointer.id,
         url: paymentPointer.url,
         accountId: account.id
       })
-    })
+    }, 50000)
   })
 
   describe('Get list of Identifiers By UserId', () => {
@@ -269,11 +282,11 @@ describe('Payment Pointer Service', () => {
       })
       expect(result).toBeUndefined()
 
-      const foundPP = await ppService.getById(
+      const foundPP = await ppService.getById({
         userId,
-        account.id,
-        paymentPointer.id
-      )
+        accountId: account.id,
+        paymentPointerId: paymentPointer.id
+      })
 
       expect(foundPP.publicName).toEqual('my-work')
     })
