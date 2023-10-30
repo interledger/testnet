@@ -228,6 +228,10 @@ describe('Payment Pointer', () => {
         message: 'SUCCESS'
       })
       expect(res._getJSONData()).toHaveProperty('data')
+      const data = res._getJSONData().data
+      expect(data).toHaveProperty('id')
+      expect(data).toHaveProperty('url')
+      expect(data).toHaveProperty('publicName')
     })
   })
 
