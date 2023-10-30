@@ -3,7 +3,7 @@
  * @returns { Promise<void> }
  */
 exports.up = async function (knex) {
-  return Promise.any([
+  return Promise.all([
     knex.schema.alterTable('users', function (table) {
       table.renameColumn('paymentPointer', 'walletAddress')
     }),

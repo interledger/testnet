@@ -4,7 +4,7 @@
  */
 exports.up = async function (knex) {
   await knex.schema.renameTable('paymentPointers', 'walletAddresses')
-  return Promise.any([
+  return Promise.all([
     knex.raw(
       'ALTER INDEX "paymentPointers_pkey" RENAME TO "walletAddresses_pkey"'
     ),
