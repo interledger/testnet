@@ -21,7 +21,7 @@ export enum EventType {
   OutgoingPaymentCreated = 'outgoing_payment.created',
   OutgoingPaymentCompleted = 'outgoing_payment.completed',
   OutgoingPaymentFailed = 'outgoing_payment.failed',
-  WalletAddressNotFound = 'payment_pointer.not_found'
+  WalletAddressNotFound = 'wallet_address.not_found'
 }
 
 export interface WebHook {
