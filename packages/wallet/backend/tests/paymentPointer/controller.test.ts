@@ -208,6 +208,11 @@ describe('Payment Pointer', () => {
         message: 'SUCCESS'
       })
       expect(res._getJSONData()).toHaveProperty('data')
+      const data = res._getJSONData().data
+      expect(data).toHaveLength(1)
+      expect(data[0]).toHaveProperty('id')
+      expect(data[0]).toHaveProperty('url')
+      expect(data[0]).toHaveProperty('publicName')
     })
   })
 
@@ -240,6 +245,10 @@ describe('Payment Pointer', () => {
         message: 'SUCCESS'
       })
       expect(res._getJSONData()).toHaveProperty('data')
+      const data = res._getJSONData().data
+      expect(data).toHaveProperty('id')
+      expect(data).toHaveProperty('url')
+      expect(data).toHaveProperty('publicName')
     })
   })
 
