@@ -134,7 +134,7 @@ services:
       PUBLIC_HOST: http://rafiki-backend
       OPEN_PAYMENTS_URL: http://rafiki-backend
       REDIS_URL: redis://redis:6379/0
-      PAYMENT_POINTER_URL: https://rafiki-backend/.well-known/pay
+      WALLET_ADDRESS_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
