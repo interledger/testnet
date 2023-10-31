@@ -15,16 +15,15 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
 
   async createByQuoteId(quoteId: string): Promise<void> {
     const quote = await this.deps.rafikiClient.getQuote(quoteId)
-    const paymentPointerId = quote.paymentPointerId
+    const walletAddressId = quote.walletAddressId
 
-    const incomingPayment =
-      await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
-        quote.receiver
-      )
-    const { description } = incomingPayment
+    const incomingPayment = await this.deps.incomingPaymentService.getReceiver(
+      quote.receiver
+    )
+    const description = incomingPayment?.description
 
     await this.deps.rafikiClient.createOutgoingPayment({
-      paymentPointerId,
+      walletAddressId,
       quoteId,
       metadata: { description }
     })

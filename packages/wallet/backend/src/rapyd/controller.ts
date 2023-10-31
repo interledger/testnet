@@ -1,7 +1,9 @@
 import { AccountService } from '@/account/service'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
+import { SocketService } from '@/socket/service'
 import { User } from '@/user/model'
+import { UserService } from '@/user/service'
 import { getRandomValues } from 'crypto'
 import { NextFunction, Request } from 'express'
 import { Logger } from 'winston'
@@ -17,9 +19,11 @@ interface IRapydController {
 }
 interface RapydControllerDependencies {
   accountService: AccountService
-  paymentPointerService: PaymentPointerService
+  walletAddressService: WalletAddressService
   logger: Logger
   rapydService: RapydService
+  socketService: SocketService
+  userService: UserService
 }
 
 export class RapydController implements IRapydController {
@@ -32,6 +36,7 @@ export class RapydController implements IRapydController {
   ) => {
     try {
       const countryNamesResult = await this.deps.rapydService.getCountryNames()
+
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: countryNamesResult })
@@ -47,7 +52,6 @@ export class RapydController implements IRapydController {
   ) => {
     try {
       const { id: userId } = req.session.user
-
       const documentTypesResult =
         await this.deps.rapydService.getDocumentTypes(userId)
       res
@@ -90,14 +94,15 @@ export class RapydController implements IRapydController {
       if (defaultAccount) {
         const typedArray = new Uint32Array(1)
         getRandomValues(typedArray)
-        const paymentPointerName = typedArray[0].toString(16)
+        const walletAddressName = typedArray[0].toString(16)
 
-        await this.deps.paymentPointerService.create(
-          id,
-          defaultAccount.id,
-          paymentPointerName,
-          'Default Payment Pointer'
-        )
+        await this.deps.walletAddressService.create({
+          accountId: defaultAccount.id,
+          walletAddressName,
+          publicName: 'Default Payment Pointer',
+          userId: id,
+          isWM: false
+        })
       }
 
       res.status(200).json({

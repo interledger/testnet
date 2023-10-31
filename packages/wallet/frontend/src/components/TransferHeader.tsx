@@ -1,4 +1,5 @@
 import { cx } from 'class-variance-authority'
+import { BackButton } from './BackButton'
 
 const TYPES = {
   pink: 'text-pink',
@@ -16,10 +17,19 @@ type TransferHeaderProps = {
 export const TransferHeader = ({ type, balance }: TransferHeaderProps) => {
   return (
     <div className="text-center">
-      <h2 className={cx('text-xl font-light', TYPES[type])}>Total balance</h2>
-      <h3 className={cx('mb-10 h-10 text-3xl font-semibold', TYPES[type])}>
-        {balance}
-      </h3>
+      <div className="relative mb-16 mt-7 flex items-center">
+        <BackButton />
+        <div className="absolute left-[50%] -translate-x-1/2">
+          <h2 className={cx('text-xl font-light', TYPES[type])}>
+            Total balance
+          </h2>
+          {balance && (
+            <h3 className={cx('h-10 text-3xl font-semibold', TYPES[type])}>
+              {balance}
+            </h3>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

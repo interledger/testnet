@@ -6,6 +6,7 @@ import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
+import { Amount } from '@/rafiki/service'
 
 type CreateAccountArgs = {
   userId: string
@@ -119,7 +120,7 @@ export class AccountService implements IAccountService {
 
   public async getAccounts(
     userId: string,
-    hasPaymentPointer?: boolean
+    hasWalletAddress?: boolean
   ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
@@ -128,16 +129,16 @@ export class AccountService implements IAccountService {
     }
 
     let query = Account.query().where('userId', userId)
-    if (hasPaymentPointer)
+    if (hasWalletAddress)
       query = query
-        .withGraphFetched({ paymentPointers: true })
-        .modifyGraph('paymentPointers', (builder) => {
+        .withGraphFetched({ walletAddresses: true })
+        .modifyGraph('walletAddresses', (builder) => {
           builder.where({ active: true }).orderBy('createdAt', 'ASC')
         })
 
     const accounts = await query
 
-    if (!hasPaymentPointer) {
+    if (!hasWalletAddress) {
       const accountsBalance = await this.deps.rapyd.getAccountsBalance(
         user.rapydWalletId
       )
@@ -153,6 +154,27 @@ export class AccountService implements IAccountService {
     }
 
     return accounts
+  }
+
+  public async getAccountByAssetCode(
+    userId: string,
+    amount: Amount
+  ): Promise<Account> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('assetCode', amount.assetCode)
+      .first()
+
+    if (!account) {
+      throw new NotFound()
+    }
+
+    account.balance = transformBalance(
+      await this.getAccountBalance(userId, account.assetCode),
+      account.assetScale
+    )
+
+    return account
   }
 
   public async getAccountById(

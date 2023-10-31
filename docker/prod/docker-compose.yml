@@ -22,6 +22,7 @@ services:
       dockerfile: ./packages/wallet/frontend/Dockerfile.prod
       args:
         PORT: ${WALLET_FRONTEND_PORT}
+        COOKIE_NAME: ${WALLET_BACKEND_COOKIE_NAME}
         NEXT_PUBLIC_USE_TEST_KYC_DATA: ${WALLET_FRONTEND_USE_TEST_KYC_DATA}
         NEXT_PUBLIC_BACKEND_URL: ${WALLET_FRONTEND_BACKEND_URL}
         NEXT_PUBLIC_OPEN_PAYMENTS_HOST: ${WALLET_FRONTEND_OPEN_PAYMENTS_HOST}
@@ -59,6 +60,11 @@ services:
       AUTH_IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
       AUTH_DOMAIN: ${WALLET_BACKEND_AUTH_DOMAIN}
       RATE_API_KEY: ${WALLET_BACKEND_RATE_API_KEY}
+      BASE_ASSET_SCALE: ${WALLET_BACKEND_BASE_ASSET_SCALE}
+      MAX_ASSET_SCALE: ${WALLET_BACKEND_MAX_ASSET_SCALE}
+      WM_THRESHOLD: ${WALLET_BACKEND_WM_THRESHOLD}
+      DEBT_THRESHOLD: ${WALLET_BACKEND_DEBT_THRESHOLD}
+      REDIS_URL: ${WALLET_BACKEND_REDIS_URL}
     networks:
       - testnet
     ports:
@@ -105,7 +111,7 @@ services:
       - '3004:3004'
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:main@sha256:690716fdc8f47a629ccb4c0b1f5422d07eafc8535b91897e5fd2b40acc3faa97
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.4
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -116,6 +122,7 @@ services:
       IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
       IDENTITY_SERVER_DOMAIN: ${RAFIKI_AUTH_IDENTITY_SERVER_DOMAIN}
       AUTH_SERVER_DOMAIN: ${RAFIKI_AUTH_SERVER_DOMAIN}
+      TRUST_PROXY: true
     depends_on:
       - postgres
     networks:
@@ -126,7 +133,7 @@ services:
     restart: always
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:main@sha256:c94709f75d27b366d35fe4ebf7641f8911664873813b9b929083c7cc18e3776c
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.4
     container_name: rafiki-backend
     depends_on:
       - postgres
@@ -154,8 +161,12 @@ services:
       WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL}
       WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT}
       EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL}
+      TRUST_PROXY: true
       ENABLE_AUTO_PEERING: true
       AUTO_PEERING_SERVER_PORT: ${RAFIKI_BACKEND_AUTOPEERING_PORT}
+      ILP_CONNECTOR_ADDRESS: ${RAFIKI_BACKEND_ILP_CONNECTOR_ADDRESS}
+      INSTANCE_NAME: ${RAFIKI_BACKEND_INSTANCE_NAME}
+      SLIPPAGE: ${RAFIKI_BACKEND_SLIPPAGE}
     networks:
       - testnet
     ports:
@@ -169,7 +180,7 @@ services:
       - ../temp/:/workspace/temp/
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:main@sha256:0bd89d6a0e62b89cd9ca2121763b2879953e0ccc6ee33ed2ccd7c5e8434c47cd
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.4
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend

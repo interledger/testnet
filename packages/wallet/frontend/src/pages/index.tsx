@@ -122,6 +122,7 @@ export const getServerSideProps: GetServerSideProps<{
   user: {
     firstName: string
     lastName: string
+    email: string
   }
 }> = async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie)
@@ -138,7 +139,8 @@ export const getServerSideProps: GetServerSideProps<{
       accounts: response.data ?? [],
       user: {
         firstName: user.data?.firstName ?? '',
-        lastName: user.data?.lastName ?? ''
+        lastName: user.data?.lastName ?? '',
+        email: user.data?.email ?? ''
       }
     }
   }

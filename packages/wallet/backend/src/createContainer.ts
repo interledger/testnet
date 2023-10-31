@@ -12,8 +12,8 @@ import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
-import { PaymentPointerController } from '@/paymentPointer/controller'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddressController } from '@/walletAddress/controller'
+import { WalletAddressService } from '@/walletAddress/service'
 import { QuoteController } from '@/quote/controller'
 import { QuoteService } from '@/quote/service'
 import { RafikiAuthService } from '@/rafiki/auth/service'
@@ -31,8 +31,14 @@ import { UserController } from '@/user/controller'
 import { UserService } from '@/user/service'
 import { GraphQLClient } from 'graphql-request'
 import knex from 'knex'
-import { GrantService } from '@/grant/service'
+import { SocketService } from './socket/service'
+import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
+import { Cache } from './cache/service'
+import { RedisClient } from './cache/redis-client'
+import { Redis } from 'ioredis'
+import { WalletAddress } from '@/walletAddress/model'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
 
 export const createContainer = (config: Env): Container<Bindings> => {
   const container = new Container<Bindings>()
@@ -178,33 +184,49 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () => new RatesService({ env: await container.resolve('env') })
   )
 
+  container.singleton('redisClient', async () => {
+    const env = await container.resolve('env')
+    const redis = new Redis(env.REDIS_URL)
+    return new RedisClient(redis)
+  })
+
+  container.singleton(
+    'walletAddressService',
+    async () =>
+      new WalletAddressService({
+        env: await container.resolve('env'),
+        knex: await container.resolve('knex'),
+        rafikiClient: await container.resolve('rafikiClient'),
+        accountService: await container.resolve('accountService'),
+        cache: new Cache<WalletAddress>(
+          await container.resolve('redisClient'),
+          'WMWalletAddresses'
+        ),
+        wmTransactionService: await container.resolve('wmTransactionService'),
+        rapydClient: await container.resolve('rapydClient'),
+        logger: await container.resolve('logger')
+      })
+  )
+
   container.singleton(
     'rapydController',
     async () =>
       new RapydController({
         accountService: await container.resolve('accountService'),
-        paymentPointerService: await container.resolve('paymentPointerService'),
+        walletAddressService: await container.resolve('walletAddressService'),
         logger: await container.resolve('logger'),
-        rapydService: await container.resolve('rapydService')
+        rapydService: await container.resolve('rapydService'),
+        socketService: await container.resolve('socketService'),
+        userService: await container.resolve('userService')
       })
   )
 
   container.singleton(
-    'paymentPointerService',
+    'walletAddressController',
     async () =>
-      new PaymentPointerService({
-        env: await container.resolve('env'),
-        rafikiClient: await container.resolve('rafikiClient'),
-        accountService: await container.resolve('accountService')
-      })
-  )
-
-  container.singleton(
-    'paymentPointerController',
-    async () =>
-      new PaymentPointerController({
+      new WalletAddressController({
         logger: await container.resolve('logger'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        walletAddressService: await container.resolve('walletAddressService')
       })
   )
 
@@ -215,7 +237,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
         accountService: await container.resolve('accountService'),
         logger: await container.resolve('logger'),
         knex: await container.resolve('knex'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        walletAddressService: await container.resolve('walletAddressService')
       })
   )
 
@@ -232,7 +254,9 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new IncomingPaymentService({
         accountService: await container.resolve('accountService'),
-        rafikiClient: await container.resolve('rafikiClient')
+        rafikiClient: await container.resolve('rafikiClient'),
+        logger: await container.resolve('logger'),
+        env: await container.resolve('env')
       })
   )
 
@@ -267,13 +291,25 @@ export const createContainer = (config: Env): Container<Bindings> => {
       })
   )
 
+  container.singleton(
+    'wmTransactionService',
+    async () =>
+      new WMTransactionService({
+        logger: await container.resolve('logger')
+      })
+  )
+
   container.singleton('rafikiService', async () => {
     const rapydClient = await container.resolve('rapydClient')
     const env = await container.resolve('env')
     const logger = await container.resolve('logger')
     const rafikiClient = await container.resolve('rafikiClient')
     const transactionService = await container.resolve('transactionService')
+    const socketService = await container.resolve('socketService')
+    const userService = await container.resolve('userService')
     const ratesService = await container.resolve('ratesService')
+    const wmTransactionService = await container.resolve('wmTransactionService')
+    const walletAddressService = await container.resolve('walletAddressService')
 
     return new RafikiService({
       rafikiClient,
@@ -281,7 +317,11 @@ export const createContainer = (config: Env): Container<Bindings> => {
       ratesService,
       env,
       logger,
-      transactionService
+      transactionService,
+      socketService,
+      userService,
+      wmTransactionService,
+      walletAddressService
     })
   })
 
@@ -303,7 +343,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
         ),
         rafikiClient: await container.resolve('rafikiClient'),
         ratesService: await container.resolve('ratesService'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        walletAddressService: await container.resolve('walletAddressService')
       })
   )
 
@@ -320,7 +360,7 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new GrantService({
         rafikiAuthService: await container.resolve('rafikiAuthService'),
-        paymentPointerService: await container.resolve('paymentPointerService')
+        walletAddressService: await container.resolve('walletAddressService')
       })
   )
 
@@ -329,8 +369,18 @@ export const createContainer = (config: Env): Container<Bindings> => {
     async () =>
       new GrantController({
         rafikiAuthService: await container.resolve('rafikiAuthService'),
-        paymentPointerService: await container.resolve('paymentPointerService'),
+        walletAddressService: await container.resolve('walletAddressService'),
         grantService: await container.resolve('grantService')
+      })
+  )
+
+  container.singleton(
+    'socketService',
+    async () =>
+      new SocketService({
+        env: await container.resolve('env'),
+        logger: await container.resolve('logger'),
+        accountService: await container.resolve('accountService')
       })
   )
 

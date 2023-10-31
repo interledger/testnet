@@ -1,7 +1,7 @@
 import { Grant } from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { Forbidden } from '@/errors'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddressService } from '@/walletAddress/service'
 
 interface IGrantService {
   getGrantByInteraction: (
@@ -19,7 +19,7 @@ interface IGrantService {
 
 interface GrantServiceDependencies {
   rafikiAuthService: RafikiAuthService
-  paymentPointerService: PaymentPointerService
+  walletAddressService: WalletAddressService
 }
 
 export class GrantService implements IGrantService {
@@ -40,7 +40,7 @@ export class GrantService implements IGrantService {
 
     if (
       !url ||
-      !(await this.deps.paymentPointerService.belongsToUser(userId, url))
+      !(await this.deps.walletAddressService.belongsToUser(userId, url))
     ) {
       throw new Forbidden('NO_ACCESS')
     }
