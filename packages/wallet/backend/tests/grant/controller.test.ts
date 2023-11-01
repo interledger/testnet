@@ -154,7 +154,7 @@ describe('Grant Controller',()=>{
         })
     })
 
-    describe('Get By Id',()=>{
+    describe('Set Interaction Response',()=>{
         it('should return a grant', async ()=>{
             req.body ={
                 response:'accept'
