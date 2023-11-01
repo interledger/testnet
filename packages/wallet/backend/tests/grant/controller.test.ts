@@ -64,7 +64,7 @@ describe('Grant Controller', () => {
         getGrantByInteraction: jest.fn().mockReturnValue({ id: 'grant' }),
         setInteractionResponse: jest.fn().mockReturnValue({ id: 'grant' })
       },
-      paymentPointerService: {
+      walletAddressService: {
         listIdentifiersByUserId: () => faker.lorem.words(5).split(' ')
       }
     }
