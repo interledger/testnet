@@ -1,5 +1,5 @@
 import { AccountService } from '@/account/service'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
 import { SocketService } from '@/socket/service'
 import { User } from '@/user/model'
@@ -19,7 +19,7 @@ interface IRapydController {
 }
 interface RapydControllerDependencies {
   accountService: AccountService
-  paymentPointerService: PaymentPointerService
+  walletAddressService: WalletAddressService
   logger: Logger
   rapydService: RapydService
   socketService: SocketService
@@ -94,11 +94,11 @@ export class RapydController implements IRapydController {
       if (defaultAccount) {
         const typedArray = new Uint32Array(1)
         getRandomValues(typedArray)
-        const paymentPointerName = typedArray[0].toString(16)
+        const walletAddressName = typedArray[0].toString(16)
 
-        await this.deps.paymentPointerService.create({
+        await this.deps.walletAddressService.create({
           accountId: defaultAccount.id,
-          paymentPointerName,
+          walletAddressName,
           publicName: 'Default Payment Pointer',
           userId: id,
           isWM: false

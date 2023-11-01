@@ -1,26 +1,26 @@
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import type { Logger } from 'winston'
 import {
-  ExternalPaymentPointer,
-  PaymentPointerList,
-  PaymentPointerService
+  ExternalWalletAddress,
+  WalletAddressList,
+  WalletAddressService
 } from './service'
 import {
-  externalPaymentPointerSchema,
-  paymentPointerSchema,
-  updatePaymentPointerSchema
+  externalWalletAddressSchema,
+  walletAddressSchema,
+  updateWalletAddressSchema
 } from './validation'
 
-interface IPaymentPointerController {
-  create: ControllerFunction<PaymentPointer>
-  list: ControllerFunction<PaymentPointerList>
-  getById: ControllerFunction<PaymentPointer>
+interface IWalletAddressController {
+  create: ControllerFunction<WalletAddress>
+  list: ControllerFunction<WalletAddressList>
+  getById: ControllerFunction<WalletAddress>
   softDelete: ControllerFunction
 }
-interface PaymentPointerControllerDependencies {
-  paymentPointerService: PaymentPointerService
+interface WalletAddressControllerDependencies {
+  walletAddressService: WalletAddressService
   logger: Logger
 }
 
@@ -30,31 +30,31 @@ interface KeyPair {
   keyId: string
 }
 
-export class PaymentPointerController implements IPaymentPointerController {
-  constructor(private deps: PaymentPointerControllerDependencies) {}
+export class WalletAddressController implements IWalletAddressController {
+  constructor(private deps: WalletAddressControllerDependencies) {}
 
   create = async (
     req: Request,
-    res: CustomResponse<PaymentPointer>,
+    res: CustomResponse<WalletAddress>,
     next: NextFunction
   ) => {
     try {
       const userId = req.session.user.id
       const { accountId } = req.params
       const {
-        body: { paymentPointerName, publicName, isWM }
-      } = await validate(paymentPointerSchema, req)
+        body: { walletAddressName, publicName, isWM }
+      } = await validate(walletAddressSchema, req)
 
-      const paymentPointer = await this.deps.paymentPointerService.create({
+      const walletAddress = await this.deps.walletAddressService.create({
         userId,
         accountId,
-        paymentPointerName,
+        walletAddressName,
         publicName,
         isWM
       })
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: paymentPointer })
+        .json({ success: true, message: 'SUCCESS', data: walletAddress })
     } catch (e) {
       next(e)
     }
@@ -62,20 +62,20 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   list = async (
     req: Request,
-    res: CustomResponse<PaymentPointerList>,
+    res: CustomResponse<WalletAddressList>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
     const { accountId } = req.params
 
     try {
-      const paymentPointers = await this.deps.paymentPointerService.list(
+      const walletAddresses = await this.deps.walletAddressService.list(
         userId,
         accountId
       )
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: paymentPointers })
+        .json({ success: true, message: 'SUCCESS', data: walletAddresses })
     } catch (e) {
       next(e)
     }
@@ -83,38 +83,38 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   listAll = async (
     req: Request,
-    res: CustomResponse<PaymentPointer[]>,
+    res: CustomResponse<WalletAddress[]>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
 
     try {
-      const paymentPointers =
-        await this.deps.paymentPointerService.listAll(userId)
+      const walletAddresses =
+        await this.deps.walletAddressService.listAll(userId)
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: paymentPointers })
+        .json({ success: true, message: 'SUCCESS', data: walletAddresses })
     } catch (e) {
       next(e)
     }
   }
 
-  getExternalPaymentPointer = async (
+  getExternalWalletAddress = async (
     req: Request,
-    res: CustomResponse<ExternalPaymentPointer>,
+    res: CustomResponse<ExternalWalletAddress>,
     next: NextFunction
   ) => {
     try {
       const {
         query: { url }
-      } = await validate(externalPaymentPointerSchema, req)
-      const externalPaymentPointer =
-        await this.deps.paymentPointerService.getExternalPaymentPointer(url)
+      } = await validate(externalWalletAddressSchema, req)
+      const externalWalletAddress =
+        await this.deps.walletAddressService.getExternalWalletAddress(url)
       res.status(200).json({
         success: true,
         message: 'SUCCESS',
-        data: externalPaymentPointer
+        data: externalWalletAddress
       })
     } catch (e) {
       next(e)
@@ -123,22 +123,22 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   getById = async (
     req: Request,
-    res: CustomResponse<PaymentPointer>,
+    res: CustomResponse<WalletAddress>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
-    const { accountId, id: paymentPointerId } = req.params
+    const { accountId, id: walletAddressId } = req.params
 
     try {
-      const paymentPointer = await this.deps.paymentPointerService.getById({
+      const walletAddress = await this.deps.walletAddressService.getById({
         userId,
         accountId,
-        paymentPointerId
+        walletAddressId
       })
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: paymentPointer })
+        .json({ success: true, message: 'SUCCESS', data: walletAddress })
     } catch (e) {
       next(e)
     }
@@ -153,7 +153,7 @@ export class PaymentPointerController implements IPaymentPointerController {
       const userId = req.session.user.id
       const { id } = req.params
 
-      await this.deps.paymentPointerService.softDelete(userId, id)
+      await this.deps.walletAddressService.softDelete(userId, id)
 
       res.status(200).json({
         success: true,
@@ -171,13 +171,13 @@ export class PaymentPointerController implements IPaymentPointerController {
   ) => {
     try {
       const userId = req.session.user.id
-      const { accountId, paymentPointerId } = req.params
+      const { accountId, walletAddressId } = req.params
 
       const { privateKey, publicKey, keyId } =
-        await this.deps.paymentPointerService.registerKey(
+        await this.deps.walletAddressService.registerKey(
           userId,
           accountId,
-          paymentPointerId
+          walletAddressId
         )
 
       res.status(200).json({
@@ -192,12 +192,12 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   revokeKey = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
-      const { accountId, paymentPointerId } = req.params
+      const { accountId, walletAddressId } = req.params
 
-      await this.deps.paymentPointerService.revokeKey(
+      await this.deps.walletAddressService.revokeKey(
         req.session.user.id,
         accountId,
-        paymentPointerId
+        walletAddressId
       )
 
       res.status(200).json({
@@ -211,16 +211,16 @@ export class PaymentPointerController implements IPaymentPointerController {
 
   update = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
-      const { accountId, paymentPointerId } = req.params
+      const { accountId, walletAddressId } = req.params
 
       const {
         body: { publicName }
-      } = await validate(updatePaymentPointerSchema, req)
+      } = await validate(updateWalletAddressSchema, req)
 
-      await this.deps.paymentPointerService.update({
+      await this.deps.walletAddressService.update({
         userId: req.session.user.id,
         accountId,
-        paymentPointerId,
+        walletAddressId,
         publicName
       })
 

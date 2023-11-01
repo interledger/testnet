@@ -10,7 +10,7 @@ export const createOutgoingPaymentMutation = gql`
         metadata
         error
         id
-        paymentPointerId
+        walletAddressId
         quote {
           createdAt
           expiresAt
@@ -19,7 +19,7 @@ export const createOutgoingPaymentMutation = gql`
           lowEstimatedExchangeRate
           maxPacketAmount
           minExchangeRate
-          paymentPointerId
+          walletAddressId
           receiveAmount {
             assetCode
             assetScale

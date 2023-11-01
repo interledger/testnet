@@ -9,8 +9,8 @@ import {
   IncomingPayment,
   OutgoingPayment
 } from '@/rafiki/backend/generated/graphql'
-import { PaymentPointerService } from '@/paymentPointer/service'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddressService } from '@/walletAddress/service'
+import { WalletAddress } from '@/walletAddress/model'
 
 type ListAllTransactionsInput = {
   userId: string
@@ -23,7 +23,7 @@ export interface ITransactionService {
   list: (
     userId: string,
     accountId: string,
-    paymentPointerId: string,
+    walletAddressId: string,
     orderByDate: OrderByDirection
   ) => Promise<Transaction[]>
   updateTransaction: (
@@ -36,7 +36,7 @@ export interface ITransactionService {
 
 interface TransactionServiceDependencies {
   accountService: AccountService
-  paymentPointerService: PaymentPointerService
+  walletAddressService: WalletAddressService
   logger: Logger
   knex: Knex
 }
@@ -47,13 +47,13 @@ export class TransactionService implements ITransactionService {
   async list(
     userId: string,
     accountId: string,
-    paymentPointerId: string,
+    walletAddressId: string,
     orderByDate: OrderByDirection
   ): Promise<Transaction[]> {
     await this.deps.accountService.findAccountById(accountId, userId)
 
     return Transaction.query()
-      .where('paymentPointerId', paymentPointerId)
+      .where('walletAddressId', walletAddressId)
       .orderBy('createdAt', orderByDate)
   }
 
@@ -79,19 +79,19 @@ export class TransactionService implements ITransactionService {
   }: ListAllTransactionsInput): Promise<Page<Transaction>> {
     const filterParamsWithTableNames = prefixSomeObjectKeys(
       filterParams,
-      ['paymentPointerId', 'assetCode', 'type', 'status', 'accountId'],
+      ['walletAddressId', 'assetCode', 'type', 'status', 'accountId'],
       'transactions.'
     )
 
     const transactions = await Transaction.query()
       .select(
         'transactions.*',
-        'paymentPointer.url as paymentPointerUrl',
-        'paymentPointer.publicName as paymentPointerPublicName',
+        'walletAddress.url as walletAddressUrl',
+        'walletAddress.publicName as walletAddressPublicName',
         'account.name as accountName',
         'account.assetScale'
       )
-      .fullOuterJoinRelated('[paymentPointer, account.user]')
+      .fullOuterJoinRelated('[walletAddress, account.user]')
       .where('account:user.id', userId)
       .whereNotNull('transactions.id')
       .where(filterParamsWithTableNames)
@@ -131,12 +131,12 @@ export class TransactionService implements ITransactionService {
 
   async createIncomingTransaction(
     params: IncomingPayment,
-    paymentPointer: PaymentPointer
+    walletAddress: WalletAddress
   ) {
     const amount = params.incomingAmount || params.receivedAmount
     return Transaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
-      accountId: paymentPointer.accountId,
+      walletAddressId: params.walletAddressId,
+      accountId: walletAddress.accountId,
       paymentId: params.id,
       assetCode: amount.assetCode,
       expiresAt: params.expiresAt ? new Date(params.expiresAt) : undefined,
@@ -149,12 +149,12 @@ export class TransactionService implements ITransactionService {
 
   async createOutgoingTransaction(
     params: OutgoingPayment,
-    paymentPointer: PaymentPointer
+    walletAddress: WalletAddress
   ) {
     const amount = params.debitAmount
     return Transaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
-      accountId: paymentPointer.accountId,
+      walletAddressId: params.walletAddressId,
+      accountId: walletAddress.accountId,
       paymentId: params.id,
       assetCode: amount.assetCode,
       value: amount.value,
