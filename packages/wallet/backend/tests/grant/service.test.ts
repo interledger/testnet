@@ -39,12 +39,10 @@ describe('Grant Service', () => {
         revokeGrant: isFailure
           ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
           : jest.fn(),
-        getGrantByInteraction: jest
-          .fn()
-          .mockReturnValue({
-            id: 'grant',
-            access: [{ identifier: faker.internet.url() }]
-          })
+        getGrantByInteraction: jest.fn().mockReturnValue({
+          id: 'grant',
+          access: [{ identifier: faker.internet.url() }]
+        })
       }
     }
 
