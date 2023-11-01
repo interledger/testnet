@@ -31,7 +31,7 @@ describe('Grant Service', () => {
 
   const createMockGrantServiceDeps = (isFailure?: boolean) => {
     const grantServiceDepsMocked = {
-      paymentPointerService: {
+      walletAddressService: {
         belongsToUser: () => !isFailure
       },
       rafikiAuthService: {
