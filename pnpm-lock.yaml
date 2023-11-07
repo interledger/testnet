@@ -82,8 +82,8 @@ importers:
         version: 3.22.4
     devDependencies:
       '@types/cors':
-        specifier: ^2.8.15
-        version: 2.8.15
+        specifier: ^2.8.16
+        version: 2.8.16
       '@types/express':
         specifier: ^4.17.20
         version: 4.17.20
@@ -288,8 +288,8 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1(graphql@16.8.1)
       '@types/cors':
-        specifier: ^2.8.15
-        version: 2.8.15
+        specifier: ^2.8.16
+        version: 2.8.16
       '@types/crypto-js':
         specifier: ^4.1.3
         version: 4.1.3
@@ -3497,8 +3497,8 @@ packages:
       '@types/node': 18.18.3
     dev: false
 
-  /@types/cors@2.8.15:
-    resolution: {integrity: sha512-n91JxbNLD8eQIuXDIChAN1tCKNWCEgpceU9b7ZMbFA+P+Q4yIeh80jizFLEvolRPc1ES0VdwFlGv+kJTSirogw==}
+  /@types/cors@2.8.16:
+    resolution: {integrity: sha512-Trx5or1Nyg1Fq138PCuWqoApzvoSLWzZ25ORBiHMbbUT42g578lH1GT4TwYDbiUOLFuDsCkfLneT2105fsFWGg==}
     dependencies:
       '@types/node': 18.18.3
 
@@ -5341,7 +5341,7 @@ packages:
     engines: {node: '>=10.2.0'}
     dependencies:
       '@types/cookie': 0.4.1
-      '@types/cors': 2.8.15
+      '@types/cors': 2.8.16
       '@types/node': 18.18.3
       accepts: 1.3.8
       base64id: 2.0.0
