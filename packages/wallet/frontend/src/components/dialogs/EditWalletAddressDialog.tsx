@@ -6,30 +6,30 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import {
-  PaymentPointer,
-  paymentPointerService,
-  updatePaymentPointerSchema
-} from '@/lib/api/paymentPointer'
+  WalletAddress,
+  walletAddressService,
+  updateWalletAddressSchema
+} from '@/lib/api/walletAddress'
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from './SuccessDialog'
 
-type EditPaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
-  paymentPointer: PaymentPointer
+type EditWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
+  walletAddress: WalletAddress
 }
 
-export const EditPaymentPointerDialog = ({
+export const EditWalletAddressDialog = ({
   onClose,
-  paymentPointer
-}: EditPaymentPointerDialogProps) => {
+  walletAddress
+}: EditWalletAddressDialogProps) => {
   const [openDialog, _] = useDialog()
   const router = useRouter()
   const form = useZodForm({
-    schema: updatePaymentPointerSchema,
+    schema: updateWalletAddressSchema,
     defaultValues: {
-      publicName: paymentPointer.publicName
+      publicName: walletAddress.publicName
     }
   })
 
@@ -71,9 +71,9 @@ export const EditPaymentPointerDialog = ({
                   <Form
                     form={form}
                     onSubmit={async (data) => {
-                      const response = await paymentPointerService.update({
-                        accountId: paymentPointer.accountId,
-                        paymentPointerId: paymentPointer.id,
+                      const response = await walletAddressService.update({
+                        accountId: walletAddress.accountId,
+                        walletAddressId: walletAddress.id,
                         publicName: data.publicName
                       })
 
@@ -107,7 +107,7 @@ export const EditPaymentPointerDialog = ({
                       addOn={OPEN_PAYMENTS_HOST}
                       disabled
                       readOnly
-                      value={paymentPointer.url.split('/')[1]}
+                      value={walletAddress.url.split('/')[1]}
                       label="Payment Pointer name"
                     />
                     <Input

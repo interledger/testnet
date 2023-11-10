@@ -6,25 +6,27 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import {
-  createPaymentPointerSchema,
-  paymentPointerService
-} from '@/lib/api/paymentPointer'
+  createWalletAddressSchema,
+  walletAddressService
+} from '@/lib/api/walletAddress'
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { Checkbox } from '@/ui/forms/Checkbox'
+import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
-type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
+type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
 }
 
-export const CreatePaymentPointerDialog = ({
+export const CreateWalletAddressDialog = ({
   onClose,
   accountName
-}: CreatePaymentPointerDialogProps) => {
+}: CreateWalletAddressDialogProps) => {
   const router = useRouter()
-  const createPaymentPointerForm = useZodForm({
-    schema: createPaymentPointerSchema
+  const createWalletAddressForm = useZodForm({
+    schema: createWalletAddressSchema
   })
 
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
@@ -66,10 +68,11 @@ export const CreatePaymentPointerDialog = ({
                 </Dialog.Title>
 
                 <div className="px-4">
+                  <TemporaryWMNotice />
                   <Form
-                    form={createPaymentPointerForm}
+                    form={createWalletAddressForm}
                     onSubmit={async (data) => {
-                      const response = await paymentPointerService.create(
+                      const response = await walletAddressService.create(
                         accountId,
                         data
                       )
@@ -85,13 +88,13 @@ export const CreatePaymentPointerDialog = ({
                         }
                       } else {
                         const { errors, message } = response
-                        createPaymentPointerForm.setError('root', {
+                        createWalletAddressForm.setError('root', {
                           message
                         })
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            createPaymentPointerForm.setError(field, {
+                            createWalletAddressForm.setError(field, {
                               message: errors[field]
                             })
                           )
@@ -111,11 +114,11 @@ export const CreatePaymentPointerDialog = ({
                         required
                         label="Payment Pointer name"
                         error={
-                          createPaymentPointerForm.formState?.errors
-                            ?.paymentPointerName?.message
+                          createWalletAddressForm.formState?.errors
+                            ?.walletAddressName?.message
                         }
-                        {...createPaymentPointerForm.register(
-                          'paymentPointerName'
+                        {...createWalletAddressForm.register(
+                          'walletAddressName'
                         )}
                       />
                     </div>
@@ -123,18 +126,20 @@ export const CreatePaymentPointerDialog = ({
                       required
                       label="Public name"
                       error={
-                        createPaymentPointerForm.formState?.errors?.publicName
+                        createWalletAddressForm.formState?.errors?.publicName
                           ?.message
                       }
-                      {...createPaymentPointerForm.register('publicName')}
+                      {...createWalletAddressForm.register('publicName')}
+                    />
+                    <Checkbox
+                      label="I want to use this payment pointer for Web Monetization"
+                      {...createWalletAddressForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
                         aria-label="create payment pointer"
                         type="submit"
-                        loading={
-                          createPaymentPointerForm.formState.isSubmitting
-                        }
+                        loading={createWalletAddressForm.formState.isSubmitting}
                       >
                         Create
                       </Button>

@@ -74,7 +74,7 @@ export const mockCreateQuoteRequest = (
   return {
     body: {
       receiver: faker.internet.url(),
-      paymentPointerId: uuid(),
+      walletAddressId: uuid(),
       amount: Number(faker.finance.amount({ dec: 0 })),
       isReceive: true,
       ...overrides
@@ -280,7 +280,7 @@ export const mockedAccount = {
   assetId: mockedListAssets[0].id,
   assetCode: mockedListAssets[0].code,
   assetScale: mockedListAssets[0].scale,
-  paymentPointers: [],
+  walletAddresses: [],
   userId: faker.string.uuid(),
   createdAt: faker.string.uuid(),
   updatedAt: faker.string.uuid()
@@ -302,7 +302,7 @@ export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({
   id: faker.string.uuid(),
-  paymentPointerId: faker.string.uuid(),
+  walletAddressId: faker.string.uuid(),
   accountId: faker.string.uuid(),
   paymentId: faker.string.uuid(),
   assetCode: mockedListAssets[0].code,

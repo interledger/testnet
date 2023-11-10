@@ -120,7 +120,7 @@ export class AccountService implements IAccountService {
 
   public async getAccounts(
     userId: string,
-    hasPaymentPointer?: boolean
+    hasWalletAddress?: boolean
   ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
@@ -129,16 +129,16 @@ export class AccountService implements IAccountService {
     }
 
     let query = Account.query().where('userId', userId)
-    if (hasPaymentPointer)
+    if (hasWalletAddress)
       query = query
-        .withGraphFetched({ paymentPointers: true })
-        .modifyGraph('paymentPointers', (builder) => {
+        .withGraphFetched({ walletAddresses: true })
+        .modifyGraph('walletAddresses', (builder) => {
           builder.where({ active: true }).orderBy('createdAt', 'ASC')
         })
 
     const accounts = await query
 
-    if (!hasPaymentPointer) {
+    if (!hasWalletAddress) {
       const accountsBalance = await this.deps.rapyd.getAccountsBalance(
         user.rapydWalletId
       )

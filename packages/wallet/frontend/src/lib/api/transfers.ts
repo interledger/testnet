@@ -9,7 +9,7 @@ import {
 import { AssetOP } from './asset'
 
 export const sendSchema = z.object({
-  paymentPointerId: z
+  walletAddressId: z
     .object({
       value: z.string().uuid(),
       label: z.string().min(1)
@@ -33,7 +33,7 @@ export type TimeUnit = (typeof TIME_UNITS)[number]
 
 export const requestSchema = z
   .object({
-    paymentPointerId: z
+    walletAddressId: z
       .object({
         value: z.string().uuid(),
         label: z.string().min(1)
@@ -136,8 +136,8 @@ const createTransfersService = (): TransfersService => ({
       const response = await httpClient
         .post('quotes', {
           json: {
-            paymentPointerId: args.paymentPointerId
-              ? args.paymentPointerId.value
+            walletAddressId: args.walletAddressId
+              ? args.walletAddressId.value
               : undefined,
             receiver: args.receiver,
             amount: args.amount,
@@ -185,8 +185,8 @@ const createTransfersService = (): TransfersService => ({
         .post('incoming-payments', {
           json: {
             ...args,
-            paymentPointerId: args.paymentPointerId
-              ? args.paymentPointerId.value
+            walletAddressId: args.walletAddressId
+              ? args.walletAddressId.value
               : undefined,
             expiration
           }

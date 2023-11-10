@@ -2,7 +2,7 @@ import {
   AccessToken,
   AuthenticatedClient,
   Grant,
-  PaymentPointer,
+  WalletAddress,
   isPendingGrant
 } from '@interledger/open-payments'
 import { InMemoryCache } from './in-memory'
@@ -11,7 +11,7 @@ import { InternalServerError } from '@/errors'
 import { Logger } from 'winston'
 
 export class TokenCache extends InMemoryCache<string> {
-  private paymentPointer!: PaymentPointer
+  private walletAddress!: WalletAddress
   private manageUrl!: string
 
   constructor(
@@ -27,7 +27,7 @@ export class TokenCache extends InMemoryCache<string> {
     const now = Date.now()
 
     if (!cached) {
-      this.paymentPointer = await this.opClient.paymentPointer.get({
+      this.walletAddress = await this.opClient.walletAddress.get({
         url: this.env.PAYMENT_POINTER
       })
       const grant = await this.getGrant()
@@ -83,7 +83,7 @@ export class TokenCache extends InMemoryCache<string> {
 
   private async getGrant(): Promise<Grant> {
     const grant = await this.opClient.grant.request(
-      { url: this.paymentPointer.authServer },
+      { url: this.walletAddress.authServer },
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: 'interact' should be optional
       {

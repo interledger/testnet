@@ -4,7 +4,7 @@ import { useOnboardingContext } from '@/lib/context/onboarding'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { accountService } from '@/lib/api/account'
-import { paymentPointerService } from '@/lib/api/paymentPointer'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { Select, SelectOption } from '@/ui/forms/Select'
 import {
@@ -18,13 +18,13 @@ import { formatAmount, formatDate } from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 
-type PaymentPointerSelectOption = SelectOption & {
+type WalletAddressSelectOption = SelectOption & {
   accountId: string
 }
 
 export type TransactionsFilterProps = {
   accounts: SelectOption[]
-  paymentPointers: PaymentPointerSelectOption[]
+  walletAddresses: WalletAddressSelectOption[]
 }
 
 const defaultOption = {
@@ -51,7 +51,7 @@ type TransactionsPageProps = InferGetServerSidePropsType<
 
 const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   accounts,
-  paymentPointers
+  walletAddresses
 }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -65,13 +65,13 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
       defaultOption,
     [accounts, filters.accountId]
   )
-  const currentPaymentPointer = useMemo<PaymentPointerSelectOption>(
+  const currentWalletAddress = useMemo<WalletAddressSelectOption>(
     () =>
-      paymentPointers.find((pp) => pp.value === filters.paymentPointerId) ?? {
+      walletAddresses.find((pp) => pp.value === filters.walletAddressId) ?? {
         ...defaultOption,
         accountId: ''
       },
-    [paymentPointers, filters.paymentPointerId]
+    [walletAddresses, filters.walletAddressId]
   )
   const currentType = useMemo<SelectOption>(
     () => types.find((t) => t.value === filters.type) ?? defaultOption,
@@ -111,11 +111,11 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               if (option) {
                 if (
                   option.value &&
-                  option.value !== currentPaymentPointer.value
+                  option.value !== currentWalletAddress.value
                 ) {
                   redirect({
                     accountId: option.value,
-                    paymentPointerId: '',
+                    walletAddressId: '',
                     page: '0'
                   })
                 } else {
@@ -129,18 +129,18 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           <Select
             options={
               currentAccount.value === ''
-                ? paymentPointers
-                : paymentPointers.filter(
+                ? walletAddresses
+                : walletAddresses.filter(
                     (pp) => pp.accountId === currentAccount.value
                   )
             }
             label="Payment Pointer"
             placeholder="Select payment pointer..."
             value={
-              currentPaymentPointer.accountId !== currentAccount.value &&
+              currentWalletAddress.accountId !== currentAccount.value &&
               currentAccount.value !== ''
                 ? { ...defaultOption, accountId: '' }
-                : currentPaymentPointer
+                : currentWalletAddress
             }
             onChange={(option) => {
               if (option) {
@@ -148,9 +148,9 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                   currentAccount.value &&
                   option.accountId !== currentAccount.value
                 ) {
-                  redirect({ paymentPointerId: '' })
+                  redirect({ walletAddressId: '' })
                 } else {
-                  redirect({ paymentPointerId: option.value })
+                  redirect({ walletAddressId: option.value })
                 }
               }
             }}
@@ -222,8 +222,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     </Table.Cell>
                     <Table.Cell>{trx.accountName}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {trx.paymentPointerPublicName ??
-                        trx.paymentPointerUrl ??
+                      {trx.walletAddressPublicName ??
+                        trx.walletAddressUrl ??
                         ''}
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
@@ -300,15 +300,15 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 export const getServerSideProps: GetServerSideProps<
   TransactionsFilterProps
 > = async (ctx) => {
-  const [accountsResponse, paymentPointersResponse] = await Promise.all([
+  const [accountsResponse, walletAddressesResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie),
-    paymentPointerService.listAll(ctx.req.headers.cookie)
+    walletAddressService.listAll(ctx.req.headers.cookie)
   ])
 
   if (
     !accountsResponse.success ||
-    !paymentPointersResponse.success ||
-    !paymentPointersResponse.data ||
+    !walletAddressesResponse.success ||
+    !walletAddressesResponse.data ||
     !accountsResponse.data
   ) {
     return {
@@ -317,7 +317,7 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   const accounts = [{ label: 'All', value: '' }]
-  const paymentPointers = [{ label: 'All', value: '', accountId: '' }]
+  const walletAddresses = [{ label: 'All', value: '', accountId: '' }]
 
   accountsResponse.data.map((account) =>
     accounts.push({
@@ -326,8 +326,8 @@ export const getServerSideProps: GetServerSideProps<
     })
   )
 
-  paymentPointersResponse.data.map((pp) =>
-    paymentPointers.push({
+  walletAddressesResponse.data.map((pp) =>
+    walletAddresses.push({
       label: pp.url,
       value: pp.id,
       accountId: pp.accountId
@@ -337,7 +337,7 @@ export const getServerSideProps: GetServerSideProps<
   return {
     props: {
       accounts,
-      paymentPointers
+      walletAddresses
     }
   }
 }
