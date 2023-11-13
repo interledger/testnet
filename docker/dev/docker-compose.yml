@@ -164,7 +164,7 @@ services:
       OPEN_PAYMENTS_URL: https://rafiki-backend/
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.13.57
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.14.164
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
