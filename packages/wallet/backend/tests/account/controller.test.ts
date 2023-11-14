@@ -75,11 +75,11 @@ describe('Asset Controller', (): void => {
     const accountServiceDepsMocked = {
       accountService: await bindings.resolve('accountService'),
 
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
       },
-      rapyd: {
+      rapydClient: {
         issueVirtualAccount: () => ({
           status: {
             status: 'SUCCESS'

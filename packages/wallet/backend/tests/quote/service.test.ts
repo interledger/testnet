@@ -54,7 +54,7 @@ describe('Quote Service', () => {
     accountService = await bindings.resolve('accountService')
 
     const accountServiceDepsMocked = {
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id),
         listAssets: () => mockedListAssets

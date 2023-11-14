@@ -84,7 +84,7 @@ describe('Rapyd Controller', () => {
     rapydController = await bindings.resolve('rapydController')
 
     const accountServiceDepsMocked = {
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id),
         listAssets: () => mockedListAssets
