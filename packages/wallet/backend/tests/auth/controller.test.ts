@@ -1,7 +1,5 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
@@ -20,9 +18,10 @@ import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
 import { fakeLoginData, mockLogInRequest, mockSignUpRequest } from '../mocks'
 import { createUser } from '@/tests/helpers'
+import { AwilixContainer } from 'awilix'
 
 describe('Authentication Controller', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -34,7 +33,7 @@ describe('Authentication Controller', (): void => {
   const next = jest.fn()
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')

@@ -1,7 +1,5 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
@@ -22,9 +20,10 @@ import { createUser } from '@/tests/helpers'
 import { faker } from '@faker-js/faker'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { User } from '@/user/model'
+import { AwilixContainer } from 'awilix'
 
 describe('User Controller', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -37,7 +36,7 @@ describe('User Controller', (): void => {
   const args = mockLogInRequest().body
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')

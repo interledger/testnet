@@ -1,9 +1,7 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { SocketService } from '@/socket/service'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { truncateTables } from '@/tests/tables'
 import { AuthService } from '@/auth/service'
@@ -26,9 +24,10 @@ import {
 import { withSession } from '@/middleware/withSession'
 import { applyMiddleware } from '../utils'
 import { User } from '@/user/model'
+import { AwilixContainer } from 'awilix'
 
 describe('Socket Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let socketService: SocketService
@@ -41,7 +40,7 @@ describe('Socket Service', () => {
   const args = mockLogInRequest().body
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')

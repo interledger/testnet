@@ -1,10 +1,8 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
 import { RapydService } from '@/rapyd/service'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { loginUser } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
@@ -16,9 +14,10 @@ import {
 } from '@/tests/mocks'
 import { User } from '@/user/model'
 import { faker } from '@faker-js/faker'
+import { AwilixContainer } from 'awilix'
 
 describe('Rapyd Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -26,7 +25,7 @@ describe('Rapyd Service', () => {
   let userInfo: { id: string; email: string }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')

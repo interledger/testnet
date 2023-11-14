@@ -1,22 +1,21 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
 import type { AuthService } from '@/auth/service'
-import { mockLogInRequest, fakeLoginData } from '../mocks'
+import { fakeLoginData, mockLogInRequest } from '../mocks'
 import { createUser } from '../helpers'
+import { AwilixContainer } from 'awilix'
 
 describe('Authentication Service', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
