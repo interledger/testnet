@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.16",
-    "@types/express": "^4.17.20",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.8",
     "@types/node": "^18.14.0",
     "jest": "^29.7.0",
