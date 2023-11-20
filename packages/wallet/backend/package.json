@@ -17,7 +17,7 @@
     "express-rate-limit": "^7.1.4",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
-    "hash-wasm": "^4.10.0",
+    "hash-wasm": "^4.11.0",
     "helmet": "^7.0.0",
     "ioredis": "^5.3.2",
     "iron-session": "^6.3.1",
