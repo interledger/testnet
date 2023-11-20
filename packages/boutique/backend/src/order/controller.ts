@@ -59,7 +59,7 @@ export class OrderController implements IOrderController {
     next: NextFunction
   ) {
     try {
-      const { products, paymentPointerUrl } = await validate(
+      const { products, walletAddressUrl } = await validate(
         createOrderSchema,
         req.body
       )
@@ -74,7 +74,7 @@ export class OrderController implements IOrderController {
 
       const grant = await this.openPayments.preparePayment({
         order,
-        paymentPointerUrl
+        walletAddressUrl
       })
 
       this.logger.debug(JSON.stringify(grant, null, 2))

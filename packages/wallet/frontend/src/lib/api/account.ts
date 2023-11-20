@@ -5,7 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { PaymentPointer } from './paymentPointer'
+import { WalletAddress } from './walletAddress'
 
 export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
@@ -37,7 +37,7 @@ export type Account = {
   assetScale: number
   assetId: string
   balance: string
-  paymentPointers: PaymentPointer[]
+  walletAddresses: WalletAddress[]
 }
 
 type GetAccountResult = SuccessResponse<Account>
@@ -63,7 +63,7 @@ interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (
     cookies?: string,
-    include?: 'paymentPointers'
+    include?: 'walletAddresses'
   ) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>

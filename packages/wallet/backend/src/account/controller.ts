@@ -51,12 +51,12 @@ export class AccountController implements IAccountController {
     next: NextFunction
   ) => {
     const userId = req.session.user.id
-    const hasPaymentPointer = req.query['include'] == 'paymentPointers'
+    const hasWalletAddress = req.query['include'] == 'walletAddresses'
 
     try {
       const accounts = await this.deps.accountService.getAccounts(
         userId,
-        hasPaymentPointer
+        hasWalletAddress
       )
 
       res

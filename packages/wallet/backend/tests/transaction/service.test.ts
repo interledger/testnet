@@ -12,7 +12,7 @@ import { Transaction } from '@/transaction/model'
 import { faker } from '@faker-js/faker'
 import { loginUser } from '@/tests/utils'
 import { Account } from '@/account/model'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 
 describe('Transaction Controller', (): void => {
   let bindings: Container<Bindings>
@@ -22,7 +22,7 @@ describe('Transaction Controller', (): void => {
   let transactionService: TransactionService
   let userId: string
 
-  // "dependency" = ALL foreign keys (paymentPointers, account, user...)
+  // "dependency" = ALL foreign keys (walletAddresses, account, user...)
   const prepareTransactionDependencies = async () => {
     const account = await Account.query().insert({
       name: faker.string.alpha(10),
@@ -33,7 +33,7 @@ describe('Transaction Controller', (): void => {
       virtualAccountId: 'mocked'
     })
 
-    const paymentPointer = await PaymentPointer.query().insert({
+    const walletAddress = await WalletAddress.query().insert({
       url: faker.string.alpha(10),
       publicName: faker.string.alpha(10),
       accountId: account.id,
@@ -42,7 +42,7 @@ describe('Transaction Controller', (): void => {
 
     return {
       account,
-      paymentPointer
+      walletAddress
     }
   }
 
@@ -68,8 +68,8 @@ describe('Transaction Controller', (): void => {
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {
@@ -93,12 +93,12 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { walletAddress, account } = await prepareTransactionDependencies()
 
       const insertedTransactions = mockedTransactionInsertObjs.map(
         (mockedTransactionInsertObj) => ({
           ...mockedTransactionInsertObj,
-          paymentPointerId: paymentPointer.id,
+          walletAddressId: walletAddress.id,
           accountId: account.id
         })
       )
@@ -123,12 +123,12 @@ describe('Transaction Controller', (): void => {
 
   describe('listAll [pagination]', (): void => {
     it('should list all transactions (4 transactions, 2x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { walletAddress, account } = await prepareTransactionDependencies()
 
       const insertedTransactions = mockedTransactionInsertObjs.map(
         (mockedTransactionInsertObj) => ({
           ...mockedTransactionInsertObj,
-          paymentPointerId: paymentPointer.id,
+          walletAddressId: walletAddress.id,
           accountId: account.id
         })
       )
@@ -171,12 +171,12 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions, 3x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { walletAddress, account } = await prepareTransactionDependencies()
 
       const insertedTransactions = mockedTransactionInsertObjs.map(
         (mockedTransactionInsertObj) => ({
           ...mockedTransactionInsertObj,
-          paymentPointerId: paymentPointer.id,
+          walletAddressId: walletAddress.id,
           accountId: account.id
         })
       )
