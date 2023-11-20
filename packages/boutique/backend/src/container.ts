@@ -48,7 +48,7 @@ export async function createContainer(
 
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
-    privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
+    privateKey: Buffer.from(env.PRIVATE_KEY, 'base64').toString(),
     walletAddressUrl: env.PAYMENT_POINTER
   })
 
