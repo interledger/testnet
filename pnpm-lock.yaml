@@ -360,8 +360,8 @@ importers:
         specifier: ^7.48.2
         version: 7.48.2(react@18.2.0)
       react-joyride:
-        specifier: ^2.6.2
-        version: 2.6.2(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^2.7.0
+        version: 2.7.0(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
       react-select:
         specifier: ^5.7.7
         version: 5.7.7(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
@@ -1541,17 +1541,17 @@ packages:
     resolution: {integrity: sha512-I7xWjLs2YSVMc5gGx1Z3ZG1lgFpITPndpi8Ku55GeEIKpACCPQNS/OTqQbxgTCfq0Ncvcc+CrFov96itVh6Qvw==}
     dev: false
 
-  /@gilbarbara/helpers@0.8.7:
-    resolution: {integrity: sha512-DL3btZpWnS3ZMkGdQ9sVQgVj/WlabUFbRoP6sg2iOjEFImq+QDqFgEDZn4Uf8LF3thGuNgj9EtsWlNCbvJYTqg==}
+  /@gilbarbara/helpers@0.9.0:
+    resolution: {integrity: sha512-hl96DIoGgyJkjyiOGwEC6kZnYCsYSjhR8QTbvl7+i74fdllPgJeq4oCLH7HPiFGtnhCh4RuXTa4fmfy/8McAVQ==}
     dependencies:
       '@gilbarbara/types': 0.2.2
-      is-lite: 0.9.3
+      is-lite: 1.2.0
     dev: false
 
   /@gilbarbara/types@0.2.2:
     resolution: {integrity: sha512-QuQDBRRcm1Q8AbSac2W1YElurOhprj3Iko/o+P1fJxUWS4rOGKMVli98OXS7uo4z+cKAif6a+L9bcZFSyauQpQ==}
     dependencies:
-      type-fest: 4.5.0
+      type-fest: 4.8.1
     dev: false
 
   /@graphql-codegen/cli@5.0.0(@types/node@18.18.3)(graphql@16.8.1)(typescript@5.2.2):
@@ -6701,10 +6701,6 @@ packages:
     resolution: {integrity: sha512-JZfH47qTsslwaAsqbMI3Q6HNNjUuq6Cmzzww50TdP5Esb6e1y2sK2UAaZZuzfAzpoI2AkxoPQapZdlDuP6Vlsw==}
     dev: false
 
-  /is-lite@0.9.3:
-    resolution: {integrity: sha512-lbyynwsRRUMh1fHEinXkde/thdjj8OpW/okyGAVgmW4r/FkCEP966oSEg0B8ON5+mm73MJjFXB4ZViuaAldw4g==}
-    dev: false
-
   /is-lite@1.2.0:
     resolution: {integrity: sha512-Q9EaBEC0QV44D9iyoLMJQPEF2qMOG3TgfPCm1/lnorU5Y0PJbEqlaqX0vSBxVnxqL/m2rE4ZqRhe2OEAgVdJHA==}
     dev: false
@@ -8854,14 +8850,14 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-joyride@2.6.2(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-qpU77Hp36Z6JYs7aT15ow7Bxtc4xMDY3iWpJk8nQofYgxjkuDwp+JE5QNlJtfo5pUQ2eQRkj3IzcgPHkdAiL/w==}
+  /react-joyride@2.7.0(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-fWcIKhat6okO4gLXMz8SRUTIQKmh3dHGzsEQxHVwGNBBFd3z/KQMYVu82dBX448ASTmSG1OJhA7lqBmKX7OQVA==}
     peerDependencies:
       react: 15 - 18
       react-dom: 15 - 18
     dependencies:
       '@gilbarbara/deep-equal': 0.3.1
-      '@gilbarbara/helpers': 0.8.7
+      '@gilbarbara/helpers': 0.9.0
       deep-diff: 1.0.2
       deepmerge: 4.3.1
       is-lite: 1.2.0
@@ -8872,8 +8868,8 @@ packages:
       react-is: 16.13.1
       scroll: 3.0.1
       scrollparent: 2.1.0
-      tree-changes: 0.11.0
-      type-fest: 4.5.0
+      tree-changes: 0.11.2
+      type-fest: 4.8.1
     transitivePeerDependencies:
       - '@types/react'
     dev: false
@@ -9997,8 +9993,8 @@ packages:
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  /tree-changes@0.11.0:
-    resolution: {integrity: sha512-tVU9wL0NEF3UO2rDMmGqPGFdhbRSotq/vyL+5WVeApw0bnQhxckgqAGppp0hKdB3aop3TvTTNPkXlBchu87aBw==}
+  /tree-changes@0.11.2:
+    resolution: {integrity: sha512-4gXlUthrl+RabZw6lLvcCDl6KfJOCmrC16BC5CRdut1EAH509Omgg0BfKLY+ViRlzrvYOTWR0FMS2SQTwzumrw==}
     dependencies:
       '@gilbarbara/deep-equal': 0.3.1
       is-lite: 1.2.0
@@ -10126,8 +10122,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /type-fest@4.5.0:
-    resolution: {integrity: sha512-diLQivFzddJl4ylL3jxSkEc39Tpw7o1QeEHIPxVwryDK2lpB7Nqhzhuo6v5/Ls08Z0yPSAhsyAWlv1/H0ciNmw==}
+  /type-fest@4.8.1:
+    resolution: {integrity: sha512-ShaaYnjf+0etG8W/FumARKMjjIToy/haCaTjN2dvcewOSoNqCQzdgG7m2JVOlM5qndGTHjkvsrWZs+k/2Z7E0Q==}
     engines: {node: '>=16'}
     dev: false
 

@@ -17,7 +17,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.48.2",
-    "react-joyride": "^2.6.2",
+    "react-joyride": "^2.7.0",
     "react-select": "^5.7.7",
     "sharp": "^0.32.6",
     "socket.io-client": "^4.7.2",
