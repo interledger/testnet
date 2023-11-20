@@ -54,8 +54,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.2
+        version: 1.6.2
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -209,8 +209,8 @@ importers:
         specifier: ^7.7.0
         version: 7.7.0
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.2
+        version: 1.6.2
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -2132,7 +2132,7 @@ packages:
     dependencies:
       '@interledger/http-signature-utils': 1.1.0
       '@interledger/openapi': 1.2.1
-      axios: 1.5.1
+      axios: 1.6.2
       base64url: 3.0.1
       http-message-signatures: 0.1.2
       pino: 8.15.3
@@ -4267,8 +4267,8 @@ packages:
       - debug
     dev: false
 
-  /axios@1.5.1:
-    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+  /axios@1.6.2:
+    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
