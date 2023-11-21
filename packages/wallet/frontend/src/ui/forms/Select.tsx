@@ -111,8 +111,8 @@ export const Select = <
               isSelected
                 ? 'bg-green-3 text-white'
                 : isFocused
-                ? 'bg-green-3/50 text-white'
-                : ''
+                  ? 'bg-green-3/50 text-white'
+                  : ''
             ),
           singleValue: () => 'mx-0.5',
           valueContainer: () => 'py-1 px-2',
