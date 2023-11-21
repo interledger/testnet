@@ -10,7 +10,7 @@ interface OrderItem {
 }
 
 interface CreateOrderMutationParams {
-  paymentPointerUrl: string
+  walletAddressUrl: string
   products: OrderItem[]
 }
 
@@ -19,7 +19,7 @@ interface CreateOrderMutationResponse {
 }
 
 export const createOrderSchema = z.object({
-  paymentPointerUrl: z.string()
+  walletAddressUrl: z.string()
 })
 
 export function useCreateOrderMutation(

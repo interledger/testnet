@@ -3,8 +3,9 @@ import { logInSchema, signUpSchema } from '@/auth/validation'
 import z from 'zod'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
-import { kycSchema, walletSchema } from '@/rapyd/validation'
+import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
+import { kycSchema, walletSchema } from '@/rapyd/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 
@@ -49,6 +50,21 @@ export const mockCreateWalletRequest = (
       city: faker.location.city(),
       country: faker.location.country(),
       zip: faker.location.zipCode(),
+      ...overrides
+    }
+  }
+}
+
+type CreateQuoteRequest = z.infer<typeof quoteSchema>
+export const mockCreateQuoteRequest = (
+  overrides?: Partial<CreateQuoteRequest['body']>
+): CreateQuoteRequest => {
+  return {
+    body: {
+      receiver: faker.internet.url(),
+      walletAddressId: uuid(),
+      amount: Number(faker.finance.amount({ dec: 0 })),
+      isReceive: true,
       ...overrides
     }
   }
@@ -252,7 +268,7 @@ export const mockedAccount = {
   assetId: mockedListAssets[0].id,
   assetCode: mockedListAssets[0].code,
   assetScale: mockedListAssets[0].scale,
-  paymentPointers: [],
+  walletAddresses: [],
   userId: faker.string.uuid(),
   createdAt: faker.string.uuid(),
   updatedAt: faker.string.uuid()
@@ -274,7 +290,7 @@ export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({
   id: faker.string.uuid(),
-  paymentPointerId: faker.string.uuid(),
+  walletAddressId: faker.string.uuid(),
   accountId: faker.string.uuid(),
   paymentId: faker.string.uuid(),
   assetCode: mockedListAssets[0].code,

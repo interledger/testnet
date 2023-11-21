@@ -1,18 +1,22 @@
 import { AccountService } from '@/account/service'
 import { BadRequest, NotFound } from '@/errors'
 import { IncomingPaymentService } from '@/incomingPayment/service'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { incomingPaymentRegexp, urlToPaymentPointer } from '@/utils/helpers'
 import {
-  createPaymentPointerIfFalsy,
-  PaymentPointerService
-} from '../paymentPointer/service'
+  incomingPaymentRegexp,
+  transformBalance,
+  urlToPaymentId
+} from '@/utils/helpers'
+import {
+  createWalletAddressIfFalsy,
+  WalletAddressService
+} from '@/walletAddress/service'
 import { QuoteWithFees } from './controller'
-import { RatesService } from '../rates/service'
+import { RatesService } from '@/rates/service'
 import { Account } from '@/account/model'
-
+import { NodeCacheInstance } from '@/utils/helpers'
 type CreateExchangeQuote = {
   userId: string
   accountId: string
@@ -30,12 +34,12 @@ interface QuoteServiceDependencies {
   rafikiClient: RafikiClient
   incomingPaymentService: IncomingPaymentService
   ratesService: RatesService
-  paymentPointerService: PaymentPointerService
+  walletAddressService: WalletAddressService
 }
 
 type CreateQuoteParams = {
   userId: string
-  paymentPointerId: string
+  walletAddressId: string
   amount: number
   isReceive: boolean
   receiver: string
@@ -48,11 +52,11 @@ type ConvertParams = {
   amount: bigint
 }
 
-const getAccountWithPaymentPointerBy = async (where: Partial<Account>) => {
+const getAccountWithWalletAddressBy = async (where: Partial<Account>) => {
   const account = await Account.query()
     .where(where)
-    .withGraphFetched({ paymentPointers: true })
-    .modifyGraph('paymentPointers', (builder) => {
+    .withGraphFetched({ walletAddresses: true })
+    .modifyGraph('walletAddresses', (builder) => {
       builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
     })
     .limit(1)
@@ -65,17 +69,17 @@ export class QuoteService implements IQuoteService {
   constructor(private deps: QuoteServiceDependencies) {}
 
   async create(params: CreateQuoteParams): Promise<QuoteWithFees> {
-    const existingPaymentPointer = await PaymentPointer.query().findById(
-      params.paymentPointerId
+    const existingWalletAddress = await WalletAddress.query().findById(
+      params.walletAddressId
     )
 
-    if (!existingPaymentPointer || !existingPaymentPointer.active) {
+    if (!existingWalletAddress || !existingWalletAddress.active) {
       throw new BadRequest('Invalid payment pointer')
     }
 
     const { assetId, assetCode } =
       await this.deps.accountService.findAccountById(
-        existingPaymentPointer.accountId,
+        existingWalletAddress.accountId,
         params.userId
       )
     const balance = await this.deps.accountService.getAccountBalance(
@@ -100,37 +104,63 @@ export class QuoteService implements IQuoteService {
 
     const isIncomingPayment = incomingPaymentRegexp.test(params.receiver)
 
-    const destinationPaymentPointer =
-      await this.deps.paymentPointerService.getExternalPaymentPointer(
-        isIncomingPayment ? urlToPaymentPointer(paymentUrl) : paymentUrl
-      )
+    let assetDetails
+    if (isIncomingPayment) {
+      const payment =
+        await this.deps.incomingPaymentService.getExternalPayment(paymentUrl)
+      assetDetails = {
+        assetCode: payment.receivedAmount.assetCode,
+        assetScale: payment.receivedAmount.assetScale
+      }
+    } else {
+      const walletAddress =
+        await this.deps.walletAddressService.getExternalWalletAddress(
+          paymentUrl
+        )
+      assetDetails = {
+        assetCode: walletAddress.assetCode,
+        assetScale: walletAddress.assetScale
+      }
+    }
 
-    if (
-      params.isReceive &&
-      destinationPaymentPointer.assetCode !== asset.code
-    ) {
-      const convertedValue = await this.convert({
+    if (params.isReceive && assetDetails.assetCode !== asset.code) {
+      let convertedValue = await this.convert({
         from: assetCode,
-        to: destinationPaymentPointer.assetCode,
+        to: assetDetails.assetCode,
         amount: value
       })
+      if (isIncomingPayment) {
+        const payment = await this.deps.incomingPaymentService.getReceiver(
+          params.receiver
+        )
+
+        const amount = payment?.value
+          ? transformBalance(payment?.value, assetDetails.assetScale)
+          : undefined
+
+        // adjust the amount in case that after converting it to the receiver currency it is off by a small margin
+        if (amount && 1 - Number(amount) / Number(convertedValue) < 0.01) {
+          convertedValue = amount
+        }
+      }
+
       value = convertedValue
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
       // TODO: discuss if this check is required
       // const assetList = await this.deps.rafikiClient.listAssets({ first: 100 })
       // asset = assetList.find(
-      //   (a) => a.code === destinationPaymentPointer.assetCode
+      //   (a) => a.code === destinationWalletAddress.assetCode
       // )
       // if (!asset) {
       //   throw new BadRequest(
-      //     'Destination payment pointer asset is not supported'
+      //     'Destination wallet address asset is not supported'
       //   )
       // }
 
       asset = {
-        code: destinationPaymentPointer.assetCode,
-        scale: destinationPaymentPointer.assetScale
+        code: assetDetails.assetCode,
+        scale: assetDetails.assetScale
       }
     }
 
@@ -138,10 +168,10 @@ export class QuoteService implements IQuoteService {
       paymentUrl = await this.deps.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
         asset: {
-          code: destinationPaymentPointer.assetCode,
-          scale: destinationPaymentPointer.assetScale
+          code: assetDetails.assetCode,
+          scale: assetDetails.assetScale
         },
-        paymentPointerUrl: params.receiver,
+        walletAddressUrl: params.receiver,
         description: params.description,
         expiresAt: new Date(Date.now() + 1000 * 15)
       })
@@ -154,7 +184,7 @@ export class QuoteService implements IQuoteService {
     }
 
     const quote = await this.deps.rafikiClient.createQuote({
-      paymentPointerId: params.paymentPointerId,
+      walletAddressId: params.walletAddressId,
       receiveAmount: params.isReceive ? amountParams : undefined,
       receiver: paymentUrl,
       debitAmount: params.isReceive ? undefined : amountParams
@@ -206,7 +236,7 @@ export class QuoteService implements IQuoteService {
     assetCode,
     amount
   }: CreateExchangeQuote): Promise<QuoteWithFees> {
-    const accountFrom = await getAccountWithPaymentPointerBy({
+    const accountFrom = await getAccountWithWalletAddressBy({
       userId,
       id: accountId
     })
@@ -222,16 +252,16 @@ export class QuoteService implements IQuoteService {
       )
     }
 
-    const senderPp = await createPaymentPointerIfFalsy({
-      paymentPointer: accountFrom.paymentPointers?.[0],
+    const senderPp = await createWalletAddressIfFalsy({
+      walletAddress: accountFrom.walletAddresses?.[0],
       userId,
       accountId: accountFrom.id,
       publicName: `Exchange Payment Pointer (exchanging into ${assetCode})`,
-      paymentPointerService: this.deps.paymentPointerService
+      walletAddressService: this.deps.walletAddressService
     })
     const senderPpId = senderPp.id
 
-    let accountTo = await getAccountWithPaymentPointerBy({ userId, assetCode })
+    let accountTo = await getAccountWithWalletAddressBy({ userId, assetCode })
 
     if (!accountTo) {
       accountTo = await this.deps.accountService.createAccount({
@@ -241,24 +271,28 @@ export class QuoteService implements IQuoteService {
       })
     }
 
-    const receiverPp = await createPaymentPointerIfFalsy({
-      paymentPointer: accountTo.paymentPointers?.[0],
+    const receiverPp = await createWalletAddressIfFalsy({
+      walletAddress: accountTo.walletAddresses?.[0],
       userId,
       accountId: accountTo.id,
       publicName: `${assetCode} Payment Pointer`,
-      paymentPointerService: this.deps.paymentPointerService
+      walletAddressService: this.deps.walletAddressService
     })
     const receiverPpUrl = receiverPp.url
 
     const quote = await this.create({
       userId,
-      paymentPointerId: senderPpId,
+      walletAddressId: senderPpId,
       amount,
       description: 'Currency exchange.',
-      isReceive: false,
+      isReceive: true,
       receiver: receiverPpUrl
     })
 
+    //OUTCOME
+    NodeCacheInstance.set(quote.id, true)
+    //INCOME
+    NodeCacheInstance.set(urlToPaymentId(quote.receiver), true)
     return quote
   }
 }

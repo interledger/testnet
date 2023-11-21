@@ -52,7 +52,8 @@ export async function createContainer(
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
     privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
-    paymentPointerUrl: env.PAYMENT_POINTER
+    walletAddressUrl: env.PAYMENT_POINTER,
+    useHttp: env.NODE_ENV === 'development'
   })
 
   container.register({

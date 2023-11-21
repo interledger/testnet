@@ -19,6 +19,9 @@ import { withSession } from '@/middleware/withSession'
 import type { UserController } from '@/user/controller'
 import { mockLogInRequest } from '../mocks'
 import { createUser } from '@/tests/helpers'
+import { faker } from '@faker-js/faker'
+import { getRandomToken, hashToken } from '@/utils/helpers'
+import { User } from '@/user/model'
 
 describe('User Controller', (): void => {
   let bindings: Container<Bindings>
@@ -28,6 +31,7 @@ describe('User Controller', (): void => {
   let userController: UserController
   let req: MockRequest<Request>
   let res: MockResponse<Response>
+  let userInfo: { id: string; email: string }
 
   const next = jest.fn()
   const args = mockLogInRequest().body
@@ -57,11 +61,16 @@ describe('User Controller', (): void => {
       needsWallet: !user.rapydWalletId,
       needsIDProof: !user.kycId
     }
+
+    userInfo = {
+      id: user.id,
+      email: user.email
+    }
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {
@@ -91,6 +100,106 @@ describe('User Controller', (): void => {
       expect(next).toHaveBeenCalledTimes(1)
       expect(res.statusCode).toBe(401)
       expect(req.session).toEqual({})
+    })
+  })
+
+  describe('Request ResetPassword', () => {
+    it('should return a message that a reset email has been sent', async () => {
+      req.body = {
+        email: userInfo.email
+      }
+
+      await userController.requestResetPassword(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'An email with reset password steps was sent to provided email'
+      })
+    })
+  })
+
+  describe('Reset password', () => {
+    it('should return a message that password has been rested', async () => {
+      const resetToken = getRandomToken()
+      const passwordResetToken = hashToken(resetToken)
+      const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+      await User.query()
+        .findById(userInfo.id)
+        .patch({ passwordResetToken, passwordResetExpiresAt })
+
+      const password = faker.internet.password()
+      req.body = {
+        password,
+        confirmPassword: password
+      }
+      req.params = {
+        token: resetToken
+      }
+
+      await userController.resetPassword(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Password was updated successfully'
+      })
+    })
+
+    it('should return invalid token', async () => {
+      const password = faker.internet.password()
+      req.body = {
+        password,
+        confirmPassword: password
+      }
+      req.params = {
+        token: 'resetToken'
+      }
+      await userController.resetPassword(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('Check Token', () => {
+    it('should return a boolean that the token is valid', async () => {
+      const resetToken = getRandomToken()
+      const passwordResetToken = hashToken(resetToken)
+      const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+      await User.query()
+        .findById(userInfo.id)
+        .patch({ passwordResetToken, passwordResetExpiresAt })
+
+      req.params = {
+        token: resetToken
+      }
+
+      await userController.checkToken(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Token was checked',
+        data: {
+          isValid: true
+        }
+      })
+    })
+
+    it('should return a boolean that the token is not valid', async () => {
+      req.params = {
+        token: 'resetToken'
+      }
+
+      await userController.checkToken(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Token was checked',
+        data: {
+          isValid: false
+        }
+      })
     })
   })
 })

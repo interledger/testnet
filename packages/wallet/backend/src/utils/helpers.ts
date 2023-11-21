@@ -15,8 +15,8 @@ export const transformAmount = (
   return `${integerPart}.${fractionalPart}`
 }
 
-export const urlToPaymentPointer = (url: string) =>
-  url.split('/incoming-payments/')[0]
+export const urlToPaymentId = (url: string) =>
+  url.split('/incoming-payments/')[1]
 
 export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
@@ -79,3 +79,7 @@ export const prefixSomeObjectKeys = (
     }),
     {}
   )
+
+import NodeCache from 'node-cache'
+
+export const NodeCacheInstance = new NodeCache({ stdTTL: 60 * 60 })

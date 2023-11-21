@@ -68,7 +68,7 @@ export class OrderController implements IOrderController {
     next: NextFunction
   ) {
     try {
-      const { products, paymentPointerUrl } = await validate(
+      const { products, walletAddressUrl } = await validate(
         createOrderSchema,
         req.body
       )
@@ -83,7 +83,7 @@ export class OrderController implements IOrderController {
 
       const grant = await this.openPayments.preparePayment({
         order,
-        paymentPointerUrl
+        walletAddressUrl
       })
 
       this.logger.debug(JSON.stringify(grant, null, 2))
@@ -125,7 +125,7 @@ export class OrderController implements IOrderController {
         receivedHash: hash,
         clientNonce: order.payments.clientNonce,
         interactNonce: order.payments.interactNonce,
-        paymentPointerUrl: order.payments.paymentPointer
+        walletAddressUrl: order.payments.walletAddress
       })
       await this.openPayments.createOutgoingPayment(order, interactRef)
 
@@ -141,13 +141,13 @@ export class OrderController implements IOrderController {
     next: NextFunction
   ) {
     try {
-      const { paymentPointer, amount } = await validate(
+      const { walletAddress, amount } = await validate(
         oneClickSetupSchema,
         req.body
       )
 
       const redirectUrl = await this.openPayments.setupOneClick(
-        paymentPointer,
+        walletAddress,
         amount
       )
 
@@ -190,7 +190,7 @@ export class OrderController implements IOrderController {
         receivedHash: hash,
         clientNonce: indentiferData.clientNonce,
         interactNonce: indentiferData.interactNonce,
-        paymentPointerUrl: indentiferData.paymentPointerUrl
+        walletAddressUrl: indentiferData.walletAddressUrl
       })
 
       const tokenInfo = await this.openPayments.continueGrant({

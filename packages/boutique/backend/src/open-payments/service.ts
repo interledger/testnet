@@ -8,7 +8,7 @@ import {
   Grant,
   GrantRequest,
   IncomingPayment,
-  PaymentPointer,
+  WalletAddress,
   PendingGrant,
   Quote,
   isPendingGrant
@@ -20,11 +20,11 @@ import { OneClickCache } from '@/cache/one-click'
 
 interface PreparePaymentParams {
   order: Order
-  paymentPointerUrl: string
+  walletAddressUrl: string
 }
 
 interface CreateQuoteParams {
-  paymentPointer: PaymentPointer
+  walletAddress: WalletAddress
   receiver: string
 }
 
@@ -37,7 +37,7 @@ interface Amount {
 interface CreateOutgoingPaymentParams {
   authServer: string
   identifier: string
-  paymentPointer: string
+  walletAddress: string
   debitAmount: Amount
   receiveAmount: Amount
   nonce: string
@@ -45,7 +45,7 @@ interface CreateOutgoingPaymentParams {
 }
 
 interface CreateIncomingPaymentParams {
-  paymentPointer: PaymentPointer
+  walletAddress: WalletAddress
   accessToken: string
   order: Order
 }
@@ -53,7 +53,7 @@ interface CreateIncomingPaymentParams {
 interface VerifyHashParams {
   interactRef?: string
   receivedHash?: string
-  paymentPointerUrl: string
+  walletAddressUrl: string
   clientNonce: string
   interactNonce: string
 }
@@ -74,7 +74,7 @@ export interface IOpenPayments {
   createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
   verifyHash(params: VerifyHashParams): Promise<void>
   getIncomingPayment(url: string): Promise<IncomingPayment>
-  setupOneClick(paymentPointerUrl: string, amount: number): Promise<string>
+  setupOneClick(walletAddressUrl: string, amount: number): Promise<string>
   continueGrant(params: ContinueGrantParams): Promise<TokenInfo>
 }
 
@@ -90,10 +90,9 @@ export class OpenPayments implements IOpenPayments {
   public async preparePayment(
     params: PreparePaymentParams
   ): Promise<PendingGrant> {
-    const { order, paymentPointerUrl } = params
-    const customerPaymentPointer =
-      await this.getPaymentPointer(paymentPointerUrl)
-    const shopPaymentPointer = await this.getPaymentPointer(
+    const { order, walletAddressUrl } = params
+    const customerWalletAddress = await this.getWalletAddress(walletAddressUrl)
+    const shopWalletAddress = await this.getWalletAddress(
       this.env.PAYMENT_POINTER
     )
 
@@ -102,11 +101,11 @@ export class OpenPayments implements IOpenPayments {
     const incomingPayment = await this.createIncomingPayment({
       accessToken: shopAccessToken,
       order: order,
-      paymentPointer: shopPaymentPointer
+      walletAddress: shopWalletAddress
     })
 
     const quote = await this.createQuote({
-      paymentPointer: customerPaymentPointer,
+      walletAddress: customerWalletAddress,
       receiver: incomingPayment.id
     })
 
@@ -114,8 +113,9 @@ export class OpenPayments implements IOpenPayments {
 
     const outgoingPaymentGrant = await this.createOutgoingPaymentGrant({
       identifier: order.id,
-      paymentPointer: customerPaymentPointer.id,
-      authServer: customerPaymentPointer.authServer,
+      walletAddress: customerWalletAddress.id,
+      authServer: customerWalletAddress.authServer,
+
       debitAmount: quote.debitAmount,
       receiveAmount: quote.receiveAmount,
       nonce: clientNonce
@@ -135,7 +135,7 @@ export class OpenPayments implements IOpenPayments {
       interactNonce: outgoingPaymentGrant.interact.finish,
       incomingPaymentUrl: incomingPayment.id,
       clientNonce,
-      paymentPointer: customerPaymentPointer.id
+      walletAddress: customerWalletAddress.id
     })
 
     return outgoingPaymentGrant
@@ -155,10 +155,11 @@ export class OpenPayments implements IOpenPayments {
       await this.opClient.outgoingPayment
         .create(
           {
-            paymentPointer: order.payments.paymentPointer,
+            url: new URL(order.payments.walletAddress).origin,
             accessToken: continuation.accessToken
           },
           {
+            walletAddress: order.payments.walletAddress,
             quoteId: order.payments.quoteId,
             metadata: {
               description: 'Purchase at Rafiki Boutique',
@@ -182,7 +183,7 @@ export class OpenPayments implements IOpenPayments {
     receivedHash,
     clientNonce,
     interactNonce,
-    paymentPointerUrl
+    walletAddressUrl
   }: VerifyHashParams): Promise<void> {
     if (!interactRef) {
       this.logger.error('Missing interactRef.')
@@ -194,11 +195,11 @@ export class OpenPayments implements IOpenPayments {
       throw new InternalServerError()
     }
 
-    const paymentPointer = await this.opClient.paymentPointer.get({
-      url: paymentPointerUrl
+    const walletAddress = await this.opClient.walletAddress.get({
+      url: walletAddressUrl
     })
 
-    let url = paymentPointer.authServer
+    let url = walletAddress.authServer
     if (this.env.NODE_ENV === 'development') {
       url = url.replace('rafiki-auth', 'localhost')
     }
@@ -228,23 +229,23 @@ export class OpenPayments implements IOpenPayments {
   }
 
   public async setupOneClick(
-    paymentPointerUrl: string,
+    walletAddressUrl: string,
     amount: number
   ): Promise<string> {
-    const paymentPointer = await this.getPaymentPointer(paymentPointerUrl)
+    const walletAddress = await this.getWalletAddress(walletAddressUrl)
     const clientNonce = randomUUID()
     const clientIdentifer = randomUUID()
 
     const amountData: Amount = {
-      value: (amount * 10 ** paymentPointer.assetScale).toFixed(),
-      assetCode: paymentPointer.assetCode,
-      assetScale: paymentPointer.assetScale
+      value: (amount * 10 ** walletAddress.assetScale).toFixed(),
+      assetCode: walletAddress.assetCode,
+      assetScale: walletAddress.assetScale
     }
 
     const grant = await this.createOutgoingPaymentGrant({
       nonce: clientNonce,
-      paymentPointer: paymentPointer.id,
-      authServer: paymentPointer.authServer,
+      walletAddress: walletAddress.id,
+      authServer: walletAddress.authServer,
       identifier: clientIdentifer,
       debitAmount: amountData,
       receiveAmount: amountData,
@@ -254,7 +255,7 @@ export class OpenPayments implements IOpenPayments {
     this.oneClickCache.set(
       clientIdentifer,
       {
-        paymentPointerUrl: paymentPointer.id,
+        walletAddressUrl: walletAddress.id,
         clientNonce: clientNonce,
         interactNonce: grant.interact.finish,
         continueUri: grant.continue.uri,
@@ -304,7 +305,7 @@ export class OpenPayments implements IOpenPayments {
       nonce,
       authServer,
       identifier,
-      paymentPointer,
+      walletAddress,
       debitAmount,
       receiveAmount,
       finishUrl
@@ -323,7 +324,7 @@ export class OpenPayments implements IOpenPayments {
               {
                 type: 'outgoing-payment',
                 actions: ['create', 'read', 'list'],
-                identifier: paymentPointer,
+                identifier: walletAddress,
                 limits: {
                   debitAmount,
                   receiveAmount
@@ -378,8 +379,8 @@ export class OpenPayments implements IOpenPayments {
     return grant
   }
 
-  private async getPaymentPointer(url: string) {
-    const paymentPointer = await this.opClient.paymentPointer
+  private async getWalletAddress(url: string) {
+    const walletAddress = await this.opClient.walletAddress
       .get({
         url
       })
@@ -388,28 +389,29 @@ export class OpenPayments implements IOpenPayments {
         throw new BadRequest('Invalid payment pointer.')
       })
 
-    this.logger.debug('Payment pointer information', paymentPointer)
-    this.logger.debug(JSON.stringify(paymentPointer, null, 2))
+    this.logger.debug('Payment pointer information', walletAddress)
+    this.logger.debug(JSON.stringify(walletAddress, null, 2))
 
-    return paymentPointer
+    return walletAddress
   }
 
   private async createIncomingPayment({
-    paymentPointer,
+    walletAddress,
     accessToken,
     order
   }: CreateIncomingPaymentParams) {
     return await this.opClient.incomingPayment
       .create(
         {
-          paymentPointer: paymentPointer.id,
+          url: new URL(walletAddress.id).origin,
           accessToken: accessToken
         },
         {
+          walletAddress: walletAddress.id,
           incomingAmount: {
-            assetCode: paymentPointer.assetCode,
-            assetScale: paymentPointer.assetScale,
-            value: (order.total * 10 ** paymentPointer.assetScale).toFixed()
+            assetCode: walletAddress.assetCode,
+            assetScale: walletAddress.assetScale,
+            value: (order.total * 10 ** walletAddress.assetScale).toFixed()
           },
           metadata: {
             orderId: order.id,
@@ -424,11 +426,11 @@ export class OpenPayments implements IOpenPayments {
   }
 
   private async createQuote({
-    paymentPointer,
+    walletAddress,
     receiver
   }: CreateQuoteParams): Promise<Quote> {
     const grant = await this.createNonInteractiveQuoteGrant(
-      paymentPointer.authServer,
+      walletAddress.authServer,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: 'interact' should be optional
       {
@@ -449,10 +451,14 @@ export class OpenPayments implements IOpenPayments {
     return await this.opClient.quote
       .create(
         {
-          paymentPointer: paymentPointer.id,
+          url: new URL(walletAddress.id).origin,
           accessToken: grant.access_token.value
         },
-        { receiver }
+        {
+          method: 'ilp',
+          walletAddress: walletAddress.id,
+          receiver
+        }
       )
       .catch(() => {
         this.logger.error(`Could not create quote for receiver ${receiver}.`)

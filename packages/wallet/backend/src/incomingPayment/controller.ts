@@ -31,12 +31,12 @@ export class IncomingPaymentController implements IIncomingPaymentController {
     try {
       const userId = req.session.user.id
       const {
-        body: { paymentPointerId, amount, description, expiration }
+        body: { walletAddressId, amount, description, expiration }
       } = await validate(incomingPaymentSchema, req)
 
       const url = await this.deps.incomingPaymentService.create(
         userId,
-        paymentPointerId,
+        walletAddressId,
         amount,
         description,
         expiration
