@@ -43,7 +43,12 @@ export const ProductsList = () => {
         <p>Please try again.</p>
         <button
           className="mt-2 text-lg text-green-6 hover:text-green-3"
-          onClick={() => queryClient.invalidateQueries(['products'])}
+          onClick={() =>
+            queryClient.invalidateQueries({
+              queryKey: ['products'],
+              exact: true
+            })
+          }
         >
           Retry
         </button>
