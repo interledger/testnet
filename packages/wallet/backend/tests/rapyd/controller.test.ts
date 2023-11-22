@@ -71,7 +71,13 @@ describe('Rapyd Controller', () => {
       walletAddressService,
       rapydService: isFailure ? mockedRapydFailureService : mockedRapydService
     }
-    Reflect.set(rapydController, 'deps', rapydControllerDepsMocked)
+
+    for (const key in rapydControllerDepsMocked)
+      Reflect.set(
+        rapydController,
+        key,
+        rapydControllerDepsMocked[key as keyof typeof rapydControllerDepsMocked]
+      )
   }
 
   beforeAll(async (): Promise<void> => {
@@ -91,7 +97,13 @@ describe('Rapyd Controller', () => {
       },
       ...mockRapyd
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+
+    for (const key in accountServiceDepsMocked)
+      Reflect.set(
+        accountService,
+        key,
+        accountServiceDepsMocked[key as keyof typeof accountServiceDepsMocked]
+      )
 
     const walletAddressServiceDepsMocked = {
       accountService,
@@ -102,7 +114,14 @@ describe('Rapyd Controller', () => {
         })
       }
     }
-    Reflect.set(walletAddressService, 'deps', walletAddressServiceDepsMocked)
+    for (const key in accountServiceDepsMocked)
+      Reflect.set(
+        walletAddressService,
+        key,
+        walletAddressServiceDepsMocked[
+          key as keyof typeof walletAddressServiceDepsMocked
+        ]
+      )
 
     createRapydControllerDepsMocked()
   })

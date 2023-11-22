@@ -76,7 +76,11 @@ describe('Quote Controller', () => {
         createExchangeQuote: quoteWithFees
       }
     }
-    Reflect.set(quoteController, 'deps', quoteControllerDepsMocked)
+    Reflect.set(
+      quoteController,
+      'quoteService',
+      quoteControllerDepsMocked.quoteService
+    )
   }
   beforeAll(async (): Promise<void> => {
     bindings = await createContainer(env)

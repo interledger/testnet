@@ -31,7 +31,7 @@ describe('Rapyd Service', () => {
     authService = await bindings.resolve('authService')
     rapydService = await bindings.resolve('rapydService')
 
-    Reflect.set(rapydService, 'deps', mockRapyd)
+    Reflect.set(rapydService, 'rapydClient', mockRapyd.rapydClient)
   })
 
   beforeEach(async (): Promise<void> => {
@@ -57,7 +57,7 @@ describe('Rapyd Service', () => {
 
   afterEach(async (): Promise<void> => {
     await truncateTables(knex)
-    Reflect.set(rapydService, 'deps', mockRapyd)
+    Reflect.set(rapydService, 'rapydClient', mockRapyd.rapydClient)
   })
 
   describe('Get Document Types', () => {
@@ -79,7 +79,7 @@ describe('Rapyd Service', () => {
     })
 
     it('should return status failure', async () => {
-      Reflect.set(rapydService, 'deps', mockFailureRapyd)
+      Reflect.set(rapydService, 'rapydClient', mockFailureRapyd.rapydClient)
       await User.query().patchAndFetchById(userInfo.id, {
         country: faker.location.country()
       })
@@ -100,7 +100,7 @@ describe('Rapyd Service', () => {
     })
 
     it('should return status failure', async () => {
-      Reflect.set(rapydService, 'deps', mockFailureRapyd)
+      Reflect.set(rapydService, 'rapydClient', mockFailureRapyd.rapydClient)
       await expect(rapydService.getCountryNames()).rejects.toThrowError(
         /Unable to retrieve country names from rapyd, Test message for failure/
       )
@@ -133,7 +133,7 @@ describe('Rapyd Service', () => {
 
     it('should return status failure', async () => {
       const { email, id } = userInfo
-      Reflect.set(rapydService, 'deps', mockFailureRapyd)
+      Reflect.set(rapydService, 'rapydClient', mockFailureRapyd.rapydClient)
       await expect(
         rapydService.createWallet({
           firstName,
@@ -185,7 +185,7 @@ describe('Rapyd Service', () => {
     })
 
     it('should return status failure', async () => {
-      Reflect.set(rapydService, 'deps', mockFailureRapyd)
+      Reflect.set(rapydService, 'rapydClient', mockFailureRapyd.rapydClient)
       await User.query().patchAndFetchById(userInfo.id, {
         country: faker.location.country()
       })
@@ -221,7 +221,7 @@ describe('Rapyd Service', () => {
     })
 
     it('should return status failure', async () => {
-      Reflect.set(rapydService, 'deps', mockFailureRapyd)
+      Reflect.set(rapydService, 'rapydClient', mockFailureRapyd.rapydClient)
       const firstName = faker.person.firstName()
       const lastName = faker.person.lastName()
       await expect(

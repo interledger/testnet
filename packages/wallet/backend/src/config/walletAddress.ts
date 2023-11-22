@@ -1,5 +1,4 @@
 import { Env } from '@/config/env'
-import { Knex } from 'knex'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { AccountService } from '@/account/service'
 import { RapydClient } from '@/rapyd/rapyd-client'
@@ -12,22 +11,20 @@ import { RedisClient } from '@/cache/redis-client'
 
 export function createWalletAddressService(
   env: Env,
-  knex: Knex,
   rafikiClient: RafikiClient,
   accountService: AccountService,
   rapydClient: RapydClient,
-  wMTransactionService: WMTransactionService,
+  wmTransactionService: WMTransactionService,
   redisClient: RedisClient,
   logger: Logger
 ) {
-  return new WalletAddressService({
-    env,
-    knex,
-    rafikiClient,
+  return new WalletAddressService(
     accountService,
-    cache: new Cache<WalletAddress>(redisClient, 'WMWalletAddresses'),
-    wmTransactionService: wMTransactionService,
+    rafikiClient,
+    env,
+    new Cache<WalletAddress>(redisClient, 'WMWalletAddresses'),
+    wmTransactionService,
     rapydClient,
     logger
-  })
+  )
 }

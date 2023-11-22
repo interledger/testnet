@@ -73,8 +73,6 @@ describe('Asset Controller', (): void => {
     accountService = await bindings.resolve('accountService')
 
     const accountServiceDepsMocked = {
-      accountService: await bindings.resolve('accountService'),
-
       rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
@@ -118,12 +116,18 @@ describe('Asset Controller', (): void => {
         })
       }
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+    Reflect.set(
+      accountService,
+      'rafikiClient',
+      accountServiceDepsMocked.rafikiClient
+    )
+    Reflect.set(
+      accountService,
+      'rapydClient',
+      accountServiceDepsMocked.rapydClient
+    )
 
-    const accountControllerDepsMocked = {
-      accountService
-    }
-    Reflect.set(accountController, 'deps', accountControllerDepsMocked)
+    Reflect.set(accountController, 'accountService', accountService)
   })
 
   beforeEach(async (): Promise<void> => {

@@ -44,7 +44,7 @@ import {
 import { createContainer as createAwilixContainer } from 'awilix/lib/container'
 import { createRedis } from '@/config/redis'
 import { createWalletAddressService } from '@/config/walletAddress'
-import { createKnex } from '@/config/kenx'
+import { createKnex } from '@/config/knex'
 import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
 
 export interface Cradle {
@@ -62,7 +62,7 @@ export interface Cradle {
   accountService: AccountService
   ratesService: RatesService
   redisClient: RedisClient
-  wMTransactionService: WMTransactionService
+  wmTransactionService: WMTransactionService
   walletAddressService: WalletAddressService
   transactionService: TransactionService
   incomingPaymentService: IncomingPaymentService
@@ -89,37 +89,27 @@ export async function createContainer(
   env: Env
 ): Promise<AwilixContainer<Cradle>> {
   const container = createAwilixContainer<Cradle>({
-    injectionMode: InjectionMode.PROXY
+    injectionMode: InjectionMode.CLASSIC
   })
 
   container.register({
     env: asValue(env),
     logger: asValue(logger),
-    knex: asFunction(createKnex)
-      .setInjectionMode(InjectionMode.CLASSIC)
-      .singleton(),
-    sessionService: asClass(SessionService),
+    knex: asFunction(createKnex).singleton(),
+    sessionService: asClass(SessionService).singleton(),
     emailService: asClass(EmailService).singleton(),
     userService: asClass(UserService).singleton(),
     authService: asClass(AuthService).singleton(),
     rapydClient: asClass(RapydClient).singleton(),
     rapydService: asClass(RapydService).singleton(),
-    rafikiClient: asFunction(createRafikiClient)
-      .setInjectionMode(InjectionMode.CLASSIC)
-      .singleton(),
-    rafikiAuthService: asFunction(createRafikiAuthService)
-      .setInjectionMode(InjectionMode.CLASSIC)
-      .singleton(),
+    rafikiClient: asFunction(createRafikiClient).singleton(),
+    rafikiAuthService: asFunction(createRafikiAuthService).singleton(),
     accountService: asClass(AccountService).singleton(),
     ratesService: asClass(RatesService).singleton(),
-    redisClient: asFunction(createRedis)
-      .setInjectionMode(InjectionMode.CLASSIC)
-      .singleton(),
-    wMTransactionService: asClass(WMTransactionService).singleton(),
+    redisClient: asFunction(createRedis).singleton(),
+    wmTransactionService: asClass(WMTransactionService).singleton(),
     transactionService: asClass(TransactionService).singleton(),
-    walletAddressService: asFunction(createWalletAddressService)
-      .setInjectionMode(InjectionMode.CLASSIC)
-      .singleton(),
+    walletAddressService: asFunction(createWalletAddressService).singleton(),
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
     rafikiService: asClass(RafikiService).singleton(),

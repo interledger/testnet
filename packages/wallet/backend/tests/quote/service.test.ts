@@ -61,7 +61,16 @@ describe('Quote Service', () => {
       },
       ...mockRapyd
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+    Reflect.set(
+      accountService,
+      'rafikiClient',
+      accountServiceDepsMocked.rafikiClient
+    )
+    Reflect.set(
+      accountService,
+      'rapydClient',
+      accountServiceDepsMocked.rapydClient
+    )
 
     const quoteServiceDepsMocked = {
       accountService,
@@ -122,7 +131,12 @@ describe('Quote Service', () => {
       }
     }
 
-    Reflect.set(quoteService, 'deps', quoteServiceDepsMocked)
+    for (const key in quoteServiceDepsMocked)
+      Reflect.set(
+        quoteService,
+        key,
+        quoteServiceDepsMocked[key as keyof typeof quoteServiceDepsMocked]
+      )
   })
 
   beforeEach(async (): Promise<void> => {

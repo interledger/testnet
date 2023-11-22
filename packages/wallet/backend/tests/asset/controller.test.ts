@@ -73,7 +73,7 @@ describe('Asset Controller', (): void => {
           listAssets: () => mockedListAssets
         }
       }
-      Reflect.set(assetController, 'deps', depsMocked)
+      Reflect.set(assetController, 'rafikiClient', depsMocked.rafikiClient)
 
       await assetController.list(req, res, next)
       expect(res.statusCode).toBe(200)

@@ -54,13 +54,22 @@ describe('Socket Service', () => {
       },
       ...mockRapyd
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+    for (const key in accountServiceDepsMocked)
+      Reflect.set(
+        accountService,
+        key,
+        accountServiceDepsMocked[key as keyof typeof accountServiceDepsMocked]
+      )
 
     const socketServiceDepsMocked = {
       accountService: await bindings.resolve('accountService')
     }
 
-    Reflect.set(socketService, 'deps', socketServiceDepsMocked)
+    Reflect.set(
+      socketService,
+      'accountService',
+      socketServiceDepsMocked.accountService
+    )
   })
 
   beforeEach(async (): Promise<void> => {
