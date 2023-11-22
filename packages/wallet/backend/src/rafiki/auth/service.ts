@@ -1,4 +1,3 @@
-import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { GraphQLClient } from 'graphql-request'
 import {
@@ -23,21 +22,18 @@ interface IRafikiAuthService {
   revokeGrant(id: string): Promise<void>
 }
 
-interface RafikiAuthServiceDependencies {
-  logger: Logger
-  env: Env
-  gqlClient: GraphQLClient
-}
-
 export class RafikiAuthService implements IRafikiAuthService {
-  constructor(private deps: RafikiAuthServiceDependencies) {}
+  constructor(
+    private env: Env,
+    private gqlClient: GraphQLClient
+  ) {}
 
   async listGrants(identifiers: string[]) {
     if (!identifiers.length) {
       return []
     }
 
-    const response = await this.deps.gqlClient.request<
+    const response = await this.gqlClient.request<
       GetGrantsQuery,
       GetGrantsQueryVariables
     >(getGrantsQuery, { filter: { identifier: { in: identifiers } } })
@@ -46,7 +42,7 @@ export class RafikiAuthService implements IRafikiAuthService {
   }
 
   async revokeGrant(grantId: string) {
-    const response = await this.deps.gqlClient.request<
+    const response = await this.gqlClient.request<
       RevokeGrantMutation,
       RevokeGrantMutationVariables
     >(revokeGrantMutation, { grantId })
@@ -57,7 +53,7 @@ export class RafikiAuthService implements IRafikiAuthService {
   }
 
   async getGrantById(grantId: string) {
-    const response = await this.deps.gqlClient.request<
+    const response = await this.gqlClient.request<
       GetGrantQuery,
       GetGrantQueryVariables
     >(getGrantByIdQuery, { grantId })
@@ -67,10 +63,10 @@ export class RafikiAuthService implements IRafikiAuthService {
 
   async getGrantByInteraction(interactionId: string, nonce: string) {
     const response = await axios.get(
-      `${this.deps.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}`,
+      `${this.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}`,
       {
         headers: {
-          'x-idp-secret': this.deps.env.AUTH_IDENTITY_SERVER_SECRET
+          'x-idp-secret': this.env.AUTH_IDENTITY_SERVER_SECRET
         }
       }
     )
@@ -84,11 +80,11 @@ export class RafikiAuthService implements IRafikiAuthService {
     acceptance: 'accept' | 'reject'
   ) {
     const response = await axios.post(
-      `${this.deps.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}/${acceptance}`,
+      `${this.env.AUTH_DOMAIN}/grant/${interactionId}/${nonce}/${acceptance}`,
       {},
       {
         headers: {
-          'x-idp-secret': this.deps.env.AUTH_IDENTITY_SERVER_SECRET
+          'x-idp-secret': this.env.AUTH_IDENTITY_SERVER_SECRET
         }
       }
     )
