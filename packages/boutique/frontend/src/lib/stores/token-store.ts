@@ -1,17 +1,26 @@
-import { valtioPersist } from '../valtio-persist'
+import { resetStore, valtioPersist } from '../valtio-persist'
 
 interface TokenState {
-  token?: string
+  accessToken: string
+  manageUrl: string
 }
 
-const state: TokenState = {}
+const state: TokenState = {
+  accessToken: '',
+  manageUrl: ''
+}
 
 export const tokenStore = valtioPersist<TokenState>('token-store', state)
 
-export function setToken(token: string) {
-  tokenStore.token = token
+export function setToken(args: TokenState) {
+  tokenStore.manageUrl = args.manageUrl
+  tokenStore.accessToken = args.accessToken
 }
 
 export function getToken() {
-  return tokenStore.token
+  return tokenStore
+}
+
+export function resetToken(): void {
+  resetStore(tokenStore, state)
 }

@@ -42,9 +42,10 @@ export class InMemoryCache<TData> {
 
   processExpired(): string | undefined {
     const now = Date.now()
+    console.log('processing expired', this.cache.entries())
     for (const [key, data] of this.cache.entries()) {
       const { expires } = data
-
+      console.log('one click setup cache data', key, data)
       if (!expires) return
 
       if (expires && expires < now) {

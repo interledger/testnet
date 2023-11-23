@@ -150,7 +150,6 @@ export class App {
 
   private async processOneClickCache() {
     const oneClickCache = this.container.resolve('oneClickCache')
-    console.log('processing click cache')
     oneClickCache.processExpired()
     setTimeout(() => this.processOneClickCache(), 5000).unref()
   }

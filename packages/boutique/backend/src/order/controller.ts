@@ -168,9 +168,9 @@ export class OrderController implements IOrderController {
         req.body
       )
 
-      const indentiferData = await this.oneClickCache.get(identifier)
+      const identifierData = await this.oneClickCache.get(identifier)
 
-      if (!indentiferData) {
+      if (!identifierData) {
         this.logger.error(
           `Could not find interaction data for identifier "${identifier}"`
         )
@@ -188,16 +188,17 @@ export class OrderController implements IOrderController {
       await this.openPayments.verifyHash({
         interactRef,
         receivedHash: hash,
-        clientNonce: indentiferData.clientNonce,
-        interactNonce: indentiferData.interactNonce,
-        walletAddressUrl: indentiferData.walletAddressUrl
+        clientNonce: identifierData.clientNonce,
+        interactNonce: identifierData.interactNonce,
+        walletAddressUrl: identifierData.walletAddressUrl
       })
 
       const tokenInfo = await this.openPayments.continueGrant({
-        accessToken: indentiferData.continueToken,
-        url: indentiferData.continueUri,
+        accessToken: identifierData.continueToken,
+        url: identifierData.continueUri,
         interactRef
       })
+
       res.status(200).json(toSuccessReponse(tokenInfo))
     } catch (err) {
       next(err)

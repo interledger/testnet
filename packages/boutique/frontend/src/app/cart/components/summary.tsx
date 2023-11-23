@@ -1,19 +1,10 @@
+import { OneClickSetupDialog } from '@/app/cart/components/one-click-setup'
 import { Button } from '@/components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import { Form } from '@/components/ui/form/form'
-import { InputField } from '@/components/ui/form/input-field'
+
 import { useCartStore } from '@/hooks/use-cart-store.ts'
-import { useCustomMutation } from '@/hooks/use-custom-mutation'
 import { useTokenStore } from '@/hooks/use-token-store'
-import { useZodForm } from '@/hooks/use-zod-form'
-import { formatPrice, getObjectKeys } from '@/lib/utils.ts'
+import { resetToken } from '@/lib/stores/token-store'
+import { formatPrice } from '@/lib/utils.ts'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { z } from 'zod'
@@ -27,48 +18,40 @@ const SummarySection = ({ children }: { children: ReactNode }) => {
 }
 
 export const oneClickBuySetupSchema = z.object({
-  paymentPointer: z.string(),
+  walletAddress: z.string(),
   amount: z.coerce.number()
 })
 
 export const Summary = () => {
-  const { token } = useTokenStore()
+  const { accessToken } = useTokenStore()
   const { totalAmount, items } = useCartStore()
   const orderSubTotal = useMemo(() => formatPrice(totalAmount), [totalAmount])
 
-  const form = useZodForm({
-    schema: oneClickBuySetupSchema
-  })
-
-  const { mutate, data, isLoading, isSuccess } = useCustomMutation<
-    z.infer<typeof oneClickBuySetupSchema>,
-    Record<string, string>,
-    {
-      paymentPointer: string
-      amount: number
-    }
-  >(
-    { endpoint: '/orders/setup-one-click' },
-    {
-      onError: function ({ message, errors }) {
-        if (errors) {
-          getObjectKeys(errors).map((field) =>
-            form.setError(field, {
-              message: errors[field]
-            })
-          )
-        } else {
-          form.setError('root', { message })
-        }
-      }
-    }
-  )
-
-  if (data?.data.redirectUrl) {
-    window.location.href = data.data.redirectUrl
+  if (totalAmount === 0 && accessToken) {
+    return (
+      <div className="mx-auto mt-10 w-2/3 border-t border-t-gray-200 lg:col-span-12 lg:pt-10">
+        <div className="flex justify-center">
+          <Button
+            aria-label="remove one click buy"
+            variant="error"
+            onClick={() => resetToken()}
+          >
+            Disable one click buy
+          </Button>
+        </div>
+      </div>
+    )
   }
 
-  if (totalAmount === 0) return null
+  if (totalAmount === 0 && !accessToken) {
+    return (
+      <div className="mx-auto mt-10 w-2/3 border-t border-t-gray-200 lg:col-span-12 lg:pt-10">
+        <div className="flex justify-center">
+          <OneClickSetupDialog />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mt-16 flex flex-col gap-y-5 lg:col-span-4 lg:mt-0">
@@ -95,53 +78,6 @@ export const Summary = () => {
             </Link>
           </Button>
         </div>
-      </SummarySection>
-      <SummarySection>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button aria-label="setup one click buy" className="w-full">
-              Setup One Click Buy
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>One Click Buy Setup</DialogTitle>
-              <DialogDescription>
-                This action cannot be undone. This will permanently delete your
-                account and remove your data from our servers.
-              </DialogDescription>
-
-              <Form
-                form={form}
-                disabled={form.formState.isSubmitting || isLoading || isSuccess}
-                onSubmit={form.handleSubmit(({ paymentPointer, amount }) => {
-                  mutate({
-                    paymentPointer,
-                    amount
-                  })
-                })}
-                className="py-4"
-              >
-                <InputField
-                  label="Payment pointer"
-                  {...form.register('paymentPointer')}
-                  className="w-full"
-                />
-                <InputField
-                  inputMode="numeric"
-                  label="Amount"
-                  step="0.01"
-                  type="number"
-                  {...form.register('amount')}
-                  placeholder="0.00"
-                />
-                <Button aria-label="submit" className="mt-5 w-full">
-                  Setup
-                </Button>
-              </Form>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
       </SummarySection>
     </div>
   )

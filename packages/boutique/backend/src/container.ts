@@ -62,7 +62,7 @@ export async function createContainer(
     opClient: asValue(client),
     openPayments: asClass(OpenPayments).singleton(),
     tokenCache: asClass(TokenCache).singleton(),
-    oneClickCache: asClass(InMemoryCache<OneClickCacheData>),
+    oneClickCache: asClass(InMemoryCache<OneClickCacheData>).singleton(),
     knex: asFunction(createKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),

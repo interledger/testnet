@@ -66,7 +66,7 @@ interface ContinueGrantParams {
 
 export interface TokenInfo {
   accessToken: string
-  url: string
+  manageUrl: string
 }
 
 export interface IOpenPayments {
@@ -185,8 +185,9 @@ export class OpenPayments implements IOpenPayments {
     interactNonce,
     walletAddressUrl
   }: VerifyHashParams): Promise<void> {
+    console.log({ interactRef })
     if (!interactRef) {
-      this.logger.error('Missing interactRef.')
+      this.logger.error('[hash] Missing interactRef.')
       throw new InternalServerError()
     }
 
@@ -252,13 +253,18 @@ export class OpenPayments implements IOpenPayments {
       finishUrl: `${this.env.FRONTEND_URL}/cart/finish?identifier=${clientIdentifer}`
     })
 
+    let continueUri = grant.continue.uri
+    if (this.env.NODE_ENV === 'development') {
+      continueUri = continueUri.replace('localhost', 'rafiki-auth')
+    }
+
     this.oneClickCache.set(
       clientIdentifer,
       {
         walletAddressUrl: walletAddress.id,
         clientNonce: clientNonce,
         interactNonce: grant.interact.finish,
-        continueUri: grant.continue.uri,
+        continueUri,
         continueToken: grant.continue.access_token.value
       },
       6000 * 10 * 5
@@ -294,7 +300,7 @@ export class OpenPayments implements IOpenPayments {
 
     return {
       accessToken: continuation.access_token.value,
-      url: continuation.continue.uri
+      manageUrl: continuation.continue.uri.replace('localhost', 'rafiki-auth')
     }
   }
 
