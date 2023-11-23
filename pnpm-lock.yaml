@@ -45,8 +45,8 @@ importers:
   packages/boutique/backend:
     dependencies:
       '@interledger/open-payments':
-        specifier: ^6.1.0
-        version: 6.1.0
+        specifier: ^6.1.1
+        version: 6.1.1
       awilix:
         specifier: ^9.0.0
         version: 9.0.0
@@ -2124,8 +2124,8 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /@interledger/open-payments@6.1.0:
-    resolution: {integrity: sha512-M7snUtsKdPGgKx4FyUfKFC2PeWTr2qIh+8AYpBXIj90GOMOU/u7ArEBxmrVzHD7PjKyE4fKatpuwTPlyvt7pCg==}
+  /@interledger/open-payments@6.1.1:
+    resolution: {integrity: sha512-eS2zEGCuqb+WMAOzFvjCeKSRhpsIYQpFSslu4ET+jpleDn8NZJCwhW0q16f43UJJNargLeSGIg9CsKRcYRceZA==}
     dependencies:
       '@interledger/http-signature-utils': 2.0.0
       '@interledger/openapi': 1.2.1

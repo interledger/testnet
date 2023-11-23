@@ -6,7 +6,7 @@
     "test": "jest --passWithNoTests --maxWorkers=2"
   },
   "dependencies": {
-    "@interledger/open-payments": "^6.1.0",
+    "@interledger/open-payments": "^6.1.1",
     "awilix": "^9.0.0",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
