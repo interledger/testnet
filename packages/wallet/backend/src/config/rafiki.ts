@@ -9,5 +9,8 @@ export function createRafikiClient(env: Env, logger: Logger) {
 }
 
 export function createRafikiAuthService(env: Env) {
-  return new RafikiAuthService(env, new GraphQLClient(env.AUTH_GRAPHQL_ENDPOINT))
+  return new RafikiAuthService(
+    env,
+    new GraphQLClient(env.AUTH_GRAPHQL_ENDPOINT)
+  )
 }
