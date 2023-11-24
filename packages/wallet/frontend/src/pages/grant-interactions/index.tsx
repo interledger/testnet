@@ -24,6 +24,7 @@ const GrantInteractionPage = ({
   const [openDialog, closeDialog] = useDialog()
   const client = clientName ? clientName : grant.client
   const router = useRouter()
+  const access = grant.access.find((el) => el.type === 'outgoing-payment')
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -58,7 +59,7 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-xl text-green">
           <span className="font-semibold">{client}</span> wants to access your
           wallet account and withdraw{' '}
-          {grant.access[0].limits?.debitAmount?.formattedAmount}.
+          {access?.limits?.debitAmount?.formattedAmount}.
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
