@@ -9,39 +9,34 @@ import { Form } from '@/components/ui/form/form'
 import { InputField } from '@/components/ui/form/input-field'
 import { Button } from '@/components/ui/button'
 import { useZodForm } from '@/hooks/use-zod-form'
-import { oneClickBuySetupSchema } from '@/app/cart/components/summary'
-import { useCustomMutation } from '@/hooks/use-custom-mutation'
-import { z } from 'zod'
 import { getObjectKeys } from '@/lib/utils'
+import {
+  oneClickBuySetupSchema,
+  useSetupOneClickMutation
+} from '@/hooks/use-setup-one-click-mutation'
 
-export const OneClickSetupDialog = () => {
+export const OneClickSetupDialog = ({
+  buttonClassName
+}: {
+  buttonClassName?: string
+}) => {
   const form = useZodForm({
     schema: oneClickBuySetupSchema
   })
 
-  const { mutate, data, isPending, isSuccess } = useCustomMutation<
-    z.infer<typeof oneClickBuySetupSchema>,
-    Record<string, string>,
-    {
-      walletAddress: string
-      amount: number
-    }
-  >(
-    { endpoint: '/orders/setup-one-click' },
-    {
-      onError: function ({ message, errors }) {
-        if (errors) {
-          getObjectKeys(errors).map((field) =>
-            form.setError(field, {
-              message: errors[field]
-            })
-          )
-        } else {
-          form.setError('root', { message })
-        }
+  const { mutate, data, isPending, isSuccess } = useSetupOneClickMutation({
+    onError: function ({ message, errors }) {
+      if (errors) {
+        getObjectKeys(errors).map((field) =>
+          form.setError(field, {
+            message: errors[field]
+          })
+        )
+      } else {
+        form.setError('root', { message })
       }
     }
-  )
+  })
 
   if (data?.data.redirectUrl) {
     window.location.href = data.data.redirectUrl
@@ -50,7 +45,9 @@ export const OneClickSetupDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button aria-label="setup one click buy">Setup One Click Buy</Button>
+        <Button aria-label="setup one click buy" className={buttonClassName}>
+          Setup One Click Buy
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -58,17 +55,17 @@ export const OneClickSetupDialog = () => {
           <Form
             form={form}
             disabled={form.formState.isSubmitting || isPending || isSuccess}
-            onSubmit={form.handleSubmit(({ walletAddress, amount }) => {
+            onSubmit={form.handleSubmit(({ walletAddressUrl, amount }) => {
               mutate({
-                walletAddress,
+                walletAddressUrl,
                 amount
               })
             })}
             className="py-4"
           >
             <InputField
-              label="Payment pointer"
-              {...form.register('walletAddress')}
+              label="Wallet address"
+              {...form.register('walletAddressUrl')}
               className="w-full"
             />
             <InputField

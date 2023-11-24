@@ -9,6 +9,7 @@ import { validate } from '@/middleware/validate'
 import {
   createOrderSchema,
   finishOrderSchema,
+  instantBuySchema,
   oneClickSetupSchema,
   setupFinishSchema
 } from './validation'
@@ -30,6 +31,7 @@ export interface IOrderController {
   finish: Controller
   setup: Controller<CreateResponse>
   setupFinish: Controller<TokenInfo>
+  instantBuy: Controller
 }
 
 export class OrderController implements IOrderController {
@@ -141,13 +143,13 @@ export class OrderController implements IOrderController {
     next: NextFunction
   ) {
     try {
-      const { walletAddress, amount } = await validate(
+      const { walletAddressUrl, amount } = await validate(
         oneClickSetupSchema,
         req.body
       )
 
       const redirectUrl = await this.openPayments.setupOneClick(
-        walletAddress,
+        walletAddressUrl,
         amount
       )
 
@@ -199,7 +201,40 @@ export class OrderController implements IOrderController {
         interactRef
       })
 
-      res.status(200).json(toSuccessReponse(tokenInfo))
+      res.status(200).json(
+        toSuccessReponse({
+          ...tokenInfo,
+          walletAddressUrl: identifierData.walletAddressUrl
+        })
+      )
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async instantBuy(
+    req: Request,
+    res: TypedResponse<CreateResponse>,
+    next: NextFunction
+  ) {
+    try {
+      const args = await validate(instantBuySchema, req.body)
+
+      const order = await Order.transaction(async (trx) => {
+        const newOrder = await this.orderService.create(
+          { orderItems: args.products },
+          trx
+        )
+        return await newOrder.calcaulateTotalAmount(trx)
+      })
+      const tokenInfo = await this.openPayments.instantBuy({ order, ...args })
+
+      res.status(200).json(
+        toSuccessReponse({
+          ...tokenInfo,
+          walletAddressUrl: args.walletAddressUrl
+        })
+      )
     } catch (err) {
       next(err)
     }

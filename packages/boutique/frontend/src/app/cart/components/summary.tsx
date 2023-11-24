@@ -7,7 +7,6 @@ import { resetToken } from '@/lib/stores/token-store'
 import { formatPrice } from '@/lib/utils.ts'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { z } from 'zod'
 
 const SummarySection = ({ children }: { children: ReactNode }) => {
   return (
@@ -17,11 +16,6 @@ const SummarySection = ({ children }: { children: ReactNode }) => {
   )
 }
 
-export const oneClickBuySetupSchema = z.object({
-  walletAddress: z.string(),
-  amount: z.coerce.number()
-})
-
 export const Summary = () => {
   const { accessToken } = useTokenStore()
   const { totalAmount, items } = useCartStore()
@@ -29,8 +23,8 @@ export const Summary = () => {
 
   if (totalAmount === 0 && accessToken) {
     return (
-      <div className="mx-auto mt-10 w-2/3 border-t border-t-gray-200 lg:col-span-12 lg:pt-10">
-        <div className="flex justify-center">
+      <div className="mx-auto mt-10 w-2/3 border-t border-t-gray-200 lg:col-span-12">
+        <div className="mt-10 flex justify-center">
           <Button
             aria-label="remove one click buy"
             variant="error"
@@ -45,8 +39,8 @@ export const Summary = () => {
 
   if (totalAmount === 0 && !accessToken) {
     return (
-      <div className="mx-auto mt-10 w-2/3 border-t border-t-gray-200 lg:col-span-12 lg:pt-10">
-        <div className="flex justify-center">
+      <div className="mx-auto mt-10 border-t border-t-gray-200 lg:col-span-12">
+        <div className="mt-10 flex justify-center">
           <OneClickSetupDialog />
         </div>
       </div>
@@ -78,6 +72,20 @@ export const Summary = () => {
             </Link>
           </Button>
         </div>
+      </SummarySection>
+      <SummarySection>
+        {accessToken ? (
+          <Button
+            className="w-full"
+            aria-label="remove one click buy"
+            variant="error"
+            onClick={() => resetToken()}
+          >
+            Disable one click buy
+          </Button>
+        ) : (
+          <OneClickSetupDialog buttonClassName="w-full" />
+        )}
       </SummarySection>
     </div>
   )

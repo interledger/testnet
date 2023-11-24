@@ -81,6 +81,10 @@ export class App {
 
     router.post('/orders', orderController.create.bind(orderController))
     router.post(
+      '/orders/instant-buy',
+      orderController.instantBuy.bind(orderController)
+    )
+    router.post(
       '/orders/setup-one-click',
       orderController.setup.bind(orderController)
     )

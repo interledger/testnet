@@ -4,7 +4,7 @@ import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
 
-interface OrderItem {
+export interface OrderItem {
   productId: string
   quantity: number
 }

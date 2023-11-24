@@ -1,10 +1,12 @@
 import { z } from 'zod'
 
+export const walletAddressUrlSchema = z
+  .string()
+  .transform((val) => val.replace('$', 'https://'))
+  .pipe(z.string().url({ message: 'Invalid wallet address.' }))
+
 export const createOrderSchema = z.object({
-  walletAddressUrl: z
-    .string()
-    .transform((val) => val.replace('$', 'https://'))
-    .pipe(z.string().url({ message: 'Invalid payment pointer.' })),
+  walletAddressUrl: walletAddressUrlSchema,
   products: z
     .array(
       z.object({
@@ -26,6 +28,11 @@ export const setupFinishSchema = finishOrderSchema.extend({
 })
 
 export const oneClickSetupSchema = z.object({
-  walletAddress: z.string(),
+  walletAddressUrl: walletAddressUrlSchema,
   amount: z.number()
+})
+
+export const instantBuySchema = createOrderSchema.extend({
+  accessToken: z.string(),
+  manageUrl: z.string().url()
 })

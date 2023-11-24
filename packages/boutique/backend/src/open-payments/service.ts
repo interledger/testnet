@@ -69,6 +69,13 @@ export interface TokenInfo {
   manageUrl: string
 }
 
+interface InstantBuyParams {
+  order: Order
+  accessToken: string
+  manageUrl: string
+  walletAddressUrl: string
+}
+
 export interface IOpenPayments {
   preparePayment(params: PreparePaymentParams): Promise<PendingGrant>
   createOutgoingPayment(order: Order, interactRef?: string): Promise<void>
@@ -76,6 +83,9 @@ export interface IOpenPayments {
   getIncomingPayment(url: string): Promise<IncomingPayment>
   setupOneClick(walletAddressUrl: string, amount: number): Promise<string>
   continueGrant(params: ContinueGrantParams): Promise<TokenInfo>
+  instantBuy(
+    params: InstantBuyParams
+  ): Promise<TokenInfo & { walletAddressurl: string }>
 }
 
 export class OpenPayments implements IOpenPayments {
@@ -185,9 +195,8 @@ export class OpenPayments implements IOpenPayments {
     interactNonce,
     walletAddressUrl
   }: VerifyHashParams): Promise<void> {
-    console.log({ interactRef })
     if (!interactRef) {
-      this.logger.error('[hash] Missing interactRef.')
+      this.logger.error('Missing interactRef.')
       throw new InternalServerError()
     }
 
@@ -300,7 +309,77 @@ export class OpenPayments implements IOpenPayments {
 
     return {
       accessToken: continuation.access_token.value,
-      manageUrl: continuation.continue.uri.replace('localhost', 'rafiki-auth')
+      manageUrl: continuation.access_token.manage.replace(
+        'localhost',
+        'rafiki-auth'
+      )
+    }
+  }
+
+  public async instantBuy(
+    params: InstantBuyParams
+  ): Promise<TokenInfo & { walletAddressurl: string }> {
+    const { order, accessToken, manageUrl, walletAddressUrl } = params
+
+    const customerWalletAddress = await this.getWalletAddress(walletAddressUrl)
+    const shopWalletAddress = await this.getWalletAddress(
+      this.env.PAYMENT_POINTER
+    )
+    const shopAccessToken = await this.getAccessToken()
+    const incomingPayment = await this.createIncomingPayment({
+      accessToken: shopAccessToken,
+      order: order,
+      walletAddress: shopWalletAddress
+    })
+    const quote = await this.createQuote({
+      walletAddress: customerWalletAddress,
+      receiver: incomingPayment.id
+    })
+    const grant = await this.opClient.token.rotate({
+      accessToken,
+      url: manageUrl
+    })
+
+    const payment = await Payment.query().insert({
+      orderId: order.id,
+      quoteId: quote.id,
+      continueUri: '',
+      continueToken: '',
+      interactUrl: '',
+      interactNonce: '',
+      incomingPaymentUrl: incomingPayment.id,
+      clientNonce: '',
+      walletAddress: customerWalletAddress.id
+    })
+
+    await this.opClient.outgoingPayment
+      .create(
+        {
+          url: new URL(payment.walletAddress).origin,
+          accessToken: grant.access_token.value
+        },
+        {
+          walletAddress: payment.walletAddress,
+          quoteId: payment.quoteId,
+          metadata: {
+            description: 'Purchase at Rafiki Boutique',
+            orderRef: order.id
+          }
+        }
+      )
+      .catch(() => {
+        this.logger.error(
+          `Error while creating outgoing payment for order ${order.id}.`
+        )
+        throw new BadRequest(
+          'One click buy spending limit exceeded. Please setup one click buy again.'
+        )
+      })
+
+    return {
+      accessToken: grant.access_token.value,
+      manageUrl: grant.access_token.manage.replace('localhost', 'rafiki-auth'),
+      walletAddressurl: customerWalletAddress.id
     }
   }
 
@@ -413,6 +492,7 @@ export class OpenPayments implements IOpenPayments {
           accessToken: accessToken
         },
         {
+          expiresAt: new Date(Date.now() + 6000 * 60 * 5).toISOString(),
           walletAddress: walletAddress.id,
           incomingAmount: {
             assetCode: walletAddress.assetCode,
@@ -437,8 +517,6 @@ export class OpenPayments implements IOpenPayments {
   }: CreateQuoteParams): Promise<Quote> {
     const grant = await this.createNonInteractiveQuoteGrant(
       walletAddress.authServer,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: 'interact' should be optional
       {
         access_token: {
           access: [

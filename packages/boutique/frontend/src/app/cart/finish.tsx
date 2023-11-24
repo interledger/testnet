@@ -28,7 +28,10 @@ export function Component() {
         }
       }
     )
-    setTimeout(() => navigate('/cart'), 3000)
+    const redirectTimer = setTimeout(() => navigate('/cart'), 3000)
+    return () => {
+      clearTimeout(redirectTimer)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
