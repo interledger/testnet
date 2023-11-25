@@ -25,7 +25,7 @@ export class TransactionController implements ITransactionController {
   ) => {
     try {
       const userId = req.session.user.id
-      const { accountId, paymentPointerId } = req.params
+      const { accountId, walletAddressId } = req.params
       const {
         query: { orderByDate }
       } = await validate(transactionListRequestSchema, req)
@@ -33,7 +33,7 @@ export class TransactionController implements ITransactionController {
       const transactions = await this.deps.transactionService.list(
         userId,
         accountId,
-        paymentPointerId,
+        walletAddressId,
         orderByDate
       )
       res

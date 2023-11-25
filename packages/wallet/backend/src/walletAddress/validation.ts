@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const externalPaymentPointerSchema = z.object({
+export const externalWalletAddressSchema = z.object({
   query: z.object({
     url: z
       .string()
@@ -9,9 +9,9 @@ export const externalPaymentPointerSchema = z.object({
   })
 })
 
-export const paymentPointerSchema = z.object({
+export const walletAddressSchema = z.object({
   body: z.object({
-    paymentPointerName: z
+    walletAddressName: z
       .string()
       .trim()
       .regex(new RegExp(/^[a-z1-9_-]*$/), {
@@ -21,22 +21,22 @@ export const paymentPointerSchema = z.object({
       .min(3, {
         message: 'Payment pointer name must be at least 3 characters long'
       })
-      .refine((paymentPointerName) => paymentPointerName[0] !== '_', {
+      .refine((walletAddressName) => walletAddressName[0] !== '_', {
         message: 'Payment pointer name cannot start with an underscore'
       })
       .refine(
-        (paymentPointerName) =>
-          paymentPointerName[paymentPointerName.length - 1] !== '_',
+        (walletAddressName) =>
+          walletAddressName[walletAddressName.length - 1] !== '_',
         {
           message: 'Payment pointer name cannot end with an underscore'
         }
       )
-      .refine((paymentPointerName) => paymentPointerName[0] !== '-', {
+      .refine((walletAddressName) => walletAddressName[0] !== '-', {
         message: 'Payment pointer name cannot start with a hyphen'
       })
       .refine(
-        (paymentPointerName) =>
-          paymentPointerName[paymentPointerName.length - 1] !== '-',
+        (walletAddressName) =>
+          walletAddressName[walletAddressName.length - 1] !== '-',
         {
           message: 'Payment pointer name cannot end with a hyphen'
         }
@@ -49,7 +49,7 @@ export const paymentPointerSchema = z.object({
   })
 })
 
-export const updatePaymentPointerSchema = z.object({
+export const updateWalletAddressSchema = z.object({
   body: z.object({
     publicName: z
       .string()

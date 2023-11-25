@@ -6,32 +6,32 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import {
-  createPaymentPointerSchema,
-  paymentPointerService
-} from '@/lib/api/paymentPointer'
+  WalletAddress,
+  walletAddressService,
+  updateWalletAddressSchema
+} from '@/lib/api/walletAddress'
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
-import { useOnboardingContext } from '@/lib/context/onboarding'
-import { Checkbox } from '@/ui/forms/Checkbox'
-import { TemporaryWMNotice } from '../TemporaryWMNotice'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { SuccessDialog } from './SuccessDialog'
 
-type CreatePaymentPointerDialogProps = Pick<DialogProps, 'onClose'> & {
-  accountName: string
+type EditWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
+  walletAddress: WalletAddress
 }
 
-export const CreatePaymentPointerDialog = ({
+export const EditWalletAddressDialog = ({
   onClose,
-  accountName
-}: CreatePaymentPointerDialogProps) => {
+  walletAddress
+}: EditWalletAddressDialogProps) => {
+  const [openDialog, _] = useDialog()
   const router = useRouter()
-  const createPaymentPointerForm = useZodForm({
-    schema: createPaymentPointerSchema
+  const form = useZodForm({
+    schema: updateWalletAddressSchema,
+    defaultValues: {
+      publicName: walletAddress.publicName
+    }
   })
-
-  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
-    useOnboardingContext()
-  const accountId = router.query.accountId as string
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -64,37 +64,38 @@ export const CreatePaymentPointerDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Create Payment Pointer
+                  Edit Payment Pointer
                 </Dialog.Title>
 
                 <div className="px-4">
-                  <TemporaryWMNotice />
                   <Form
-                    form={createPaymentPointerForm}
+                    form={form}
                     onSubmit={async (data) => {
-                      const response = await paymentPointerService.create(
-                        accountId,
-                        data
-                      )
+                      const response = await walletAddressService.update({
+                        accountId: walletAddress.accountId,
+                        walletAddressId: walletAddress.id,
+                        publicName: data.publicName
+                      })
 
                       if (response.success) {
-                        router.replace(router.asPath)
-                        onClose()
-                        if (isUserFirstTime) {
-                          setTimeout(() => {
-                            setStepIndex(stepIndex + 1)
-                            setRunOnboarding(true)
-                          }, 1000)
-                        }
+                        openDialog(
+                          <SuccessDialog
+                            content={response.message}
+                            onClose={() => {
+                              router.replace(router.asPath)
+                              onClose()
+                            }}
+                          />
+                        )
                       } else {
                         const { errors, message } = response
-                        createPaymentPointerForm.setError('root', {
+                        form.setError('root', {
                           message
                         })
 
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            createPaymentPointerForm.setError(field, {
+                            form.setError(field, {
                               message: errors[field]
                             })
                           )
@@ -103,47 +104,25 @@ export const CreatePaymentPointerDialog = ({
                     }}
                   >
                     <Input
-                      disabled={true}
-                      value={accountName}
-                      label="Account"
+                      addOn={OPEN_PAYMENTS_HOST}
+                      disabled
                       readOnly
+                      value={walletAddress.url.split('/')[1]}
+                      label="Payment Pointer name"
                     />
-                    <div>
-                      <Input
-                        addOn={OPEN_PAYMENTS_HOST}
-                        required
-                        label="Payment Pointer name"
-                        error={
-                          createPaymentPointerForm.formState?.errors
-                            ?.paymentPointerName?.message
-                        }
-                        {...createPaymentPointerForm.register(
-                          'paymentPointerName'
-                        )}
-                      />
-                    </div>
                     <Input
                       required
                       label="Public name"
-                      error={
-                        createPaymentPointerForm.formState?.errors?.publicName
-                          ?.message
-                      }
-                      {...createPaymentPointerForm.register('publicName')}
-                    />
-                    <Checkbox
-                      label="I want to use this payment pointer for Web Monetization"
-                      {...createPaymentPointerForm.register('isWM')}
+                      error={form.formState?.errors?.publicName?.message}
+                      {...form.register('publicName')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
-                        aria-label="create payment pointer"
+                        aria-label="save payment pointer"
                         type="submit"
-                        loading={
-                          createPaymentPointerForm.formState.isSubmitting
-                        }
+                        loading={form.formState.isSubmitting}
                       >
-                        Create
+                        Save
                       </Button>
                       <Button
                         intent="outline"

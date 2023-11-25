@@ -1,4 +1,4 @@
-import { CreatePaymentPointerDialog } from '@/components/dialogs/CreatePaymentPointerDialog'
+import { CreateWalletAddressDialog } from '@/components/dialogs/CreateWalletAddressDialog'
 import { FundAccountDialog } from '@/components/dialogs/FundAccountDialog'
 import { WithdrawFundsDialog } from '@/components/dialogs/WithdrawFundsDialog'
 import { Exchange } from '@/components/icons/Exchange'
@@ -6,12 +6,12 @@ import { New } from '@/components/icons/New'
 import { Withdraw } from '@/components/icons/Withdraw'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
-import { PaymentPointerCard } from '@/components/cards/PaymentPointerCard'
+import { WalletAddressCard } from '@/components/cards/WalletAddressCard'
 import { Account, accountService } from '@/lib/api/account'
 import {
-  ListPaymentPointers,
-  paymentPointerService
-} from '@/lib/api/paymentPointer'
+  ListWalletAddresses,
+  walletAddressService
+} from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -35,7 +35,7 @@ type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  allPaymentPointers,
+  allWalletAddresses,
   balance
 }) => {
   const [openDialog, closeDialog] = useDialog()
@@ -125,13 +125,13 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
               <div className="my-5 flex justify-between space-x-2">
                 <button
-                  id="paymentPointer"
+                  id="walletAddress"
                   onClick={() => {
                     if (isUserFirstTime) {
                       setRunOnboarding(false)
                     }
                     openDialog(
-                      <CreatePaymentPointerDialog
+                      <CreateWalletAddressDialog
                         accountName={account.name}
                         onClose={closeDialog}
                       />
@@ -204,12 +204,12 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 </span>
               </div>
               <div className="flex flex-col">
-                {allPaymentPointers.paymentPointers.length > 0 ? (
-                  allPaymentPointers.paymentPointers.map(
-                    (paymentPointer, index) => (
-                      <PaymentPointerCard
-                        key={paymentPointer.id}
-                        paymentPointer={paymentPointer}
+                {allWalletAddresses.walletAddresses.length > 0 ? (
+                  allWalletAddresses.walletAddresses.map(
+                    (walletAddress, index) => (
+                      <WalletAddressCard
+                        key={walletAddress.id}
+                        walletAddress={walletAddress}
                         isWM={false}
                         idOnboarding={
                           account.assetCode === 'USD' && index === 0
@@ -254,12 +254,12 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    {allPaymentPointers.wmPaymentPointers.length > 0 ? (
-                      allPaymentPointers.wmPaymentPointers.map(
-                        (paymentPointer, index) => (
-                          <PaymentPointerCard
-                            key={paymentPointer.id}
-                            paymentPointer={paymentPointer}
+                    {allWalletAddresses.wmWalletAddresses.length > 0 ? (
+                      allWalletAddresses.wmWalletAddresses.map(
+                        (walletAddress, index) => (
+                          <WalletAddressCard
+                            key={walletAddress.id}
+                            walletAddress={walletAddress}
                             isWM={true}
                             idOnboarding={
                               account.assetCode === 'USD' && index === 0
@@ -296,7 +296,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
-  allPaymentPointers: ListPaymentPointers
+  allWalletAddresses: ListWalletAddresses
   balance: FormattedAmount
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
@@ -306,16 +306,16 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const [accountResponse, paymentPointersResponse] = await Promise.all([
+  const [accountResponse, walletAddressesResponse] = await Promise.all([
     accountService.get(result.data.accountId, ctx.req.headers.cookie),
-    paymentPointerService.list(result.data.accountId, ctx.req.headers.cookie)
+    walletAddressService.list(result.data.accountId, ctx.req.headers.cookie)
   ])
 
   if (
     !accountResponse.success ||
-    !paymentPointersResponse.success ||
+    !walletAddressesResponse.success ||
     !accountResponse.data ||
-    !paymentPointersResponse.data
+    !walletAddressesResponse.data
   ) {
     return {
       notFound: true
@@ -324,10 +324,10 @@ export const getServerSideProps: GetServerSideProps<{
 
   let balance = 0
 
-  paymentPointersResponse.data.paymentPointers.map((pp) => {
+  walletAddressesResponse.data.walletAddresses.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
   })
-  paymentPointersResponse.data.wmPaymentPointers.map((pp) => {
+  walletAddressesResponse.data.wmWalletAddresses.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
     balance += Number(pp.incomingBalance)
   })
@@ -335,7 +335,7 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       account: accountResponse.data,
-      allPaymentPointers: paymentPointersResponse.data,
+      allWalletAddresses: walletAddressesResponse.data,
       balance: formatAmount({
         value: balance.toString(),
         assetCode: accountResponse.data.assetCode,
