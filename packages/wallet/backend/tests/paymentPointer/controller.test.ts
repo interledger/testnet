@@ -10,11 +10,10 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { Request, Response } from 'express'
-import { PaymentPointerController } from '@/paymentPointer/controller'
 import {
   mockedListAssets,
   mockLogInRequest,
-  mockPaymentPointer
+  mockWalletAddress
 } from '@/tests/mocks'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
@@ -25,15 +24,16 @@ import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
-import { PaymentPointer } from '@/paymentPointer/model'
 import { errorHandler } from '@/middleware/errorHandler'
+import { WalletAddressController } from '@/walletAddress/controller'
+import { WalletAddress } from '@/walletAddress/model'
 
-describe('Payment Pointer', () => {
+describe('Wallet Address', () => {
   let bindings: Container<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
-  let ppController: PaymentPointerController
+  let walletAddressController: WalletAddressController
   let req: MockRequest<Request>
   let res: MockResponse<Response>
   let userId: string
@@ -41,7 +41,7 @@ describe('Payment Pointer', () => {
   const next = jest.fn()
   const args = mockLogInRequest().body
 
-  const preparePPDependencies = async () => {
+  const prepareWADependencies = async () => {
     const account = await Account.query().insert({
       name: faker.string.alpha(10),
       userId,
@@ -51,7 +51,7 @@ describe('Payment Pointer', () => {
       virtualAccountId: 'mocked'
     })
 
-    const paymentPointer = await PaymentPointer.query().insert({
+    const walletAddress = await WalletAddress.query().insert({
       url: faker.string.alpha(10),
       publicName: faker.string.alpha(10),
       accountId: account.id,
@@ -60,7 +60,7 @@ describe('Payment Pointer', () => {
 
     return {
       account,
-      paymentPointer
+      walletAddress
     }
   }
 
@@ -82,17 +82,17 @@ describe('Payment Pointer', () => {
     await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
   }
 
-  const createMockPaymentPointerControllerDeps = (isFailure?: boolean) => {
-    const paymentPointer = isFailure
+  const createMockWalletAddressControllerDeps = (isFailure?: boolean) => {
+    const walletAddress = isFailure
       ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
-      : () => mockPaymentPointer
-    const ppControllerDepsMocked = {
-      paymentPointerService: {
-        create: paymentPointer,
-        list: () => [mockPaymentPointer],
-        listAll: () => [mockPaymentPointer],
-        getExternalPaymentPointer: paymentPointer,
-        getById: paymentPointer,
+      : () => mockWalletAddress
+    const waControllerDepsMocked = {
+      walletAddressService: {
+        create: walletAddress,
+        list: () => [mockWalletAddress],
+        listAll: () => [mockWalletAddress],
+        getExternalWalletAddress: walletAddress,
+        getById: walletAddress,
         softDelete: jest.fn(),
         registerKey: () => ({
           privateKey: faker.lorem.slug(5),
@@ -103,7 +103,7 @@ describe('Payment Pointer', () => {
         update: jest.fn()
       }
     }
-    Reflect.set(ppController, 'deps', ppControllerDepsMocked)
+    Reflect.set(walletAddressController, 'deps', waControllerDepsMocked)
   }
 
   beforeAll(async (): Promise<void> => {
@@ -111,9 +111,9 @@ describe('Payment Pointer', () => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
-    ppController = await bindings.resolve('paymentPointerController')
+    walletAddressController = await bindings.resolve('walletAddressController')
 
-    createMockPaymentPointerControllerDeps()
+    createMockWalletAddressControllerDeps()
   })
 
   beforeEach(async (): Promise<void> => {
@@ -128,21 +128,21 @@ describe('Payment Pointer', () => {
 
   afterEach(async (): Promise<void> => {
     await truncateTables(knex)
-    createMockPaymentPointerControllerDeps()
+    createMockWalletAddressControllerDeps()
   })
 
-  describe('Create Payment Pointer', () => {
+  describe('Create Wallet Address', () => {
     it('should return PaymentPointer', async () => {
-      const { account } = await preparePPDependencies()
+      const { account } = await prepareWADependencies()
       req.params = {
         accountId: account.id
       }
       req.body = {
-        paymentPointerName: faker.lorem.slug(),
+        walletAddressName: faker.lorem.slug(),
         publicName: faker.lorem.words({ min: 2, max: 2 }),
         isWM: false
       }
-      await ppController.create(req, res, next)
+      await walletAddressController.create(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -153,17 +153,17 @@ describe('Payment Pointer', () => {
     })
 
     it('should fail with status 500 on unexpected error', async () => {
-      createMockPaymentPointerControllerDeps(true)
-      const { account } = await preparePPDependencies()
+      createMockWalletAddressControllerDeps(true)
+      const { account } = await prepareWADependencies()
       req.params = {
         accountId: account.id
       }
       req.body = {
-        paymentPointerName: faker.lorem.slug(),
+        walletAddressName: faker.lorem.slug(),
         publicName: faker.lorem.words({ min: 2, max: 2 }),
         isWM: false
       }
-      await ppController.create(req, res, (err) => {
+      await walletAddressController.create(req, res, (err) => {
         next()
         errorHandler(err, req, res, next)
       })
@@ -176,13 +176,13 @@ describe('Payment Pointer', () => {
     })
   })
 
-  describe('Get List of Payment Pointer', () => {
-    it('should return array of Payment Pointer', async () => {
-      const { account } = await preparePPDependencies()
+  describe('Get List of Wallet Address', () => {
+    it('should return array of Wallet Address', async () => {
+      const { account } = await prepareWADependencies()
       req.params = {
         accountId: account.id
       }
-      await ppController.list(req, res, next)
+      await walletAddressController.list(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -197,13 +197,13 @@ describe('Payment Pointer', () => {
     })
   })
 
-  describe('Get List All of Payment Pointer', () => {
-    it('should return array of Payment Pointer', async () => {
-      const { account } = await preparePPDependencies()
+  describe('Get List All of Wallet Address', () => {
+    it('should return array of Wallet Address', async () => {
+      const { account } = await prepareWADependencies()
       req.params = {
         accountId: account.id
       }
-      await ppController.listAll(req, res, next)
+      await walletAddressController.listAll(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -218,12 +218,12 @@ describe('Payment Pointer', () => {
     })
   })
 
-  describe('Get External Payment Pointer', () => {
-    it('should return a Payment Pointer', async () => {
+  describe('Get External Wallet Address', () => {
+    it('should return a Wallet Address', async () => {
       req.query = {
         url: faker.internet.url()
       }
-      await ppController.getExternalPaymentPointer(req, res, next)
+      await walletAddressController.getExternalWalletAddress(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -237,14 +237,14 @@ describe('Payment Pointer', () => {
     })
   })
 
-  describe('Get Payment Pointer by ID', () => {
-    it('should return a Payment Pointer', async () => {
-      const { account } = await preparePPDependencies()
+  describe('Get Wallet Address by ID', () => {
+    it('should return a Wallet Address', async () => {
+      const { account } = await prepareWADependencies()
       req.params = {
         accountId: account.id,
         id: faker.string.uuid()
       }
-      await ppController.getById(req, res, next)
+      await walletAddressController.getById(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -258,12 +258,12 @@ describe('Payment Pointer', () => {
     })
   })
 
-  describe('Soft Delete Payment Pointer', () => {
+  describe('Soft Delete Wallet Address', () => {
     it('should return confirmation message', async () => {
       req.params = {
         id: faker.string.uuid()
       }
-      await ppController.softDelete(req, res, next)
+      await walletAddressController.softDelete(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -274,12 +274,12 @@ describe('Payment Pointer', () => {
 
   describe('Register Key', () => {
     it('should return object with private & public key', async () => {
-      const { account, paymentPointer } = await preparePPDependencies()
+      const { account, walletAddress } = await prepareWADependencies()
       req.params = {
         accountId: account.id,
-        paymentPointerId: paymentPointer.id
+        paymentPointerId: walletAddress.id
       }
-      await ppController.registerKey(req, res, next)
+      await walletAddressController.registerKey(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -294,12 +294,12 @@ describe('Payment Pointer', () => {
 
   describe('Revoke Key', () => {
     it('should return confirmation message', async () => {
-      const { account, paymentPointer } = await preparePPDependencies()
+      const { account, walletAddress } = await prepareWADependencies()
       req.params = {
         accountId: account.id,
-        paymentPointerId: paymentPointer.id
+        paymentPointerId: walletAddress.id
       }
-      await ppController.revokeKey(req, res, next)
+      await walletAddressController.revokeKey(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -310,15 +310,15 @@ describe('Payment Pointer', () => {
 
   describe('Update', () => {
     it('should return confirmation message', async () => {
-      const { account, paymentPointer } = await preparePPDependencies()
+      const { account, walletAddress } = await prepareWADependencies()
       req.params = {
         accountId: account.id,
-        paymentPointerId: paymentPointer.id
+        paymentPointerId: walletAddress.id
       }
       req.body = {
         publicName: faker.lorem.word()
       }
-      await ppController.update(req, res, next)
+      await walletAddressController.update(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,

@@ -310,7 +310,7 @@ export const mockedTransactionInsertObjs: Array<
   generateMockedTransaction({ type: 'OUTGOING' })
 ]
 
-export const mockPaymentPointer = {
+export const mockWalletAddress = {
   id: faker.string.uuid(),
   url: faker.internet.url(),
   publicName: faker.lorem.words({ max: 2, min: 2 }),
