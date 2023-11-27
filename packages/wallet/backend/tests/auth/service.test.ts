@@ -8,6 +8,8 @@ import { truncateTables } from '@/tests/tables'
 import type { AuthService } from '@/auth/service'
 import { mockLogInRequest, fakeLoginData } from '../mocks'
 import { createUser } from '../helpers'
+import { faker } from '@faker-js/faker'
+import { uuid } from '@/tests/utils'
 
 describe('Authentication Service', (): void => {
   let bindings: Container<Bindings>
@@ -73,5 +75,51 @@ describe('Authentication Service', (): void => {
         /Email address is not verified/
       )
     })
+  })
+  describe('SignUp', () => {
+    it('should sign up user', async () => {
+      const dto = {
+        email: faker.internet.email(),
+        password: faker.lorem.slug()
+      }
+      const user = await authService.signUp(dto)
+      expect(user).toMatchObject({
+        id: user.id,
+        email: user.email
+      })
+    })
+
+    it('should return unexpected error', async () => {
+      jest
+        .spyOn(authService, 'signUp')
+        .mockRejectedValueOnce(new Error('Unexpected error'))
+
+      const dto = {
+        email: faker.internet.email(),
+        password: faker.lorem.slug()
+      }
+      await expect(authService.signUp(dto)).rejects.toThrowError(
+        /Unexpected error/
+      )
+    })
+  })
+
+  describe('Logout', () => {
+    it('should return undefined if user successfully logout', async () => {
+      const newUserData = {
+        ...fakeLoginData(),
+        isEmailVerified: true
+      }
+      const user = await createUser(newUserData)
+      await authService.authorize(newUserData)
+      const result = await authService.logout(user.id)
+      expect(result).toBeUndefined()
+    })
+  })
+
+  it('should return err with wrong credentials', async () => {
+    await expect(authService.logout(uuid())).rejects.toThrowError(
+      /Invalid credentials/
+    )
   })
 })
