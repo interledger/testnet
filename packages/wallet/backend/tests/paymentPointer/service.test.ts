@@ -9,12 +9,13 @@ import { faker } from '@faker-js/faker'
 import { mockedListAssets } from '@/tests/mocks'
 import { createContainer } from '@/createContainer'
 import { Env, env } from '@/config/env'
-import { loginUser } from '@/tests/utils'
+import { loginUser, uuid } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
 import { NotFound } from '@/errors'
 import axios from 'axios'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
+import { Logger } from 'winston'
 
 describe('Wallet Address Service', () => {
   let bindings: Container<Bindings>
@@ -24,11 +25,13 @@ describe('Wallet Address Service', () => {
   let waService: WalletAddressService
   let accountService: AccountService
   let serviceEnv: Env
+  let logger: Logger
   let userId: string
 
   const prepareWADependencies = async (
     paymentPointerName: string,
-    isAccountAssigned = true
+    isAccountAssigned = true,
+    isWM?: { assetCode?: string; assetScale?: number; isWM: boolean }
   ) => {
     let extraAcc = {} as Account
     if (!isAccountAssigned)
@@ -54,7 +57,10 @@ describe('Wallet Address Service', () => {
       url: `${serviceEnv.OPEN_PAYMENTS_HOST}/${paymentPointerName}`,
       publicName: faker.string.alpha(10),
       accountId: isAccountAssigned ? account.id : extraAcc.id,
-      id: faker.string.uuid()
+      id: faker.string.uuid(),
+      assetCode: isWM?.assetCode || undefined,
+      assetScale: isWM?.assetScale || undefined,
+      isWM: isWM?.isWM
     })
 
     return {
@@ -63,18 +69,11 @@ describe('Wallet Address Service', () => {
     }
   }
 
-  beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
-    appContainer = await createApp(bindings)
-    knex = appContainer.knex
-    authService = await bindings.resolve('authService')
-    waService = await bindings.resolve('walletAddressService')
-    accountService = await bindings.resolve('accountService')
-    serviceEnv = await bindings.resolve('env')
-
+  function prepareWSDepsMock(sumWS = 0n) {
     const waServiceDepsMocked = {
       accountService,
       env: serviceEnv,
+      logger,
       cache: {
         get: jest.fn(),
         set: jest.fn()
@@ -89,10 +88,29 @@ describe('Wallet Address Service', () => {
         }),
         revokeWalletAddressKey: jest.fn(),
         updateWalletAddress: jest.fn()
+      },
+      wmTransactionService: {
+        deleteByTransactionIds: jest.fn(),
+        sumByWalletAddressId: () => ({
+          ids: [uuid()],
+          sum: sumWS
+        })
       }
     }
 
     Reflect.set(waService, 'deps', waServiceDepsMocked)
+  }
+
+  beforeAll(async (): Promise<void> => {
+    bindings = createContainer(env)
+    appContainer = await createApp(bindings)
+    knex = appContainer.knex
+    authService = await bindings.resolve('authService')
+    waService = await bindings.resolve('walletAddressService')
+    accountService = await bindings.resolve('accountService')
+    serviceEnv = await bindings.resolve('env')
+    logger = await bindings.resolve('logger')
+    prepareWSDepsMock()
   })
 
   beforeEach(async (): Promise<void> => {
@@ -194,7 +212,7 @@ describe('Wallet Address Service', () => {
   })
 
   describe('Get by Id', () => {
-    it('should return a PaymentPointer Object', async () => {
+    it('should return a WalletAddress Object', async () => {
       const { account, walletAddress } =
         await prepareWADependencies('my-wallet')
       const result = await waService.getById({
@@ -211,7 +229,7 @@ describe('Wallet Address Service', () => {
   })
 
   describe('Get list of Identifiers By UserId', () => {
-    it('should return array of users PaymentPointer urls', async () => {
+    it('should return array of users WalletAddress urls', async () => {
       await prepareWADependencies('my-wallet')
       const result = await waService.listIdentifiersByUserId(userId)
       const expected = [`${serviceEnv.OPEN_PAYMENTS_HOST}/my-wallet`]
@@ -306,7 +324,7 @@ describe('Wallet Address Service', () => {
       )
     })
 
-    it('should return a PaymentPointer Object', async () => {
+    it('should return a Wallet Address Object', async () => {
       const result = await waService.getExternalWalletAddress(
         `${serviceEnv.OPEN_PAYMENTS_HOST}/wallet`
       )
@@ -316,6 +334,60 @@ describe('Wallet Address Service', () => {
         assetCode: 'USD',
         assetScale: 2
       })
+    })
+  })
+
+  describe('FindBy Id Without Validation', () => {
+    it('should return wallet address', async () => {
+      const { account, walletAddress } =
+        await prepareWADependencies('my-wallet')
+
+      const result = await waService.findByIdWithoutValidation(walletAddress.id)
+      expect(result).toMatchObject({
+        url: `${serviceEnv.OPEN_PAYMENTS_HOST}/my-wallet`,
+        accountId: account.id,
+        id: walletAddress.id
+      })
+    })
+
+    it('should return NotFound exception', async () => {
+      await expect(
+        waService.findByIdWithoutValidation(uuid())
+      ).rejects.toThrowError(NotFound)
+    })
+  })
+
+  describe('Sum By Wallet AddressId', () => {
+    it('should return undefined by zero sum', async () => {
+      await prepareWADependencies('my-wallet', true, {
+        assetCode: 'USD',
+        assetScale: 2,
+        isWM: true
+      })
+
+      const result = await waService.processWMWalletAddresses()
+      expect(result).toBeUndefined()
+    })
+
+    it('should return undefined by non zero sum', async () => {
+      prepareWSDepsMock(1000n)
+
+      await prepareWADependencies('my-wallet', true, {
+        assetCode: 'USD',
+        assetScale: 2,
+        isWM: true
+      })
+
+      const result = await waService.processWMWalletAddresses()
+      expect(result).toBeUndefined()
+    })
+
+    it('should throw missing assetCode err', async () => {
+      await prepareWADependencies('my-wallet', true, { isWM: true })
+
+      await expect(waService.processWMWalletAddresses()).rejects.toThrowError(
+        /Error while processing WM payment pointers/
+      )
     })
   })
 })
