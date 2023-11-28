@@ -41,7 +41,7 @@ const OpenPaymentsForm = () => {
   const form = useZodForm({
     schema: createOrderSchema
   })
-  const { mutate, data, isLoading, isSuccess } = useCreateOrderMutation({
+  const { mutate, data, isPending, isSuccess } = useCreateOrderMutation({
     onError: function ({ message, errors }) {
       if (errors) {
         getObjectKeys(errors).map((field) =>
@@ -63,7 +63,7 @@ const OpenPaymentsForm = () => {
   return (
     <Form
       form={form}
-      disabled={form.formState.isSubmitting || isLoading || isSuccess}
+      disabled={form.formState.isSubmitting || isPending || isSuccess}
       onSubmit={form.handleSubmit(({ walletAddressUrl }) =>
         mutate({
           walletAddressUrl,
