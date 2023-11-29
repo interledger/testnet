@@ -286,6 +286,19 @@ export const mockCreateAccountReq = {
   assetId: mockedListAssets[0].id
 }
 
+export const mockedListGrant = [
+  {
+    id: faker.string.uuid(),
+    client: faker.lorem.slug(),
+    state: 'APPROVED'
+  },
+  {
+    id: faker.string.uuid(),
+    client: faker.lorem.slug(),
+    state: 'FINALIZED',
+    finalizationReason: 'REJECTED'
+  }
+]
 export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({

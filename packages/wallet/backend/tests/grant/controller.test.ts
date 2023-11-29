@@ -10,7 +10,7 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { Request, Response } from 'express'
-import { mockLogInRequest } from '@/tests/mocks'
+import { mockedListGrant, mockLogInRequest } from '@/tests/mocks'
 import { GrantController } from '@/grant/controller'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
@@ -21,6 +21,7 @@ import { env } from '@/config/env'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
 import { errorHandler } from '@/middleware/errorHandler'
+import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 
 describe('Grant Controller', () => {
   let bindings: Container<Bindings>
@@ -54,15 +55,17 @@ describe('Grant Controller', () => {
   const createMockGrantControllerDeps = (isFailure?: boolean) => {
     const grantControllerDepsMocked = {
       rafikiAuthService: {
-        listGrants: jest.fn().mockReturnValue(['grant1']),
+        listGrants: jest.fn().mockReturnValue(mockedListGrant),
         revokeGrant: isFailure
           ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
           : jest.fn(),
         getGrantById: jest.fn().mockReturnValue({ id: 'grant' })
       },
       grantService: {
-        getGrantByInteraction: jest.fn().mockReturnValue({ id: 'grant' }),
-        setInteractionResponse: jest.fn().mockReturnValue({ id: 'grant' })
+        getGrantByInteraction: jest.fn().mockReturnValue(mockedListGrant[0]),
+        setInteractionResponse: jest
+          .fn()
+          .mockReturnValue(isFailure ? mockedListGrant[1] : mockedListGrant[0])
       },
       walletAddressService: {
         listIdentifiersByUserId: () => faker.lorem.words(5).split(' ')
@@ -97,19 +100,22 @@ describe('Grant Controller', () => {
   })
 
   describe('Get list of grants', () => {
-    it('should return array', async () => {
+    it('should return all grants', async () => {
       await grantController.list(req, res, next)
       expect(res.statusCode).toBe(200)
+      expect(res._getJSONData().data).toHaveLength(2)
+      expect(res._getJSONData().data[0]).toHaveProperty('id')
+      expect(res._getJSONData().data[0]).toHaveProperty('client')
+      expect(res._getJSONData().data[0]).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success',
-        data: ['grant1']
+        message: 'Success'
       })
     })
   })
 
   describe('Revoke Grant', () => {
-    it('should return undefined', async () => {
+    it('successfully revokes a grant', async () => {
       req.params = {
         id: faker.string.uuid()
       }
@@ -159,25 +165,50 @@ describe('Grant Controller', () => {
       }
       await grantController.getByInteraction(req, res, next)
       expect(res.statusCode).toBe(200)
+      expect(res._getJSONData().data).toHaveProperty('id')
+      expect(res._getJSONData().data).toHaveProperty('client')
+      expect(res._getJSONData().data).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success',
-        data: { id: 'grant' }
+        message: 'Success'
       })
     })
   })
 
   describe('Set Interaction Response', () => {
-    it('should return a grant', async () => {
+    it('should return a grant by accept', async () => {
       req.body = {
         response: 'accept'
       }
       await grantController.setInteractionResponse(req, res, next)
       expect(res.statusCode).toBe(200)
+      expect(res._getJSONData().data).toHaveProperty('id')
+      expect(res._getJSONData().data).toHaveProperty('client')
+      expect(res._getJSONData().data).toHaveProperty('state')
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Success'
+      })
+    })
+
+    it('should return a grant by reject', async () => {
+      req.body = {
+        response: 'reject'
+      }
+      createMockGrantControllerDeps(true)
+
+      await grantController.setInteractionResponse(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData().data).toHaveProperty('id')
+      expect(res._getJSONData().data).toHaveProperty('client')
+      expect(res._getJSONData().data).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Success',
-        data: { id: 'grant' }
+        data: {
+          state: GrantState.Finalized,
+          finalizationReason: GrantFinalization.Rejected
+        }
       })
     })
   })

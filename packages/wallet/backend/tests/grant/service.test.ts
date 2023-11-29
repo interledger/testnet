@@ -10,6 +10,8 @@ import { loginUser } from '@/tests/utils'
 import { faker } from '@faker-js/faker'
 import { truncateTables } from '@/tests/tables'
 import { Forbidden } from '@/errors'
+import { mockedListGrant } from '@/tests/mocks'
+import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 
 describe('Grant Service', () => {
   let bindings: Container<Bindings>
@@ -29,13 +31,20 @@ describe('Grant Service', () => {
     createMockGrantServiceDeps()
   })
 
-  const createMockGrantServiceDeps = (isFailure?: boolean) => {
+  const createMockGrantServiceDeps = (
+    isFailure?: boolean,
+    IsGrantInteractionRejected?: boolean
+  ) => {
     const grantServiceDepsMocked = {
       walletAddressService: {
         belongsToUser: () => !isFailure
       },
       rafikiAuthService: {
-        setInteractionResponse: jest.fn().mockReturnValue({ id: 'grant' }),
+        setInteractionResponse: jest
+          .fn()
+          .mockReturnValue(
+            IsGrantInteractionRejected ? mockedListGrant[1] : mockedListGrant[0]
+          ),
         revokeGrant: isFailure
           ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
           : jest.fn(),
@@ -96,15 +105,34 @@ describe('Grant Service', () => {
   })
 
   describe('set Interaction Response', () => {
-    it('should return a grant', async () => {
+    it('should return a grant by accept', async () => {
       const result = await grantService.setInteractionResponse(
         userId,
         'test1',
         'test2',
         'accept'
       )
+      expect(result).toHaveProperty('id')
+      expect(result).toHaveProperty('client')
+      expect(result).toHaveProperty('state')
       expect(result).toMatchObject({
-        id: 'grant'
+        state: GrantState.Approved
+      })
+    })
+    it('should return a grant by reject', async () => {
+      createMockGrantServiceDeps(false, true)
+      const result = await grantService.setInteractionResponse(
+        userId,
+        'test1',
+        'test2',
+        'reject'
+      )
+      expect(result).toHaveProperty('id')
+      expect(result).toHaveProperty('client')
+      expect(result).toHaveProperty('state')
+      expect(result).toMatchObject({
+        state: GrantState.Finalized,
+        finalizationReason: GrantFinalization.Rejected
       })
     })
   })
