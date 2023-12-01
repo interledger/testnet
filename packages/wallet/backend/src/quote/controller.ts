@@ -8,16 +8,13 @@ import { createExchangeQuoteSchema } from '@/account/validation'
 interface IQuoteController {
   create: ControllerFunction<Quote>
 }
-interface QuoteControllerDependencies {
-  quoteService: QuoteService
-}
 
 export type QuoteWithFees = Quote & {
   fee?: Amount
 }
 
 export class QuoteController implements IQuoteController {
-  constructor(private deps: QuoteControllerDependencies) {}
+  constructor(private quoteService: QuoteService) {}
 
   create = async (
     req: Request,
@@ -30,7 +27,7 @@ export class QuoteController implements IQuoteController {
         body: { receiver, walletAddressId, amount, isReceive, description }
       } = await validate(quoteSchema, req)
 
-      const quote = await this.deps.quoteService.create({
+      const quote = await this.quoteService.create({
         userId,
         walletAddressId,
         amount,
@@ -56,7 +53,7 @@ export class QuoteController implements IQuoteController {
         body: { assetCode, amount }
       } = await validate(createExchangeQuoteSchema, req)
 
-      const quote = await this.deps.quoteService.createExchangeQuote({
+      const quote = await this.quoteService.createExchangeQuote({
         userId,
         accountId,
         assetCode,

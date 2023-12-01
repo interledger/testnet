@@ -10,24 +10,18 @@ import { addMinutes } from 'date-fns'
 
 export interface IWMTransactionService {}
 
-interface WMTransactionServiceDependencies {
-  logger: Logger
-}
-
 export class WMTransactionService implements IWMTransactionService {
-  constructor(private deps: WMTransactionServiceDependencies) {}
+  constructor(private logger: Logger) {}
 
   async updateTransaction(
     where: PartialModelObject<WMTransaction>,
     update: PartialModelObject<WMTransaction>
   ): Promise<void> {
     try {
-      this.deps.logger.info(
-        `Updating transaction with: ${JSON.stringify(update)}`
-      )
+      this.logger.info(`Updating transaction with: ${JSON.stringify(update)}`)
       await WMTransaction.query().where(where).update(update)
     } catch (e) {
-      this.deps.logger.error(`Update transaction error:`, e)
+      this.logger.error(`Update transaction error:`, e)
     }
   }
   async createIncomingTransaction(params: IncomingPayment) {

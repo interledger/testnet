@@ -1,7 +1,5 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { Request, Response } from 'express'
@@ -23,9 +21,10 @@ import { faker } from '@faker-js/faker'
 import { BaseError } from '@/errors/Base'
 import { truncateTables } from '@/tests/tables'
 import { createUser } from '@/tests/helpers'
+import { AwilixContainer } from 'awilix'
 
 describe('Asset Controller', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -66,7 +65,7 @@ describe('Asset Controller', (): void => {
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -74,13 +73,11 @@ describe('Asset Controller', (): void => {
     accountService = await bindings.resolve('accountService')
 
     const accountServiceDepsMocked = {
-      accountService: await bindings.resolve('accountService'),
-
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
       },
-      rapyd: {
+      rapydClient: {
         issueVirtualAccount: () => ({
           status: {
             status: 'SUCCESS'
@@ -119,12 +116,18 @@ describe('Asset Controller', (): void => {
         })
       }
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+    Reflect.set(
+      accountService,
+      'rafikiClient',
+      accountServiceDepsMocked.rafikiClient
+    )
+    Reflect.set(
+      accountService,
+      'rapydClient',
+      accountServiceDepsMocked.rapydClient
+    )
 
-    const accountControllerDepsMocked = {
-      accountService
-    }
-    Reflect.set(accountController, 'deps', accountControllerDepsMocked)
+    Reflect.set(accountController, 'accountService', accountService)
   })
 
   beforeEach(async (): Promise<void> => {

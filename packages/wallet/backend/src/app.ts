@@ -36,13 +36,14 @@ import { RapydClient } from './rapyd/rapyd-client'
 import { RapydService } from './rapyd/service'
 import { RatesService } from './rates/service'
 import type { SessionService } from './session/service'
-import { Container } from './shared/container'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
 import { RedisClient } from './cache/redis-client'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
+import { AwilixContainer } from 'awilix'
+import { Cradle } from '@/createContainer'
 
 export interface Bindings {
   env: Env
@@ -85,7 +86,7 @@ export interface Bindings {
 export class App {
   private server!: Server
 
-  constructor(private container: Container<Bindings>) {}
+  constructor(private container: AwilixContainer<Cradle>) {}
 
   public async startServer(): Promise<void> {
     const express = await this.init()

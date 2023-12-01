@@ -205,6 +205,9 @@ importers:
       '@sendgrid/mail':
         specifier: ^7.7.0
         version: 7.7.0
+      awilix:
+        specifier: ^9.0.0
+        version: 9.0.0
       axios:
         specifier: ^1.6.2
         version: 1.6.2
