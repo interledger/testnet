@@ -2,7 +2,6 @@ import { Conflict, NotFound } from '@/errors'
 import { Account } from './model'
 import { User } from '@/user/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
-import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
@@ -32,14 +31,11 @@ interface IAccountService {
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
-interface AccountServiceDependencies {
-  rapyd: RapydClient
-  rafiki: RafikiClient
-  logger: Logger
-}
-
 export class AccountService implements IAccountService {
-  constructor(private deps: AccountServiceDependencies) {}
+  constructor(
+    private rapydClient: RapydClient,
+    private rafikiClient: RafikiClient
+  ) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
     const existingAccount = await Account.query()
@@ -51,7 +47,7 @@ export class AccountService implements IAccountService {
         `An account with the name '${args.name}' already exists`
       )
     }
-    const asset = await this.deps.rafiki.getAssetById(args.assetId)
+    const asset = await this.rafikiClient.getAssetById(args.assetId)
 
     if (!asset) {
       throw new NotFound()
@@ -73,7 +69,7 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const result = await this.deps.rapyd.issueVirtualAccount({
+    const result = await this.rapydClient.issueVirtualAccount({
       country: user.country ?? '',
       currency: asset.code,
       ewallet: user.rapydWalletId ?? ''
@@ -95,7 +91,7 @@ export class AccountService implements IAccountService {
       assetScale: asset.scale,
       virtualAccountId: virtualAccount.id
     })
-    await this.deps.rapyd.simulateBankTransferToWallet({
+    await this.rapydClient.simulateBankTransferToWallet({
       amount: 0,
       currency: account.assetCode,
       issued_bank_account: account.virtualAccountId
@@ -105,7 +101,7 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+    const accountsBalance = await this.rapydClient.getAccountsBalance(
       user.rapydWalletId
     )
 
@@ -139,7 +135,7 @@ export class AccountService implements IAccountService {
     const accounts = await query
 
     if (!hasWalletAddress) {
-      const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+      const accountsBalance = await this.rapydClient.getAccountsBalance(
         user.rapydWalletId
       )
 
@@ -204,7 +200,7 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+    const accountsBalance = await this.rapydClient.getAccountsBalance(
       user.rapydWalletId
     )
     return (
@@ -223,7 +219,7 @@ export class AccountService implements IAccountService {
     }
 
     // fund amount to wallet account
-    const result = await this.deps.rapyd.simulateBankTransferToWallet({
+    const result = await this.rapydClient.simulateBankTransferToWallet({
       amount: args.amount,
       currency: existingAccount.assetCode,
       issued_bank_account: existingAccount.virtualAccountId
@@ -233,7 +229,7 @@ export class AccountService implements IAccountService {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
 
-    const asset = await this.deps.rafiki.getAssetById(existingAccount.assetId)
+    const asset = await this.rafikiClient.getAssetById(existingAccount.assetId)
     const transactions = result.data.transactions
     await Transaction.query().insert({
       accountId: existingAccount.id,
@@ -255,7 +251,7 @@ export class AccountService implements IAccountService {
     }
 
     // simulate withdraw funds to a bank account
-    const withdrawFunds = await this.deps.rapyd.withdrawFundsFromAccount({
+    const withdrawFunds = await this.rapydClient.withdrawFundsFromAccount({
       assetCode: account.assetCode,
       amount: args.amount,
       user: user
@@ -267,7 +263,7 @@ export class AccountService implements IAccountService {
       )
     }
 
-    const asset = await this.deps.rafiki.getAssetById(account.assetId)
+    const asset = await this.rafikiClient.getAssetById(account.assetId)
     await Transaction.query().insert({
       accountId: account.id,
       paymentId: withdrawFunds.data.id,
@@ -297,7 +293,7 @@ export class AccountService implements IAccountService {
   public async createDefaultAccount(
     userId: string
   ): Promise<Account | undefined> {
-    const asset = (await this.deps.rafiki.listAssets({ first: 100 })).find(
+    const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
       (asset) => asset.code === 'EUR' && asset.scale === 2
     )
     if (!asset) {

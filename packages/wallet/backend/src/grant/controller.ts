@@ -13,14 +13,13 @@ interface IGrantController {
   getByInteraction: ControllerFunction<Grant>
   setInteractionResponse: ControllerFunction<Grant>
 }
-interface GrantControllerDependencies {
-  rafikiAuthService: RafikiAuthService
-  walletAddressService: WalletAddressService
-  grantService: GrantService
-}
 
 export class GrantController implements IGrantController {
-  constructor(private deps: GrantControllerDependencies) {}
+  constructor(
+    private rafikiAuthService: RafikiAuthService,
+    private walletAddressService: WalletAddressService,
+    private grantService: GrantService
+  ) {}
 
   list = async (
     req: Request,
@@ -29,10 +28,10 @@ export class GrantController implements IGrantController {
   ) => {
     try {
       const identifiers =
-        await this.deps.walletAddressService.listIdentifiersByUserId(
+        await this.walletAddressService.listIdentifiersByUserId(
           req.session.user.id
         )
-      const grants = await this.deps.rafikiAuthService.listGrants(identifiers)
+      const grants = await this.rafikiAuthService.listGrants(identifiers)
       res.json({ success: true, message: 'Success', data: grants })
     } catch (e) {
       next(e)
@@ -41,7 +40,7 @@ export class GrantController implements IGrantController {
 
   revoke = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
-      await this.deps.rafikiAuthService.revokeGrant(req.params.id)
+      await this.rafikiAuthService.revokeGrant(req.params.id)
 
       res.json({ success: true, message: 'Success' })
     } catch (e) {
@@ -55,9 +54,7 @@ export class GrantController implements IGrantController {
     next: NextFunction
   ) => {
     try {
-      const grant = await this.deps.rafikiAuthService.getGrantById(
-        req.params.id
-      )
+      const grant = await this.rafikiAuthService.getGrantById(req.params.id)
 
       res.json({ success: true, message: 'Success', data: grant })
     } catch (e) {
@@ -71,7 +68,7 @@ export class GrantController implements IGrantController {
     next: NextFunction
   ) => {
     try {
-      const grant = await this.deps.grantService.getGrantByInteraction(
+      const grant = await this.grantService.getGrantByInteraction(
         req.session.user.id,
         req.params.interactionId,
         req.params.nonce
@@ -93,7 +90,7 @@ export class GrantController implements IGrantController {
         body: { response }
       } = await validate(grantResponseSchema, req)
 
-      const grant = await this.deps.grantService.setInteractionResponse(
+      const grant = await this.grantService.setInteractionResponse(
         req.session.user.id,
         req.params.interactionId,
         req.params.nonce,

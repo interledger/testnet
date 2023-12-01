@@ -84,7 +84,7 @@ export const mockVerifyIdentityRequest = (): VerifyIdentityRequest => {
 }
 
 export const mockRapyd = {
-  rapyd: {
+  rapydClient: {
     issueVirtualAccount: () => ({
       status: {
         status: 'SUCCESS'
@@ -187,7 +187,7 @@ const rapydFailResponse = () => ({
   }
 })
 export const mockFailureRapyd = {
-  rapyd: {
+  rapydClient: {
     issueVirtualAccount: rapydFailResponse,
     simulateBankTransferToWallet: rapydFailResponse,
     withdrawFundsFromAccount: rapydFailResponse,

@@ -1,12 +1,9 @@
 import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
-import { SocketService } from '@/socket/service'
 import { User } from '@/user/model'
-import { UserService } from '@/user/service'
 import { getRandomValues } from 'crypto'
 import { NextFunction, Request } from 'express'
-import { Logger } from 'winston'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
 
@@ -17,17 +14,13 @@ interface IRapydController {
   verifyIdentity: ControllerFunction<RapydIdentityResponse>
   updateProfile: ControllerFunction
 }
-interface RapydControllerDependencies {
-  accountService: AccountService
-  walletAddressService: WalletAddressService
-  logger: Logger
-  rapydService: RapydService
-  socketService: SocketService
-  userService: UserService
-}
 
 export class RapydController implements IRapydController {
-  constructor(private deps: RapydControllerDependencies) {}
+  constructor(
+    private accountService: AccountService,
+    private walletAddressService: WalletAddressService,
+    private rapydService: RapydService
+  ) {}
 
   public getCountryNames = async (
     _: Request,
@@ -35,7 +28,7 @@ export class RapydController implements IRapydController {
     next: NextFunction
   ) => {
     try {
-      const countryNamesResult = await this.deps.rapydService.getCountryNames()
+      const countryNamesResult = await this.rapydService.getCountryNames()
 
       res
         .status(200)
@@ -53,7 +46,7 @@ export class RapydController implements IRapydController {
     try {
       const { id: userId } = req.session.user
       const documentTypesResult =
-        await this.deps.rapydService.getDocumentTypes(userId)
+        await this.rapydService.getDocumentTypes(userId)
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: documentTypesResult })
@@ -74,7 +67,7 @@ export class RapydController implements IRapydController {
         body: { firstName, lastName, address, city, country, zip, phone }
       } = await validate(walletSchema, req)
 
-      const createWalletResponse = await this.deps.rapydService.createWallet({
+      const createWalletResponse = await this.rapydService.createWallet({
         firstName,
         lastName,
         address,
@@ -89,14 +82,13 @@ export class RapydController implements IRapydController {
       req.session.user.needsWallet = false
       await req.session.save()
 
-      const defaultAccount =
-        await this.deps.accountService.createDefaultAccount(id)
+      const defaultAccount = await this.accountService.createDefaultAccount(id)
       if (defaultAccount) {
         const typedArray = new Uint32Array(1)
         getRandomValues(typedArray)
         const walletAddressName = typedArray[0].toString(16)
 
-        await this.deps.walletAddressService.create({
+        await this.walletAddressService.create({
           accountId: defaultAccount.id,
           walletAddressName,
           publicName: 'Default Payment Pointer',
@@ -135,17 +127,16 @@ export class RapydController implements IRapydController {
         }
       } = await validate(kycSchema, req)
 
-      const verifyIdentityResponse =
-        await this.deps.rapydService.verifyIdentity({
-          userId,
-          documentType,
-          frontSideImage,
-          frontSideImageType,
-          faceImage,
-          faceImageType,
-          backSideImage,
-          backSideImageType
-        })
+      const verifyIdentityResponse = await this.rapydService.verifyIdentity({
+        userId,
+        documentType,
+        frontSideImage,
+        frontSideImageType,
+        faceImage,
+        faceImageType,
+        backSideImage,
+        backSideImageType
+      })
 
       await User.query()
         .findById(userId)
@@ -176,7 +167,7 @@ export class RapydController implements IRapydController {
         body: { firstName, lastName }
       } = await validate(profileSchema, req)
 
-      await this.deps.rapydService.updateProfile(userId, firstName, lastName)
+      await this.rapydService.updateProfile(userId, firstName, lastName)
 
       res.status(200).json({
         success: true,
