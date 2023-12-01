@@ -1,10 +1,8 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
 import { GrantService } from '@/grant/service'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { loginUser } from '@/tests/utils'
 import { faker } from '@faker-js/faker'
@@ -12,9 +10,10 @@ import { truncateTables } from '@/tests/tables'
 import { Forbidden } from '@/errors'
 import { mockedListGrant } from '@/tests/mocks'
 import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
+import { AwilixContainer } from 'awilix'
 
 describe('Grant Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -22,7 +21,7 @@ describe('Grant Service', () => {
   let userId: string
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -55,7 +54,12 @@ describe('Grant Service', () => {
       }
     }
 
-    Reflect.set(grantService, 'deps', grantServiceDepsMocked)
+    for (const key in grantServiceDepsMocked)
+      Reflect.set(
+        grantService,
+        key,
+        grantServiceDepsMocked[key as keyof typeof grantServiceDepsMocked]
+      )
   }
 
   beforeEach(async (): Promise<void> => {
