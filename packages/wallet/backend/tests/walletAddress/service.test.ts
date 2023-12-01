@@ -1,5 +1,3 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
@@ -7,7 +5,7 @@ import { AccountService } from '@/account/service'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { mockedListAssets } from '@/tests/mocks'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { Env, env } from '@/config/env'
 import { loginUser, uuid } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
@@ -16,9 +14,10 @@ import axios from 'axios'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { Logger } from 'winston'
+import { AwilixContainer } from 'awilix'
 
 describe('Wallet Address Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -98,11 +97,16 @@ describe('Wallet Address Service', () => {
       }
     }
 
-    Reflect.set(waService, 'deps', waServiceDepsMocked)
+    for (const key in waServiceDepsMocked)
+      Reflect.set(
+        waService,
+        key,
+        waServiceDepsMocked[key as keyof typeof waServiceDepsMocked]
+      )
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')

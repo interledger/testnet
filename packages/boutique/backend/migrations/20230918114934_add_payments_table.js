@@ -7,7 +7,7 @@ exports.up = function (knex) {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     table.uuid('orderId').notNullable()
     table.foreign('orderId').references('orders.id').onDelete('CASCADE')
-    table.string('paymentPointer').notNullable()
+    table.string('walletAddress').notNullable()
     table.string('incomingPaymentUrl').notNullable()
     table.string('quoteId').notNullable()
     table.string('continueUri').notNullable()

@@ -1,8 +1,7 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
+import { AwilixContainer } from 'awilix'
 import {
   createRequest,
   createResponse,
@@ -18,7 +17,7 @@ import {
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
@@ -29,7 +28,7 @@ import { WalletAddressController } from '@/walletAddress/controller'
 import { WalletAddress } from '@/walletAddress/model'
 
 describe('Wallet Address', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -103,11 +102,15 @@ describe('Wallet Address', () => {
         update: jest.fn()
       }
     }
-    Reflect.set(walletAddressController, 'deps', waControllerDepsMocked)
+    Reflect.set(
+      walletAddressController,
+      'walletAddressService',
+      waControllerDepsMocked.walletAddressService
+    )
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
