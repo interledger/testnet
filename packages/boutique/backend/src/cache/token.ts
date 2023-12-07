@@ -9,6 +9,7 @@ import { InMemoryCache } from './in-memory'
 import { Env } from '@/config/env'
 import { InternalServerError } from '@/errors'
 import { Logger } from 'winston'
+import { replaceHost } from '@/shared/utils'
 
 export class TokenCache extends InMemoryCache<string> {
   private walletAddress!: WalletAddress
@@ -76,7 +77,7 @@ export class TokenCache extends InMemoryCache<string> {
      */
     let manageUrl = token.access_token.manage
     if (this.env.NODE_ENV === 'development') {
-      manageUrl = manageUrl.replace('localhost', 'rafiki-auth')
+      manageUrl = replaceHost(manageUrl)
     }
     this.manageUrl = manageUrl
   }

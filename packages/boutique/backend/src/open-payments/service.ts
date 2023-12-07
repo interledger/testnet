@@ -17,6 +17,7 @@ import { randomUUID } from 'crypto'
 import { Logger } from 'winston'
 import { createHash } from 'crypto'
 import { OneClickCache } from '@/cache/one-click'
+import { replaceHost } from '@/shared/utils'
 
 interface PreparePaymentParams {
   order: Order
@@ -133,7 +134,7 @@ export class OpenPayments implements IOpenPayments {
 
     let continueUri = outgoingPaymentGrant.continue.uri
     if (this.env.NODE_ENV === 'development') {
-      continueUri = continueUri.replace('localhost', 'rafiki-auth')
+      continueUri = replaceHost(continueUri)
     }
 
     await Payment.query().insert({
@@ -264,7 +265,7 @@ export class OpenPayments implements IOpenPayments {
 
     let continueUri = grant.continue.uri
     if (this.env.NODE_ENV === 'development') {
-      continueUri = continueUri.replace('localhost', 'rafiki-auth')
+      continueUri = replaceHost(continueUri)
     }
 
     this.oneClickCache.set(
@@ -378,7 +379,7 @@ export class OpenPayments implements IOpenPayments {
 
     return {
       accessToken: grant.access_token.value,
-      manageUrl: grant.access_token.manage.replace('localhost', 'rafiki-auth'),
+      manageUrl: replaceHost(grant.access_token.manage),
       walletAddressurl: customerWalletAddress.id
     }
   }
