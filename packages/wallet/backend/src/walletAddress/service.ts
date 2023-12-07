@@ -9,7 +9,6 @@ import { generateKeyPairSync, getRandomValues } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { Cache } from '@/cache/service'
 import { WalletAddress } from './model'
-import { Knex } from 'knex'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
 import { RapydClient } from '@/rapyd/rapyd-client'
@@ -68,17 +67,6 @@ interface IWalletAddressService {
   softDelete: (userId: string, id: string) => Promise<void>
 }
 
-interface WalletAddressServiceDependencies {
-  accountService: AccountService
-  rafikiClient: RafikiClient
-  env: Env
-  cache: Cache<WalletAddress>
-  knex: Knex
-  wmTransactionService: WMTransactionService
-  rapydClient: RapydClient
-  logger: Logger
-}
-
 export const createWalletAddressIfFalsy = async ({
   walletAddress,
   userId,
@@ -108,14 +96,22 @@ export const createWalletAddressIfFalsy = async ({
 }
 
 export class WalletAddressService implements IWalletAddressService {
-  constructor(private deps: WalletAddressServiceDependencies) {}
+  constructor(
+    private accountService: AccountService,
+    private rafikiClient: RafikiClient,
+    private env: Env,
+    private cache: Cache<WalletAddress>,
+    private wmTransactionService: WMTransactionService,
+    private rapydClient: RapydClient,
+    private logger: Logger
+  ) {}
 
   async create(args: CreateWalletAddressArgs): Promise<WalletAddress> {
-    const account = await this.deps.accountService.findAccountById(
+    const account = await this.accountService.findAccountById(
       args.accountId,
       args.userId
     )
-    const url = `${this.deps.env.OPEN_PAYMENTS_HOST}/${args.walletAddressName}`
+    const url = `${this.env.OPEN_PAYMENTS_HOST}/${args.walletAddressName}`
     let walletAddress = await WalletAddress.query().findOne({ url })
 
     if (walletAddress) {
@@ -148,9 +144,9 @@ export class WalletAddressService implements IWalletAddressService {
           )
         }
 
-        webMonetizationAsset = await this.deps.rafikiClient.getRafikiAsset(
+        webMonetizationAsset = await this.rafikiClient.getRafikiAsset(
           'USD',
-          this.deps.env.MAX_ASSET_SCALE
+          this.env.MAX_ASSET_SCALE
         )
 
         if (!webMonetizationAsset) {
@@ -160,7 +156,7 @@ export class WalletAddressService implements IWalletAddressService {
 
       const assetId = webMonetizationAsset?.id || account.assetId
       const rafikiWalletAddress =
-        await this.deps.rafikiClient.createRafikiWalletAddress(
+        await this.rafikiClient.createRafikiWalletAddress(
           args.publicName,
           assetId,
           url
@@ -177,7 +173,7 @@ export class WalletAddressService implements IWalletAddressService {
       })
 
       args.isWM &&
-        (await this.deps.cache.set(walletAddress.id, walletAddress, {
+        (await this.cache.set(walletAddress.id, walletAddress, {
           expiry: 60
         }))
     }
@@ -186,10 +182,7 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   async list(userId: string, accountId: string): Promise<WalletAddressList> {
-    const account = await this.deps.accountService.findAccountById(
-      accountId,
-      userId
-    )
+    const account = await this.accountService.findAccountById(accountId, userId)
 
     const walletAddressesResult = await WalletAddress.query()
       .where('accountId', account.id)
@@ -224,17 +217,14 @@ export class WalletAddressService implements IWalletAddressService {
 
   async getById(args: GetWalletAddressArgs): Promise<WalletAddress> {
     //* Cache only contains WalletAddresses with isWM = true
-    const cacheHit = await this.deps.cache.get(args.walletAddressId)
+    const cacheHit = await this.cache.get(args.walletAddressId)
     if (cacheHit) {
       //* TODO: reset ttl
       return cacheHit
     }
 
     if (args.userId && args.accountId) {
-      await this.deps.accountService.findAccountById(
-        args.accountId,
-        args.userId
-      )
+      await this.accountService.findAccountById(args.accountId, args.userId)
     }
 
     const query = WalletAddress.query()
@@ -250,7 +240,7 @@ export class WalletAddressService implements IWalletAddressService {
     }
 
     if (walletAddress.isWM) {
-      await this.deps.cache.set(walletAddress.id, walletAddress, {
+      await this.cache.set(walletAddress.id, walletAddress, {
         expiry: 60
       })
     }
@@ -293,10 +283,7 @@ export class WalletAddressService implements IWalletAddressService {
 
     // Check if the user owns the wallet address.
     // This function throws a NotFoundException.
-    await this.deps.accountService.findAccountById(
-      walletAddress.accountId,
-      userId
-    )
+    await this.accountService.findAccountById(walletAddress.accountId, userId)
     await WalletAddress.query().findById(id).patch({
       active: false
     })
@@ -322,7 +309,7 @@ export class WalletAddressService implements IWalletAddressService {
     const keyId = uuid()
 
     const walletAddressKey =
-      await this.deps.rafikiClient.createRafikiWalletAddressKey(
+      await this.rafikiClient.createRafikiWalletAddressKey(
         generateJwk(privateKey, keyId),
         walletAddress.id
       )
@@ -361,9 +348,7 @@ export class WalletAddressService implements IWalletAddressService {
     try {
       await Promise.all([
         walletAddress.$query(trx).patch({ keyIds: null }),
-        this.deps.rafikiClient.revokeWalletAddressKey(
-          walletAddress.keyIds.rafikiId
-        )
+        this.rafikiClient.revokeWalletAddressKey(walletAddress.keyIds.rafikiId)
       ])
       await trx.commit()
     } catch (e) {
@@ -384,7 +369,7 @@ export class WalletAddressService implements IWalletAddressService {
     try {
       await Promise.all([
         walletAddress.$query(trx).patch({ publicName }),
-        this.deps.rafikiClient.updateWalletAddress({
+        this.rafikiClient.updateWalletAddress({
           id: walletAddressId,
           publicName
         })
@@ -404,7 +389,7 @@ export class WalletAddressService implements IWalletAddressService {
       'Accept': 'application/json'
     }
     url =
-      this.deps.env.NODE_ENV === 'development'
+      this.env.NODE_ENV === 'development'
         ? url.replace('https://', 'http://')
         : url
     const res = await axios.get(url, { headers })
@@ -413,7 +398,7 @@ export class WalletAddressService implements IWalletAddressService {
 
   async findByIdWithoutValidation(id: string) {
     //* Cache only contains WalletAddresses with isWM = true
-    const cacheHit = await this.deps.cache.get(id)
+    const cacheHit = await this.cache.get(id)
     if (cacheHit) {
       //* TODO: reset ttl
       return cacheHit
@@ -428,7 +413,7 @@ export class WalletAddressService implements IWalletAddressService {
     }
 
     if (walletAddress.isWM) {
-      await this.deps.cache.set(walletAddress.id, walletAddress, {
+      await this.cache.set(walletAddress.id, walletAddress, {
         expiry: 60
       })
     }
@@ -447,7 +432,7 @@ export class WalletAddressService implements IWalletAddressService {
     }
     const amount = Number(
       (
-        Number(balance * this.deps.env.WM_THRESHOLD) *
+        Number(balance * this.env.WM_THRESHOLD) *
         10 ** -walletAddress.assetScale
       ).toPrecision(2)
     )
@@ -459,14 +444,14 @@ export class WalletAddressService implements IWalletAddressService {
     }
 
     let destination = walletAddress.account.user.rapydWalletId
-    let source = this.deps.env.RAPYD_SETTLEMENT_EWALLET
+    let source = this.env.RAPYD_SETTLEMENT_EWALLET
 
     if (type === 'OUTGOING') {
-      destination = this.deps.env.RAPYD_SETTLEMENT_EWALLET
+      destination = this.env.RAPYD_SETTLEMENT_EWALLET
       source = walletAddress.account.user.rapydWalletId
     }
 
-    const transfer = await this.deps.rapydClient.transferLiquidity({
+    const transfer = await this.rapydClient.transferLiquidity({
       amount,
       currency: walletAddress.assetCode,
       destination_ewallet: destination,
@@ -495,7 +480,7 @@ export class WalletAddressService implements IWalletAddressService {
     const updatePart: PartialModelObject<WalletAddress> = {
       [updatedField]: raw('?? - ?', [
         updatedField,
-        this.deps.env.WM_THRESHOLD * balance
+        this.env.WM_THRESHOLD * balance
       ])
     }
 
@@ -504,7 +489,7 @@ export class WalletAddressService implements IWalletAddressService {
         accountId: walletAddress.accountId,
         paymentId: transfer.data.id,
         assetCode: walletAddress.assetCode!,
-        value: BigInt(amount * 10 ** this.deps.env.BASE_ASSET_SCALE),
+        value: BigInt(amount * 10 ** this.env.BASE_ASSET_SCALE),
         type,
         status: 'COMPLETED',
         description: 'Web Monetization'
@@ -512,7 +497,7 @@ export class WalletAddressService implements IWalletAddressService {
       walletAddress.$query(trx).update(updatePart)
     ])
 
-    this.deps.logger.info(
+    this.logger.info(
       `Proccesed WM transactions for payment pointer ${walletAddress.url}. Type: ${type} | Amount: ${amount}`
     )
   }
@@ -534,12 +519,12 @@ export class WalletAddressService implements IWalletAddressService {
         }
 
         const [incoming, outgoing] = await Promise.all([
-          this.deps.wmTransactionService.sumByWalletAddressId(
+          this.wmTransactionService.sumByWalletAddressId(
             walletAddress.id,
             'INCOMING',
             trx
           ),
-          this.deps.wmTransactionService.sumByWalletAddressId(
+          this.wmTransactionService.sumByWalletAddressId(
             walletAddress.id,
             'OUTGOING',
             trx
@@ -553,15 +538,15 @@ export class WalletAddressService implements IWalletAddressService {
             outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
           })
 
-        await this.deps.wmTransactionService.deleteByTransactionIds(
+        await this.wmTransactionService.deleteByTransactionIds(
           incoming.ids.concat(outgoing.ids),
           trx
         )
 
         const incomingBalance =
-          tmpWalletAddress.incomingBalance / this.deps.env.WM_THRESHOLD
+          tmpWalletAddress.incomingBalance / this.env.WM_THRESHOLD
         const outgoingBalance =
-          tmpWalletAddress.outgoingBalance / this.deps.env.WM_THRESHOLD
+          tmpWalletAddress.outgoingBalance / this.env.WM_THRESHOLD
 
         if (incomingBalance > 0n) {
           await this.handleBalance(
@@ -587,7 +572,7 @@ export class WalletAddressService implements IWalletAddressService {
       }
       await trx.commit()
     } catch (e) {
-      this.deps.logger.error(e)
+      this.logger.error(e)
       await trx.rollback()
       throw new Error('Error while processing WM payment pointers.')
     }

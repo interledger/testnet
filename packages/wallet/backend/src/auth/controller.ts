@@ -1,6 +1,5 @@
 import { validate } from '@/shared/validate'
 import { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
 import { AuthService } from './service'
 import { logInSchema, signUpSchema } from './validation'
 import { UserService } from '@/user/service'
@@ -11,14 +10,12 @@ interface IAuthController {
   logIn: ControllerFunction
   verifyEmail: ControllerFunction
 }
-interface AuthControllerDependencies {
-  authService: AuthService
-  userService: UserService
-  logger: Logger
-}
 
 export class AuthController implements IAuthController {
-  constructor(private deps: AuthControllerDependencies) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService
+  ) {}
 
   // We use arrow functions to maintain the correct `this` reference
   signUp = async (req: Request, res: CustomResponse, next: NextFunction) => {
@@ -27,7 +24,7 @@ export class AuthController implements IAuthController {
         body: { email, password }
       } = await validate(signUpSchema, req)
 
-      await this.deps.authService.signUp({ email, password })
+      await this.authService.signUp({ email, password })
 
       res
         .status(201)
@@ -43,7 +40,7 @@ export class AuthController implements IAuthController {
         body: { email, password }
       } = await validate(logInSchema, req)
 
-      const { user, session } = await this.deps.authService.authorize({
+      const { user, session } = await this.authService.authorize({
         email,
         password
       })
@@ -71,7 +68,7 @@ export class AuthController implements IAuthController {
         throw new Unauthorized('Unauthorized')
       }
 
-      await this.deps.authService.logout(req.session.user.id)
+      await this.authService.logout(req.session.user.id)
       req.session.destroy()
 
       res.json({ success: true, message: 'SUCCESS' })
@@ -88,7 +85,7 @@ export class AuthController implements IAuthController {
     try {
       const token = req.params.token
 
-      await this.deps.userService.verifyEmail(token)
+      await this.userService.verifyEmail(token)
 
       res.json({
         success: true,

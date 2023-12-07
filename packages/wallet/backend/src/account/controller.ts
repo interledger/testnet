@@ -1,5 +1,4 @@
 import type { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
 import { validate } from '@/shared/validate'
 import { AccountService } from './service'
 import { accountSchema, fundSchema, withdrawFundsSchema } from './validation'
@@ -12,13 +11,9 @@ interface IAccountController {
   fundAccount: ControllerFunction
   withdrawFunds: ControllerFunction
 }
-interface AccountControllerDependencies {
-  accountService: AccountService
-  logger: Logger
-}
 
 export class AccountController implements IAccountController {
-  constructor(private deps: AccountControllerDependencies) {}
+  constructor(private accountService: AccountService) {}
 
   createAccount = async (
     req: Request,
@@ -31,7 +26,7 @@ export class AccountController implements IAccountController {
         body: { name, assetId }
       } = await validate(accountSchema, req)
 
-      const createAccountResult = await this.deps.accountService.createAccount({
+      const createAccountResult = await this.accountService.createAccount({
         userId,
         name,
         assetId
@@ -54,7 +49,7 @@ export class AccountController implements IAccountController {
     const hasWalletAddress = req.query['include'] == 'walletAddresses'
 
     try {
-      const accounts = await this.deps.accountService.getAccounts(
+      const accounts = await this.accountService.getAccounts(
         userId,
         hasWalletAddress
       )
@@ -76,7 +71,7 @@ export class AccountController implements IAccountController {
     const accountId = req.params.id
 
     try {
-      const getAccountsResult = await this.deps.accountService.getAccountById(
+      const getAccountsResult = await this.accountService.getAccountById(
         userId,
         accountId
       )
@@ -101,7 +96,7 @@ export class AccountController implements IAccountController {
 
       const userId = req.session.user.id
 
-      await this.deps.accountService.fundAccount({ userId, amount, accountId })
+      await this.accountService.fundAccount({ userId, amount, accountId })
 
       res.status(200).json({ success: true, message: 'Account funded' })
     } catch (e) {
@@ -121,7 +116,7 @@ export class AccountController implements IAccountController {
 
       const userId = req.session.user.id
 
-      await this.deps.accountService.withdrawFunds({
+      await this.accountService.withdrawFunds({
         userId,
         amount,
         accountId

@@ -29,14 +29,6 @@ interface IQuoteService {
   createExchangeQuote: (args: CreateExchangeQuote) => Promise<QuoteWithFees>
 }
 
-interface QuoteServiceDependencies {
-  accountService: AccountService
-  rafikiClient: RafikiClient
-  incomingPaymentService: IncomingPaymentService
-  ratesService: RatesService
-  walletAddressService: WalletAddressService
-}
-
 type CreateQuoteParams = {
   userId: string
   walletAddressId: string
@@ -66,7 +58,13 @@ const getAccountWithWalletAddressBy = async (where: Partial<Account>) => {
 }
 
 export class QuoteService implements IQuoteService {
-  constructor(private deps: QuoteServiceDependencies) {}
+  constructor(
+    private accountService: AccountService,
+    private rafikiClient: RafikiClient,
+    private incomingPaymentService: IncomingPaymentService,
+    private ratesService: RatesService,
+    private walletAddressService: WalletAddressService
+  ) {}
 
   async create(params: CreateQuoteParams): Promise<QuoteWithFees> {
     const existingWalletAddress = await WalletAddress.query().findById(
@@ -77,12 +75,11 @@ export class QuoteService implements IQuoteService {
       throw new BadRequest('Invalid payment pointer')
     }
 
-    const { assetId, assetCode } =
-      await this.deps.accountService.findAccountById(
-        existingWalletAddress.accountId,
-        params.userId
-      )
-    const balance = await this.deps.accountService.getAccountBalance(
+    const { assetId, assetCode } = await this.accountService.findAccountById(
+      existingWalletAddress.accountId,
+      params.userId
+    )
+    const balance = await this.accountService.getAccountBalance(
       params.userId,
       assetCode
     )
@@ -92,7 +89,7 @@ export class QuoteService implements IQuoteService {
     }
 
     let asset: Pick<Asset, 'scale' | 'code'> | undefined =
-      await this.deps.rafikiClient.getAssetById(assetId)
+      await this.rafikiClient.getAssetById(assetId)
     if (!asset) {
       throw new NotFound()
     }
@@ -107,16 +104,14 @@ export class QuoteService implements IQuoteService {
     let assetDetails
     if (isIncomingPayment) {
       const payment =
-        await this.deps.incomingPaymentService.getExternalPayment(paymentUrl)
+        await this.incomingPaymentService.getExternalPayment(paymentUrl)
       assetDetails = {
         assetCode: payment.receivedAmount.assetCode,
         assetScale: payment.receivedAmount.assetScale
       }
     } else {
       const walletAddress =
-        await this.deps.walletAddressService.getExternalWalletAddress(
-          paymentUrl
-        )
+        await this.walletAddressService.getExternalWalletAddress(paymentUrl)
       assetDetails = {
         assetCode: walletAddress.assetCode,
         assetScale: walletAddress.assetScale
@@ -130,7 +125,7 @@ export class QuoteService implements IQuoteService {
         amount: value
       })
       if (isIncomingPayment) {
-        const payment = await this.deps.incomingPaymentService.getReceiver(
+        const payment = await this.incomingPaymentService.getReceiver(
           params.receiver
         )
 
@@ -148,7 +143,7 @@ export class QuoteService implements IQuoteService {
 
       //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
       // TODO: discuss if this check is required
-      // const assetList = await this.deps.rafikiClient.listAssets({ first: 100 })
+      // const assetList = await this.rafikiClient.listAssets({ first: 100 })
       // asset = assetList.find(
       //   (a) => a.code === destinationWalletAddress.assetCode
       // )
@@ -165,7 +160,7 @@ export class QuoteService implements IQuoteService {
     }
 
     if (!isIncomingPayment) {
-      paymentUrl = await this.deps.incomingPaymentService.createReceiver({
+      paymentUrl = await this.incomingPaymentService.createReceiver({
         amount: params.isReceive ? value : null,
         asset: {
           code: assetDetails.assetCode,
@@ -183,7 +178,7 @@ export class QuoteService implements IQuoteService {
       value
     }
 
-    const quote = await this.deps.rafikiClient.createQuote({
+    const quote = await this.rafikiClient.createQuote({
       walletAddressId: params.walletAddressId,
       receiveAmount: params.isReceive ? amountParams : undefined,
       receiver: paymentUrl,
@@ -224,7 +219,7 @@ export class QuoteService implements IQuoteService {
   }
 
   private async convert(params: ConvertParams): Promise<bigint> {
-    const conversionRate = await this.deps.ratesService.getRates(params.from)
+    const conversionRate = await this.ratesService.getRates(params.from)
     return BigInt(
       (Number(params.amount) * conversionRate.rates[params.to]).toFixed()
     )
@@ -245,7 +240,7 @@ export class QuoteService implements IQuoteService {
       throw new NotFound(`The source account does not exist for this user.`)
     }
 
-    const rafikiAsset = await this.deps.rafikiClient.getRafikiAsset(assetCode)
+    const rafikiAsset = await this.rafikiClient.getRafikiAsset(assetCode)
     if (!rafikiAsset) {
       throw new NotFound(
         `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
@@ -257,14 +252,14 @@ export class QuoteService implements IQuoteService {
       userId,
       accountId: accountFrom.id,
       publicName: `Exchange Payment Pointer (exchanging into ${assetCode})`,
-      walletAddressService: this.deps.walletAddressService
+      walletAddressService: this.walletAddressService
     })
     const senderPpId = senderPp.id
 
     let accountTo = await getAccountWithWalletAddressBy({ userId, assetCode })
 
     if (!accountTo) {
-      accountTo = await this.deps.accountService.createAccount({
+      accountTo = await this.accountService.createAccount({
         name: `${assetCode} account`,
         userId,
         assetId: rafikiAsset.id
@@ -276,7 +271,7 @@ export class QuoteService implements IQuoteService {
       userId,
       accountId: accountTo.id,
       publicName: `${assetCode} Payment Pointer`,
-      walletAddressService: this.deps.walletAddressService
+      walletAddressService: this.walletAddressService
     })
     const receiverPpUrl = receiverPp.url
 

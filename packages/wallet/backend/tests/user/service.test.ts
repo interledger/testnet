@@ -1,16 +1,15 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
 import { faker } from '@faker-js/faker'
 import type { UserService } from '@/user/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
+import { AwilixContainer } from 'awilix'
 
 describe('User Service', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let userService: UserService
@@ -27,7 +26,7 @@ describe('User Service', (): void => {
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     userService = await bindings.resolve('userService')

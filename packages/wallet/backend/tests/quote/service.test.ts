@@ -1,10 +1,8 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
 import { QuoteService } from '@/quote/service'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { mockedListAssets, mockRapyd } from '@/tests/mocks'
 import { AccountService } from '@/account/service'
@@ -13,9 +11,10 @@ import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
 import { loginUser, uuid } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
+import { AwilixContainer } from 'awilix'
 
 describe('Quote Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -47,7 +46,7 @@ describe('Quote Service', () => {
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -55,14 +54,23 @@ describe('Quote Service', () => {
     accountService = await bindings.resolve('accountService')
 
     const accountServiceDepsMocked = {
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id),
         listAssets: () => mockedListAssets
       },
       ...mockRapyd
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+    Reflect.set(
+      accountService,
+      'rafikiClient',
+      accountServiceDepsMocked.rafikiClient
+    )
+    Reflect.set(
+      accountService,
+      'rapydClient',
+      accountServiceDepsMocked.rapydClient
+    )
 
     const quoteServiceDepsMocked = {
       accountService,
@@ -123,7 +131,12 @@ describe('Quote Service', () => {
       }
     }
 
-    Reflect.set(quoteService, 'deps', quoteServiceDepsMocked)
+    for (const key in quoteServiceDepsMocked)
+      Reflect.set(
+        quoteService,
+        key,
+        quoteServiceDepsMocked[key as keyof typeof quoteServiceDepsMocked]
+      )
   })
 
   beforeEach(async (): Promise<void> => {

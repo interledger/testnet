@@ -1,5 +1,3 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
@@ -16,7 +14,7 @@ import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
 import { faker } from '@faker-js/faker'
 import { AccountService } from '@/account/service'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import {
   mockCreateWalletRequest,
@@ -31,9 +29,10 @@ import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
 import { WalletAddressService } from '@/walletAddress/service'
 import { errorHandler } from '@/middleware/errorHandler'
+import { AwilixContainer } from 'awilix'
 
 describe('Rapyd Controller', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -72,11 +71,17 @@ describe('Rapyd Controller', () => {
       walletAddressService,
       rapydService: isFailure ? mockedRapydFailureService : mockedRapydService
     }
-    Reflect.set(rapydController, 'deps', rapydControllerDepsMocked)
+
+    for (const key in rapydControllerDepsMocked)
+      Reflect.set(
+        rapydController,
+        key,
+        rapydControllerDepsMocked[key as keyof typeof rapydControllerDepsMocked]
+      )
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -85,14 +90,20 @@ describe('Rapyd Controller', () => {
     rapydController = await bindings.resolve('rapydController')
 
     const accountServiceDepsMocked = {
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id),
         listAssets: () => mockedListAssets
       },
       ...mockRapyd
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+
+    for (const key in accountServiceDepsMocked)
+      Reflect.set(
+        accountService,
+        key,
+        accountServiceDepsMocked[key as keyof typeof accountServiceDepsMocked]
+      )
 
     const walletAddressServiceDepsMocked = {
       accountService,
@@ -103,7 +114,14 @@ describe('Rapyd Controller', () => {
         })
       }
     }
-    Reflect.set(walletAddressService, 'deps', walletAddressServiceDepsMocked)
+    for (const key in accountServiceDepsMocked)
+      Reflect.set(
+        walletAddressService,
+        key,
+        walletAddressServiceDepsMocked[
+          key as keyof typeof walletAddressServiceDepsMocked
+        ]
+      )
 
     createRapydControllerDepsMocked()
   })

@@ -17,31 +17,25 @@ interface IGrantService {
   ) => Promise<Grant>
 }
 
-interface GrantServiceDependencies {
-  rafikiAuthService: RafikiAuthService
-  walletAddressService: WalletAddressService
-}
-
 export class GrantService implements IGrantService {
-  constructor(private deps: GrantServiceDependencies) {}
+  constructor(
+    private rafikiAuthService: RafikiAuthService,
+    private walletAddressService: WalletAddressService
+  ) {}
 
   async getGrantByInteraction(
     userId: string,
     interactionId: string,
     nonce: string
   ): Promise<Grant> {
-    const grant: Grant =
-      await this.deps.rafikiAuthService.getGrantByInteraction(
-        interactionId,
-        nonce
-      )
+    const grant: Grant = await this.rafikiAuthService.getGrantByInteraction(
+      interactionId,
+      nonce
+    )
 
     const url = grant.access.find(({ identifier }) => identifier)?.identifier
 
-    if (
-      !url ||
-      !(await this.deps.walletAddressService.belongsToUser(userId, url))
-    ) {
+    if (!url || !(await this.walletAddressService.belongsToUser(userId, url))) {
       throw new Forbidden('NO_ACCESS')
     }
 
@@ -56,7 +50,7 @@ export class GrantService implements IGrantService {
   ): Promise<Grant> {
     await this.getGrantByInteraction(userId, interactionId, nonce)
 
-    return await this.deps.rafikiAuthService.setInteractionResponse(
+    return await this.rafikiAuthService.setInteractionResponse(
       interactionId,
       nonce,
       response

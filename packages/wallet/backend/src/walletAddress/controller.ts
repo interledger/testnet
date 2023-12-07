@@ -1,7 +1,6 @@
 import { WalletAddress } from '@/walletAddress/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
 import {
   ExternalWalletAddress,
   WalletAddressList,
@@ -19,10 +18,6 @@ interface IWalletAddressController {
   getById: ControllerFunction<WalletAddress>
   softDelete: ControllerFunction
 }
-interface WalletAddressControllerDependencies {
-  walletAddressService: WalletAddressService
-  logger: Logger
-}
 
 interface KeyPair {
   publicKey: string
@@ -31,7 +26,7 @@ interface KeyPair {
 }
 
 export class WalletAddressController implements IWalletAddressController {
-  constructor(private deps: WalletAddressControllerDependencies) {}
+  constructor(private walletAddressService: WalletAddressService) {}
 
   create = async (
     req: Request,
@@ -45,7 +40,7 @@ export class WalletAddressController implements IWalletAddressController {
         body: { walletAddressName, publicName, isWM }
       } = await validate(walletAddressSchema, req)
 
-      const walletAddress = await this.deps.walletAddressService.create({
+      const walletAddress = await this.walletAddressService.create({
         userId,
         accountId,
         walletAddressName,
@@ -69,7 +64,7 @@ export class WalletAddressController implements IWalletAddressController {
     const { accountId } = req.params
 
     try {
-      const walletAddresses = await this.deps.walletAddressService.list(
+      const walletAddresses = await this.walletAddressService.list(
         userId,
         accountId
       )
@@ -89,8 +84,7 @@ export class WalletAddressController implements IWalletAddressController {
     const userId = req.session.user.id
 
     try {
-      const walletAddresses =
-        await this.deps.walletAddressService.listAll(userId)
+      const walletAddresses = await this.walletAddressService.listAll(userId)
 
       res
         .status(200)
@@ -110,7 +104,7 @@ export class WalletAddressController implements IWalletAddressController {
         query: { url }
       } = await validate(externalWalletAddressSchema, req)
       const externalWalletAddress =
-        await this.deps.walletAddressService.getExternalWalletAddress(url)
+        await this.walletAddressService.getExternalWalletAddress(url)
       res.status(200).json({
         success: true,
         message: 'SUCCESS',
@@ -130,7 +124,7 @@ export class WalletAddressController implements IWalletAddressController {
     const { accountId, id: walletAddressId } = req.params
 
     try {
-      const walletAddress = await this.deps.walletAddressService.getById({
+      const walletAddress = await this.walletAddressService.getById({
         userId,
         accountId,
         walletAddressId
@@ -153,7 +147,7 @@ export class WalletAddressController implements IWalletAddressController {
       const userId = req.session.user.id
       const { id } = req.params
 
-      await this.deps.walletAddressService.softDelete(userId, id)
+      await this.walletAddressService.softDelete(userId, id)
 
       res.status(200).json({
         success: true,
@@ -174,7 +168,7 @@ export class WalletAddressController implements IWalletAddressController {
       const { accountId, walletAddressId } = req.params
 
       const { privateKey, publicKey, keyId } =
-        await this.deps.walletAddressService.registerKey(
+        await this.walletAddressService.registerKey(
           userId,
           accountId,
           walletAddressId
@@ -194,7 +188,7 @@ export class WalletAddressController implements IWalletAddressController {
     try {
       const { accountId, walletAddressId } = req.params
 
-      await this.deps.walletAddressService.revokeKey(
+      await this.walletAddressService.revokeKey(
         req.session.user.id,
         accountId,
         walletAddressId
@@ -217,7 +211,7 @@ export class WalletAddressController implements IWalletAddressController {
         body: { publicName }
       } = await validate(updateWalletAddressSchema, req)
 
-      await this.deps.walletAddressService.update({
+      await this.walletAddressService.update({
         userId: req.session.user.id,
         accountId,
         walletAddressId,

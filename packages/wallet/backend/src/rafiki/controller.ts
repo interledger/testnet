@@ -12,14 +12,13 @@ interface IRafikiController {
     next: NextFunction
   ) => Promise<void>
 }
-interface RafikiControllerDependencies {
-  logger: Logger
-  rafikiService: RafikiService
-  ratesService: RatesService
-}
 
 export class RafikiController implements IRafikiController {
-  constructor(private deps: RafikiControllerDependencies) {}
+  constructor(
+    private logger: Logger,
+    private rafikiService: RafikiService,
+    private ratesService: RatesService
+  ) {}
 
   getRates = async (
     req: Request,
@@ -30,7 +29,7 @@ export class RafikiController implements IRafikiController {
       const {
         query: { base }
       } = await validate(ratesSchema, req)
-      const rates = await this.deps.ratesService.getRates(base)
+      const rates = await this.ratesService.getRates(base)
       res.status(200).json(rates)
     } catch (e) {
       next(e)
@@ -41,10 +40,10 @@ export class RafikiController implements IRafikiController {
     try {
       const wh = await validate(webhookSchema, req)
 
-      await this.deps.rafikiService.onWebHook(wh.body)
+      await this.rafikiService.onWebHook(wh.body)
       res.status(200).send()
     } catch (e) {
-      this.deps.logger.error(
+      this.logger.error(
         `Webhook response error for rafiki: ${(e as Error).message}`
       )
       next(e)

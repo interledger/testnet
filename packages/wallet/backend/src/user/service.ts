@@ -19,13 +19,11 @@ interface IUserService {
   validateToken(token: string): Promise<boolean>
 }
 
-interface UserServiceDependencies {
-  emailService: EmailService
-  logger: Logger
-}
-
 export class UserService implements IUserService {
-  constructor(private deps: UserServiceDependencies) {}
+  constructor(
+    private emailService: EmailService,
+    private logger: Logger
+  ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
     const existingUser = await this.getByEmail(args.email)
@@ -53,7 +51,7 @@ export class UserService implements IUserService {
     const user = await this.getByEmail(email)
 
     if (!user?.isEmailVerified) {
-      this.deps.logger.info(
+      this.logger.info(
         `Reset email not sent. User with email ${email} not found (or not verified)`
       )
       return
@@ -66,7 +64,7 @@ export class UserService implements IUserService {
     await User.query()
       .findById(user.id)
       .patch({ passwordResetToken, passwordResetExpiresAt })
-    await this.deps.emailService.sendForgotPassword(email, resetToken)
+    await this.emailService.sendForgotPassword(email, resetToken)
   }
 
   public async resetPassword(token: string, password: string): Promise<void> {

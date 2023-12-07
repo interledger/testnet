@@ -1,18 +1,17 @@
 import axios, { AxiosError } from 'axios'
-import { createContainer } from '@/createContainer'
-import type { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import type { Container } from '@/shared/container'
 import { createApp, TestApp } from './app'
 import type { Knex } from 'knex'
+import { AwilixContainer } from 'awilix'
 
 describe('Application', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
   })
