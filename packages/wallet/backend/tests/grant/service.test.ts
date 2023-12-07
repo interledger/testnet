@@ -22,7 +22,7 @@ describe('Grant Service', () => {
   let userId: string
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
