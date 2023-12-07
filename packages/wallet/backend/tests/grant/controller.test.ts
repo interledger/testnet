@@ -1,4 +1,3 @@
-import { Container } from '@/shared/container'
 import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
@@ -22,9 +21,10 @@ import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
 import { errorHandler } from '@/middleware/errorHandler'
 import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
+import { AwilixContainer } from 'awilix'
 
 describe('Grant Controller', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Bindings>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -75,7 +75,7 @@ describe('Grant Controller', () => {
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
