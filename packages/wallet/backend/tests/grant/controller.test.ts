@@ -1,4 +1,3 @@
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
@@ -15,7 +14,7 @@ import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
 import { faker } from '@faker-js/faker'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
@@ -24,7 +23,7 @@ import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 import { AwilixContainer } from 'awilix'
 
 describe('Grant Controller', () => {
-  let bindings: AwilixContainer<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -71,7 +70,12 @@ describe('Grant Controller', () => {
         listIdentifiersByUserId: () => faker.lorem.words(5).split(' ')
       }
     }
-    Reflect.set(grantController, 'deps', grantControllerDepsMocked)
+    for (const key in grantControllerDepsMocked)
+      Reflect.set(
+        grantController,
+        key,
+        grantControllerDepsMocked[key as keyof typeof grantControllerDepsMocked]
+      )
   }
 
   beforeAll(async (): Promise<void> => {
