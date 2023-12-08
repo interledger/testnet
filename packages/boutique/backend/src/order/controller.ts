@@ -1,14 +1,21 @@
 import { NextFunction, Request } from 'express'
 import { IOrderService } from './service'
 import { Order } from './model'
-import { BadRequest } from '@/errors'
+import { BadRequest, InternalServerError } from '@/errors'
 import { toSuccessReponse } from '@/shared/utils'
 import { Logger } from 'winston'
-import { IOpenPayments } from '@/open-payments/service'
+import { IOpenPayments, TokenInfo } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
-import { createOrderSchema, finishOrderSchema } from './validation'
+import {
+  createOrderSchema,
+  finishOrderSchema,
+  instantBuySchema,
+  oneClickSetupSchema,
+  setupFinishSchema
+} from './validation'
 import { IPaymentService } from '@/payment/service'
 import { Knex } from 'knex'
+import { OneClickCache } from '@/cache/one-click'
 
 interface GetParams {
   id?: string
@@ -22,6 +29,9 @@ export interface IOrderController {
   get: Controller<Order>
   create: Controller<CreateResponse>
   finish: Controller
+  setup: Controller<CreateResponse>
+  setupFinish: Controller<TokenInfo>
+  instantBuy: Controller
 }
 
 export class OrderController implements IOrderController {
@@ -30,7 +40,8 @@ export class OrderController implements IOrderController {
     private logger: Logger,
     private openPayments: IOpenPayments,
     private orderService: IOrderService,
-    private paymentService: IPaymentService
+    private paymentService: IPaymentService,
+    private oneClickCache: OneClickCache
   ) {}
 
   public async get(
@@ -114,11 +125,116 @@ export class OrderController implements IOrderController {
       await this.openPayments.verifyHash({
         interactRef,
         receivedHash: hash,
-        payment: order.payments
+        clientNonce: order.payments.clientNonce,
+        interactNonce: order.payments.interactNonce,
+        walletAddressUrl: order.payments.walletAddress
       })
       await this.openPayments.createOutgoingPayment(order, interactRef)
 
       res.status(200).json({ success: true, message: 'SUCCESS' })
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async setup(
+    req: Request,
+    res: TypedResponse<CreateResponse>,
+    next: NextFunction
+  ) {
+    try {
+      const { walletAddressUrl, amount } = await validate(
+        oneClickSetupSchema,
+        req.body
+      )
+
+      const redirectUrl = await this.openPayments.setupOneClick(
+        walletAddressUrl,
+        amount
+      )
+
+      res.status(200).json(toSuccessReponse({ redirectUrl }))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async setupFinish(
+    req: Request,
+    res: TypedResponse<TokenInfo>,
+    next: NextFunction
+  ) {
+    try {
+      const { interactRef, hash, identifier, result } = await validate(
+        setupFinishSchema,
+        req.body
+      )
+
+      const identifierData = await this.oneClickCache.get(identifier)
+
+      if (!identifierData) {
+        this.logger.error(
+          `Could not find interaction data for identifier "${identifier}"`
+        )
+        throw new InternalServerError()
+      }
+
+      if (result) {
+        const isRejected = result === 'grant_rejected'
+        const status = isRejected ? 200 : 400
+        const message = isRejected ? 'SUCCESS' : 'FAILED'
+        res.status(status).json({ success: isRejected, message })
+        return
+      }
+
+      await this.openPayments.verifyHash({
+        interactRef,
+        receivedHash: hash,
+        clientNonce: identifierData.clientNonce,
+        interactNonce: identifierData.interactNonce,
+        walletAddressUrl: identifierData.walletAddressUrl
+      })
+
+      const tokenInfo = await this.openPayments.continueGrant({
+        accessToken: identifierData.continueToken,
+        url: identifierData.continueUri,
+        interactRef
+      })
+
+      res.status(200).json(
+        toSuccessReponse({
+          ...tokenInfo,
+          walletAddressUrl: identifierData.walletAddressUrl
+        })
+      )
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  public async instantBuy(
+    req: Request,
+    res: TypedResponse<CreateResponse>,
+    next: NextFunction
+  ) {
+    try {
+      const args = await validate(instantBuySchema, req.body)
+
+      const order = await Order.transaction(async (trx) => {
+        const newOrder = await this.orderService.create(
+          { orderItems: args.products },
+          trx
+        )
+        return await newOrder.calcaulateTotalAmount(trx)
+      })
+      const tokenInfo = await this.openPayments.instantBuy({ order, ...args })
+
+      res.status(200).json(
+        toSuccessReponse({
+          ...tokenInfo,
+          walletAddressUrl: args.walletAddressUrl
+        })
+      )
     } catch (err) {
       next(err)
     }

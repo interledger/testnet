@@ -23,12 +23,15 @@ import {
 import { IOpenPayments, OpenPayments } from './open-payments/service'
 import { TokenCache } from './cache/token'
 import { IPaymentService, PaymentService } from './payment/service'
+import { InMemoryCache } from './cache/in-memory'
+import { OneClickCacheData, type OneClickCache } from './cache/one-click'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
   opClient: AuthenticatedClient
+  oneClickCache: OneClickCache
   tokenCache: TokenCache
   openPayments: IOpenPayments
   userService: IUserService
@@ -49,7 +52,8 @@ export async function createContainer(
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
     privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
-    walletAddressUrl: env.PAYMENT_POINTER
+    walletAddressUrl: env.PAYMENT_POINTER,
+    useHttp: env.NODE_ENV === 'development'
   })
 
   container.register({
@@ -58,6 +62,7 @@ export async function createContainer(
     opClient: asValue(client),
     openPayments: asClass(OpenPayments).singleton(),
     tokenCache: asClass(TokenCache).singleton(),
+    oneClickCache: asClass(InMemoryCache<OneClickCacheData>).singleton(),
     knex: asFunction(createKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),

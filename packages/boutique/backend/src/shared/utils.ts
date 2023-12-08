@@ -43,3 +43,7 @@ export function extractUuidFromUrl(url: string): string | null {
   const match = url.match(regex)
   return match ? match[0] : null
 }
+
+export function replaceHost(text: string): string {
+  return text.replace('localhost', 'rafiki-auth')
+}
