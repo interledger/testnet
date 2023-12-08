@@ -11,12 +11,9 @@ import { Page } from 'objection'
 interface ITransactionController {
   list: ControllerFunction<Transaction[]>
 }
-interface TransactionControllerDependencies {
-  transactionService: TransactionService
-}
 
 export class TransactionController implements ITransactionController {
-  constructor(private deps: TransactionControllerDependencies) {}
+  constructor(private transactionService: TransactionService) {}
 
   list = async (
     req: Request,
@@ -30,7 +27,7 @@ export class TransactionController implements ITransactionController {
         query: { orderByDate }
       } = await validate(transactionListRequestSchema, req)
 
-      const transactions = await this.deps.transactionService.list(
+      const transactions = await this.transactionService.list(
         userId,
         accountId,
         walletAddressId,
@@ -56,7 +53,7 @@ export class TransactionController implements ITransactionController {
       } = await validate(transactionListAllRequestSchema, req)
 
       const filterParams = filter as Partial<Transaction>
-      const transactions = await this.deps.transactionService.listAll({
+      const transactions = await this.transactionService.listAll({
         userId,
         paginationParams: {
           page,

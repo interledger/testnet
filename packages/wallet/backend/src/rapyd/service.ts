@@ -1,13 +1,7 @@
 import { NotFound } from '@/errors'
 import { User } from '@/user/model'
 import crypto from 'crypto'
-import { Logger } from 'winston'
 import { RapydClient } from './rapyd-client'
-
-interface RapydServiceDependencies {
-  rapyd: RapydClient
-  logger: Logger
-}
 
 type VerifyIdentityParams = {
   userId: string
@@ -54,7 +48,7 @@ export interface IRapydService {
 }
 
 export class RapydService implements IRapydService {
-  constructor(private deps: RapydServiceDependencies) {}
+  constructor(private rapydClient: RapydClient) {}
 
   public async getDocumentTypes(userId: string) {
     const user = await User.query().findById(userId)
@@ -65,7 +59,7 @@ export class RapydService implements IRapydService {
     if (!country) throw new Error('User has no country')
 
     const documentTypesResponse =
-      await this.deps.rapyd.getDocumentTypes(country)
+      await this.rapydClient.getDocumentTypes(country)
 
     if (documentTypesResponse.status.status !== 'SUCCESS') {
       throw new Error(
@@ -81,7 +75,7 @@ export class RapydService implements IRapydService {
   }
 
   public async getCountryNames() {
-    const countriesResponse = await this.deps.rapyd.getCountryNames()
+    const countriesResponse = await this.rapydClient.getCountryNames()
 
     if (countriesResponse.status.status !== 'SUCCESS') {
       throw new Error(
@@ -101,7 +95,7 @@ export class RapydService implements IRapydService {
       .slice(0, 8)
     const rapydReferenceId = `${params.firstName}-${params.lastName}-${randomIdentifier}`
 
-    const result = await this.deps.rapyd.createWallet({
+    const result = await this.rapydClient.createWallet({
       first_name: params.firstName,
       last_name: params.lastName,
       email: params.email,
@@ -166,7 +160,7 @@ export class RapydService implements IRapydService {
       back_side_image: params.backSideImage,
       back_side_image_mime_type: params.backSideImageType
     }
-    const result = await this.deps.rapyd.verifyIdentity(values)
+    const result = await this.rapydClient.verifyIdentity(values)
 
     if (result.status.status !== 'SUCCESS')
       throw new Error(`Unable to send kyc documents : ${result.status.message}`)
@@ -182,7 +176,7 @@ export class RapydService implements IRapydService {
     let user = await User.query().findById(userId)
     if (!user) throw new NotFound(`user doesn't exist`)
 
-    const result = await this.deps.rapyd.updateProfile({
+    const result = await this.rapydClient.updateProfile({
       first_name: firstName,
       last_name: lastName,
       ewallet: user.rapydWalletId

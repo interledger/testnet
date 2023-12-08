@@ -84,7 +84,7 @@ export const mockVerifyIdentityRequest = (): VerifyIdentityRequest => {
 }
 
 export const mockRapyd = {
-  rapyd: {
+  rapydClient: {
     issueVirtualAccount: () => ({
       status: {
         status: 'SUCCESS'
@@ -187,7 +187,7 @@ const rapydFailResponse = () => ({
   }
 })
 export const mockFailureRapyd = {
-  rapyd: {
+  rapydClient: {
     issueVirtualAccount: rapydFailResponse,
     simulateBankTransferToWallet: rapydFailResponse,
     withdrawFundsFromAccount: rapydFailResponse,
@@ -286,6 +286,19 @@ export const mockCreateAccountReq = {
   assetId: mockedListAssets[0].id
 }
 
+export const mockedListGrant = [
+  {
+    id: faker.string.uuid(),
+    client: faker.lorem.slug(),
+    state: 'APPROVED'
+  },
+  {
+    id: faker.string.uuid(),
+    client: faker.lorem.slug(),
+    state: 'FINALIZED',
+    finalizationReason: 'REJECTED'
+  }
+]
 export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({
@@ -309,3 +322,10 @@ export const mockedTransactionInsertObjs: Array<
   generateMockedTransaction(),
   generateMockedTransaction({ type: 'OUTGOING' })
 ]
+
+export const mockWalletAddress = {
+  id: faker.string.uuid(),
+  url: faker.internet.url(),
+  publicName: faker.lorem.words({ max: 2, min: 2 }),
+  active: true
+}

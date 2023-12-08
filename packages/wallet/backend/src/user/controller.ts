@@ -1,8 +1,6 @@
 import { Unauthorized } from '@/errors'
 import type { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
 import type { UserService } from './service'
-import type { SessionService } from '@/session/service'
 import type { User } from './model'
 import { validate } from '@/shared/validate'
 import { forgotPasswordSchema, resetPasswordSchema } from '@/user/validation'
@@ -21,14 +19,9 @@ interface IUserController {
   resetPassword: ControllerFunction
   checkToken: ControllerFunction<TokenValidity>
 }
-interface UserControllerDependencies {
-  userService: UserService
-  sessionService: SessionService
-  logger: Logger
-}
 
 export class UserController implements IUserController {
-  constructor(private deps: UserControllerDependencies) {}
+  constructor(private userService: UserService) {}
 
   me = async (
     req: Request,
@@ -43,7 +36,7 @@ export class UserController implements IUserController {
         throw new Unauthorized('Unauthorized')
       }
 
-      const user = await this.deps.userService.getById(req.session.user.id)
+      const user = await this.userService.getById(req.session.user.id)
 
       if (!user) {
         req.session.destroy()
@@ -77,7 +70,7 @@ export class UserController implements IUserController {
         body: { email }
       } = await validate(forgotPasswordSchema, req)
 
-      await this.deps.userService.requestResetPassword(email)
+      await this.userService.requestResetPassword(email)
 
       res.json({
         success: true,
@@ -99,7 +92,7 @@ export class UserController implements IUserController {
         params: { token }
       } = await validate(resetPasswordSchema, req)
 
-      await this.deps.userService.resetPassword(token, password)
+      await this.userService.resetPassword(token, password)
 
       res.json({
         success: true,
@@ -118,7 +111,7 @@ export class UserController implements IUserController {
     try {
       const token = req.params.token
 
-      const isValid = await this.deps.userService.validateToken(token)
+      const isValid = await this.userService.validateToken(token)
 
       res.json({
         success: true,

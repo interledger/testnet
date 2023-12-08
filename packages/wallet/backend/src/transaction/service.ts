@@ -9,7 +9,6 @@ import {
   IncomingPayment,
   OutgoingPayment
 } from '@/rafiki/backend/generated/graphql'
-import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 
 type ListAllTransactionsInput = {
@@ -34,15 +33,12 @@ export interface ITransactionService {
   processPendingIncomingPayments: () => Promise<string | undefined>
 }
 
-interface TransactionServiceDependencies {
-  accountService: AccountService
-  walletAddressService: WalletAddressService
-  logger: Logger
-  knex: Knex
-}
-
 export class TransactionService implements ITransactionService {
-  constructor(private deps: TransactionServiceDependencies) {}
+  constructor(
+    private accountService: AccountService,
+    private logger: Logger,
+    private knex: Knex
+  ) {}
 
   async list(
     userId: string,
@@ -50,7 +46,7 @@ export class TransactionService implements ITransactionService {
     walletAddressId: string,
     orderByDate: OrderByDirection
   ): Promise<Transaction[]> {
-    await this.deps.accountService.findAccountById(accountId, userId)
+    await this.accountService.findAccountById(accountId, userId)
 
     return Transaction.query()
       .where('walletAddressId', walletAddressId)
@@ -62,12 +58,10 @@ export class TransactionService implements ITransactionService {
     update: PartialModelObject<Transaction>
   ): Promise<void> {
     try {
-      this.deps.logger.info(
-        `Updating transaction with: ${JSON.stringify(update)}`
-      )
+      this.logger.info(`Updating transaction with: ${JSON.stringify(update)}`)
       await Transaction.query().where(where).update(update)
     } catch (e) {
-      this.deps.logger.error(`Update transaction error:`, e)
+      this.logger.error(`Update transaction error:`, e)
     }
   }
 
@@ -102,7 +96,7 @@ export class TransactionService implements ITransactionService {
   }
 
   async processPendingIncomingPayments(): Promise<string | undefined> {
-    return this.deps.knex.transaction(async (trx) => {
+    return this.knex.transaction(async (trx) => {
       // Giving a Rafiki a little more time to process the payments before we process them.
       const now = new Date(Date.now() - 30_000)
       const [transaction] = await Transaction.query(trx)
