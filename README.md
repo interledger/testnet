@@ -6,11 +6,11 @@
 
 ## What is Testnet?
 
-Testnet is an open-source test application for Rafiki. In other words, a Rafiki Playground.
+Testnet (test network) is an open-source test application for Rafiki. In other words, a Rafiki Playground.
 It wants to use all of the functionalities of Rafiki and put its advantages to the real test.
 
-Testnet is made up (or will be made up in the near future) of several components, including wallet application,
-a bank application, and an e-commerce application.
+Testnet is made up of several components, including an Interledger test wallet application,
+e-commerce application and in the near future, a bank application.
 
 ## What is Rafiki?
 
@@ -69,7 +69,7 @@ pnpm i
 
 ### Environment Variables
 
-In order for the local playground to function, it is necessary to configure the environment variables appropriately. You must duplicate the example environment file, `.env.example`, into your local environment file, `.env`.
+In order for the Rafiki Testnet playground to function, it is necessary to configure the environment variables appropriately. You must duplicate the example environment file, `.env.example`, into your local environment file, `.env`.
 
 > **Note**
 > The local environment file (`.env`) is **NOT** tracked in the version control system, and should **NOT** be included in any commits.
@@ -81,11 +81,14 @@ cp ./docker/dev/.env.example ./docker/dev/.env
 ```
 
 Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
-The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in your Rapyd Sandbox account, under the Developers menu item. The `RAPYD_SETTLEMENT_EWALLET` variable value can be found in your Rapyd Sandbox account details.
+The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in your Rapyd Sandbox account (you need to create an account at [rapyd.net](https://www.rapyd.net)), under the Developers menu item. The `RAPYD_SETTLEMENT_EWALLET` variable value can be found in your Rapyd Sandbox account details.
 
-To create a new Testnet Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
+To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
 
 Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
+Currencies can be added in the `admin` environment. For example `assetCode` is `USD`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
+
+To play with the e-commerce application, you will need to create a USD payment pointer with the name `boutique`, then generate public and private key for the payment pointer in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the `boutique` payment pointer key id and `PAYMENT_POINTER` to `http://rafiki-backend/boutique`.
 
 ### Local Playground
 
@@ -97,6 +100,11 @@ pnpm dev
 
 Upon executing the above command, the following will be available
 
-- Wallet application
+- Interledger Test Wallet application
+
   - Frontend at [http://localhost:4003](http://localhost:4003)
   - Backend at [http://localhost:3003](http://localhost:3003)
+  - Admin at [http://localhost:3012](http://localhost:3012)
+
+- Interledger Test Boutique application
+  - [http://localhost:4004](http://localhost:4004)
