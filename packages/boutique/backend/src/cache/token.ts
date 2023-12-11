@@ -2,16 +2,17 @@ import {
   AccessToken,
   AuthenticatedClient,
   Grant,
-  PaymentPointer,
+  WalletAddress,
   isPendingGrant
 } from '@interledger/open-payments'
 import { InMemoryCache } from './in-memory'
 import { Env } from '@/config/env'
 import { InternalServerError } from '@/errors'
 import { Logger } from 'winston'
+import { replaceHost } from '@/shared/utils'
 
 export class TokenCache extends InMemoryCache<string> {
-  private paymentPointer!: PaymentPointer
+  private walletAddress!: WalletAddress
   private manageUrl!: string
 
   constructor(
@@ -27,7 +28,7 @@ export class TokenCache extends InMemoryCache<string> {
     const now = Date.now()
 
     if (!cached) {
-      this.paymentPointer = await this.opClient.paymentPointer.get({
+      this.walletAddress = await this.opClient.walletAddress.get({
         url: this.env.PAYMENT_POINTER
       })
       const grant = await this.getGrant()
@@ -76,14 +77,14 @@ export class TokenCache extends InMemoryCache<string> {
      */
     let manageUrl = token.access_token.manage
     if (this.env.NODE_ENV === 'development') {
-      manageUrl = manageUrl.replace('localhost', 'rafiki-auth')
+      manageUrl = replaceHost(manageUrl)
     }
     this.manageUrl = manageUrl
   }
 
   private async getGrant(): Promise<Grant> {
     const grant = await this.opClient.grant.request(
-      { url: this.paymentPointer.authServer },
+      { url: this.walletAddress.authServer },
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: 'interact' should be optional
       {

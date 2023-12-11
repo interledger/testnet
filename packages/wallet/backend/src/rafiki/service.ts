@@ -1,14 +1,17 @@
 import { Env } from '@/config/env'
 import { BadRequest } from '@/errors'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
-import { RatesService } from '../rates/service'
 import { RafikiClient } from './rafiki-client'
 import { UserService } from '@/user/service'
 import { SocketService } from '@/socket/service'
 import { NodeCacheInstance } from '@/utils/helpers'
+import { WalletAddressService } from '@/walletAddress/service'
+import { WMTransactionService } from '@/webMonetization/transaction/service'
+import { Account } from '@/account/model'
+import { WMTransaction } from '@/webMonetization/transaction/model'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -17,14 +20,14 @@ export enum EventType {
   OutgoingPaymentCreated = 'outgoing_payment.created',
   OutgoingPaymentCompleted = 'outgoing_payment.completed',
   OutgoingPaymentFailed = 'outgoing_payment.failed',
-  PaymentPointerNotFound = 'payment_pointer.not_found'
+  WalletAddressNotFound = 'wallet_address.not_found'
 }
 
 export interface WebHook {
   id: string
   type: EventType
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: Record<string, any>
+  data: any
 }
 
 export interface AmountJSON {
@@ -47,7 +50,7 @@ export enum PaymentType {
 export type Quote = {
   id: string
   paymentType: PaymentType
-  paymentPointerId: string
+  walletAddressId: string
   receiver: string
   debitAmount: Amount
   receiveAmount: Amount
@@ -71,28 +74,23 @@ interface IRafikiService {
   onWebHook: (wh: WebHook) => Promise<void>
 }
 
-interface RafikiServiceDependencies {
-  userService: UserService
-  socketService: SocketService
-  rapydClient: RapydClient
-  ratesService: RatesService
-  env: Env
-  logger: Logger
-  rafikiClient: RafikiClient
-  transactionService: TransactionService
-}
-
 export class RafikiService implements IRafikiService {
-  constructor(private deps: RafikiServiceDependencies) {}
+  constructor(
+    private userService: UserService,
+    private socketService: SocketService,
+    private rapydClient: RapydClient,
+    private env: Env,
+    private logger: Logger,
+    private rafikiClient: RafikiClient,
+    private transactionService: TransactionService,
+    private walletAddressService: WalletAddressService,
+    private wmTransactionService: WMTransactionService
+  ) {}
 
   public async onWebHook(wh: WebHook): Promise<void> {
-    this.deps.logger.info(
+    this.logger.info(
       `received webhook of type : ${wh.type} for : ${
-        wh.type === EventType.PaymentPointerNotFound
-          ? ''
-          : wh.data.incomingPayment
-          ? `incomingPayment ${wh.data.incomingPayment.id}}`
-          : `outgoingPayment ${wh.data.payment.id}}`
+        wh.type === EventType.WalletAddressNotFound ? '' : `${wh.data.id}}`
       }`
     )
     switch (wh.type) {
@@ -109,48 +107,27 @@ export class RafikiService implements IRafikiService {
         await this.handleIncomingPaymentCompleted(wh)
         break
       case EventType.IncomingPaymentCreated:
-        await this.deps.transactionService.createIncomingTransaction(
-          wh.data.incomingPayment
-        )
+        await this.handleIncomingPaymentCreated(wh)
         break
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
         break
-      case EventType.PaymentPointerNotFound:
-        this.deps.logger.warn(`${EventType.PaymentPointerNotFound} received`)
+      case EventType.WalletAddressNotFound:
+        this.logger.warn(`${EventType.WalletAddressNotFound} received`)
         break
       default:
         throw new BadRequest(`unknown event type, ${wh.type}`)
     }
   }
 
-  private async getRapydWalletIdFromWebHook(wh: WebHook): Promise<string> {
-    let ppId = ''
-    if (
-      [
-        EventType.IncomingPaymentCompleted,
-        EventType.IncomingPaymentExpired
-      ].includes(wh.type)
-    ) {
-      ppId = wh.data.incomingPayment.paymentPointerId as string
-    }
-    if (
-      [
-        EventType.OutgoingPaymentCreated,
-        EventType.OutgoingPaymentCompleted
-      ].includes(wh.type)
-    ) {
-      ppId = wh.data.payment.paymentPointerId as string
-    }
+  private async getRapydWalletId(
+    walletAddress: WalletAddress
+  ): Promise<string> {
+    const account = await Account.query()
+      .findById(walletAddress.accountId)
+      .withGraphFetched('user')
 
-    const pp = await PaymentPointer.query()
-      .findById(ppId)
-      .withGraphFetched('account.user')
-    if (!pp) {
-      throw new BadRequest('Invalid payment pointer')
-    }
-
-    const user = pp.account.user
+    const user = account?.user
     if (!user || !user.rapydWalletId) {
       throw new BadRequest('No user associated to the provided payment pointer')
     }
@@ -170,7 +147,7 @@ export class RafikiService implements IRafikiService {
         EventType.OutgoingPaymentCompleted
       ].includes(wh.type)
     ) {
-      amount = this.parseAmount(wh.data.payment.debitAmount as AmountJSON)
+      amount = this.parseAmount(wh.data.debitAmount as AmountJSON)
     }
 
     if (
@@ -179,9 +156,7 @@ export class RafikiService implements IRafikiService {
         EventType.IncomingPaymentExpired
       ].includes(wh.type)
     ) {
-      amount = this.parseAmount(
-        wh.data.incomingPayment.receivedAmount as AmountJSON
-      )
+      amount = this.parseAmount(wh.data.receivedAmount as AmountJSON)
     }
 
     if (!amount) {
@@ -198,75 +173,111 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
-    const receiverWalletId = await this.getRapydWalletIdFromWebHook(wh)
-
+    const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    if (walletAddress.isWM) {
+      await this.rafikiClient.withdrawLiqudity(wh.id)
+
+      await this.wmTransactionService.updateTransaction(
+        { paymentId: wh.data.id },
+        { status: 'COMPLETED', value: amount.value }
+      )
+
+      return
+    }
+
+    const receiverWalletId = await this.getRapydWalletId(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
       //* Only in case the expired incoming payment has no money received will it be set as expired.
       //* Otherwise, it will complete, even if not all the money is yet sent.
       if (wh.type === EventType.IncomingPaymentExpired) {
-        await this.deps.transactionService.updateTransaction(
-          { paymentId: wh.data.incomingPayment.id },
+        await this.transactionService.updateTransaction(
+          { paymentId: wh.data.id },
           { status: 'EXPIRED' }
         )
       }
       return
     }
 
-    const transferResult = await this.deps.rapydClient.transferLiquidity({
+    const transferResult = await this.rapydClient.transferLiquidity({
       amount: this.amountToNumber(amount),
       currency: amount.assetCode,
       destination_ewallet: receiverWalletId,
-      source_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET
+      source_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET
     })
 
     if (transferResult.status?.status !== 'SUCCESS') {
       throw new Error(
         `Unable to transfer from ${
-          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+          this.env.RAPYD_SETTLEMENT_EWALLET
         } into ${receiverWalletId} error message: ${
           transferResult.status?.message || 'unknown'
         }`
       )
     }
 
-    await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+    await this.rafikiClient.withdrawLiqudity(wh.id)
 
-    await this.deps.transactionService.updateTransaction(
-      { paymentId: wh.data.incomingPayment.id },
+    await this.transactionService.updateTransaction(
+      { paymentId: wh.data.id },
       { status: 'COMPLETED', value: amount.value }
     )
 
-    const user = await this.deps.userService.getByWalletId(receiverWalletId)
-    const isExchange = NodeCacheInstance.get(wh.data.incomingPayment.id)
+    const user = await this.userService.getByWalletId(receiverWalletId)
+    const isExchange = NodeCacheInstance.get(wh.data.id)
     if (user && !isExchange)
-      await this.deps.socketService.emitMoneyReceivedByUserId(
+      await this.socketService.emitMoneyReceivedByUserId(
         user.id.toString(),
         amount
       )
 
-    this.deps.logger.info(
+    this.logger.info(
       `Succesfully transfered ${this.amountToNumber(
         amount
       )} from settlement account ${
-        this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        this.env.RAPYD_SETTLEMENT_EWALLET
       } into ${receiverWalletId} `
     )
   }
 
+  private async handleIncomingPaymentCreated(wh: WebHook) {
+    const walletAddress = await this.getWalletAddress(wh)
+
+    if (walletAddress.isWM) {
+      await this.wmTransactionService.createIncomingTransaction(wh.data)
+
+      return
+    }
+
+    await this.transactionService.createIncomingTransaction(
+      wh.data,
+      walletAddress
+    )
+  }
+
   private async handleOutgoingPaymentCreated(wh: WebHook) {
-    const rapydWalletId = await this.getRapydWalletIdFromWebHook(wh)
+    const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebHook(wh)
+
+    if (walletAddress.isWM) {
+      await this.rafikiClient.depositLiquidity(wh.id)
+      await this.wmTransactionService.createOutgoingTransaction(wh.data)
+      return
+    }
+
+    const rapydWalletId = await this.getRapydWalletId(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
       return
     }
 
-    await this.deps.transactionService.createOutgoingTransaction(
-      wh.data.payment
+    await this.transactionService.createOutgoingTransaction(
+      wh.data,
+      walletAddress
     )
-    const holdResult = await this.deps.rapydClient.holdLiquidity({
+    const holdResult = await this.rapydClient.holdLiquidity({
       amount: this.amountToNumber(amount),
       currency: amount.assetCode,
       ewallet: rapydWalletId
@@ -279,9 +290,9 @@ export class RafikiService implements IRafikiService {
         } error message: ${holdResult.status?.message || 'unknown'}`
       )
     }
-    await this.deps.rafikiClient.depositLiquidity(wh.id)
+    await this.rafikiClient.depositLiquidity(wh.id)
 
-    this.deps.logger.info(
+    this.logger.info(
       `Succesfully held ${this.amountToNumber(
         amount
       )} in ${rapydWalletId}  on ${EventType.OutgoingPaymentCreated}`
@@ -289,42 +300,57 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
-    const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
+    const walletAddress = await this.getWalletAddress(wh)
     const debitAmount = this.getAmountFromWebHook(wh)
+
+    if (walletAddress.isWM) {
+      await this.rafikiClient.withdrawLiqudity(wh.id)
+
+      await this.wmTransactionService.updateTransaction(
+        { paymentId: wh.data.id },
+        { status: 'COMPLETED', value: debitAmount.value }
+      )
+
+      return
+    }
+
+    const source_ewallet = await this.getRapydWalletId(walletAddress)
 
     if (!this.validateAmount(debitAmount, wh.type)) {
       return
     }
 
-    await this.deps.rapydClient.releaseLiquidity({
+    await this.rapydClient.releaseLiquidity({
       amount: this.amountToNumber(debitAmount),
       currency: debitAmount.assetCode,
       ewallet: source_ewallet
     })
 
-    await this.deps.rapydClient.transferLiquidity({
+    await this.rapydClient.transferLiquidity({
       amount: this.amountToNumber(debitAmount),
       currency: debitAmount.assetCode,
-      destination_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET,
+      destination_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET,
       source_ewallet
     })
 
-    await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+    if (wh.data.balance !== '0') {
+      await this.rafikiClient.withdrawLiqudity(wh.id)
+    }
 
-    await this.deps.transactionService.updateTransaction(
-      { paymentId: wh.data.payment.id },
+    await this.transactionService.updateTransaction(
+      { paymentId: wh.data.id },
       { status: 'COMPLETED', value: debitAmount.value }
     )
 
-    const user = await this.deps.userService.getByWalletId(source_ewallet)
-    const isExchange = NodeCacheInstance.get(wh.data.payment.id)
+    const user = await this.userService.getByWalletId(source_ewallet)
+    const isExchange = NodeCacheInstance.get(wh.data.id)
     if (user && !isExchange)
-      await this.deps.socketService.emitMoneySentByUserId(
+      await this.socketService.emitMoneySentByUserId(
         user.id.toString(),
         debitAmount
       )
 
-    this.deps.logger.info(
+    this.logger.info(
       `Succesfully transfered ${this.amountToNumber(
         debitAmount
       )} from ${source_ewallet} to settlement account on ${
@@ -334,15 +360,32 @@ export class RafikiService implements IRafikiService {
   }
 
   private async handleOutgoingPaymentFailed(wh: WebHook) {
-    const source_ewallet = await this.getRapydWalletIdFromWebHook(wh)
-
+    const walletAddress = await this.getWalletAddress(wh)
     const debitAmount = this.getAmountFromWebHook(wh)
 
     if (!this.validateAmount(debitAmount, wh.type)) {
       return
     }
 
-    const releaseResult = await this.deps.rapydClient.releaseLiquidity({
+    const sentAmount = this.parseAmount(wh.data.sentAmount as AmountJSON)
+
+    if (walletAddress.isWM) {
+      await this.rafikiClient.withdrawLiqudity(wh.id)
+
+      const update: Partial<WMTransaction> = sentAmount.value
+        ? { status: 'COMPLETED', value: sentAmount.value }
+        : { status: 'FAILED', value: 0n }
+      await this.wmTransactionService.updateTransaction(
+        { paymentId: wh.data.id },
+        update
+      )
+
+      return
+    }
+
+    const source_ewallet = await this.getRapydWalletId(walletAddress)
+
+    const releaseResult = await this.rapydClient.releaseLiquidity({
       amount: this.amountToNumber(debitAmount),
       currency: debitAmount.assetCode,
       ewallet: source_ewallet
@@ -358,40 +401,37 @@ export class RafikiService implements IRafikiService {
       )
     }
 
-    await this.deps.transactionService.updateTransaction(
-      { paymentId: wh.data.payment.id },
+    await this.transactionService.updateTransaction(
+      { paymentId: wh.data.id },
       { status: 'FAILED', value: 0n }
     )
 
-    const sentAmount = this.parseAmount(
-      wh.data.payment.sentAmount as AmountJSON
-    )
     if (!sentAmount.value) {
       return
     }
 
     //* transfer eventual already sent money to the settlement account
-    const transferResult = await this.deps.rapydClient.transferLiquidity({
+    const transferResult = await this.rapydClient.transferLiquidity({
       amount: this.amountToNumber(sentAmount),
       currency: sentAmount.assetCode,
-      destination_ewallet: this.deps.env.RAPYD_SETTLEMENT_EWALLET,
+      destination_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET,
       source_ewallet
     })
 
     if (transferResult.status?.status !== 'SUCCESS') {
       throw new Error(
         `Unable to transfer already sent amount from ${source_ewallet} into settlement account ${
-          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+          this.env.RAPYD_SETTLEMENT_EWALLET
         } on ${EventType.OutgoingPaymentFailed} error message: ${
           transferResult.status?.message || 'unknown'
         }`
       )
     }
 
-    await this.deps.rafikiClient.withdrawLiqudity(wh.id)
+    await this.rafikiClient.withdrawLiqudity(wh.id)
 
-    await this.deps.transactionService.updateTransaction(
-      { paymentId: wh.data.payment.id },
+    await this.transactionService.updateTransaction(
+      { paymentId: wh.data.id },
       { status: 'COMPLETED', value: sentAmount.value }
     )
   }
@@ -404,10 +444,15 @@ export class RafikiService implements IRafikiService {
     if (amount.value > 0n) {
       return true
     }
-    this.deps.logger.warn(
+    this.logger.warn(
       `${eventType} received with zero or negative value. Skipping Rapyd interaction`
     )
 
     return false
+  }
+
+  async getWalletAddress(wh: WebHook) {
+    const id: string = wh.data?.walletAddressId || wh.data?.walletAddressId
+    return await this.walletAddressService.findByIdWithoutValidation(id)
   }
 }

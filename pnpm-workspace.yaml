@@ -1,4 +1,3 @@
 packages:
   - 'packages/wallet/*'
   - 'packages/boutique/*'
-  - 'docker/dev/local-http-signatures'

@@ -2,7 +2,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { cx } from 'class-variance-authority'
 import { Fragment, SVGProps, forwardRef } from 'react'
 import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
-import { PaymentPointer, paymentPointerService } from '@/lib/api/paymentPointer'
+import { WalletAddress, walletAddressService } from '@/lib/api/walletAddress'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
@@ -12,21 +12,30 @@ import { Menu, Transition } from '@headlessui/react'
 import { EllipsisV } from '../icons/Ellipsis'
 import { PencilSquare } from '../icons/Pencil'
 import { Trash } from '../icons/Trash'
-import { EditPaymentPointerDialog } from '../dialogs/EditPaymentPointerDialog'
+import { EditWalletAddressDialog } from '../dialogs/EditWalletAddressDialog'
 import { CopyButton } from '@/ui/CopyButton'
+import { formatAmount } from '@/utils/helpers'
 
-type PaymentPointerCardProps = {
-  paymentPointer: PaymentPointer
+type WalletAddressCardProps = {
+  walletAddress: WalletAddress
+  isWM: boolean
   idOnboarding?: string
 }
 
-type PaymentPointerCardButtonProps = ButtonOrLinkProps & {
+type WalletAddressCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
 }
+const formattedAmount = (walletAddress: WalletAddress) => {
+  return formatAmount({
+    value: walletAddress.incomingBalance || '',
+    assetCode: walletAddress.assetCode || '',
+    assetScale: walletAddress.assetScale || 2
+  })
+}
 
-const PaymentPointerCardButton = forwardRef<
+const WalletAddressCardButton = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
-  PaymentPointerCardButtonProps
+  WalletAddressCardButtonProps
 >(({ className, children, ...props }, ref) => {
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
   return (
@@ -47,50 +56,55 @@ const PaymentPointerCardButton = forwardRef<
     </ButtonOrLink>
   )
 })
-PaymentPointerCardButton.displayName = 'PaymentPointerCardButton'
+WalletAddressCardButton.displayName = 'WalletAddressCardButton'
 
-export const PaymentPointerCard = ({
-  paymentPointer,
+export const WalletAddressCard = ({
+  walletAddress,
+  isWM,
   idOnboarding
-}: PaymentPointerCardProps) => {
+}: WalletAddressCardProps) => {
   return (
     <div className={cardStyles}>
       <div className="flex flex-1 items-center justify-between space-x-2">
-        <span className="px-1 font-medium">{paymentPointer.url}</span>
+        <span className="px-1 font-medium">{walletAddress.url}</span>
         <div className="flex">
-          <PaymentPointerCardButton
-            href={`/transactions?paymentPointerId=${paymentPointer.id}`}
-            aria-label="view payment pointer"
-            id={idOnboarding}
-          >
-            View
-          </PaymentPointerCardButton>
+          {isWM ? (
+            <span className="flex items-center justify-center px-3">
+              {formattedAmount(walletAddress).amount}
+            </span>
+          ) : (
+            <WalletAddressCardButton
+              href={`/transactions?walletAddressId=${walletAddress.id}`}
+              aria-label="view payment pointer"
+              id={idOnboarding}
+            >
+              View
+            </WalletAddressCardButton>
+          )}
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"
             size="sm"
-            value={paymentPointer.url}
+            value={walletAddress.url}
           />
         </div>
       </div>
 
-      <PaymentPointerOptions paymentPointer={paymentPointer} />
+      <WalletAddressOptions walletAddress={walletAddress} />
     </div>
   )
 }
 
-type PaymentPointerOptionsProps = {
-  paymentPointer: PaymentPointer
+type WalletAddressOptionsProps = {
+  walletAddress: WalletAddress
 }
 
-const PaymentPointerOptions = ({
-  paymentPointer
-}: PaymentPointerOptionsProps) => {
+const WalletAddressOptions = ({ walletAddress }: WalletAddressOptionsProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
 
   const handleDeleteConfirmation = async (id: string) => {
-    const response = await paymentPointerService.delete(id)
+    const response = await walletAddressService.delete(id)
     if (response.success) {
       openDialog(
         <SuccessDialog
@@ -151,8 +165,8 @@ const PaymentPointerOptions = ({
                     aria-label="Edit payment pointer"
                     action={() =>
                       openDialog(
-                        <EditPaymentPointerDialog
-                          paymentPointer={paymentPointer}
+                        <EditWalletAddressDialog
+                          walletAddress={walletAddress}
                           onClose={closeDialog}
                         />
                       )
@@ -168,7 +182,7 @@ const PaymentPointerOptions = ({
                         <ConfirmationDialog
                           confirmText="Delete payment pointer"
                           onConfirm={() =>
-                            handleDeleteConfirmation(paymentPointer.id)
+                            handleDeleteConfirmation(walletAddress.id)
                           }
                           onClose={closeDialog}
                         />

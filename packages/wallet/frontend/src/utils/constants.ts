@@ -13,5 +13,5 @@ export const OPEN_PAYMENTS_HOST = process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST
 export const PAYMENT_SEND = 'send'
 export const PAYMENT_RECEIVE = 'receive'
 
-// Default ILC Payment Pointer for onboarding
-export const INTERLEDGER_PAYMENT_POINTER = '$ilp.rafiki.money/interledger'
+// Default ILC Wallet Address for onboarding
+export const INTERLEDGER_WALLET_ADDRESS = '$ilp.rafiki.money/interledger'

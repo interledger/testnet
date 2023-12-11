@@ -1,5 +1,3 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { AuthService } from '@/auth/service'
@@ -14,16 +12,17 @@ import { QuoteController } from '@/quote/controller'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { faker } from '@faker-js/faker'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@/tests/tables'
 import { mockCreateQuoteRequest, mockLogInRequest } from '@/tests/mocks'
 import { errorHandler } from '@/middleware/errorHandler'
+import { AwilixContainer } from 'awilix'
 
 describe('Quote Controller', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -77,10 +76,14 @@ describe('Quote Controller', () => {
         createExchangeQuote: quoteWithFees
       }
     }
-    Reflect.set(quoteController, 'deps', quoteControllerDepsMocked)
+    Reflect.set(
+      quoteController,
+      'quoteService',
+      quoteControllerDepsMocked.quoteService
+    )
   }
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -95,8 +98,8 @@ describe('Quote Controller', () => {
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {

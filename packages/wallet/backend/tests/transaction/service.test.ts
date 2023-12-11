@@ -1,7 +1,5 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
@@ -12,17 +10,18 @@ import { Transaction } from '@/transaction/model'
 import { faker } from '@faker-js/faker'
 import { loginUser } from '@/tests/utils'
 import { Account } from '@/account/model'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
+import { AwilixContainer } from 'awilix'
 
 describe('Transaction Controller', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
   let transactionService: TransactionService
   let userId: string
 
-  // "dependency" = ALL foreign keys (paymentPointers, account, user...)
+  // "dependency" = ALL foreign keys (walletAddresses, account, user...)
   const prepareTransactionDependencies = async () => {
     const account = await Account.query().insert({
       name: faker.string.alpha(10),
@@ -33,7 +32,7 @@ describe('Transaction Controller', (): void => {
       virtualAccountId: 'mocked'
     })
 
-    const paymentPointer = await PaymentPointer.query().insert({
+    const walletAddress = await WalletAddress.query().insert({
       url: faker.string.alpha(10),
       publicName: faker.string.alpha(10),
       accountId: account.id,
@@ -42,12 +41,12 @@ describe('Transaction Controller', (): void => {
 
     return {
       account,
-      paymentPointer
+      walletAddress
     }
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -68,8 +67,8 @@ describe('Transaction Controller', (): void => {
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {
@@ -93,12 +92,12 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { walletAddress, account } = await prepareTransactionDependencies()
 
       const insertedTransactions = mockedTransactionInsertObjs.map(
         (mockedTransactionInsertObj) => ({
           ...mockedTransactionInsertObj,
-          paymentPointerId: paymentPointer.id,
+          walletAddressId: walletAddress.id,
           accountId: account.id
         })
       )
@@ -123,12 +122,12 @@ describe('Transaction Controller', (): void => {
 
   describe('listAll [pagination]', (): void => {
     it('should list all transactions (4 transactions, 2x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { walletAddress, account } = await prepareTransactionDependencies()
 
       const insertedTransactions = mockedTransactionInsertObjs.map(
         (mockedTransactionInsertObj) => ({
           ...mockedTransactionInsertObj,
-          paymentPointerId: paymentPointer.id,
+          walletAddressId: walletAddress.id,
           accountId: account.id
         })
       )
@@ -171,12 +170,12 @@ describe('Transaction Controller', (): void => {
     })
 
     it('should list all transactions (4 transactions, 3x per page)', async (): Promise<void> => {
-      const { paymentPointer, account } = await prepareTransactionDependencies()
+      const { walletAddress, account } = await prepareTransactionDependencies()
 
       const insertedTransactions = mockedTransactionInsertObjs.map(
         (mockedTransactionInsertObj) => ({
           ...mockedTransactionInsertObj,
-          paymentPointerId: paymentPointer.id,
+          walletAddressId: walletAddress.id,
           accountId: account.id
         })
       )

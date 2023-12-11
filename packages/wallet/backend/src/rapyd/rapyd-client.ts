@@ -40,11 +40,6 @@ interface IRapydClient {
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>>
 }
 
-interface RapydClientDependencies {
-  logger: Logger
-  env: Env
-}
-
 type WithdrawFundsParams = {
   assetCode: string
   amount: number
@@ -74,7 +69,10 @@ type PayoutRequiredFieldsParams = {
 type RequiredFieldsType = Record<string, string | number>
 
 export class RapydClient implements IRapydClient {
-  constructor(private deps: RapydClientDependencies) {}
+  constructor(
+    private logger: Logger,
+    private env: Env
+  ) {}
 
   public createWallet(
     wallet: RapydWallet
@@ -130,12 +128,12 @@ export class RapydClient implements IRapydClient {
         ['ERROR_WALLET_INSUFFICIENT_FUNDS', 'NOT_ENOUGH_FUNDS'].includes(
           err.response?.data?.status?.error_code
         ) &&
-        req.ewallet === this.deps.env.RAPYD_SETTLEMENT_EWALLET &&
+        req.ewallet === this.env.RAPYD_SETTLEMENT_EWALLET &&
         !isRetry
       ) {
         await this.handleSettlementOutOfFunds(
           req,
-          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+          this.env.RAPYD_SETTLEMENT_EWALLET
         )
         return await this.releaseLiquidity(req, true)
       }
@@ -189,12 +187,12 @@ export class RapydClient implements IRapydClient {
         ['ERROR_WALLET_INSUFFICIENT_FUNDS', 'NOT_ENOUGH_FUNDS'].includes(
           err.response?.data?.status?.error_code
         ) &&
-        req.source_ewallet === this.deps.env.RAPYD_SETTLEMENT_EWALLET &&
+        req.source_ewallet === this.env.RAPYD_SETTLEMENT_EWALLET &&
         !isRetry
       ) {
         await this.handleSettlementOutOfFunds(
           req,
-          this.deps.env.RAPYD_SETTLEMENT_EWALLET
+          this.env.RAPYD_SETTLEMENT_EWALLET
         )
         return await this.transferLiquidity(req, true)
       }
@@ -312,7 +310,7 @@ export class RapydClient implements IRapydClient {
     const payoutType = response.data[0]
 
     if (!payoutType.sender_currencies.includes(assetCode)) {
-      this.deps.logger.debug(
+      this.logger.debug(
         `[UNAVAILABLE_PAYOUT_CURRENCY] available sender currencies for asset ${assetCode} are ${payoutType.sender_currencies}`
       )
       throw new BadRequest(
@@ -396,14 +394,14 @@ export class RapydClient implements IRapydClient {
       httpMethod: method,
       url: `/v1/${url}`,
       salt,
-      accessKey: this.deps.env.RAPYD_ACCESS_KEY,
-      secretKey: this.deps.env.RAPYD_SECRET_KEY,
+      accessKey: this.env.RAPYD_ACCESS_KEY,
+      secretKey: this.env.RAPYD_SECRET_KEY,
       body
     })
 
     return {
       'Content-Type': 'application/json',
-      'access_key': this.deps.env.RAPYD_ACCESS_KEY,
+      'access_key': this.env.RAPYD_ACCESS_KEY,
       salt,
       timestamp,
       signature
@@ -419,14 +417,14 @@ export class RapydClient implements IRapydClient {
     try {
       const res = await axios<T>({
         method,
-        url: `${this.deps.env.RAPYD_API}/${url}`,
+        url: `${this.env.RAPYD_API}/${url}`,
         ...(body && { data: body }),
         headers
       })
       return res.data
     } catch (e) {
       if (e instanceof AxiosError) {
-        this.deps.logger.error(
+        this.logger.error(
           `Axios ${method} request for ${url} failed with: ${
             e.message || e.response?.data
           }`

@@ -66,6 +66,8 @@ export type Asset = Model & {
   code: Scalars['String']['output'];
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
+  /** Fetch a page of asset fees */
+  fees?: Maybe<FeesConnection>;
   /** Asset id */
   id: Scalars['ID']['output'];
   /** Available liquidity */
@@ -80,6 +82,14 @@ export type Asset = Model & {
   sendingFee?: Maybe<Fee>;
   /** Minimum amount of liquidity that can be withdrawn from the asset */
   withdrawalThreshold?: Maybe<Scalars['BigInt']['output']>;
+};
+
+
+export type AssetFeesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type AssetEdge = {
@@ -106,7 +116,7 @@ export type BasePayment = {
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   metadata?: Maybe<Scalars['JSONObject']['output']>;
-  paymentPointerId: Scalars['ID']['output'];
+  walletAddressId: Scalars['ID']['output'];
 };
 
 export type CreateAssetInput = {
@@ -142,8 +152,8 @@ export type CreateIncomingPaymentInput = {
   incomingAmount?: InputMaybe<AmountInput>;
   /** Additional metadata associated with the incoming payment. */
   metadata?: InputMaybe<Scalars['JSONObject']['input']>;
-  /** Id of the payment pointer under which the incoming payment will be created */
-  paymentPointerId: Scalars['String']['input'];
+  /** Id of the wallet address under which the incoming payment will be created */
+  walletAddressId: Scalars['String']['input'];
 };
 
 export type CreateOrUpdatePeerByUrlInput = {
@@ -176,54 +186,10 @@ export type CreateOutgoingPaymentInput = {
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Additional metadata associated with the outgoing payment. */
   metadata?: InputMaybe<Scalars['JSONObject']['input']>;
-  /** Id of the payment pointer under which the outgoing payment will be created */
-  paymentPointerId: Scalars['String']['input'];
   /** Id of the corresponding quote for that outgoing payment */
   quoteId: Scalars['String']['input'];
-};
-
-export type CreatePaymentPointerInput = {
-  /** Asset of the payment pointer */
-  assetId: Scalars['String']['input'];
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
-  /** Public name associated with the payment pointer */
-  publicName?: InputMaybe<Scalars['String']['input']>;
-  /** Payment Pointer URL */
-  url: Scalars['String']['input'];
-};
-
-export type CreatePaymentPointerKeyInput = {
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
-  /** Public key */
-  jwk: JwkInput;
-  paymentPointerId: Scalars['String']['input'];
-};
-
-export type CreatePaymentPointerKeyMutationResponse = MutationResponse & {
-  __typename?: 'CreatePaymentPointerKeyMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  paymentPointerKey?: Maybe<PaymentPointerKey>;
-  success: Scalars['Boolean']['output'];
-};
-
-export type CreatePaymentPointerMutationResponse = MutationResponse & {
-  __typename?: 'CreatePaymentPointerMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  paymentPointer?: Maybe<PaymentPointer>;
-  success: Scalars['Boolean']['output'];
-};
-
-export type CreatePaymentPointerWithdrawalInput = {
-  /** The id of the withdrawal. */
-  id: Scalars['String']['input'];
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey: Scalars['String']['input'];
-  /** The id of the Open Payments payment pointer to create the withdrawal for. */
-  paymentPointerId: Scalars['String']['input'];
+  /** Id of the wallet address under which the outgoing payment will be created */
+  walletAddressId: Scalars['String']['input'];
 };
 
 export type CreatePeerInput = {
@@ -269,12 +235,12 @@ export type CreateQuoteInput = {
   debitAmount?: InputMaybe<AmountInput>;
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
-  /** Id of the payment pointer under which the quote will be created */
-  paymentPointerId: Scalars['String']['input'];
   /** Amount to receive (fixed receive) */
   receiveAmount?: InputMaybe<AmountInput>;
-  /** Payment pointer URL of the receiver */
+  /** Wallet address URL of the receiver */
   receiver: Scalars['String']['input'];
+  /** Id of the wallet address under which the quote will be created */
+  walletAddressId: Scalars['String']['input'];
 };
 
 export type CreateReceiverInput = {
@@ -286,8 +252,8 @@ export type CreateReceiverInput = {
   incomingAmount?: InputMaybe<AmountInput>;
   /** Additional metadata associated with the incoming payment. */
   metadata?: InputMaybe<Scalars['JSONObject']['input']>;
-  /** Receiving payment pointer URL */
-  paymentPointerUrl: Scalars['String']['input'];
+  /** Receiving wallet address URL */
+  walletAddressUrl: Scalars['String']['input'];
 };
 
 export type CreateReceiverResponse = {
@@ -296,6 +262,50 @@ export type CreateReceiverResponse = {
   message?: Maybe<Scalars['String']['output']>;
   receiver?: Maybe<Receiver>;
   success: Scalars['Boolean']['output'];
+};
+
+export type CreateWalletAddressInput = {
+  /** Asset of the wallet address */
+  assetId: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Public name associated with the wallet address */
+  publicName?: InputMaybe<Scalars['String']['input']>;
+  /** Wallet Address URL */
+  url: Scalars['String']['input'];
+};
+
+export type CreateWalletAddressKeyInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Public key */
+  jwk: JwkInput;
+  walletAddressId: Scalars['String']['input'];
+};
+
+export type CreateWalletAddressKeyMutationResponse = MutationResponse & {
+  __typename?: 'CreateWalletAddressKeyMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  walletAddressKey?: Maybe<WalletAddressKey>;
+};
+
+export type CreateWalletAddressMutationResponse = MutationResponse & {
+  __typename?: 'CreateWalletAddressMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  walletAddress?: Maybe<WalletAddress>;
+};
+
+export type CreateWalletAddressWithdrawalInput = {
+  /** The id of the withdrawal. */
+  id: Scalars['String']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
+  /** The id of the Open Payments wallet address to create the withdrawal for. */
+  walletAddressId: Scalars['String']['input'];
 };
 
 export enum Crv {
@@ -345,12 +355,24 @@ export type FeeDetails = {
   fixed: Scalars['BigInt']['input'];
 };
 
+export type FeeEdge = {
+  __typename?: 'FeeEdge';
+  cursor: Scalars['String']['output'];
+  node: Fee;
+};
+
 export enum FeeType {
   /** Receiver pays the fees */
   Receiving = 'RECEIVING',
   /** Sender pays the fees */
   Sending = 'SENDING'
 }
+
+export type FeesConnection = {
+  __typename?: 'FeesConnection';
+  edges: Array<FeeEdge>;
+  pageInfo: PageInfo;
+};
 
 export type FilterString = {
   in: Array<Scalars['String']['input']>;
@@ -397,16 +419,16 @@ export type IncomingPayment = BasePayment & Model & {
   expiresAt: Scalars['String']['output'];
   /** Incoming Payment id */
   id: Scalars['ID']['output'];
-  /** The maximum amount that should be paid into the payment pointer under this incoming payment. */
+  /** The maximum amount that should be paid into the wallet address under this incoming payment. */
   incomingAmount?: Maybe<Amount>;
   /** Additional metadata associated with the incoming payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
-  /** Id of the payment pointer under which this incoming payment was created */
-  paymentPointerId: Scalars['ID']['output'];
-  /** The total amount that has been paid into the payment pointer under this incoming payment. */
+  /** The total amount that has been paid into the wallet address under this incoming payment. */
   receivedAmount: Amount;
   /** Incoming payment state */
   state: IncomingPaymentState;
+  /** Id of the wallet address under which this incoming payment was created */
+  walletAddressId: Scalars['ID']['output'];
 };
 
 export type IncomingPaymentConnection = {
@@ -481,9 +503,9 @@ export enum LiquidityError {
   UnknownAsset = 'UnknownAsset',
   UnknownIncomingPayment = 'UnknownIncomingPayment',
   UnknownPayment = 'UnknownPayment',
-  UnknownPaymentPointer = 'UnknownPaymentPointer',
   UnknownPeer = 'UnknownPeer',
-  UnknownTransfer = 'UnknownTransfer'
+  UnknownTransfer = 'UnknownTransfer',
+  UnknownWalletAddress = 'UnknownWalletAddress'
 }
 
 export type LiquidityMutationResponse = MutationResponse & {
@@ -509,44 +531,44 @@ export type Mutation = {
   createAsset: AssetMutationResponse;
   /** Withdraw asset liquidity */
   createAssetLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
-  /** Create an internal Open Payments Incoming Payment. The receiver has a payment pointer on this Rafiki instance. */
+  /** Create an internal Open Payments Incoming Payment. The receiver has a wallet address on this Rafiki instance. */
   createIncomingPayment: IncomingPaymentResponse;
   /** Create a peer using a URL */
   createOrUpdatePeerByUrl: CreateOrUpdatePeerByUrlMutationResponse;
   /** Create an Open Payments Outgoing Payment */
   createOutgoingPayment: OutgoingPaymentResponse;
-  /** Create a payment pointer */
-  createPaymentPointer: CreatePaymentPointerMutationResponse;
-  /** Add a public key to a payment pointer that is used to verify Open Payments requests. */
-  createPaymentPointerKey?: Maybe<CreatePaymentPointerKeyMutationResponse>;
-  /** Withdraw liquidity from a payment pointer received via Web Monetization. */
-  createPaymentPointerWithdrawal?: Maybe<PaymentPointerWithdrawalMutationResponse>;
   /** Create a peer */
   createPeer: CreatePeerMutationResponse;
   /** Withdraw peer liquidity */
   createPeerLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create an Open Payments Quote */
   createQuote: QuoteResponse;
-  /** Create an internal or external Open Payments Incoming Payment. The receiver has a payment pointer on either this or another Open Payments resource server. */
+  /** Create an internal or external Open Payments Incoming Payment. The receiver has a wallet address on either this or another Open Payments resource server. */
   createReceiver: CreateReceiverResponse;
+  /** Create a wallet address */
+  createWalletAddress: CreateWalletAddressMutationResponse;
+  /** Add a public key to a wallet address that is used to verify Open Payments requests. */
+  createWalletAddressKey?: Maybe<CreateWalletAddressKeyMutationResponse>;
+  /** Withdraw liquidity from a wallet address received via Web Monetization. */
+  createWalletAddressWithdrawal?: Maybe<WalletAddressWithdrawalMutationResponse>;
   /** Delete a peer */
   deletePeer: DeletePeerMutationResponse;
   /** Deposit webhook event liquidity */
   depositEventLiquidity?: Maybe<LiquidityMutationResponse>;
   /** Post liquidity withdrawal. Withdrawals are two-phase commits and are committed via this mutation. */
   postLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
-  /** Revoke a public key associated with a payment pointer. Open Payment requests using this key for request signatures will be denied going forward. */
-  revokePaymentPointerKey?: Maybe<RevokePaymentPointerKeyMutationResponse>;
+  /** Revoke a public key associated with a wallet address. Open Payment requests using this key for request signatures will be denied going forward. */
+  revokeWalletAddressKey?: Maybe<RevokeWalletAddressKeyMutationResponse>;
   /** Set the fee on an asset */
   setFee: SetFeeResponse;
-  /** If automatic withdrawal of funds received via Web Monetization by the payment pointer are disabled, this mutation can be used to trigger up to n withdrawal events. */
-  triggerPaymentPointerEvents: TriggerPaymentPointerEventsMutationResponse;
+  /** If automatic withdrawal of funds received via Web Monetization by the wallet address are disabled, this mutation can be used to trigger up to n withdrawal events. */
+  triggerWalletAddressEvents: TriggerWalletAddressEventsMutationResponse;
   /** Update an asset */
   updateAsset: AssetMutationResponse;
-  /** Update a payment pointer */
-  updatePaymentPointer: UpdatePaymentPointerMutationResponse;
   /** Update a peer */
   updatePeer: UpdatePeerMutationResponse;
+  /** Update a wallet address */
+  updateWalletAddress: UpdateWalletAddressMutationResponse;
   /** Void liquidity withdrawal. Withdrawals are two-phase commits and are rolled back via this mutation. */
   voidLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Withdraw webhook event liquidity */
@@ -589,21 +611,6 @@ export type MutationCreateOutgoingPaymentArgs = {
 };
 
 
-export type MutationCreatePaymentPointerArgs = {
-  input: CreatePaymentPointerInput;
-};
-
-
-export type MutationCreatePaymentPointerKeyArgs = {
-  input: CreatePaymentPointerKeyInput;
-};
-
-
-export type MutationCreatePaymentPointerWithdrawalArgs = {
-  input: CreatePaymentPointerWithdrawalInput;
-};
-
-
 export type MutationCreatePeerArgs = {
   input: CreatePeerInput;
 };
@@ -624,6 +631,21 @@ export type MutationCreateReceiverArgs = {
 };
 
 
+export type MutationCreateWalletAddressArgs = {
+  input: CreateWalletAddressInput;
+};
+
+
+export type MutationCreateWalletAddressKeyArgs = {
+  input: CreateWalletAddressKeyInput;
+};
+
+
+export type MutationCreateWalletAddressWithdrawalArgs = {
+  input: CreateWalletAddressWithdrawalInput;
+};
+
+
 export type MutationDeletePeerArgs = {
   input: DeletePeerInput;
 };
@@ -639,8 +661,8 @@ export type MutationPostLiquidityWithdrawalArgs = {
 };
 
 
-export type MutationRevokePaymentPointerKeyArgs = {
-  input: RevokePaymentPointerKeyInput;
+export type MutationRevokeWalletAddressKeyArgs = {
+  input: RevokeWalletAddressKeyInput;
 };
 
 
@@ -649,8 +671,8 @@ export type MutationSetFeeArgs = {
 };
 
 
-export type MutationTriggerPaymentPointerEventsArgs = {
-  input: TriggerPaymentPointerEventsInput;
+export type MutationTriggerWalletAddressEventsArgs = {
+  input: TriggerWalletAddressEventsInput;
 };
 
 
@@ -659,13 +681,13 @@ export type MutationUpdateAssetArgs = {
 };
 
 
-export type MutationUpdatePaymentPointerArgs = {
-  input: UpdatePaymentPointerInput;
+export type MutationUpdatePeerArgs = {
+  input: UpdatePeerInput;
 };
 
 
-export type MutationUpdatePeerArgs = {
-  input: UpdatePeerInput;
+export type MutationUpdateWalletAddressArgs = {
+  input: UpdateWalletAddressInput;
 };
 
 
@@ -695,19 +717,19 @@ export type OutgoingPayment = BasePayment & Model & {
   id: Scalars['ID']['output'];
   /** Additional metadata associated with the outgoing payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
-  /** Id of the payment pointer under which this outgoing payment was created */
-  paymentPointerId: Scalars['ID']['output'];
   /** Quote for this outgoing payment */
   quote?: Maybe<Quote>;
   /** Amount to receive (fixed receive) */
   receiveAmount: Amount;
-  /** Payment pointer URL of the receiver */
+  /** Wallet address URL of the receiver */
   receiver: Scalars['String']['output'];
   /** Amount already sent */
   sentAmount: Amount;
   /** Outgoing payment state */
   state: OutgoingPaymentState;
   stateAttempts: Scalars['Int']['output'];
+  /** Id of the wallet address under which this outgoing payment was created */
+  walletAddressId: Scalars['ID']['output'];
 };
 
 export type OutgoingPaymentConnection = {
@@ -761,12 +783,12 @@ export type Payment = BasePayment & Model & {
   id: Scalars['ID']['output'];
   /** Additional metadata associated with the payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
-  /** Id of the payment pointer under which this payment was created */
-  paymentPointerId: Scalars['ID']['output'];
   /** Either the IncomingPaymentState or OutgoingPaymentState according to type */
   state: Scalars['String']['output'];
   /** Type of payment */
   type: PaymentType;
+  /** Id of the wallet address under which this payment was created */
+  walletAddressId: Scalars['ID']['output'];
 };
 
 export type PaymentConnection = {
@@ -782,106 +804,8 @@ export type PaymentEdge = {
 };
 
 export type PaymentFilter = {
-  paymentPointerId?: InputMaybe<FilterString>;
   type?: InputMaybe<FilterString>;
-};
-
-export type PaymentPointer = Model & {
-  __typename?: 'PaymentPointer';
-  /** Asset of the payment pointer */
-  asset: Asset;
-  /** Date-time of creation */
-  createdAt: Scalars['String']['output'];
-  /** Payment pointer id */
-  id: Scalars['ID']['output'];
-  /** List of incoming payments received by this payment pointer */
-  incomingPayments?: Maybe<IncomingPaymentConnection>;
-  /** List of outgoing payments sent from this payment pointer */
-  outgoingPayments?: Maybe<OutgoingPaymentConnection>;
-  /** Public name associated with the payment pointer */
-  publicName?: Maybe<Scalars['String']['output']>;
-  /** List of quotes created at this payment pointer */
-  quotes?: Maybe<QuoteConnection>;
-  /** Status of the payment pointer */
-  status: PaymentPointerStatus;
-  /** Payment Pointer URL */
-  url: Scalars['String']['output'];
-};
-
-
-export type PaymentPointerIncomingPaymentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type PaymentPointerOutgoingPaymentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type PaymentPointerQuotesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type PaymentPointerEdge = {
-  __typename?: 'PaymentPointerEdge';
-  cursor: Scalars['String']['output'];
-  node: PaymentPointer;
-};
-
-export type PaymentPointerKey = Model & {
-  __typename?: 'PaymentPointerKey';
-  /** Date-time of creation */
-  createdAt: Scalars['String']['output'];
-  /** Internal id of key */
-  id: Scalars['ID']['output'];
-  /** Public key */
-  jwk: Jwk;
-  /** Id of the payment pointer to which this key belongs to */
-  paymentPointerId: Scalars['ID']['output'];
-  /** Indicator whether the key has been revoked */
-  revoked: Scalars['Boolean']['output'];
-};
-
-export enum PaymentPointerStatus {
-  /** Default status */
-  Active = 'ACTIVE',
-  /** Status after deactivating */
-  Inactive = 'INACTIVE'
-}
-
-export type PaymentPointerWithdrawal = {
-  __typename?: 'PaymentPointerWithdrawal';
-  /** Amount to withdraw */
-  amount: Scalars['BigInt']['output'];
-  /** Withdrawal Id */
-  id: Scalars['ID']['output'];
-  /** Payment pointer details */
-  paymentPointer: PaymentPointer;
-};
-
-export type PaymentPointerWithdrawalMutationResponse = MutationResponse & {
-  __typename?: 'PaymentPointerWithdrawalMutationResponse';
-  code: Scalars['String']['output'];
-  error?: Maybe<LiquidityError>;
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
-  withdrawal?: Maybe<PaymentPointerWithdrawal>;
-};
-
-export type PaymentPointersConnection = {
-  __typename?: 'PaymentPointersConnection';
-  edges: Array<PaymentPointerEdge>;
-  pageInfo: PageInfo;
+  walletAddressId?: InputMaybe<FilterString>;
 };
 
 export enum PaymentType {
@@ -940,10 +864,6 @@ export type Query = {
   incomingPayment?: Maybe<IncomingPayment>;
   /** Fetch an Open Payments outgoing payment */
   outgoingPayment?: Maybe<OutgoingPayment>;
-  /** Fetch a payment pointer */
-  paymentPointer?: Maybe<PaymentPointer>;
-  /** Fetch a page of payment pointers. */
-  paymentPointers: PaymentPointersConnection;
   /** Fetch a page of combined payments */
   payments: PaymentConnection;
   /** Fetch a peer */
@@ -952,6 +872,10 @@ export type Query = {
   peers: PeersConnection;
   /** Fetch an Open Payments quote */
   quote?: Maybe<Quote>;
+  /** Fetch a wallet address */
+  walletAddress?: Maybe<WalletAddress>;
+  /** Fetch a page of wallet addresses. */
+  walletAddresses: WalletAddressesConnection;
   /** Fetch a page of webhook events */
   webhookEvents: WebhookEventsConnection;
 };
@@ -977,19 +901,6 @@ export type QueryIncomingPaymentArgs = {
 
 export type QueryOutgoingPaymentArgs = {
   id: Scalars['String']['input'];
-};
-
-
-export type QueryPaymentPointerArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type QueryPaymentPointersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1020,6 +931,19 @@ export type QueryQuoteArgs = {
 };
 
 
+export type QueryWalletAddressArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryWalletAddressesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryWebhookEventsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -1046,12 +970,12 @@ export type Quote = {
   maxPacketAmount: Scalars['BigInt']['output'];
   /** Aggregate exchange rate the payment is guaranteed to meet */
   minExchangeRate: Scalars['Float']['output'];
-  /** Id of the payment pointer under which this quote was created */
-  paymentPointerId: Scalars['ID']['output'];
   /** Amount to receive (fixed receive) */
   receiveAmount: Amount;
-  /** Payment pointer URL of the receiver */
+  /** Wallet address URL of the receiver */
   receiver: Scalars['String']['output'];
+  /** Id of the wallet address under which this quote was created */
+  walletAddressId: Scalars['ID']['output'];
 };
 
 export type QuoteConnection = {
@@ -1084,31 +1008,31 @@ export type Receiver = {
   expiresAt?: Maybe<Scalars['String']['output']>;
   /** Incoming payment URL */
   id: Scalars['String']['output'];
-  /** The maximum amount that should be paid into the payment pointer under this incoming payment. */
+  /** The maximum amount that should be paid into the wallet address under this incoming payment. */
   incomingAmount?: Maybe<Amount>;
   /** Additional metadata associated with the incoming payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
-  /** Payment pointer URL under which the incoming payment was created */
-  paymentPointerUrl: Scalars['String']['output'];
-  /** The total amount that has been paid into the payment pointer under this incoming payment. */
+  /** The total amount that has been paid into the wallet address under this incoming payment. */
   receivedAmount: Amount;
   /** Date-time of last update */
   updatedAt: Scalars['String']['output'];
+  /** Wallet address URL under which the incoming payment was created */
+  walletAddressUrl: Scalars['String']['output'];
 };
 
-export type RevokePaymentPointerKeyInput = {
+export type RevokeWalletAddressKeyInput = {
   /** Internal id of key */
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type RevokePaymentPointerKeyMutationResponse = MutationResponse & {
-  __typename?: 'RevokePaymentPointerKeyMutationResponse';
+export type RevokeWalletAddressKeyMutationResponse = MutationResponse & {
+  __typename?: 'RevokeWalletAddressKeyMutationResponse';
   code: Scalars['String']['output'];
   message: Scalars['String']['output'];
-  paymentPointerKey?: Maybe<PaymentPointerKey>;
   success: Scalars['Boolean']['output'];
+  walletAddressKey?: Maybe<WalletAddressKey>;
 };
 
 export type SetFeeInput = {
@@ -1137,15 +1061,15 @@ export type TransferMutationResponse = MutationResponse & {
   success: Scalars['Boolean']['output'];
 };
 
-export type TriggerPaymentPointerEventsInput = {
+export type TriggerWalletAddressEventsInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Maximum number of events being triggered (n). */
   limit: Scalars['Int']['input'];
 };
 
-export type TriggerPaymentPointerEventsMutationResponse = MutationResponse & {
-  __typename?: 'TriggerPaymentPointerEventsMutationResponse';
+export type TriggerWalletAddressEventsMutationResponse = MutationResponse & {
+  __typename?: 'TriggerWalletAddressEventsMutationResponse';
   code: Scalars['String']['output'];
   /** Number of events triggered */
   count?: Maybe<Scalars['Int']['output']>;
@@ -1162,25 +1086,6 @@ export type UpdateAssetInput = {
   liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
   /** New minimum amount of liquidity that can be withdrawn from the asset */
   withdrawalThreshold?: InputMaybe<Scalars['BigInt']['input']>;
-};
-
-export type UpdatePaymentPointerInput = {
-  /** ID of payment pointer to update */
-  id: Scalars['ID']['input'];
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
-  /** New public name for payment pointer */
-  publicName?: InputMaybe<Scalars['String']['input']>;
-  /** New status to set the payment pointer to */
-  status?: InputMaybe<PaymentPointerStatus>;
-};
-
-export type UpdatePaymentPointerMutationResponse = MutationResponse & {
-  __typename?: 'UpdatePaymentPointerMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  paymentPointer?: Maybe<PaymentPointer>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type UpdatePeerInput = {
@@ -1208,11 +1113,128 @@ export type UpdatePeerMutationResponse = MutationResponse & {
   success: Scalars['Boolean']['output'];
 };
 
+export type UpdateWalletAddressInput = {
+  /** ID of wallet address to update */
+  id: Scalars['ID']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** New public name for wallet address */
+  publicName?: InputMaybe<Scalars['String']['input']>;
+  /** New status to set the wallet address to */
+  status?: InputMaybe<WalletAddressStatus>;
+};
+
+export type UpdateWalletAddressMutationResponse = MutationResponse & {
+  __typename?: 'UpdateWalletAddressMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  walletAddress?: Maybe<WalletAddress>;
+};
+
 export type VoidLiquidityWithdrawalInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey: Scalars['String']['input'];
   /** The id of the liquidity withdrawal to void. */
   withdrawalId: Scalars['String']['input'];
+};
+
+export type WalletAddress = Model & {
+  __typename?: 'WalletAddress';
+  /** Asset of the wallet address */
+  asset: Asset;
+  /** Date-time of creation */
+  createdAt: Scalars['String']['output'];
+  /** Wallet address id */
+  id: Scalars['ID']['output'];
+  /** List of incoming payments received by this wallet address */
+  incomingPayments?: Maybe<IncomingPaymentConnection>;
+  /** List of outgoing payments sent from this wallet address */
+  outgoingPayments?: Maybe<OutgoingPaymentConnection>;
+  /** Public name associated with the wallet address */
+  publicName?: Maybe<Scalars['String']['output']>;
+  /** List of quotes created at this wallet address */
+  quotes?: Maybe<QuoteConnection>;
+  /** Status of the wallet address */
+  status: WalletAddressStatus;
+  /** Wallet Address URL */
+  url: Scalars['String']['output'];
+};
+
+
+export type WalletAddressIncomingPaymentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type WalletAddressOutgoingPaymentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type WalletAddressQuotesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type WalletAddressEdge = {
+  __typename?: 'WalletAddressEdge';
+  cursor: Scalars['String']['output'];
+  node: WalletAddress;
+};
+
+export type WalletAddressKey = Model & {
+  __typename?: 'WalletAddressKey';
+  /** Date-time of creation */
+  createdAt: Scalars['String']['output'];
+  /** Internal id of key */
+  id: Scalars['ID']['output'];
+  /** Public key */
+  jwk: Jwk;
+  /** Indicator whether the key has been revoked */
+  revoked: Scalars['Boolean']['output'];
+  /** Id of the wallet address to which this key belongs to */
+  walletAddressId: Scalars['ID']['output'];
+};
+
+export enum WalletAddressStatus {
+  /** Default status */
+  Active = 'ACTIVE',
+  /** Status after deactivating */
+  Inactive = 'INACTIVE'
+}
+
+export type WalletAddressWithdrawal = {
+  __typename?: 'WalletAddressWithdrawal';
+  /** Amount to withdraw */
+  amount: Scalars['BigInt']['output'];
+  /** Withdrawal Id */
+  id: Scalars['ID']['output'];
+  /** Wallet address details */
+  walletAddress: WalletAddress;
+};
+
+export type WalletAddressWithdrawalMutationResponse = MutationResponse & {
+  __typename?: 'WalletAddressWithdrawalMutationResponse';
+  code: Scalars['String']['output'];
+  error?: Maybe<LiquidityError>;
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  withdrawal?: Maybe<WalletAddressWithdrawal>;
+};
+
+export type WalletAddressesConnection = {
+  __typename?: 'WalletAddressesConnection';
+  edges: Array<WalletAddressEdge>;
+  pageInfo: PageInfo;
 };
 
 export type WebhookEvent = Model & {
@@ -1279,14 +1301,7 @@ export type CreateIncomingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, paymentPointerId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
-
-export type CreateReceiverMutationVariables = Exact<{
-  input: CreateReceiverInput;
-}>;
-
-
-export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, paymentPointerUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, walletAddressId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
@@ -1309,46 +1324,53 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, paymentPointerId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
-export type CreatePaymentPointerKeyMutationVariables = Exact<{
-  input: CreatePaymentPointerKeyInput;
+export type CreateWalletAddressKeyMutationVariables = Exact<{
+  input: CreateWalletAddressKeyInput;
 }>;
 
 
-export type CreatePaymentPointerKeyMutation = { __typename?: 'Mutation', createPaymentPointerKey?: { __typename?: 'CreatePaymentPointerKeyMutationResponse', code: string, message: string, success: boolean, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, paymentPointerId: string, revoked: boolean, createdAt: string, jwk: { __typename?: 'Jwk', alg: Alg, crv: Crv, kid: string, kty: Kty, x: string } } | null } | null };
+export type CreateWalletAddressKeyMutation = { __typename?: 'Mutation', createWalletAddressKey?: { __typename?: 'CreateWalletAddressKeyMutationResponse', code: string, message: string, success: boolean, walletAddressKey?: { __typename?: 'WalletAddressKey', id: string, walletAddressId: string, revoked: boolean, createdAt: string, jwk: { __typename?: 'Jwk', alg: Alg, crv: Crv, kid: string, kty: Kty, x: string } } | null } | null };
 
-export type RevokePaymentPointerKeyMutationVariables = Exact<{
-  input: RevokePaymentPointerKeyInput;
+export type RevokeWalletAddressKeyMutationVariables = Exact<{
+  input: RevokeWalletAddressKeyInput;
 }>;
 
 
-export type RevokePaymentPointerKeyMutation = { __typename?: 'Mutation', revokePaymentPointerKey?: { __typename?: 'RevokePaymentPointerKeyMutationResponse', code: string, message: string, success: boolean, paymentPointerKey?: { __typename?: 'PaymentPointerKey', id: string, revoked: boolean, paymentPointerId: string, createdAt: string } | null } | null };
+export type RevokeWalletAddressKeyMutation = { __typename?: 'Mutation', revokeWalletAddressKey?: { __typename?: 'RevokeWalletAddressKeyMutationResponse', code: string, message: string, success: boolean, walletAddressKey?: { __typename?: 'WalletAddressKey', id: string, revoked: boolean, walletAddressId: string, createdAt: string } | null } | null };
 
-export type CreatePaymentPointerMutationVariables = Exact<{
-  input: CreatePaymentPointerInput;
+export type CreateWalletAddressMutationVariables = Exact<{
+  input: CreateWalletAddressInput;
 }>;
 
 
-export type CreatePaymentPointerMutation = { __typename?: 'Mutation', createPaymentPointer: { __typename?: 'CreatePaymentPointerMutationResponse', code: string, success: boolean, message: string, paymentPointer?: { __typename?: 'PaymentPointer', id: string, url: string, publicName?: string | null } | null } };
+export type CreateWalletAddressMutation = { __typename?: 'Mutation', createWalletAddress: { __typename?: 'CreateWalletAddressMutationResponse', code: string, success: boolean, message: string, walletAddress?: { __typename?: 'WalletAddress', id: string, url: string, publicName?: string | null } | null } };
 
-export type UpdatePaymentPointerMutationVariables = Exact<{
-  input: UpdatePaymentPointerInput;
+export type UpdateWalletAddressMutationVariables = Exact<{
+  input: UpdateWalletAddressInput;
 }>;
 
 
-export type UpdatePaymentPointerMutation = { __typename?: 'Mutation', updatePaymentPointer: { __typename?: 'UpdatePaymentPointerMutationResponse', code: string, success: boolean, message: string } };
+export type UpdateWalletAddressMutation = { __typename?: 'Mutation', updateWalletAddress: { __typename?: 'UpdateWalletAddressMutationResponse', code: string, success: boolean, message: string } };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
 
 
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, paymentPointerId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type GetQuoteQueryVariables = Exact<{
   quoteId: Scalars['String']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, paymentPointerId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
+
+export type CreateReceiverMutationVariables = Exact<{
+  input: CreateReceiverInput;
+}>;
+
+
+export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
