@@ -12,6 +12,11 @@ It wants to use all of the functionalities of Rafiki and put its advantages to t
 Testnet is made up of several components, including an Interledger test wallet application,
 e-commerce application and in the near future, a bank application.
 
+See Testnet in action:
+
+- [Interledger Test Wallet](https://rafiki.money)
+- [Interledger Boutique](https://rafiki.boutique)
+
 ## What is Rafiki?
 
 Rafiki is an open-source package that exposes a comprehensive set of
@@ -106,5 +111,5 @@ Upon executing the above command, the following will be available
   - Backend at [http://localhost:3003](http://localhost:3003)
   - Admin at [http://localhost:3012](http://localhost:3012)
 
-- Interledger Test Boutique application
+- Interledger Boutique application
   - [http://localhost:4004](http://localhost:4004)
