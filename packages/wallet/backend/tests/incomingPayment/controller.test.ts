@@ -150,7 +150,7 @@ describe('Incoming Payment Controller', () => {
             errorHandler(err, req, res, next)
           }
         )
-        expect(getPaymentDetailsByUrlSpy).not.toBeCalled()
+        expect(getPaymentDetailsByUrlSpy).not.toHaveBeenCalled()
       })
     })
   })
