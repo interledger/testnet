@@ -11,14 +11,10 @@ export interface IRatesService {
   getRates: (base: string) => Promise<RatesResponse>
 }
 
-interface RatesServiceDependencies {
-  env: Env
-}
-
 export class RatesService implements IRatesService {
   cache: NodeCache
 
-  constructor(private deps: RatesServiceDependencies) {
+  constructor(private env: Env) {
     this.cache = new NodeCache({ stdTTL: 60 * 60 * 12 })
   }
 
@@ -43,7 +39,7 @@ export class RatesService implements IRatesService {
     const response = await axios.get(
       'https://api.freecurrencyapi.com/v1/latest',
       {
-        params: { apikey: this.deps.env.RATE_API_KEY, base_currency: base }
+        params: { apikey: this.env.RATE_API_KEY, base_currency: base }
       }
     )
 

@@ -6,7 +6,7 @@ export class User extends BaseModel {
   static tableName = 'users'
 
   public id!: string
-  public paymentPointer!: string
+  public walletAddress!: string
   public token!: string
 
   static relationMappings = () => ({

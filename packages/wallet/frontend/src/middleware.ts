@@ -13,10 +13,10 @@ const publicPaths = ['/auth*']
 export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const nextPage = req.nextUrl.searchParams.get('next')
-  // Because this is not going to run in the browser, we have to explictly pass
-  // the cookies.
+  const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
+
   const response = await userService.me(
-    `testnet.cookie=${req.cookies.get('testnet.cookie')?.value}`
+    `${cookieName}=${req.cookies.get(cookieName)?.value}`
   )
 
   // Success TRUE - the user is logged in

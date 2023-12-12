@@ -16,7 +16,6 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
     <section className="row-start-1 rounded-md border border-green-4 px-4 py-4 shadow-md sm:px-6 lg:row-start-auto lg:border-0 lg:px-0 lg:pb-16 lg:shadow-none">
       <div className="mx-auto max-w-lg lg:max-w-none">
         <h2 className="text-lg">Order summary</h2>
-
         <ul role="list" className="divide-y divide-green">
           {summary.items.map((item) => (
             <li key={item.id} className="flex items-start space-x-4 py-6">
@@ -38,7 +37,6 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
             </li>
           ))}
         </ul>
-
         <dl className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
             <dt>Subtotal</dt>

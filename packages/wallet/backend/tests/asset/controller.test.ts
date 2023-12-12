@@ -1,7 +1,5 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
@@ -18,9 +16,10 @@ import { withSession } from '@/middleware/withSession'
 import { AssetController } from '@/asset/controller'
 import { mockedListAssets, mockLogInRequest } from '../mocks'
 import { createUser } from '@/tests/helpers'
+import { AwilixContainer } from 'awilix'
 
 describe('Asset Controller', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
@@ -32,7 +31,7 @@ describe('Asset Controller', (): void => {
   const args = mockLogInRequest().body
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -59,8 +58,8 @@ describe('Asset Controller', (): void => {
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {
@@ -74,7 +73,7 @@ describe('Asset Controller', (): void => {
           listAssets: () => mockedListAssets
         }
       }
-      Reflect.set(assetController, 'deps', depsMocked)
+      Reflect.set(assetController, 'rafikiClient', depsMocked.rafikiClient)
 
       await assetController.list(req, res, next)
       expect(res.statusCode).toBe(200)

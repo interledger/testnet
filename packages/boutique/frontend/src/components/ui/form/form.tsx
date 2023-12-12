@@ -35,7 +35,7 @@ export const Form = <TFields extends FieldValues>({
         {...props}
       >
         <FormError />
-        <fieldset disabled={disabled} className="min-w-0">
+        <fieldset disabled={disabled} className="min-w-0 space-y-4">
           {children}
         </fieldset>
       </form>

@@ -18,24 +18,23 @@ const disposableDomains: Set<string> = new Set(domains)
 interface IEmailService {
   sendForgotPassword(to: string, token: string): Promise<void>
 }
-interface EmailServiceDependencies {
-  env: Env
-  logger: Logger
-}
 
 export class EmailService implements IEmailService {
   private readonly baseUrl: string
   private readonly from: MailDataRequired['from']
 
-  constructor(private deps: EmailServiceDependencies) {
-    sendgrid.setApiKey(this.deps.env.SENDGRID_API_KEY)
+  constructor(
+    private env: Env,
+    private logger: Logger
+  ) {
+    sendgrid.setApiKey(this.env.SENDGRID_API_KEY)
 
-    const host = this.deps.env.RAFIKI_MONEY_FRONTEND_HOST
+    const host = this.env.RAFIKI_MONEY_FRONTEND_HOST
     this.baseUrl =
       host === 'localhost' ? 'http://localhost:4003' : `https://${host}`
 
     this.from = {
-      email: this.deps.env.FROM_EMAIL,
+      email: this.env.FROM_EMAIL,
       name: 'Tech Interledger'
     }
   }
@@ -47,7 +46,7 @@ export class EmailService implements IEmailService {
   async sendForgotPassword(to: string, token: string): Promise<void> {
     const url = `${this.baseUrl}/auth/reset/${token}`
 
-    if (this.deps.env.SEND_EMAIL) {
+    if (this.env.SEND_EMAIL) {
       return this.send({
         to,
         subject: '[Rafiki.Money] Reset your password',
@@ -55,15 +54,13 @@ export class EmailService implements IEmailService {
       })
     }
 
-    this.deps.logger.info(
-      `Send email is disabled. Reset password link is: ${url}`
-    )
+    this.logger.info(`Send email is disabled. Reset password link is: ${url}`)
   }
 
   async sendVerifyEmail(to: string, token: string): Promise<void> {
     const url = `${this.baseUrl}/auth/verify/${token}`
 
-    if (this.deps.env.SEND_EMAIL) {
+    if (this.env.SEND_EMAIL) {
       return this.send({
         to,
         subject: '[Rafiki.Money] Verify your account',
@@ -71,9 +68,7 @@ export class EmailService implements IEmailService {
       })
     }
 
-    this.deps.logger.info(
-      `Send email is disabled. Verify email link is: ${url}`
-    )
+    this.logger.info(`Send email is disabled. Verify email link is: ${url}`)
   }
 
   public async verifyDomain(domain: string): Promise<void> {
@@ -86,7 +81,7 @@ export class EmailService implements IEmailService {
         throw new Error(e)
       })
     } catch (e) {
-      this.deps.logger.error('Error on validating email domain', e)
+      this.logger.error('Error on validating email domain', e)
       throw new BadRequest('Email address is invalid')
     }
   }

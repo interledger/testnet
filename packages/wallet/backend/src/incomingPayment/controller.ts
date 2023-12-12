@@ -16,12 +16,9 @@ interface IIncomingPaymentController {
   create: ControllerFunction<{ url: string }>
   getPaymentDetailsByUrl: ControllerFunction<PaymentDetails>
 }
-interface IncomingPaymentControllerDependencies {
-  incomingPaymentService: IncomingPaymentService
-}
 
 export class IncomingPaymentController implements IIncomingPaymentController {
-  constructor(private deps: IncomingPaymentControllerDependencies) {}
+  constructor(private incomingPaymentService: IncomingPaymentService) {}
 
   create = async (
     req: Request,
@@ -31,12 +28,12 @@ export class IncomingPaymentController implements IIncomingPaymentController {
     try {
       const userId = req.session.user.id
       const {
-        body: { paymentPointerId, amount, description, expiration }
+        body: { walletAddressId, amount, description, expiration }
       } = await validate(incomingPaymentSchema, req)
 
-      const url = await this.deps.incomingPaymentService.create(
+      const url = await this.incomingPaymentService.create(
         userId,
-        paymentPointerId,
+        walletAddressId,
         amount,
         description,
         expiration
@@ -58,7 +55,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
       } = await validate(paymentDetailsSchema, req)
 
       const paymentDetails =
-        await this.deps.incomingPaymentService.getPaymentDetailsByUrl(url)
+        await this.incomingPaymentService.getPaymentDetailsByUrl(url)
       res
         .status(200)
         .json({ success: true, message: 'SUCCESS', data: paymentDetails })

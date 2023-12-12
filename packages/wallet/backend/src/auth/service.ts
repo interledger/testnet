@@ -24,29 +24,28 @@ interface IAuthService {
   authorize(args: AuthorizeArgs): Promise<AuthorizeResult>
   signUp(args: SignUpArgs): Promise<User>
 }
-interface AuthServiceDependencies {
-  userService: UserService
-  emailService: EmailService
-  logger: Logger
-  env: Env
-}
 
 export class AuthService implements IAuthService {
-  constructor(private deps: AuthServiceDependencies) {}
+  constructor(
+    private userService: UserService,
+    private emailService: EmailService,
+    private logger: Logger,
+    private env: Env
+  ) {}
 
   async signUp({ email, password }: SignUpArgs): Promise<User> {
     const domain = email.split('@')[1]
-    await this.deps.emailService.verifyDomain(domain)
+    await this.emailService.verifyDomain(domain)
 
     const token = getRandomToken()
-    const user = await this.deps.userService.create({
+    const user = await this.userService.create({
       email,
       password,
       verifyEmailToken: hashToken(token)
     })
 
-    await this.deps.emailService.sendVerifyEmail(email, token).catch((e) => {
-      this.deps.logger.error(
+    await this.emailService.sendVerifyEmail(email, token).catch((e) => {
+      this.logger.error(
         `Error on sending verify email for user ${user.email}`,
         e
       )
@@ -56,7 +55,7 @@ export class AuthService implements IAuthService {
   }
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
-    const user = await this.deps.userService.getByEmail(args.email)
+    const user = await this.userService.getByEmail(args.email)
 
     // TODO: Prevent timing attacks
     if (!user) {
@@ -74,7 +73,7 @@ export class AuthService implements IAuthService {
 
     const session = await user.$relatedQuery('sessions').insertGraphAndFetch({
       userId: user.id,
-      expiresAt: addSeconds(new Date(), this.deps.env.COOKIE_TTL)
+      expiresAt: addSeconds(new Date(), this.env.COOKIE_TTL)
     })
 
     return {
@@ -84,7 +83,7 @@ export class AuthService implements IAuthService {
   }
 
   public async logout(userId: string): Promise<void> {
-    const user = await this.deps.userService.getById(userId)
+    const user = await this.userService.getById(userId)
 
     if (!user) {
       throw new Unauthorized('Invalid credentials')
