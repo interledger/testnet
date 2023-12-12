@@ -65,6 +65,7 @@ describe('Incoming Payment Controller', () => {
         req.body.expiration
       )
     })
+
     it("should return status 200 and message 'SUCCESS' if the payment was created", async () => {
       req.body = mockIncomingPaymentRequest().body
       await incomingPaymentController.create(req, res, next)
@@ -75,6 +76,7 @@ describe('Incoming Payment Controller', () => {
         data: { url: 'https://www.some-domain.com' }
       })
     })
+
     it('should return status 400 if the incomingPayment body is not valid', async () => {
       req.body = mockIncomingPaymentRequest().body
       delete req.body.paymentPointerId
@@ -84,6 +86,7 @@ describe('Incoming Payment Controller', () => {
       })
       expect(res.statusCode).toBe(400)
     })
+
     it('should not call method create() in incomingPaymentService if the incomingPayment body is not valid', async () => {
       const createSpy = jest.spyOn(mockIncomingPaymentService, 'create')
       req.body = mockIncomingPaymentRequest().body
@@ -107,6 +110,7 @@ describe('Incoming Payment Controller', () => {
         expect(getPaymentDetailsByUrlSpy).toHaveBeenCalledTimes(1)
         expect(getPaymentDetailsByUrlSpy).toHaveBeenCalledWith(req.query.url)
       })
+
       it("should return status 200 and message 'SUCCESS' if the payment details were fetched", async () => {
         req.query = mockIncomingPaymentGetPaymentDetailsByUrlRequest().query
         await incomingPaymentController.getPaymentDetailsByUrl(req, res, next)
@@ -116,6 +120,7 @@ describe('Incoming Payment Controller', () => {
           message: 'SUCCESS'
         })
       })
+
       it('should return status 400 if the incomingPayment body is not valid', async () => {
         req.query = mockIncomingPaymentGetPaymentDetailsByUrlRequest({
           url: 'some-url'
@@ -134,6 +139,7 @@ describe('Incoming Payment Controller', () => {
           message: 'Invalid input'
         })
       })
+
       it('should not call method getPaymentDetailsByUrl() in incomingPaymentService if the incomingPayment body is not valid', async () => {
         const getPaymentDetailsByUrlSpy = jest.spyOn(
           mockIncomingPaymentService,

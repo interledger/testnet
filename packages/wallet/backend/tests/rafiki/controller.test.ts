@@ -1,5 +1,5 @@
 import { env } from '@/config/env'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { errorHandler } from '@/middleware/errorHandler'
 import { RafikiController } from '@/rafiki/controller'
 import { NextFunction, Request, Response } from 'express'
@@ -16,8 +16,10 @@ import {
   mockRafikiService,
   mockRatesService
 } from '../mocks'
+import { AwilixContainer } from 'awilix'
 
 describe('Rafiki controller', () => {
+  let bindings: AwilixContainer<Cradle>
   let req: MockRequest<Request>
   let res: MockResponse<Response>
   let rafikiController: RafikiController
@@ -36,9 +38,9 @@ describe('Rafiki controller', () => {
 
   describe('Get Rates', () => {
     beforeAll(async () => {
-      const container = createContainer(env)
-      rafikiController = await container.resolve('rafikiController')
-      logger = await container.resolve('logger')
+      bindings = await createContainer(env)
+      rafikiController = await bindings.resolve('rafikiController')
+      logger = await bindings.resolve('logger')
 
       createRafikiControllerDepsMocked()
     })
