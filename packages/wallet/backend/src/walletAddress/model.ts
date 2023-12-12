@@ -3,31 +3,36 @@ import { BaseModel } from '@/shared/model'
 import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
 
-interface PaymentPointerKey {
+interface WalletAddressKey {
   id: string
   rafikiId: string
   publicKey: string
   createdOn: Date
 }
 
-export class PaymentPointer extends BaseModel {
-  static tableName = 'paymentPointers'
+export class WalletAddress extends BaseModel {
+  static tableName = 'walletAddresses'
 
   publicName!: string
   readonly id!: string
   readonly url!: string
   readonly accountId!: string
+  isWM!: boolean
+  assetCode!: string | null
+  assetScale!: number | null
+  incomingBalance!: bigint
+  outgoingBalance!: bigint
   active!: boolean
   account!: Account
-  transacions!: Array<Transaction>
-  keyIds!: PaymentPointerKey | null
+  transactions!: Array<Transaction>
+  keyIds!: WalletAddressKey | null
 
   static relationMappings = () => ({
     account: {
       relation: Model.BelongsToOneRelation,
       modelClass: Account,
       join: {
-        from: 'paymentPointers.accountId',
+        from: 'walletAddresses.accountId',
         to: 'accounts.id'
       }
     },
@@ -36,8 +41,8 @@ export class PaymentPointer extends BaseModel {
       relation: Model.HasManyRelation,
       modelClass: Transaction,
       join: {
-        from: 'paymentPointers.id',
-        to: 'transactions.paymentPointerId'
+        from: 'walletAddresses.id',
+        to: 'transactions.walletAddressId'
       }
     }
   })

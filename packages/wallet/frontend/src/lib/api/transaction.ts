@@ -22,10 +22,10 @@ export interface Transaction {
   id: string
   paymentId: string
   accountName: string
-  paymentPointerPublicName?: string
-  paymentPointerUrl?: string
+  walletAddressPublicName?: string
+  walletAddressUrl?: string
   description: string
-  paymentPointerId: string
+  walletAddressId: string
   assetCode: string
   assetScale: number
   value: string

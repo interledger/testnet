@@ -4,13 +4,13 @@ import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
 
-interface OrderItem {
+export interface OrderItem {
   productId: string
   quantity: number
 }
 
 interface CreateOrderMutationParams {
-  paymentPointerUrl: string
+  walletAddressUrl: string
   products: OrderItem[]
 }
 
@@ -19,7 +19,7 @@ interface CreateOrderMutationResponse {
 }
 
 export const createOrderSchema = z.object({
-  paymentPointerUrl: z.string()
+  walletAddressUrl: z.string()
 })
 
 export function useCreateOrderMutation(

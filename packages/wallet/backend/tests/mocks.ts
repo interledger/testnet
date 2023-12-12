@@ -74,7 +74,7 @@ export const mockCreateQuoteRequest = (
   return {
     body: {
       receiver: faker.internet.url(),
-      paymentPointerId: uuid(),
+      walletAddressId: uuid(),
       amount: Number(faker.finance.amount({ dec: 0 })),
       isReceive: true,
       ...overrides
@@ -96,7 +96,7 @@ export const mockVerifyIdentityRequest = (): VerifyIdentityRequest => {
 }
 
 export const mockRapyd = {
-  rapyd: {
+  rapydClient: {
     issueVirtualAccount: () => ({
       status: {
         status: 'SUCCESS'
@@ -199,7 +199,7 @@ const rapydFailResponse = () => ({
   }
 })
 export const mockFailureRapyd = {
-  rapyd: {
+  rapydClient: {
     issueVirtualAccount: rapydFailResponse,
     simulateBankTransferToWallet: rapydFailResponse,
     withdrawFundsFromAccount: rapydFailResponse,
@@ -280,7 +280,7 @@ export const mockedAccount = {
   assetId: mockedListAssets[0].id,
   assetCode: mockedListAssets[0].code,
   assetScale: mockedListAssets[0].scale,
-  paymentPointers: [],
+  walletAddresses: [],
   userId: faker.string.uuid(),
   createdAt: faker.string.uuid(),
   updatedAt: faker.string.uuid()
@@ -298,11 +298,24 @@ export const mockCreateAccountReq = {
   assetId: mockedListAssets[0].id
 }
 
+export const mockedListGrant = [
+  {
+    id: faker.string.uuid(),
+    client: faker.lorem.slug(),
+    state: 'APPROVED'
+  },
+  {
+    id: faker.string.uuid(),
+    client: faker.lorem.slug(),
+    state: 'FINALIZED',
+    finalizationReason: 'REJECTED'
+  }
+]
 export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({
   id: faker.string.uuid(),
-  paymentPointerId: faker.string.uuid(),
+  walletAddressId: faker.string.uuid(),
   accountId: faker.string.uuid(),
   paymentId: faker.string.uuid(),
   assetCode: mockedListAssets[0].code,
@@ -381,7 +394,7 @@ export function mockIncomingPaymentRequest(
 ): IncomingPaymentCreated {
   return {
     body: {
-      paymentPointerId: uuid(),
+      walletAddressId: faker.string.uuid(),
       amount: Number(faker.finance.amount({ dec: 0 })),
       description: faker.lorem.paragraph(2),
       expiration: {
@@ -434,4 +447,11 @@ export const mockIncomingPaymentService = {
     description: faker.lorem.paragraph(2),
     assetCode: 'USD'
   })
+}
+
+export const mockWalletAddress = {
+  id: faker.string.uuid(),
+  url: faker.internet.url(),
+  publicName: faker.lorem.words({ max: 2, min: 2 }),
+  active: true
 }

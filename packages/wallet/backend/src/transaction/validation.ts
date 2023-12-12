@@ -9,7 +9,7 @@ export const transactionListRequestSchema = z.object({
 const transactionExtendedObject = z
   .object({
     accountId: z.string().uuid().optional(),
-    paymentPointerId: z.string().uuid().optional(),
+    walletAddressId: z.string().uuid().optional(),
     assetCode: z.string().optional(),
     type: z.string().optional(),
     status: z.string().optional()

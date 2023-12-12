@@ -7,128 +7,141 @@ import {
 } from '../httpClient'
 import { AssetOP } from './asset'
 
-export const createPaymentPointerSchema = z.object({
-  paymentPointerName: z.string().toLowerCase().min(3, {
+export const createWalletAddressSchema = z.object({
+  walletAddressName: z.string().toLowerCase().min(3, {
     message:
       'The name of the payment pointer should be at least 3 characters long'
   }),
   publicName: z.string().min(3, {
     message:
       'The public name of the payment pointer should be at least 3 characters long'
-  })
+  }),
+  isWM: z.boolean()
 })
 
-export const updatePaymentPointerSchema = z.object({
+export const updateWalletAddressSchema = z.object({
   publicName: z.string().min(3, {
     message:
       'The public name of the payment pointer should be at least 3 characters long'
   })
 })
 
-type PaymentPointerKey = {
+type WalletAddressKey = {
   id: string
   publicKey: string
   createdOn: string
 }
 
-export type PaymentPointer = {
+export type WalletAddress = {
   id: string
   url: string
   publicName: string
   accountId: string
-  keyIds: PaymentPointerKey | null
+  keyIds: WalletAddressKey | null
+  incomingBalance: string
+  outgoingBalance: string
+  assetCode?: string
+  assetScale?: number
 }
 
-type PaymentPointerKeyDetails = {
+export type ListWalletAddresses = {
+  wmWalletAddresses: Array<WalletAddress>
+  walletAddresses: Array<WalletAddress>
+}
+
+type WalletAddressKeyDetails = {
   privateKey: string
   publicKey: string
   keyId: string
 }
 
-type BasePaymentPointerArgs = {
+type BaseWalletAddressArgs = {
   accountId: string
-  paymentPointerId: string
+  walletAddressId: string
 }
 
-type PaymentPointerOP = AssetOP & {
+type WalletAddressOP = AssetOP & {
   id: string
   publicName: string
   authServer: string
 }
 
-type GetPaymentPointerArgs = { accountId: string; paymentPointerId: string }
-type GetPaymentPointerResult = SuccessResponse<PaymentPointer>
-type GetPaymentPointerResponse = GetPaymentPointerResult | ErrorResponse
+type GetWalletAddressArgs = { accountId: string; walletAddressId: string }
+type GetWalletAddressResult = SuccessResponse<WalletAddress>
+type GetWalletAddressResponse = GetWalletAddressResult | ErrorResponse
 
-type ListPaymentPointerResult = SuccessResponse<PaymentPointer[]>
-type ListPaymentPointerResponse = ListPaymentPointerResult | ErrorResponse
+type ListWalletAddressResult = SuccessResponse<ListWalletAddresses>
+type ListWalletAddressResponse = ListWalletAddressResult | ErrorResponse
 
-type CreatePaymentPointerArgs = z.infer<typeof createPaymentPointerSchema>
-type CreatePaymentPointerResult = SuccessResponse<PaymentPointer>
-type CreatePaymentPointerError = ErrorResponse<
-  CreatePaymentPointerArgs | undefined
+type ListAllWalletAddressResult = SuccessResponse<WalletAddress[]>
+type ListAllWalletAddressResponse = ListAllWalletAddressResult | ErrorResponse
+
+type CreateWalletAddressArgs = z.infer<typeof createWalletAddressSchema>
+type CreateWalletAddressResult = SuccessResponse<WalletAddress>
+type CreateWalletAddressError = ErrorResponse<
+  CreateWalletAddressArgs | undefined
 >
-type CreatePaymentPointerResponse =
-  | CreatePaymentPointerResult
-  | CreatePaymentPointerError
+type CreateWalletAddressResponse =
+  | CreateWalletAddressResult
+  | CreateWalletAddressError
 
-type UpdatePaymentPointerArgs = z.infer<typeof updatePaymentPointerSchema> & {
+type UpdateWalletAddressArgs = z.infer<typeof updateWalletAddressSchema> & {
   accountId: string
-  paymentPointerId: string
+  walletAddressId: string
 }
-type UpdatePaymentPointerError = ErrorResponse<
-  z.infer<typeof updatePaymentPointerSchema> | undefined
+type UpdateWalletAddressError = ErrorResponse<
+  z.infer<typeof updateWalletAddressSchema> | undefined
 >
-type UpdatePaymentPointerResponse = SuccessResponse | UpdatePaymentPointerError
+type UpdateWalletAddressResponse = SuccessResponse | UpdateWalletAddressError
 
-type DeletePaymentPointerResponse = SuccessResponse | ErrorResponse
+type DeleteWalletAddressResponse = SuccessResponse | ErrorResponse
 
-type GenerateKeyArgs = BasePaymentPointerArgs
-type GenerateKeyResult = SuccessResponse<PaymentPointerKeyDetails>
+type GenerateKeyArgs = BaseWalletAddressArgs
+type GenerateKeyResult = SuccessResponse<WalletAddressKeyDetails>
 type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
 
-type RevokeKeyArgs = BasePaymentPointerArgs
+type RevokeKeyArgs = BaseWalletAddressArgs
 type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
-type AssetCodeResult = SuccessResponse<PaymentPointerOP>
+type AssetCodeResult = SuccessResponse<WalletAddressOP>
 type AssetCodeResponse = AssetCodeResult | ErrorResponse
 
-interface PaymentPointerService {
+interface WalletAddressService {
   get: (
-    args: GetPaymentPointerArgs,
+    args: GetWalletAddressArgs,
     cookies?: string
-  ) => Promise<GetPaymentPointerResponse>
+  ) => Promise<GetWalletAddressResponse>
   list: (
     accountId: string,
     cookies?: string
-  ) => Promise<ListPaymentPointerResponse>
-  listAll: (cookies?: string) => Promise<ListPaymentPointerResponse>
+  ) => Promise<ListWalletAddressResponse>
+  listAll: (cookies?: string) => Promise<ListAllWalletAddressResponse>
   create: (
     accountId: string,
-    args: CreatePaymentPointerArgs
-  ) => Promise<CreatePaymentPointerResponse>
+    args: CreateWalletAddressArgs
+  ) => Promise<CreateWalletAddressResponse>
   update: (
-    args: UpdatePaymentPointerArgs
-  ) => Promise<UpdatePaymentPointerResponse>
-  delete: (paymentPointerId: string) => Promise<DeletePaymentPointerResponse>
+    args: UpdateWalletAddressArgs
+  ) => Promise<UpdateWalletAddressResponse>
+  delete: (walletAddressId: string) => Promise<DeleteWalletAddressResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
   getExternal: (url: string) => Promise<AssetCodeResponse>
 }
 
-const createPaymentPointerService = (): PaymentPointerService => ({
+const createWalletAddressService = (): WalletAddressService => ({
   async get(args, cookies) {
     try {
       const response = await httpClient
         .get(
-          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}`,
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}`,
           {
             headers: {
               ...(cookies ? { Cookie: cookies } : {})
             }
           }
         )
-        .json<GetPaymentPointerResult>()
+        .json<GetWalletAddressResult>()
       return response
     } catch (error) {
       return getError(
@@ -141,12 +154,12 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   async list(accountId, cookies) {
     try {
       const response = await httpClient
-        .get(`accounts/${accountId}/payment-pointers`, {
+        .get(`accounts/${accountId}/wallet-addresses`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<ListPaymentPointerResult>()
+        .json<ListWalletAddressResult>()
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch payment pointers.')
@@ -156,12 +169,12 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   async listAll(cookies) {
     try {
       const response = await httpClient
-        .get('payment-pointers', {
+        .get('wallet-addresses', {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<ListPaymentPointerResult>()
+        .json<ListAllWalletAddressResponse>()
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch payment pointers.')
@@ -171,13 +184,13 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   async create(accountId, args) {
     try {
       const response = await httpClient
-        .post(`accounts/${accountId}/payment-pointers`, {
+        .post(`accounts/${accountId}/wallet-addresses`, {
           json: args
         })
-        .json<CreatePaymentPointerResult>()
+        .json<CreateWalletAddressResult>()
       return response
     } catch (error) {
-      return getError<CreatePaymentPointerArgs>(
+      return getError<CreateWalletAddressArgs>(
         error,
         'We were not able to create your payment pointer. Please try again.'
       )
@@ -188,7 +201,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     try {
       const response = await httpClient
         .patch(
-          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}`,
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}`,
           {
             json: {
               publicName: args.publicName
@@ -198,19 +211,17 @@ const createPaymentPointerService = (): PaymentPointerService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<UpdatePaymentPointerArgs>(
+      return getError<UpdateWalletAddressArgs>(
         error,
         'We were not able to update your payment pointer. Please try again.'
       )
     }
   },
 
-  async delete(
-    paymentPointerId: string
-  ): Promise<DeletePaymentPointerResponse> {
+  async delete(walletAddressId: string): Promise<DeleteWalletAddressResponse> {
     try {
       const response = await httpClient
-        .delete(`payment-pointer/${paymentPointerId}`)
+        .delete(`wallet-addresses/${walletAddressId}`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
@@ -225,7 +236,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     try {
       const response = await httpClient
         .post(
-          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/register-key`
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/register-key`
         )
         .json<GenerateKeyResult>()
       return response
@@ -241,7 +252,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
     try {
       const response = await httpClient
         .patch(
-          `accounts/${args.accountId}/payment-pointers/${args.paymentPointerId}/revoke-key`
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/revoke-key`
         )
         .json<SuccessResponse>()
       return response
@@ -256,7 +267,7 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   async getExternal(url) {
     try {
       const response = await httpClient
-        .get(`external-payment-pointers?url=${url}`)
+        .get(`external-wallet-addresses?url=${url}`)
         .json<AssetCodeResult>()
       return response
     } catch (error) {
@@ -265,5 +276,5 @@ const createPaymentPointerService = (): PaymentPointerService => ({
   }
 })
 
-const paymentPointerService = createPaymentPointerService()
-export { paymentPointerService }
+const walletAddressService = createWalletAddressService()
+export { walletAddressService }

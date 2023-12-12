@@ -9,7 +9,7 @@ import {
   IncomingPayment,
   OutgoingPayment
 } from '@/rafiki/backend/generated/graphql'
-import { PaymentPointerService } from '@/paymentPointer/service'
+import { WalletAddress } from '@/walletAddress/model'
 
 type ListAllTransactionsInput = {
   userId: string
@@ -22,7 +22,7 @@ export interface ITransactionService {
   list: (
     userId: string,
     accountId: string,
-    paymentPointerId: string,
+    walletAddressId: string,
     orderByDate: OrderByDirection
   ) => Promise<Transaction[]>
   updateTransaction: (
@@ -33,26 +33,23 @@ export interface ITransactionService {
   processPendingIncomingPayments: () => Promise<string | undefined>
 }
 
-interface TransactionServiceDependencies {
-  accountService: AccountService
-  paymentPointerService: PaymentPointerService
-  logger: Logger
-  knex: Knex
-}
-
 export class TransactionService implements ITransactionService {
-  constructor(private deps: TransactionServiceDependencies) {}
+  constructor(
+    private accountService: AccountService,
+    private logger: Logger,
+    private knex: Knex
+  ) {}
 
   async list(
     userId: string,
     accountId: string,
-    paymentPointerId: string,
+    walletAddressId: string,
     orderByDate: OrderByDirection
   ): Promise<Transaction[]> {
-    await this.deps.accountService.findAccountById(accountId, userId)
+    await this.accountService.findAccountById(accountId, userId)
 
     return Transaction.query()
-      .where('paymentPointerId', paymentPointerId)
+      .where('walletAddressId', walletAddressId)
       .orderBy('createdAt', orderByDate)
   }
 
@@ -61,12 +58,10 @@ export class TransactionService implements ITransactionService {
     update: PartialModelObject<Transaction>
   ): Promise<void> {
     try {
-      this.deps.logger.info(
-        `Updating transaction with: ${JSON.stringify(update)}`
-      )
+      this.logger.info(`Updating transaction with: ${JSON.stringify(update)}`)
       await Transaction.query().where(where).update(update)
     } catch (e) {
-      this.deps.logger.error(`Update transaction error:`, e)
+      this.logger.error(`Update transaction error:`, e)
     }
   }
 
@@ -78,19 +73,19 @@ export class TransactionService implements ITransactionService {
   }: ListAllTransactionsInput): Promise<Page<Transaction>> {
     const filterParamsWithTableNames = prefixSomeObjectKeys(
       filterParams,
-      ['paymentPointerId', 'assetCode', 'type', 'status', 'accountId'],
+      ['walletAddressId', 'assetCode', 'type', 'status', 'accountId'],
       'transactions.'
     )
 
     const transactions = await Transaction.query()
       .select(
         'transactions.*',
-        'paymentPointer.url as paymentPointerUrl',
-        'paymentPointer.publicName as paymentPointerPublicName',
+        'walletAddress.url as walletAddressUrl',
+        'walletAddress.publicName as walletAddressPublicName',
         'account.name as accountName',
         'account.assetScale'
       )
-      .fullOuterJoinRelated('[paymentPointer, account.user]')
+      .fullOuterJoinRelated('[walletAddress, account.user]')
       .where('account:user.id', userId)
       .whereNotNull('transactions.id')
       .where(filterParamsWithTableNames)
@@ -101,7 +96,7 @@ export class TransactionService implements ITransactionService {
   }
 
   async processPendingIncomingPayments(): Promise<string | undefined> {
-    return this.deps.knex.transaction(async (trx) => {
+    return this.knex.transaction(async (trx) => {
       // Giving a Rafiki a little more time to process the payments before we process them.
       const now = new Date(Date.now() - 30_000)
       const [transaction] = await Transaction.query(trx)
@@ -128,16 +123,14 @@ export class TransactionService implements ITransactionService {
     })
   }
 
-  async createIncomingTransaction(params: IncomingPayment) {
-    const paymentPointer =
-      await this.deps.paymentPointerService.findByIdWithoutValidation(
-        params.paymentPointerId
-      )
-
+  async createIncomingTransaction(
+    params: IncomingPayment,
+    walletAddress: WalletAddress
+  ) {
     const amount = params.incomingAmount || params.receivedAmount
     return Transaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
-      accountId: paymentPointer.accountId,
+      walletAddressId: params.walletAddressId,
+      accountId: walletAddress.accountId,
       paymentId: params.id,
       assetCode: amount.assetCode,
       expiresAt: params.expiresAt ? new Date(params.expiresAt) : undefined,
@@ -148,16 +141,14 @@ export class TransactionService implements ITransactionService {
     })
   }
 
-  async createOutgoingTransaction(params: OutgoingPayment) {
-    const paymentPointer =
-      await this.deps.paymentPointerService.findByIdWithoutValidation(
-        params.paymentPointerId
-      )
-
+  async createOutgoingTransaction(
+    params: OutgoingPayment,
+    walletAddress: WalletAddress
+  ) {
     const amount = params.debitAmount
     return Transaction.query().insert({
-      paymentPointerId: params.paymentPointerId,
-      accountId: paymentPointer.accountId,
+      walletAddressId: params.walletAddressId,
+      accountId: walletAddress.accountId,
       paymentId: params.id,
       assetCode: amount.assetCode,
       value: amount.value,

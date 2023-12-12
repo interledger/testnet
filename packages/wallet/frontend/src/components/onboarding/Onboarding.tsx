@@ -58,7 +58,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 4
-    target: '#paymentPointer',
+    target: '#walletAddress',
     content: `In order to send and receive money, all accounts need at least a payment pointer, so let's add a payment pointer to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,

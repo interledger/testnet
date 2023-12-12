@@ -74,7 +74,7 @@ export const SheetContent = forwardRef<
       {...props}
     >
       {children}
-      <SheetClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-green-3 focus:ring-offset-2 disabled:pointer-events-none">
+      <SheetClose className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-green-3 disabled:pointer-events-none">
         <X strokeWidth={2.5} className="h-8 w-8 text-green-3" />
         <span className="sr-only">Close</span>
       </SheetClose>

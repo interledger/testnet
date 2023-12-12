@@ -7,11 +7,23 @@ import { cn } from '@/lib/utils.ts'
 import { VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { checkoutConfirmationSearchParamsSchema } from '../route-schemas.ts'
-import { Loader } from './components/loader.tsx'
+import { Loader } from '@/components/loader.tsx'
 
-export function Component() {
+function InstantBuy() {
+  return (
+    <div className="mt-28 flex flex-col items-center gap-y-5 text-turqoise">
+      <AnimatedCheckMark />
+      <AnimatedText text="Thank you for your order!" />
+      <Button variant="default" aria-label="continue shopping" asChild>
+        <Link to="/products">Continue shopping</Link>
+      </Button>
+    </div>
+  )
+}
+
+function CheckoutConfirmation() {
   const [{ orderId, hash, interact_ref, result }] = useZodSearchParams(
     checkoutConfirmationSearchParamsSchema
   )
@@ -67,4 +79,13 @@ export function Component() {
   }
 
   return <Loader />
+}
+
+export function Component() {
+  const [searchParams] = useSearchParams()
+  const instantBuy = searchParams.get('instantBuy')
+
+  if (instantBuy === 'true') return <InstantBuy />
+
+  return <CheckoutConfirmation />
 }

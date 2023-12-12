@@ -39,4 +39,17 @@ export class InMemoryCache<TData> {
   clear(): void {
     this.cache.clear()
   }
+
+  processExpired(): string | undefined {
+    const now = Date.now()
+    for (const [key, data] of this.cache.entries()) {
+      const { expires } = data
+
+      if (!expires) return
+
+      if (expires && expires < now) {
+        this.cache.delete(key)
+      }
+    }
+  }
 }

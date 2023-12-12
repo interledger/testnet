@@ -13,7 +13,7 @@ import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
-import { paymentPointerService } from '@/lib/api/paymentPointer'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { useMemo, useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
@@ -27,7 +27,7 @@ import { balanceState } from '@/lib/balance'
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
 }
-type SelectPaymentPointerOption = SelectOption & { url: string }
+type SelectWalletAddressOption = SelectOption & { url: string }
 
 const timeUnitOptions: SelectTimeUnitOption[] = [
   { value: 's', label: 'second(s)' },
@@ -40,8 +40,8 @@ type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
-  const [paymentPointers, setPaymentPointers] = useState<
-    SelectPaymentPointerOption[]
+  const [walletAddresses, setWalletAddresses] = useState<
+    SelectWalletAddressOption[]
   >([])
   const [selectedAccount, setSelectedAccount] =
     useState<SelectAccountOption | null>(null)
@@ -66,17 +66,17 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     }).amount
   }, [accountsSnapshot, selectedAccount])
 
-  const getPaymentPointers = async (accountId: string) => {
+  const getWalletAddresses = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
     setSelectedAccount(selectedAccount || null)
 
-    requestForm.resetField('paymentPointerId', { defaultValue: null })
+    requestForm.resetField('walletAddressId', { defaultValue: null })
 
-    const paymentPointersResponse = await paymentPointerService.list(accountId)
-    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
-      setPaymentPointers([])
+    const walletAddressesResponse = await walletAddressService.list(accountId)
+    if (!walletAddressesResponse.success || !walletAddressesResponse.data) {
+      setWalletAddresses([])
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
@@ -86,17 +86,17 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       return
     }
 
-    const paymentPointers = paymentPointersResponse.data.map(
-      (paymentPointer) => ({
-        label: `${paymentPointer.publicName} (${paymentPointer.url.replace(
+    const walletAddresses = walletAddressesResponse.data.walletAddresses.map(
+      (walletAddress) => ({
+        label: `${walletAddress.publicName} (${walletAddress.url.replace(
           'https://',
           '$'
         )})`,
-        value: paymentPointer.id,
-        url: paymentPointer.url
+        value: walletAddress.id,
+        url: walletAddress.url
       })
     )
-    setPaymentPointers(paymentPointers)
+    setWalletAddresses(walletAddresses)
   }
 
   return (
@@ -139,29 +139,29 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               isSearchable={false}
               onChange={(option) => {
                 if (option) {
-                  getPaymentPointers(option.value)
+                  getWalletAddresses(option.value)
                 }
               }}
             />
             <Controller
-              name="paymentPointerId"
+              name="walletAddressId"
               control={requestForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
                   required
                   label="Payment pointer"
-                  options={paymentPointers}
+                  options={walletAddresses}
                   aria-invalid={
-                    requestForm.formState.errors.paymentPointerId
+                    requestForm.formState.errors.walletAddressId
                       ? 'true'
                       : 'false'
                   }
-                  error={requestForm.formState.errors.paymentPointerId?.message}
+                  error={requestForm.formState.errors.walletAddressId?.message}
                   placeholder="Select payment pointer..."
                   value={value}
                   onChange={(option) => {
                     if (option) {
-                      requestForm.setValue('paymentPointerId', { ...option })
+                      requestForm.setValue('walletAddressId', { ...option })
                     }
                   }}
                 />
@@ -202,7 +202,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                         placeholder="Unit"
                         options={timeUnitOptions}
                         aria-invalid={
-                          requestForm.formState.errors.paymentPointerId
+                          requestForm.formState.errors.walletAddressId
                             ? 'true'
                             : 'false'
                         }

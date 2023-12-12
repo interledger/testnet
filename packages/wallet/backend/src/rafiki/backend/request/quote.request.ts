@@ -13,7 +13,7 @@ export const createQuoteMutation = gql`
         lowEstimatedExchangeRate
         maxPacketAmount
         minExchangeRate
-        paymentPointerId
+        walletAddressId
         receiveAmount {
           assetCode
           assetScale
@@ -34,7 +34,7 @@ export const getQuoteQuery = gql`
   query GetQuoteQuery($quoteId: String!) {
     quote(id: $quoteId) {
       id
-      paymentPointerId
+      walletAddressId
       receiver
       debitAmount {
         value
