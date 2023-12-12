@@ -1,17 +1,33 @@
 name: Update rafiki.money with release branch
 
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  VERSION: ${{ github.event.inputs.tag }}
 on:
-  push:
-    branches:
-      - release
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        description: What is the release tag? (e.g. "1.0.2")
+        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
+      - name: Check release version
+        id: release-version
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+              echo "Invalid version tag '${VERSION}'"
+              exit 1
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -30,3 +46,18 @@ jobs:
             source ~/.nvm/nvm.sh
             pnpm install
             pnpm run prod
+
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v4.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: testnet@${{ env.VERSION }}
+          body: ${{steps.github_release.outputs.changelog}}
+          tag_name: ${{ format('{0}', env.VERSION) }}
+          prerelease: false
+          generate_release_notes: true
