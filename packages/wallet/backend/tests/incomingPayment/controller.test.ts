@@ -6,7 +6,7 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { NextFunction, Request, Response } from 'express'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import {
   mockIncomingPaymentGetPaymentDetailsByUrlRequest,
@@ -15,8 +15,10 @@ import {
   mockIncomingPaymentService
 } from '../mocks'
 import { errorHandler } from '@/middleware/errorHandler'
+import { AwilixContainer } from 'awilix'
 
 describe('Incoming Payment Controller', () => {
+  let bindings: AwilixContainer<Cradle>
   let req: MockRequest<Request>
   let res: MockResponse<Response>
   let incomingPaymentController: IncomingPaymentController
@@ -35,8 +37,8 @@ describe('Incoming Payment Controller', () => {
   }
 
   beforeAll(async () => {
-    const container = createContainer(env)
-    incomingPaymentController = await container.resolve(
+    bindings = await createContainer(env)
+    incomingPaymentController = await bindings.resolve(
       'incomingPaymentController'
     )
     createIncomingPaymentControllerDepsMock()
