@@ -363,8 +363,8 @@ importers:
         specifier: ^7.48.2
         version: 7.48.2(react@18.2.0)
       react-joyride:
-        specifier: ^2.7.0
-        version: 2.7.0(@types/react@18.2.43)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^2.7.1
+        version: 2.7.1(@types/react@18.2.43)(react-dom@18.2.0)(react@18.2.0)
       react-select:
         specifier: ^5.8.0
         version: 5.8.0(@types/react@18.2.43)(react-dom@18.2.0)(react@18.2.0)
@@ -1554,7 +1554,7 @@ packages:
   /@gilbarbara/types@0.2.2:
     resolution: {integrity: sha512-QuQDBRRcm1Q8AbSac2W1YElurOhprj3Iko/o+P1fJxUWS4rOGKMVli98OXS7uo4z+cKAif6a+L9bcZFSyauQpQ==}
     dependencies:
-      type-fest: 4.8.1
+      type-fest: 4.8.3
     dev: false
 
   /@graphql-codegen/cli@5.0.0(@types/node@18.18.3)(graphql@16.8.1)(typescript@5.3.3):
@@ -5779,10 +5779,6 @@ packages:
       strip-final-newline: 2.0.0
     dev: true
 
-  /exenv@1.2.2:
-    resolution: {integrity: sha512-Z+ktTxTwv9ILfgKCk32OX3n/doe+OcLTRtqK9pcL+JsP3J1/VW8Uvl4ZjLlKqeW4rzK4oesDOGMEMRIZqtP4Iw==}
-    dev: false
-
   /exit@0.1.2:
     resolution: {integrity: sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ==}
     engines: {node: '>= 0.8.0'}
@@ -8821,20 +8817,18 @@ packages:
       scheduler: 0.23.0
     dev: false
 
-  /react-floater@0.7.6(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-tt/15k/HpaShbtvWCwsQYLR+ebfUuYbl+oAUJ3DcEDkgYKeUcSkDey2PdAIERdVwzdFZANz47HbwoET2/Rduxg==}
+  /react-floater@0.7.9(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NXqyp9o8FAXOATOEo0ZpyaQ2KPb4cmPMXGWkx377QtJkIXHlHRAGer7ai0r0C1kG5gf+KJ6Gy+gdNIiosvSicg==}
     peerDependencies:
       react: 15 - 18
       react-dom: 15 - 18
     dependencies:
       deepmerge: 4.3.1
-      exenv: 1.2.2
       is-lite: 0.8.2
       popper.js: 1.16.1
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-proptype-conditional-require: 1.0.4
       tree-changes: 0.9.3
     dev: false
 
@@ -8864,8 +8858,8 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-joyride@2.7.0(@types/react@18.2.43)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-fWcIKhat6okO4gLXMz8SRUTIQKmh3dHGzsEQxHVwGNBBFd3z/KQMYVu82dBX448ASTmSG1OJhA7lqBmKX7OQVA==}
+  /react-joyride@2.7.1(@types/react@18.2.43)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-G6/wtM5K6TyRxGebpaEiUg8dExQhGGtYPczjqOkFpeov7eXOHXdzT1huGJxp9fj7nW82cfKVQa6wTsO5aZ1ilw==}
     peerDependencies:
       react: 15 - 18
       react-dom: 15 - 18
@@ -8877,19 +8871,15 @@ packages:
       is-lite: 1.2.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-floater: 0.7.6(react-dom@18.2.0)(react@18.2.0)
+      react-floater: 0.7.9(react-dom@18.2.0)(react@18.2.0)
       react-innertext: 1.1.5(@types/react@18.2.43)(react@18.2.0)
       react-is: 16.13.1
       scroll: 3.0.1
       scrollparent: 2.1.0
       tree-changes: 0.11.2
-      type-fest: 4.8.1
+      type-fest: 4.8.3
     transitivePeerDependencies:
       - '@types/react'
-    dev: false
-
-  /react-proptype-conditional-require@1.0.4:
-    resolution: {integrity: sha512-nopsRn7KnGgazBe2c3H2+Kf+Csp6PGDRLiBkYEDMKY8o/EIgft/WnIm/OnAKTawZiLnJXHAqhpFBddvs6NiXlw==}
     dev: false
 
   /react-remove-scroll-bar@2.3.4(@types/react@18.2.43)(react@18.2.0):
@@ -10136,8 +10126,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /type-fest@4.8.1:
-    resolution: {integrity: sha512-ShaaYnjf+0etG8W/FumARKMjjIToy/haCaTjN2dvcewOSoNqCQzdgG7m2JVOlM5qndGTHjkvsrWZs+k/2Z7E0Q==}
+  /type-fest@4.8.3:
+    resolution: {integrity: sha512-//BaTm14Q/gHBn09xlnKNqfI8t6bmdzx2DXYfPBNofN0WUybCEUDcbCWcTa0oF09lzLjZgPphXAsvRiMK0V6Bw==}
     engines: {node: '>=16'}
     dev: false
 
