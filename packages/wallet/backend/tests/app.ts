@@ -1,7 +1,8 @@
 import { start } from '@/index'
-import { App, Bindings } from '@/app'
-import { Container } from '@/shared/container'
+import { App } from '@/app'
 import { Knex } from 'knex'
+import { AwilixContainer } from 'awilix'
+import { Cradle } from '@/createContainer'
 
 export interface TestApp {
   knex: Knex
@@ -10,7 +11,7 @@ export interface TestApp {
 }
 
 export const createApp = async (
-  container: Container<Bindings>
+  container: AwilixContainer<Cradle>
 ): Promise<TestApp> => {
   const env = await container.resolve('env')
   const knex = await container.resolve('knex')

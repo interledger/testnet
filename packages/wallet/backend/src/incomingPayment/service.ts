@@ -1,34 +1,30 @@
 import { AccountService } from '@/account/service'
 import { NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
-import { PaymentPointer } from '@/paymentPointer/model'
+import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Transaction } from '@/transaction/model'
 import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
-import { Asset } from '@/rafiki/backend/generated/graphql'
+import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add } from 'date-fns'
 import { Logger } from 'winston'
+import axios from 'axios'
+import { Env } from '@/config/env'
 
 interface IIncomingPaymentService {
   create: (
     userId: string,
-    paymentPointerId: string,
+    walletAddressId: string,
     amount: number,
     description: string
   ) => Promise<string>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetails>
 }
 
-interface IncomingPaymentServiceDependencies {
-  accountService: AccountService
-  rafikiClient: RafikiClient
-  logger: Logger
-}
-
 interface CreateReceiverParams {
   amount: bigint | null
   asset: Pick<Asset, 'code' | 'scale'>
-  paymentPointerUrl: string
+  walletAddressUrl: string
   description?: string
   expiresAt?: Date
 }
@@ -45,27 +41,37 @@ const unitMapping: Record<string, keyof Duration> = {
   d: 'days'
 }
 
+export interface IExternalPayment {
+  authServer: string
+  receivedAmount: Pick<Amount, 'value' | 'assetCode' | 'assetScale'>
+}
+
 export class IncomingPaymentService implements IIncomingPaymentService {
-  constructor(private deps: IncomingPaymentServiceDependencies) {}
+  constructor(
+    private accountService: AccountService,
+    private rafikiClient: RafikiClient,
+    private logger: Logger,
+    private env: Env
+  ) {}
 
   async create(
     userId: string,
-    paymentPointerId: string,
+    walletAddressId: string,
     amount: number,
     description?: string,
     expiration?: Expiration
   ): Promise<string> {
-    const existingPaymentPointer =
-      await PaymentPointer.query().findById(paymentPointerId)
-    if (!existingPaymentPointer || !existingPaymentPointer.active) {
+    const existingWalletAddress =
+      await WalletAddress.query().findById(walletAddressId)
+    if (!existingWalletAddress || !existingWalletAddress.active) {
       throw new NotFound()
     }
 
-    const { assetId } = await this.deps.accountService.findAccountById(
-      existingPaymentPointer.accountId,
+    const { assetId } = await this.accountService.findAccountById(
+      existingWalletAddress.accountId,
       userId
     )
-    const asset = await this.deps.rafikiClient.getAssetById(assetId)
+    const asset = await this.rafikiClient.getAssetById(assetId)
     if (!asset) {
       throw new NotFound()
     }
@@ -79,8 +85,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       )
     }
 
-    const response = await this.deps.rafikiClient.createReceiver({
-      paymentPointerUrl: existingPaymentPointer.url,
+    const response = await this.rafikiClient.createReceiver({
+      walletAddressUrl: existingWalletAddress.url,
       description,
       asset,
       amount: BigInt(amount * 10 ** asset.scale),
@@ -105,7 +111,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       .where('paymentId', id)
       .where('status', 'PENDING')
       .first()
-      .withGraphFetched({ paymentPointer: { account: true } })
+      .withGraphFetched({ walletAddress: { account: true } })
 
     if (!transaction) {
       throw new NotFound(
@@ -113,8 +119,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       )
     }
 
-    const asset = await this.deps.rafikiClient.getAssetById(
-      transaction.paymentPointer?.account.assetId
+    const asset = await this.rafikiClient.getAssetById(
+      transaction.walletAddress?.account.assetId
     )
     if (!asset) {
       throw new NotFound()
@@ -132,17 +138,31 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       // @TODO: replace with get receiver from rafiki when implemented
       return await this.getPaymentDetailsByUrl(receiver)
     } catch (_e) {
-      this.deps.logger.info(`Could not find transaction for ${receiver}`)
+      this.logger.info(`Could not find transaction for ${receiver}`)
     }
   }
 
   public async createReceiver(params: CreateReceiverParams): Promise<string> {
-    const response = await this.deps.rafikiClient.createReceiver(params)
+    const response = await this.rafikiClient.createReceiver(params)
     // id is the incoming payment url
     return response.id
   }
 
   private generateExpiryObject(expiry: number, unit: string): Duration {
     return unitMapping[unit] ? { [unitMapping[unit]]: expiry } : { days: 30 }
+  }
+
+  public async getExternalPayment(url: string): Promise<IExternalPayment> {
+    const headers = {
+      'Host': new URL(url).host,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+    url =
+      this.env.NODE_ENV === 'development'
+        ? url.replace('https://', 'http://')
+        : url
+    const res = await axios.get(url, { headers })
+    return res.data
   }
 }

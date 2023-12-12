@@ -6,6 +6,10 @@ export const cartRoutes: RouteObject[] = [
       {
         index: true,
         lazy: () => import('./index.tsx')
+      },
+      {
+        path: 'finish',
+        lazy: () => import('./finish.tsx')
       }
     ]
   }

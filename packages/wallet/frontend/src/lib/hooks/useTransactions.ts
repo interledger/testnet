@@ -9,7 +9,7 @@ type TransactionsQueryParams = Record<keyof TransactionsFilters, string>
 export type TransactionsFilters = {
   page: string
   accountId: SelectOption
-  paymentPointerId: SelectOption
+  walletAddressId: SelectOption
   type: SelectOption
   status: SelectOption
 }
@@ -21,7 +21,7 @@ const defaultState = {
 
 export const useTransactions = () => {
   const router = useRouter()
-  const { accountId, paymentPointerId, type, status, page } =
+  const { accountId, walletAddressId, type, status, page } =
     router.query as TransactionsQueryParams
   const [request, loading, error] = useHttpRequest()
   const [transactions, setTransactions] =
@@ -47,17 +47,17 @@ export const useTransactions = () => {
     fetch(
       {
         accountId,
-        paymentPointerId,
+        walletAddressId,
         type,
         status
       },
       { page: page ?? 0 }
     )
-  }, [fetch, accountId, paymentPointerId, type, status, page])
+  }, [fetch, accountId, walletAddressId, type, status, page])
 
   return [
     transactions,
-    { accountId, paymentPointerId, type, status },
+    { accountId, walletAddressId, type, status },
     { page: page ?? 0 },
     fetch,
     loading,

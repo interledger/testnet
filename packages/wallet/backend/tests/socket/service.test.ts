@@ -1,9 +1,7 @@
-import { Container } from '@/shared/container'
-import { Bindings } from '@/app'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { SocketService } from '@/socket/service'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { truncateTables } from '@/tests/tables'
 import { AuthService } from '@/auth/service'
@@ -26,9 +24,10 @@ import {
 import { withSession } from '@/middleware/withSession'
 import { applyMiddleware } from '../utils'
 import { User } from '@/user/model'
+import { AwilixContainer } from 'awilix'
 
 describe('Socket Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let socketService: SocketService
@@ -41,7 +40,7 @@ describe('Socket Service', () => {
   const args = mockLogInRequest().body
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
@@ -49,19 +48,28 @@ describe('Socket Service', () => {
     accountService = await bindings.resolve('accountService')
 
     const accountServiceDepsMocked = {
-      rafiki: {
+      rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
       },
       ...mockRapyd
     }
-    Reflect.set(accountService, 'deps', accountServiceDepsMocked)
+    for (const key in accountServiceDepsMocked)
+      Reflect.set(
+        accountService,
+        key,
+        accountServiceDepsMocked[key as keyof typeof accountServiceDepsMocked]
+      )
 
     const socketServiceDepsMocked = {
       accountService: await bindings.resolve('accountService')
     }
 
-    Reflect.set(socketService, 'deps', socketServiceDepsMocked)
+    Reflect.set(
+      socketService,
+      'accountService',
+      socketServiceDepsMocked.accountService
+    )
   })
 
   beforeEach(async (): Promise<void> => {
@@ -87,8 +95,8 @@ describe('Socket Service', () => {
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {

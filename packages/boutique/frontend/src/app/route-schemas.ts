@@ -9,3 +9,12 @@ export const checkoutConfirmationSearchParamsSchema = z.object({
   interact_ref: z.string().uuid().optional(),
   orderId: z.string().uuid()
 })
+
+export const oneClickConfirmationSearchParamsSchema =
+  checkoutConfirmationSearchParamsSchema
+    .omit({
+      orderId: true
+    })
+    .extend({
+      identifier: z.string().uuid()
+    })

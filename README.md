@@ -7,14 +7,14 @@
 ## What is Testnet?
 
 Testnet is an open-source test application for Rafiki. In other words, a Rafiki Playground.
-It wants to use all of the functionalities of Rafiki and put the advantages of it to the real test.
+It wants to use all of the functionalities of Rafiki and put its advantages to the real test.
 
 Testnet is made up (or will be made up in the near future) of several components, including wallet application,
 a bank application, and an e-commerce application.
 
 ## What is Rafiki?
 
-Rafiki is an open source package that exposes a comprehensive set of
+Rafiki is an open-source package that exposes a comprehensive set of
 Interledger APIs. It's intended to be run by wallet providers, allowing them to
 offer Interledger functionality to their users.
 
@@ -82,6 +82,10 @@ cp ./docker/dev/.env.example ./docker/dev/.env
 
 Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
 The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in your Rapyd Sandbox account, under the Developers menu item. The `RAPYD_SETTLEMENT_EWALLET` variable value can be found in your Rapyd Sandbox account details.
+
+To create a new Testnet Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
+
+Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
 
 ### Local Playground
 

@@ -19,7 +19,7 @@ export class Payment extends BaseModel {
   public continueToken!: string
   public interactNonce!: string
   public clientNonce!: string
-  public paymentPointer!: string
+  public walletAddress!: string
   public processAt!: Date | null
   public status!: PaymentStatus
   public order!: Order

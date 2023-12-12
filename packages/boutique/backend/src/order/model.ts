@@ -18,7 +18,7 @@ export class Order extends BaseModel {
   public userId!: string
   public quoteId!: string
   public total!: number
-  public paymentPointerUrl?: string
+  public walletAddressUrl?: string
   public continueToken?: string
   public continueUri?: string
   public status!: OrderStatus
