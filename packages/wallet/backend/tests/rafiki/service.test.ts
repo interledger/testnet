@@ -1,21 +1,20 @@
-import { Bindings } from '@/app'
 import { env } from '@/config/env'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { RafikiService } from '@/rafiki/service'
-import { Container } from '@/shared/container'
 import { Knex } from 'knex'
 import { TestApp, createApp } from '../app'
 import { mockOutgoingPaymenteCreatedEvent } from '../mocks'
 import { truncateTables } from '../tables'
+import { AwilixContainer } from 'awilix'
 
 describe('Rafiki Service', () => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let knex: Knex
   let rafikiService: RafikiService
   let appContainer: TestApp
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     rafikiService = await bindings.resolve('rafikiService')
