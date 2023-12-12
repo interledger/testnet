@@ -1,6 +1,6 @@
 import { env } from '@/config/env'
 import { Cradle, createContainer } from '@/createContainer'
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import {
   MockRequest,
   MockResponse,
@@ -22,7 +22,7 @@ describe('OutgoingPayment controller', () => {
   let res: MockResponse<Response>
   let outgoingPaymentController: OutgoingPaymentController
 
-  const next = jest.fn() as unknown as NextFunction
+  const next = jest.fn()
 
   const createOutgoingPaymentControllerDepsMocked = (isFailure: boolean) => {
     const outgoingPaymentControllerDepsMocked = {
@@ -73,8 +73,8 @@ describe('OutgoingPayment controller', () => {
       errorHandler(err, req, res, next)
     })
 
-    expect(next).toBeCalled()
-    expect(next).toBeCalledTimes(1)
+    expect(next).toHaveBeenCalled()
+    expect(next).toHaveBeenCalledTimes(1)
     expect(res.statusCode).toBe(400)
   })
 
@@ -86,8 +86,9 @@ describe('OutgoingPayment controller', () => {
       next()
       errorHandler(err, req, res, next)
     })
-    expect(next).toBeCalled()
-    expect(next).toBeCalledTimes(1)
+
+    expect(next).toHaveBeenCalled()
+    expect(next).toHaveBeenCalledTimes(1)
     expect(res.statusCode).toBe(500)
   })
 })
