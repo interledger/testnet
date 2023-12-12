@@ -315,8 +315,8 @@ importers:
         specifier: ^1.13.0
         version: 1.13.0
       testcontainers:
-        specifier: ^10.2.2
-        version: 10.2.2
+        specifier: ^10.3.2
+        version: 10.3.2
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.23.0)(jest@29.7.0)(typescript@5.3.3)
@@ -3599,6 +3599,20 @@ packages:
 
   /@types/crypto-js@4.2.1:
     resolution: {integrity: sha512-FSPGd9+OcSok3RsM0UZ/9fcvMOXJ1ENE/ZbLfOPlBWj7BgXtEAM8VYfTtT760GiLbQIMoVozwVuisjvsVwqYWw==}
+    dev: true
+
+  /@types/docker-modem@3.0.6:
+    resolution: {integrity: sha512-yKpAGEuKRSS8wwx0joknWxsmLha78wNMe9R2S3UNsVOkZded8UqOrV8KoeDXoXsjndxwyF3eIhyClGbO1SEhEg==}
+    dependencies:
+      '@types/node': 18.18.3
+      '@types/ssh2': 0.5.52
+    dev: true
+
+  /@types/dockerode@3.3.23:
+    resolution: {integrity: sha512-Lz5J+NFgZS4cEVhquwjIGH4oQwlVn2h7LXD3boitujBnzOE5o7s9H8hchEjoDK2SlRsJTogdKnQeiJgPPKLIEw==}
+    dependencies:
+      '@types/docker-modem': 3.0.6
+      '@types/node': 18.18.3
     dev: true
 
   /@types/express-serve-static-core@4.17.37:
@@ -9904,10 +9918,11 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /testcontainers@10.2.2:
-    resolution: {integrity: sha512-5GZ93rtoVXMx/s3xZjydftrKLnv1Yf+ETzGkXYRCm16LB60W48SGodxuiouYvNlVy0y0ogoQhdOw3DqsPActEA==}
+  /testcontainers@10.3.2:
+    resolution: {integrity: sha512-IsV6NgS5reHcVF1nJLCDJv1hM9gAWUhLwh9b3ybgzvM3X7T2dcmuLFKt1RAR8qN8k+44tW2Drj7idxW6oeGvvg==}
     dependencies:
       '@balena/dockerignore': 1.0.2
+      '@types/dockerode': 3.3.23
       archiver: 5.3.2
       async-lock: 1.4.0
       byline: 5.0.0
