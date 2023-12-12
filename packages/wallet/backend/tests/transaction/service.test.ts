@@ -13,7 +13,7 @@ import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
 import { AwilixContainer } from 'awilix'
 
-describe('Transaction Controller', (): void => {
+describe('Transaction Service', (): void => {
   let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
@@ -215,6 +215,21 @@ describe('Transaction Controller', (): void => {
         transactionsPage2.results[0].id
       ])
       expect(transactionIds.size).toEqual(4)
+    })
+  })
+
+  describe('updateTransaction', (): void => {
+    it('should update transaction successfully', async () => {
+      const { walletAddress, account } = await prepareTransactionDependencies()
+      const transaction = mockedTransactionInsertObjs[0]
+      transaction.walletAddressId = walletAddress.id
+      transaction.accountId = account.id
+      await Transaction.query().insert(transaction)
+      const result = await transactionService.updateTransaction(
+        { id: transaction.id },
+        { walletAddressId: faker.string.uuid() }
+      )
+      expect(result).toBeUndefined()
     })
   })
 })
