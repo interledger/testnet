@@ -1,5 +1,5 @@
 import { env } from '@/config/env'
-import { createContainer } from '@/createContainer'
+import { Cradle, createContainer } from '@/createContainer'
 import { NextFunction, Request, Response } from 'express'
 import {
   MockRequest,
@@ -14,8 +14,10 @@ import {
 } from '../mocks'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { errorHandler } from '@/middleware/errorHandler'
+import { AwilixContainer } from 'awilix'
 
 describe('OutgoingPayment controller', () => {
+  let bindings: AwilixContainer<Cradle>
   let req: MockRequest<Request>
   let res: MockResponse<Response>
   let outgoingPaymentController: OutgoingPaymentController
@@ -36,11 +38,10 @@ describe('OutgoingPayment controller', () => {
   }
 
   beforeAll(async () => {
-    const container = createContainer(env)
-    outgoingPaymentController = await container.resolve(
+    bindings = await createContainer(env)
+    outgoingPaymentController = await bindings.resolve(
       'outgoingPaymentController'
     )
-
     createOutgoingPaymentControllerDepsMocked(false)
   })
 
