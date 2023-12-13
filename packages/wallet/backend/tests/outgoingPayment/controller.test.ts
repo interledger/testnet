@@ -32,8 +32,8 @@ describe('OutgoingPayment controller', () => {
     }
     Reflect.set(
       outgoingPaymentController,
-      'deps',
-      outgoingPaymentControllerDepsMocked
+      'outgoingPaymentService',
+      outgoingPaymentControllerDepsMocked.outgoingPaymentService
     )
   }
 
