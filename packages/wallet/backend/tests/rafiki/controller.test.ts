@@ -33,7 +33,15 @@ describe('Rafiki controller', () => {
       logger,
       ratesService: mockRatesService
     }
-    Reflect.set(rafikiController, 'deps', rafikiControllerDepsMocked)
+
+    for (const key in rafikiControllerDepsMocked)
+      Reflect.set(
+        rafikiController,
+        key,
+        rafikiControllerDepsMocked[
+          key as keyof typeof rafikiControllerDepsMocked
+        ]
+      )
   }
 
   describe('Get Rates', () => {

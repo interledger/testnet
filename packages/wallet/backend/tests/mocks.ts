@@ -381,9 +381,10 @@ export function mockOutgoingPaymenteCreatedEvent(
     id: 'mockedId',
     type: wh.type || EventType.OutgoingPaymentCreated,
     data: wh.data || {
-      payment: {
-        paymentPointerId: 'e874f0c2-e123-4a6a-9f61-1267d598f6a4',
-        debitAmount: 0.0
+      debitAmount: {
+        value: 0.0,
+        assetCode: 'USD',
+        assetScale: 1
       }
     }
   }
