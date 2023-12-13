@@ -79,6 +79,7 @@ describe('OutgoingPayment controller', () => {
   })
 
   it('should return status 500 on unexpected error', async () => {
+    //Prepare
     createOutgoingPaymentControllerDepsMocked(true)
     req.body = mockOutgoingPaymentRequest().body
 
