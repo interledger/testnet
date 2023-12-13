@@ -374,14 +374,17 @@ export const mockRafikiService = {
   onWebHook: () => {}
 }
 
-export function mockOutgoingPaymentCreatedEvent(wh: Partial<WebHook>): WebHook {
+export function mockOutgoingPaymenteCreatedEvent(
+  wh: Partial<WebHook>
+): WebHook {
   return {
     id: 'mockedId',
     type: wh.type || EventType.OutgoingPaymentCreated,
     data: wh.data || {
-      payment: {
-        walletAddressId: 'e874f0c2-e123-4a6a-9f61-1267d598f6a4',
-        debitAmount: 0.0
+      debitAmount: {
+        value: 0.0,
+        assetCode: 'USD',
+        assetScale: 1
       }
     }
   }

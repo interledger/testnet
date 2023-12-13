@@ -33,7 +33,15 @@ describe('Rafiki controller', () => {
       logger,
       ratesService: mockRatesService
     }
-    Reflect.set(rafikiController, 'deps', rafikiControllerDepsMocked)
+
+    for (const key in rafikiControllerDepsMocked)
+      Reflect.set(
+        rafikiController,
+        key,
+        rafikiControllerDepsMocked[
+          key as keyof typeof rafikiControllerDepsMocked
+        ]
+      )
   }
 
   describe('Get Rates', () => {
@@ -137,6 +145,7 @@ describe('Rafiki controller', () => {
       expect(next).toBeCalledTimes(1)
       expect(res.statusCode).toBe(400)
     })
+
     it('should not call onWebHook in rafikiService if the request body is invalid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
@@ -146,6 +155,7 @@ describe('Rafiki controller', () => {
 
       expect(onWebHookSpy).not.toBeCalled()
     })
+
     it('should call logger error if the request body is invalid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type

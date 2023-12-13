@@ -1,20 +1,20 @@
 import { env } from '@/config/env'
-import {
-  createRequest,
-  createResponse,
-  MockRequest,
-  MockResponse
-} from 'node-mocks-http'
-import { NextFunction, Request, Response } from 'express'
 import { Cradle, createContainer } from '@/createContainer'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
+import { errorHandler } from '@/middleware/errorHandler'
+import { NextFunction, Request, Response } from 'express'
+import {
+  MockRequest,
+  MockResponse,
+  createRequest,
+  createResponse
+} from 'node-mocks-http'
 import {
   mockIncomingPaymentGetPaymentDetailsByUrlRequest,
   mockIncomingPaymentRequest,
   mockIncomingPaymentRequestSession as mockIncomingPaymentRequestSessionUser,
   mockIncomingPaymentService
 } from '../mocks'
-import { errorHandler } from '@/middleware/errorHandler'
 import { AwilixContainer } from 'awilix'
 
 describe('Incoming Payment Controller', () => {
@@ -31,8 +31,8 @@ describe('Incoming Payment Controller', () => {
     }
     Reflect.set(
       incomingPaymentController,
-      'deps',
-      incomingPaymentControllerDepsMock
+      'incomingPaymentService',
+      incomingPaymentControllerDepsMock.incomingPaymentService
     )
   }
 
@@ -54,12 +54,14 @@ describe('Incoming Payment Controller', () => {
     it('should call method create() in incomingPaymentService', async () => {
       const createSpy = jest.spyOn(mockIncomingPaymentService, 'create')
       req.body = mockIncomingPaymentRequest().body
+
       await incomingPaymentController.create(req, res, next)
+
       expect(createSpy).toHaveBeenCalled()
       expect(createSpy).toHaveBeenCalledTimes(1)
       expect(createSpy).toHaveBeenCalledWith(
         req.session.user.id,
-        req.body.paymentPointerId,
+        req.body.walletAddressId,
         req.body.amount,
         req.body.description,
         req.body.expiration
@@ -68,7 +70,9 @@ describe('Incoming Payment Controller', () => {
 
     it("should return status 200 and message 'SUCCESS' if the payment was created", async () => {
       req.body = mockIncomingPaymentRequest().body
+
       await incomingPaymentController.create(req, res, next)
+
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
@@ -79,22 +83,26 @@ describe('Incoming Payment Controller', () => {
 
     it('should return status 400 if the incomingPayment body is not valid', async () => {
       req.body = mockIncomingPaymentRequest().body
-      delete req.body.paymentPointerId
+      delete req.body.walletAddressId
+
       await incomingPaymentController.create(req, res, (err) => {
         next()
         errorHandler(err, req, res, next)
       })
+
       expect(res.statusCode).toBe(400)
     })
 
     it('should not call method create() in incomingPaymentService if the incomingPayment body is not valid', async () => {
       const createSpy = jest.spyOn(mockIncomingPaymentService, 'create')
       req.body = mockIncomingPaymentRequest().body
-      delete req.body.paymentPointerId
+      delete req.body.walletAddressId
+
       await incomingPaymentController.create(req, res, (err) => {
         next()
         errorHandler(err, req, res, next)
       })
+
       expect(createSpy).not.toBeCalled()
     })
 
@@ -105,7 +113,9 @@ describe('Incoming Payment Controller', () => {
           'getPaymentDetailsByUrl'
         )
         req.query = mockIncomingPaymentGetPaymentDetailsByUrlRequest().query
+
         await incomingPaymentController.getPaymentDetailsByUrl(req, res, next)
+
         expect(getPaymentDetailsByUrlSpy).toHaveBeenCalled()
         expect(getPaymentDetailsByUrlSpy).toHaveBeenCalledTimes(1)
         expect(getPaymentDetailsByUrlSpy).toHaveBeenCalledWith(req.query.url)
@@ -113,7 +123,9 @@ describe('Incoming Payment Controller', () => {
 
       it("should return status 200 and message 'SUCCESS' if the payment details were fetched", async () => {
         req.query = mockIncomingPaymentGetPaymentDetailsByUrlRequest().query
+
         await incomingPaymentController.getPaymentDetailsByUrl(req, res, next)
+
         expect(res.statusCode).toBe(200)
         expect(res._getJSONData()).toMatchObject({
           success: true,
@@ -125,6 +137,7 @@ describe('Incoming Payment Controller', () => {
         req.query = mockIncomingPaymentGetPaymentDetailsByUrlRequest({
           url: 'some-url'
         }).query
+
         await incomingPaymentController.getPaymentDetailsByUrl(
           req,
           res,
@@ -133,6 +146,7 @@ describe('Incoming Payment Controller', () => {
             errorHandler(err, req, res, next)
           }
         )
+
         expect(res.statusCode).toBe(400)
         expect(res._getJSONData()).toMatchObject({
           success: false,
@@ -148,6 +162,7 @@ describe('Incoming Payment Controller', () => {
         req.query = mockIncomingPaymentGetPaymentDetailsByUrlRequest({
           url: 'some-url'
         }).query
+
         await incomingPaymentController.getPaymentDetailsByUrl(
           req,
           res,
@@ -156,7 +171,8 @@ describe('Incoming Payment Controller', () => {
             errorHandler(err, req, res, next)
           }
         )
-        expect(getPaymentDetailsByUrlSpy).not.toHaveBeenCalled()
+
+        expect(getPaymentDetailsByUrlSpy).not.toBeCalled()
       })
     })
   })
