@@ -100,6 +100,7 @@ describe('Rafiki Service', () => {
   })
 
   afterAll(async (): Promise<void> => {
+    //test
     appContainer.stop()
     knex.destroy()
   })
