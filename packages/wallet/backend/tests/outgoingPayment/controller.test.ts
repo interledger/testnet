@@ -50,7 +50,7 @@ describe('OutgoingPayment controller', () => {
     res = createResponse()
   })
 
-  it('should call createByQuoteId in outgoingPaymentService.', async () => {
+  it('should call createByQuoteId in outgoingPaymentService', async () => {
     req.body = mockOutgoingPaymentRequest().body
     const createByQuoteIdSpy = jest.spyOn(
       mockOutgoingPaymentService,
@@ -64,7 +64,7 @@ describe('OutgoingPayment controller', () => {
     expect(createByQuoteIdSpy).toHaveBeenCalledWith(req.body.quoteId)
   })
 
-  it('should return status 400 if the request body is invalid', async () => {
+  it('should return status 400 if the request body is not valid', async () => {
     req.body = mockOutgoingPaymentRequest().body
     delete req.body.quoteId
 
