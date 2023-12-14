@@ -67,18 +67,19 @@ describe('Rafiki controller', () => {
       expect(ratesSpy).toHaveBeenCalled()
       expect(ratesSpy).toHaveBeenCalledTimes(1)
       expect(ratesSpy).toHaveBeenCalledWith('USD')
-    }),
-      it('should return rates with base USD', async () => {
-        req.query = mockGetRatesRequest({ base: 'USD' }).query
+    })
 
-        await rafikiController.getRates(req, res, next)
+    it('should return rates with base USD', async () => {
+      req.query = mockGetRatesRequest({ base: 'USD' }).query
 
-        expect(res.statusCode).toBe(200)
-        expect(res._getJSONData()).toMatchObject({
-          base: 'USD',
-          rates: {}
-        })
+      await rafikiController.getRates(req, res, next)
+
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        base: 'USD',
+        rates: {}
       })
+    })
 
     it('should not call method getRates in RatesService if the request body is not valid', async () => {
       req.query = mockGetRatesRequest().query
@@ -132,7 +133,7 @@ describe('Rafiki controller', () => {
       expect(resSpy).toBeCalledTimes(1)
     })
 
-    it('should return status 400 if the request body is invalid', async () => {
+    it('should return status 400 if the request body is not valid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
 
@@ -146,7 +147,7 @@ describe('Rafiki controller', () => {
       expect(res.statusCode).toBe(400)
     })
 
-    it('should not call onWebHook in rafikiService if the request body is invalid', async () => {
+    it('should not call onWebHook in rafikiService if the request body is not valid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
       const onWebHookSpy = jest.spyOn(mockRafikiService, 'onWebHook')
@@ -156,7 +157,7 @@ describe('Rafiki controller', () => {
       expect(onWebHookSpy).not.toBeCalled()
     })
 
-    it('should call logger error if the request body is invalid', async () => {
+    it('should call logger error if the request body is not valid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
       const loggerSpy = jest.spyOn(logger, 'error')
