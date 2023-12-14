@@ -12,6 +12,7 @@ import {
   incomingPaymentSchema,
   paymentDetailsSchema
 } from '@/incomingPayment/validation'
+import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>
@@ -311,6 +312,7 @@ export const mockedListGrant = [
     finalizationReason: 'REJECTED'
   }
 ]
+
 export const generateMockedTransaction = (
   fields: PartialModelObject<Transaction> = {}
 ): PartialModelObject<Transaction> => ({
@@ -334,6 +336,29 @@ export const mockedTransactionInsertObjs: Array<
   generateMockedTransaction(),
   generateMockedTransaction({ type: 'OUTGOING' })
 ]
+
+export type OutgoingPayment = z.infer<typeof outgoingPaymentSchema>
+
+export const mockOutgoingPaymentRequest = (
+  overrides?: Partial<OutgoingPayment>
+): OutgoingPayment => {
+  return {
+    body: {
+      quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e'
+    },
+    ...overrides
+  }
+}
+
+export const mockOutgoingPaymentService = {
+  createByQuoteId: () => ({})
+}
+
+export const mockOutgoingPaymentFailureService = {
+  createByQuoteId: jest
+    .fn()
+    .mockRejectedValueOnce(new Error('Unexpected error'))
+}
 
 export const mockGetRatesRequest = (
   overrides?: Partial<GetRatesRequest['query']>

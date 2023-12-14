@@ -184,19 +184,20 @@ describe('Transaction Controller', (): void => {
       expect(res._getJSONData().data[0]).toHaveProperty('paymentId')
       expect(res._getJSONData().data[0]).toHaveProperty('assetCode')
     })
-  })
-  it('should return status 400 if the request body is not valid', async () => {
-    req.query = { page: '-1' }
-    await transactionController.listAll(req, res, (err) => {
-      next()
-      errorHandler(err, req, res, next)
-    })
 
-    expect(next).toHaveBeenCalledTimes(1)
-    expect(res.statusCode).toBe(400)
-    expect(res._getJSONData()).toMatchObject({
-      success: false,
-      message: 'Invalid input'
+    it('should return status 400 if the request body is not valid', async () => {
+      req.query = { page: '-1', orderByDate: 'wrong' }
+      await transactionController.listAll(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+      expect(res._getJSONData()).toMatchObject({
+        success: false,
+        message: 'Invalid input'
+      })
     })
   })
 })
