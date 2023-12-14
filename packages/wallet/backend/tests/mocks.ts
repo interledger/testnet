@@ -6,8 +6,19 @@ import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { kycSchema, walletSchema } from '@/rapyd/validation'
+import { ratesSchema, webhookSchema } from '@/rafiki/validation'
+import { EventType, WebHook } from '@/rafiki/service'
+import {
+  incomingPaymentSchema,
+  paymentDetailsSchema
+} from '@/incomingPayment/validation'
 
 export type LogInRequest = z.infer<typeof logInSchema>
+export type GetRatesRequest = z.infer<typeof ratesSchema>
+export type OnWebHook = z.infer<typeof webhookSchema>
+export type IncomingPaymentCreated = z.infer<typeof incomingPaymentSchema>
+export type IncomingPaymentRequest = z.infer<typeof incomingPaymentSchema>
+export type GetPaymentDetailsByUrl = z.infer<typeof paymentDetailsSchema>
 
 export const fakeLoginData = () => {
   return {
@@ -15,6 +26,7 @@ export const fakeLoginData = () => {
     password: faker.internet.password()
   }
 }
+
 export const mockLogInRequest = (
   overrides?: Partial<LogInRequest['body']>
 ): LogInRequest => ({
@@ -322,6 +334,121 @@ export const mockedTransactionInsertObjs: Array<
   generateMockedTransaction(),
   generateMockedTransaction({ type: 'OUTGOING' })
 ]
+
+export const mockGetRatesRequest = (
+  overrides?: Partial<GetRatesRequest['query']>
+): GetRatesRequest => {
+  return {
+    query: {
+      base: faker.string.alpha(3).toUpperCase(),
+      ...overrides
+    }
+  }
+}
+
+export const mockRatesService = {
+  getRates: (base: string) => ({
+    base: base,
+    rates: {
+      [faker.string.alpha(3).toUpperCase()]: faker.number.float(),
+      [faker.string.alpha(3).toUpperCase()]: faker.number.float(),
+      [faker.string.alpha(3).toUpperCase()]: faker.number.float()
+    }
+  })
+}
+
+export const mockOnWebhookRequest = (
+  overrides?: Partial<OnWebHook>
+): OnWebHook => {
+  return {
+    body: {
+      id: faker.string.alpha(10),
+      type: EventType.IncomingPaymentCreated,
+      data: {}
+    },
+    ...overrides
+  }
+}
+
+export const mockRafikiService = {
+  onWebHook: () => {}
+}
+
+export function mockOutgoingPaymenteCreatedEvent(
+  wh: Partial<WebHook>
+): WebHook {
+  return {
+    id: 'mockedId',
+    type: wh.type || EventType.OutgoingPaymentCreated,
+    data: wh.data || {
+      debitAmount: {
+        value: 0.0,
+        assetCode: 'USD',
+        assetScale: 1
+      }
+    }
+  }
+}
+
+export function mockIncomingPaymentRequest(
+  overrides?: Partial<IncomingPaymentCreated['body']>
+): IncomingPaymentCreated {
+  return {
+    body: {
+      walletAddressId: faker.string.uuid(),
+      amount: Number(faker.finance.amount({ dec: 0 })),
+      description: faker.lorem.paragraph(2),
+      expiration: {
+        value: 1,
+        unit: 'h'
+      },
+      ...overrides
+    }
+  }
+}
+
+export type IncomingPaymentRequestSession = {
+  user: {
+    id: string
+    email: string
+    needsWallet: boolean
+    needsIDProof: boolean
+  }
+}
+
+export function mockIncomingPaymentRequestSession(
+  overrides?: Partial<IncomingPaymentRequestSession>
+) {
+  return {
+    user: {
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      needsWallet: false,
+      needsIDProof: false
+    },
+    ...overrides
+  }
+}
+
+export function mockIncomingPaymentGetPaymentDetailsByUrlRequest(
+  overrides?: Partial<GetPaymentDetailsByUrl['query']>
+): GetPaymentDetailsByUrl {
+  return {
+    query: {
+      url: '/testpath/incoming-payments/12345678-1234-1234-1234-123456789012',
+      ...overrides
+    }
+  }
+}
+
+export const mockIncomingPaymentService = {
+  create: () => 'https://www.some-domain.com',
+  getPaymentDetailsByUrl: () => ({
+    value: faker.number.float(),
+    description: faker.lorem.paragraph(2),
+    assetCode: 'USD'
+  })
+}
 
 export const mockWalletAddress = {
   id: faker.string.uuid(),
