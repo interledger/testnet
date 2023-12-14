@@ -154,8 +154,8 @@ importers:
         specifier: ^6.21.0
         version: 6.21.0(react-dom@18.2.0)(react@18.2.0)
       remix-params-helper:
-        specifier: ^0.4.10
-        version: 0.4.10(zod@3.22.4)
+        specifier: ^0.5.1
+        version: 0.5.1(zod@3.22.4)
       tailwind-merge:
         specifier: ^2.1.0
         version: 2.1.0
@@ -9258,8 +9258,8 @@ packages:
     resolution: {integrity: sha512-/62tYiOe6DzS5BqVsNpH/nkGlX45C/Sp6V+NtiN6JQNS1Viay7cWkazmRkrQrdFj2eshDe96SIQNIoMxqhzBOg==}
     dev: true
 
-  /remix-params-helper@0.4.10(zod@3.22.4):
-    resolution: {integrity: sha512-1LZ1FjxCtPekg4a1R50aKA0uB2+668Wd2a0ld7LDrQ0bJ2TzijnCVr822cs8epziS6MG2bG8ZHMPDAR2t4PK+Q==}
+  /remix-params-helper@0.5.1(zod@3.22.4):
+    resolution: {integrity: sha512-aYn//NPpVD5igSbn04QLTfHkxjoDCW2SbArfaAxczW2MNvwV+ow0nDDpBsVRDQJE3UajeINVMXIgdO8JxL8RdQ==}
     peerDependencies:
       zod: ^3.11.6
     dependencies:
