@@ -133,7 +133,7 @@ describe('Rafiki controller', () => {
       expect(resSpy).toBeCalledTimes(1)
     })
 
-    it('should return status 400 if the request body is invalid', async () => {
+    it('should return status 400 if the request body is not valid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
 
@@ -147,7 +147,7 @@ describe('Rafiki controller', () => {
       expect(res.statusCode).toBe(400)
     })
 
-    it('should not call onWebHook in rafikiService if the request body is invalid', async () => {
+    it('should not call onWebHook in rafikiService if the request body is not valid', async () => {
       req.body = mockOnWebhookRequest().body
       delete req.body.type
       const onWebHookSpy = jest.spyOn(mockRafikiService, 'onWebHook')
