@@ -38,7 +38,7 @@ export class SocketService implements ISocketService {
     this.io.on('connection', async (socket) => {
       const user = socket.request.session.user
       if (!user) {
-        this.deps.logger.info(`The socket user is still not logged in...`)
+        this.logger.info(`The socket user is still not logged in...`)
         return
       }
 
