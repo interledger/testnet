@@ -279,7 +279,7 @@ export class QuoteService implements IQuoteService {
       userId,
       walletAddressId: senderPpId,
       amount,
-      description: 'Currency exchange.',
+      description: 'Currency exchange',
       isReceive: true,
       receiver: receiverPpUrl
     })
