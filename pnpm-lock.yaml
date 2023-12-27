@@ -51,8 +51,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       axios:
-        specifier: ^1.6.2
-        version: 1.6.2
+        specifier: ^1.6.3
+        version: 1.6.3
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -209,8 +209,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       axios:
-        specifier: ^1.6.2
-        version: 1.6.2
+        specifier: ^1.6.3
+        version: 1.6.3
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -2335,7 +2335,7 @@ packages:
     dependencies:
       '@interledger/http-signature-utils': 2.0.0
       '@interledger/openapi': 1.2.1
-      axios: 1.6.2
+      axios: 1.6.3
       base64url: 3.0.1
       http-message-signatures: 0.1.2
       pino: 8.15.3
@@ -3517,7 +3517,7 @@ packages:
     engines: {node: '>=12.*'}
     dependencies:
       '@sendgrid/helpers': 8.0.0
-      axios: 1.6.2
+      axios: 1.6.3
     transitivePeerDependencies:
       - debug
     dev: false
@@ -4563,8 +4563,8 @@ packages:
       fast-glob: 3.3.1
     dev: false
 
-  /axios@1.6.2:
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
+  /axios@1.6.3:
+    resolution: {integrity: sha512-fWyNdeawGam70jXSVlKl+SUNVcL6j6W79CuSIPfi6HnDUmSCH6gyUys/HrqHeA/wU0Az41rRgean494d0Jb+ww==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
