@@ -185,7 +185,11 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     Withdraw
                   </span>
                 </Link>
-                <Link className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6">
+                <Link
+                  id="exchangeAsset"
+                  href={`/exchange?assetCode=${account.assetCode}&assetScale=${account.assetScale}&id=${account.id}`}
+                  className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+                >
                   <Exchange className="h-8 w-8" />
                   <span className="font-medium text-green-5 group-hover:text-green-6">
                     Exchange

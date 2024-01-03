@@ -210,6 +210,7 @@ describe('Asset Controller', (): void => {
       }
     })
   })
+
   describe('fundAccount', (): void => {
     beforeEach(async (): Promise<void> => {
       await createMockAccount()
@@ -229,6 +230,7 @@ describe('Asset Controller', (): void => {
       })
     })
   })
+
   describe('withdrawFunds', (): void => {
     beforeEach(async (): Promise<void> => {
       await createMockAccount()

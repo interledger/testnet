@@ -110,7 +110,6 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
             />
           )}
         />
-        {}
         <Button
           type="submit"
           aria-label="create account"
