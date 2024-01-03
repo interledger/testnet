@@ -1,4 +1,4 @@
-name: Update rafiki.money with release branch
+name: Deploy Testnet
 
 permissions:
   contents: write
