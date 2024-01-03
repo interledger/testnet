@@ -25,6 +25,7 @@ const GrantInteractionPage = ({
   const client = clientName ? clientName : grant.client
   const router = useRouter()
   const access = grant.access.find((el) => el.type === 'outgoing-payment')
+  const isPendingGrant = grant.state === 'PENDING'
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -45,7 +46,7 @@ const GrantInteractionPage = ({
     )
   }
 
-  return (
+  return isPendingGrant ? (
     <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
       <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
         <Image
@@ -78,6 +79,35 @@ const GrantInteractionPage = ({
             }}
           >
             Decline
+          </Button>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
+      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+        <Image
+          className="mx-auto object-cover"
+          src="/grants.webp"
+          alt="Grants"
+          quality={100}
+          width={500}
+          height={150}
+        />
+        <div className="mt-20 text-xl text-green">
+          The request from <span className="font-semibold">{client}</span> to
+          access your wallet account and withdraw{' '}
+          {access?.limits?.debitAmount?.formattedAmount} was previously
+          processed.
+        </div>
+        <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
+          <Button
+            aria-label="ok"
+            onClick={() => {
+              router.push('grants')
+            }}
+          >
+            OK
           </Button>
         </div>
       </div>
