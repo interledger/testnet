@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/workflows/file_changes
       - uses: ./.github/workflows/setup
       - run: pnpm checks
 
@@ -64,6 +65,12 @@ jobs:
     needs: build-wallet-backend
     steps:
       - uses: actions/checkout@v4
+        run: |
+          echo "${{needs.detect-changes.outputs.wallet-back}}"
+          if [ ${{needs.build-wallet-backend.outputs.wallet-back || 'false'}} != "true" ]; then
+             echo "There is no file changes..."
+          exit 1
+          fi
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:backend test --detectOpenHandles --forceExit
 
