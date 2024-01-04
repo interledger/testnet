@@ -26,7 +26,6 @@ describe('Incoming Payment Controller', () => {
   const next = jest.fn() as unknown as NextFunction
 
   const createIncomingPaymentControllerDepsMock = () => {
-    console.log('test PR')
     const incomingPaymentControllerDepsMock = {
       incomingPaymentService: mockIncomingPaymentService
     }
