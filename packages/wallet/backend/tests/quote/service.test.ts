@@ -4,7 +4,7 @@ import { AuthService } from '@/auth/service'
 import { QuoteService } from '@/quote/service'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { mockedListAssets, mockExternalPayment, mockRapyd } from '@/tests/mocks'
+import { mockedListAssets, mockRapyd } from '@/tests/mocks'
 import { AccountService } from '@/account/service'
 import { faker } from '@faker-js/faker'
 import { Account } from '@/account/model'
@@ -121,7 +121,13 @@ describe('Quote Service', () => {
       },
       incomingPaymentService: {
         createReceiver: () => faker.internet.url(),
-        getExternalPayment: () => mockExternalPayment
+        getExternalPayment: () => ({
+          receivedAmount: {
+            assetCode: 'BRG',
+            assetScale: 3,
+            value: 0
+          }
+        })
       }
     }
 
