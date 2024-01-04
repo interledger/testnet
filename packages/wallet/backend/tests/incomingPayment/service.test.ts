@@ -142,7 +142,7 @@ describe('Incoming Payment Service', () => {
       })
     })
 
-    it('should throw err with wrong payment id', async () => {
+    it('should throw error with wrong payment id', async () => {
       const { walletAddress, account } =
         await prepareIncomePaymentDependencies()
       await Transaction.query().insert(
