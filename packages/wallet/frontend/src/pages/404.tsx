@@ -8,6 +8,7 @@ const NotFoundPage = () => {
       <div>Sorry, this page does not exist.</div>
       <Link href="/" className="text-xl font-semibold text-white underline">
         Go to home page
+          test
       </Link>
       <Image
         className="mt-10 object-cover"
