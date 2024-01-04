@@ -1,31 +1,42 @@
 name: 'File Change Detection'
 description: 'Detect which projects file has been change for running its own checks'
 
+outputs:
+  wallet-back:
+    description: 'Is wallet-backend changed'
+    value: ${{ steps.wallet-back.outputs.WALLET_BACK }}
+  wallet-front:
+    description: 'Is wallet-frontend changed'
+    value: ${{ steps.wallet-front.outputs.WALLET_FRONT }}
+  boutique-front:
+    description: 'Is boutique-frontend changed'
+    value: ${{ steps.boutique-front.outputs.BOUTIQUE_FRONT }}
+  boutique-back:
+    description: 'Is boutique-backend changed'
+    value: ${{ steps.boutique-back.outputs.BOUTIQUE_BACK }}
+
 runs:
   using: 'composite'
-  outputs:
-    wallet-back: ${{ steps.wallet-back.outputs.WALLET_BACK }}
-    wallet-front: ${{ steps.wallet-front.outputs.WALLET_FRONT }}
-    boutique-front: ${{ steps.boutique-front.outputs.BOUTIQUE_FRONT }}
-    boutique-back: ${{ steps.boutique-back.outputs.BOUTIQUE_BACK }}
-
   steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+        fetch-depth: 2
+
     - name: Get changed files
       id: changed-files
+      shell: bash
       run: |
-        if ${{ github.event_name == 'pull_request' }}; then
+        if [${{ github.event_name == 'pull_request' }}] || [${{ github.event_name == 'push' }}]; then
             echo "changed_files=$(git diff --name-only -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
         else
             echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
         fi
+
     - name: Change wallet back changed files
       id: wallet-back
+      shell: bash
       run: |
         for file in ${{ steps.changed-files.outputs.changed_files }}; do
-            echo $file
              if [[ $file == *"wallet/backend"* ]]; then 
                echo "WALLET_BACK='true'" >> $GITHUB_OUTPUT
              fi;
@@ -33,6 +44,7 @@ runs:
 
     - name: Change wallet front changed files
       id: wallet-front
+      shell: bash
       run: |
         for file in ${{ steps.changed-files.outputs.changed_files }}; do
              if [[ $file == *"wallet/frontend"* ]]; then 
@@ -42,34 +54,20 @@ runs:
 
     - name: Change wallet front changed files
       id: boutique-front
+      shell: bash
       run: |
         for file in ${{ steps.changed-files.outputs.changed_files }}; do
              if [[ $file == *"boutique/frontend"* ]]; then 
-               echo "WALLET_FRONT='true'" >> $GITHUB_OUTPUT
+               echo "BOUTIQUE_FRONT='true'" >> $GITHUB_OUTPUT
              fi;
         done;
 
     - name: Change wallet front changed files
       id: boutique-back
+      shell: bash
       run: |
         for file in ${{ steps.changed-files.outputs.changed_files }}; do
              if [[ $file == *"boutique/backend"* ]]; then 
-               echo "WALLET_FRONT='true'" >> $GITHUB_OUTPUT
+               echo "BOUTIQUE_BACK='true'" >> $GITHUB_OUTPUT
              fi;
         done;
-
-#  hessam:
-#    name: WALLET - Build frontend
-#    runs-on: ubuntu-latest
-#    needs: detect-changes
-#    steps:
-#      - name: Test Variable2
-#        run: |
-#          echo "${{needs.detect-changes.outputs.wallet-back}}"
-#          if [ ${{needs.detect-changes.outputs.wallet-back || 'false'}} != "workflows" ]; then
-#             echo "you fucked up"
-#          exit 1
-#          fi
-#      - uses: actions/checkout@v4
-#      - uses: ./.github/workflows/setup
-#      - run: pnpm wallet:frontend build

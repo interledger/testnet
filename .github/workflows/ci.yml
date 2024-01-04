@@ -17,8 +17,16 @@ jobs:
   checks:
     name: ESLint and Prettier checks
     runs-on: ubuntu-latest
+    outputs:
+      wallet-back: ${{ steps.checker.outputs.wallet-back }}
+      wallet-front: ${{ steps.checker.outputs.wallet-front }}
+      boutique-front: ${{ steps.checker.outputs.boutique-front }}
+      boutique-back: ${{ steps.checker.outputs.boutique-back }}
+
     steps:
       - uses: actions/checkout@v4
+      - id: checker
+        uses: ./.github/workflows/file_changes
       - uses: ./.github/workflows/setup
       - run: pnpm checks
 
@@ -26,13 +34,11 @@ jobs:
     name: WALLET - Build frontend
     runs-on: ubuntu-latest
     needs: checks
+    if: ${{needs.checks.outputs.wallet-front || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
-      - id: wallet-frontend
-        uses: ./.github/workflows/file_changes
-      - if: ${{steps.wallet-frontend.outputs.wallet-front || 'false' == 'true'}}
-        uses: ./.github/workflows/setup
-        run: pnpm wallet:frontend build
+      - uses: ./.github/workflows/setup
+      - run: pnpm wallet:frontend build
 
   build-boutique-frontend:
     name: BOUTIQUE - Build frontend
@@ -41,35 +47,28 @@ jobs:
     if: ${{needs.checks.outputs.boutique-front || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
-      - id: boutique-frontend
-        uses: ./.github/workflows/file_changes
-      - if: ${{steps.boutique-frontend.outputs.boutique-front || 'false' == 'true'}}
-        uses: ./.github/workflows/setup
-        run: pnpm boutique:frontend build
+      - uses: ./.github/workflows/setup
+      - run: pnpm boutique:frontend build
 
   build-wallet-backend:
     name: WALLET - Build backend
     runs-on: ubuntu-latest
     needs: checks
+    if: ${{needs.checks.outputs.wallet-back || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
-      - id: wallet-backend
-        uses: ./.github/workflows/file_changes
-      - if: ${{steps.wallet-backend.outputs.wallet-back || 'false' == 'true'}}
-        uses: ./.github/workflows/setup
-        run: pnpm wallet:backend build
+      - uses: ./.github/workflows/setup
+      - run: pnpm wallet:backend build
 
   build-boutique-backend:
     name: BOUTIQUE - Build backend
     runs-on: ubuntu-latest
     needs: checks
+    if: ${{needs.checks.outputs.boutique-back || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
-      - id: boutique-backend
-        uses: ./.github/workflows/file_changes
-      - if: ${{steps.boutique-backend.outputs.boutique-back || 'false' == 'true'}}
-        uses: ./.github/workflows/setup
-        run: pnpm boutique:backend build
+      - uses: ./.github/workflows/setup
+      - run: pnpm boutique:backend build
 
   test-wallet-backend:
     name: WALLET - Test backend
