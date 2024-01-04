@@ -61,6 +61,7 @@ interface QuantityButtonProps {
   'action': () => void
   'children': ReactNode
   'aria-label': string
+  'test'?: string
 }
 
 const QuantityButton = ({

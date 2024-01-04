@@ -14,6 +14,7 @@ export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const nextPage = req.nextUrl.searchParams.get('next')
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
+  console.log('test')
 
   const response = await userService.me(
     `${cookieName}=${req.cookies.get(cookieName)?.value}`
