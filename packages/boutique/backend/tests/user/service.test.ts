@@ -23,6 +23,7 @@ describe('Product Service', (): void => {
   })
 
   afterAll(async (): Promise<void> => {
+    console.log('test')
     await app.stop()
     await knex.destroy()
   })
