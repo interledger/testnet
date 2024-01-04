@@ -26,8 +26,7 @@ runs:
       id: changed-files
       shell: bash
       run: |
-        if [[${{ github.event_name == 'pull_request' }}]] || [[${{ github.event_name == 'push' }}]]; then
-            echo 'here is'
+        if ${{ github.event_name == 'pull_request' }} || ${{ github.event_name == 'push' }}; then
             echo "changed_files=$(git diff --name-only -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
         else
             echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
