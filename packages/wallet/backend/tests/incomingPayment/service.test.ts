@@ -8,7 +8,11 @@ import { loginUser } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
-import { generateMockedTransaction, mockedListAssets } from '@/tests/mocks'
+import {
+  generateMockedTransaction,
+  mockedListAssets,
+  mockExternalPayment
+} from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
 import { NotFound } from '@/errors'
@@ -163,27 +167,19 @@ describe('Incoming Payment Service', () => {
     beforeAll(async (): Promise<void> => {
       axios.get = jest.fn().mockImplementation(() =>
         Promise.resolve({
-          data: {
-            receivedAmount: {
-              assetCode: 'BRG',
-              assetScale: 3,
-              value: 0
-            }
-          }
+          data: mockExternalPayment
         })
       )
     })
 
     it('should return external payment data successfully', async () => {
-      const result = await incopmPaymentService.getExternalPayment(
+      const { receivedAmount } = await incopmPaymentService.getExternalPayment(
         faker.internet.url()
       )
-      expect(result).toMatchObject({
-        receivedAmount: {
-          assetCode: 'BRG',
-          assetScale: 3,
-          value: 0
-        }
+      expect(receivedAmount).toMatchObject({
+        assetCode: 'EUR',
+        assetScale: 1,
+        value: '0'
       })
     })
   })

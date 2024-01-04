@@ -481,3 +481,8 @@ export const mockWalletAddress = {
   publicName: faker.lorem.words({ max: 2, min: 2 }),
   active: true
 }
+
+export const mockExternalPayment = {
+  receivedAmount: { value: '0', assetCode: 'EUR', assetScale: 1 },
+  authServer: 'http://rafiki-auth:3006'
+}
