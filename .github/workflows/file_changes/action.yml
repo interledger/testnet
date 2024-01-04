@@ -37,7 +37,6 @@ runs:
       shell: bash
       run: |
         for file in ${{ steps.changed-files.outputs.changed_files }}; do
-            echo $file
              if [[ $file == *"wallet/backend"* ]]; then 
                echo "WALLET_BACK='true'" >> $GITHUB_OUTPUT
              fi;
