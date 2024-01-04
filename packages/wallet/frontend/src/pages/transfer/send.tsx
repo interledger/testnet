@@ -255,6 +255,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 openDialog(
                   <QuoteDialog
                     quote={response.data}
+                    type="quote"
                     onAccept={() => {
                       handleAcceptQuote(quoteId)
                       closeDialog
