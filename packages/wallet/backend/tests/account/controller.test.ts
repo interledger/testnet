@@ -211,7 +211,6 @@ describe('Asset Controller', (): void => {
     })
   })
   describe('fundAccount', (): void => {
-    console.log('sdsad')
     beforeEach(async (): Promise<void> => {
       await createMockAccount()
       await createReqRes()
