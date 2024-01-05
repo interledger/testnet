@@ -252,6 +252,7 @@ export class App {
 
     // grant
     router.get('/grants', isAuth, grantController.list)
+    router.post('/list-grants', isAuth, grantController.listWithPagination)
     router.get('/grants/:id', isAuth, grantController.getById)
     router.delete('/grants/:id', isAuth, grantController.revoke)
     router.get(

@@ -1,7 +1,6 @@
 import { NextFunction, Request } from 'express'
 import { RafikiAuthService } from '@/rafiki/auth/service'
-import { Grant } from '@/rafiki/auth/generated/graphql'
-import { WalletAddressService } from '@/walletAddress/service'
+import { GetGrantsQuery, Grant } from '@/rafiki/auth/generated/graphql'
 import { validate } from '@/shared/validate'
 import { grantResponseSchema } from '@/grant/validation'
 import { GrantService } from '@/grant/service'
@@ -17,7 +16,6 @@ interface IGrantController {
 export class GrantController implements IGrantController {
   constructor(
     private rafikiAuthService: RafikiAuthService,
-    private walletAddressService: WalletAddressService,
     private grantService: GrantService
   ) {}
 
@@ -27,11 +25,23 @@ export class GrantController implements IGrantController {
     next: NextFunction
   ) => {
     try {
-      const identifiers =
-        await this.walletAddressService.listIdentifiersByUserId(
-          req.session.user.id
-        )
-      const grants = await this.rafikiAuthService.listGrants(identifiers)
+      const grants = await this.grantService.list(req.session.user.id)
+      res.json({ success: true, message: 'Success', data: grants })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  listWithPagination = async (
+    req: Request,
+    res: CustomResponse<GetGrantsQuery>,
+    next: NextFunction
+  ) => {
+    try {
+      const grants = await this.grantService.listWithPagination(
+        req.session.user.id,
+        req.body
+      )
       res.json({ success: true, message: 'Success', data: grants })
     } catch (e) {
       next(e)

@@ -64,10 +64,8 @@ describe('Grant Controller', () => {
         getGrantByInteraction: jest.fn().mockReturnValue(mockedListGrant[0]),
         setInteractionResponse: jest
           .fn()
-          .mockReturnValue(isFailure ? mockedListGrant[1] : mockedListGrant[0])
-      },
-      walletAddressService: {
-        listIdentifiersByUserId: () => faker.lorem.words(5).split(' ')
+          .mockReturnValue(isFailure ? mockedListGrant[1] : mockedListGrant[0]),
+        list: jest.fn().mockReturnValue(mockedListGrant)
       }
     }
     for (const key in grantControllerDepsMocked)

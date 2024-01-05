@@ -1,4 +1,4 @@
-import { Grant } from '@/rafiki/auth/generated/graphql'
+import { GetGrantsQueryVariables, Grant } from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { Forbidden } from '@/errors'
 import { WalletAddressService } from '@/walletAddress/service'
@@ -55,5 +55,31 @@ export class GrantService implements IGrantService {
       nonce,
       response
     )
+  }
+
+  async list(userId: string) {
+    const identifiers =
+      await this.walletAddressService.listIdentifiersByUserId(userId)
+    return await this.rafikiAuthService.listGrants(identifiers)
+  }
+
+  async listWithPagination(userId: string, args: GetGrantsQueryVariables) {
+    const identifiers =
+      await this.walletAddressService.listIdentifiersByUserId(userId)
+
+    if (args.filter?.identifier?.in) {
+      const identifiersBelongToUser = args.filter?.identifier?.in.every(
+        (identifier) => identifiers.includes(identifier)
+      )
+
+      if (!identifiersBelongToUser) {
+        throw new Forbidden('Invalid identifiers provided')
+      }
+    } else {
+      args.filter = args.filter ?? {}
+      args.filter = { identifier: { in: identifiers } }
+    }
+
+    return await this.rafikiAuthService.listGrantsWithPagination(args)
   }
 }
