@@ -51,8 +51,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       axios:
-        specifier: ^1.6.3
-        version: 1.6.3
+        specifier: ^1.6.5
+        version: 1.6.5
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -209,8 +209,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       axios:
-        specifier: ^1.6.3
-        version: 1.6.3
+        specifier: ^1.6.5
+        version: 1.6.5
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -2335,7 +2335,7 @@ packages:
     dependencies:
       '@interledger/http-signature-utils': 2.0.0
       '@interledger/openapi': 1.2.1
-      axios: 1.6.3
+      axios: 1.6.5
       base64url: 3.0.1
       http-message-signatures: 0.1.2
       pino: 8.15.3
@@ -3517,7 +3517,7 @@ packages:
     engines: {node: '>=12.*'}
     dependencies:
       '@sendgrid/helpers': 8.0.0
-      axios: 1.6.3
+      axios: 1.6.5
     transitivePeerDependencies:
       - debug
     dev: false
@@ -4564,10 +4564,10 @@ packages:
       fast-glob: 3.3.1
     dev: false
 
-  /axios@1.6.3:
-    resolution: {integrity: sha512-fWyNdeawGam70jXSVlKl+SUNVcL6j6W79CuSIPfi6HnDUmSCH6gyUys/HrqHeA/wU0Az41rRgean494d0Jb+ww==}
+  /axios@1.6.5:
+    resolution: {integrity: sha512-Ii012v05KEVuUoFWmMW/UQv9aRIc3ZwkWDcM+h5Il8izZCtRVpDUfwpoFf7eOtajT3QiGR4yDUx7lPqHJULgbg==}
     dependencies:
-      follow-redirects: 1.15.3
+      follow-redirects: 1.15.4
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -6203,8 +6203,8 @@ packages:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
     dev: false
 
-  /follow-redirects@1.15.3:
-    resolution: {integrity: sha512-1VzOtuEM8pC9SFU1E+8KfTjZyMztRsgEfwQl44z8A25uy13jSzTj6dyK2Df52iV0vgHCfBwLhDWevLn95w5v6Q==}
+  /follow-redirects@1.15.4:
+    resolution: {integrity: sha512-Cr4D/5wlrb0z9dgERpUL3LrmPKVDsETIJhaCMeDfuFYcqa5bldGV6wBsAN6X/vxlXQtFBMrXdXxdL8CbDTGniw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
