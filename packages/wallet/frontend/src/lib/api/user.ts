@@ -118,6 +118,24 @@ export const verifyEmailSchema = z.object({
   token: z.string()
 })
 
+export const changePasswordSchema = z
+  .object({
+    oldPassword: z.string(),
+    newPassword: z.string().min(6, {
+      message: 'Your new password has to be at least 6 characters long.'
+    }),
+    confirmNewPassword: z.string()
+  })
+  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+    if (confirmNewPassword !== newPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Passwords must match.',
+        path: ['confirmNewPassword']
+      })
+    }
+  })
+
 export type User = {
   email: string
   firstName: string
@@ -177,6 +195,10 @@ type ProfileArgs = z.infer<typeof profileSchema>
 type ProfileError = ErrorResponse<ProfileArgs | undefined>
 type ProfileResponse = SuccessResponse | ProfileError
 
+type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
+type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
+type ChangePasswordResponse = SuccessResponse | ChangePasswordError
+
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
   login: (args: LoginArgs) => Promise<LoginResponse>
@@ -191,6 +213,7 @@ interface UserService {
   updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
   getDocuments: (cookies?: string) => Promise<Document[]>
   getCountries: (cookies?: string) => Promise<SelectOption[]>
+  changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -398,6 +421,22 @@ const createUserService = (): UserService => ({
       return response?.data ?? []
     } catch (error) {
       return []
+    }
+  },
+
+  async changePassword(args) {
+    try {
+      const response = await httpClient
+        .patch('change-password', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<ChangePasswordArgs>(
+        error,
+        'Something went wrong while changing your password. Please try again.'
+      )
     }
   }
 })
