@@ -179,11 +179,11 @@ describe('User Controller', (): void => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Password was changedd successfully'
+        message: 'Password was changed successfully'
       })
     })
 
-    it('should return invalid token', async () => {
+    it('should return error message of incorrect old password', async () => {
       const oldPassword = faker.internet.password()
       const newPassword = faker.internet.password()
       req.body = {
@@ -197,6 +197,7 @@ describe('User Controller', (): void => {
       })
       expect(next).toHaveBeenCalledTimes(1)
       expect(res.statusCode).toBe(400)
+      expect(res.statusMessage).toBe('Old password is incorrect')
     })
   })
 
