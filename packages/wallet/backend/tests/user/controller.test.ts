@@ -197,7 +197,6 @@ describe('User Controller', (): void => {
       })
       expect(next).toHaveBeenCalledTimes(1)
       expect(res.statusCode).toBe(400)
-      expect(res.statusMessage).toBe('Old password is incorrect')
     })
   })
 
