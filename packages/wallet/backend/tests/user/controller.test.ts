@@ -179,7 +179,7 @@ describe('User Controller', (): void => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Password was changed successfully'
+        message: 'Password was changedd successfully'
       })
     })
 
