@@ -1,342 +1,427 @@
-interface RapydResponse<T> {
-  status: Status
+import { z } from 'zod'
+export interface RapydResponse<T> {
+  status: z.TypeOf<typeof StatusSchema>
   data: T
 }
 
-interface Status {
-  error_code: string
-  status: string
-  message: string
-  response_code: string
-  operation_id: string
-}
+const StatusSchema = z.object({
+  error_code: z.string(),
+  status: z.string(),
+  message: z.string(),
+  response_code: z.string(),
+  operation_id: z.string()
+})
 
-interface RapydBusinessDetail {
-  id?: string
-  address?: RapydAddress
-  annual_revenue?: number
-  cnae_code?: string
-  created_at?: number
-  entity_type?:
-    | 'sole_prop'
-    | 'partnership'
-    | 'company'
-    | 'government'
-    | 'charity'
-    | 'NPO'
-    | 'association'
-    | 'trust'
-  establishment_date?: string
-  industry_category?: string
-  industry_sub_category?: string
-  legal_entity_type?: string
-  name?: string
-  registration_number?: string
-}
+export type Status = z.infer<typeof StatusSchema>
 
-interface RapydAddress {
-  id?: string
-  address?: string
-  canton?: string
-  city?: string
-  country?: string
-  created_at?: number
-  district?: string
-  line_1?: string
-  line_2?: string
-  line_3?: string
-  metadata?: object
-  name?: string
-  phone_number?: string
-  state?: string
-  updated_at?: number
-  zip?: string
-}
+const RapydBusinessDetailSchema = z.object({
+  id: z.string().optional(),
+  address: RapydAddressSchema.optional(),
+  annual_revenue: z.number().optional(),
+  cnae_code: z.string().optional(),
+  created_at: z.number().optional(),
+  entity_type: z
+    .enum([
+      'sole_prop',
+      'partnership',
+      'company',
+      'government',
+      'charity',
+      'NPO',
+      'association',
+      'trust'
+    ])
+    .optional(),
+  establishment_date: z.string().optional(),
+  industry_category: z.string().optional(),
+  industry_sub_category: z.string().optional(),
+  legal_entity_type: z.string().optional(),
+  name: z.string().optional(),
+  registration_number: z.string().optional()
+})
 
-interface RapydIssueCardData {
-  preferred_name?: string
-  transaction_permissions?: 'allowed' | 'not_allowed'
-  role_in_company?: 'owner' | 'agent' | 'employee'
-}
+export type RapydBussinessDetail = z.infer<typeof RapydBusinessDetailSchema>
 
-interface RapydWalletContact {
-  id?: string
-  address?: RapydAddress | string
-  business_details?: RapydBusinessDetail
-  compliance_profile?: 1 | 0 | -1
-  contact_type?: 'personal' | 'business'
-  country?: string
-  created_at?: number
-  date_of_birth?: string
-  email?: string
-  ewallet?: string
-  first_name?: string
-  gender?: 'male' | 'female' | 'other' | 'not_applicable'
-  house_type?:
-    | 'lease'
-    | 'live_with_family'
-    | 'own'
-    | 'owner'
-    | 'month_to_month'
-    | 'housing_project'
-  identification_number?: string
-  identification_type?: string
-  issued_card_data?: RapydIssueCardData
-  last_name?: string
-  marital_status?:
-    | 'married'
-    | 'single'
-    | 'divorced'
-    | 'widowed'
-    | 'cohabiting'
-    | 'not_applicable'
-  metadata?: object
-  middle_name?: string
-  mothers_name?: string
-  nationality?: string
-  phone_number?: string
-  second_last_name?: string
-  send_notifications?: bool
-  verification_status?: 'not verified' | 'KYCd'
-}
+const RapydAddressSchema = z.object({
+  id: z.string().optional(),
+  address: z.string().optional(),
+  canton: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  created_at: z.number().optional(),
+  district: z.string().optional(),
+  line_1: z.string().optional(),
+  line_2: z.string().optional(),
+  line_3: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  name: z.string().optional(),
+  phone_number: z.string().optional(),
+  state: z.string().optional(),
+  updated_at: z.number().optional(),
+  zip: z.string().optional()
+})
 
-interface RapydWalletContacts {
-  data?: Array<RapydWalletContact>
-  has_more?: bool
-  total_count?: number
-  url?: string
-}
+export type RapydAddresss = z.infer<typeof RapydAddressSchema>
 
-interface RapydAccount {
-  id?: string
-  alias?: string
-  balance?: number
-  currency?: string
-  limit?: number
-  limits?: number
-  on_hold_balance?: number
-  received_balance?: number
-  reserve_balance?: number
-}
+export const RapydIssueCardDataSchema = z.object({
+  preferred_name: z.string().optional(),
+  transaction_permissions: z.enum(['allowed', 'not_allowed']).optional(),
+  role_in_company: z.enum(['owner', 'agent', 'employee']).optional()
+})
 
-interface RapydWallet {
-  id?: string
-  accounts?: Array<RapydAccount>
-  category?: 'collect' | 'disburse' | 'card_authorization' | 'general'
-  contact?: RapydWalletContact
-  contacts?: RapydWalletContacts
-  email?: string
-  ewallet_reference_id?: string
-  first_name?: string
-  last_name?: string
-  metadata?: object
-  phone_number?: string
-  status?: 'ACT' | 'DIS'
-  type?: 'company' | 'person' | 'client'
-  verification_status?: 'not verified' | 'KYCd'
-}
+export type RapydIssueCardData = z.infer<typeof RapydIssueCardDataSchema>
 
-interface RapydProfile {
-  ewallet?: string
-  first_name?: string
-  last_name?: string
-}
+const RapydWalletContactSchema = z.object({
+  id: z.string().optional(),
+  address: z.union([RapydAddressSchema, z.string()]).optional(),
+  business_details: RapydBusinessDetailSchema.optional(),
+  compliance_profile: z
+    .union([z.literal(1), z.literal(0), z.literal(-1)])
+    .optional(),
+  contact_type: z.enum(['personal', 'business']).optional(),
+  country: z.string().optional(),
+  created_at: z.number().optional(),
+  date_of_birth: z.string().optional(),
+  email: z.string().optional(),
+  ewallet: z.string().optional(),
+  first_name: z.string().optional(),
+  gender: z.enum(['male', 'female', 'other', 'not_applicable']).optional(),
+  house_type: z
+    .enum([
+      'lease',
+      'live_with_family',
+      'own',
+      'owner',
+      'month_to_month',
+      'housing_project'
+    ])
+    .optional(),
+  identification_number: z.string().optional(),
+  identification_type: z.string().optional(),
+  issued_card_data: RapydIssueCardDataSchema.optional(),
+  last_name: z.string().optional(),
+  marital_status: z
+    .enum([
+      'married',
+      'single',
+      'divorced',
+      'widowed',
+      'cohabiting',
+      'not_applicable'
+    ])
+    .optional(),
+  metadata: z.record(z.unknown()).optional(),
+  middle_name: z.string().optional(),
+  mothers_name: z.string().optional(),
+  nationality: z.string().optional(),
+  phone_number: z.string().optional(),
+  second_last_name: z.string().optional(),
+  send_notifications: z.boolean().optional(),
+  verification_status: z.enum(['not verified', 'KYCd']).optional()
+})
 
-interface VirtualAccountRequest {
-  country: string
-  currency: string
-  description?: string
-  ewallet: string
-  merchant_reference_id?: string
-  metadata?: string
-}
+export type RapydWalletContact = z.infer<typeof RapydWalletContactSchema>
 
-interface BankAccount {
-  beneficiary_name: string
-  address: string
-  country_iso: string
-  iban: string
-  bic: string
-}
+export const RapydWalletContactsSchema = z.object({
+  data: z.array(RapydWalletContactSchema).optional(),
+  has_more: z.boolean().optional(),
+  total_count: z.number().optional(),
+  url: z.string().optional()
+})
 
-interface Transaction {
-  id: string
-  amount: number
-  currency: string
-  created_at: number
-}
+export type RapydWalletContacts = z.infer<typeof RapydWalletContactsSchema>
 
-interface VirtualAccountResponse {
-  id: string
-  merchant_reference_id: string
-  ewallet: string
-  bank_account: BankAccount
-  metadata?: { merchant_defined: boolean }
-  status: 'ACT' | 'DIS'
-  description?: string
-  funding_instructions: unknown | null
-  currency: string
-  transactions: Transaction[]
-}
+export const RapydAccountSchema = z.object({
+  id: z.string().optional(),
+  alias: z.string().optional(),
+  balance: z.number().optional(),
+  currency: z.string().optional(),
+  limit: z.number().optional(),
+  limits: z.number().optional(),
+  on_hold_balance: z.number().optional(),
+  received_balance: z.number().optional(),
+  reserve_balance: z.number().optional()
+})
 
-interface SimulateBankTransferToWalletRequest {
-  amount: number
-  currency: string
-  issued_bank_account: string
-  remitter_information?: string
-}
+export type RapydAccount = z.infer<typeof RapydAccountSchema>
 
-type SimulateBankTransferToWalletResponse = VirtualAccountResponse
+const RapydWalletSchema = z.object({
+  id: z.string().optional(),
+  accounts: z.array(RapydAccountSchema).optional(),
+  category: z
+    .enum(['collect', 'disburse', 'card_authorization', 'general'])
+    .optional(),
+  contact: RapydWalletContactSchema.optional(),
+  contacts: RapydWalletContactsSchema.optional(),
+  email: z.string().optional(),
+  ewallet_reference_id: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  phone_number: z.string().optional(),
+  status: z.enum(['ACT', 'DIS']).optional(),
+  type: z.enum(['company', 'person', 'client']).optional(),
+  verification_status: z.enum(['not verified', 'KYCd']).optional()
+})
 
-interface RapydDocumentType {
-  country?: string
-  type?: string
-  name?: string
-  is_back_required?: boolean
-  is_address_extractable?: boolean
-}
+export type RapydWallet = z.infer<typeof RapydWalletSchema>
 
-interface RapydCountry {
-  id?: number
-  name?: string
-  iso_alpha2?: string
-  iso_alpha3?: string
-  currency_code?: string
-  currency_name?: string
-  currency_sign?: string
-  phone_code?: string
-}
+const RapydProfileSchema = z.object({
+  ewallet: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional()
+})
 
-interface RapydIdentityResponse {
-  id: string
-  reference_id: string
-}
+export type RapydProfile = z.infer<typeof RapydProfileSchema>
 
-interface RapydIdentityRequest {
-  reference_id?: string
-  ewallet?: string
-  country?: string
-  document_type?: string
-  front_side_image?: string
-  front_side_image_mime_type?: string
-  face_image?: string
-  face_image_mime_type?: string
-  back_side_image?: string
-  back_side_image_mime_type?: string
-}
+const VirtualAccountRequestSchema = z.object({
+  country: z.string(),
+  currency: z.string(),
+  description: z.string().optional(),
+  ewallet: z.string(),
+  merchant_reference_id: z.string().optional(),
+  metadata: z.string().optional()
+})
 
-interface RapydWithdrawRequest {
-  ewallet: string
-  amount: number
-  currency: string
-}
+export type VirtualAccountRequest = z.infer<typeof VirtualAccountRequestSchema>
 
-interface RapydTransferRequest {
-  source_ewallet: string
-  amount: number
-  currency: string
-  destination_ewallet: string
-}
+const BankAccountSchema = z.object({
+  beneficiary_name: z.string(),
+  address: z.string(),
+  country_iso: z.string(),
+  iban: z.string(),
+  bic: z.string()
+})
 
-interface RapydSetTransferResponse {
-  id: string
-  status: string
-  amount: number
-  currency_code: string
-  destination_phone_number: string | null
-  destination_ewallet_id: string
-  destination_transaction_id: string
-  source_ewallet_id: string
-  source_transaction_id: string
-  transfer_response_at: number
-  created_at: number
-  metadata?: {
-    merchant_defined: boolean
-  }
-  response_metadata?: {
-    merchant_defined: string
-  }
-  expiration: number
-}
+export type BankAccount = z.infer<typeof BankAccountSchema>
 
-interface RapydSetTransferResponseRequest {
-  id: string
-  metadata?: unknown
-  status: 'accept' | 'decline' | 'cancel'
-}
+export const TransactionSchema = z.object({
+  id: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  created_at: z.number()
+})
 
-interface RapydAccountBalance {
-  id: string
-  currency: string
-  alias: string
-  balance: number
-  received_balance: number
-  on_hold_balance: number
-  reserve_balance: number
-  limits: null
-  limit: null
-}
+export type Transaction = z.infer<typeof TransactionSchema>
+
+const VirtualAccountResponseSchema = z.object({
+  id: z.string(),
+  merchant_reference_id: z.string(),
+  ewallet: z.string(),
+  bank_account: BankAccountSchema,
+  metadata: z
+    .object({
+      merchant_defined: z.boolean().optional()
+    })
+    .optional(),
+  status: z.enum(['ACT', 'DIS']),
+  description: z.string().optional().nullable(),
+  funding_instructions: z.union([z.unknown(), z.null()]),
+  currency: z.string(),
+  transactions: z.array(TransactionSchema)
+})
+
+export type VirtualAccountResponse = z.infer<
+  typeof VirtualAccountResponseSchema
+>
+const SimulateBankTransferToWalletRequestSchema = z.object({
+  amount: z.number().optional(),
+  currency: z.string(),
+  issued_bank_account: z.string().optional(),
+  remitter_information: z.string().optional()
+})
+
+export type SimulateBankTransferToWalletRequest = z.infer<
+  typeof SimulateBankTransferToWalletRequestSchema
+>
+const RapydDocumentTypeSchema = z.object({
+  country: z.string().optional(),
+  type: z.string().optional(),
+  name: z.string().optional(),
+  is_back_required: z.boolean().optional(),
+  is_address_extractable: z.boolean().optional()
+})
+
+export type RapydDocumentType = z.infer<typeof RapydDocumentTypeSchema>
+const RapydCountrySchema = z.object({
+  id: z.number().optional(),
+  name: z.string().optional(),
+  iso_alpha2: z.string().optional(),
+  iso_alpha3: z.string().optional(),
+  currency_code: z.string().optional(),
+  currency_name: z.string().optional(),
+  currency_sign: z.string().optional(),
+  phone_code: z.string().optional()
+})
+
+export type RapydCountry = z.infer<typeof RapydCountrySchema>
+
+const RapydIdentityResponseSchema = z.object({
+  id: z.string(),
+  reference_id: z.string()
+})
+
+export type RapydIdentityResponse = z.infer<typeof RapydIdentityResponseSchema>
+
+const RapydIdentityRequestSchema = z.object({
+  reference_id: z.string().optional(),
+  ewallet: z.string().optional(),
+  country: z.string().optional(),
+  document_type: z.string().optional(),
+  front_side_image: z.string().optional(),
+  front_side_image_mime_type: z.string().optional(),
+  face_image: z.string().optional(),
+  face_image_mime_type: z.string().optional(),
+  back_side_image: z.string().optional(),
+  back_side_image_mime_type: z.string().optional()
+})
+
+export type RapydIdentityRequest = z.infer<typeof RapydIdentityRequestSchema>
+
+const RapydWithdrawRequestSchema = z.object({
+  ewallet: z.string(),
+  amount: z.number(),
+  currency: z.string()
+})
+
+export type RapydWithdrawRequest = z.infer<typeof RapydWithdrawRequestSchema>
+
+const RapydTransferRequestSchema = z.object({
+  source_ewallet: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  destination_ewallet: z.string()
+})
+
+export type RapydTransferRequest = z.infer<typeof RapydTransferRequestSchema>
+
+const RapydSetTransferResponseSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  amount: z.number(),
+  currency_code: z.string(),
+  destination_phone_number: z.string().nullable(),
+  destination_ewallet_id: z.string(),
+  destination_transaction_id: z.string(),
+  source_ewallet_id: z.string(),
+  source_transaction_id: z.string(),
+  transfer_response_at: z.number(),
+  created_at: z.number(),
+  metadata: z
+    .object({
+      merchant_defined: z.boolean().optional()
+    })
+    .optional(),
+  response_metadata: z
+    .object({
+      merchant_defined: z.string().optional()
+    })
+    .optional(),
+  expiration: z.number()
+})
+
+export type RapydSetTransferResponse = z.infer<
+  typeof RapydSetTransferResponseSchema
+>
+const RapydSetTransferResponseRequestSchema = z.object({
+  id: z.string(),
+  metadata: z.unknown().optional(),
+  status: z.enum(['accept', 'decline', 'cancel'])
+})
+
+export type RapydSetTransferResponseRequest = z.infer<
+  typeof RapydSetTransferResponseRequestSchema
+>
+const RapydAccountBalanceSchema = z.object({
+  id: z.string(),
+  currency: z.string(),
+  alias: z.string(),
+  balance: z.number(),
+  received_balance: z.number(),
+  on_hold_balance: z.number(),
+  reserve_balance: z.number(),
+  limits: z.null(),
+  limit: z.null()
+})
+
+export type RapydAccountBalance = z.infer<typeof RapydAccountBalanceSchema>
 
 type RapydDepositRequest = RapydWithdrawRequest
-interface RapydDepositResponse {
-  id: string
-  account_id: string
-  phone_number: string
-  amount: number
-  currency: string
-  balance_type: string
-  metadata?: unknown
-}
+const RapydDepositResponseSchema = z.object({
+  id: z.string(),
+  account_id: z.string(),
+  phone_number: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  balance_type: z.string(),
+  metadata: z.unknown().optional()
+})
+
+export type RapydDepositResponse = z.infer<typeof RapydDepositResponseSchema>
 
 type RapydHoldRequest = RapydWithdrawRequest
-interface RapydHoldResponse {
-  id: string
-  source_transaction_id: string
-  destination_transaction_id: string
-  source_user_profile_id: string
-  destination_user_profile_id: string
-  source_account_id: string
-  destination_account_id: string
-  source_balance_type: string
-  destination_balance_type: string
-  currency_code: string
-  amount: number
-}
+const RapydHoldResponseSchema = z.object({
+  id: z.string(),
+  source_transaction_id: z.string(),
+  destination_transaction_id: z.string(),
+  source_user_profile_id: z.string(),
+  destination_user_profile_id: z.string(),
+  source_account_id: z.string(),
+  destination_account_id: z.string(),
+  source_balance_type: z.string(),
+  destination_balance_type: z.string(),
+  currency_code: z.string(),
+  amount: z.number()
+})
+
+export type RapydHoldResponse = z.infer<typeof RapydHoldResponseSchema>
 
 type RapydReleaseRequest = RapydHoldRequest
 type RapydReleaseResponse = RapydHoldResponse
 
-interface PayoutMethodResponse {
-  payout_method_type: string
-  name: string
-  payout_currencies: string
-  beneficiary_country: string
-  sender_entity_types: string[]
-  beneficiary_entity_types: string[]
-  sender_currencies: string[]
-}
+const PayoutMethodResponseSchema = z.object({
+  payout_method_type: z.string(),
+  name: z.string(),
+  payout_currencies: z.string(),
+  beneficiary_country: z.string(),
+  sender_entity_types: z.string().array(),
+  beneficiary_entity_types: z.string().array(),
+  sender_currencies: z.string().array()
+})
 
-interface RequiredFields {
-  name: string
-  regex: string
-}
+export type PayoutMethodResponse = z.infer<typeof PayoutMethodResponseSchema>
 
-interface PayoutRequiredFieldsResponse {
-  beneficiary_required_fields: RequiredFields[]
-  sender_required_fields: RequiredFields[]
-}
+const RequiredFields = z.object({
+  name: z.string(),
+  regex: z.string()
+})
 
-interface WithdrawFundsFromAccountResponse {
-  id: string
-  payout_method_type: string
-  sender_amount: number
-  sender_currency: string
-  status: string
-}
+const PayoutRequiredFieldsResponseSchema = z.object({
+  beneficiary_required_fields: z.array(RequiredFields),
+  sender_required_fields: z.array(RequiredFields)
+})
 
-interface CompletePayoutRequest {
-  payout: string
-  amount: number
-}
+export type PayoutRequiredFieldsResponse = z.infer<
+  typeof PayoutRequiredFieldsResponseSchema
+>
+
+const WithdrawFundsFromAccountResponseSchema = z.object({
+  id: z.string(),
+  payout_method_type: z.string(),
+  sender_amount: z.number(),
+  sender_currency: z.string(),
+  status: z.string()
+})
+
+export type WithdrawFundsFromAccountResponse = z.infer<
+  typeof WithdrawFundsFromAccountResponseSchema
+>
+
+const CompletePayoutRequestSchema = z.object({
+  payout: z.string(),
+  amount: z.number()
+})
+
+export type CompletePayoutRequest = z.infer<typeof CompletePayoutRequestSchema>
 
 type CompletePayoutResponse = WithdrawFundsFromAccountResponse
