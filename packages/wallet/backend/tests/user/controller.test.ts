@@ -163,12 +163,11 @@ describe('User Controller', (): void => {
 
   describe('Change password', () => {
     it('should return a message that password has been changed', async () => {
-      let newPassword = faker.internet.password()
+      const oldPassword = faker.internet.password()
 
-      await User.query().findById(userInfo.id).patch({ newPassword })
+      await User.query().findById(userInfo.id).patch({ newPassword: oldPassword})
 
-      const oldPassword = newPassword
-      newPassword = faker.internet.password()
+      const newPassword = faker.internet.password()
       req.body = {
         oldPassword,
         newPassword,
