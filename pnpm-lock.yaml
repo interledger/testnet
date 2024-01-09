@@ -218,8 +218,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       date-fns:
-        specifier: ^2.30.0
-        version: 2.30.0
+        specifier: ^3.2.0
+        version: 3.2.0
       disposable-email-domains:
         specifier: ^1.0.62
         version: 1.0.62
@@ -5346,6 +5346,11 @@ packages:
     engines: {node: '>=0.11'}
     dependencies:
       '@babel/runtime': 7.23.1
+    dev: true
+
+  /date-fns@3.2.0:
+    resolution: {integrity: sha512-E4KWKavANzeuusPi0jUjpuI22SURAznGkx7eZV+4i6x2A+IZxAMcajgkvuDAU1bg40+xuhW1zRdVIIM/4khuIg==}
+    dev: false
 
   /db-errors@0.2.3:
     resolution: {integrity: sha512-OOgqgDuCavHXjYSJoV2yGhv6SeG8nk42aoCSoyXLZUH7VwFG27rxbavU1z+VrZbZjphw5UkDQwUlD21MwZpUng==}
