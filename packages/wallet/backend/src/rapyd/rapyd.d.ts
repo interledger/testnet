@@ -324,6 +324,7 @@ interface RequiredFields {
 interface PayoutRequiredFieldsResponse {
   beneficiary_required_fields: RequiredFields[]
   sender_required_fields: RequiredFields[]
+  payout_options: RequiredFields[]
 }
 
 interface WithdrawFundsFromAccountResponse {
