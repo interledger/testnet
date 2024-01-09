@@ -163,8 +163,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.0)
       valtio:
-        specifier: ^1.12.1
-        version: 1.12.1(@types/react@18.2.47)(react@18.2.0)
+        specifier: ^1.13.0
+        version: 1.13.0(@types/react@18.2.47)(react@18.2.0)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -381,8 +381,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.0)
       valtio:
-        specifier: ^1.12.1
-        version: 1.12.1(@types/react@18.2.47)(react@18.2.0)
+        specifier: ^1.13.0
+        version: 1.13.0(@types/react@18.2.47)(react@18.2.0)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -5459,12 +5459,12 @@ packages:
     engines: {node: '>= 0.6.0'}
     dev: true
 
-  /derive-valtio@0.1.0(valtio@1.12.1):
+  /derive-valtio@0.1.0(valtio@1.13.0):
     resolution: {integrity: sha512-OCg2UsLbXK7GmmpzMXhYkdO64vhJ1ROUUGaTFyHjVwEdMEcTTRj7W1TxLbSBxdY8QLBPCcp66MTyaSy0RpO17A==}
     peerDependencies:
       valtio: '*'
     dependencies:
-      valtio: 1.12.1(@types/react@18.2.47)(react@18.2.0)
+      valtio: 1.13.0(@types/react@18.2.47)(react@18.2.0)
     dev: false
 
   /destroy@1.2.0:
@@ -10453,8 +10453,8 @@ packages:
       convert-source-map: 1.9.0
     dev: true
 
-  /valtio@1.12.1(@types/react@18.2.47)(react@18.2.0):
-    resolution: {integrity: sha512-R0V4H86Xi2Pp7pmxN/EtV4Q6jr6PMN3t1IwxEvKUp6160r8FimvPh941oWyeK1iec/DTsh9Jb3Q+GputMS8SYg==}
+  /valtio@1.13.0(@types/react@18.2.47)(react@18.2.0):
+    resolution: {integrity: sha512-s2VkxxFyaJwjpIheJonRa/34HWS1EpsEjw9OW9l3j8G4cbIw7lruspOjyv+z2o4BrGx351BH+VWb8sZHkrlyYA==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=16.8'
@@ -10466,7 +10466,7 @@ packages:
         optional: true
     dependencies:
       '@types/react': 18.2.47
-      derive-valtio: 0.1.0(valtio@1.12.1)
+      derive-valtio: 0.1.0(valtio@1.13.0)
       proxy-compare: 2.5.1
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
