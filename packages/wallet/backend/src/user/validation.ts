@@ -27,3 +27,23 @@ export const resetPasswordSchema = z.object({
       }
     })
 })
+
+export const changePasswordSchema = z.object({
+  body: z
+    .object({
+      oldPassword: z.string(),
+      newPassword: z
+        .string()
+        .min(6, { message: 'Password should be at least 6 characters long' }),
+      confirmNewPassword: z.string()
+    })
+    .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
+      if (newPassword !== confirmNewPassword) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Passwords do not match`,
+          path: ['confirmNewPassword']
+        })
+      }
+    })
+})
