@@ -318,8 +318,8 @@ export const getServerSideProps: GetServerSideProps<{
   if (
     !accountResponse.success ||
     !walletAddressesResponse.success ||
-    !accountResponse.data ||
-    !walletAddressesResponse.data
+    !accountResponse.result ||
+    !walletAddressesResponse.result
   ) {
     return {
       notFound: true
@@ -328,21 +328,21 @@ export const getServerSideProps: GetServerSideProps<{
 
   let balance = 0
 
-  walletAddressesResponse.data.walletAddresses.map((pp) => {
+  walletAddressesResponse.result.walletAddresses.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
   })
-  walletAddressesResponse.data.wmWalletAddresses.map((pp) => {
+  walletAddressesResponse.result.wmWalletAddresses.map((pp) => {
     pp.url = pp.url.replace('https://', '$')
     balance += Number(pp.incomingBalance)
   })
 
   return {
     props: {
-      account: accountResponse.data,
-      allWalletAddresses: walletAddressesResponse.data,
+      account: accountResponse.result,
+      allWalletAddresses: walletAddressesResponse.result,
       balance: formatAmount({
         value: balance.toString(),
-        assetCode: accountResponse.data.assetCode,
+        assetCode: accountResponse.result.assetCode,
         assetScale: 9
       })
     }

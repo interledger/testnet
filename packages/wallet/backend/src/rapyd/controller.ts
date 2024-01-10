@@ -32,7 +32,7 @@ export class RapydController implements IRapydController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: countryNamesResult })
+        .json({ success: true, message: 'SUCCESS', result: countryNamesResult })
     } catch (e) {
       next(e)
     }
@@ -49,7 +49,11 @@ export class RapydController implements IRapydController {
         await this.rapydService.getDocumentTypes(userId)
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: documentTypesResult })
+        .json({
+          success: true,
+          message: 'SUCCESS',
+          result: documentTypesResult
+        })
     } catch (e) {
       next(e)
     }
@@ -100,7 +104,7 @@ export class RapydController implements IRapydController {
       res.status(200).json({
         success: true,
         message: 'Wallet created succesfully',
-        data: createWalletResponse
+        result: createWalletResponse
       })
     } catch (e) {
       next(e)
@@ -148,7 +152,7 @@ export class RapydController implements IRapydController {
       res.status(200).json({
         success: true,
         message: 'Wallet created succesfully',
-        data: verifyIdentityResponse
+        result: verifyIdentityResponse
       })
     } catch (e) {
       next(e)

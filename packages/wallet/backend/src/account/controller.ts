@@ -34,7 +34,11 @@ export class AccountController implements IAccountController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: createAccountResult })
+        .json({
+          success: true,
+          message: 'SUCCESS',
+          result: createAccountResult
+        })
     } catch (e) {
       next(e)
     }
@@ -56,7 +60,7 @@ export class AccountController implements IAccountController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: accounts })
+        .json({ success: true, message: 'SUCCESS', result: accounts })
     } catch (e) {
       next(e)
     }
@@ -78,7 +82,7 @@ export class AccountController implements IAccountController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: getAccountsResult })
+        .json({ success: true, message: 'SUCCESS', result: getAccountsResult })
     } catch (e) {
       next(e)
     }

@@ -35,7 +35,7 @@ export class TransactionController implements ITransactionController {
       )
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: transactions })
+        .json({ success: true, message: 'SUCCESS', result: transactions })
     } catch (e) {
       next(e)
     }
@@ -65,7 +65,7 @@ export class TransactionController implements ITransactionController {
       res.status(200).json({
         success: true,
         message: 'SUCCESS',
-        data: transactions
+        result: transactions
       })
     } catch (e) {
       next(e)
