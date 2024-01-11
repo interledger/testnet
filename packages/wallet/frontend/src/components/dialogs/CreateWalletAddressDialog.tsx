@@ -17,12 +17,14 @@ import { Checkbox } from '@/ui/forms/Checkbox'
 import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
-  accountName: string
+  accountName: string,
+  isChecked?: boolean
 }
 
 export const CreateWalletAddressDialog = ({
   onClose,
-  accountName
+  accountName,
+  isChecked
 }: CreateWalletAddressDialogProps) => {
   const router = useRouter()
   const createWalletAddressForm = useZodForm({
@@ -133,6 +135,7 @@ export const CreateWalletAddressDialog = ({
                     />
                     <Checkbox
                       label="I want to use this payment pointer for Web Monetization"
+                      checked={isChecked}
                       {...createWalletAddressForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
