@@ -17,7 +17,7 @@ import { Checkbox } from '@/ui/forms/Checkbox'
 import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
-  accountName: string,
+  accountName: string
   isChecked?: boolean
 }
 
