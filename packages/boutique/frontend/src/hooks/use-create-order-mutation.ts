@@ -1,5 +1,5 @@
 import { APIError } from '@/lib/fetcher.ts'
-import { SuccessReponse } from '@/lib/types.ts'
+import { SuccessResponse } from '@/lib/types.ts'
 import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
@@ -24,7 +24,7 @@ export const createOrderSchema = z.object({
 
 export function useCreateOrderMutation(
   options?: UseMutationOptions<
-    SuccessReponse<CreateOrderMutationResponse>,
+    SuccessResponse<CreateOrderMutationResponse>,
     APIError<z.infer<typeof createOrderSchema>>,
     CreateOrderMutationParams
   >

@@ -26,8 +26,8 @@ export const ProductCTA = () => {
     }
   })
 
-  if (data?.data.accessToken) {
-    setToken(data.data)
+  if (data?.result.accessToken) {
+    setToken(data.result)
     return (
       <Navigate to="/checkout/confirmation?instantBuy=true" replace={true} />
     )

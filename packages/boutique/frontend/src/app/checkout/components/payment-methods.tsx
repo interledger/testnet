@@ -55,9 +55,9 @@ const OpenPaymentsForm = () => {
     }
   })
 
-  if (data?.data.redirectUrl) {
+  if (data?.result.redirectUrl) {
     resetCart()
-    window.location.href = data.data.redirectUrl
+    window.location.href = data.result.redirectUrl
   }
 
   return (

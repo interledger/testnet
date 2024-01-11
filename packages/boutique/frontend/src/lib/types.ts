@@ -8,5 +8,5 @@ export interface ErrorResponse {
 export interface SuccessResponse<T = any> {
   success: true
   message: string
-  data: T
+  result: T
 }
