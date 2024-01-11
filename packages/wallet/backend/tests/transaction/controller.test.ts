@@ -179,7 +179,7 @@ describe('Transaction Controller', (): void => {
         success: true,
         message: 'SUCCESS'
       })
-      const data = res._getJSONData().data[0]
+      const data = res._getJSONData().result[0]
       expect(data).toHaveProperty('walletAddressId')
       expect(data).toHaveProperty('accountId')
       expect(data).toHaveProperty('paymentId')
