@@ -234,6 +234,10 @@ const SimulateBankTransferToWalletRequestSchema = z.object({
 export type SimulateBankTransferToWalletRequest = z.infer<
   typeof SimulateBankTransferToWalletRequestSchema
 >
+
+export type SimulateBankTransferToWalletResponse = z.infer<
+  typeof VirtualAccountResponseSchema
+>
 const RapydDocumentTypeSchema = z.object({
   country: z.string().optional(),
   type: z.string().optional(),
@@ -391,14 +395,17 @@ const PayoutMethodResponseSchema = z.object({
 
 export type PayoutMethodResponse = z.infer<typeof PayoutMethodResponseSchema>
 
-const RequiredFields = z.object({
+const RequiredFieldsSchema = z.object({
   name: z.string(),
   regex: z.string()
 })
 
+export type RequiredFields = z.infer<typeof RequiredFieldsSchema>
+
 const PayoutRequiredFieldsResponseSchema = z.object({
-  beneficiary_required_fields: z.array(RequiredFields),
-  sender_required_fields: z.array(RequiredFields)
+  beneficiary_required_fields: z.array(RequiredFieldsSchema),
+  sender_required_fields: z.array(RequiredFieldsSchema),
+  payout_options: z.array(RequiredFieldsSchema)
 })
 
 export type PayoutRequiredFieldsResponse = z.infer<

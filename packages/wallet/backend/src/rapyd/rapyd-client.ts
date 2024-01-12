@@ -5,6 +5,35 @@ import { Env } from '@/config/env'
 import { User } from '@/user/model'
 import RandExp from 'randexp'
 import { BadRequest } from '@/errors'
+import {
+  CompletePayoutRequest,
+  CompletePayoutResponse,
+  PayoutMethodResponse,
+  PayoutRequiredFieldsResponse,
+  RapydAccountBalance,
+  RapydCountry,
+  RapydDepositRequest,
+  RapydDepositResponse,
+  RapydDocumentType,
+  RapydHoldRequest,
+  RapydHoldResponse,
+  RapydIdentityRequest,
+  RapydIdentityResponse,
+  RapydProfile,
+  RapydReleaseRequest,
+  RapydReleaseResponse,
+  RapydResponse,
+  RapydSetTransferResponse,
+  RapydSetTransferResponseRequest,
+  RapydTransferRequest,
+  RapydWallet,
+  RequiredFields,
+  SimulateBankTransferToWalletRequest,
+  SimulateBankTransferToWalletResponse,
+  VirtualAccountRequest,
+  VirtualAccountResponse,
+  WithdrawFundsFromAccountResponse
+} from '@/rapyd/rapyd'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>

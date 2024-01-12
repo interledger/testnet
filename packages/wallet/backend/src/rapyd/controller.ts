@@ -6,6 +6,11 @@ import { getRandomValues } from 'crypto'
 import { NextFunction, Request } from 'express'
 import { Options, RapydService } from './service'
 import { kycSchema, profileSchema, walletSchema } from './validation'
+import {
+  RapydDocumentType,
+  RapydIdentityResponse,
+  RapydWallet
+} from '@/rapyd/rapyd'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>

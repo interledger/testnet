@@ -13,6 +13,7 @@ import {
   paymentDetailsSchema
 } from '@/incomingPayment/validation'
 import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
+import { RapydAccountBalance, RapydProfile } from '@/rapyd/rapyd'
 
 export type LogInRequest = z.infer<typeof logInSchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>
