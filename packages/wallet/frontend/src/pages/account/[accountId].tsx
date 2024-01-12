@@ -245,7 +245,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 </div>
                 <div className="my-5">
                   <button
-                    id="walletAddress"
+                    id="walletAddressWM"
                     onClick={() => {
                       openDialog(
                         <CreateWalletAddressDialog
