@@ -48,8 +48,8 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1
       awilix:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^10.0.1
+        version: 10.0.1
       axios:
         specifier: ^1.6.5
         version: 1.6.5
@@ -206,8 +206,8 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0
       awilix:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^10.0.1
+        version: 10.0.1
       axios:
         specifier: ^1.6.5
         version: 1.6.5
@@ -4578,12 +4578,12 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /awilix@9.0.0:
-    resolution: {integrity: sha512-DVhdT1sbCCjGBvJbNKJaPSh+JVvgzUV0Rbdq3r3/MqxDgm7e/zs8aAhWI8O8nFNFvUYFtJPqWsFldyzC2rpMnA==}
+  /awilix@10.0.1:
+    resolution: {integrity: sha512-+ylXK26rx4BVfzAB9AXQE+k/nomshpW8ISR+vZN2QecMiCoaT8km4DaIO0nazYSCX6nZCHYOFnoeCa5cE13NEA==}
     engines: {node: '>=14.0.0'}
     dependencies:
       camel-case: 4.1.2
-      fast-glob: 3.3.1
+      fast-glob: 3.3.2
     dev: false
 
   /axios@1.6.5:
@@ -6099,6 +6099,17 @@ packages:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.5
+
+  /fast-glob@3.3.2:
+    resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
+    engines: {node: '>=8.6.0'}
+    dependencies:
+      '@nodelib/fs.stat': 2.0.5
+      '@nodelib/fs.walk': 1.2.8
+      glob-parent: 5.1.2
+      merge2: 1.4.1
+      micromatch: 4.0.5
+    dev: false
 
   /fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}

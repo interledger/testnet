@@ -10,7 +10,7 @@
     "@sendgrid/mail": "^8.1.0",
     "axios": "^1.6.5",
     "cors": "^2.8.5",
-    "awilix": "^9.0.0",
+    "awilix": "^10.0.1",
     "crypto-js": "^4.2.0",
     "date-fns": "^3.2.0",
     "disposable-email-domains": "^1.0.62",
