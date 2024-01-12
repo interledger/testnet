@@ -95,7 +95,7 @@ type PayoutRequiredFieldsParams = {
   payoutMethodType: string
 }
 
-type RequiredFieldsType = Record<string, string | number>
+type RequiredFieldsType = Record<string, string | number | object>
 
 export class RapydClient implements IRapydClient {
   constructor(
@@ -256,11 +256,14 @@ export class RapydClient implements IRapydClient {
       ? ' ; '
       : ','
     const [street, city, postCode] = args.user.address?.split(', ') ?? []
+    let address = [street, postCode].join(addressDelimiter)
+    if (args.assetCode === 'EUR') address = address.replace(/[,\s]+/g, '')
+
     // withdraw funds/create payout from wallet account into bank account
     const userDetails: RequiredFieldsType = {
       first_name: args.user.firstName ?? '',
       last_name: args.user.lastName ?? '',
-      address: [street, postCode].join(addressDelimiter),
+      address,
       city,
       country: args.user.country ?? '',
       iban: 'HU42117730161111101800000000',
@@ -271,7 +274,7 @@ export class RapydClient implements IRapydClient {
       postcode: postCode
     }
 
-    const withdrawReq = {
+    let withdrawReq: RequiredFieldsType = {
       beneficiary: this.generateRequiredFields(
         requiredFieldsForPayout.beneficiary_required_fields ?? [],
         userDetails
@@ -291,6 +294,11 @@ export class RapydClient implements IRapydClient {
       sender_entity_type: this.getEntityType(payoutType.sender_entity_types),
       payout_method_type: payoutType.payout_method_type
     }
+
+    withdrawReq = this.generateRequiredFields(
+      requiredFieldsForPayout.payout_options ?? [],
+      withdrawReq
+    )
 
     const payout = await this.post<
       RapydResponse<WithdrawFundsFromAccountResponse>

@@ -1,6 +1,6 @@
 import type { User } from '@/user/model'
 import { Unauthorized } from '@/errors'
-import addSeconds from 'date-fns/addSeconds'
+import { addSeconds } from 'date-fns'
 import type { Env } from '@/config/env'
 import type { Session } from '@/session/model'
 import type { UserService } from '@/user/service'

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import { DialogProvider } from './DialogProvider'
 import { OnboardingProvider } from './OnboardingProvider'
+import { PasswordProvider } from './PasswordProvider'
 
 type AppProviderProps = {
   children: ReactNode
@@ -9,7 +10,9 @@ type AppProviderProps = {
 export const AppProvider = ({ children }: AppProviderProps) => {
   return (
     <OnboardingProvider>
-      <DialogProvider>{children}</DialogProvider>
+      <PasswordProvider>
+        <DialogProvider>{children}</DialogProvider>
+      </PasswordProvider>
     </OnboardingProvider>
   )
 }
