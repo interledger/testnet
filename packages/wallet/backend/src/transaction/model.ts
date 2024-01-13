@@ -1,26 +1,47 @@
 import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
-import { PaymentPointer } from '@/paymentPointer/model'
-export class Transaction extends BaseModel {
+import { WalletAddress } from '@/walletAddress/model'
+import { Account } from '@/account/model'
+
+export type TransactionType = 'INCOMING' | 'OUTGOING'
+export type TransactionExtended = Transaction & {
+  walletAddressUrl: WalletAddress['url']
+  accountName: Account['name']
+}
+
+export class TransactionBaseModel extends BaseModel {
+  paymentId!: string
+  value!: bigint | null
+  type!: TransactionType
+  status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
+  expiresAt!: Date | null
+}
+
+export class Transaction extends TransactionBaseModel {
   static tableName = 'transactions'
 
-  id!: string
-  paymentId!: string
   description?: string
-  paymentPointerId!: string
+  walletAddressId?: string
+  accountId!: string
   assetCode!: string
   value!: bigint | null
-  type!: 'INCOMING' | 'OUTGOING'
-  status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
-  paymentPointer!: PaymentPointer
+  walletAddress!: WalletAddress
 
   static relationMappings = () => ({
-    paymentPointer: {
+    walletAddress: {
       relation: Model.BelongsToOneRelation,
-      modelClass: PaymentPointer,
+      modelClass: WalletAddress,
       join: {
-        from: 'transactions.paymentPointerId',
-        to: 'paymentPointers.id'
+        from: 'transactions.walletAddressId',
+        to: 'walletAddresses.id'
+      }
+    },
+    account: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: Account,
+      join: {
+        from: 'transactions.accountId',
+        to: 'accounts.id'
       }
     }
   })

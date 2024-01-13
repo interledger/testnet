@@ -20,3 +20,10 @@ export const fundSchema = z.object({
 })
 
 export const withdrawFundsSchema = fundSchema
+
+export const createExchangeQuoteSchema = z.object({
+  body: z.object({
+    assetCode: z.string(),
+    amount: z.number().positive()
+  })
+})

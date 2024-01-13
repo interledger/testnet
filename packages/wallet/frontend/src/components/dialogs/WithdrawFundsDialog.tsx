@@ -11,14 +11,14 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
 
-type WithdrawFundsDialogDialogProps = Pick<DialogProps, 'onClose'> & {
+type WithdrawFundsDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account
 }
 
 export const WithdrawFundsDialog = ({
   onClose,
   account
-}: WithdrawFundsDialogDialogProps) => {
+}: WithdrawFundsDialogProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
   const withdrawFundsForm = useZodForm({
@@ -55,7 +55,7 @@ export const WithdrawFundsDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Withdraw Funds
+                  Withdraw Money
                 </Dialog.Title>
                 <div className="px-4">
                   <Form

@@ -1,45 +1,29 @@
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { Transaction } from '@/transaction/model'
 
 interface IOutgoingPaymentService {
-  createByQuoteId: (quoteId: string) => Promise<Transaction>
-}
-
-interface OutgoingServiceDependencies {
-  rafikiClient: RafikiClient
-  incomingPaymentService: IncomingPaymentService
+  createByQuoteId: (quoteId: string) => Promise<void>
 }
 
 export class OutgoingPaymentService implements IOutgoingPaymentService {
-  constructor(private deps: OutgoingServiceDependencies) {}
+  constructor(
+    private rafikiClient: RafikiClient,
+    private incomingPaymentService: IncomingPaymentService
+  ) {}
 
-  async createByQuoteId(quoteId: string): Promise<Transaction> {
-    const quote = await this.deps.rafikiClient.getQuote(quoteId)
+  async createByQuoteId(quoteId: string): Promise<void> {
+    const quote = await this.rafikiClient.getQuote(quoteId)
+    const walletAddressId = quote.walletAddressId
 
-    const value = quote.sendAmount.value
-    const paymentPointerId = quote.paymentPointerId
+    const incomingPayment = await this.incomingPaymentService.getReceiver(
+      quote.receiver
+    )
+    const description = incomingPayment?.description
 
-    const incomingPayment =
-      await this.deps.incomingPaymentService.getPaymentDetailsByUrl(
-        quote.receiver
-      )
-    const { description, assetCode } = incomingPayment
-
-    const payment = await this.deps.rafikiClient.createOutgoingPayment({
-      paymentPointerId,
+    await this.rafikiClient.createOutgoingPayment({
+      walletAddressId,
       quoteId,
-      description
-    })
-
-    return Transaction.query().insert({
-      paymentPointerId,
-      paymentId: payment.id,
-      assetCode,
-      value,
-      type: 'OUTGOING',
-      status: 'PENDING',
-      description
+      metadata: { description }
     })
   }
 }

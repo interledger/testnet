@@ -80,7 +80,18 @@ const TCell = ({ children, className, ...props }: TCellProps) => {
   )
 }
 
+const TShimmer = () => {
+  return (
+    <div className="flex animate-pulse flex-col space-y-2">
+      <div className="h-12 w-full rounded-lg bg-gray-500 bg-opacity-25"></div>
+      <div className="h-12 w-full rounded-lg bg-gray-500 bg-opacity-25"></div>
+      <div className="h-12 w-full rounded-lg bg-gray-500 bg-opacity-25"></div>
+    </div>
+  )
+}
+
 Table.Head = THead
 Table.Body = TBody
 Table.Row = TRow
 Table.Cell = TCell
+Table.Shimmer = TShimmer

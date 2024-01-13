@@ -6,16 +6,16 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { Transaction } from './paymentPointer'
+import { AssetOP } from './asset'
 
 export const sendSchema = z.object({
-  paymentPointerId: z
+  walletAddressId: z
     .object({
       value: z.string().uuid(),
       label: z.string().min(1)
     })
     .nullable(),
-  receiver: z.string().url().trim(),
+  receiver: z.string().trim(),
   amount: z.coerce.number({
     invalid_type_error: 'Please enter a valid amount'
   }),
@@ -27,34 +27,79 @@ export const acceptQuoteSchema = z.object({
   quoteId: z.string().uuid()
 })
 
-export const requestSchema = z.object({
-  paymentPointerId: z
-    .object({
-      value: z.string().uuid(),
-      label: z.string().min(1)
-    })
-    .nullable(),
-  amount: z.coerce.number({
-    invalid_type_error: 'Please enter a valid amount'
-  }),
-  description: z.string()
-})
+const TIME_UNITS = ['s', 'm', 'h', 'd'] as const
+
+export type TimeUnit = (typeof TIME_UNITS)[number]
+
+export const requestSchema = z
+  .object({
+    walletAddressId: z
+      .object({
+        value: z.string().uuid(),
+        label: z.string().min(1)
+      })
+      .nullable(),
+    amount: z.coerce.number({
+      invalid_type_error: 'Please enter a valid amount'
+    }),
+    description: z.string(),
+    expiry: z.coerce
+      .number()
+      .int({ message: 'Expiry time amount should be a whole number' })
+      .refine((value) => {
+        if (value && isNaN(value)) {
+          return false
+        }
+        return true
+      })
+      .refine(
+        (value) => {
+          if (value && value <= 0) {
+            return false
+          }
+          return true
+        },
+        { message: 'Expiry time amount should be greater than 0' }
+      )
+      .optional(),
+    unit: z
+      .object({
+        value: z.enum(TIME_UNITS),
+        label: z.string().min(1)
+      })
+      .optional()
+  })
+  .superRefine(({ expiry, unit }, ctx) => {
+    if ((expiry && !unit) || (!expiry && unit)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Payment expiry was not properly specified. Please make sure that both the amount and time unit are specified',
+        path: ['expiry']
+      })
+    }
+  })
 
 type PaymentDetails = {
+  assetCode: string
   description?: string
   value: number
 }
 
-type AmountProps = {
-  assetCode: string
-  assetScale: number
+type AmountProps = AssetOP & {
   value: string
+}
+
+interface Expiration {
+  value: number
+  unit: string
 }
 
 export interface Quote {
   id: string
   receiveAmount: AmountProps
-  sendAmount: AmountProps
+  debitAmount: AmountProps
+  fee?: AmountProps
 }
 
 type SendArgs = z.infer<typeof sendSchema>
@@ -67,7 +112,7 @@ type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
 type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
 
 type RequestArgs = z.infer<typeof requestSchema>
-type RequestResult = SuccessResponse<Transaction>
+type RequestResult = SuccessResponse<{ url: string }>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = RequestResult | RequestError
 
@@ -91,8 +136,8 @@ const createTransfersService = (): TransfersService => ({
       const response = await httpClient
         .post('quotes', {
           json: {
-            paymentPointerId: args.paymentPointerId
-              ? args.paymentPointerId.value
+            walletAddressId: args.walletAddressId
+              ? args.walletAddressId.value
               : undefined,
             receiver: args.receiver,
             amount: args.amount,
@@ -127,14 +172,23 @@ const createTransfersService = (): TransfersService => ({
   },
 
   async request(args) {
+    let expiration: Expiration | undefined = undefined
+    if (args.expiry && args.expiry > 0 && args.unit) {
+      expiration = {
+        value: args.expiry,
+        unit: args.unit.value
+      }
+    }
+
     try {
       const response = await httpClient
         .post('incoming-payments', {
           json: {
             ...args,
-            paymentPointerId: args.paymentPointerId
-              ? args.paymentPointerId.value
-              : undefined
+            walletAddressId: args.walletAddressId
+              ? args.walletAddressId.value
+              : undefined,
+            expiration
           }
         })
         .json<SuccessResponse>()

@@ -5,6 +5,12 @@
     },
     {
       "path": "packages/wallet/frontend"
+    },
+    {
+      "path": "packages/boutique/backend"
+    },
+    {
+      "path": "packages/boutique/frontend"
     }
   ],
   "files": [],

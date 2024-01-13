@@ -95,6 +95,10 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
                   closeDialog()
                 }}
                 onSuccess={() => {
+                  window.localStorage.setItem(
+                    'isUserFirstTimeOnTestnet',
+                    'true'
+                  )
                   router.reload()
                 }}
                 content="Your identity has been verified."

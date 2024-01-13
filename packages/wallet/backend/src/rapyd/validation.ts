@@ -37,6 +37,15 @@ export const walletSchema = z.object({
   })
 })
 
+export const ratesSchema = z.object({
+  query: z.object({
+    base: z
+      .string()
+      .length(3)
+      .transform((v) => v.toLocaleUpperCase())
+  })
+})
+
 export async function validateRapydResponse<
   T extends AnyZodObject | ZodEffects<AnyZodObject>
 >(schema: T, rapydResponse: unknown): Promise<z.infer<T>> {

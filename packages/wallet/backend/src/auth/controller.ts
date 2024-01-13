@@ -1,22 +1,21 @@
 import { validate } from '@/shared/validate'
 import { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
 import { AuthService } from './service'
 import { logInSchema, signUpSchema } from './validation'
 import { UserService } from '@/user/service'
+import { Unauthorized } from '@/errors'
 
 interface IAuthController {
   signUp: ControllerFunction
   logIn: ControllerFunction
-}
-interface AuthControllerDependencies {
-  authService: AuthService
-  userService: UserService
-  logger: Logger
+  verifyEmail: ControllerFunction
 }
 
 export class AuthController implements IAuthController {
-  constructor(private deps: AuthControllerDependencies) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService
+  ) {}
 
   // We use arrow functions to maintain the correct `this` reference
   signUp = async (req: Request, res: CustomResponse, next: NextFunction) => {
@@ -25,13 +24,12 @@ export class AuthController implements IAuthController {
         body: { email, password }
       } = await validate(signUpSchema, req)
 
-      await this.deps.userService.create({ email, password })
+      await this.authService.signUp({ email, password })
 
       res
         .status(201)
         .json({ success: true, message: 'User created successfully' })
     } catch (e) {
-      this.deps.logger.error(e)
       next(e)
     }
   }
@@ -42,7 +40,7 @@ export class AuthController implements IAuthController {
         body: { email, password }
       } = await validate(logInSchema, req)
 
-      const { user, session } = await this.deps.authService.authorize({
+      const { user, session } = await this.authService.authorize({
         email,
         password
       })
@@ -59,7 +57,41 @@ export class AuthController implements IAuthController {
 
       res.json({ success: true, message: 'Authorized' })
     } catch (e) {
-      this.deps.logger.error(e)
+      next(e)
+    }
+  }
+
+  logOut = async (req: Request, res: CustomResponse, next: NextFunction) => {
+    try {
+      if (!req.session.id || !req.session.user) {
+        req.session.destroy()
+        throw new Unauthorized('Unauthorized')
+      }
+
+      await this.authService.logout(req.session.user.id)
+      req.session.destroy()
+
+      res.json({ success: true, message: 'SUCCESS' })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  verifyEmail = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req.params.token
+
+      await this.userService.verifyEmail(token)
+
+      res.json({
+        success: true,
+        message: 'Email was verified successfully'
+      })
+    } catch (e) {
       next(e)
     }
   }

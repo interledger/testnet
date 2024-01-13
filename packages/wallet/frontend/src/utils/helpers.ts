@@ -1,3 +1,8 @@
+import { AssetOP } from '@/lib/api/asset'
+import { cx, CxOptions } from 'class-variance-authority'
+import { Quote } from '../lib/api/transfers'
+import { twMerge } from 'tailwind-merge'
+
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
  * If we know that a specific object doesn't have extra properties, the literal
@@ -12,6 +17,10 @@ export type FormattedAmount = {
   symbol: string
 }
 
+export function cn(...inputs: CxOptions) {
+  return twMerge(cx(inputs))
+}
+
 export const getCurrencySymbol = (assetCode: string): string => {
   return new Intl.NumberFormat('en-US', {
     currency: assetCode,
@@ -24,10 +33,8 @@ export const getCurrencySymbol = (assetCode: string): string => {
     .trim()
 }
 
-type FormatAmountArgs = {
+type FormatAmountArgs = AssetOP & {
   value: string
-  assetCode: string
-  assetScale: number
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
@@ -48,24 +55,61 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   }
 }
 
-export const formatDate = (date: string): string => {
+export const formatDate = (date: string, time = true): string => {
   return new Date(date).toLocaleDateString('default', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    ...(time && { hour: '2-digit', minute: '2-digit' })
   })
 }
 
-export const getFee = (
-  send: FormatAmountArgs,
-  receive: FormatAmountArgs
-): FormattedAmount => {
-  const fee = BigInt(send.value) - BigInt(receive.value)
+export const getFee = (quote: Quote): FormattedAmount => {
+  if (quote.fee) {
+    return formatAmount({
+      assetCode: quote.fee.assetCode,
+      assetScale: quote.fee.assetScale,
+      value: quote.fee.value.toString()
+    })
+  }
+
+  const fee =
+    BigInt(quote.debitAmount.value) - BigInt(quote.receiveAmount.value)
   return formatAmount({
-    assetCode: send.assetCode,
-    assetScale: send.assetScale,
+    assetCode: quote.debitAmount.assetCode,
+    assetScale: quote.debitAmount.assetScale,
     value: fee.toString()
   })
+}
+
+const FILE_TYPE = {
+  TEXT_PLAIN: 'text/plain'
+} as const
+
+type FileType = keyof typeof FILE_TYPE
+
+type GenerateAndDownloadFileProps = {
+  content: string
+  fileName: string
+  fileType: FileType
+}
+
+export const generateAndDownloadFile = ({
+  content,
+  fileName,
+  fileType
+}: GenerateAndDownloadFileProps): void => {
+  const blob = new Blob([content], { type: FILE_TYPE[fileType] })
+  const anchor = document.createElement('a')
+
+  anchor.download = fileName
+  anchor.href = URL.createObjectURL(blob)
+  anchor.dataset.downloadurl = [fileType, anchor.download, anchor.href].join(
+    ':'
+  )
+  anchor.style.display = 'none'
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(anchor.href)
 }

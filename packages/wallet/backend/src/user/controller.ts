@@ -1,26 +1,31 @@
 import { Unauthorized } from '@/errors'
 import type { NextFunction, Request } from 'express'
-import type { Logger } from 'winston'
 import type { UserService } from './service'
-import type { SessionService } from '@/session/service'
 import type { User } from './model'
+import { validate } from '@/shared/validate'
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
+} from '@/user/validation'
 
 interface UserFlags {
   needsWallet: boolean
   needsIDProof: boolean
 }
+interface TokenValidity {
+  isValid: boolean
+}
 
 interface IUserController {
   me: ControllerFunction<UserFlags>
-}
-interface UserControllerDependencies {
-  userService: UserService
-  sessionService: SessionService
-  logger: Logger
+  requestResetPassword: ControllerFunction
+  resetPassword: ControllerFunction
+  checkToken: ControllerFunction<TokenValidity>
 }
 
 export class UserController implements IUserController {
-  constructor(private deps: UserControllerDependencies) {}
+  constructor(private userService: UserService) {}
 
   me = async (
     req: Request,
@@ -35,7 +40,7 @@ export class UserController implements IUserController {
         throw new Unauthorized('Unauthorized')
       }
 
-      const user = await this.deps.userService.getById(req.session.user.id)
+      const user = await this.userService.getById(req.session.user.id)
 
       if (!user) {
         req.session.destroy()
@@ -55,7 +60,92 @@ export class UserController implements IUserController {
         }
       })
     } catch (e) {
-      this.deps.logger.error(e)
+      next(e)
+    }
+  }
+
+  requestResetPassword = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { email }
+      } = await validate(forgotPasswordSchema, req)
+
+      await this.userService.requestResetPassword(email)
+
+      res.json({
+        success: true,
+        message: 'An email with reset password steps was sent to provided email'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  resetPassword = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { password },
+        params: { token }
+      } = await validate(resetPasswordSchema, req)
+
+      await this.userService.resetPassword(token, password)
+
+      res.json({
+        success: true,
+        message: 'Password was updated successfully'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  changePassword = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    const { id: userId } = req.session.user
+
+    try {
+      const {
+        body: { oldPassword, newPassword }
+      } = await validate(changePasswordSchema, req)
+
+      await this.userService.changePassword(oldPassword, newPassword, userId)
+
+      res.json({
+        success: true,
+        message: 'Password was changed successfully'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  checkToken = async (
+    req: Request,
+    res: CustomResponse<TokenValidity>,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req.params.token
+
+      const isValid = await this.userService.validateToken(token)
+
+      res.json({
+        success: true,
+        message: 'Token was checked',
+        data: { isValid }
+      })
+    } catch (e) {
       next(e)
     }
   }

@@ -1,7 +1,5 @@
-import { createContainer } from '@/createContainer'
-import { Bindings } from '@/app'
+import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { Container } from '@/shared/container'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@/tests/tables'
@@ -16,29 +14,32 @@ import type { AuthService } from '@/auth/service'
 import { errorHandler } from '@/middleware/errorHandler'
 import { applyMiddleware, uuid } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
-import type { UserService } from '@/user/service'
 import type { UserController } from '@/user/controller'
 import { mockLogInRequest } from '../mocks'
+import { createUser } from '@/tests/helpers'
+import { faker } from '@faker-js/faker'
+import { getRandomToken, hashToken } from '@/utils/helpers'
+import { User } from '@/user/model'
+import { AwilixContainer } from 'awilix'
 
 describe('User Controller', (): void => {
-  let bindings: Container<Bindings>
+  let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let authService: AuthService
-  let userService: UserService
   let userController: UserController
   let req: MockRequest<Request>
   let res: MockResponse<Response>
+  let userInfo: { id: string; email: string }
 
   const next = jest.fn()
   const args = mockLogInRequest().body
 
   beforeAll(async (): Promise<void> => {
-    bindings = createContainer(env)
+    bindings = await createContainer(env)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     authService = await bindings.resolve('authService')
-    userService = await bindings.resolve('userService')
     userController = await bindings.resolve('userController')
   })
 
@@ -48,7 +49,7 @@ describe('User Controller', (): void => {
 
     req.body = args
 
-    await userService.create(args)
+    await createUser({ ...args, isEmailVerified: true })
     await applyMiddleware(withSession, req, res)
 
     const { user, session } = await authService.authorize(args)
@@ -59,11 +60,16 @@ describe('User Controller', (): void => {
       needsWallet: !user.rapydWalletId,
       needsIDProof: !user.kycId
     }
+
+    userInfo = {
+      id: user.id,
+      email: user.email
+    }
   })
 
   afterAll(async (): Promise<void> => {
-    appContainer.stop()
-    knex.destroy()
+    await appContainer.stop()
+    await knex.destroy()
   })
 
   afterEach(async (): Promise<void> => {
@@ -93,6 +99,146 @@ describe('User Controller', (): void => {
       expect(next).toHaveBeenCalledTimes(1)
       expect(res.statusCode).toBe(401)
       expect(req.session).toEqual({})
+    })
+  })
+
+  describe('Request ResetPassword', () => {
+    it('should return a message that a reset email has been sent', async () => {
+      req.body = {
+        email: userInfo.email
+      }
+
+      await userController.requestResetPassword(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'An email with reset password steps was sent to provided email'
+      })
+    })
+  })
+
+  describe('Reset password', () => {
+    it('should return a message that password has been rested', async () => {
+      const resetToken = getRandomToken()
+      const passwordResetToken = hashToken(resetToken)
+      const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+      await User.query()
+        .findById(userInfo.id)
+        .patch({ passwordResetToken, passwordResetExpiresAt })
+
+      const password = faker.internet.password()
+      req.body = {
+        password,
+        confirmPassword: password
+      }
+      req.params = {
+        token: resetToken
+      }
+
+      await userController.resetPassword(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Password was updated successfully'
+      })
+    })
+
+    it('should return invalid token', async () => {
+      const password = faker.internet.password()
+      req.body = {
+        password,
+        confirmPassword: password
+      }
+      req.params = {
+        token: 'resetToken'
+      }
+      await userController.resetPassword(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('Change password', () => {
+    it('should return a message that password has been changed', async () => {
+      const oldPassword = faker.internet.password()
+
+      await User.query()
+        .findById(userInfo.id)
+        .patch({ newPassword: oldPassword })
+
+      const newPassword = faker.internet.password()
+      req.body = {
+        oldPassword,
+        newPassword,
+        confirmNewPassword: newPassword
+      }
+
+      await userController.changePassword(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Password was changed successfully'
+      })
+    })
+
+    it('should return error message of incorrect old password', async () => {
+      const oldPassword = faker.internet.password()
+      const newPassword = faker.internet.password()
+      req.body = {
+        oldPassword,
+        newPassword,
+        confirmNewPassword: newPassword
+      }
+      await userController.changePassword(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('Check Token', () => {
+    it('should return a boolean that the token is valid', async () => {
+      const resetToken = getRandomToken()
+      const passwordResetToken = hashToken(resetToken)
+      const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+      await User.query()
+        .findById(userInfo.id)
+        .patch({ passwordResetToken, passwordResetExpiresAt })
+
+      req.params = {
+        token: resetToken
+      }
+
+      await userController.checkToken(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Token was checked',
+        data: {
+          isValid: true
+        }
+      })
+    })
+
+    it('should return a boolean that the token is not valid', async () => {
+      req.params = {
+        token: 'resetToken'
+      }
+
+      await userController.checkToken(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Token was checked',
+        data: {
+          isValid: false
+        }
+      })
     })
   })
 })

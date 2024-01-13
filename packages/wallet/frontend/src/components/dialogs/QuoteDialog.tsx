@@ -1,37 +1,38 @@
 import { Quote } from '@/lib/api/transfers'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 import { Button } from '@/ui/Button'
-import { PAYMENT_RECEIVE } from '@/utils/constants'
 import { formatAmount, getFee } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { Send } from '../icons/Send'
+import { PaperPlane } from '../icons/PaperPlane'
 
 type QuoteDialogProps = {
   onClose: () => void
   onAccept: () => void
   quote: Quote
-  paymentType: string
+  type: string
 }
 
 export const QuoteDialog = ({
   onClose,
   onAccept,
   quote,
-  paymentType
+  type
 }: QuoteDialogProps) => {
+  const { setRunOnboarding, stepIndex, setStepIndex } = useOnboardingContext()
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
     assetCode: quote.receiveAmount.assetCode,
     assetScale: quote.receiveAmount.assetScale
   })
 
-  const sendAmount = formatAmount({
-    value: quote.sendAmount.value,
-    assetCode: quote.sendAmount.assetCode,
-    assetScale: quote.sendAmount.assetScale
+  const debitAmount = formatAmount({
+    value: quote.debitAmount.value,
+    assetCode: quote.debitAmount.assetCode,
+    assetScale: quote.debitAmount.assetScale
   })
 
-  const fee = getFee(quote.sendAmount, quote.receiveAmount)
+  const fee = getFee(quote)
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -61,25 +62,30 @@ export const QuoteDialog = ({
             >
               <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white px-4 py-8 shadow-xl">
                 <div className="flex flex-col items-center justify-center px-4">
-                  <Send strokeWidth={2} className="h-16 w-16" />
+                  <PaperPlane strokeWidth={2} className="h-16 w-16" />
                   <p className="text-center font-semibold text-turqoise">
-                    You will be deducted: {sendAmount.amount}
+                    {type === 'quote' ? 'You send exactly: ' : 'You exchange: '}
+                    {debitAmount.amount}
                     <br />
-                    Receiver gets: {receiveAmount.amount}
+                    {type === 'quote'
+                      ? 'Recepient gets: '
+                      : 'You get exactly: '}
+                    {receiveAmount.amount}
                     <br />
-                    {paymentType === PAYMENT_RECEIVE
-                      ? `You will be charged a fee of ${fee.amount} for this transaction.`
-                      : `The receiver will cover a fee of ${fee.amount} for this transaction.`}
+                    {type === 'quote' ? 'Fee: ' : 'Exchange fee: '} {fee.amount}
                   </p>
                   <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                     <Button
+                      id="acceptQuote"
                       aria-label="accept quote"
                       onClick={() => {
                         onAccept()
                         onClose()
+                        setRunOnboarding(false)
+                        setStepIndex(stepIndex + 1)
                       }}
                     >
-                      Accept Quote
+                      Send
                     </Button>
                     <Button
                       intent="secondary"

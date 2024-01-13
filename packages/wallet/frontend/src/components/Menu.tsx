@@ -1,3 +1,4 @@
+import { userService } from '@/lib/api/user'
 import { MenuBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
@@ -11,7 +12,9 @@ import { Chevron } from './icons/Chevron'
 import { Cog } from './icons/Cog'
 import { Grant } from './icons/Grant'
 import { Home } from './icons/Home'
+import { Logout } from './icons/Logout'
 import { X } from './icons/X'
+import { Transactions } from './icons/Transactions'
 
 type MenuItemProps = {
   name: string
@@ -45,6 +48,11 @@ const menuItems: MenuItemProps[] = [
     ]
   },
   {
+    name: 'Transactions',
+    href: '/transactions',
+    Icon: Transactions
+  },
+  {
     name: 'Grants',
     href: '/grants',
     Icon: Grant
@@ -59,16 +67,24 @@ const menuItems: MenuItemProps[] = [
         href: '/settings'
       },
       {
-        name: 'Developer',
-        href: '/settings/api'
+        name: 'Developer Keys',
+        href: '/settings/developer-keys'
       }
     ]
   }
 ]
 
 export const Menu = () => {
-  const pathname = `/${useRouter().pathname.split('/')?.slice(1)[0] ?? ''}`
+  const router = useRouter()
+  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
+
+  const handleLogout = async () => {
+    const res = await userService.logout()
+    if (res.success) {
+      router.push('/auth')
+    }
+  }
 
   return (
     <>
@@ -158,7 +174,17 @@ export const Menu = () => {
                     )}
                   </nav>
                 </div>
-                <MenuBubbles className="absolute inset-x-0 bottom-0 hidden w-full h-sm:block" />
+                <div className="mt-auto space-y-5 pl-8 pr-5">
+                  <button
+                    onClick={handleLogout}
+                    aria-label="logout"
+                    className="flex items-center space-x-4 text-lg text-green"
+                  >
+                    <Logout className="h-8 w-8 text-green-3" />
+                    <span>Logout</span>
+                  </button>
+                  <MenuBubbles className="inset-x-0 hidden w-full h-sm:block" />
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -169,13 +195,15 @@ export const Menu = () => {
       {/* Desktop Menu */}
       <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
         <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
-          <div className="flex items-center font-semibold text-green">
-            <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
-            <div className="pl-2">
-              <div className="text-lg md:text-2xl">Interledger</div>
-              <div className="text-sm md:text-lg">testnet</div>
+          <Link href="/">
+            <div className="flex items-center font-semibold text-green">
+              <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
+              <div className="pl-2">
+                <div className="text-lg md:text-2xl">Interledger</div>
+                <div className="text-sm md:text-lg">testnet wallet</div>
+              </div>
             </div>
-          </div>
+          </Link>
           <div className="mt-14 hidden w-full flex-1 space-y-8 md:block">
             {menuItems.map(({ name, href, Icon, childrens }) =>
               childrens ? (
@@ -231,6 +259,16 @@ export const Menu = () => {
                 </Link>
               )
             )}
+          </div>
+          <div className="hidden md:block">
+            <button
+              onClick={handleLogout}
+              aria-label="logout"
+              className="flex items-center space-x-4 text-lg font-semibold text-green hover:text-white"
+            >
+              <Logout className="h-6 w-6" />
+              <span>Logout</span>
+            </button>
           </div>
 
           <div className="ml-auto flex md:hidden">

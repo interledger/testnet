@@ -7,63 +7,76 @@ import { Input } from '@/ui/forms/Input'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { requestSchema, transfersService } from '@/lib/api/transfers'
+import { TimeUnit, requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
-import { paymentPointerService } from '@/lib/api/paymentPointer'
-import { useState } from 'react'
+import { walletAddressService } from '@/lib/api/walletAddress'
+import { useMemo, useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { Label } from '@/ui/forms/Label'
+import { FieldError } from '@/ui/forms/FieldError'
+import { AssetOP } from '@/lib/api/asset'
+import { useSnapshot } from 'valtio'
+import { balanceState } from '@/lib/balance'
 
-type SelectPaymentPointerOption = SelectOption & { url: string }
-
-function getIncomingPaymentUrl(
-  paymentId: string,
-  paymentPointers: SelectPaymentPointerOption[],
-  paymentPointerId: string
-): string {
-  return `${
-    paymentPointers.find(
-      (paymentPointer) => paymentPointer.value === paymentPointerId
-    )?.url
-  }/incoming-payments/${paymentId}`
+type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
+  value: TimeUnit
 }
+type SelectWalletAddressOption = SelectOption & { url: string }
+
+const timeUnitOptions: SelectTimeUnitOption[] = [
+  { value: 's', label: 'second(s)' },
+  { value: 'm', label: 'minute(s)' },
+  { value: 'h', label: 'hour(s)' },
+  { value: 'd', label: 'day(s)' }
+]
 
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
-  const [paymentPointers, setPaymentPointers] = useState<
-    SelectPaymentPointerOption[]
+  const [walletAddresses, setWalletAddresses] = useState<
+    SelectWalletAddressOption[]
   >([])
-  const [balance, setBalance] = useState('')
+  const [selectedAccount, setSelectedAccount] =
+    useState<SelectAccountOption | null>(null)
+  const { accountsSnapshot } = useSnapshot(balanceState)
   const requestForm = useZodForm({
-    schema: requestSchema
+    schema: requestSchema,
+    mode: 'onSubmit'
   })
 
-  const getPaymentPointers = async (accountId: string) => {
+  const balanceSnapshot = useMemo(() => {
+    if (!selectedAccount) return ''
+
+    const snapshotAccount = accountsSnapshot.find(
+      (item) =>
+        item.assetCode === selectedAccount.assetCode &&
+        item.assetScale === selectedAccount.assetScale
+    )
+    return formatAmount({
+      value: snapshotAccount?.balance || selectedAccount.balance,
+      assetCode: selectedAccount.assetCode,
+      assetScale: selectedAccount.assetScale
+    }).amount
+  }, [accountsSnapshot, selectedAccount])
+
+  const getWalletAddresses = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
     )
-    setBalance(
-      selectedAccount
-        ? formatAmount({
-            value: selectedAccount.balance,
-            assetCode: selectedAccount.assetCode,
-            assetScale: selectedAccount.assetScale
-          }).amount
-        : ''
-    )
+    setSelectedAccount(selectedAccount || null)
 
-    requestForm.resetField('paymentPointerId', { defaultValue: null })
+    requestForm.resetField('walletAddressId', { defaultValue: null })
 
-    const paymentPointersResponse = await paymentPointerService.list(accountId)
-    if (!paymentPointersResponse.success || !paymentPointersResponse.data) {
-      setPaymentPointers([])
+    const walletAddressesResponse = await walletAddressService.list(accountId)
+    if (!walletAddressesResponse.success || !walletAddressesResponse.data) {
+      setWalletAddresses([])
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
@@ -73,20 +86,23 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       return
     }
 
-    const paymentPointers = paymentPointersResponse.data.map(
-      (paymentPointer) => ({
-        label: `${paymentPointer.publicName} (${paymentPointer.url})`,
-        value: paymentPointer.id,
-        url: paymentPointer.url
+    const walletAddresses = walletAddressesResponse.data.walletAddresses.map(
+      (walletAddress) => ({
+        label: `${walletAddress.publicName} (${walletAddress.url.replace(
+          'https://',
+          '$'
+        )})`,
+        value: walletAddress.id,
+        url: walletAddress.url
       })
     )
-    setPaymentPointers(paymentPointers)
+    setWalletAddresses(walletAddresses)
   }
 
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
-        <TransferHeader type="turqoise" balance={balance} />
+        <TransferHeader type="turqoise" balance={balanceSnapshot} />
         <Form
           form={requestForm}
           onSubmit={async (data) => {
@@ -95,11 +111,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               openDialog(
                 <SuccessDialog
                   onClose={closeDialog}
-                  copyToClipboard={getIncomingPaymentUrl(
-                    response.data?.paymentId || '',
-                    paymentPointers,
-                    requestForm.getValues('paymentPointerId.value')
-                  )}
+                  copyToClipboard={response.data?.url}
                   title="Funds requested."
                   content="Funds were successfully requested"
                   redirect={`/`}
@@ -127,29 +139,29 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               isSearchable={false}
               onChange={(option) => {
                 if (option) {
-                  getPaymentPointers(option.value)
+                  getWalletAddresses(option.value)
                 }
               }}
             />
             <Controller
-              name="paymentPointerId"
+              name="walletAddressId"
               control={requestForm.control}
               render={({ field: { value } }) => (
                 <Select<SelectOption>
                   required
                   label="Payment pointer"
-                  options={paymentPointers}
+                  options={walletAddresses}
                   aria-invalid={
-                    requestForm.formState.errors.paymentPointerId
+                    requestForm.formState.errors.walletAddressId
                       ? 'true'
                       : 'false'
                   }
-                  error={requestForm.formState.errors.paymentPointerId?.message}
+                  error={requestForm.formState.errors.walletAddressId?.message}
                   placeholder="Select payment pointer..."
                   value={value}
                   onChange={(option) => {
                     if (option) {
-                      requestForm.setValue('paymentPointerId', { ...option })
+                      requestForm.setValue('walletAddressId', { ...option })
                     }
                   }}
                 />
@@ -167,6 +179,49 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               {...requestForm.register('description')}
               label="Description"
             />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="expiry">Expiry</Label>
+              <div className="flex basis-5/6 justify-end space-x-2">
+                <Input
+                  id="expiry"
+                  placeholder="Time amount"
+                  type="number"
+                  step="1"
+                  min="1"
+                  {...requestForm.register('expiry')}
+                />
+                <div className="mt-1">
+                  <Controller
+                    name="unit"
+                    control={requestForm.control}
+                    render={({ field: { value } }) => (
+                      <Select<SelectTimeUnitOption>
+                        isClearable={true}
+                        isSearchable={false}
+                        className="w-36"
+                        placeholder="Unit"
+                        options={timeUnitOptions}
+                        aria-invalid={
+                          requestForm.formState.errors.walletAddressId
+                            ? 'true'
+                            : 'false'
+                        }
+                        value={value}
+                        onChange={(option, { action }) => {
+                          if (option) {
+                            requestForm.setValue('unit', { ...option })
+                          }
+                          if (action === 'clear') {
+                            requestForm.resetField('unit')
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <FieldError error={requestForm.formState.errors.expiry?.message} />
           </div>
           <div className="flex justify-center py-5">
             <Button
@@ -200,11 +255,10 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   )
 }
 
-type SelectAccountOption = SelectOption & {
-  balance: string
-  assetCode: string
-  assetScale: number
-}
+type SelectAccountOption = SelectOption &
+  AssetOP & {
+    balance: string
+  }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
 }> = async (ctx) => {

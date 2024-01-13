@@ -1,8 +1,10 @@
-import { Env } from '@/config/env'
-import { User } from '@/user/model'
 import axios, { AxiosError } from 'axios'
 import crypto from 'crypto-js'
 import { Logger } from 'winston'
+import { Env } from '@/config/env'
+import { User } from '@/user/model'
+import RandExp from 'randexp'
+import { BadRequest } from '@/errors'
 import { AnyZodObject, ZodEffects, z } from 'zod'
 import {
   CompletePayoutRequest,
@@ -77,11 +79,6 @@ interface IRapydClient {
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>>
 }
 
-interface RapydClientDependencies {
-  logger: Logger
-  env: Env
-}
-
 type WithdrawFundsParams = {
   assetCode: string
   amount: number
@@ -97,8 +94,24 @@ type CalculateSignatureParams = {
   body: string
 }
 
+type PayoutRequiredFieldsParams = {
+  senderCountry: string
+  senderCurrency: string
+  beneficiaryCountry: string
+  payoutCurrency: string
+  senderEntityType: string
+  beneficiaryEntityType: string
+  payoutAmount: number
+  payoutMethodType: string
+}
+
+type RequiredFieldsType = Record<string, string | number | object>
+
 export class RapydClient implements IRapydClient {
-  constructor(private deps: RapydClientDependencies) {}
+  constructor(
+    private logger: Logger,
+    private env: Env
+  ) {}
 
   public createWallet(
     wallet: RapydWallet
@@ -142,14 +155,34 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  public releaseLiquidity(
-    req: RapydReleaseRequest
+  public async releaseLiquidity(
+    req: RapydReleaseRequest,
+    isRetry: boolean = false
   ): Promise<RapydResponse<RapydReleaseResponse>> {
-    return this.post(
-      'account/balance/release',
-      JSON.stringify(req),
-      RapydReleaseResponseSchema
-    )
+    try {
+        return this.post(
+            'account/balance/release',
+            JSON.stringify(req),
+            RapydReleaseResponseSchema
+        )
+    } catch (err) {
+      if (
+        err instanceof AxiosError &&
+        ['ERROR_WALLET_INSUFFICIENT_FUNDS', 'NOT_ENOUGH_FUNDS'].includes(
+          err.response?.data?.status?.error_code
+        ) &&
+        req.ewallet === this.env.RAPYD_SETTLEMENT_EWALLET &&
+        !isRetry
+      ) {
+        await this.handleSettlementOutOfFunds(
+          req,
+          this.env.RAPYD_SETTLEMENT_EWALLET
+        )
+        return await this.releaseLiquidity(req, true)
+      }
+
+      throw err
+    }
   }
 
   public getDocumentTypes(
@@ -182,33 +215,38 @@ export class RapydClient implements IRapydClient {
   }
 
   public async transferLiquidity(
-    req: RapydTransferRequest
+    req: RapydTransferRequest,
+    isRetry: boolean = false
   ): Promise<RapydResponse<RapydSetTransferResponse>> {
-    const transferResponse = await this.post(
-      'account/transfer',
-      JSON.stringify(req),
-      RapydSetTransferResponseSchema
-    )
-    if (transferResponse.status.status !== 'SUCCESS') {
+    try {
+        const transferResponse = await this.post(
+            'account/transfer',
+            JSON.stringify(req),
+            RapydSetTransferResponseSchema
+        )
+
+      return await this.setTransferResponse({
+        id: transferResponse.data.id,
+        status: 'accept'
+      })
+    } catch (err) {
       if (
-        transferResponse.status.error_code === 'NOT_ENOUGH_FUNDS' &&
-        req.source_ewallet === this.deps.env.RAPYD_SETTLEMENT_EWALLET
+        err instanceof AxiosError &&
+        ['ERROR_WALLET_INSUFFICIENT_FUNDS', 'NOT_ENOUGH_FUNDS'].includes(
+          err.response?.data?.status?.error_code
+        ) &&
+        req.source_ewallet === this.env.RAPYD_SETTLEMENT_EWALLET &&
+        !isRetry
       ) {
-        // await handleSettlementOutOfFunds(req, env.RAPYD_SETTLEMENT_EWALLET)
+        await this.handleSettlementOutOfFunds(
+          req,
+          this.env.RAPYD_SETTLEMENT_EWALLET
+        )
+        return await this.transferLiquidity(req, true)
       }
-      throw new Error(transferResponse.status.message)
+
+      throw err
     }
-
-    const setTransferResponse = await this.setTransferResponse({
-      id: transferResponse.data.id,
-      status: 'accept'
-    })
-
-    if (setTransferResponse.status.status !== 'SUCCESS') {
-      throw new Error(`Unable to set accepted response of wallet transfer`)
-    }
-
-    return setTransferResponse
   }
 
   public getAccountsBalance(
@@ -228,30 +266,58 @@ export class RapydClient implements IRapydClient {
   ): Promise<RapydResponse<WithdrawFundsFromAccountResponse>> {
     // get list of payout method types for currency, if we get to production: get payout type required fields will be needed
     const payoutType = await this.getPayoutMethodTypes(args.assetCode)
+    const requiredFieldsForPayout = await this.getRequiredFieldsForPayout(
+      args,
+      payoutType
+    )
 
-    if (payoutType.status.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to withdraw funds from your account: ${payoutType.status.message}`
-      )
-    }
+    const addressDelimiter = ['AUD', 'NZD'].includes(args.assetCode)
+      ? ' ; '
+      : ','
+    const [street, city, postCode] = args.user.address?.split(', ') ?? []
+    let address = [street, postCode].join(addressDelimiter)
+    if (args.assetCode === 'EUR') address = address.replace(/[,\s]+/g, '')
 
     // withdraw funds/create payout from wallet account into bank account
-    const userDetails = {
-      name: `${args.user.firstName} ${args.user.lastName}`,
-      address: args.user.address ?? ''
+    const userDetails: RequiredFieldsType = {
+      first_name: args.user.firstName ?? '',
+      last_name: args.user.lastName ?? '',
+      address,
+      city,
+      country: args.user.country ?? '',
+      iban: 'HU42117730161111101800000000',
+      bic_swift: `BARC${payoutType.beneficiary_country.toUpperCase()}22`, // https://docs.rapyd.net/en/bic-swift-numbers-for-testing.html
+      date_of_birth: '22/02/1980',
+      company_name: 'SimulateWithdraw',
+      state: city,
+      postcode: postCode
     }
-    const withdrawReq = {
-      beneficiary: userDetails,
+
+    let withdrawReq: RequiredFieldsType = {
+      beneficiary: this.generateRequiredFields(
+        requiredFieldsForPayout.beneficiary_required_fields ?? [],
+        userDetails
+      ),
       payout_amount: args.amount,
       payout_currency: args.assetCode,
       ewallet: args.user.rapydWalletId ?? '',
-      sender: userDetails,
+      sender: this.generateRequiredFields(
+        requiredFieldsForPayout.sender_required_fields ?? [],
+        userDetails
+      ),
       sender_country: args.user.country ?? '',
       sender_currency: args.assetCode,
-      beneficiary_entity_type: 'individual',
-      sender_entity_type: 'individual',
-      payout_method_type: payoutType.data[0].payout_method_type
+      beneficiary_entity_type: this.getEntityType(
+        payoutType.beneficiary_entity_types
+      ),
+      sender_entity_type: this.getEntityType(payoutType.sender_entity_types),
+      payout_method_type: payoutType.payout_method_type
     }
+
+    withdrawReq = this.generateRequiredFields(
+      requiredFieldsForPayout.payout_options ?? [],
+      withdrawReq
+    )
 
     const payout = await this.post(
       'payouts',
@@ -280,12 +346,37 @@ export class RapydClient implements IRapydClient {
     return completePayoutResponse
   }
 
-  private getPayoutMethodTypes(
+  private async getPayoutMethodTypes(
     assetCode: string
-  ): Promise<RapydResponse<PayoutMethodResponse[]>> {
-    return this.get(
+  ): Promise<PayoutMethodResponse> {
+    const response: RapydResponse<PayoutMethodResponse[]> = await this.get(
       `payouts/supported_types?payout_currency=${assetCode}&limit=1`
-    ) as Promise<RapydResponse<PayoutMethodResponse[]>>
+    )
+
+    if (response.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${response.status.message}`
+      )
+    }
+
+    if (!response.data.length) {
+      throw new Error(
+        `Unable to withdraw funds from your account: no payout methods available`
+      )
+    }
+
+    const payoutType = response.data[0]
+
+    if (!payoutType.sender_currencies.includes(assetCode)) {
+      this.logger.debug(
+        `[UNAVAILABLE_PAYOUT_CURRENCY] available sender currencies for asset ${assetCode} are ${payoutType.sender_currencies}`
+      )
+      throw new BadRequest(
+        `Unable to withdraw funds from your account: no payout methods available`
+      )
+    }
+
+    return payoutType
   }
 
   private completePayout(
@@ -308,12 +399,11 @@ export class RapydClient implements IRapydClient {
     )
   }
 
-  /*
-  const handleSettlementOutOfFunds = async (
-    req: RapydTransferRequest,
+  private handleSettlementOutOfFunds = async (
+    req: RapydTransferRequest | RapydReleaseRequest,
     settlementWallet: string
   ) => {
-    const depositResult = await rapydDepositLiquidity({
+    const depositResult = await this.depositLiquidity({
       amount: 100000,
       currency: req.currency,
       ewallet: settlementWallet
@@ -324,9 +414,7 @@ export class RapydClient implements IRapydClient {
         `Unable to automatically refund settlement account upon insufecient funds encountered`
       )
     }
-    return await rapydTransferLiquidity(req, true)
   }
-  */
 
   private get<T extends AnyZodObject | ZodEffects<AnyZodObject>>(
     url: string,
@@ -377,14 +465,14 @@ export class RapydClient implements IRapydClient {
       httpMethod: method,
       url: `/v1/${url}`,
       salt,
-      accessKey: this.deps.env.RAPYD_ACCESS_KEY,
-      secretKey: this.deps.env.RAPYD_SECRET_KEY,
+      accessKey: this.env.RAPYD_ACCESS_KEY,
+      secretKey: this.env.RAPYD_SECRET_KEY,
       body
     })
 
     return {
       'Content-Type': 'application/json',
-      'access_key': this.deps.env.RAPYD_ACCESS_KEY,
+      'access_key': this.env.RAPYD_ACCESS_KEY,
       salt,
       timestamp,
       signature
@@ -403,7 +491,7 @@ export class RapydClient implements IRapydClient {
     try {
       const res = await axios<z.infer<T>>({
         method,
-        url: `${this.deps.env.RAPYD_API}/${url}`,
+        url: `${this.env.RAPYD_API}/${url}`,
         ...(body && { data: body }),
         headers
       })
@@ -418,7 +506,7 @@ export class RapydClient implements IRapydClient {
       return res.data
     } catch (e) {
       if (e instanceof AxiosError) {
-        this.deps.logger.error(
+        this.logger.error(
           `Axios ${method} request for ${url} failed with: ${
             e.message || e.response?.data
           }`
@@ -426,5 +514,56 @@ export class RapydClient implements IRapydClient {
       }
       throw e
     }
+  }
+
+  private async getRequiredFieldsForPayout(
+    params: WithdrawFundsParams,
+    payoutType: PayoutMethodResponse
+  ): Promise<PayoutRequiredFieldsResponse> {
+    const args: PayoutRequiredFieldsParams = {
+      senderCountry: params.user.country ?? '',
+      senderCurrency: params.assetCode,
+      beneficiaryCountry: payoutType.beneficiary_country,
+      payoutCurrency: params.assetCode,
+      beneficiaryEntityType: this.getEntityType(
+        payoutType.beneficiary_entity_types
+      ),
+      senderEntityType: this.getEntityType(payoutType.sender_entity_types),
+      payoutAmount: params.amount,
+      payoutMethodType: payoutType.payout_method_type
+    }
+
+    const response: RapydResponse<PayoutRequiredFieldsResponse> =
+      await this.get(
+        `payouts/${args.payoutMethodType}/details?sender_country=${args.senderCountry}&sender_currency=${args.senderCurrency}&beneficiary_country=${args.beneficiaryCountry}&payout_currency=${args.payoutCurrency}&sender_entity_type=${args.senderEntityType}&beneficiary_entity_type=${args.beneficiaryEntityType}&payout_amount=${args.payoutAmount}`
+      )
+
+    if (response.status.status !== 'SUCCESS') {
+      throw new Error(
+        `Unable to withdraw funds from your account: ${response.status.message}`
+      )
+    }
+
+    return response.data
+  }
+
+  private generateRequiredFields(
+    schema: RequiredFields[],
+    object: RequiredFieldsType
+  ): RequiredFieldsType {
+    const generatedObject = { ...object }
+    schema.forEach((requiredField) => {
+      if (!generatedObject[requiredField.name]) {
+        generatedObject[requiredField.name] = new RandExp(
+          requiredField.regex
+        ).gen()
+      }
+    })
+
+    return generatedObject
+  }
+
+  private getEntityType(entityTypes: string[]) {
+    return entityTypes.includes('individual') ? 'individual' : entityTypes[0]
   }
 }

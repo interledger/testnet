@@ -1,45 +1,36 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { Quote, RafikiService, Rates } from './service'
-import { validate } from '../shared/validate'
-import { quoteSchmea, webhookSchema } from './validation'
+import { RatesResponse, RatesService } from '@/rates/service'
+import { validate } from '@/shared/validate'
+import { RafikiService } from './service'
+import { ratesSchema, webhookSchema } from './validation'
 
 interface IRafikiController {
-  createQuote: (
-    req: Request,
-    res: Response<Quote>,
-    next: NextFunction
-  ) => Promise<void>
   getRates: (
     req: Request,
-    res: Response<Rates>,
+    res: Response<RatesResponse>,
     next: NextFunction
   ) => Promise<void>
-}
-interface RafikiControllerDependencies {
-  logger: Logger
-  rafikiService: RafikiService
 }
 
 export class RafikiController implements IRafikiController {
-  constructor(private deps: RafikiControllerDependencies) {}
-  createQuote = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { body } = await validate(quoteSchmea, req)
-      const result = await this.deps.rafikiService.createQuote(body)
-      res.status(201).json(result)
-    } catch (e) {
-      next(e)
-    }
-  }
+  constructor(
+    private logger: Logger,
+    private rafikiService: RafikiService,
+    private ratesService: RatesService
+  ) {}
 
   getRates = async (
-    _req: Request,
-    res: Response<Rates>,
+    req: Request,
+    res: Response<RatesResponse>,
     next: NextFunction
   ) => {
     try {
-      res.status(200).json(this.deps.rafikiService.getRates())
+      const {
+        query: { base }
+      } = await validate(ratesSchema, req)
+      const rates = await this.ratesService.getRates(base)
+      res.status(200).json(rates)
     } catch (e) {
       next(e)
     }
@@ -49,9 +40,12 @@ export class RafikiController implements IRafikiController {
     try {
       const wh = await validate(webhookSchema, req)
 
-      await this.deps.rafikiService.onWebHook(wh.body)
+      await this.rafikiService.onWebHook(wh.body)
       res.status(200).send()
     } catch (e) {
+      this.logger.error(
+        `Webhook response error for rafiki: ${(e as Error).message}`
+      )
       next(e)
     }
   }

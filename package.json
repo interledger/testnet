@@ -9,17 +9,19 @@
     "url": "https://github.com/interledger/testnet"
   },
   "scripts": {
+    "boutique:backend": "pnpm --filter @boutique/backend --",
+    "boutique:frontend": "pnpm --filter @boutique/frontend --",
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "dev": "pnpm localenv:start && pnpm wallet:frontend dev",
+    "dev": "pnpm localenv:start && concurrently -n 'WALLET,BOUTIQUE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm boutique:frontend dev'",
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint -c '.eslintrc.js' --max-warnings=0 .",
     "lint:fix": "eslint -c '.eslintrc.js' --max-warnings=0 --fix .",
     "compose": "docker compose -f ./docker/dev/docker-compose.yml",
-    "compose:prod": "docker compose -f ./docker/dev/docker-compose-prod.yml",
+    "compose:prod": "docker compose -f ./docker/prod/docker-compose.yml",
     "localenv:start": "pnpm compose up -d --build",
     "localenv:stop": "pnpm compose down",
     "preinstall": "npx only-allow pnpm",
@@ -27,28 +29,28 @@
     "prettier:check": "prettier --config '.prettierrc.js' --check .",
     "prod": "pnpm compose:prod up -d --build",
     "prod:down": "pnpm compose:prod down",
-    "wallet:backend": "pnpm --filter wallet/backend --",
-    "wallet:frontend": "pnpm --filter wallet/frontend --"
+    "wallet:backend": "pnpm --filter @wallet/backend --",
+    "wallet:frontend": "pnpm --filter @wallet/frontend --"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
-    "eslint": "^8.42.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-react": "^7.32.2",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "nodemon": "^2.0.22",
-    "only-allow": "^1.1.1",
-    "prettier": "^2.8.8",
-    "prettier-plugin-tailwindcss": "^0.3.0",
-    "typescript": "^5.0.4"
+    "only-allow": "^1.2.1",
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "typescript": "^5.3.3"
   },
   "engines": {
-    "pnpm": "^8.6.2",
+    "pnpm": "^8.14.1",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^18.14.0"
   },
   "private": true,
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@8.14.1"
 }

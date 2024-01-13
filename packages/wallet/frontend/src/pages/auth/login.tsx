@@ -13,6 +13,10 @@ import { NextPageWithLayout } from '@/lib/types/app'
 
 const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
+  const callBackUrl =
+    router.asPath.indexOf('callbackUrl') !== -1
+      ? `${router.query?.callbackUrl}`
+      : '/'
   const loginForm = useZodForm({
     schema: loginSchema
   })
@@ -28,7 +32,7 @@ const LoginPage: NextPageWithLayout = () => {
             const response = await userService.login(data)
 
             if (response.success) {
-              router.push('/')
+              router.push(callBackUrl)
             } else {
               const { errors, message } = response
               loginForm.setError('root', { message })
@@ -56,7 +60,7 @@ const LoginPage: NextPageWithLayout = () => {
             label="Password"
           />
           <Link
-            href="/recover-pswd"
+            href="forgot"
             className="text-sm font-extralight text-green-3 underline"
           >
             Forgot password?

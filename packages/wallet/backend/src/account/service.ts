@@ -2,9 +2,10 @@ import { Conflict, NotFound } from '@/errors'
 import { Account } from './model'
 import { User } from '@/user/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
-import { Logger } from 'winston'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
+import { Transaction } from '@/transaction/model'
+import { Amount } from '@/rafiki/service'
 
 type CreateAccountArgs = {
   userId: string
@@ -21,6 +22,7 @@ type FundAccountArgs = {
 type WithdrawFundsArgs = FundAccountArgs
 
 interface IAccountService {
+  createDefaultAccount: (userId: string) => Promise<Account | undefined>
   createAccount: (args: CreateAccountArgs) => Promise<Account>
   getAccounts: (userId: string) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
@@ -29,14 +31,11 @@ interface IAccountService {
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
-interface CountriesServiceDependencies {
-  rapyd: RapydClient
-  rafiki: RafikiClient
-  logger: Logger
-}
-
 export class AccountService implements IAccountService {
-  constructor(private deps: CountriesServiceDependencies) {}
+  constructor(
+    private rapydClient: RapydClient,
+    private rafikiClient: RafikiClient
+  ) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
     const existingAccount = await Account.query()
@@ -48,8 +47,7 @@ export class AccountService implements IAccountService {
         `An account with the name '${args.name}' already exists`
       )
     }
-
-    const asset = await this.deps.rafiki.getAssetById(args.assetId)
+    const asset = await this.rafikiClient.getAssetById(args.assetId)
 
     if (!asset) {
       throw new NotFound()
@@ -59,7 +57,6 @@ export class AccountService implements IAccountService {
       .where('assetCode', asset.code)
       .where('userId', args.userId)
       .first()
-
     if (existingAssetAccount) {
       throw new Conflict(
         `You can only have one account per asset. ${asset.code} account already exists`
@@ -72,7 +69,7 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const result = await this.deps.rapyd.issueVirtualAccount({
+    const result = await this.rapydClient.issueVirtualAccount({
       country: user.country ?? '',
       currency: asset.code,
       ewallet: user.rapydWalletId ?? ''
@@ -83,7 +80,6 @@ export class AccountService implements IAccountService {
         `Unable to issue virtal account to ewallet: ${result.status?.message}`
       )
     }
-
     // save virtual bank account number to database
     const virtualAccount = result.data
 
@@ -95,8 +91,7 @@ export class AccountService implements IAccountService {
       assetScale: asset.scale,
       virtualAccountId: virtualAccount.id
     })
-
-    await this.deps.rapyd.simulateBankTransferToWallet({
+    await this.rapydClient.simulateBankTransferToWallet({
       amount: 0,
       currency: account.assetCode,
       issued_bank_account: account.virtualAccountId
@@ -106,7 +101,7 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+    const accountsBalance = await this.rapydClient.getAccountsBalance(
       user.rapydWalletId
     )
 
@@ -119,29 +114,63 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async getAccounts(userId: string): Promise<Account[]> {
-    const accounts = await Account.query().where('userId', userId)
-
+  public async getAccounts(
+    userId: string,
+    hasWalletAddress?: boolean
+  ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.rapydWalletId) {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
-      user.rapydWalletId
-    )
+    let query = Account.query().where('userId', userId)
+    if (hasWalletAddress)
+      query = query
+        .withGraphFetched({ walletAddresses: true })
+        .modifyGraph('walletAddresses', (builder) => {
+          builder.where({ active: true }).orderBy('createdAt', 'ASC')
+        })
 
-    accounts.forEach((acc) => {
-      acc.balance = transformBalance(
-        accountsBalance.data?.find(
-          (rapydAccount) => rapydAccount.currency === acc.assetCode
-        )?.balance ?? 0,
-        acc.assetScale
+    const accounts = await query
+
+    if (!hasWalletAddress) {
+      const accountsBalance = await this.rapydClient.getAccountsBalance(
+        user.rapydWalletId
       )
-    })
+
+      accounts.forEach((acc) => {
+        acc.balance = transformBalance(
+          accountsBalance.data?.find(
+            (rapydAccount) => rapydAccount.currency === acc.assetCode
+          )?.balance ?? 0,
+          acc.assetScale
+        )
+      })
+    }
 
     return accounts
+  }
+
+  public async getAccountByAssetCode(
+    userId: string,
+    amount: Amount
+  ): Promise<Account> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('assetCode', amount.assetCode)
+      .first()
+
+    if (!account) {
+      throw new NotFound()
+    }
+
+    account.balance = transformBalance(
+      await this.getAccountBalance(userId, account.assetCode),
+      account.assetScale
+    )
+
+    return account
   }
 
   public async getAccountById(
@@ -171,7 +200,7 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.deps.rapyd.getAccountsBalance(
+    const accountsBalance = await this.rapydClient.getAccountsBalance(
       user.rapydWalletId
     )
     return (
@@ -190,7 +219,7 @@ export class AccountService implements IAccountService {
     }
 
     // fund amount to wallet account
-    const result = await this.deps.rapyd.simulateBankTransferToWallet({
+    const result = await this.rapydClient.simulateBankTransferToWallet({
       amount: args.amount,
       currency: existingAccount.assetCode,
       issued_bank_account: existingAccount.virtualAccountId
@@ -199,6 +228,18 @@ export class AccountService implements IAccountService {
     if (result.status?.status !== 'SUCCESS') {
       throw new Error(`Unable to fund your account: ${result.status?.message}`)
     }
+
+    const asset = await this.rafikiClient.getAssetById(existingAccount.assetId)
+    const transactions = result.data.transactions
+    await Transaction.query().insert({
+      accountId: existingAccount.id,
+      paymentId: transactions[transactions.length - 1].id,
+      assetCode: existingAccount.assetCode,
+      value: transformBalance(args.amount, asset.scale),
+      type: 'INCOMING',
+      status: 'COMPLETED',
+      description: 'Fund account'
+    })
   }
 
   public async withdrawFunds(args: WithdrawFundsArgs): Promise<void> {
@@ -210,7 +251,7 @@ export class AccountService implements IAccountService {
     }
 
     // simulate withdraw funds to a bank account
-    const withdrawFunds = await this.deps.rapyd.withdrawFundsFromAccount({
+    const withdrawFunds = await this.rapydClient.withdrawFundsFromAccount({
       assetCode: account.assetCode,
       amount: args.amount,
       user: user
@@ -221,6 +262,17 @@ export class AccountService implements IAccountService {
         `Unable to withdraw funds from your account: ${withdrawFunds.status.message}`
       )
     }
+
+    const asset = await this.rafikiClient.getAssetById(account.assetId)
+    await Transaction.query().insert({
+      accountId: account.id,
+      paymentId: withdrawFunds.data.id,
+      assetCode: account.assetCode,
+      value: transformBalance(args.amount, asset.scale),
+      type: 'OUTGOING',
+      status: 'COMPLETED',
+      description: 'Withdraw funds'
+    })
   }
 
   public findAccountById = async (
@@ -234,6 +286,30 @@ export class AccountService implements IAccountService {
     if (!account) {
       throw new NotFound()
     }
+
+    return account
+  }
+
+  public async createDefaultAccount(
+    userId: string
+  ): Promise<Account | undefined> {
+    const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
+      (asset) => asset.code === 'EUR' && asset.scale === 2
+    )
+    if (!asset) {
+      return
+    }
+    const account = await this.createAccount({
+      name: 'EUR Account',
+      userId,
+      assetId: asset.id
+    })
+
+    await this.fundAccount({
+      userId,
+      amount: 100,
+      accountId: account.id
+    })
 
     return account
   }
