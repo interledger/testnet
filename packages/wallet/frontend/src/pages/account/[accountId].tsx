@@ -243,6 +243,34 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     </p>
                   </div>
                 </div>
+                <div className="my-10">
+                  <button
+                    id="walletAddressWM"
+                    onClick={() => {
+                      openDialog(
+                        <CreateWalletAddressDialog
+                          accountName={account.name}
+                          isWebMonetization={true}
+                          onClose={closeDialog}
+                        />
+                      )
+                    }}
+                    className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+                  >
+                    <New className="h-9 w-7" />
+                    <div className="-space-y-2 text-[15px]">
+                      <p className="font-medium text-green-5 group-hover:text-green-6">
+                        Add WM{' '}
+                      </p>
+                      <p className="font-medium text-green-5 group-hover:text-green-6">
+                        payment{' '}
+                      </p>
+                      <p className="font-medium text-green-5 group-hover:text-green-6">
+                        pointer
+                      </p>
+                    </div>
+                  </button>
+                </div>
                 <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold leading-none text-green">
