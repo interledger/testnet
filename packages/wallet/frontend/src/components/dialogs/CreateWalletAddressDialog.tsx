@@ -18,13 +18,13 @@ import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
-  isChecked?: boolean
+  isWebMonetization?: boolean
 }
 
 export const CreateWalletAddressDialog = ({
   onClose,
   accountName,
-  isChecked
+  isWebMonetization
 }: CreateWalletAddressDialogProps) => {
   const router = useRouter()
   const createWalletAddressForm = useZodForm({
@@ -34,6 +34,7 @@ export const CreateWalletAddressDialog = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const accountId = router.query.accountId as string
+  const titleExtra = isWebMonetization ? 'Web Monetization' : ''
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -66,7 +67,7 @@ export const CreateWalletAddressDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Create Payment Pointer
+                  Create {titleExtra} Payment Pointer
                 </Dialog.Title>
 
                 <div className="px-4">
@@ -74,6 +75,7 @@ export const CreateWalletAddressDialog = ({
                   <Form
                     form={createWalletAddressForm}
                     onSubmit={async (data) => {
+                      data.isWM = isWebMonetization ? true : data.isWM
                       const response = await walletAddressService.create(
                         accountId,
                         data
@@ -135,8 +137,10 @@ export const CreateWalletAddressDialog = ({
                     />
                     <Checkbox
                       label="I want to use this payment pointer for Web Monetization"
-                      checked={isChecked}
-                      disabled={isChecked}
+                      checked={isWebMonetization}
+                      onClick={(e) => {
+                        if (isWebMonetization) e.preventDefault()
+                      }}
                       {...createWalletAddressForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">

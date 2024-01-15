@@ -250,7 +250,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                       openDialog(
                         <CreateWalletAddressDialog
                           accountName={account.name}
-                          isChecked={true}
+                          isWebMonetization={true}
                           onClose={closeDialog}
                         />
                       )
