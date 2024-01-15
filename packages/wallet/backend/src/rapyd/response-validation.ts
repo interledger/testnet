@@ -1,4 +1,5 @@
 import z from 'zod'
+
 export interface RapydResponse<T> {
   status: z.TypeOf<typeof StatusSchema>
   data: T
@@ -239,8 +240,7 @@ export type SimulateBankTransferToWalletRequest = z.TypeOf<
 export const SimulateBankTransferToWalletResponseSchema =
   SimulateBankTransferToWalletRequestSchema
 
-export type SimulateBankTransferToWalletResponse =
-  SimulateBankTransferToWalletRequest
+export type SimulateBankTransferToWalletResponse = VirtualAccountResponse
 
 export const RapydDocumentTypeSchema = z.object({
   country: z.string().optional(),
@@ -408,7 +408,11 @@ export type RapydReleaseResponse = RapydHoldResponse
 export const PayoutMethodResponseSchema = z.object({
   payout_method_type: z.string(),
   name: z.string(),
-  payout_currencies: z.string()
+  payout_currencies: z.string(),
+  beneficiary_country: z.string(),
+  sender_entity_types: z.string().array(),
+  beneficiary_entity_types: z.string().array(),
+  sender_currencies: z.string().array()
 })
 
 export type PayoutMethodResponse = z.TypeOf<typeof PayoutMethodResponseSchema>
@@ -436,3 +440,18 @@ export const CompletePayoutResponseSchema =
   WithdrawFundsFromAccountResponseSchema
 
 export type CompletePayoutResponse = WithdrawFundsFromAccountResponse
+
+export const RequiredFieldsSchema = z.object({
+  name: z.string(),
+  regex: z.string()
+})
+
+export const PayoutRequiredFieldsResponseSchema = z.object({
+  beneficiary_required_fields: z.array(RequiredFieldsSchema),
+  sender_required_fields: z.array(RequiredFieldsSchema),
+  payout_options: z.array(RequiredFieldsSchema)
+})
+
+export type PayoutRequiredFieldsResponse = z.TypeOf<
+  typeof PayoutRequiredFieldsResponseSchema
+>

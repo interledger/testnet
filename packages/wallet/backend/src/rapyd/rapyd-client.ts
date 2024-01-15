@@ -5,7 +5,7 @@ import { Env } from '@/config/env'
 import { User } from '@/user/model'
 import RandExp from 'randexp'
 import { BadRequest } from '@/errors'
-import { AnyZodObject, ZodEffects, z } from 'zod'
+import { AnyZodObject, z, ZodEffects } from 'zod'
 import {
   CompletePayoutRequest,
   CompletePayoutResponse,
@@ -36,13 +36,12 @@ import {
   RapydWalletSchema,
   SimulateBankTransferToWalletRequest,
   SimulateBankTransferToWalletResponse,
-  SimulateBankTransferToWalletResponseSchema,
   VirtualAccountRequest,
   VirtualAccountResponse,
   VirtualAccountResponseSchema,
   WithdrawFundsFromAccountResponse,
   WithdrawFundsFromAccountResponseSchema
-} from './rapyd'
+} from './response-validation'
 import { validateRapydResponse } from './validation'
 
 interface IRapydClient {
@@ -160,11 +159,11 @@ export class RapydClient implements IRapydClient {
     isRetry: boolean = false
   ): Promise<RapydResponse<RapydReleaseResponse>> {
     try {
-        return this.post(
-            'account/balance/release',
-            JSON.stringify(req),
-            RapydReleaseResponseSchema
-        )
+      return this.post(
+        'account/balance/release',
+        JSON.stringify(req),
+        RapydReleaseResponseSchema
+      )
     } catch (err) {
       if (
         err instanceof AxiosError &&
@@ -210,7 +209,7 @@ export class RapydClient implements IRapydClient {
     return this.post(
       'issuing/bankaccounts/bankaccounttransfertobankaccount',
       JSON.stringify(req),
-      SimulateBankTransferToWalletResponseSchema
+      VirtualAccountResponseSchema
     )
   }
 
@@ -219,11 +218,11 @@ export class RapydClient implements IRapydClient {
     isRetry: boolean = false
   ): Promise<RapydResponse<RapydSetTransferResponse>> {
     try {
-        const transferResponse = await this.post(
-            'account/transfer',
-            JSON.stringify(req),
-            RapydSetTransferResponseSchema
-        )
+      const transferResponse = await this.post(
+        'account/transfer',
+        JSON.stringify(req),
+        RapydSetTransferResponseSchema
+      )
 
       return await this.setTransferResponse({
         id: transferResponse.data.id,
@@ -349,9 +348,9 @@ export class RapydClient implements IRapydClient {
   private async getPayoutMethodTypes(
     assetCode: string
   ): Promise<PayoutMethodResponse> {
-    const response: RapydResponse<PayoutMethodResponse[]> = await this.get(
+    const response = (await this.get(
       `payouts/supported_types?payout_currency=${assetCode}&limit=1`
-    )
+    )) as RapydResponse<PayoutMethodResponse[]>
 
     if (response.status.status !== 'SUCCESS') {
       throw new Error(
@@ -534,9 +533,9 @@ export class RapydClient implements IRapydClient {
     }
 
     const response: RapydResponse<PayoutRequiredFieldsResponse> =
-      await this.get(
+      (await this.get(
         `payouts/${args.payoutMethodType}/details?sender_country=${args.senderCountry}&sender_currency=${args.senderCurrency}&beneficiary_country=${args.beneficiaryCountry}&payout_currency=${args.payoutCurrency}&sender_entity_type=${args.senderEntityType}&beneficiary_entity_type=${args.beneficiaryEntityType}&payout_amount=${args.payoutAmount}`
-      )
+      )) as RapydResponse<PayoutRequiredFieldsResponse>
 
     if (response.status.status !== 'SUCCESS') {
       throw new Error(

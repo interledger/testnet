@@ -3,11 +3,11 @@ import { User } from '@/user/model'
 import crypto from 'crypto'
 import { RapydClient } from './rapyd-client'
 import {
+  RapydCountry,
   RapydDocumentType,
-  RapydWallet,
   RapydIdentityResponse,
-  RapydCountry
-} from './rapyd'
+  RapydWallet
+} from './response-validation'
 
 type VerifyIdentityParams = {
   userId: string
