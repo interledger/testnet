@@ -243,7 +243,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     </p>
                   </div>
                 </div>
-                <div className="my-5">
+                <div className="my-10">
                   <button
                     id="walletAddressWM"
                     onClick={() => {

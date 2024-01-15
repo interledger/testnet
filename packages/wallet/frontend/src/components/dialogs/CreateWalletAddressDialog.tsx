@@ -136,6 +136,7 @@ export const CreateWalletAddressDialog = ({
                     <Checkbox
                       label="I want to use this payment pointer for Web Monetization"
                       checked={isChecked}
+                      disabled={isChecked}
                       {...createWalletAddressForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
