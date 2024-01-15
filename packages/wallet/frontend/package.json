@@ -20,7 +20,7 @@
     "react-joyride": "^2.7.2",
     "react-select": "^5.8.0",
     "sharp": "^0.33.2",
-    "socket.io-client": "^4.7.3",
+    "socket.io-client": "^4.7.4",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^1.13.0",
