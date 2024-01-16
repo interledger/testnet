@@ -1,6 +1,6 @@
 import { UseQueryResult, useQuery } from '@tanstack/react-query'
 import { fetcher, APIError } from '@/lib/fetcher.ts'
-import { SuccessReponse } from '@/lib/types.ts'
+import { SuccessResponse } from '@/lib/types.ts'
 
 export interface Product {
   id: string
@@ -12,7 +12,7 @@ export interface Product {
 }
 
 export function useProductsQuery(): UseQueryResult<
-  SuccessReponse<Product[]>,
+  SuccessResponse<Product[]>,
   APIError
 > {
   return useQuery({

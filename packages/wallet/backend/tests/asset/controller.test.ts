@@ -81,7 +81,7 @@ describe('Asset Controller', (): void => {
       expect(jsonData).toMatchObject({
         message: 'Success'
       })
-      expect(jsonData?.data?.length).toEqual(mockedListAssets.length)
+      expect(jsonData?.result?.length).toEqual(mockedListAssets.length)
     })
   })
 })

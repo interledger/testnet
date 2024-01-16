@@ -75,7 +75,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     requestForm.resetField('walletAddressId', { defaultValue: null })
 
     const walletAddressesResponse = await walletAddressService.list(accountId)
-    if (!walletAddressesResponse.success || !walletAddressesResponse.data) {
+    if (!walletAddressesResponse.success || !walletAddressesResponse.result) {
       setWalletAddresses([])
       openDialog(
         <ErrorDialog
@@ -86,7 +86,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       return
     }
 
-    const walletAddresses = walletAddressesResponse.data.walletAddresses.map(
+    const walletAddresses = walletAddressesResponse.result.walletAddresses.map(
       (walletAddress) => ({
         label: `${walletAddress.publicName} (${walletAddress.url.replace(
           'https://',
@@ -111,7 +111,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               openDialog(
                 <SuccessDialog
                   onClose={closeDialog}
-                  copyToClipboard={response.data?.url}
+                  copyToClipboard={response.result?.url}
                   title="Funds requested."
                   content="Funds were successfully requested"
                   redirect={`/`}
@@ -272,13 +272,13 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  if (!accountsResponse.data) {
+  if (!accountsResponse.result) {
     return {
       notFound: true
     }
   }
 
-  const accounts = accountsResponse.data.map((account) => ({
+  const accounts = accountsResponse.result.map((account) => ({
     label: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,

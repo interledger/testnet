@@ -403,7 +403,7 @@ const createUserService = (): UserService => ({
           }
         })
         .json<SuccessResponse<Document[]>>()
-      return response?.data ?? []
+      return response?.result ?? []
     } catch (error) {
       return []
     }
@@ -418,7 +418,7 @@ const createUserService = (): UserService => ({
           }
         })
         .json<SuccessResponse<SelectOption[]>>()
-      return response?.data ?? []
+      return response?.result ?? []
     } catch (error) {
       return []
     }

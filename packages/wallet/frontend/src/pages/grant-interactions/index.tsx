@@ -141,7 +141,7 @@ export const getServerSideProps: GetServerSideProps<{
     ctx.req.headers.cookie
   )
 
-  if (!grantInteractionResponse.success || !grantInteractionResponse.data) {
+  if (!grantInteractionResponse.success || !grantInteractionResponse.result) {
     if (grantInteractionResponse.message === 'NO_ACCESS') {
       return {
         redirect: {
@@ -156,7 +156,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  grantInteractionResponse.data.access.map((access) => {
+  grantInteractionResponse.result.access.map((access) => {
     access.identifier = access.identifier
       ? access.identifier.replace('https://', '$')
       : null
@@ -174,11 +174,11 @@ export const getServerSideProps: GetServerSideProps<{
       }
     }
   })
-  grantInteractionResponse.data.client = result.data.clientUri
+  grantInteractionResponse.result.client = result.data.clientUri
 
   return {
     props: {
-      grant: grantInteractionResponse.data,
+      grant: grantInteractionResponse.result,
       interactionId: result.data.interactId,
       nonce: result.data.nonce,
       clientName: result.data.clientName

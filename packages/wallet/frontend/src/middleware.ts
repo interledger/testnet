@@ -23,7 +23,7 @@ export async function middleware(req: NextRequest) {
   if (response.success) {
     // If the user is logged in and has not completed KYC, redirect to KYC page.
     if (
-      response.data?.needsWallet &&
+      response.result?.needsWallet &&
       req.nextUrl.pathname !== '/kyc/personal'
     ) {
       const url = new URL('/kyc/personal', req.url)
@@ -31,7 +31,10 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    if (response.data?.needsIDProof && req.nextUrl.pathname !== '/kyc/proof') {
+    if (
+      response.result?.needsIDProof &&
+      req.nextUrl.pathname !== '/kyc/proof'
+    ) {
       if (nextPage !== 'proof')
         return NextResponse.redirect(new URL('/kyc/proof', req.url))
     }
@@ -39,8 +42,8 @@ export async function middleware(req: NextRequest) {
     // If KYC is completed and the user tries to navigate to the page, redirect
     // to homepage.
     if (
-      !response.data?.needsIDProof &&
-      !response.data?.needsWallet &&
+      !response.result?.needsIDProof &&
+      !response.result?.needsWallet &&
       req.nextUrl.pathname.startsWith('/kyc')
     ) {
       return NextResponse.redirect(new URL('/', req.url))

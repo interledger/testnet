@@ -83,7 +83,7 @@ describe('User Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'User retrieved successfully',
-        data: {
+        result: {
           needsIDProof: true,
           needsWallet: true
         }
@@ -219,7 +219,7 @@ describe('User Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Token was checked',
-        data: {
+        result: {
           isValid: true
         }
       })
@@ -235,7 +235,7 @@ describe('User Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Token was checked',
-        data: {
+        result: {
           isValid: false
         }
       })

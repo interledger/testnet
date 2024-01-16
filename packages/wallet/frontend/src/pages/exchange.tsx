@@ -95,11 +95,11 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
         onSubmit={async (data) => {
           const response = await accountService.exchange(account.id, data)
           if (response.success) {
-            if (response.data) {
-              const quoteId = response.data.id
+            if (response.result) {
+              const quoteId = response.result.id
               openDialog(
                 <QuoteDialog
-                  quote={response.data}
+                  quote={response.result}
                   type="exchange"
                   onAccept={() => {
                     handleAcceptQuote(quoteId)
@@ -228,14 +228,14 @@ export const getServerSideProps: GetServerSideProps<{
     !assetResponse.success ||
     !ratesResponse.success ||
     !accountResponse.success ||
-    !accountResponse.data
+    !accountResponse.result
   ) {
     return {
       notFound: true
     }
   }
 
-  const assets = assetResponse.data?.map((asset) => ({
+  const assets = assetResponse.result?.map((asset) => ({
     value: asset.id,
     label: asset.code
   }))
@@ -243,12 +243,12 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       assets: assets ?? [],
-      rates: ratesResponse.data ?? {},
+      rates: ratesResponse.result ?? {},
       asset: {
         assetCode: result.data.assetCode,
         assetScale: Number(result.data.assetScale)
       },
-      account: accountResponse.data
+      account: accountResponse.result
     }
   }
 }

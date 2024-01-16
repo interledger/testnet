@@ -50,7 +50,7 @@ export class UserController implements IUserController {
       res.json({
         success: true,
         message: 'User retrieved successfully',
-        data: {
+        result: {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -143,7 +143,7 @@ export class UserController implements IUserController {
       res.json({
         success: true,
         message: 'Token was checked',
-        data: { isValid }
+        result: { isValid }
       })
     } catch (e) {
       next(e)

@@ -199,7 +199,7 @@ describe('Rapyd Controller', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Wallet created succesfully',
-        data: {
+        result: {
           userId,
           wallet: 'mocked_wallet'
         }

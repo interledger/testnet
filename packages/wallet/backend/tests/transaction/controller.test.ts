@@ -140,13 +140,13 @@ describe('Transaction Controller', (): void => {
       req.query = { orderByDate: 'ASC' }
       await transactionController.list(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().data).toHaveLength(2)
+      expect(res._getJSONData().result).toHaveLength(2)
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS'
       })
 
-      expect(res._getJSONData().data[0]).toMatchObject({
+      expect(res._getJSONData().result[0]).toMatchObject({
         walletAddressId: walletAddress.id,
         accountId: account.id
       })
@@ -172,17 +172,18 @@ describe('Transaction Controller', (): void => {
     it('should return array of transactions', async () => {
       await transactionController.listAll(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().data).toHaveLength(
+      expect(res._getJSONData().result).toHaveLength(
         mockedTransactionInsertObjs.length
       )
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS'
       })
-      expect(res._getJSONData().data[0]).toHaveProperty('walletAddressId')
-      expect(res._getJSONData().data[0]).toHaveProperty('accountId')
-      expect(res._getJSONData().data[0]).toHaveProperty('paymentId')
-      expect(res._getJSONData().data[0]).toHaveProperty('assetCode')
+      const data = res._getJSONData().result[0]
+      expect(data).toHaveProperty('walletAddressId')
+      expect(data).toHaveProperty('accountId')
+      expect(data).toHaveProperty('paymentId')
+      expect(data).toHaveProperty('assetCode')
     })
 
     it('should return status 400 if the request body is not valid', async () => {

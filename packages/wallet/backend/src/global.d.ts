@@ -15,7 +15,7 @@ declare global {
   type BaseResponseBody<T = any> = {
     success: boolean
     message: string
-    data?: T
+    result?: T
     errors?: Record<string, string>
   }
 

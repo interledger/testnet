@@ -115,7 +115,7 @@ describe('Quote Controller', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS',
-        data: {
+        result: {
           debitAmount: {
             assetCode: 'BRG',
             assetScale: 2,
@@ -184,7 +184,7 @@ describe('Quote Controller', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS',
-        data: {
+        result: {
           debitAmount: {
             assetCode: 'BRG',
             assetScale: 2,

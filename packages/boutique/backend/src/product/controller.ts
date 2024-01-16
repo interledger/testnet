@@ -2,7 +2,7 @@ import { NextFunction, Request } from 'express'
 import { IProductService } from './service'
 import { Product } from './model'
 import { BadRequest } from '@/errors'
-import { toSuccessReponse } from '@/shared/utils'
+import { toSuccessResponse } from '@/shared/utils'
 import { Logger } from 'winston'
 
 interface GetParams {
@@ -36,7 +36,7 @@ export class ProductController implements IProductController {
 
       const product = await this.productService.getBySlug(params.slug)
 
-      res.status(200).json(toSuccessReponse(product))
+      res.status(200).json(toSuccessResponse(product))
     } catch (err) {
       next(err)
     }
@@ -49,7 +49,7 @@ export class ProductController implements IProductController {
   ) {
     try {
       const products = await this.productService.list()
-      res.status(200).json(toSuccessReponse(products))
+      res.status(200).json(toSuccessResponse(products))
     } catch (err) {
       this.logger.error(err)
       next(err)

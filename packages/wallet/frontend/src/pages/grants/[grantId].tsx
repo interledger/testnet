@@ -96,15 +96,18 @@ export const getServerSideProps: GetServerSideProps<{
     ctx.req.headers.cookie
   )
 
-  if (!grantResponse.success || !grantResponse.data) {
+  if (!grantResponse.success || !grantResponse.result) {
     return {
       notFound: true
     }
   }
 
-  grantResponse.data.createdAt = formatDate(grantResponse.data.createdAt)
-  grantResponse.data.client = grantResponse.data.client.replace('https://', '$')
-  grantResponse.data.access.map((access) => {
+  grantResponse.result.createdAt = formatDate(grantResponse.result.createdAt)
+  grantResponse.result.client = grantResponse.result.client.replace(
+    'https://',
+    '$'
+  )
+  grantResponse.result.access.map((access) => {
     access.identifier =
       access.identifier !== null
         ? access.identifier.replace('https://', '$')
@@ -134,7 +137,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      grant: grantResponse.data
+      grant: grantResponse.result
     }
   }
 }

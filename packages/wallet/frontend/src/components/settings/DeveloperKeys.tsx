@@ -254,8 +254,8 @@ const WalletAddressCTA = () => {
       return
     }
 
-    if (response.data) {
-      const { privateKey } = response.data
+    if (response.result) {
+      const { privateKey } = response.result
 
       generateAndDownloadFile({
         content: privateKey,

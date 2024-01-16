@@ -41,13 +41,13 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (ctx) => {
   const grantsResponse = await grantsService.list(ctx.req.headers.cookie)
 
-  if (!grantsResponse.success || !grantsResponse.data) {
+  if (!grantsResponse.success || !grantsResponse.result) {
     return {
       notFound: true
     }
   }
 
-  const grants = grantsResponse.data?.map((grant) => ({
+  const grants = grantsResponse.result?.map((grant) => ({
     ...grant,
     createdAt: formatDate(grant.createdAt)
   }))
