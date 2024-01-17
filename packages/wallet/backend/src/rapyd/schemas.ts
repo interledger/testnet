@@ -112,8 +112,8 @@ export type RapydBussinessDetail = z.TypeOf<typeof RapydBusinessDetailSchema>
 
 export const RapydIssueCardDataSchema = z.object({
   preferred_name: z.string().optional(),
-  transaction_permissions: z.enum(['allowed', 'not_allowed']).optional(),
-  role_in_company: z.enum(['owner', 'agent', 'employee']).optional()
+  transaction_permissions: z.enum(['allowed', 'not_allowed', '']).optional(),
+  role_in_company: z.enum(['owner', 'agent', 'employee', '']).optional()
 })
 
 export type RapydIssueCardData = z.TypeOf<typeof RapydIssueCardDataSchema>
@@ -121,14 +121,14 @@ export type RapydIssueCardData = z.TypeOf<typeof RapydIssueCardDataSchema>
 export const RapydWalletContactSchema = z.object({
   id: z.string().optional(),
   address: z.union([RapydAddressSchema, z.string()]).optional(),
-  business_details: RapydBusinessDetailSchema.optional(),
+  business_details: RapydBusinessDetailSchema.optional().nullable(),
   compliance_profile: z
     .union([z.literal(1), z.literal(0), z.literal(-1)])
     .optional(),
   contact_type: z.enum(['personal', 'business']).optional(),
   country: z.string().optional(),
   created_at: z.number().optional(),
-  date_of_birth: z.string().optional(),
+  date_of_birth: z.string().optional().nullable(),
   email: z.string().optional(),
   ewallet: z.string().optional(),
   first_name: z.string().optional(),
@@ -140,7 +140,8 @@ export const RapydWalletContactSchema = z.object({
       'own',
       'owner',
       'month_to_month',
-      'housing_project'
+      'housing_project',
+      ''
     ])
     .optional(),
   identification_number: z.string().optional(),
@@ -160,7 +161,7 @@ export const RapydWalletContactSchema = z.object({
   metadata: z.record(z.unknown()).optional(),
   middle_name: z.string().optional(),
   mothers_name: z.string().optional(),
-  nationality: z.string().optional(),
+  nationality: z.string().optional().nullable(),
   phone_number: z.string().optional(),
   second_last_name: z.string().optional(),
   send_notifications: z.boolean().optional(),
@@ -197,7 +198,8 @@ export const RapydWalletSchema = z.object({
   accounts: z.array(RapydAccountSchema).optional(),
   category: z
     .enum(['collect', 'disburse', 'card_authorization', 'general'])
-    .optional(),
+    .optional()
+    .nullable(),
   contact: RapydWalletContactSchema.optional(),
   contacts: RapydWalletContactsSchema.optional(),
   email: z.string().optional(),
@@ -205,7 +207,7 @@ export const RapydWalletSchema = z.object({
   first_name: z.string().optional(),
   last_name: z.string().optional(),
   metadata: z.record(z.unknown()).optional(),
-  phone_number: z.string().optional(),
+  phone_number: z.string().optional().nullable(),
   status: z.enum(['ACT', 'DIS']).optional(),
   type: z.enum(['company', 'person', 'client']).optional(),
   verification_status: z.enum(['not verified', 'KYCd']).optional()
