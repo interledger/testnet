@@ -157,7 +157,7 @@ export const getServerSideProps: GetServerSideProps<{
     ctx.req.headers.cookie
   )
 
-  if (!checkTokenResponse.success || !checkTokenResponse.data) {
+  if (!checkTokenResponse.success || !checkTokenResponse.result) {
     return {
       notFound: true
     }
@@ -166,7 +166,7 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       token: result.data.token,
-      isValid: checkTokenResponse.data.isValid
+      isValid: checkTokenResponse.result.isValid
     }
   }
 }

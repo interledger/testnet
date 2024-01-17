@@ -1,5 +1,5 @@
 import { APIError } from '@/lib/fetcher.ts'
-import { SuccessReponse } from '@/lib/types.ts'
+import { SuccessResponse } from '@/lib/types.ts'
 import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
@@ -14,7 +14,7 @@ export const finishSetupSchema = finishCheckoutSchema.extend({
 
 export function useFinishSetupMutation(
   options?: UseMutationOptions<
-    SuccessReponse<TokenState>,
+    SuccessResponse<TokenState>,
     APIError<z.infer<typeof finishSetupSchema>>,
     FinishSetupMutationParams
   >

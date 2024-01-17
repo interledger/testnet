@@ -53,7 +53,7 @@ describe('Application', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true
       })
-      expect(res._getJSONData().data.length).toBe(6)
+      expect(res._getJSONData().result.length).toBe(6)
     })
 
     it('should return an empty array if there are no products', async (): Promise<void> => {
@@ -61,7 +61,7 @@ describe('Application', (): void => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        data: []
+        result: []
       })
     })
 
@@ -136,7 +136,7 @@ describe('Application', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS',
-        data: product
+        result: product
       })
     })
   })

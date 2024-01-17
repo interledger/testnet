@@ -2,7 +2,7 @@ import { NextFunction, Request } from 'express'
 import { IOrderService } from './service'
 import { Order } from './model'
 import { BadRequest, InternalServerError } from '@/errors'
-import { toSuccessReponse } from '@/shared/utils'
+import { toSuccessResponse } from '@/shared/utils'
 import { Logger } from 'winston'
 import { IOpenPayments, TokenInfo } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
@@ -57,7 +57,7 @@ export class OrderController implements IOrderController {
 
       const order = await this.orderService.get(params.id)
 
-      res.status(200).json(toSuccessReponse(order))
+      res.status(200).json(toSuccessResponse(order))
     } catch (err) {
       this.logger.error(err)
       next(err)
@@ -91,7 +91,7 @@ export class OrderController implements IOrderController {
       this.logger.debug(JSON.stringify(grant, null, 2))
       res
         .status(201)
-        .json(toSuccessReponse({ redirectUrl: grant.interact.redirect }))
+        .json(toSuccessResponse({ redirectUrl: grant.interact.redirect }))
     } catch (err) {
       next(err)
     }
@@ -153,7 +153,7 @@ export class OrderController implements IOrderController {
         amount
       )
 
-      res.status(200).json(toSuccessReponse({ redirectUrl }))
+      res.status(200).json(toSuccessResponse({ redirectUrl }))
     } catch (err) {
       next(err)
     }
@@ -202,7 +202,7 @@ export class OrderController implements IOrderController {
       })
 
       res.status(200).json(
-        toSuccessReponse({
+        toSuccessResponse({
           ...tokenInfo,
           walletAddressUrl: identifierData.walletAddressUrl
         })
@@ -230,7 +230,7 @@ export class OrderController implements IOrderController {
       const tokenInfo = await this.openPayments.instantBuy({ order, ...args })
 
       res.status(200).json(
-        toSuccessReponse({
+        toSuccessResponse({
           ...tokenInfo,
           walletAddressUrl: args.walletAddressUrl
         })

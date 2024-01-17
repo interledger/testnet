@@ -8,7 +8,7 @@ declare global {
   interface TypedResponseBody<T = any> {
     success: boolean
     message: string
-    data?: T
+    result?: T
     errors?: Record<string, string>
   }
 

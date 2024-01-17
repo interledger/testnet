@@ -26,7 +26,7 @@ export const ProductsList = () => {
   if (products.data) {
     return (
       <ProductsListWrapper>
-        {products.data.data.map((product) => (
+        {products.data.result.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </ProductsListWrapper>

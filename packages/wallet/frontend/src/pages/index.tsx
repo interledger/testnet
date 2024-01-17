@@ -136,11 +136,11 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      accounts: response.data ?? [],
+      accounts: response.result ?? [],
       user: {
-        firstName: user.data?.firstName ?? '',
-        lastName: user.data?.lastName ?? '',
-        email: user.data?.email ?? ''
+        firstName: user.result?.firstName ?? '',
+        lastName: user.result?.lastName ?? '',
+        email: user.result?.email ?? ''
       }
     }
   }

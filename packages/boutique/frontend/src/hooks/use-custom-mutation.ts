@@ -1,5 +1,5 @@
 import { APIError, fetcher } from '@/lib/fetcher.ts'
-import { SuccessReponse } from '@/lib/types.ts'
+import { SuccessResponse } from '@/lib/types.ts'
 import {
   UseMutationOptions,
   UseMutationResult,
@@ -21,11 +21,11 @@ export function useCustomMutation<
 >(
   fetcherOptions: FetcherOptions,
   options?: UseMutationOptions<
-    SuccessReponse<TData>,
+    SuccessResponse<TData>,
     APIError<TSchema>,
     TParams
   >
-): UseMutationResult<SuccessReponse<TData>, APIError<TSchema>, TParams> {
+): UseMutationResult<SuccessResponse<TData>, APIError<TSchema>, TParams> {
   const { method, endpoint } = fetcherOptions
   return useMutation({
     mutationFn: async function (params: TParams) {

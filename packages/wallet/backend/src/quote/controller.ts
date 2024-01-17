@@ -35,7 +35,7 @@ export class QuoteController implements IQuoteController {
         receiver,
         description
       })
-      res.status(200).json({ success: true, message: 'SUCCESS', data: quote })
+      res.status(200).json({ success: true, message: 'SUCCESS', result: quote })
     } catch (e) {
       next(e)
     }
@@ -60,7 +60,7 @@ export class QuoteController implements IQuoteController {
         amount
       })
 
-      res.status(200).json({ success: true, message: 'SUCCESS', data: quote })
+      res.status(200).json({ success: true, message: 'SUCCESS', result: quote })
     } catch (e) {
       next(e)
     }

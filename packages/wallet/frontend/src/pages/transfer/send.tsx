@@ -95,7 +95,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     })
 
     const walletAddressesResponse = await walletAddressService.list(accountId)
-    if (!walletAddressesResponse.success || !walletAddressesResponse.data) {
+    if (!walletAddressesResponse.success || !walletAddressesResponse.result) {
       setWalletAddresses([])
       openDialog(
         <ErrorDialog
@@ -106,7 +106,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       return
     }
 
-    const walletAddresses = walletAddressesResponse.data.walletAddresses.map(
+    const walletAddresses = walletAddressesResponse.result.walletAddresses.map(
       (walletAddress) => ({
         label: `${walletAddress.publicName} (${walletAddress.url.replace(
           'https://',
@@ -128,9 +128,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         if (selectedAccount.assetCode !== receiverAssetCode) {
           const response =
             await assetService.getExchangeRates(receiverAssetCode)
-          if (response.success && response.data) {
+          if (response.success && response.result) {
             value = Number(
-              (value * response.data[selectedAccount.assetCode]).toFixed(2)
+              (value * response.result[selectedAccount.assetCode]).toFixed(2)
             )
           }
         } else {
@@ -140,8 +140,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         setConvertAmount(value)
       }
 
-      if (ratesResponse.success && ratesResponse.data) {
-        setCurrentExchangeRates(ratesResponse.data)
+      if (ratesResponse.success && ratesResponse.result) {
+        setCurrentExchangeRates(ratesResponse.result)
       }
     }
   }
@@ -155,10 +155,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     if (url.includes('/incoming-payments/')) {
       const response = await transfersService.getIncomingPaymentDetails(url)
 
-      if (response.success && response.data) {
-        let value = response.data.value
+      if (response.success && response.result) {
+        let value = response.result.value
         setIncomingPaymentAmount(value)
-        const responseAssetCode = response.data.assetCode
+        const responseAssetCode = response.result.assetCode
 
         if (
           selectedAccount &&
@@ -167,9 +167,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           const ratesResponse =
             await assetService.getExchangeRates(responseAssetCode)
 
-          if (ratesResponse.success && ratesResponse.data) {
+          if (ratesResponse.success && ratesResponse.result) {
             value = Number(
-              (value * ratesResponse.data[selectedAccount.assetCode]).toFixed(2)
+              (value * ratesResponse.result[selectedAccount.assetCode]).toFixed(
+                2
+              )
             )
           }
         }
@@ -177,7 +179,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         sendForm.clearErrors('receiver')
         sendForm.setValue('paymentType', 'receive')
         sendForm.setValue('amount', value)
-        sendForm.setValue('description', response.data.description ?? '')
+        sendForm.setValue('description', response.result.description ?? '')
 
         setReceiverAssetCode(responseAssetCode)
         setConvertAmount(value)
@@ -191,13 +193,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         await walletAddressService.getExternal(url)
       if (
         !walletAddressAssetCodeResponse.success ||
-        !walletAddressAssetCodeResponse.data
+        !walletAddressAssetCodeResponse.result
       ) {
         setReceiverAssetCode(null)
         return
       }
 
-      setReceiverAssetCode(walletAddressAssetCodeResponse.data.assetCode)
+      setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
     }
 
     if (isToggleDisabled) setIsToggleDisabled(false)
@@ -250,11 +252,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           onSubmit={async (data) => {
             const response = await transfersService.send(data)
             if (response.success) {
-              if (response.data) {
-                const quoteId = response.data.id
+              if (response.result) {
+                const quoteId = response.result.id
                 openDialog(
                   <QuoteDialog
-                    quote={response.data}
+                    quote={response.result}
                     type="quote"
                     onAccept={() => {
                       handleAcceptQuote(quoteId)
@@ -440,13 +442,13 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  if (!accountsResponse.data) {
+  if (!accountsResponse.result) {
     return {
       notFound: true
     }
   }
 
-  const accounts = accountsResponse.data.map((account) => ({
+  const accounts = accountsResponse.result.map((account) => ({
     label: `${account.name} (${account.assetCode})`,
     value: account.id,
     balance: account.balance,

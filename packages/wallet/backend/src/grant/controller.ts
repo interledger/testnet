@@ -32,7 +32,7 @@ export class GrantController implements IGrantController {
           req.session.user.id
         )
       const grants = await this.rafikiAuthService.listGrants(identifiers)
-      res.json({ success: true, message: 'Success', data: grants })
+      res.json({ success: true, message: 'Success', result: grants })
     } catch (e) {
       next(e)
     }
@@ -56,7 +56,7 @@ export class GrantController implements IGrantController {
     try {
       const grant = await this.rafikiAuthService.getGrantById(req.params.id)
 
-      res.json({ success: true, message: 'Success', data: grant })
+      res.json({ success: true, message: 'Success', result: grant })
     } catch (e) {
       next(e)
     }
@@ -74,7 +74,7 @@ export class GrantController implements IGrantController {
         req.params.nonce
       )
 
-      res.json({ success: true, message: 'Success', data: grant })
+      res.json({ success: true, message: 'Success', result: grant })
     } catch (e) {
       next(e)
     }
@@ -97,7 +97,7 @@ export class GrantController implements IGrantController {
         response
       )
 
-      res.json({ success: true, message: 'Success', data: grant })
+      res.json({ success: true, message: 'Success', result: grant })
     } catch (e) {
       next(e)
     }

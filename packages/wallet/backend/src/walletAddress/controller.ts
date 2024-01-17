@@ -49,7 +49,7 @@ export class WalletAddressController implements IWalletAddressController {
       })
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: walletAddress })
+        .json({ success: true, message: 'SUCCESS', result: walletAddress })
     } catch (e) {
       next(e)
     }
@@ -70,7 +70,7 @@ export class WalletAddressController implements IWalletAddressController {
       )
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: walletAddresses })
+        .json({ success: true, message: 'SUCCESS', result: walletAddresses })
     } catch (e) {
       next(e)
     }
@@ -88,7 +88,7 @@ export class WalletAddressController implements IWalletAddressController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: walletAddresses })
+        .json({ success: true, message: 'SUCCESS', result: walletAddresses })
     } catch (e) {
       next(e)
     }
@@ -108,7 +108,7 @@ export class WalletAddressController implements IWalletAddressController {
       res.status(200).json({
         success: true,
         message: 'SUCCESS',
-        data: externalWalletAddress
+        result: externalWalletAddress
       })
     } catch (e) {
       next(e)
@@ -132,7 +132,7 @@ export class WalletAddressController implements IWalletAddressController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: walletAddress })
+        .json({ success: true, message: 'SUCCESS', result: walletAddress })
     } catch (e) {
       next(e)
     }
@@ -177,7 +177,7 @@ export class WalletAddressController implements IWalletAddressController {
       res.status(200).json({
         success: true,
         message: 'Public key is successfully registered',
-        data: { privateKey, publicKey, keyId }
+        result: { privateKey, publicKey, keyId }
       })
     } catch (e) {
       next(e)

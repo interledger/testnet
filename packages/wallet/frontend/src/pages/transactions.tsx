@@ -308,8 +308,8 @@ export const getServerSideProps: GetServerSideProps<
   if (
     !accountsResponse.success ||
     !walletAddressesResponse.success ||
-    !walletAddressesResponse.data ||
-    !accountsResponse.data
+    !walletAddressesResponse.result ||
+    !accountsResponse.result
   ) {
     return {
       notFound: true
@@ -319,14 +319,14 @@ export const getServerSideProps: GetServerSideProps<
   const accounts = [{ label: 'All', value: '' }]
   const walletAddresses = [{ label: 'All', value: '', accountId: '' }]
 
-  accountsResponse.data.map((account) =>
+  accountsResponse.result.map((account) =>
     accounts.push({
       label: account.name,
       value: account.id
     })
   )
 
-  walletAddressesResponse.data.map((pp) =>
+  walletAddressesResponse.result.map((pp) =>
     walletAddresses.push({
       label: pp.url,
       value: pp.id,
