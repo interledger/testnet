@@ -5,17 +5,22 @@ import { Env } from '@/config/env'
 import { User } from '@/user/model'
 import RandExp from 'randexp'
 import { BadRequest } from '@/errors'
-import { AnyZodObject, z, ZodEffects } from 'zod'
+import { AnyZodObject, z, ZodEffects, ZodTypeAny } from 'zod'
 import {
   CompletePayoutRequest,
   CompletePayoutResponse,
   CompletePayoutResponseSchema,
+  PayoutListMethodResponseSchema,
   PayoutMethodResponse,
+  PayoutRequiredFieldsResponse,
+  PayoutRequiredFieldsResponseSchema,
   RapydAccountBalance,
   RapydCountry,
+  RapydCountryListSchema,
   RapydDepositRequest,
   RapydDepositResponse,
   RapydDepositResponseSchema,
+  RapydDocumentsTypeSchema,
   RapydDocumentType,
   RapydHoldRequest,
   RapydHoldResponse,
@@ -23,6 +28,7 @@ import {
   RapydIdentityRequest,
   RapydIdentityResponse,
   RapydIdentityResponseSchema,
+  RapydListAccountBalanceSchema,
   RapydProfile,
   RapydReleaseRequest,
   RapydReleaseResponse,
@@ -34,6 +40,7 @@ import {
   RapydTransferRequest,
   RapydWallet,
   RapydWalletSchema,
+  RequiredFields,
   SimulateBankTransferToWalletRequest,
   SimulateBankTransferToWalletResponse,
   VirtualAccountRequest,
@@ -41,8 +48,8 @@ import {
   VirtualAccountResponseSchema,
   WithdrawFundsFromAccountResponse,
   WithdrawFundsFromAccountResponseSchema
-} from './response-validation'
-import { validateRapydResponse } from './validation'
+} from './schemas'
+import { validateRapydResponse } from './schemas'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>
@@ -188,8 +195,8 @@ export class RapydClient implements IRapydClient {
     country: string
   ): Promise<RapydResponse<RapydDocumentType[]>> {
     return this.get(
-      `identities/types?country=${country}`
-      // RapydDocumentsTypeSchema
+      `identities/types?country=${country}`,
+      RapydDocumentsTypeSchema
     ) as Promise<RapydResponse<RapydDocumentType[]>>
   }
 
@@ -251,13 +258,16 @@ export class RapydClient implements IRapydClient {
   public getAccountsBalance(
     walletId: string
   ): Promise<RapydResponse<RapydAccountBalance[]>> {
-    return this.get(`user/${walletId}/accounts`) as Promise<
-      RapydResponse<RapydAccountBalance[]>
-    >
+    return this.get(
+      `user/${walletId}/accounts`,
+      RapydListAccountBalanceSchema
+    ) as Promise<RapydResponse<RapydAccountBalance[]>>
   }
 
   public getCountryNames(): Promise<RapydResponse<RapydCountry[]>> {
-    return this.get('data/countries') as Promise<RapydResponse<RapydCountry[]>>
+    return this.get('data/countries', RapydCountryListSchema) as Promise<
+      RapydResponse<RapydCountry[]>
+    >
   }
 
   public async withdrawFundsFromAccount(
@@ -349,7 +359,8 @@ export class RapydClient implements IRapydClient {
     assetCode: string
   ): Promise<PayoutMethodResponse> {
     const response = (await this.get(
-      `payouts/supported_types?payout_currency=${assetCode}&limit=1`
+      `payouts/supported_types?payout_currency=${assetCode}&limit=1`,
+      PayoutListMethodResponseSchema
     )) as RapydResponse<PayoutMethodResponse[]>
 
     if (response.status.status !== 'SUCCESS') {
@@ -415,7 +426,7 @@ export class RapydClient implements IRapydClient {
     }
   }
 
-  private get<T extends AnyZodObject | ZodEffects<AnyZodObject>>(
+  private get<T extends AnyZodObject | ZodEffects<AnyZodObject> | ZodTypeAny>(
     url: string,
     zodResponseSchema?: T
   ) {
@@ -479,7 +490,7 @@ export class RapydClient implements IRapydClient {
   }
 
   private async request<
-    T extends AnyZodObject | ZodEffects<AnyZodObject> | z.ZodTypeAny
+    T extends AnyZodObject | ZodEffects<AnyZodObject> | ZodTypeAny
   >(
     method: 'get' | 'post' | 'put',
     url: string,
@@ -534,7 +545,8 @@ export class RapydClient implements IRapydClient {
 
     const response: RapydResponse<PayoutRequiredFieldsResponse> =
       (await this.get(
-        `payouts/${args.payoutMethodType}/details?sender_country=${args.senderCountry}&sender_currency=${args.senderCurrency}&beneficiary_country=${args.beneficiaryCountry}&payout_currency=${args.payoutCurrency}&sender_entity_type=${args.senderEntityType}&beneficiary_entity_type=${args.beneficiaryEntityType}&payout_amount=${args.payoutAmount}`
+        `payouts/${args.payoutMethodType}/details?sender_country=${args.senderCountry}&sender_currency=${args.senderCurrency}&beneficiary_country=${args.beneficiaryCountry}&payout_currency=${args.payoutCurrency}&sender_entity_type=${args.senderEntityType}&beneficiary_entity_type=${args.beneficiaryEntityType}&payout_amount=${args.payoutAmount}`,
+        PayoutRequiredFieldsResponseSchema
       )) as RapydResponse<PayoutRequiredFieldsResponse>
 
     if (response.status.status !== 'SUCCESS') {

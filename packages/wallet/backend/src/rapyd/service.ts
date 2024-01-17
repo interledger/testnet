@@ -7,7 +7,7 @@ import {
   RapydDocumentType,
   RapydIdentityResponse,
   RapydWallet
-} from './response-validation'
+} from './schemas'
 
 type VerifyIdentityParams = {
   userId: string
