@@ -523,7 +523,7 @@ export async function validateRapydResponse<
       errors[i.path[0]] = i.message
     })
 
-    throw new Error('Invalid Rapyd Response', errors)
+    throw new Error(`Invalid Rapyd Response ${JSON.stringify(errors)}`)
   }
   return res.data
 }
