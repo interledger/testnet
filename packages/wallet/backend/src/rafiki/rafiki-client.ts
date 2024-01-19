@@ -354,7 +354,7 @@ export class RafikiClient implements IRafikiClient {
     }
 
     if (!createQuote.quote) {
-      throw new Error('Unable to fetch created quote')
+      throw new Error(createQuote.message || 'Unable to create Quote')
     }
 
     return createQuote.quote

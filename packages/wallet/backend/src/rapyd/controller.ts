@@ -1,11 +1,16 @@
+import { NextFunction, Request } from 'express'
 import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
-import { User } from '@/user/model'
 import { getRandomValues } from 'crypto'
-import { NextFunction, Request } from 'express'
 import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './validation'
+import { kycSchema, profileSchema, walletSchema } from './schemas'
+import { User } from '@/user/model'
+import {
+  RapydDocumentType,
+  RapydIdentityResponse,
+  RapydWallet
+} from './schemas'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>

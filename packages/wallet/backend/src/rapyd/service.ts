@@ -2,6 +2,12 @@ import { NotFound } from '@/errors'
 import { User } from '@/user/model'
 import crypto from 'crypto'
 import { RapydClient } from './rapyd-client'
+import {
+  RapydCountry,
+  RapydDocumentType,
+  RapydIdentityResponse,
+  RapydWallet
+} from './schemas'
 
 type VerifyIdentityParams = {
   userId: string
