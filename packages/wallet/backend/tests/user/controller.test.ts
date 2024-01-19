@@ -83,7 +83,7 @@ describe('User Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'User retrieved successfully',
-        data: {
+        result: {
           needsIDProof: true,
           needsWallet: true
         }
@@ -161,6 +161,46 @@ describe('User Controller', (): void => {
     })
   })
 
+  describe('Change password', () => {
+    it('should return a message that password has been changed', async () => {
+      const oldPassword = faker.internet.password()
+
+      await User.query()
+        .findById(userInfo.id)
+        .patch({ newPassword: oldPassword })
+
+      const newPassword = faker.internet.password()
+      req.body = {
+        oldPassword,
+        newPassword,
+        confirmNewPassword: newPassword
+      }
+
+      await userController.changePassword(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Password was changed successfully'
+      })
+    })
+
+    it('should return error message of incorrect old password', async () => {
+      const oldPassword = faker.internet.password()
+      const newPassword = faker.internet.password()
+      req.body = {
+        oldPassword,
+        newPassword,
+        confirmNewPassword: newPassword
+      }
+      await userController.changePassword(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
   describe('Check Token', () => {
     it('should return a boolean that the token is valid', async () => {
       const resetToken = getRandomToken()
@@ -179,7 +219,7 @@ describe('User Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Token was checked',
-        data: {
+        result: {
           isValid: true
         }
       })
@@ -195,7 +235,7 @@ describe('User Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Token was checked',
-        data: {
+        result: {
           isValid: false
         }
       })

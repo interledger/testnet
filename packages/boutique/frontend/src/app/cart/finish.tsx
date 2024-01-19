@@ -23,8 +23,8 @@ export function Component() {
         result
       },
       {
-        onSuccess({ data }) {
-          setToken(data)
+        onSuccess({ result }) {
+          setToken(result)
         }
       }
     )

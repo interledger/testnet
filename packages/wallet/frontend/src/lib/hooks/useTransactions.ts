@@ -37,7 +37,7 @@ export const useTransactions = () => {
         pagination
       })
       if (response.success) {
-        setTransactions(response.data ?? defaultState)
+        setTransactions(response.result ?? defaultState)
       }
     },
     [request]

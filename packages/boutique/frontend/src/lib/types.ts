@@ -5,8 +5,8 @@ export interface ErrorResponse {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface SuccessReponse<T = any> {
+export interface SuccessResponse<T = any> {
   success: true
   message: string
-  data: T
+  result: T
 }

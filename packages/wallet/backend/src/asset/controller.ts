@@ -16,7 +16,7 @@ export class AssetController implements IAssetController {
   ) => {
     try {
       const assets = await this.rafikiClient.listAssets({ first: 100 })
-      res.json({ success: true, message: 'Success', data: assets })
+      res.json({ success: true, message: 'Success', result: assets })
     } catch (e) {
       next(e)
     }

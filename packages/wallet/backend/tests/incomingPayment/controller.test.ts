@@ -77,7 +77,7 @@ describe('Incoming Payment Controller', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS',
-        data: { url: 'https://www.some-domain.com' }
+        result: { url: 'https://www.some-domain.com' }
       })
     })
 

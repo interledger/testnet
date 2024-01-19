@@ -15,14 +15,14 @@ export function deleteProperty<T, K extends keyof T>(
 interface SuccessResponse extends Omit<TypedResponseBody, 'errors'> {}
 interface ErrorResponse extends Omit<TypedResponseBody, 'data'> {}
 
-export function toSuccessReponse<T>(
-  data: T,
+export function toSuccessResponse<T>(
+  result: T,
   message: string = 'SUCCESS'
 ): SuccessResponse {
   return {
     success: true,
     message: message,
-    data
+    result
   }
 }
 

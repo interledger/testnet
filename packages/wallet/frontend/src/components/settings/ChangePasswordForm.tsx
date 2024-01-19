@@ -2,69 +2,93 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { z } from 'zod'
-
-const changePasswordSchema = z
-  .object({
-    oldPassword: z.string(),
-    newPassword: z.string().min(6, {
-      message: 'Your new password has to be at least 6 characters long.'
-    }),
-    confirmNewPassword: z.string()
-  })
-  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
-    if (confirmNewPassword !== newPassword) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Passwords must match.',
-        path: ['confirmNewPassword']
-      })
-    }
-  })
+import { changePasswordSchema, userService } from '@/lib/api/user'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { ErrorDialog } from '../dialogs/ErrorDialog'
+import { getObjectKeys } from '@/utils/helpers'
+import { SuccessDialog } from '../dialogs/SuccessDialog'
+import { usePasswordContext } from '@/lib/context/password'
 
 export const ChangePasswordForm = () => {
-  const form = useZodForm({
+  const changePasswordForm = useZodForm({
     schema: changePasswordSchema
   })
+  const [openDialog, closeDialog] = useDialog()
+  const { setIsChangePassword } = usePasswordContext()
 
   return (
-    <>
-      <div className="mb-5">
-        <h3 className="text-2xl text-turqoise">Change account password</h3>
-      </div>
+    <div className="pt-5">
+      <h3 className="text-2xl text-turqoise">Change account password</h3>
       <Form
-        form={form}
-        onSubmit={(data) => {
-          console.log(data)
+        form={changePasswordForm}
+        onSubmit={async (data) => {
+          const response = await userService.changePassword(data)
+
+          if (!response) {
+            openDialog(
+              <ErrorDialog
+                onClose={closeDialog}
+                content="Change password failed. Please try again."
+              />
+            )
+            return
+          }
+
+          if (response.success) {
+            openDialog(
+              <SuccessDialog
+                onClose={() => {
+                  closeDialog()
+                }}
+                content={response.message}
+              />
+            )
+            setIsChangePassword(false)
+          } else {
+            const { errors, message } = response
+
+            if (errors) {
+              getObjectKeys(errors).map((field) =>
+                changePasswordForm.setError(field, {
+                  message: errors[field]
+                })
+              )
+            }
+            if (message) {
+              changePasswordForm.setError('root', { message })
+            }
+          }
         }}
       >
         <Input
           required
           type="password"
           label="Old Password"
-          error={form.formState.errors.oldPassword?.message}
-          {...form.register('oldPassword')}
+          error={changePasswordForm.formState.errors.oldPassword?.message}
+          {...changePasswordForm.register('oldPassword')}
         />
         <Input
           required
           type="password"
           label="New Password"
-          error={form.formState.errors.newPassword?.message}
-          {...form.register('newPassword')}
+          error={changePasswordForm.formState.errors.newPassword?.message}
+          {...changePasswordForm.register('newPassword')}
         />
         <Input
           required
           type="password"
           label="Confirm New Password"
-          error={form.formState.errors.confirmNewPassword?.message}
-          {...form.register('confirmNewPassword')}
+          error={
+            changePasswordForm.formState.errors.confirmNewPassword?.message
+          }
+          {...changePasswordForm.register('confirmNewPassword')}
         />
         <div className="mt-2 flex justify-end">
-          <Button type="submit" aria-label="Change password">
-            Change password
+          <Button type="submit" aria-label="Save password">
+            Save password
           </Button>
         </div>
       </Form>
-    </>
+    </div>
   )
 }

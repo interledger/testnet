@@ -40,15 +40,15 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
 export const getServerSideProps: GetServerSideProps<{
   user: User
 }> = async (ctx) => {
-  const result = await userService.me(ctx.req.headers.cookie)
+  const response = await userService.me(ctx.req.headers.cookie)
 
-  if (!result.success) {
+  if (!response.success) {
     return {
       notFound: true
     }
   }
 
-  if (!result.data) {
+  if (!response.result) {
     return {
       notFound: true
     }
@@ -56,7 +56,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      user: result.data
+      user: response.result
     }
   }
 }

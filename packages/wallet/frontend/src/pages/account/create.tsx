@@ -64,7 +64,7 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
                 }}
                 title="Account created."
                 content="Your account was successfully created."
-                redirect={`/account/${response.data?.id}`}
+                redirect={`/account/${response.result?.id}`}
                 redirectText="View account"
               />
             )
@@ -110,7 +110,6 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
             />
           )}
         />
-        {}
         <Button
           type="submit"
           aria-label="create account"
@@ -135,7 +134,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  const assets = response.data
+  const assets = response.result
     ?.filter((asset) => asset.scale <= 2)
     ?.map((asset) => ({
       value: asset.id,

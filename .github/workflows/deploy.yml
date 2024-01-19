@@ -1,0 +1,63 @@
+name: Deploy Testnet
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  VERSION: ${{ github.event.inputs.tag }}
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        description: What is the release tag? (e.g. "1.0.2")
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check release version
+        id: release-version
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+              echo "Invalid version tag '${VERSION}'"
+              exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: SSH into Compute Engine
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ${{ secrets.PROJECT_DIRECTORY }}
+            git switch main
+            git pull origin main
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            pnpm install
+            pnpm run prod
+
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v4.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: testnet@${{ env.VERSION }}
+          body: ${{steps.github_release.outputs.changelog}}
+          tag_name: ${{ format('{0}', env.VERSION) }}
+          prerelease: false
+          generate_release_notes: true

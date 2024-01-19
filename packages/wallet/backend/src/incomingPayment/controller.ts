@@ -38,7 +38,9 @@ export class IncomingPaymentController implements IIncomingPaymentController {
         description,
         expiration
       )
-      res.status(200).json({ success: true, message: 'SUCCESS', data: { url } })
+      res
+        .status(200)
+        .json({ success: true, message: 'SUCCESS', result: { url } })
     } catch (e) {
       next(e)
     }
@@ -58,7 +60,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
         await this.incomingPaymentService.getPaymentDetailsByUrl(url)
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: paymentDetails })
+        .json({ success: true, message: 'SUCCESS', result: paymentDetails })
     } catch (e) {
       next(e)
     }
