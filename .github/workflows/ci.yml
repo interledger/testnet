@@ -18,10 +18,10 @@ jobs:
     name: ESLint and Prettier checks
     runs-on: ubuntu-latest
     outputs:
-      wallet-back: ${{ steps.checker.outputs.wallet-back }}
-      wallet-front: ${{ steps.checker.outputs.wallet-front }}
-      boutique-front: ${{ steps.checker.outputs.boutique-front }}
-      boutique-back: ${{ steps.checker.outputs.boutique-back }}
+      wallet-backend: ${{ steps.checker.outputs.wallet-backend }}
+      wallet-frontend: ${{ steps.checker.outputs.wallet-frontend }}
+      boutique-frontend: ${{ steps.checker.outputs.boutique-frontend }}
+      boutique-backend: ${{ steps.checker.outputs.boutique-backend }}
 
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
     name: WALLET - Build frontend
     runs-on: ubuntu-latest
     needs: checks
-    if: ${{needs.checks.outputs.wallet-front || 'false' == 'true'}}
+    if: ${{needs.checks.outputs.wallet-frontend || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
@@ -44,7 +44,7 @@ jobs:
     name: BOUTIQUE - Build frontend
     runs-on: ubuntu-latest
     needs: checks
-    if: ${{needs.checks.outputs.boutique-front || 'false' == 'true'}}
+    if: ${{needs.checks.outputs.boutique-frontend || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
@@ -54,7 +54,7 @@ jobs:
     name: WALLET - Build backend
     runs-on: ubuntu-latest
     needs: checks
-    if: ${{needs.checks.outputs.wallet-back || 'false' == 'true'}}
+    if: ${{needs.checks.outputs.wallet-backend || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
@@ -64,7 +64,7 @@ jobs:
     name: BOUTIQUE - Build backend
     runs-on: ubuntu-latest
     needs: checks
-    if: ${{needs.checks.outputs.boutique-back || 'false' == 'true'}}
+    if: ${{needs.checks.outputs.boutique-backend || 'false' == 'true'}}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup

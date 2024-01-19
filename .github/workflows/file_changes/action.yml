@@ -2,16 +2,16 @@ name: 'File Change Detection'
 description: 'Detect which projects file has been change for running its own checks'
 
 outputs:
-  wallet-back:
+  wallet-backend:
     description: 'Is wallet-backend changed'
     value: ${{ steps.wallet-back.outputs.WALLET_BACK }}
-  wallet-front:
+  wallet-frontend:
     description: 'Is wallet-frontend changed'
     value: ${{ steps.wallet-front.outputs.WALLET_FRONT }}
-  boutique-front:
+  boutique-frontend:
     description: 'Is boutique-frontend changed'
     value: ${{ steps.boutique-front.outputs.BOUTIQUE_FRONT }}
-  boutique-back:
+  boutique-backend:
     description: 'Is boutique-backend changed'
     value: ${{ steps.boutique-back.outputs.BOUTIQUE_BACK }}
 

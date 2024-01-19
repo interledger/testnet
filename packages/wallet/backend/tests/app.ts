@@ -13,6 +13,7 @@ export interface TestApp {
 export const createApp = async (
   container: AwilixContainer<Cradle>
 ): Promise<TestApp> => {
+  console.log('test')
   const env = await container.resolve('env')
   const knex = await container.resolve('knex')
 
