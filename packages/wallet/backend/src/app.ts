@@ -89,6 +89,7 @@ export class App {
   constructor(private container: AwilixContainer<Cradle>) {}
 
   public async startServer(): Promise<void> {
+    console.log('test')
     const express = await this.init()
     const env = await this.container.resolve('env')
     const logger = await this.container.resolve('logger')
