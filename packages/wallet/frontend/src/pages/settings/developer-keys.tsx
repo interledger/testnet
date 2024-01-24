@@ -34,13 +34,13 @@ export const getServerSideProps: GetServerSideProps<{
     'walletAddresses'
   )
 
-  if (!response.success || !response.data) {
+  if (!response.success || !response.result) {
     return {
       notFound: true
     }
   }
 
-  const accounts = response.data.map((account) => ({
+  const accounts = response.result.map((account) => ({
     ...account,
     walletAddresses: account.walletAddresses.map((pp) => ({
       ...pp,

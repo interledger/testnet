@@ -5,7 +5,7 @@ import type { FieldPath, FieldValues } from 'react-hook-form'
 export type SuccessResponse<T = undefined> = {
   message: string
   success: true
-  data?: T
+  result?: T
 }
 
 export type ErrorResponse<T = undefined> = {

@@ -28,6 +28,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: 'body',
     content: `Welcome to Testnet! Testnet is a Rafiki playground, where you can add multiple accounts and make Interledger transactions with play money. Let's begin our journey.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     placement: 'center',
     Icon: Wave
   },
@@ -36,6 +37,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#newAccount',
     content: `You need an account in order to deposit money and start transacting. Let's create your first account.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: Pointer
   },
@@ -46,6 +48,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'All accounts need a name, so please add a name for your USD account.',
     placement: 'center',
     disableOverlayClose: true,
+    disableBeacon: true,
     Icon: Person
   },
   {
@@ -53,6 +56,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#redirectButtonSuccess',
     content: `Let's see inside your newly created account.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: PersonDoc
   },
@@ -61,6 +65,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#walletAddress',
     content: `In order to send and receive money, all accounts need at least a payment pointer, so let's add a payment pointer to your account.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: Plus
   },
@@ -70,6 +75,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content:
       'Your balance is currently $0. In order to make your first transaction, you need to add money to your account.',
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: MoneyHand
   },
@@ -78,6 +84,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#balance',
     content: 'Congratulations, you have money in your account.',
     disableOverlayClose: true,
+    disableBeacon: true,
     placement: 'center',
     Icon: PaperPlane
   },
@@ -88,6 +95,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
+    disableBeacon: true,
     Icon: MoneyOut
   },
   {
@@ -95,6 +103,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#sendReceive',
     content: `You have to pay some fees in order to send payments. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     Icon: Switch
   },
   {
@@ -102,6 +111,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#acceptQuote',
     content: `You can review your payment details before sending the money. For now, let's continue the transaction.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: ThumbsUp
   },
@@ -110,6 +120,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#redirectButtonSuccess',
     content: `Congratulations, you have made your first Interledger transaction. Now let's explore your account some more.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: Pointer
   },
@@ -118,6 +129,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#request',
     content: `You can also request money by creating a payment url, and share it with someone. But for now let's see your previous transaction.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     Icon: MoneyCircle
   },
   {
@@ -125,6 +137,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#usdAccount',
     content: 'Go inside your USD account.',
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: Dollar
   },
@@ -133,6 +146,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#viewTransactions',
     content: 'You can view all your incoming and outgoing transactions.',
     disableOverlayClose: true,
+    disableBeacon: true,
     spotlightClicks: true,
     Icon: TransactionCircle
   },
@@ -141,6 +155,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#transactionsList',
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Testnet. Continue to play around.`,
     disableOverlayClose: true,
+    disableBeacon: true,
     Icon: HomeRooftop
   }
 ]

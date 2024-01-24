@@ -7,6 +7,8 @@ import { User, profileSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
+import { ChangePasswordForm } from './ChangePasswordForm'
+import { usePasswordContext } from '@/lib/context/password'
 
 type PersonalSettingsFormProps = {
   user: User
@@ -14,6 +16,7 @@ type PersonalSettingsFormProps = {
 
 export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
   const [isReadOnly, setIsReadOnly] = useState(true)
+  const { isChangePassword, setIsChangePassword } = usePasswordContext()
   const [openDialog, closeDialog] = useDialog()
   const profileForm = useZodForm({
     schema: profileSchema,
@@ -94,16 +97,38 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
         )}
       </Form>
       {isReadOnly && (
-        <div className="mt-4">
+        <div className="mt-4 flex justify-between">
           <Button
             intent="primary"
             aria-label="edit personal details"
-            onClick={() => setIsReadOnly(!isReadOnly)}
+            onClick={() => {
+              setIsReadOnly(!isReadOnly)
+              setIsChangePassword(false)
+            }}
           >
             Edit
           </Button>
+          {!isChangePassword && (
+            <Button
+              intent="primary"
+              aria-label="change password"
+              onClick={() => setIsChangePassword(!isChangePassword)}
+            >
+              Change Password
+            </Button>
+          )}
+          {isChangePassword && (
+            <Button
+              intent="outline"
+              aria-label="Cancel change password"
+              onClick={() => setIsChangePassword(!isChangePassword)}
+            >
+              Cancel Change Password
+            </Button>
+          )}
         </div>
       )}
+      {isChangePassword && <ChangePasswordForm />}
       <div className="mb-4 mt-6">
         <Input
           label="Address"

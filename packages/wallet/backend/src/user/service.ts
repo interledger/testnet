@@ -81,6 +81,29 @@ export class UserService implements IUserService {
     })
   }
 
+  public async changePassword(
+    oldPassword: string,
+    newPassword: string,
+    userId: string
+  ): Promise<void> {
+    const user = await this.getById(userId)
+
+    if (!user) {
+      throw new BadRequest('Invalid user')
+    }
+
+    const isValid = await user.verifyPassword(oldPassword)
+    if (!isValid) {
+      throw new BadRequest('Old password is incorrect')
+    }
+
+    await User.query().findById(user.id).patch({
+      newPassword: newPassword,
+      passwordResetExpiresAt: null,
+      passwordResetToken: null
+    })
+  }
+
   public async validateToken(token: string): Promise<boolean> {
     const user = await this.getUserByToken(token)
 

@@ -1,6 +1,7 @@
 import { bcrypt } from 'hash-wasm'
 import { ObjectWithAnyKeys } from '@/shared/types'
-import { randomBytes, createHash } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
+import NodeCache from 'node-cache'
 
 export const transformAmount = (
   amount: string | bigint,
@@ -79,7 +80,5 @@ export const prefixSomeObjectKeys = (
     }),
     {}
   )
-
-import NodeCache from 'node-cache'
 
 export const NodeCacheInstance = new NodeCache({ stdTTL: 60 * 60 })

@@ -38,8 +38,8 @@ export const OneClickSetupDialog = ({
     }
   })
 
-  if (data?.data.redirectUrl) {
-    window.location.href = data.data.redirectUrl
+  if (data?.result.redirectUrl) {
+    window.location.href = data.result.redirectUrl
   }
 
   return (

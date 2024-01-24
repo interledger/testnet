@@ -22,6 +22,7 @@ import { BaseError } from '@/errors/Base'
 import { truncateTables } from '@/tests/tables'
 import { createUser } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
+import { RapydAccountBalance } from '@/rapyd/schemas'
 
 describe('Asset Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -61,7 +62,7 @@ describe('Asset Controller', (): void => {
       assetId: mockedAsset.id
     }
     await accountController.createAccount(req, res, next)
-    createdAccount = res._getJSONData().data
+    createdAccount = res._getJSONData().result
   }
 
   beforeAll(async (): Promise<void> => {
@@ -154,7 +155,7 @@ describe('Asset Controller', (): void => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         message: 'SUCCESS',
-        data: {
+        result: {
           name: accountName
         }
       })
@@ -171,8 +172,8 @@ describe('Asset Controller', (): void => {
 
       const jsonData = res._getJSONData()
       expect(jsonData.message).toEqual('SUCCESS')
-      expect(jsonData.data.length).toEqual(1)
-      expect(jsonData.data[0]).toMatchObject({
+      expect(jsonData.result.length).toEqual(1)
+      expect(jsonData.result[0]).toMatchObject({
         name: accountName
       })
     })
@@ -192,7 +193,7 @@ describe('Asset Controller', (): void => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         message: 'SUCCESS',
-        data: {
+        result: {
           id: createdAccount.id,
           name: accountName
         }

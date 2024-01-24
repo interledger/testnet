@@ -1,11 +1,16 @@
+import { NextFunction, Request } from 'express'
 import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
-import { User } from '@/user/model'
 import { getRandomValues } from 'crypto'
-import { NextFunction, Request } from 'express'
 import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './validation'
+import { kycSchema, profileSchema, walletSchema } from './schemas'
+import { User } from '@/user/model'
+import {
+  RapydDocumentType,
+  RapydIdentityResponse,
+  RapydWallet
+} from './schemas'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -32,7 +37,7 @@ export class RapydController implements IRapydController {
 
       res
         .status(200)
-        .json({ success: true, message: 'SUCCESS', data: countryNamesResult })
+        .json({ success: true, message: 'SUCCESS', result: countryNamesResult })
     } catch (e) {
       next(e)
     }
@@ -47,9 +52,11 @@ export class RapydController implements IRapydController {
       const { id: userId } = req.session.user
       const documentTypesResult =
         await this.rapydService.getDocumentTypes(userId)
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', data: documentTypesResult })
+      res.status(200).json({
+        success: true,
+        message: 'SUCCESS',
+        result: documentTypesResult
+      })
     } catch (e) {
       next(e)
     }
@@ -100,7 +107,7 @@ export class RapydController implements IRapydController {
       res.status(200).json({
         success: true,
         message: 'Wallet created succesfully',
-        data: createWalletResponse
+        result: createWalletResponse
       })
     } catch (e) {
       next(e)
@@ -148,7 +155,7 @@ export class RapydController implements IRapydController {
       res.status(200).json({
         success: true,
         message: 'Wallet created succesfully',
-        data: verifyIdentityResponse
+        result: verifyIdentityResponse
       })
     } catch (e) {
       next(e)

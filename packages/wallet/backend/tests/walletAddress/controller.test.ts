@@ -151,8 +151,8 @@ describe('Wallet Address', () => {
         success: true,
         message: 'SUCCESS'
       })
-      expect(res._getJSONData()).toHaveProperty('data')
-      expect(res._getJSONData()['data']).toHaveProperty('publicName')
+      expect(res._getJSONData()).toHaveProperty('result')
+      expect(res._getJSONData()['result']).toHaveProperty('publicName')
     })
 
     it('should fail with status 500 on unexpected error', async () => {
@@ -191,8 +191,8 @@ describe('Wallet Address', () => {
         success: true,
         message: 'SUCCESS'
       })
-      expect(res._getJSONData()).toHaveProperty('data')
-      const data = res._getJSONData().data
+      expect(res._getJSONData()).toHaveProperty('result')
+      const data = res._getJSONData().result
       expect(data).toHaveLength(1)
       expect(data[0]).toHaveProperty('id')
       expect(data[0]).toHaveProperty('url')
@@ -212,8 +212,8 @@ describe('Wallet Address', () => {
         success: true,
         message: 'SUCCESS'
       })
-      expect(res._getJSONData()).toHaveProperty('data')
-      const data = res._getJSONData().data
+      expect(res._getJSONData()).toHaveProperty('result')
+      const data = res._getJSONData().result
       expect(data).toHaveLength(1)
       expect(data[0]).toHaveProperty('id')
       expect(data[0]).toHaveProperty('url')
@@ -232,8 +232,8 @@ describe('Wallet Address', () => {
         success: true,
         message: 'SUCCESS'
       })
-      expect(res._getJSONData()).toHaveProperty('data')
-      const data = res._getJSONData().data
+      expect(res._getJSONData()).toHaveProperty('result')
+      const data = res._getJSONData().result
       expect(data).toHaveProperty('id')
       expect(data).toHaveProperty('url')
       expect(data).toHaveProperty('publicName')
@@ -253,8 +253,8 @@ describe('Wallet Address', () => {
         success: true,
         message: 'SUCCESS'
       })
-      expect(res._getJSONData()).toHaveProperty('data')
-      const data = res._getJSONData().data
+      expect(res._getJSONData()).toHaveProperty('result')
+      const data = res._getJSONData().result
       expect(data).toHaveProperty('id')
       expect(data).toHaveProperty('url')
       expect(data).toHaveProperty('publicName')
@@ -288,10 +288,11 @@ describe('Wallet Address', () => {
         success: true,
         message: 'Public key is successfully registered'
       })
-      expect(res._getJSONData()).toHaveProperty('data')
-      expect(res._getJSONData()['data']).toHaveProperty('privateKey')
-      expect(res._getJSONData()['data']).toHaveProperty('publicKey')
-      expect(res._getJSONData()['data']).toHaveProperty('keyId')
+      expect(res._getJSONData()).toHaveProperty('result')
+      const data = res._getJSONData().result
+      expect(data).toHaveProperty('privateKey')
+      expect(data).toHaveProperty('publicKey')
+      expect(data).toHaveProperty('keyId')
     })
   })
 

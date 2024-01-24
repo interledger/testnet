@@ -105,10 +105,11 @@ describe('Grant Controller', () => {
     it('should return all grants', async () => {
       await grantController.list(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().data).toHaveLength(2)
-      expect(res._getJSONData().data[0]).toHaveProperty('id')
-      expect(res._getJSONData().data[0]).toHaveProperty('client')
-      expect(res._getJSONData().data[0]).toHaveProperty('state')
+      expect(res._getJSONData().result).toHaveLength(2)
+      const data = res._getJSONData().result[0]
+      expect(data).toHaveProperty('id')
+      expect(data).toHaveProperty('client')
+      expect(data).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Success'
@@ -154,7 +155,7 @@ describe('Grant Controller', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Success',
-        data: { id: 'grant' }
+        result: { id: 'grant' }
       })
     })
   })
@@ -167,9 +168,9 @@ describe('Grant Controller', () => {
       }
       await grantController.getByInteraction(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().data).toHaveProperty('id')
-      expect(res._getJSONData().data).toHaveProperty('client')
-      expect(res._getJSONData().data).toHaveProperty('state')
+      expect(res._getJSONData().result).toHaveProperty('id')
+      expect(res._getJSONData().result).toHaveProperty('client')
+      expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Success'
@@ -184,9 +185,9 @@ describe('Grant Controller', () => {
       }
       await grantController.setInteractionResponse(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().data).toHaveProperty('id')
-      expect(res._getJSONData().data).toHaveProperty('client')
-      expect(res._getJSONData().data).toHaveProperty('state')
+      expect(res._getJSONData().result).toHaveProperty('id')
+      expect(res._getJSONData().result).toHaveProperty('client')
+      expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Success'
@@ -201,13 +202,13 @@ describe('Grant Controller', () => {
 
       await grantController.setInteractionResponse(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().data).toHaveProperty('id')
-      expect(res._getJSONData().data).toHaveProperty('client')
-      expect(res._getJSONData().data).toHaveProperty('state')
+      expect(res._getJSONData().result).toHaveProperty('id')
+      expect(res._getJSONData().result).toHaveProperty('client')
+      expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Success',
-        data: {
+        result: {
           state: GrantState.Finalized,
           finalizationReason: GrantFinalization.Rejected
         }

@@ -1,6 +1,6 @@
 import type { FieldValues, FieldPath } from 'react-hook-form'
 import { API_BASE_URL } from './constants.ts'
-import { ErrorResponse, SuccessReponse } from './types.ts'
+import { ErrorResponse, SuccessResponse } from './types.ts'
 
 export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
@@ -22,7 +22,7 @@ export class APIError<T = undefined> extends Error {
 export async function fetcher<JSON = any>(
   input: string,
   options?: RequestInit
-): Promise<SuccessReponse<JSON>> {
+): Promise<SuccessResponse<JSON>> {
   const response = await fetch(API_BASE_URL + input, {
     credentials: 'include',
     headers: {

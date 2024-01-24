@@ -3,7 +3,11 @@ import type { NextFunction, Request } from 'express'
 import type { UserService } from './service'
 import type { User } from './model'
 import { validate } from '@/shared/validate'
-import { forgotPasswordSchema, resetPasswordSchema } from '@/user/validation'
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
+} from '@/user/validation'
 
 interface UserFlags {
   needsWallet: boolean
@@ -46,7 +50,7 @@ export class UserController implements IUserController {
       res.json({
         success: true,
         message: 'User retrieved successfully',
-        data: {
+        result: {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -103,6 +107,29 @@ export class UserController implements IUserController {
     }
   }
 
+  changePassword = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    const { id: userId } = req.session.user
+
+    try {
+      const {
+        body: { oldPassword, newPassword }
+      } = await validate(changePasswordSchema, req)
+
+      await this.userService.changePassword(oldPassword, newPassword, userId)
+
+      res.json({
+        success: true,
+        message: 'Password was changed successfully'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
   checkToken = async (
     req: Request,
     res: CustomResponse<TokenValidity>,
@@ -116,7 +143,7 @@ export class UserController implements IUserController {
       res.json({
         success: true,
         message: 'Token was checked',
-        data: { isValid }
+        result: { isValid }
       })
     } catch (e) {
       next(e)

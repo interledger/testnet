@@ -5,7 +5,12 @@ import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
-import { kycSchema, walletSchema } from '@/rapyd/validation'
+import {
+  kycSchema,
+  RapydAccountBalance,
+  RapydProfile,
+  walletSchema
+} from '@/rapyd/schemas'
 import { ratesSchema, webhookSchema } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
 import {
