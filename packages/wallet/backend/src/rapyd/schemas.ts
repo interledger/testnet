@@ -184,8 +184,8 @@ export const RapydAccountSchema = z.object({
   alias: z.string().optional(),
   balance: z.number().optional(),
   currency: z.string().optional(),
-  limit: z.number().optional(),
-  limits: z.number().optional(),
+  limit: z.number().optional().nullable(),
+  limits: z.number().optional().nullable(),
   on_hold_balance: z.number().optional(),
   received_balance: z.number().optional(),
   reserve_balance: z.number().optional()

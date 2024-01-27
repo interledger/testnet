@@ -11,6 +11,7 @@ import {
   RapydIdentityResponse,
   RapydWallet
 } from './schemas'
+import { Env } from '@/config/env'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -24,7 +25,8 @@ export class RapydController implements IRapydController {
   constructor(
     private accountService: AccountService,
     private walletAddressService: WalletAddressService,
-    private rapydService: RapydService
+    private rapydService: RapydService,
+    private env: Env
   ) {}
 
   public getCountryNames = async (
@@ -74,22 +76,29 @@ export class RapydController implements IRapydController {
         body: { firstName, lastName, address, city, country, zip, phone }
       } = await validate(walletSchema, req)
 
-      const createWalletResponse = await this.rapydService.createWallet({
-        firstName,
-        lastName,
-        address,
-        city,
-        country,
-        zip,
-        email,
-        id,
-        phone
-      })
+      const isDefault = email === this.env.DEFAULT_AUTH_USERNAME
+      const createWalletResponse = await this.rapydService.createWallet(
+        {
+          firstName,
+          lastName,
+          address,
+          city,
+          country,
+          zip,
+          email,
+          id,
+          phone
+        },
+        isDefault
+      )
 
       req.session.user.needsWallet = false
       await req.session.save()
 
-      const defaultAccount = await this.accountService.createDefaultAccount(id)
+      const defaultAccount = await this.accountService.createDefaultAccount(
+        id,
+        isDefault ? 'USD' : 'EUR'
+      )
       if (defaultAccount) {
         const typedArray = new Uint32Array(1)
         getRandomValues(typedArray)

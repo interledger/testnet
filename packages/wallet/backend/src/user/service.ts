@@ -3,6 +3,7 @@ import { User } from './model'
 import { EmailService } from '@/email/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
+import { Env } from '@/config/env'
 
 interface CreateUserArgs {
   email: string
@@ -22,7 +23,8 @@ interface IUserService {
 export class UserService implements IUserService {
   constructor(
     private emailService: EmailService,
-    private logger: Logger
+    private logger: Logger,
+    private env: Env
   ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
@@ -110,6 +112,19 @@ export class UserService implements IUserService {
     return !!user
   }
 
+  public async createDefaultAccount() {
+    const existingUser = await this.getByEmail(this.env.DEFAULT_AUTH_USERNAME)
+
+    if (existingUser) return
+
+    const args = {
+      email: this.env.DEFAULT_AUTH_USERNAME,
+      password: this.env.DEFAULT_AUTH_PASSWORD,
+      isEmailVerified: true
+    }
+
+    return User.query().insertAndFetch(args)
+  }
   public async verifyEmail(token: string): Promise<void> {
     const verifyEmailToken = hashToken(token)
 

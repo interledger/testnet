@@ -291,10 +291,11 @@ export class AccountService implements IAccountService {
   }
 
   public async createDefaultAccount(
-    userId: string
+    userId: string,
+    assetCode = 'EUR'
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
-      (asset) => asset.code === 'EUR' && asset.scale === 2
+      (asset) => asset.code === assetCode && asset.scale === 2
     )
     if (!asset) {
       return

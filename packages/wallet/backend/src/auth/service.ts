@@ -55,6 +55,9 @@ export class AuthService implements IAuthService {
   }
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
+    if (args.email === this.env.DEFAULT_AUTH_USERNAME)
+      await this.userService.createDefaultAccount()
+
     const user = await this.userService.getByEmail(args.email)
 
     // TODO: Prevent timing attacks
