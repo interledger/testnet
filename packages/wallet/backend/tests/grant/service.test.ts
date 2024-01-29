@@ -30,13 +30,15 @@ describe('Grant Service', () => {
     createMockGrantServiceDeps()
   })
 
+  const identifiers = ['test', 'wallet', 'new']
   const createMockGrantServiceDeps = (
     isFailure?: boolean,
     IsGrantInteractionRejected?: boolean
   ) => {
     const grantServiceDepsMocked = {
       walletAddressService: {
-        belongsToUser: () => !isFailure
+        belongsToUser: () => !isFailure,
+        listIdentifiersByUserId: () => identifiers
       },
       rafikiAuthService: {
         setInteractionResponse: jest
@@ -50,6 +52,16 @@ describe('Grant Service', () => {
         getGrantByInteraction: jest.fn().mockReturnValue({
           id: 'grant',
           access: [{ identifier: faker.internet.url() }]
+        }),
+        listGrants: jest.fn().mockReturnValue(mockedListGrant),
+        listGrantsWithPagination: jest.fn().mockReturnValue({
+          grants: {
+            edges: mockedListGrant.map((grant) => ({ node: grant })),
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false
+            }
+          }
         })
       }
     }
@@ -138,6 +150,49 @@ describe('Grant Service', () => {
         state: GrantState.Finalized,
         finalizationReason: GrantFinalization.Rejected
       })
+    })
+  })
+
+  describe('list', () => {
+    it('should return grants list', async () => {
+      const result = await grantService.list(userId)
+      expect(result.length).toBe(2)
+      expect(result[0]).toHaveProperty('id')
+      expect(result[0]).toHaveProperty('client')
+      expect(result[0]).toHaveProperty('state')
+      expect(result[0]).toMatchObject({
+        state: GrantState.Approved
+      })
+    })
+  })
+
+  describe('listWithPagination', () => {
+    it('should return grants list', async () => {
+      const result = await grantService.listWithPagination(userId, {})
+      expect(result.grants.edges.length).toBe(2)
+      expect(result.grants.pageInfo).toMatchObject({
+        hasNextPage: false,
+        hasPreviousPage: false
+      })
+    })
+
+    it('should accept identifier filter', async () => {
+      const result = await grantService.listWithPagination(userId, {
+        filter: { identifier: { in: [identifiers[0], identifiers[1]] } }
+      })
+      expect(result.grants.edges.length).toBe(2)
+      expect(result.grants.pageInfo).toMatchObject({
+        hasNextPage: false,
+        hasPreviousPage: false
+      })
+    })
+
+    it('should fail if identifier does not belong to user', async () => {
+      await expect(
+        grantService.listWithPagination(userId, {
+          filter: { identifier: { in: [identifiers[0], 'fakeid'] } }
+        })
+      ).rejects.toThrowError(/Invalid identifiers provided/)
     })
   })
 })
