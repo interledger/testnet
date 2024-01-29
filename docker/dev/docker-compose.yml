@@ -1,5 +1,11 @@
 version: '3.5'
 
+x-logging: &logging
+  logging:
+    driver: 'json-file'
+    options:
+      max-size: '100m'
+
 services:
   postgres:
     container_name: postgres
@@ -57,6 +63,7 @@ services:
     ports:
       - '3003:3003'
       - '9229:9229' # Map debugger port to local machine's port 9229
+    <<: *logging
 
   # Boutique
   boutique-backend:
@@ -78,6 +85,7 @@ services:
       - testnet
     ports:
       - '3004:3004'
+    <<: *logging
 
   # Rafiki
   rafiki-auth:
@@ -100,6 +108,7 @@ services:
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
     depends_on:
       - postgres
+    <<: *logging
 
   rafiki-backend:
     container_name: rafiki-backend
@@ -146,6 +155,7 @@ services:
     depends_on:
       - postgres
       - redis
+    <<: *logging
 
   rafiki-frontend:
     container_name: rafiki-frontend
@@ -162,6 +172,7 @@ services:
       PORT: 3012
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
       OPEN_PAYMENTS_URL: https://rafiki-backend/
+    <<: *logging
 
   tigerbeetle:
     image: ghcr.io/tigerbeetle/tigerbeetle:0.13.57
