@@ -99,7 +99,7 @@ export class RapydService implements IRapydService {
 
   public async createWallet(
     params: CreateWalletParams,
-    defaultWalletID: string | undefined
+    defaultWalletID: string | undefined = undefined
   ) {
     const randomIdentifier = crypto
       .randomBytes(8)
