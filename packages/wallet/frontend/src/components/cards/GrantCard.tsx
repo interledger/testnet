@@ -11,7 +11,7 @@ type GrantCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
 }
 
-const GrantCardButton = forwardRef<
+export const GrantCardButton = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   GrantCardButtonProps
 >(({ className, children, ...props }, ref) => {
@@ -20,7 +20,7 @@ const GrantCardButton = forwardRef<
       ref={ref}
       className={cx(
         className,
-        'inline-flex items-center justify-center rounded-md px-2 font-medium text-white hover:shadow-md'
+        'inline-flex items-center justify-center rounded-md bg-orange-1 px-2 font-medium text-white hover:bg-orange-2 hover:shadow-md '
       )}
       {...props}
     >
