@@ -37,11 +37,14 @@ const envSchema = z.object({
   WM_THRESHOLD: z.coerce.bigint().nonnegative().default(100_000_000n), // $0.1 in asset scale 9
   DEBT_THRESHOLD: z.coerce.number().multipleOf(0.01).nonnegative().default(5.0), // $5.00
   DEFAULT_AUTH_USERNAME: z.string().default('dev@email.com'),
+  DEFAULT_BOUTIQUE_AUTH_USERNAME: z.string().default('boutique@mail.com'),
   DEFAULT_AUTH_PASSWORD: z.string().default('123456'),
   DEFAULT_WALLET_ID: z
     .string()
     .default('ewallet_041c78fb4629be9cfc6387585cf768d5'),
-  DEFAULT_KYC_ID: z.string().default('kycid_f28831c9d3f573bd87daa773e9c1cc03')
+  DEFAULT_BOUTIQUE_WALLET_ID: z
+    .string()
+    .default('ewallet_91d58fd069725292f80dc21950767136')
 })
 
 export type Env = z.infer<typeof envSchema>

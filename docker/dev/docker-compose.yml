@@ -70,9 +70,9 @@ services:
       NODE_ENV: development
       PORT: 3004
       DATABASE_URL: postgres://boutique_backend:boutique_backend@postgres/boutique_backend
-      PRIVATE_KEY: ${PRIVATE_KEY}
-      KEY_ID: ${KEY_ID}
-      PAYMENT_POINTER: ${PAYMENT_POINTER}
+      PRIVATE_KEY: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSU9JMEtXWktpVE1uU2FnWDF5K1l1bW12dWY2S2d4QThPNm1JM2ZMRm9xVzcKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ==
+      KEY_ID: d0c7b0a0-bc95-4b96-907e-7a0e3c79d80e
+      PAYMENT_POINTER: $rafiki-backend/d839fdd7
     restart: always
     networks:
       - testnet

@@ -1,16 +1,18 @@
 import { NextFunction, Request } from 'express'
-import { AccountService } from '@/account/service'
+import { AccountService, DefaultAccountType } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
 import { getRandomValues } from 'crypto'
 import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './schemas'
-import { User } from '@/user/model'
 import {
+  kycSchema,
+  profileSchema,
   RapydDocumentType,
   RapydIdentityResponse,
-  RapydWallet
+  RapydWallet,
+  walletSchema
 } from './schemas'
+import { User } from '@/user/model'
 import { Env } from '@/config/env'
 
 interface IRapydController {
@@ -76,7 +78,15 @@ export class RapydController implements IRapydController {
         body: { firstName, lastName, address, city, country, zip, phone }
       } = await validate(walletSchema, req)
 
-      const isDefault = email === this.env.DEFAULT_AUTH_USERNAME
+      let defaultWalletID,
+        accountType = DefaultAccountType.EUR
+      if (email === this.env.DEFAULT_AUTH_USERNAME) {
+        defaultWalletID = this.env.DEFAULT_WALLET_ID
+        accountType = DefaultAccountType.USD
+      } else if (email === this.env.DEFAULT_BOUTIQUE_AUTH_USERNAME) {
+        defaultWalletID = this.env.DEFAULT_BOUTIQUE_WALLET_ID
+        accountType = DefaultAccountType.USD_BOUTIQUE
+      }
       const createWalletResponse = await this.rapydService.createWallet(
         {
           firstName,
@@ -89,7 +99,7 @@ export class RapydController implements IRapydController {
           id,
           phone
         },
-        isDefault
+        defaultWalletID
       )
 
       req.session.user.needsWallet = false
@@ -97,7 +107,7 @@ export class RapydController implements IRapydController {
 
       const defaultAccount = await this.accountService.createDefaultAccount(
         id,
-        isDefault ? 'USD' : 'EUR'
+        accountType
       )
       if (defaultAccount) {
         const typedArray = new Uint32Array(1)

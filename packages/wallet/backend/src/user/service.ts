@@ -112,13 +112,13 @@ export class UserService implements IUserService {
     return !!user
   }
 
-  public async createDefaultAccount() {
-    const existingUser = await this.getByEmail(this.env.DEFAULT_AUTH_USERNAME)
+  public async createDefaultAccount(email: string) {
+    const existingUser = await this.getByEmail(email)
 
     if (existingUser) return
 
     const args = {
-      email: this.env.DEFAULT_AUTH_USERNAME,
+      email: email,
       password: this.env.DEFAULT_AUTH_PASSWORD,
       isEmailVerified: true
     }

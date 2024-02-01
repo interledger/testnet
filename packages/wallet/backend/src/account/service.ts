@@ -31,6 +31,11 @@ interface IAccountService {
   withdrawFunds: (args: WithdrawFundsArgs) => Promise<void>
 }
 
+export enum DefaultAccountType {
+  EUR = 'eur',
+  USD = 'usd',
+  USD_BOUTIQUE = 'usd_boutique'
+}
 export class AccountService implements IAccountService {
   constructor(
     private rapydClient: RapydClient,
@@ -292,8 +297,14 @@ export class AccountService implements IAccountService {
 
   public async createDefaultAccount(
     userId: string,
-    assetCode = 'EUR'
+    type: DefaultAccountType = DefaultAccountType.EUR
   ): Promise<Account | undefined> {
+    let assetCode = 'EUR'
+    if (
+      type === DefaultAccountType.USD_BOUTIQUE ||
+      type === DefaultAccountType.USD
+    )
+      assetCode = 'USD'
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
       (asset) => asset.code === assetCode && asset.scale === 2
     )
@@ -301,7 +312,10 @@ export class AccountService implements IAccountService {
       return
     }
     const account = await this.createAccount({
-      name: 'EUR Account',
+      name:
+        type === DefaultAccountType.USD_BOUTIQUE
+          ? 'boutique'
+          : `${type} Account`,
       userId,
       assetId: asset.id
     })

@@ -8,7 +8,6 @@ import {
   RapydIdentityResponse,
   RapydWallet
 } from './schemas'
-import { Env } from '@/config/env'
 
 type VerifyIdentityParams = {
   userId: string
@@ -43,7 +42,10 @@ export interface IRapydService {
     userId: string
   ) => Promise<Pick<RapydDocumentType, 'is_back_required' | 'name' | 'type'>[]>
   getCountryNames: () => Promise<Options[]>
-  createWallet: (createWalletParams: CreateWalletParams) => Promise<RapydWallet>
+  createWallet: (
+    createWalletParams: CreateWalletParams,
+    defaultWalletID: string | undefined
+  ) => Promise<RapydWallet>
   verifyIdentity: (
     verifyIdentityParams: VerifyIdentityParams
   ) => Promise<RapydIdentityResponse>
@@ -55,10 +57,7 @@ export interface IRapydService {
 }
 
 export class RapydService implements IRapydService {
-  constructor(
-    private rapydClient: RapydClient,
-    private env: Env
-  ) {}
+  constructor(private rapydClient: RapydClient) {}
 
   public async getDocumentTypes(userId: string) {
     const user = await User.query().findById(userId)
@@ -98,7 +97,10 @@ export class RapydService implements IRapydService {
     }))
   }
 
-  public async createWallet(params: CreateWalletParams, isDefault = false) {
+  public async createWallet(
+    params: CreateWalletParams,
+    defaultWalletID: string | undefined
+  ) {
     const randomIdentifier = crypto
       .randomBytes(8)
       .toString('base64')
@@ -106,8 +108,8 @@ export class RapydService implements IRapydService {
     const rapydReferenceId = `${params.firstName}-${params.lastName}-${randomIdentifier}`
 
     let result
-    if (isDefault)
-      result = await this.rapydClient.getProfile(this.env.DEFAULT_WALLET_ID)
+    if (defaultWalletID)
+      result = await this.rapydClient.getProfile(defaultWalletID)
     else
       result = await this.rapydClient.createWallet({
         first_name: params.firstName,
