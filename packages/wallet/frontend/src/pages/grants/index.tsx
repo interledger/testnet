@@ -9,7 +9,7 @@ import { GrantListArgs } from '@/lib/api/grants'
 import { Table } from '@/ui/Table'
 import { formatDate } from '@/utils/helpers'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
-import { GrantCardButton } from '@/components/cards/GrantCard'
+import { ButtonOrLink } from '@/ui/ButtonOrLink'
 
 const GrantsPage: NextPageWithLayout = () => {
   const redirect = useRedirect<GrantListArgs>({
@@ -61,12 +61,12 @@ const GrantsPage: NextPageWithLayout = () => {
                       {formatDate(grant.node.createdAt)}
                     </Table.Cell>
                     <Table.Cell>
-                      <GrantCardButton
+                      <ButtonOrLink
                         href={`/grants/${grant.node.id}`}
-                        aria-label="view grant details"
+                        className="inline-flex items-center justify-center rounded-md bg-orange-1 px-2 font-medium text-white hover:bg-orange-2 hover:shadow-md"
                       >
                         View
-                      </GrantCardButton>
+                      </ButtonOrLink>
                     </Table.Cell>
                   </Table.Row>
                 ))
