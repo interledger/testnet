@@ -1,5 +1,5 @@
 import { NextFunction, Request } from 'express'
-import { AccountService, DefaultAccountType } from '@/account/service'
+import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
 import { getRandomValues } from 'crypto'
@@ -13,7 +13,6 @@ import {
   walletSchema
 } from './schemas'
 import { User } from '@/user/model'
-import { Env } from '@/config/env'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>
@@ -27,8 +26,7 @@ export class RapydController implements IRapydController {
   constructor(
     private accountService: AccountService,
     private walletAddressService: WalletAddressService,
-    private rapydService: RapydService,
-    private env: Env
+    private rapydService: RapydService
   ) {}
 
   public getCountryNames = async (
@@ -78,37 +76,22 @@ export class RapydController implements IRapydController {
         body: { firstName, lastName, address, city, country, zip, phone }
       } = await validate(walletSchema, req)
 
-      let defaultWalletID,
-        accountType = DefaultAccountType.EUR
-      if (email === this.env.DEFAULT_AUTH_USERNAME) {
-        defaultWalletID = this.env.DEFAULT_WALLET_ID
-        accountType = DefaultAccountType.USD
-      } else if (email === this.env.DEFAULT_BOUTIQUE_AUTH_USERNAME) {
-        defaultWalletID = this.env.DEFAULT_BOUTIQUE_WALLET_ID
-        accountType = DefaultAccountType.USD_BOUTIQUE
-      }
-      const createWalletResponse = await this.rapydService.createWallet(
-        {
-          firstName,
-          lastName,
-          address,
-          city,
-          country,
-          zip,
-          email,
-          id,
-          phone
-        },
-        defaultWalletID
-      )
+      const createWalletResponse = await this.rapydService.createWallet({
+        firstName,
+        lastName,
+        address,
+        city,
+        country,
+        zip,
+        email,
+        id,
+        phone
+      })
 
       req.session.user.needsWallet = false
       await req.session.save()
 
-      const defaultAccount = await this.accountService.createDefaultAccount(
-        id,
-        accountType
-      )
+      const defaultAccount = await this.accountService.createDefaultAccount(id)
       if (defaultAccount) {
         const typedArray = new Uint32Array(1)
         getRandomValues(typedArray)

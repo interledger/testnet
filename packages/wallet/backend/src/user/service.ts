@@ -4,6 +4,9 @@ import { EmailService } from '@/email/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
+import { AccountService } from '@/account/service'
+import { WalletAddressService } from '@/walletAddress/service'
+import { getRandomValues } from 'crypto'
 
 interface CreateUserArgs {
   email: string
@@ -23,6 +26,8 @@ interface IUserService {
 export class UserService implements IUserService {
   constructor(
     private emailService: EmailService,
+    private accountService: AccountService,
+    private walletAddressService: WalletAddressService,
     private logger: Logger,
     private env: Env
   ) {}
@@ -117,13 +122,47 @@ export class UserService implements IUserService {
 
     if (existingUser) return
 
+    let defaultUser = this.env.DEFAULT_WALLET_ACCOUNT
+    const isBoutique = email === this.env.DEFAULT_BOUTIQUE_ACCOUNT.email
+    if (isBoutique) defaultUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
+
     const args = {
-      email: email,
-      password: this.env.DEFAULT_AUTH_PASSWORD,
+      ...defaultUser,
       isEmailVerified: true
     }
 
-    return User.query().insertAndFetch(args)
+    const createdUser = await User.query().insertAndFetch(args)
+
+    const defaultAccount = await this.accountService.createDefaultAccount(
+      createdUser.id,
+      isBoutique
+    )
+    if (defaultAccount) {
+      const typedArray = new Uint32Array(1)
+      getRandomValues(typedArray)
+      let walletAddressName = typedArray[0].toString(16)
+      if (isBoutique) walletAddressName = 'boutique'
+
+      const wallet = await this.walletAddressService.create({
+        accountId: defaultAccount.id,
+        walletAddressName,
+        publicName: 'Default Payment Pointer',
+        userId: createdUser.id,
+        isWM: false
+      })
+      await this.walletAddressService.registerKey(
+        createdUser.id,
+        defaultAccount.id,
+        wallet.id,
+        {
+          publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
+          privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
+          keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
+        }
+      )
+    }
+
+    return createdUser
   }
   public async verifyEmail(token: string): Promise<void> {
     const verifyEmailToken = hashToken(token)

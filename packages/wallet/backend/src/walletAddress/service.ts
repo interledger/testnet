@@ -5,7 +5,12 @@ import { BadRequest, Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
-import { generateKeyPairSync, getRandomValues } from 'crypto'
+import {
+  generateKeyPairSync,
+  getRandomValues,
+  createPublicKey,
+  createPrivateKey
+} from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { Cache } from '@/cache/service'
 import { WalletAddress } from './model'
@@ -292,21 +297,38 @@ export class WalletAddressService implements IWalletAddressService {
   async registerKey(
     userId: string,
     accountId: string,
-    walletAddressId: string
+    walletAddressId: string,
+    defaultAccount:
+      | { publicKeyPEM: string; privateKeyPEM: string; keyId: string }
+      | undefined = undefined
   ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
     const walletAddress = await this.getById({
       userId,
       accountId,
       walletAddressId
     })
-    const { privateKey, publicKey } = generateKeyPairSync('ed25519')
+    let publicKey, privateKey, keyId
+    if (!defaultAccount) {
+      const generatedPairs = generateKeyPairSync('ed25519')
+      publicKey = generatedPairs.publicKey
+      privateKey = generatedPairs.privateKey
+      keyId = uuid()
+    } else {
+      publicKey = createPublicKey({
+        key: Buffer.from(defaultAccount.publicKeyPEM, 'base64')
+      })
+      privateKey = createPrivateKey({
+        key: Buffer.from(defaultAccount.privateKeyPEM, 'base64')
+      })
+      keyId = defaultAccount.keyId
+    }
+
     const publicKeyPEM = publicKey
       .export({ type: 'spki', format: 'pem' })
       .toString()
     const privateKeyPEM = privateKey
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
-    const keyId = uuid()
 
     const walletAddressKey =
       await this.rafikiClient.createRafikiWalletAddressKey(

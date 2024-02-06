@@ -42,10 +42,7 @@ export interface IRapydService {
     userId: string
   ) => Promise<Pick<RapydDocumentType, 'is_back_required' | 'name' | 'type'>[]>
   getCountryNames: () => Promise<Options[]>
-  createWallet: (
-    createWalletParams: CreateWalletParams,
-    defaultWalletID: string | undefined
-  ) => Promise<RapydWallet>
+  createWallet: (createWalletParams: CreateWalletParams) => Promise<RapydWallet>
   verifyIdentity: (
     verifyIdentityParams: VerifyIdentityParams
   ) => Promise<RapydIdentityResponse>
@@ -97,43 +94,36 @@ export class RapydService implements IRapydService {
     }))
   }
 
-  public async createWallet(
-    params: CreateWalletParams,
-    defaultWalletID: string | undefined = undefined
-  ) {
+  public async createWallet(params: CreateWalletParams) {
     const randomIdentifier = crypto
       .randomBytes(8)
       .toString('base64')
       .slice(0, 8)
     const rapydReferenceId = `${params.firstName}-${params.lastName}-${randomIdentifier}`
 
-    let result
-    if (defaultWalletID)
-      result = await this.rapydClient.getProfile(defaultWalletID)
-    else
-      result = await this.rapydClient.createWallet({
+    const result = await this.rapydClient.createWallet({
+      first_name: params.firstName,
+      last_name: params.lastName,
+      email: params.email,
+      ewallet_reference_id: rapydReferenceId,
+      phone_number: params.phone,
+      type: 'person',
+      contact: {
+        phone_number: params.phone,
+        email: params.email,
         first_name: params.firstName,
         last_name: params.lastName,
-        email: params.email,
-        ewallet_reference_id: rapydReferenceId,
-        phone_number: params.phone,
-        type: 'person',
-        contact: {
-          phone_number: params.phone,
-          email: params.email,
-          first_name: params.firstName,
-          last_name: params.lastName,
-          contact_type: 'personal',
-          address: {
-            name: `${params.firstName} ${params.lastName}`,
-            line_1: params.address,
-            city: params.city,
-            country: params.country,
-            zip: params.zip,
-            phone_number: params.phone
-          }
+        contact_type: 'personal',
+        address: {
+          name: `${params.firstName} ${params.lastName}`,
+          line_1: params.address,
+          city: params.city,
+          country: params.country,
+          zip: params.zip,
+          phone_number: params.phone
         }
-      })
+      }
+    })
 
     if (result.status.status !== 'SUCCESS') {
       throw new Error(`Unable to create wallet, ${result?.status?.message}`)

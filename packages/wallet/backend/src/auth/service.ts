@@ -56,8 +56,8 @@ export class AuthService implements IAuthService {
 
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
     if (
-      args.email === this.env.DEFAULT_AUTH_USERNAME ||
-      args.email === this.env.DEFAULT_BOUTIQUE_AUTH_USERNAME
+      args.email === this.env.DEFAULT_WALLET_ACCOUNT.email ||
+      args.email === this.env.DEFAULT_BOUTIQUE_ACCOUNT.email
     )
       await this.userService.createDefaultAccount(args.email)
 
