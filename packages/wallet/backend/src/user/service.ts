@@ -138,6 +138,17 @@ export class UserService implements IUserService {
       isBoutique
     )
     if (defaultAccount) {
+      const amountOfWithdraw = +(
+        Number(defaultAccount.balance) *
+        10 ** -defaultAccount.assetScale
+      ).toFixed(defaultAccount.assetScale)
+      if (amountOfWithdraw > 0)
+        await this.accountService.withdrawFunds({
+          userId: createdUser.id,
+          accountId: defaultAccount.id,
+          amount: amountOfWithdraw
+        })
+
       const typedArray = new Uint32Array(1)
       getRandomValues(typedArray)
       let walletAddressName = typedArray[0].toString(16)
