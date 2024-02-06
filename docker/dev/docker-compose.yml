@@ -72,7 +72,6 @@ services:
       DATABASE_URL: postgres://boutique_backend:boutique_backend@postgres/boutique_backend
       PRIVATE_KEY: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUI0YzgyOVlSMDZCTUhtQmpIVTNrOHZmMEZhVEFvOHNCTzIrRFZwY1lPSk0KLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ==
       KEY_ID: 32499ede-78d9-424d-a43e-3796ee07b60c
-      PAYMENT_POINTER: $rafiki-backend/boutique
     restart: always
     networks:
       - testnet

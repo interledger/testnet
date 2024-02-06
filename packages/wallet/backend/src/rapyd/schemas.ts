@@ -459,7 +459,7 @@ export type RapydReleaseResponse = RapydHoldResponse
 export const PayoutMethodResponseSchema = z.object({
   payout_method_type: z.string(),
   name: z.string(),
-  payout_currencies: z.string(),
+  payout_currencies: z.string().array(),
   beneficiary_country: z.string(),
   sender_entity_types: z.string().array(),
   beneficiary_entity_types: z.string().array(),

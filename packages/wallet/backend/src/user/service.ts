@@ -150,16 +150,18 @@ export class UserService implements IUserService {
         userId: createdUser.id,
         isWM: false
       })
-      await this.walletAddressService.registerKey(
-        createdUser.id,
-        defaultAccount.id,
-        wallet.id,
-        {
-          publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
-          privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
-          keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
-        }
-      )
+
+      if (isBoutique)
+        await this.walletAddressService.registerKey(
+          createdUser.id,
+          defaultAccount.id,
+          wallet.id,
+          {
+            publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
+            privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
+            keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
+          }
+        )
     }
 
     return createdUser
