@@ -6,10 +6,10 @@ const badgeStyles = cva(
     variants: {
       intent: {
         primary: ['bg-gradient-to-r from-green-5 to-green-6 text-white'],
-        green: ['bg-green-5 text-green-3'],
+        green: ['bg-green-4 text-green-3'],
         orange: ['bg-orange-1 text-orange-2'],
-        pink: ['bg-pink-1 text-pink'],
-        violet: ['bg-violet-1 text-violet']
+        pink: ['bg-pink-1 text-pink-2'],
+        violet: ['bg-violet-1 text-violet-2']
       },
       size: {
         fixed: ['w-10'],
