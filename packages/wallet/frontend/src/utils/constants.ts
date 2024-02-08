@@ -15,3 +15,6 @@ export const PAYMENT_RECEIVE = 'receive'
 
 // Default ILC Wallet Address for onboarding
 export const INTERLEDGER_WALLET_ADDRESS = '$ilp.rafiki.money/interledger'
+
+// Default number of grants to be shown on page
+export const GRANTS_DISPLAY_NR = 10
