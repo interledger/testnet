@@ -37,7 +37,7 @@ const THead = ({
         {columns.map((col) => (
           <th
             key={col}
-            className="border-b border-green-7 p-4 text-left font-light md:px-3 [&:first-child]:border-none"
+            className="border-b border-green-7 p-4 text-left font-light md:px-3"
             {...thProps}
           >
             {col}
