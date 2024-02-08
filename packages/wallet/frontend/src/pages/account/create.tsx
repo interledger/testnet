@@ -27,7 +27,7 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const defaultValue = {
-    asset: assets.find((asset) => asset.label === 'USD')
+    asset: assets.find((asset) => asset.label === 'EUR')
   }
 
   const createAccountForm = useZodForm({
