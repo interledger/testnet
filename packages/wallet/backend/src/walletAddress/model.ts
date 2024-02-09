@@ -3,13 +3,6 @@ import { BaseModel } from '@/shared/model'
 import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
 
-interface WalletAddressKey {
-  id: string
-  rafikiId: string
-  publicKey: string
-  createdOn: Date
-}
-
 export class WalletAddress extends BaseModel {
   static tableName = 'walletAddresses'
 
@@ -25,7 +18,6 @@ export class WalletAddress extends BaseModel {
   active!: boolean
   account!: Account
   transactions!: Array<Transaction>
-  keyIds!: WalletAddressKey | null
 
   static relationMappings = () => ({
     account: {

@@ -129,6 +129,9 @@ export class App {
     const walletAddressController = await this.container.resolve(
       'walletAddressController'
     )
+    const walletAddressKeyController = await this.container.resolve(
+      'walletAddressKeyController'
+    )
     const transactionController = await this.container.resolve(
       'transactionController'
     )
@@ -221,12 +224,30 @@ export class App {
     router.post(
       '/accounts/:accountId/wallet-addresses/:walletAddressId/register-key',
       isAuth,
-      walletAddressController.registerKey
+      walletAddressKeyController.registerKey
     )
     router.patch(
       '/accounts/:accountId/wallet-addresses/:walletAddressId/revoke-key',
       isAuth,
-      walletAddressController.revokeKey
+      walletAddressKeyController.revokeKey
+    )
+
+    router.post(
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/upload-key',
+      isAuth,
+      walletAddressKeyController.uploadKey
+    )
+
+    router.patch(
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/keys/:keyId',
+      isAuth,
+      walletAddressKeyController.patchKey
+    )
+
+    router.get(
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/keys',
+      isAuth,
+      walletAddressKeyController.list
     )
 
     // incoming payment routes
