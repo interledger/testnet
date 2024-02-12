@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const generateWalletAddressKey = z.object({
   body: z.object({
-    name: z.optional(
+    nickname: z.optional(
       z
         .string()
         .trim()
@@ -12,7 +12,7 @@ export const generateWalletAddressKey = z.object({
 })
 export const patchWalletAddressKey = z.object({
   body: z.object({
-    name: z
+    nickname: z
       .string()
       .trim()
       .min(3, { message: 'Name must be at least 3 characters long' })
@@ -21,7 +21,7 @@ export const patchWalletAddressKey = z.object({
 
 export const uploadWalletAddressKey = z.object({
   body: z.object({
-    name: z.optional(
+    nickname: z.optional(
       z
         .string()
         .trim()

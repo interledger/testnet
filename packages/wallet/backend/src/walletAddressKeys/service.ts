@@ -11,7 +11,7 @@ export type KeyResponse = {
   privateKey: string
   publicKey: string
   keyId: string
-  name?: string
+  nickname?: string
 }
 
 interface WalletAddressKeyArgs {
@@ -21,7 +21,7 @@ interface WalletAddressKeyArgs {
 }
 
 interface RegisterKeyArgs extends WalletAddressKeyArgs {
-  name?: string
+  nickname?: string
 }
 
 interface UploadKeyArgs extends RegisterKeyArgs {
@@ -34,7 +34,7 @@ interface RevokeKeyArgs extends WalletAddressKeyArgs {
 
 interface PatchKeyArgs extends WalletAddressKeyArgs {
   keyId: string
-  name: string
+  nickname: string
 }
 
 interface IWalletAddressKeyService {
@@ -56,7 +56,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     accountId,
     walletAddressId,
     base64Key,
-    name
+    nickname
   }: UploadKeyArgs): Promise<void> {
     const walletAddress = await this.walletAddressService.getById({
       userId,
@@ -80,7 +80,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
 
     const key = {
       id: jwk.kid,
-      name,
+      nickname,
       rafikiId: walletAddressKey.id,
       publicKey: publicKeyPEM,
       walletAddressId
@@ -93,7 +93,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     userId,
     accountId,
     walletAddressId,
-    name
+    nickname
   }: RegisterKeyArgs): Promise<KeyResponse> {
     const walletAddress = await this.walletAddressService.getById({
       userId,
@@ -117,7 +117,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
 
     const key = {
       id: keyId,
-      name,
+      nickname,
       rafikiId: walletAddressKey.id,
       publicKey: publicKeyPEM,
       walletAddressId
@@ -129,7 +129,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       privateKey: privateKeyPEM,
       publicKey: publicKeyPEM,
       keyId: key.id,
-      name
+      nickname
     }
   }
 
@@ -165,7 +165,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     accountId,
     walletAddressId,
     keyId,
-    name
+    nickname
   }: PatchKeyArgs): Promise<void> {
     await this.walletAddressService.getById({
       userId,
@@ -175,7 +175,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
 
     const walletAddressKey = await this.getById(walletAddressId, keyId)
 
-    await walletAddressKey.$query().patch({ name })
+    await walletAddressKey.$query().patch({ nickname })
   }
 
   async lisByWalletId({

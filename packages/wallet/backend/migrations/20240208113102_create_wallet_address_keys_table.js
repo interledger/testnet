@@ -7,7 +7,7 @@ exports.up = async function (knex) {
     table.string('id').primary()
     table.string('rafikiId').notNullable()
     table.string('publicKey').notNullable()
-    table.string('name')
+    table.string('nickname')
 
     table.uuid('walletAddressId').notNullable()
     table

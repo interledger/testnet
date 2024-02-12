@@ -5,7 +5,7 @@ import { WalletAddress } from '@/walletAddress/model'
 export class WalletAddressKeys extends BaseModel {
   static tableName = 'walletAddressKeys'
 
-  name?: string
+  nickname?: string
   readonly walletAddressId!: string
   readonly rafikiId!: string
   readonly publicKey!: string

@@ -55,19 +55,19 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
       const userId = req.session.user.id
       const { accountId, walletAddressId, keyId } = req.params
       const {
-        body: { name }
+        body: { nickname }
       } = await validate(patchWalletAddressKey, req)
       await this.walletAddressKeyService.patch({
         userId,
         accountId,
         walletAddressId,
         keyId,
-        name
+        nickname
       })
 
       res.status(200).json({
         success: true,
-        message: 'Key name updated'
+        message: 'Public key nickname updated.'
       })
     } catch (e) {
       next(e)
@@ -83,19 +83,19 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
       const userId = req.session.user.id
       const { accountId, walletAddressId } = req.params
       const {
-        body: { name }
+        body: { nickname }
       } = await validate(generateWalletAddressKey, req)
 
       const keyResponse = await this.walletAddressKeyService.registerKey({
         userId,
         accountId,
         walletAddressId,
-        name
+        nickname
       })
 
       res.status(200).json({
         success: true,
-        message: 'Public key is successfully registered',
+        message: 'Public key is successfully registered.',
         result: keyResponse
       })
     } catch (e) {
@@ -112,7 +112,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
       const userId = req.session.user.id
       const { accountId, walletAddressId } = req.params
       const {
-        body: { name, base64Key }
+        body: { nickname, base64Key }
       } = await validate(uploadWalletAddressKey, req)
 
       await this.walletAddressKeyService.uploadKey({
@@ -120,12 +120,12 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         accountId,
         walletAddressId,
         base64Key,
-        name
+        nickname
       })
 
       res.status(200).json({
         success: true,
-        message: 'Public key is successfully uploaded'
+        message: 'Public key is successfully uploaded.'
       })
     } catch (e) {
       next(e)
@@ -145,7 +145,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
 
       res.status(200).json({
         success: true,
-        message: 'Key was successfully revoked.'
+        message: 'Public key was successfully revoked.'
       })
     } catch (e) {
       next(e)
