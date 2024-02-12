@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   ErrorResponse,
   SuccessResponse,
@@ -40,7 +41,18 @@ export type TransactionsPage = {
   total: number
 }
 
-type ListTranscationArgs = {
+export const transactionListQuerySchema = z.object({
+  accountId: z.string().uuid().optional(),
+  walletAddressId: z.string().uuid().optional(),
+  assetCode: z.string().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  page: z.coerce.number().int().nonnegative().default(0).optional(),
+  pageSize: z.coerce.number().int().positive().default(10).optional(),
+  orderByDate: z.enum(['ASC', 'DESC']).default('DESC').optional()
+})
+
+type ListTransactionArgs = {
   filters?: Record<string, string>
   pagination?: Record<string, string>
 }
@@ -48,7 +60,7 @@ type ListTransactionsResult = SuccessResponse<TransactionsPage>
 type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
 
 interface TransactionService {
-  list(args?: ListTranscationArgs): Promise<ListTransactionsResponse>
+  list(args?: ListTransactionArgs): Promise<ListTransactionsResponse>
 }
 
 export const createTransactionService = (): TransactionService => {

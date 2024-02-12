@@ -1,3 +1,4 @@
+import { Chevron, Direction } from '@/components/icons/Chevron'
 import { cx } from 'class-variance-authority'
 import { ComponentProps, ReactNode } from 'react'
 
@@ -18,16 +19,23 @@ export const Table = ({ children, className, ...props }: TableProps) => {
   )
 }
 
+type SortHeader = {
+  header: string
+  sortFn: () => void
+  getDirection: () => Direction
+}
 type THeadProps = ComponentProps<'thead'> & {
   columns: string[]
   thProps?: ComponentProps<'th'>
   trProps?: ComponentProps<'tr'>
+  sort: SortHeader[]
 }
 
 const THead = ({
   columns,
   thProps,
   trProps,
+  sort,
   className,
   ...props
 }: THeadProps) => {
@@ -37,10 +45,29 @@ const THead = ({
         {columns.map((col) => (
           <th
             key={col}
-            className="border-b border-green-7 p-4 text-left font-light md:px-3"
+            className={cx(
+              'border-b border-green-7 p-4 text-left font-light md:px-3',
+              sort.find((item) => item.header === col) !== undefined &&
+                'cursor-pointer'
+            )}
             {...thProps}
+            onClick={
+              sort.find((item) => item.header === col) !== undefined
+                ? sort.find((item) => item.header === col)?.sortFn
+                : undefined
+            }
           >
-            {col}
+            <div className="flex flex-row">
+              {col}
+              {sort.find((item) => item.header === col) !== undefined ? (
+                <Chevron
+                  className="ml-1 mt-1 h-4 w-4 text-green-7 transition-transform duration-300"
+                  direction={sort
+                    .find((item) => item.header === col)
+                    ?.getDirection()}
+                />
+              ) : null}
+            </div>
           </th>
         ))}
       </tr>

@@ -1,10 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useHttpRequest } from './useHttp'
-import { TransactionsPage, transactionService } from '../api/transaction'
-import { useRouter } from 'next/router'
+import {
+  TransactionsPage,
+  transactionListQuerySchema,
+  transactionService
+} from '../api/transaction'
 import { SelectOption } from '@/ui/forms/Select'
+import { useTypedRouter } from './useTypedRouter'
 
 type TransactionsQueryParams = Record<keyof TransactionsFilters, string>
+const ORDER_DIRECTION = {
+  ASC: 'ASC',
+  DESC: 'DESC'
+}
+export type OrderByDirection = keyof typeof ORDER_DIRECTION
 
 export type TransactionsFilters = {
   page: string
@@ -12,6 +21,7 @@ export type TransactionsFilters = {
   walletAddressId: SelectOption
   type: SelectOption
   status: SelectOption
+  orderByDate: OrderByDirection
 }
 
 const defaultState = {
@@ -20,8 +30,8 @@ const defaultState = {
 }
 
 export const useTransactions = () => {
-  const router = useRouter()
-  const { accountId, walletAddressId, type, status, page } =
+  const router = useTypedRouter(transactionListQuerySchema)
+  const { accountId, walletAddressId, type, status, page, orderByDate } =
     router.query as TransactionsQueryParams
   const [request, loading, error] = useHttpRequest()
   const [transactions, setTransactions] =
@@ -51,14 +61,14 @@ export const useTransactions = () => {
         type,
         status
       },
-      { page: page ?? 0 }
+      { page: page ?? 0, orderByDate: orderByDate ?? 'DESC' }
     )
-  }, [fetch, accountId, walletAddressId, type, status, page])
+  }, [fetch, accountId, walletAddressId, type, status, page, orderByDate])
 
   return [
     transactions,
     { accountId, walletAddressId, type, status },
-    { page: page ?? 0 },
+    { page: page ?? 0, orderByDate: orderByDate ?? 'DESC' },
     fetch,
     loading,
     error

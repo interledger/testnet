@@ -103,88 +103,107 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <PageHeader title="Transactions" />
-      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12">
-        <div className="md:col-span-3">
-          <Select
-            options={accounts}
-            label="Account"
-            placeholder="Select account..."
-            value={currentAccount}
-            onChange={(option) => {
-              if (option) {
-                if (
-                  option.value &&
-                  option.value !== currentWalletAddress.value
-                ) {
-                  redirect({
-                    accountId: option.value,
-                    walletAddressId: '',
-                    page: '0'
-                  })
-                } else {
-                  redirect({ accountId: option.value, page: '0' })
+      <div className="w-full">
+        <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12">
+          <div className="md:col-span-3">
+            <Select
+              options={accounts}
+              label="Account"
+              placeholder="Select account..."
+              value={currentAccount}
+              onChange={(option) => {
+                if (option) {
+                  if (
+                    option.value &&
+                    option.value !== currentWalletAddress.value
+                  ) {
+                    redirect({
+                      accountId: option.value,
+                      walletAddressId: '',
+                      page: '0'
+                    })
+                  } else {
+                    redirect({ accountId: option.value, page: '0' })
+                  }
                 }
+              }}
+            />
+          </div>
+          <div className="md:col-span-3">
+            <Select
+              options={
+                currentAccount.value === ''
+                  ? walletAddresses
+                  : walletAddresses.filter(
+                      (pp) => pp.accountId === currentAccount.value
+                    )
               }
-            }}
-          />
-        </div>
-        <div className="md:col-span-3">
-          <Select
-            options={
-              currentAccount.value === ''
-                ? walletAddresses
-                : walletAddresses.filter(
-                    (pp) => pp.accountId === currentAccount.value
-                  )
-            }
-            label="Payment Pointer"
-            placeholder="Select payment pointer..."
-            value={
-              currentWalletAddress.accountId !== currentAccount.value &&
-              currentAccount.value !== ''
-                ? { ...defaultOption, accountId: '' }
-                : currentWalletAddress
-            }
-            onChange={(option) => {
-              if (option) {
-                if (
-                  currentAccount.value &&
-                  option.accountId !== currentAccount.value
-                ) {
-                  redirect({ walletAddressId: '' })
-                } else {
-                  redirect({ walletAddressId: option.value })
+              label="Payment Pointer"
+              placeholder="Select payment pointer..."
+              value={
+                currentWalletAddress.accountId !== currentAccount.value &&
+                currentAccount.value !== ''
+                  ? { ...defaultOption, accountId: '' }
+                  : currentWalletAddress
+              }
+              onChange={(option) => {
+                if (option) {
+                  if (
+                    currentAccount.value &&
+                    option.accountId !== currentAccount.value
+                  ) {
+                    redirect({ walletAddressId: '' })
+                  } else {
+                    redirect({ walletAddressId: option.value })
+                  }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </div>
+          <div className="md:col-span-3 lg:col-span-2">
+            <Select
+              options={types}
+              label="Type"
+              placeholder="Select type..."
+              value={currentType}
+              onChange={(option) => {
+                if (option) {
+                  redirect({ type: option.value, page: '0' })
+                }
+              }}
+            />
+          </div>
+          <div className="md:col-span-3 lg:col-span-2">
+            <Select
+              options={statuses}
+              label="Status"
+              placeholder="Select status..."
+              value={currentStatus}
+              onChange={(option) => {
+                if (option) {
+                  redirect({ status: option.value, page: '0' })
+                }
+              }}
+            />
+          </div>
         </div>
-        <div className="md:col-span-3 lg:col-span-2">
-          <Select
-            options={types}
-            label="Type"
-            placeholder="Select type..."
-            value={currentType}
-            onChange={(option) => {
-              if (option) {
-                redirect({ type: option.value, page: '0' })
-              }
-            }}
-          />
-        </div>
-        <div className="md:col-span-3 lg:col-span-2">
-          <Select
-            options={statuses}
-            label="Status"
-            placeholder="Select status..."
-            value={currentStatus}
-            onChange={(option) => {
-              if (option) {
-                redirect({ status: option.value, page: '0' })
-              }
-            }}
-          />
-        </div>
+        <Button
+          aria-label="clear filters"
+          intent="outline"
+          onClick={() =>
+            redirect({
+              accountId: '',
+              walletAddressId: '',
+              type: '',
+              status: '',
+              page: pagination.page,
+              orderByDate: pagination.orderByDate
+            })
+          }
+          className="mt-2"
+        >
+          Clear filters
+        </Button>
       </div>
 
       {error ? (
@@ -211,6 +230,19 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 'Amount',
                 'Status',
                 'Date'
+              ]}
+              sort={[
+                {
+                  header: 'Date',
+                  sortFn: () => {
+                    pagination.orderByDate === 'DESC'
+                      ? redirect({ orderByDate: 'ASC' })
+                      : redirect({ orderByDate: 'DESC' })
+                  },
+                  getDirection: () => {
+                    return pagination.orderByDate === 'DESC' ? 'down' : 'up'
+                  }
+                }
               ]}
             />
             <Table.Body>
