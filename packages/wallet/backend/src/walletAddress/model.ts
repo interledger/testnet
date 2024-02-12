@@ -2,6 +2,7 @@ import { Model } from 'objection'
 import { BaseModel } from '@/shared/model'
 import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
+import { WalletAddressKeys } from '@/walletAddressKeys/model'
 
 export class WalletAddress extends BaseModel {
   static tableName = 'walletAddresses'
@@ -35,6 +36,15 @@ export class WalletAddress extends BaseModel {
       join: {
         from: 'walletAddresses.id',
         to: 'transactions.walletAddressId'
+      }
+    },
+
+    keys: {
+      relation: Model.HasManyRelation,
+      modelClass: WalletAddressKeys,
+      join: {
+        from: 'walletAddresses.id',
+        to: 'walletAddressKeys.walletAddressId'
       }
     }
   })

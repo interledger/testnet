@@ -42,7 +42,7 @@ interface IWalletAddressKeyService {
   revokeKey: (params: RevokeKeyArgs) => Promise<void>
   uploadKey: (params: UploadKeyArgs) => Promise<void>
   patch: (params: PatchKeyArgs) => Promise<void>
-  lisByWalletId: (params: WalletAddressKeyArgs) => Promise<WalletAddressKeys[]>
+  listByWalletId: (params: WalletAddressKeyArgs) => Promise<WalletAddressKeys[]>
 }
 
 export class WalletAddressKeyService implements IWalletAddressKeyService {
@@ -178,7 +178,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     await walletAddressKey.$query().patch({ nickname })
   }
 
-  async lisByWalletId({
+  async listByWalletId({
     userId,
     accountId,
     walletAddressId

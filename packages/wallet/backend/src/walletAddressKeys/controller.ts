@@ -11,6 +11,9 @@ import { WalletAddressKeys } from '@/walletAddressKeys/model'
 interface IWalletAddressKeyController {
   registerKey: ControllerFunction<KeyResponse>
   revokeKey: ControllerFunction
+  uploadKey: ControllerFunction
+  patchKey: ControllerFunction
+  list: ControllerFunction<WalletAddressKeys[]>
 }
 
 interface KeyPair {
@@ -30,7 +33,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
     try {
       const userId = req.session.user.id
       const { accountId, walletAddressId } = req.params
-      const keys = await this.walletAddressKeyService.lisByWalletId({
+      const keys = await this.walletAddressKeyService.listByWalletId({
         userId,
         accountId,
         walletAddressId
@@ -46,11 +49,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
     }
   }
 
-  patchKey = async (
-    req: Request,
-    res: CustomResponse<KeyPair>,
-    next: NextFunction
-  ) => {
+  patchKey = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
       const userId = req.session.user.id
       const { accountId, walletAddressId, keyId } = req.params
@@ -103,11 +102,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
     }
   }
 
-  uploadKey = async (
-    req: Request,
-    res: CustomResponse<KeyPair>,
-    next: NextFunction
-  ) => {
+  uploadKey = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
       const userId = req.session.user.id
       const { accountId, walletAddressId } = req.params

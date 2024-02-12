@@ -48,12 +48,21 @@ export class AccountController implements IAccountController {
     next: NextFunction
   ) => {
     const userId = req.session.user.id
-    const hasWalletAddress = req.query['include'] == 'walletAddresses'
+
+    let includeWalletAddress, includeWalletKeys
+    if (Array.isArray(req.query['include'])) {
+      const includesParams: string[] = req.query['include'] as string[]
+      includeWalletAddress = includesParams.includes('walletAddresses')
+      includeWalletKeys = includesParams.includes('walletAddressKeys')
+    } else {
+      includeWalletAddress = req.query['include'] == 'walletAddresses'
+    }
 
     try {
       const accounts = await this.accountService.getAccounts(
         userId,
-        hasWalletAddress
+        includeWalletAddress,
+        includeWalletKeys
       )
 
       res
