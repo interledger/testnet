@@ -12,11 +12,11 @@ import {
   useTransactions
 } from '@/lib/hooks/useTransactions'
 import { Table } from '@/ui/Table'
-import { Arrow } from '@/components/icons/Arrow'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { formatAmount, formatDate } from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
+import { cx } from 'class-variance-authority'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -55,7 +55,10 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
-  const redirect = useRedirect<TransactionsFilters>()
+  const redirect = useRedirect<TransactionsFilters>({
+    path: '/transactions',
+    persistQuery: true
+  })
   const [transactions, filters, pagination, fetch, loading, error] =
     useTransactions()
 
@@ -202,7 +205,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           <Table>
             <Table.Head
               columns={[
-                '',
                 'Account',
                 'Payment pointer',
                 'Description',
@@ -215,11 +217,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               {transactions.results.length ? (
                 transactions.results.map((trx) => (
                   <Table.Row key={trx.id}>
-                    <Table.Cell className="w-10">
-                      <Arrow
-                        direction={trx.type === 'INCOMING' ? 'down' : 'up'}
-                      />
-                    </Table.Cell>
                     <Table.Cell>{trx.accountName}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
                       {trx.walletAddressPublicName ??
@@ -233,7 +230,13 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                         <p className="text-sm font-thin">No description</p>
                       )}
                     </Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell
+                      className={cx(
+                        trx.type === 'INCOMING' && 'text-green-3',
+                        trx.type === 'OUTGOING' && 'text-pink-2'
+                      )}
+                    >
+                      {trx.type === 'INCOMING' ? '+' : '-'}
                       {
                         formatAmount({
                           value: trx.value ?? 0,

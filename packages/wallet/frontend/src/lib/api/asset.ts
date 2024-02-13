@@ -64,7 +64,7 @@ const createAssetService = (): AssetService => ({
       return {
         success: true,
         message: 'SUCCESS',
-        data: rates
+        result: rates
       }
     } catch (error) {
       return getError(error, 'Unable to get exchange rates.')
