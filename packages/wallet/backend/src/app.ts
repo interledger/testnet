@@ -227,7 +227,7 @@ export class App {
       walletAddressKeyController.registerKey
     )
     router.patch(
-      '/accounts/:accountId/wallet-addresses/:walletAddressId/revoke-key',
+      '/accounts/:accountId/wallet-addresses/:walletAddressId/:keyId/revoke-key',
       isAuth,
       walletAddressKeyController.revokeKey
     )
