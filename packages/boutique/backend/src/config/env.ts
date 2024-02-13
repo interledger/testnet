@@ -7,7 +7,7 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .default('postgres://postgres:password@localhost:5433/boutique_backend'),
-  PAYMENT_POINTER: z.string().default('$rafiki-backend/boutique'),
+  PAYMENT_POINTER: z.string().default('https://rafiki-backend/boutique'),
   KEY_ID: z.string().default('replace-me'),
   PRIVATE_KEY: z.string().default('replace-me')
 })
