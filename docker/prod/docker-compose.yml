@@ -1,6 +1,12 @@
 version: '3.8'
 name: 'testnet'
 
+x-logging: &logging
+  logging:
+    driver: 'json-file'
+    options:
+      max-size: '100m'
+
 services:
   postgres:
     image: 'postgres:15'
@@ -31,6 +37,7 @@ services:
     ports:
       - '${WALLET_FRONTEND_PORT}:${WALLET_FRONTEND_PORT}'
     restart: always
+    <<: *logging
 
   wallet-backend:
     build:
@@ -70,6 +77,7 @@ services:
     ports:
       - '${WALLET_BACKEND_PORT}:${WALLET_BACKEND_PORT}'
     restart: always
+    <<: *logging
 
   boutique-frontend:
     container_name: boutique-frontend
@@ -88,6 +96,7 @@ services:
       - testnet
     ports:
       - '${BOUTIQUE_FRONTEND_PORT}:${BOUTIQUE_FRONTEND_PORT}'
+    <<: *logging
 
   boutique-backend:
     container_name: boutique-backend
@@ -109,6 +118,7 @@ services:
       - testnet
     ports:
       - '3004:3004'
+    <<: *logging
 
   rafiki-auth:
     image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.5
@@ -131,6 +141,7 @@ services:
       - '${RAFIKI_AUTH_PORT}:${RAFIKI_AUTH_PORT}'
       - '${RAFIKI_AUTH_ADMIN_PORT}:${RAFIKI_AUTH_ADMIN_PORT}'
     restart: always
+    <<: *logging
 
   rafiki-backend:
     image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.5
@@ -178,6 +189,7 @@ services:
     restart: always
     volumes:
       - ../temp/:/workspace/temp/
+    <<: *logging
 
   rafiki-frontend:
     image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.5
@@ -194,6 +206,7 @@ services:
     privileged: true
     ports:
       - '${RAFIKI_FRONTEND_PORT}:${RAFIKI_FRONTEND_PORT}'
+    <<: *logging
 
   tigerbeetle:
     image: ghcr.io/tigerbeetle/tigerbeetle:0.13.57

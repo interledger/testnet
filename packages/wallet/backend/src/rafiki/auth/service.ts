@@ -41,6 +41,15 @@ export class RafikiAuthService implements IRafikiAuthService {
     return response.grants.edges.map((el: { node: Grant }) => el.node)
   }
 
+  async listGrantsWithPagination(args: GetGrantsQueryVariables) {
+    const response = await this.gqlClient.request<
+      GetGrantsQuery,
+      GetGrantsQueryVariables
+    >(getGrantsQuery, args)
+
+    return response
+  }
+
   async revokeGrant(grantId: string) {
     const response = await this.gqlClient.request<
       RevokeGrantMutation,
