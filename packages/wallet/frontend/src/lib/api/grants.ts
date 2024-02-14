@@ -7,10 +7,10 @@ import {
 } from '../httpClient'
 
 const GRANT_STATE = {
+  APPROVED: 'APPROVED',
+  FINALIZED: 'FINALIZED',
   PENDING: 'PENDING',
-  GRANTED: 'GRANTED',
-  REJECTED: 'REJECTED',
-  REVOKED: 'REVOKED'
+  PROCESSING: 'PROCESSING'
 } as const
 type GrantState = keyof typeof GRANT_STATE
 
