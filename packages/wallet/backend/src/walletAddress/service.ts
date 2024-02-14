@@ -298,9 +298,11 @@ export class WalletAddressService implements IWalletAddressService {
     userId: string,
     accountId: string,
     walletAddressId: string,
-    defaultAccount:
-      | { publicKeyPEM: string; privateKeyPEM: string; keyId: string }
-      | undefined = undefined
+    defaultAccount?: {
+      publicKeyPEM: string
+      privateKeyPEM: string
+      keyId: string
+    }
   ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
     const walletAddress = await this.getById({
       userId,

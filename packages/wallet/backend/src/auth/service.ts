@@ -59,7 +59,7 @@ export class AuthService implements IAuthService {
       args.email === this.env.DEFAULT_WALLET_ACCOUNT.email ||
       args.email === this.env.DEFAULT_BOUTIQUE_ACCOUNT.email
     )
-      await this.userService.createDefaultAccount(args.email)
+      await this.userService.createDefaultAccount()
 
     const user = await this.userService.getByEmail(args.email)
 

@@ -7,6 +7,7 @@ import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { getRandomValues } from 'crypto'
+import NodeCache from 'node-cache'
 
 interface CreateUserArgs {
   email: string
@@ -24,13 +25,16 @@ interface IUserService {
 }
 
 export class UserService implements IUserService {
+  cache: NodeCache
   constructor(
     private emailService: EmailService,
     private accountService: AccountService,
     private walletAddressService: WalletAddressService,
     private logger: Logger,
     private env: Env
-  ) {}
+  ) {
+    this.cache = new NodeCache()
+  }
 
   public async create(args: CreateUserArgs): Promise<User> {
     const existingUser = await this.getByEmail(args.email)
@@ -116,66 +120,80 @@ export class UserService implements IUserService {
 
     return !!user
   }
+  public async createDefaultAccount() {
+    if (this.cache.has('isInProcess'))
+      throw new BadRequest(
+        'Please try in next 20 seconds, User is in creation process'
+      )
 
-  public async createDefaultAccount(email: string) {
-    const existingUser = await this.getByEmail(email)
+    const existingUser = await this.getByEmail(
+      this.env.DEFAULT_WALLET_ACCOUNT.email
+    )
 
     if (existingUser) return
 
-    let defaultUser = this.env.DEFAULT_WALLET_ACCOUNT
-    const isBoutique = email === this.env.DEFAULT_BOUTIQUE_ACCOUNT.email
-    if (isBoutique) defaultUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
+    this.cache.set('isInProcess', true, 20)
+    const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
+    const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
-    const args = {
-      ...defaultUser,
+    let args = {
+      ...defaultWalletUser,
       isEmailVerified: true
     }
 
-    const createdUser = await User.query().insertAndFetch(args)
+    const createdWalletUser = await User.query().insertAndFetch(args)
 
-    const defaultAccount = await this.accountService.createDefaultAccount(
-      createdUser.id,
-      isBoutique
+    const wallertPromis = this.accountService.createDefaultAccount(
+      createdWalletUser.id,
+      false
     )
-    if (defaultAccount) {
-      const amountOfWithdraw = +(
-        Number(defaultAccount.balance) *
-        10 ** -defaultAccount.assetScale
-      ).toFixed(defaultAccount.assetScale)
-      if (amountOfWithdraw > 0)
-        await this.accountService.withdrawFunds({
-          userId: createdUser.id,
-          accountId: defaultAccount.id,
-          amount: amountOfWithdraw
-        })
 
+    args = {
+      ...defaultBoutiqueUser,
+      isEmailVerified: true
+    }
+    const createdBoutiqueUser = await User.query().insertAndFetch(args)
+
+    const boutiquePromise = this.accountService.createDefaultAccount(
+      createdBoutiqueUser.id,
+      true
+    )
+
+    const [defaultAccount, defaultBoutiqueAccount] = await Promise.all([
+      wallertPromis,
+      boutiquePromise
+    ])
+    if (defaultAccount && defaultBoutiqueAccount) {
       const typedArray = new Uint32Array(1)
       getRandomValues(typedArray)
-      let walletAddressName = typedArray[0].toString(16)
-      if (isBoutique) walletAddressName = 'boutique'
 
-      const wallet = await this.walletAddressService.create({
+      await this.walletAddressService.create({
         accountId: defaultAccount.id,
-        walletAddressName,
+        walletAddressName: typedArray[0].toString(16),
         publicName: 'Default Payment Pointer',
-        userId: createdUser.id,
+        userId: createdWalletUser.id,
         isWM: false
       })
 
-      if (isBoutique)
-        await this.walletAddressService.registerKey(
-          createdUser.id,
-          defaultAccount.id,
-          wallet.id,
-          {
-            publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
-            privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
-            keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
-          }
-        )
-    }
+      const boutiqueWallet = await this.walletAddressService.create({
+        accountId: defaultBoutiqueAccount.id,
+        walletAddressName: 'boutique',
+        publicName: 'Default Payment Pointer',
+        userId: createdBoutiqueUser.id,
+        isWM: false
+      })
 
-    return createdUser
+      await this.walletAddressService.registerKey(
+        createdBoutiqueUser.id,
+        defaultBoutiqueAccount.id,
+        boutiqueWallet.id,
+        {
+          publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
+          privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
+          keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
+        }
+      )
+    }
   }
   public async verifyEmail(token: string): Promise<void> {
     const verifyEmailToken = hashToken(token)
