@@ -31,7 +31,8 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (ctx) => {
   const response = await accountService.list(
     ctx.req.headers.cookie,
-    'walletAddresses'
+    'walletAddresses',
+    'walletAddressKeys'
   )
 
   if (!response.success || !response.result) {
@@ -45,13 +46,13 @@ export const getServerSideProps: GetServerSideProps<{
     walletAddresses: account.walletAddresses.map((pp) => ({
       ...pp,
       url: pp.url.replace('https://', '$'),
-      keyIds: pp.keyIds
-        ? {
-            id: pp.keyIds.id,
-            publicKey: pp.keyIds.publicKey,
-            createdOn: formatDate(pp.keyIds.createdOn, false)
-          }
-        : null
+      keys: pp.keys?.map((key) => ({
+        ...key,
+        id: key.id,
+        publicKey: key.publicKey,
+        createdAt: formatDate(key.createdAt, false),
+        nickname: key.nickname
+      }))
     }))
   }))
 

@@ -26,10 +26,20 @@ export const updateWalletAddressSchema = z.object({
   })
 })
 
-type WalletAddressKey = {
+export const generateKeysSchema = z.object({
+  nickname: z.string()
+})
+
+export const uploadKeysSchema = z.object({
+  jwkey: z.string(),
+  nickname: z.string()
+})
+
+export type WalletAddressKey = {
   id: string
   publicKey: string
-  createdOn: string
+  createdAt: string
+  nickname: string
 }
 
 export type WalletAddress = {
@@ -37,7 +47,7 @@ export type WalletAddress = {
   url: string
   publicName: string
   accountId: string
-  keyIds: WalletAddressKey | null
+  keys: WalletAddressKey[]
   incomingBalance: string
   outgoingBalance: string
   assetCode?: string
@@ -55,7 +65,7 @@ type WalletAddressKeyDetails = {
   keyId: string
 }
 
-type BaseWalletAddressArgs = {
+export type BaseWalletAddressArgs = {
   accountId: string
   walletAddressId: string
 }
@@ -85,10 +95,8 @@ type CreateWalletAddressResponse =
   | CreateWalletAddressResult
   | CreateWalletAddressError
 
-type UpdateWalletAddressArgs = z.infer<typeof updateWalletAddressSchema> & {
-  accountId: string
-  walletAddressId: string
-}
+type UpdateWalletAddressArgs = z.infer<typeof updateWalletAddressSchema> &
+  BaseWalletAddressArgs
 type UpdateWalletAddressError = ErrorResponse<
   z.infer<typeof updateWalletAddressSchema> | undefined
 >
@@ -96,11 +104,16 @@ type UpdateWalletAddressResponse = SuccessResponse | UpdateWalletAddressError
 
 type DeleteWalletAddressResponse = SuccessResponse | ErrorResponse
 
-type GenerateKeyArgs = BaseWalletAddressArgs
+type GenerateKeyArgs = z.infer<typeof generateKeysSchema> &
+  BaseWalletAddressArgs
 type GenerateKeyResult = SuccessResponse<WalletAddressKeyDetails>
 type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
 
-type RevokeKeyArgs = BaseWalletAddressArgs
+type UploadKeysArgs = z.infer<typeof uploadKeysSchema> & BaseWalletAddressArgs
+type UploadKeysError = ErrorResponse<UploadKeysArgs | undefined>
+type UploadKeysResponse = SuccessResponse | UploadKeysError
+
+type RevokeKeyArgs = { keyId: string } & BaseWalletAddressArgs
 type RevokeKeyResponse = SuccessResponse | ErrorResponse
 
 type AssetCodeResult = SuccessResponse<WalletAddressOP>
@@ -125,6 +138,7 @@ interface WalletAddressService {
   ) => Promise<UpdateWalletAddressResponse>
   delete: (walletAddressId: string) => Promise<DeleteWalletAddressResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
+  uploadKeys: (args: UploadKeysArgs) => Promise<UploadKeysResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
   getExternal: (url: string) => Promise<AssetCodeResponse>
 }
@@ -134,7 +148,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     try {
       const response = await httpClient
         .get(
-          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}`,
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/keys`,
           {
             headers: {
               ...(cookies ? { Cookie: cookies } : {})
@@ -236,7 +250,12 @@ const createWalletAddressService = (): WalletAddressService => ({
     try {
       const response = await httpClient
         .post(
-          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/register-key`
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/register-key`,
+          {
+            json: {
+              nickname: args.nickname
+            }
+          }
         )
         .json<GenerateKeyResult>()
       return response
@@ -248,11 +267,33 @@ const createWalletAddressService = (): WalletAddressService => ({
     }
   },
 
+  async uploadKeys(args) {
+    try {
+      const response = await httpClient
+        .post(
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/upload-key`,
+          {
+            json: {
+              base64Key: args.jwkey,
+              nickname: args.nickname
+            }
+          }
+        )
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<UploadKeysArgs>(
+        error,
+        'We were not able to upload JWKeys for the payment pointer. Please try again.'
+      )
+    }
+  },
+
   async revokeKey(args) {
     try {
       const response = await httpClient
         .patch(
-          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/revoke-key`
+          `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/${args.keyId}/revoke-key`
         )
         .json<SuccessResponse>()
       return response
