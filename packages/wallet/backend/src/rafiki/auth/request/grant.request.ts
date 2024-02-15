@@ -21,6 +21,7 @@ export const getGrantsQuery = gql`
           id
           client
           state
+          finalizationReason
           access {
             id
             identifier
@@ -61,6 +62,7 @@ export const getGrantByIdQuery = gql`
       id
       client
       state
+      finalizationReason
       access {
         id
         identifier

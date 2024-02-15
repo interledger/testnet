@@ -105,7 +105,7 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true
     }
   }
-  grantResponse.result.finalizationReason = 'REVOKED'
+
   grantResponse.result.createdAt = formatDate(grantResponse.result.createdAt)
   grantResponse.result.client = replaceWalletAddressProtocol(
     grantResponse.result.client
