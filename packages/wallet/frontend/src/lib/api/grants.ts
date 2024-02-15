@@ -7,12 +7,19 @@ import {
 } from '../httpClient'
 
 const GRANT_STATE = {
+  APPROVED: 'APPROVED',
+  FINALIZED: 'FINALIZED',
   PENDING: 'PENDING',
-  GRANTED: 'GRANTED',
-  REJECTED: 'REJECTED',
-  REVOKED: 'REVOKED'
+  PROCESSING: 'PROCESSING'
 } as const
 type GrantState = keyof typeof GRANT_STATE
+
+const GRANT_FINALIZATION = {
+  ISSUED: 'ISSUED',
+  REJECTED: 'REJECTED',
+  REVOKED: 'REVOKED'
+}
+type GrantFinalization = keyof typeof GRANT_FINALIZATION
 
 type PaymentAmount = {
   value: string
@@ -40,6 +47,7 @@ export type Grant = {
   state: GrantState
   createdAt: string
   access: Access[]
+  finalizationReason?: GrantFinalization
 }
 
 type GrantNode = {
