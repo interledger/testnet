@@ -6,7 +6,11 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { formatAmount, formatDate } from '@/utils/helpers'
+import {
+  formatAmount,
+  formatDate,
+  replaceWalletAddressProtocol
+} from '@/utils/helpers'
 import { Grant, grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -101,20 +105,19 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true
     }
   }
-
+  grantResponse.result.finalizationReason = 'REVOKED'
   grantResponse.result.createdAt = formatDate(grantResponse.result.createdAt)
-  grantResponse.result.client = grantResponse.result.client.replace(
-    'https://',
-    '$'
+  grantResponse.result.client = replaceWalletAddressProtocol(
+    grantResponse.result.client
   )
   grantResponse.result.access.map((access) => {
     access.identifier =
       access.identifier !== null
-        ? access.identifier.replace('https://', '$')
+        ? replaceWalletAddressProtocol(access.identifier)
         : null
     if (access.limits !== null) {
       access.limits.receiver = access.limits.receiver
-        ? access.limits.receiver.replace('https://', '$')
+        ? replaceWalletAddressProtocol(access.limits.receiver)
         : access.limits.receiver
 
       if (access.limits.debitAmount !== null) {

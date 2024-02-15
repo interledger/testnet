@@ -14,6 +14,13 @@ const GRANT_STATE = {
 } as const
 type GrantState = keyof typeof GRANT_STATE
 
+const GRANT_FINALIZATION = {
+  ISSUED: 'ISSUED',
+  REJECTED: 'REJECTED',
+  REVOKED: 'REVOKED'
+}
+type GrantFinalization = keyof typeof GRANT_FINALIZATION
+
 type PaymentAmount = {
   value: string
   assetCode: string
@@ -40,6 +47,7 @@ export type Grant = {
   state: GrantState
   createdAt: string
   access: Access[]
+  finalizationReason?: GrantFinalization
 }
 
 type GrantNode = {
