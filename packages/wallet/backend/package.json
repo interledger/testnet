@@ -7,7 +7,7 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0",
+    "@sendgrid/mail": "^8.1.1",
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "awilix": "^10.0.1",
