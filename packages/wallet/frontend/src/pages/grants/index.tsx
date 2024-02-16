@@ -7,9 +7,10 @@ import { GRANTS_DISPLAY_NR } from '@/utils/constants'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { GrantListArgs } from '@/lib/api/grants'
 import { Table } from '@/ui/Table'
-import { formatDate } from '@/utils/helpers'
+import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { ButtonOrLink } from '@/ui/ButtonOrLink'
+import { SimpleArrow } from '@/components/icons/Arrow'
 
 const GrantsPage: NextPageWithLayout = () => {
   const redirect = useRedirect<GrantListArgs>({
@@ -48,7 +49,7 @@ const GrantsPage: NextPageWithLayout = () => {
                   <Table.Row key={grant.node.id}>
                     <Table.Cell className="w-1">{''}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {grant.node.client}
+                      {replaceWalletAddressProtocol(grant.node.client)}
                     </Table.Cell>
                     <Table.Cell>
                       <Badge
@@ -56,6 +57,18 @@ const GrantsPage: NextPageWithLayout = () => {
                         size="md"
                         text={grant.node.state}
                       />
+                      {grant.node.finalizationReason ? (
+                        <>
+                          <SimpleArrow className="inline h-3 w-3"></SimpleArrow>
+                          <Badge
+                            intent={getStatusBadgeIntent(
+                              grant.node.finalizationReason
+                            )}
+                            size="md"
+                            text={grant.node.finalizationReason}
+                          />
+                        </>
+                      ) : null}
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
                       {formatDate(grant.node.createdAt)}
@@ -63,7 +76,7 @@ const GrantsPage: NextPageWithLayout = () => {
                     <Table.Cell>
                       <ButtonOrLink
                         href={`/grants/${grant.node.id}`}
-                        className="inline-flex items-center justify-center rounded-md bg-orange-1 px-2 font-medium text-white hover:bg-orange-2 hover:shadow-md"
+                        className="inline-flex items-center justify-center rounded-md bg-green-5 px-2 font-medium text-white hover:bg-green-6 hover:shadow-md"
                       >
                         View
                       </ButtonOrLink>
