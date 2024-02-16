@@ -77,8 +77,9 @@ services:
       NODE_ENV: development
       PORT: 3004
       DATABASE_URL: postgres://boutique_backend:boutique_backend@postgres/boutique_backend
-      PRIVATE_KEY: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUI0YzgyOVlSMDZCTUhtQmpIVTNrOHZmMEZhVEFvOHNCTzIrRFZwY1lPSk0KLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ==
-      KEY_ID: 32499ede-78d9-424d-a43e-3796ee07b60c
+      PRIVATE_KEY: ${PRIVATE_KEY}
+      KEY_ID: ${KEY_ID}
+      PAYMENT_POINTER: ${PAYMENT_POINTER}
     restart: always
     networks:
       - testnet
