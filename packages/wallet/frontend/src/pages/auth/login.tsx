@@ -21,11 +21,9 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
-
   useEffect(() => {
-    loginForm.setFocus("email")
+    loginForm.setFocus('email')
   }, [loginForm])
-
 
   return (
     <>

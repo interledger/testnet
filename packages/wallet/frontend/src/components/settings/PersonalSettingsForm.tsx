@@ -25,7 +25,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
 
   useEffect(() => {
     profileForm.setFocus('firstName')
-  }, [isReadOnly, profileForm]);
+  }, [isReadOnly, profileForm])
 
   return (
     <>

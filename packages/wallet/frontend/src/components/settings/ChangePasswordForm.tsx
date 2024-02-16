@@ -19,7 +19,7 @@ export const ChangePasswordForm = () => {
 
   useEffect(() => {
     changePasswordForm.setFocus('oldPassword')
-  }, [changePasswordForm]);
+  }, [changePasswordForm])
 
   return (
     <div className="pt-5">
