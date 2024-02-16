@@ -12,7 +12,11 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { sendSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import { formatAmount, getObjectKeys } from '@/utils/helpers'
+import {
+  formatAmount,
+  getObjectKeys,
+  replaceWalletAddressProtocol
+} from '@/utils/helpers'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { walletAddressService } from '@/lib/api/walletAddress'
@@ -108,10 +112,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
 
     const walletAddresses = walletAddressesResponse.result.walletAddresses.map(
       (walletAddress) => ({
-        label: `${walletAddress.publicName} (${walletAddress.url.replace(
-          'https://',
-          '$'
-        )})`,
+        label: `${walletAddress.publicName} (${replaceWalletAddressProtocol(walletAddress.url)})`,
         value: walletAddress.id
       })
     )
