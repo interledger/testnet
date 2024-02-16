@@ -289,9 +289,8 @@ export class WalletAddressService implements IWalletAddressService {
     await WalletAddress.query().findById(id).patch({
       active: false
     })
-    console.log(walletAddress.accountId)
     await this.transactionService.updateTransaction(
-      { accountId: walletAddress.accountId },
+      { walletAddressId: walletAddress.id },
       { status: 'DELETED' }
     )
   }

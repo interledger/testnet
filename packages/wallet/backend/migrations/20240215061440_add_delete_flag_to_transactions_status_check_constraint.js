@@ -4,11 +4,10 @@
  */
 exports.up = function (knex) {
   return knex.schema.alterTable('transactions', async (table) => {
-    table.timestamp('expiresAt')
     await knex.raw(
       [
         `ALTER TABLE "transactions" DROP CONSTRAINT IF EXISTS "transactions_status_check";`,
-        `ALTER TABLE "transactions" ADD CONSTRAINT "transactions_status_check" CHECK ("status" = ANY (ARRAY['PENDING'::text, 'COMPLETED'::text, 'REJECTED'::text, 'EXPIRED'::text]))`
+        `ALTER TABLE "transactions" ADD CONSTRAINT "transactions_status_check" CHECK ("status" = ANY (ARRAY['PENDING'::text, 'COMPLETED'::text, 'REJECTED'::text, 'EXPIRED'::text, 'DELETED'::text]))`
       ].join('\n')
     )
   })
@@ -20,11 +19,10 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
   return knex.schema.alterTable('transactions', async (table) => {
-    table.dropColumn('expiresAt')
     await knex.raw(
       [
         `ALTER TABLE "transactions" DROP CONSTRAINT IF EXISTS "transactions_status_check";`,
-        `ALTER TABLE "transactions" ADD CONSTRAINT "transactions_status_check" CHECK ("status" = ANY (ARRAY['PENDING'::text, 'COMPLETED'::text, 'REJECTED'::text]))`
+        `ALTER TABLE "transactions" ADD CONSTRAINT "transactions_status_check" CHECK ("status" = ANY (ARRAY['PENDING'::text, 'COMPLETED'::text, 'REJECTED'::text, , 'EXPIRED'::text]))`
       ].join('\n')
     )
   })
