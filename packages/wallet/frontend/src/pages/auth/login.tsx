@@ -10,6 +10,7 @@ import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { useEffect } from 'react'
 
 const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
@@ -20,6 +21,11 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
+
+  useEffect(() => {
+    loginForm.setFocus("email")
+  }, [loginForm])
+
 
   return (
     <>

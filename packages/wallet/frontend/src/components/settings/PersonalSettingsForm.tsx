@@ -2,7 +2,7 @@ import { Button } from '@/ui/Button'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { User, profileSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
@@ -22,6 +22,10 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
     schema: profileSchema,
     defaultValues: user
   })
+
+  useEffect(() => {
+    profileForm.setFocus('firstName')
+  }, [isReadOnly, profileForm]);
 
   return (
     <>
@@ -108,7 +112,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
           >
             Edit
           </Button>
-          {!isChangePassword && (
+          {!isChangePassword ? (
             <Button
               intent="primary"
               aria-label="change password"
@@ -116,8 +120,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
             >
               Change Password
             </Button>
-          )}
-          {isChangePassword && (
+          ) : (
             <Button
               intent="outline"
               aria-label="Cancel change password"
