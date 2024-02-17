@@ -10,6 +10,15 @@ exports.up = function (knex) {
         `ALTER TABLE "transactions" ADD CONSTRAINT "transactions_status_check" CHECK ("status" = ANY (ARRAY['PENDING'::text, 'COMPLETED'::text, 'REJECTED'::text, 'EXPIRED'::text, 'DELETED'::text]))`
       ].join('\n')
     )
+
+    await knex.raw(
+      [
+        `UPDATE transactions`,
+        `SET status = 'DELETED'`,
+        `FROM "walletAddresses"`,
+        `WHERE transactions."walletAddressId" = "walletAddresses".id AND "walletAddresses".active = false`
+      ].join('\n')
+    )
   })
 }
 
