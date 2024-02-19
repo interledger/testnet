@@ -28,7 +28,7 @@ type THeadProps = ComponentProps<'thead'> & {
   columns: string[]
   thProps?: ComponentProps<'th'>
   trProps?: ComponentProps<'tr'>
-  sort: SortHeader[]
+  sort?: SortHeader[]
 }
 
 const THead = ({
@@ -47,19 +47,19 @@ const THead = ({
             key={col}
             className={cx(
               'border-b border-green-7 p-4 text-left font-light md:px-3',
-              sort.find((item) => item.header === col) !== undefined &&
+              sort?.find((item) => item.header === col) !== undefined &&
                 'cursor-pointer'
             )}
             {...thProps}
             onClick={
-              sort.find((item) => item.header === col) !== undefined
+              sort?.find((item) => item.header === col) !== undefined
                 ? sort.find((item) => item.header === col)?.sortFn
                 : undefined
             }
           >
             <div className="flex flex-row">
               {col}
-              {sort.find((item) => item.header === col) !== undefined ? (
+              {sort?.find((item) => item.header === col) !== undefined ? (
                 <Chevron
                   className="ml-1 mt-1 h-4 w-4 text-green-7 transition-transform duration-300"
                   direction={sort
