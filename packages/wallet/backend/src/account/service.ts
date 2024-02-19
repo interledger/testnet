@@ -24,11 +24,7 @@ type WithdrawFundsArgs = FundAccountArgs
 interface IAccountService {
   createDefaultAccount: (userId: string) => Promise<Account | undefined>
   createAccount: (args: CreateAccountArgs) => Promise<Account>
-  getAccounts: (
-    userId: string,
-    includeWalletAddress?: boolean,
-    includeWalletKeys?: boolean
-  ) => Promise<Account[]>
+  getAccounts: (userId: string) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
   getAccountBalance: (userId: string, assetCode: string) => Promise<number>
   fundAccount: (args: FundAccountArgs) => Promise<void>
@@ -120,8 +116,7 @@ export class AccountService implements IAccountService {
 
   public async getAccounts(
     userId: string,
-    includeWalletAddress?: boolean,
-    includeWalletKeys?: boolean
+    hasWalletAddress?: boolean
   ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
@@ -130,20 +125,16 @@ export class AccountService implements IAccountService {
     }
 
     let query = Account.query().where('userId', userId)
-    if (includeWalletAddress) {
-      const includeModels = includeWalletKeys
-        ? 'walletAddresses.[keys]'
-        : 'walletAddresses'
+    if (hasWalletAddress)
       query = query
-        .withGraphFetched(includeModels)
+        .withGraphFetched({ walletAddresses: true })
         .modifyGraph('walletAddresses', (builder) => {
           builder.where({ active: true }).orderBy('createdAt', 'ASC')
         })
-    }
 
     const accounts = await query
 
-    if (!includeWalletAddress) {
+    if (!hasWalletAddress) {
       const accountsBalance = await this.rapydClient.getAccountsBalance(
         user.rapydWalletId
       )

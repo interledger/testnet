@@ -19,6 +19,12 @@ interface IWalletAddressController {
   softDelete: ControllerFunction
 }
 
+interface KeyPair {
+  publicKey: string
+  privateKey: string
+  keyId: string
+}
+
 export class WalletAddressController implements IWalletAddressController {
   constructor(private walletAddressService: WalletAddressService) {}
 
@@ -146,6 +152,51 @@ export class WalletAddressController implements IWalletAddressController {
       res.status(200).json({
         success: true,
         message: 'Payment pointer was successfully deleted'
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  registerKey = async (
+    req: Request,
+    res: CustomResponse<KeyPair>,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { accountId, walletAddressId } = req.params
+
+      const { privateKey, publicKey, keyId } =
+        await this.walletAddressService.registerKey(
+          userId,
+          accountId,
+          walletAddressId
+        )
+
+      res.status(200).json({
+        success: true,
+        message: 'Public key is successfully registered',
+        result: { privateKey, publicKey, keyId }
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  revokeKey = async (req: Request, res: CustomResponse, next: NextFunction) => {
+    try {
+      const { accountId, walletAddressId } = req.params
+
+      await this.walletAddressService.revokeKey(
+        req.session.user.id,
+        accountId,
+        walletAddressId
+      )
+
+      res.status(200).json({
+        success: true,
+        message: 'Key was successfully revoked.'
       })
     } catch (e) {
       next(e)

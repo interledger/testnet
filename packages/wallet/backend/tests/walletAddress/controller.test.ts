@@ -93,6 +93,12 @@ describe('Wallet Address', () => {
         getExternalWalletAddress: walletAddress,
         getById: walletAddress,
         softDelete: jest.fn(),
+        registerKey: () => ({
+          privateKey: faker.lorem.slug(5),
+          publicKey: faker.lorem.slug(5),
+          keyId: faker.string.uuid()
+        }),
+        revokeKey: jest.fn(),
         update: jest.fn()
       }
     }
@@ -265,6 +271,43 @@ describe('Wallet Address', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Payment pointer was successfully deleted'
+      })
+    })
+  })
+
+  describe('Register Key', () => {
+    it('should return object with private & public key', async () => {
+      const { account, walletAddress } = await prepareWADependencies()
+      req.params = {
+        accountId: account.id,
+        paymentPointerId: walletAddress.id
+      }
+      await walletAddressController.registerKey(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Public key is successfully registered'
+      })
+      expect(res._getJSONData()).toHaveProperty('result')
+      const data = res._getJSONData().result
+      expect(data).toHaveProperty('privateKey')
+      expect(data).toHaveProperty('publicKey')
+      expect(data).toHaveProperty('keyId')
+    })
+  })
+
+  describe('Revoke Key', () => {
+    it('should return confirmation message', async () => {
+      const { account, walletAddress } = await prepareWADependencies()
+      req.params = {
+        accountId: account.id,
+        paymentPointerId: walletAddress.id
+      }
+      await walletAddressController.revokeKey(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Key was successfully revoked.'
       })
     })
   })
