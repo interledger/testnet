@@ -1,4 +1,4 @@
-import { Alg, Crv, Kty } from '@/rafiki/backend/generated/graphql'
+import { Alg, Crv, Jwk, Kty } from '@/rafiki/backend/generated/graphql'
 import { KeyObject, createPublicKey } from 'crypto'
 
 export const generateJwk = (privateKey: KeyObject, keyId: string) => {
@@ -24,6 +24,20 @@ export const generateJwk = (privateKey: KeyObject, keyId: string) => {
   return {
     alg: Alg.EdDsa,
     kid: keyId,
+    kty: Kty.Okp,
+    crv: Crv.Ed25519,
+    x: jwk.x
+  }
+}
+
+export const validateJwk = (jwk: Jwk) => {
+  if (jwk.crv !== 'Ed25519' || jwk.kty !== 'OKP' || !jwk.x) {
+    throw new Error('Key is not EdDSA-Ed25519')
+  }
+
+  return {
+    alg: Alg.EdDsa,
+    kid: jwk.kid,
     kty: Kty.Okp,
     crv: Crv.Ed25519,
     x: jwk.x
