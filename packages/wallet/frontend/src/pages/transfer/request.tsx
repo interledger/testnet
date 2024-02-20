@@ -9,11 +9,7 @@ import { TransferHeader } from '@/components/TransferHeader'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { TimeUnit, requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import {
-  formatAmount,
-  getObjectKeys,
-  replaceWalletAddressProtocol
-} from '@/utils/helpers'
+import { formatAmount, getObjectKeys } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
@@ -92,7 +88,10 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
     const walletAddresses = walletAddressesResponse.result.walletAddresses.map(
       (walletAddress) => ({
-        label: `${walletAddress.publicName} (${replaceWalletAddressProtocol(walletAddress.url)})`,
+        label: `${walletAddress.publicName} (${walletAddress.url.replace(
+          'https://',
+          '$'
+        )})`,
         value: walletAddress.id,
         url: walletAddress.url
       })

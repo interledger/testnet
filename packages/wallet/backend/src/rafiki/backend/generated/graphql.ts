@@ -90,7 +90,6 @@ export type AssetFeesArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 export type AssetEdge = {
@@ -892,7 +891,6 @@ export type QueryAssetsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -912,7 +910,6 @@ export type QueryPaymentsArgs = {
   filter?: InputMaybe<PaymentFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -926,7 +923,6 @@ export type QueryPeersArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -945,7 +941,6 @@ export type QueryWalletAddressesArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -955,7 +950,6 @@ export type QueryWebhookEventsArgs = {
   filter?: InputMaybe<WebhookEventFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 export type Quote = {
@@ -1059,13 +1053,6 @@ export type SetFeeResponse = MutationResponse & {
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
 };
-
-export enum SortOrder {
-  /** Choose ascending order for results. */
-  Asc = 'ASC',
-  /** Choose descending order for results. */
-  Desc = 'DESC'
-}
 
 export type TransferMutationResponse = MutationResponse & {
   __typename?: 'TransferMutationResponse';
@@ -1180,7 +1167,6 @@ export type WalletAddressIncomingPaymentsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -1189,7 +1175,6 @@ export type WalletAddressOutgoingPaymentsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -1198,7 +1183,6 @@ export type WalletAddressQuotesArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder?: InputMaybe<SortOrder>;
 };
 
 export type WalletAddressEdge = {
@@ -1342,27 +1326,6 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 
 export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
-export type CreateQuoteMutationVariables = Exact<{
-  input: CreateQuoteInput;
-}>;
-
-
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
-
-export type GetQuoteQueryVariables = Exact<{
-  quoteId: Scalars['String']['input'];
-}>;
-
-
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
-
-export type CreateReceiverMutationVariables = Exact<{
-  input: CreateReceiverInput;
-}>;
-
-
-export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
-
 export type CreateWalletAddressKeyMutationVariables = Exact<{
   input: CreateWalletAddressKeyInput;
 }>;
@@ -1390,3 +1353,24 @@ export type UpdateWalletAddressMutationVariables = Exact<{
 
 
 export type UpdateWalletAddressMutation = { __typename?: 'Mutation', updateWalletAddress: { __typename?: 'UpdateWalletAddressMutationResponse', code: string, success: boolean, message: string } };
+
+export type CreateQuoteMutationVariables = Exact<{
+  input: CreateQuoteInput;
+}>;
+
+
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+
+export type GetQuoteQueryVariables = Exact<{
+  quoteId: Scalars['String']['input'];
+}>;
+
+
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
+
+export type CreateReceiverMutationVariables = Exact<{
+  input: CreateReceiverInput;
+}>;
+
+
+export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };

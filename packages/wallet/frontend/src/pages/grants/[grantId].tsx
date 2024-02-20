@@ -6,11 +6,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import {
-  formatAmount,
-  formatDate,
-  replaceWalletAddressProtocol
-} from '@/utils/helpers'
+import { formatAmount, formatDate } from '@/utils/helpers'
 import { Grant, grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -50,7 +46,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       <PageHeader title="Grant details" />
       <div className="flex flex-col items-start md:flex-col">
         <GrantDetails grant={grant}></GrantDetails>
-        {grant.state !== 'FINALIZED' && (
+        {grant.state !== 'REVOKED' && (
           <Button
             intent="secondary"
             aria-label="revoke"
@@ -109,17 +105,18 @@ export const getServerSideProps: GetServerSideProps<{
   grantResponse.result.createdAt = formatDate({
     date: grantResponse.result.createdAt
   })
-  grantResponse.result.client = replaceWalletAddressProtocol(
-    grantResponse.result.client
+  grantResponse.result.client = grantResponse.result.client.replace(
+    'https://',
+    '$'
   )
   grantResponse.result.access.map((access) => {
     access.identifier =
       access.identifier !== null
-        ? replaceWalletAddressProtocol(access.identifier)
+        ? access.identifier.replace('https://', '$')
         : null
     if (access.limits !== null) {
       access.limits.receiver = access.limits.receiver
-        ? replaceWalletAddressProtocol(access.limits.receiver)
+        ? access.limits.receiver.replace('https://', '$')
         : access.limits.receiver
 
       if (access.limits.debitAmount !== null) {

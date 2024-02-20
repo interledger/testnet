@@ -4,7 +4,7 @@ import { DeveloperKeys } from '@/components/settings/DeveloperKeys'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { Account, accountService } from '@/lib/api/account'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
+import { formatDate } from '@/utils/helpers'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 
 type DeveloperKeysPageProps = InferGetServerSidePropsType<
@@ -44,7 +44,7 @@ export const getServerSideProps: GetServerSideProps<{
     ...account,
     walletAddresses: account.walletAddresses.map((pp) => ({
       ...pp,
-      url: replaceWalletAddressProtocol(pp.url),
+      url: pp.url.replace('https://', '$'),
       keys: pp.keys?.map((key) => ({
         ...key,
         id: key.id,

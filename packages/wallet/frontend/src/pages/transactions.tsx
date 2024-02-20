@@ -55,10 +55,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
-  const redirect = useRedirect<TransactionsFilters>({
-    path: '/transactions',
-    persistQuery: true
-  })
+  const redirect = useRedirect<TransactionsFilters>()
   const [transactions, filters, pagination, fetch, loading, error] =
     useTransactions()
 

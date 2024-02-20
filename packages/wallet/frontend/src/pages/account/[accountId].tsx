@@ -16,11 +16,7 @@ import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Link } from '@/ui/Link'
-import {
-  FormattedAmount,
-  formatAmount,
-  replaceWalletAddressProtocol
-} from '@/utils/helpers'
+import { FormattedAmount, formatAmount } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -361,10 +357,10 @@ export const getServerSideProps: GetServerSideProps<{
   let balance = 0
 
   walletAddressesResponse.result.walletAddresses.map((pp) => {
-    pp.url = replaceWalletAddressProtocol(pp.url)
+    pp.url = pp.url.replace('https://', '$')
   })
   walletAddressesResponse.result.wmWalletAddresses.map((pp) => {
-    pp.url = replaceWalletAddressProtocol(pp.url)
+    pp.url = pp.url.replace('https://', '$')
     balance += Number(pp.incomingBalance)
   })
 
