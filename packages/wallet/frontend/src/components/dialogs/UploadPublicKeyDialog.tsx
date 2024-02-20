@@ -11,22 +11,22 @@ import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
 import {
   BaseWalletAddressArgs,
-  uploadKeysSchema,
+  uploadKeySchema,
   walletAddressService
 } from '@/lib/api/walletAddress'
 import { TextArea } from '@/ui/forms/TextArea'
 
-type UploadKeysProps = Pick<DialogProps, 'onClose'> & BaseWalletAddressArgs
+type UploadPublicKeyProps = Pick<DialogProps, 'onClose'> & BaseWalletAddressArgs
 
-export const UploadKeysDialog = ({
+export const UploadPublicKeyDialog = ({
   onClose,
   accountId,
   walletAddressId
-}: UploadKeysProps) => {
+}: UploadPublicKeyProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
   const uploadKeysForm = useZodForm({
-    schema: uploadKeysSchema
+    schema: uploadKeySchema
   })
   const keyPlaceholder =
     'ewogICJrdHkiOiAiT0tQIiwKICAiY3J2IjogIkVkMjU1MTkiLAogICJraWQiOiAidGVzdC1rZXktZWQyNTUxOSIsCiAgIngiOiAiSnJRTGo1UF84OWlYRVM5LXZGZ3JJeTI5Y2xGOUNDX29QUHN3M2M1RDBicyIKfQ=='
@@ -69,7 +69,7 @@ export const UploadKeysDialog = ({
                     onSubmit={async (data) => {
                       const response = await walletAddressService.uploadKeys({
                         nickname: data.nickname,
-                        jwkey: data.jwkey,
+                        jwk: data.jwk,
                         accountId: accountId,
                         walletAddressId: walletAddressId
                       })
@@ -91,7 +91,6 @@ export const UploadKeysDialog = ({
                         const { errors, message } = response
                         if (errors) {
                           getObjectKeys(errors).map((field) =>
-                            // @ts-expect-error form field error
                             uploadKeysForm.setError(field, {
                               message: errors[field]
                             })
@@ -115,8 +114,8 @@ export const UploadKeysDialog = ({
                       required
                       label="Public key"
                       placeholder={keyPlaceholder}
-                      error={uploadKeysForm.formState?.errors?.jwkey?.message}
-                      {...uploadKeysForm.register('jwkey')}
+                      error={uploadKeysForm.formState?.errors?.jwk?.message}
+                      {...uploadKeysForm.register('jwk')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button

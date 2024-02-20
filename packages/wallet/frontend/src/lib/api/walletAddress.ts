@@ -30,8 +30,8 @@ export const generateKeysSchema = z.object({
   nickname: z.string()
 })
 
-export const uploadKeysSchema = z.object({
-  jwkey: z.string(),
+export const uploadKeySchema = z.object({
+  jwk: z.string(),
   nickname: z.string()
 })
 
@@ -109,9 +109,11 @@ type GenerateKeyArgs = z.infer<typeof generateKeysSchema> &
 type GenerateKeyResult = SuccessResponse<WalletAddressKeyDetails>
 type GenerateKeyResponse = GenerateKeyResult | ErrorResponse
 
-type UploadKeysArgs = z.infer<typeof uploadKeysSchema> & BaseWalletAddressArgs
-type UploadKeysError = ErrorResponse<UploadKeysArgs | undefined>
-type UploadKeysResponse = SuccessResponse | UploadKeysError
+type UploadKeyArgs = z.infer<typeof uploadKeySchema> & BaseWalletAddressArgs
+type UploadKeyError = ErrorResponse<
+  z.infer<typeof generateKeysSchema> | undefined
+>
+type UploadKeyResponse = SuccessResponse | UploadKeyError
 
 type RevokeKeyArgs = { keyId: string } & BaseWalletAddressArgs
 type RevokeKeyResponse = SuccessResponse | ErrorResponse
@@ -138,7 +140,7 @@ interface WalletAddressService {
   ) => Promise<UpdateWalletAddressResponse>
   delete: (walletAddressId: string) => Promise<DeleteWalletAddressResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
-  uploadKeys: (args: UploadKeysArgs) => Promise<UploadKeysResponse>
+  uploadKeys: (args: UploadKeyArgs) => Promise<UploadKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
   getExternal: (url: string) => Promise<AssetCodeResponse>
 }
@@ -274,7 +276,7 @@ const createWalletAddressService = (): WalletAddressService => ({
           `accounts/${args.accountId}/wallet-addresses/${args.walletAddressId}/upload-key`,
           {
             json: {
-              base64Key: args.jwkey,
+              base64Key: args.jwk,
               nickname: args.nickname
             }
           }
@@ -282,9 +284,9 @@ const createWalletAddressService = (): WalletAddressService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<UploadKeysArgs>(
+      return getError(
         error,
-        'We were not able to upload JWKeys for the payment pointer. Please try again.'
+        'We were not able to upload the provided JWK for the payment pointer. Please try again.'
       )
     }
   },

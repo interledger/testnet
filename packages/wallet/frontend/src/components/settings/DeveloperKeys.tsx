@@ -15,8 +15,8 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useRouter } from 'next/router'
 import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
-import { UploadKeysDialog } from '../dialogs/UploadKeysDialog'
 import { GenerateKeysDialog } from '../dialogs/GenerateKeysDialog'
+import { UploadPublicKeyDialog } from '../dialogs/UploadPublicKeyDialog'
 
 type WalletAddressContextType = {
   walletAddress: WalletAddress
@@ -345,11 +345,11 @@ const WalletAddressCTA = () => {
         aria-label="upload keys"
         onClick={() =>
           openDialog(
-            <UploadKeysDialog
+            <UploadPublicKeyDialog
               onClose={closeDialog}
               accountId={walletAddress.accountId}
               walletAddressId={walletAddress.id}
-            ></UploadKeysDialog>
+            ></UploadPublicKeyDialog>
           )
         }
       >
