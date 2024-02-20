@@ -16,7 +16,7 @@ async function bootstrap() {
     console.log(e)
   })
   await app.processResources()
-  await app.createDefaultUsers()
+  if (env.NODE_ENV === 'development') await app.createDefaultUsers()
 }
 
 if (!module.parent) {

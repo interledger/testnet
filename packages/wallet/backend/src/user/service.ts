@@ -125,7 +125,10 @@ export class UserService implements IUserService {
 
     if (existingUser) return
 
-    await this.rafikiClient.createAsset('USD', 2)
+    const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
+      (asset) => asset.code === 'USD' && asset.scale === 2
+    )
+    if (!asset) await this.rafikiClient.createAsset('USD', 2)
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
@@ -136,7 +139,7 @@ export class UserService implements IUserService {
 
     const createdWalletUser = await User.query().insertAndFetch(args)
 
-    const wallertPromis = this.accountService.createDefaultAccount(
+    const defaultAccount = await this.accountService.createDefaultAccount(
       createdWalletUser.id,
       false
     )
@@ -147,15 +150,11 @@ export class UserService implements IUserService {
     }
     const createdBoutiqueUser = await User.query().insertAndFetch(args)
 
-    const boutiquePromise = this.accountService.createDefaultAccount(
+    const defaultBoutiqueAccount = await this.accountService.createDefaultAccount(
       createdBoutiqueUser.id,
       true
     )
 
-    const [defaultAccount, defaultBoutiqueAccount] = await Promise.all([
-      wallertPromis,
-      boutiquePromise
-    ])
     if (defaultAccount && defaultBoutiqueAccount) {
       const typedArray = new Uint32Array(1)
       getRandomValues(typedArray)
@@ -187,6 +186,8 @@ export class UserService implements IUserService {
         }
       )
     }
+
+    this.logger.info('Default users have been successfully created')
   }
   public async verifyEmail(token: string): Promise<void> {
     const verifyEmailToken = hashToken(token)
