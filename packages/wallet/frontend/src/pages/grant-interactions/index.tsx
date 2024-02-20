@@ -3,7 +3,7 @@ import type {
   InferGetServerSidePropsType
 } from 'next/types'
 import { z } from 'zod'
-import { formatAmount } from '@/utils/helpers'
+import { formatAmount, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { Grant, grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import Image from 'next/image'
@@ -158,11 +158,11 @@ export const getServerSideProps: GetServerSideProps<{
 
   grantInteractionResponse.result.access.map((access) => {
     access.identifier = access.identifier
-      ? access.identifier.replace('https://', '$')
+      ? replaceWalletAddressProtocol(access.identifier)
       : null
     if (access.limits) {
       access.limits.receiver = access.limits.receiver
-        ? access.limits.receiver.replace('https://', '$')
+        ? replaceWalletAddressProtocol(access.limits.receiver)
         : access.limits.receiver ?? null
 
       if (access.limits.debitAmount) {

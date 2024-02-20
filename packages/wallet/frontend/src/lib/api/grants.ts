@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   getError,
   httpClient,
@@ -6,12 +7,19 @@ import {
 } from '../httpClient'
 
 const GRANT_STATE = {
+  APPROVED: 'APPROVED',
+  FINALIZED: 'FINALIZED',
   PENDING: 'PENDING',
-  GRANTED: 'GRANTED',
-  REJECTED: 'REJECTED',
-  REVOKED: 'REVOKED'
+  PROCESSING: 'PROCESSING'
 } as const
 type GrantState = keyof typeof GRANT_STATE
+
+const GRANT_FINALIZATION = {
+  ISSUED: 'ISSUED',
+  REJECTED: 'REJECTED',
+  REVOKED: 'REVOKED'
+}
+type GrantFinalization = keyof typeof GRANT_FINALIZATION
 
 type PaymentAmount = {
   value: string
@@ -39,14 +47,44 @@ export type Grant = {
   state: GrantState
   createdAt: string
   access: Access[]
+  finalizationReason?: GrantFinalization
 }
+
+type GrantNode = {
+  cursor: string
+  node: Grant
+}
+
+export type GrantsPageInfo = {
+  endCursor: string
+  startCursor: string
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+export type GrantsList = {
+  grants: {
+    edges: GrantNode[]
+    pageInfo: GrantsPageInfo
+  }
+}
+
+export const grantsListSchema = z.object({
+  after: z.string().optional(),
+  before: z.string().optional(),
+  first: z.coerce.number().optional(),
+  last: z.coerce.number().optional()
+})
+
+export type GrantListArgs = z.infer<typeof grantsListSchema>
+type GrantsListResult = SuccessResponse<GrantsList>
+type GrantsListResponse = GrantsListResult | ErrorResponse
 
 type ListGrantsResult = SuccessResponse<Grant[]>
 type ListGrantsResponse = ListGrantsResult | ErrorResponse
 
 type GetGrantResult = SuccessResponse<Grant>
 type GetGrantResponse = GetGrantResult | ErrorResponse
-
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
 
 type FinalizeInteractionParams = {
@@ -57,7 +95,8 @@ type FinalizeInteractionParams = {
 type FinalizeInteractionResponse = SuccessResponse | ErrorResponse
 
 interface GrantsService {
-  list: (cookies?: string) => Promise<ListGrantsResponse>
+  list: (args?: GrantListArgs, cookies?: string) => Promise<GrantsListResponse>
+  listAll: (cookies?: string) => Promise<ListGrantsResponse>
   get: (grantId: string, cookies?: string) => Promise<GetGrantResponse>
   getInteraction: (
     interactionId: string,
@@ -71,7 +110,23 @@ interface GrantsService {
 }
 
 const createGrantsService = (): GrantsService => ({
-  async list(cookies) {
+  async list(args, cookies) {
+    try {
+      const response = await httpClient
+        .post('list-grants', {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          },
+          body: JSON.stringify(args)
+        })
+        .json<GrantsListResult>()
+      return response
+    } catch (error) {
+      return getError(error, 'Unable to fetch grants list.')
+    }
+  },
+
+  async listAll(cookies) {
     try {
       const response = await httpClient
         .get('grants', {
