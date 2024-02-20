@@ -1,5 +1,6 @@
 import { Grant } from '@/lib/api/grants'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
+import { SimpleArrow } from './icons/Arrow'
 
 type GrantDetailsProps = { grant: Grant }
 
@@ -21,6 +22,16 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
           size="md"
           text={grant.state}
         />
+        {grant.finalizationReason ? (
+          <>
+            <SimpleArrow className="inline h-3 w-3"></SimpleArrow>
+            <Badge
+              intent={getStatusBadgeIntent(grant.finalizationReason)}
+              size="md"
+              text={grant.finalizationReason}
+            />
+          </>
+        ) : null}
       </div>
       <div className="border-b border-b-green-5 py-2 text-lg font-semibold">
         Access - Permissions:

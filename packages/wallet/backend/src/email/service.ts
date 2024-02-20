@@ -27,7 +27,9 @@ export class EmailService implements IEmailService {
     private env: Env,
     private logger: Logger
   ) {
-    sendgrid.setApiKey(this.env.SENDGRID_API_KEY)
+    if (this.env.SEND_EMAIL) {
+      sendgrid.setApiKey(this.env.SENDGRID_API_KEY)
+    }
 
     const host = this.env.RAFIKI_MONEY_FRONTEND_HOST
     this.baseUrl =

@@ -1,62 +1,133 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
+import { Button } from '@/ui/Button'
+import { useRedirect } from '@/lib/hooks/useRedirect'
+import { useGrants } from '@/lib/hooks/useGrants'
+import { GRANTS_DISPLAY_NR } from '@/utils/constants'
 import { NextPageWithLayout } from '@/lib/types/app'
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType
-} from 'next/types'
-import { Grant, grantsService } from '@/lib/api/grants'
-import { formatDate } from '@/utils/helpers'
-import { GrantCard } from '@/components/cards/GrantCard'
+import { GrantListArgs } from '@/lib/api/grants'
+import { Table } from '@/ui/Table'
+import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
+import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
+import { ButtonOrLink } from '@/ui/ButtonOrLink'
+import { SimpleArrow } from '@/components/icons/Arrow'
 
-type GrantsPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
+const GrantsPage: NextPageWithLayout = () => {
+  const redirect = useRedirect<GrantListArgs>({
+    path: '/grants',
+    persistQuery: false
+  })
+  const [grantsList, pagination, fetch, loading, error] = useGrants()
+  const grants = grantsList.grants
 
-const GrantsPage: NextPageWithLayout<GrantsPageProps> = ({ grants }) => {
   return (
-    <>
+    <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Grants" />
       </div>
-      <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        <div className="mt-12 flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
-          <span className="font-semibold text-green">Clients</span>
-        </div>
 
-        <div className="flex flex-col">
-          {grants.length > 0 ? (
-            grants.map((grant) => <GrantCard key={grant.id} grant={grant} />)
-          ) : (
-            <div className="flex items-center justify-center p-4 text-green">
-              No grants found for this wallet.
-            </div>
-          )}
+      {error ? (
+        <div className="flex w-full flex-col items-center justify-center">
+          <p className="text-lg">{error}</p>
+          <Button
+            aria-label="refresh grants table"
+            intent="secondary"
+            onClick={() => fetch(pagination)}
+          >
+            Refresh table
+          </Button>
         </div>
-      </div>
-    </>
+      ) : loading ? (
+        <Table.Shimmer />
+      ) : (
+        <div className="w-full" id="grantsList">
+          <Table>
+            <Table.Head columns={['', 'Client', 'Status', 'Date', 'Details']} />
+            <Table.Body>
+              {grants.edges.length ? (
+                grants.edges.map((grant) => (
+                  <Table.Row key={grant.node.id}>
+                    <Table.Cell className="w-1">{''}</Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      {replaceWalletAddressProtocol(grant.node.client)}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Badge
+                        intent={getStatusBadgeIntent(grant.node.state)}
+                        size="md"
+                        text={grant.node.state}
+                      />
+                      {grant.node.finalizationReason ? (
+                        <>
+                          <SimpleArrow className="inline h-3 w-3"></SimpleArrow>
+                          <Badge
+                            intent={getStatusBadgeIntent(
+                              grant.node.finalizationReason
+                            )}
+                            size="md"
+                            text={grant.node.finalizationReason}
+                          />
+                        </>
+                      ) : null}
+                    </Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      {formatDate({ date: grant.node.createdAt })}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <ButtonOrLink
+                        href={`/grants/${grant.node.id}`}
+                        className="inline-flex items-center justify-center rounded-md bg-green-5 px-2 font-medium text-white hover:bg-green-6 hover:shadow-md"
+                      >
+                        View
+                      </ButtonOrLink>
+                    </Table.Cell>
+                  </Table.Row>
+                ))
+              ) : (
+                <Table.Row>
+                  <Table.Cell colSpan={4} className="text-center">
+                    No grants found.
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table>
+        </div>
+      )}
+      {!error &&
+      !loading &&
+      (grants.pageInfo.hasPreviousPage || grants.pageInfo.hasNextPage) ? (
+        <div className="mt-5 flex w-full items-center justify-between">
+          <Button
+            className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+            aria-label="go to previous page"
+            disabled={!grants.pageInfo.hasPreviousPage}
+            onClick={() => {
+              redirect({
+                last: GRANTS_DISPLAY_NR,
+                before: grants.pageInfo.startCursor
+              })
+            }}
+          >
+            Previous
+          </Button>
+          <Button
+            className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+            aria-label="go to next page"
+            disabled={!grants.pageInfo.hasNextPage}
+            onClick={() => {
+              redirect({
+                first: GRANTS_DISPLAY_NR,
+                after: grants.pageInfo.endCursor
+              })
+            }}
+          >
+            Next
+          </Button>
+        </div>
+      ) : null}
+    </div>
   )
-}
-
-export const getServerSideProps: GetServerSideProps<{
-  grants: Grant[]
-}> = async (ctx) => {
-  const grantsResponse = await grantsService.list(ctx.req.headers.cookie)
-
-  if (!grantsResponse.success || !grantsResponse.result) {
-    return {
-      notFound: true
-    }
-  }
-
-  const grants = grantsResponse.result?.map((grant) => ({
-    ...grant,
-    createdAt: formatDate({ date: grant.createdAt })
-  }))
-
-  return {
-    props: {
-      grants
-    }
-  }
 }
 
 GrantsPage.getLayout = function (page) {

@@ -122,3 +122,13 @@ export const generateAndDownloadFile = ({
   document.body.removeChild(anchor)
   URL.revokeObjectURL(anchor.href)
 }
+
+export const replaceWalletAddressProtocol = (
+  paymentPointer: string
+): string => {
+  return paymentPointer.indexOf('https://') !== -1
+    ? paymentPointer.replace('https://', '$')
+    : paymentPointer.indexOf('http://') !== -1
+      ? paymentPointer.replace('http://', '$')
+      : paymentPointer
+}
