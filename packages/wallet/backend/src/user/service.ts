@@ -7,7 +7,7 @@ import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { getRandomValues } from 'crypto'
-import NodeCache from 'node-cache'
+import { RafikiClient } from '@/rafiki/rafiki-client'
 
 interface CreateUserArgs {
   email: string
@@ -25,16 +25,14 @@ interface IUserService {
 }
 
 export class UserService implements IUserService {
-  cache: NodeCache
   constructor(
     private emailService: EmailService,
     private accountService: AccountService,
     private walletAddressService: WalletAddressService,
+    private rafikiClient: RafikiClient,
     private logger: Logger,
     private env: Env
-  ) {
-    this.cache = new NodeCache()
-  }
+  ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
     const existingUser = await this.getByEmail(args.email)
@@ -121,18 +119,13 @@ export class UserService implements IUserService {
     return !!user
   }
   public async createDefaultAccount() {
-    if (this.cache.has('isInProcess'))
-      throw new BadRequest(
-        'Please try in next 20 seconds, User is in creation process'
-      )
-
     const existingUser = await this.getByEmail(
       this.env.DEFAULT_WALLET_ACCOUNT.email
     )
 
     if (existingUser) return
 
-    this.cache.set('isInProcess', true, 20)
+    await this.rafikiClient.createAsset('USD', 2)
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 

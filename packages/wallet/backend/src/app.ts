@@ -344,4 +344,9 @@ export class App {
     process.nextTick(() => this.processPendingTransactions())
     process.nextTick(() => this.processWMWalletAddresses())
   }
+
+  async createDefaultUsers() {
+    const userService = this.container.resolve('userService')
+    await userService.createDefaultAccount()
+  }
 }
