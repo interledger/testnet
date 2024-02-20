@@ -147,7 +147,7 @@ export const GenerateKeysDialog = ({
                         type="submit"
                         loading={generateKeysForm.formState.isSubmitting}
                       >
-                        Generate Keys
+                        Generate keys
                       </Button>
                       <Button
                         intent="outline"

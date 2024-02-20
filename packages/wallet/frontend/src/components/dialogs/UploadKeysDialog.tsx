@@ -28,6 +28,8 @@ export const UploadKeysDialog = ({
   const uploadKeysForm = useZodForm({
     schema: uploadKeysSchema
   })
+  const keyPlaceholder =
+    'ewogICJrdHkiOiAiT0tQIiwKICAiY3J2IjogIkVkMjU1MTkiLAogICJraWQiOiAidGVzdC1rZXktZWQyNTUxOSIsCiAgIngiOiAiSnJRTGo1UF84OWlYRVM5LXZGZ3JJeTI5Y2xGOUNDX29QUHN3M2M1RDBicyIKfQ=='
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -59,7 +61,7 @@ export const UploadKeysDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium text-green-6"
                 >
-                  Upload JWKey
+                  Add a public key
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
@@ -111,7 +113,8 @@ export const UploadKeysDialog = ({
                     />
                     <TextArea
                       required
-                      label="JWKey"
+                      label="Public key"
+                      placeholder={keyPlaceholder}
                       error={uploadKeysForm.formState?.errors?.jwkey?.message}
                       {...uploadKeysForm.register('jwkey')}
                     />
@@ -121,7 +124,7 @@ export const UploadKeysDialog = ({
                         type="submit"
                         loading={uploadKeysForm.formState.isSubmitting}
                       >
-                        Upload Keys
+                        Upload key
                       </Button>
                       <Button
                         intent="outline"

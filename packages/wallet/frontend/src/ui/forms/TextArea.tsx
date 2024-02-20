@@ -15,7 +15,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       <div>
         {label && (
           <Label htmlFor={id}>
-            {label}{' '}
+            {label}
             {props.required ? <span className="text-red-500">*</span> : null}
           </Label>
         )}
@@ -24,7 +24,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             id={id}
             ref={ref}
             rows={4}
-            className="w-full cursor-pointer rounded-md border border-turqoise"
+            className="w-full cursor-pointer rounded-md border border-turqoise placeholder:text-black/20"
             {...props}
           />
         </div>

@@ -55,10 +55,15 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   }
 }
 
-export const formatDate = (date: string, time = true): string => {
+export const formatDate = (
+  date: string,
+  time = true,
+  month?: string
+): string => {
   return new Date(date).toLocaleDateString('default', {
     day: '2-digit',
-    month: 'short',
+    month:
+      month !== undefined ? (month === 'short' ? 'short' : 'long') : 'short',
     year: 'numeric',
     ...(time && { hour: '2-digit', minute: '2-digit' })
   })

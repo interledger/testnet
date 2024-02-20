@@ -50,7 +50,7 @@ export const getServerSideProps: GetServerSideProps<{
         ...key,
         id: key.id,
         publicKey: key.publicKey,
-        createdAt: formatDate(key.createdAt, false),
+        createdAt: formatDate(key.createdAt, false, 'long'),
         nickname: key.nickname
       }))
     }))

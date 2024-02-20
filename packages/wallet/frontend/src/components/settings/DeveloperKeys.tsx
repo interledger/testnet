@@ -65,7 +65,7 @@ export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
   return (
     <dl className="space-y-4 divide-y divide-green/10">
       {accounts.map((account) => (
-        <Disclosure as="div" key={account.name} className="pt-6">
+        <Disclosure as="div" key={account.name} className="pt-4">
           {({ open }) => (
             <>
               <AccountHeader name={account.name} isOpen={open} />
@@ -149,14 +149,21 @@ const WalletAddress = () => {
   )
 }
 
-const KeysGroupHeader = ({ name, isOpen }: DisclosureGroupHeaderProps) => {
+const KeysGroupHeader = ({
+  name,
+  createdAt,
+  isOpen
+}: DisclosureGroupHeaderProps & { createdAt: string }) => {
   return (
     <dt>
       <Disclosure.Button className="flex w-full justify-between rounded-md bg-gradient-violet px-2 shadow-md">
-        <span className="font-semibold leading-7 text-white">{name} keys:</span>
+        <div className="flex flex-col py-1 text-left">
+          <span className="font-semibold leading-5 text-white">{name}</span>
+          <span className="text-xs text-white">Created {createdAt}</span>
+        </div>
         <span className="ml-6 mt-1 flex items-center">
           <Chevron
-            className="h-5 w-5 text-white transition-transform duration-300"
+            className="mt-2 h-5 w-5 text-white transition-transform duration-300"
             direction={isOpen ? 'down' : 'left'}
           />
         </span>
@@ -227,14 +234,11 @@ const KeysGroupPanel = ({
               <span className="font-extralight">{keys.id}</span>
               <CopyButton
                 aria-label="copy key id"
-                className="h-10 w-10"
+                className="h-7 w-7"
+                size="sm"
                 value={keys.id}
               />
             </div>
-          </div>
-          <div>
-            <p className="font-normal">Created on</p>
-            <span className="font-extralight leading-10">{keys.createdAt}</span>
           </div>
 
           <PublicKeyContainer publicKey={keys.publicKey} />
@@ -252,7 +256,7 @@ const KeysGroupPanel = ({
               )
             }
           >
-            Revoke {keys.nickname} keys
+            Revoke {keys.nickname} key
           </Button>
         </div>
       </Disclosure.Panel>
@@ -293,13 +297,17 @@ const WalletAddressKeyInfo = () => {
 
   return (
     <div className="flex flex-col space-y-2">
-      {walletAddress.keys.map((keys) => (
+      {walletAddress.keys.map((keyInfo) => (
         <Disclosure as="div" key="nickname" className="pt-1">
           {({ open }) => (
             <>
-              <KeysGroupHeader name={keys.nickname} isOpen={open} />
+              <KeysGroupHeader
+                name={keyInfo.nickname}
+                createdAt={keyInfo.createdAt}
+                isOpen={open}
+              />
               <KeysGroupPanel
-                keys={keys}
+                keys={keyInfo}
                 walletAddressId={walletAddress.id}
                 accountId={walletAddress.accountId}
               />
@@ -318,7 +326,7 @@ const WalletAddressCTA = () => {
   const [openDialog, closeDialog] = useDialog()
 
   return (
-    <div className="flex justify-between pt-2">
+    <div className="flex flex-col justify-between gap-1 md:flex-row">
       <Button
         aria-label="generate keys"
         onClick={() =>
@@ -345,7 +353,7 @@ const WalletAddressCTA = () => {
           )
         }
       >
-        Upload Keys
+        Upload key
       </Button>
     </div>
   )
@@ -359,7 +367,7 @@ const PublicKeyContainer = ({ publicKey }: PublicKeyContainerProps) => {
   const [isVisible, setIsVisible] = useState(false)
 
   return (
-    <div className="flex flex-col justify-between space-y-2">
+    <div className="mt-2 flex flex-col justify-between space-y-2">
       <div className="flex items-center justify-between">
         <p className="font-normal">Public key</p>
         <Button
