@@ -140,7 +140,7 @@ interface WalletAddressService {
   ) => Promise<UpdateWalletAddressResponse>
   delete: (walletAddressId: string) => Promise<DeleteWalletAddressResponse>
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
-  uploadKeys: (args: UploadKeyArgs) => Promise<UploadKeyResponse>
+  uploadKey: (args: UploadKeyArgs) => Promise<UploadKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
   getExternal: (url: string) => Promise<AssetCodeResponse>
 }
@@ -269,7 +269,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     }
   },
 
-  async uploadKeys(args) {
+  async uploadKey(args) {
     try {
       const response = await httpClient
         .post(

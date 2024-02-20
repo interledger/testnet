@@ -86,11 +86,7 @@ type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
-  list: (
-    cookies?: string,
-    includeWalletAddress?: 'walletAddresses',
-    includeKeys?: 'walletAddressKeys'
-  ) => Promise<ListAccountsResponse>
+  list: (cookies?: string, include?: string[]) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
   withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
@@ -114,15 +110,20 @@ const createAccountService = (): AccountService => ({
     }
   },
 
-  async list(cookies, includeWalletAdress, includeKeys) {
+  async list(cookies, include) {
     try {
-      const includesValues = includeWalletAdress
-        ? includeKeys
-          ? `?include[]=${includeWalletAdress}&include[]=${includeKeys}`
-          : `?include=${includeWalletAdress}`
-        : ''
+      let includeValues = ''
+      if (include?.indexOf('walletAddresses') !== -1) {
+        if (include?.indexOf('walletAddressKeys') !== -1) {
+          includeValues =
+            '?include[]=walletAddresses&include[]=walletAddressKeys'
+        } else {
+          includeValues = '?include=walletAddresses'
+        }
+      }
+
       const response = await httpClient
-        .get(`accounts${includesValues}`, {
+        .get(`accounts${includeValues}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }

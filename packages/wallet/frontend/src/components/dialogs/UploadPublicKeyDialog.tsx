@@ -67,7 +67,7 @@ export const UploadPublicKeyDialog = ({
                   <Form
                     form={uploadKeysForm}
                     onSubmit={async (data) => {
-                      const response = await walletAddressService.uploadKeys({
+                      const response = await walletAddressService.uploadKey({
                         nickname: data.nickname,
                         jwk: data.jwk,
                         accountId: accountId,

@@ -256,7 +256,7 @@ const KeysGroupPanel = ({
               )
             }
           >
-            Revoke {keys.nickname} key
+            Revoke {keys.nickname}
           </Button>
         </div>
       </Disclosure.Panel>

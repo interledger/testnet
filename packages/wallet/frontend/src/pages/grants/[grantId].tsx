@@ -102,7 +102,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  grantResponse.result.createdAt = formatDate(grantResponse.result.createdAt)
+  grantResponse.result.createdAt = formatDate({
+    date: grantResponse.result.createdAt
+  })
   grantResponse.result.client = grantResponse.result.client.replace(
     'https://',
     '$'

@@ -49,7 +49,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   const grants = grantsResponse.result?.map((grant) => ({
     ...grant,
-    createdAt: formatDate(grant.createdAt)
+    createdAt: formatDate({ date: grant.createdAt })
   }))
 
   return {
