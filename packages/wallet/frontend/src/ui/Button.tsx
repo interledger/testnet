@@ -41,8 +41,8 @@ const buttonStyles = cva(
         ]
       },
       size: {
-        sm: 'px-2 rounded-md font-medium',
-        md: 'px-3 py-1 rounded-md font-medium'
+        sm: 'px-2 py-1 rounded-md font-medium',
+        md: 'px-3 py-2 rounded-md font-medium'
       },
       fullWidth: {
         true: 'w-full'

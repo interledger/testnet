@@ -17,6 +17,7 @@ export type OrderByDirection = keyof typeof ORDER_DIRECTION
 
 export type TransactionsFilters = {
   page: string
+  pageSize: string
   accountId: SelectOption
   walletAddressId: SelectOption
   type: SelectOption
@@ -31,8 +32,15 @@ const defaultState = {
 
 export const useTransactions = () => {
   const router = useTypedRouter(transactionListQuerySchema)
-  const { accountId, walletAddressId, type, status, page, orderByDate } =
-    router.query as TransactionsQueryParams
+  const {
+    accountId,
+    walletAddressId,
+    type,
+    status,
+    page,
+    pageSize,
+    orderByDate
+  } = router.query as TransactionsQueryParams
   const [request, loading, error] = useHttpRequest()
   const [transactions, setTransactions] =
     useState<TransactionsPage>(defaultState)
@@ -61,14 +69,31 @@ export const useTransactions = () => {
         type,
         status
       },
-      { page: page ?? 0, orderByDate: orderByDate ?? 'DESC' }
+      {
+        page: page ?? 0,
+        pageSize: pageSize ?? 10,
+        orderByDate: orderByDate ?? 'DESC'
+      }
     )
-  }, [fetch, accountId, walletAddressId, type, status, page, orderByDate])
+  }, [
+    fetch,
+    accountId,
+    walletAddressId,
+    type,
+    status,
+    page,
+    pageSize,
+    orderByDate
+  ])
 
   return [
     transactions,
     { accountId, walletAddressId, type, status },
-    { page: page ?? 0, orderByDate: orderByDate ?? 'DESC' },
+    {
+      page: page ?? 0,
+      pageSize: pageSize ?? 10,
+      orderByDate: orderByDate ?? 'DESC'
+    },
     fetch,
     loading,
     error

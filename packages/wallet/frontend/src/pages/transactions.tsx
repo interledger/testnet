@@ -38,11 +38,19 @@ const types: SelectOption[] = [
   { label: 'Outgoing', value: 'OUTGOING' }
 ]
 
-const statuses = [
+const statuses: SelectOption[] = [
   defaultOption,
   { label: 'Completed', value: 'COMPLETED' },
   { label: 'Pending', value: 'PENDING' },
   { label: 'Expired', value: 'EXPIRED' }
+]
+
+const pageSize: SelectOption[] = [
+  { label: '10', value: '10' },
+  { label: '15', value: '15' },
+  { label: '30', value: '30' },
+  { label: '50', value: '50' },
+  { label: '100', value: '100' }
 ]
 
 type TransactionsPageProps = InferGetServerSidePropsType<
@@ -86,8 +94,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   )
 
   const totalPages = useMemo<number>(
-    () => Math.ceil(transactions.total / 10),
-    [transactions.total]
+    () => Math.ceil(transactions.total / Number(pagination.pageSize)),
+    [pagination.pageSize, transactions.total]
   )
 
   useEffect(() => {
@@ -314,18 +322,28 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           >
             Previous
           </Button>
-          <Button
-            className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
-            aria-label="go to next page"
-            disabled={Number(pagination.page) + 1 > totalPages - 1}
-            onClick={() => {
-              const nextPage = Number(pagination.page) + 1
-              if (isNaN(nextPage) || nextPage > totalPages - 1) return
-              redirect({ page: nextPage.toString() })
-            }}
-          >
-            Next
-          </Button>
+          <div className="flex flex-row">
+            <Select
+              options={pageSize}
+              className="mr-2 w-20"
+              value={{ label: pagination.pageSize, value: pagination.pageSize }}
+              onChange={(option) => {
+                redirect({ pageSize: option?.value, page: 0 })
+              }}
+            />
+            <Button
+              className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+              aria-label="go to next page"
+              disabled={Number(pagination.page) + 1 > totalPages - 1}
+              onClick={() => {
+                const nextPage = Number(pagination.page) + 1
+                if (isNaN(nextPage) || nextPage > totalPages - 1) return
+                redirect({ page: nextPage.toString() })
+              }}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       ) : null}
     </div>
