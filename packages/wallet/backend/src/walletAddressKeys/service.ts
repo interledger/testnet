@@ -22,7 +22,7 @@ interface WalletAddressKeyArgs {
 
 interface RegisterKeyArgs extends WalletAddressKeyArgs {
   nickname?: string
-  defaultAccount?: {
+  keyPair?: {
     publicKeyPEM: string
     privateKeyPEM: string
     keyId: string
@@ -99,7 +99,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     accountId,
     walletAddressId,
     nickname,
-    defaultAccount
+    keyPair
   }: RegisterKeyArgs): Promise<KeyResponse> {
     const walletAddress = await this.walletAddressService.getById({
       userId,
@@ -108,19 +108,19 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     })
     let publicKey, privateKey, keyId
 
-    if (!defaultAccount) {
+    if (!keyPair) {
       const generatedPairs = generateKeyPairSync('ed25519')
       publicKey = generatedPairs.publicKey
       privateKey = generatedPairs.privateKey
       keyId = uuid()
     } else {
       publicKey = createPublicKey({
-        key: Buffer.from(defaultAccount.publicKeyPEM, 'base64')
+        key: Buffer.from(keyPair.publicKeyPEM, 'base64')
       })
       privateKey = createPrivateKey({
-        key: Buffer.from(defaultAccount.privateKeyPEM, 'base64')
+        key: Buffer.from(keyPair.privateKeyPEM, 'base64')
       })
-      keyId = defaultAccount.keyId
+      keyId = keyPair.keyId
     }
 
     const publicKeyPEM = publicKey

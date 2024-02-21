@@ -165,7 +165,7 @@ export class UserService implements IUserService {
         userId: boutiqueInfo.createdUser.id,
         accountId: boutiqueInfo.defaultAccount.id,
         walletAddressId: boutiqueWallet.id,
-        defaultAccount: {
+        keyPair: {
           publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
           privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
           keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
