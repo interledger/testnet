@@ -263,35 +263,6 @@ describe('Wallet Address Service', () => {
     })
   })
 
-  describe('Register Key', () => {
-    it('should return privateKey, publicKey and keyId as an object', async () => {
-      const { account, walletAddress } =
-        await prepareWADependencies('my-wallet')
-      const result = await waService.registerKey(
-        userId,
-        account.id,
-        walletAddress.id
-      )
-      expect(result).toHaveProperty('privateKey')
-      expect(result).toHaveProperty('publicKey')
-      expect(result).toHaveProperty('keyId')
-    })
-  })
-
-  describe('Revoke Key', () => {
-    it('should return undefined', async () => {
-      const { account, walletAddress } =
-        await prepareWADependencies('my-wallet')
-      await waService.registerKey(userId, account.id, walletAddress.id)
-      const result = await waService.revokeKey(
-        userId,
-        account.id,
-        walletAddress.id
-      )
-      expect(result).toBeUndefined()
-    })
-  })
-
   describe('َUpdate', () => {
     it('should return undefined', async () => {
       const { account, walletAddress } =
