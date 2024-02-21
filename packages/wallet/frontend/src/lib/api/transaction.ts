@@ -66,22 +66,23 @@ interface TransactionService {
 export const createTransactionService = (): TransactionService => {
   return {
     async list(args) {
-      const params = new URLSearchParams()
+      const searchParams = new URLSearchParams()
       for (const key in args?.filters) {
         if (typeof args?.filters[key] !== 'undefined') {
-          params.append(`filter[${key}]`, args?.filters[key].toString())
+          searchParams.append(`filter[${key}]`, args?.filters[key].toString())
         }
       }
 
       for (const key in args?.pagination) {
         if (typeof args?.pagination[key] !== 'undefined') {
-          params.append(key, args?.pagination[key].toString())
+          searchParams.append(key, args?.pagination[key].toString())
         }
       }
 
       try {
         const response = await httpClient
-          .get(`transactions?${params}`, {
+          .get('transactions', {
+            searchParams,
             retry: 0
           })
           .json<ListTransactionsResult>()
