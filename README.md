@@ -12,6 +12,8 @@ It wants to use all of the functionalities of Rafiki and put its advantages to t
 Testnet is made up of several components, including an Interledger test wallet application,
 e-commerce application and in the near future, a bank application.
 
+If you are curious about the Interledger Testnet architecture diagram, then follow this [link](.github/TESTNET_architecture.md).
+
 See Testnet in action:
 
 - [Interledger Test Wallet](https://rafiki.money)
