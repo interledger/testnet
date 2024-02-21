@@ -88,7 +88,7 @@ interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (
     cookies?: string,
-    include?: 'walletAddresses'
+    include?: ('walletAddresses' | 'walletAddressKeys')[]
   ) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
@@ -115,8 +115,14 @@ const createAccountService = (): AccountService => ({
 
   async list(cookies, include) {
     try {
+      const searchParams = new URLSearchParams()
+      include?.forEach((value) => {
+        searchParams.append('include[]', value)
+      })
+
       const response = await httpClient
-        .get(`accounts${include ? `?include=${include}` : ``}`, {
+        .get(`accounts`, {
+          searchParams,
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
