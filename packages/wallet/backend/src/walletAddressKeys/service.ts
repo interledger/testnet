@@ -1,6 +1,6 @@
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk, validateJwk } from '@/utils/jwk'
-import { createPublicKey, generateKeyPairSync } from 'crypto'
+import { createPublicKey, createPrivateKey, generateKeyPairSync } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { WalletAddressKeys } from './model'
 import { WalletAddressService } from '@/walletAddress/service'
@@ -22,6 +22,11 @@ interface WalletAddressKeyArgs {
 
 interface RegisterKeyArgs extends WalletAddressKeyArgs {
   nickname?: string
+  defaultAccount?: {
+    publicKeyPEM: string
+    privateKeyPEM: string
+    keyId: string
+  }
 }
 
 interface UploadKeyArgs extends RegisterKeyArgs {
@@ -93,21 +98,37 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     userId,
     accountId,
     walletAddressId,
-    nickname
+    nickname,
+    defaultAccount
   }: RegisterKeyArgs): Promise<KeyResponse> {
     const walletAddress = await this.walletAddressService.getById({
       userId,
       accountId,
       walletAddressId
     })
-    const { privateKey, publicKey } = generateKeyPairSync('ed25519')
+    let publicKey, privateKey, keyId
+
+    if (!defaultAccount) {
+      const generatedPairs = generateKeyPairSync('ed25519')
+      publicKey = generatedPairs.publicKey
+      privateKey = generatedPairs.privateKey
+      keyId = uuid()
+    } else {
+      publicKey = createPublicKey({
+        key: Buffer.from(defaultAccount.publicKeyPEM, 'base64')
+      })
+      privateKey = createPrivateKey({
+        key: Buffer.from(defaultAccount.privateKeyPEM, 'base64')
+      })
+      keyId = defaultAccount.keyId
+    }
+
     const publicKeyPEM = publicKey
       .export({ type: 'spki', format: 'pem' })
       .toString()
     const privateKeyPEM = privateKey
       .export({ type: 'pkcs8', format: 'pem' })
       .toString()
-    const keyId = uuid()
 
     const walletAddressKey =
       await this.rafikiClient.createRafikiWalletAddressKey(

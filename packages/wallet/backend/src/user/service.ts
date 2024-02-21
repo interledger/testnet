@@ -8,6 +8,7 @@ import { AccountService } from '@/account/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { getRandomValues } from 'crypto'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 
 interface CreateUserArgs {
   email: string
@@ -29,6 +30,7 @@ export class UserService implements IUserService {
     private emailService: EmailService,
     private accountService: AccountService,
     private walletAddressService: WalletAddressService,
+    private walletAddressKeyService: WalletAddressKeyService,
     private rafikiClient: RafikiClient,
     private logger: Logger,
     private env: Env
@@ -130,78 +132,59 @@ export class UserService implements IUserService {
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
-    const { createdWalletUser, defaultAccount } =
-      await this.createWalletDefaultUser(defaultWalletUser)
-    const { createdBoutiqueUser, defaultBoutiqueAccount } =
-      await this.createBoutiqueDefaultUser(defaultBoutiqueUser)
+    const walletInfo = await this.createDefaultUser(defaultWalletUser)
+    const boutiqueInfo = await this.createDefaultUser(defaultBoutiqueUser, true)
 
-    if (defaultAccount && defaultBoutiqueAccount) {
+    if (walletInfo.defaultAccount && boutiqueInfo.defaultAccount) {
       const typedArray = new Uint32Array(1)
       getRandomValues(typedArray)
 
       await this.walletAddressService.create({
-        accountId: defaultAccount.id,
+        accountId: walletInfo.defaultAccount.id,
         walletAddressName: typedArray[0].toString(16),
         publicName: 'Default Payment Pointer',
-        userId: createdWalletUser.id,
+        userId: walletInfo.createdUser.id,
         isWM: false
       })
 
       const boutiqueWallet = await this.walletAddressService.create({
-        accountId: defaultBoutiqueAccount.id,
+        accountId: boutiqueInfo.defaultAccount.id,
         walletAddressName: 'boutique',
         publicName: 'Default Payment Pointer',
-        userId: createdBoutiqueUser.id,
+        userId: boutiqueInfo.createdUser.id,
         isWM: false
       })
 
-      await this.walletAddressService.registerKey(
-        createdBoutiqueUser.id,
-        defaultBoutiqueAccount.id,
-        boutiqueWallet.id,
-        {
+      await this.walletAddressKeyService.registerKey({
+        userId: boutiqueInfo.createdUser.id,
+        accountId: boutiqueInfo.defaultAccount.id,
+        walletAddressId: boutiqueWallet.id,
+        defaultAccount: {
           publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
           privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
           keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
         }
-      )
+      })
     }
 
     this.logger.info('Default users have been successfully created')
   }
 
-  private async createBoutiqueDefaultUser(
-    defaultBoutiqueUser: Record<string, unknown>
+  private async createDefaultUser(
+    defaultBoutiqueUser: Record<string, unknown>,
+    isBoutique = false
   ) {
     const args = {
       ...defaultBoutiqueUser,
       isEmailVerified: true
     }
-    const createdBoutiqueUser = await User.query().insertAndFetch(args)
-
-    const defaultBoutiqueAccount =
-      await this.accountService.createDefaultAccount(
-        createdBoutiqueUser.id,
-        true
-      )
-    return { createdBoutiqueUser, defaultBoutiqueAccount }
-  }
-
-  private async createWalletDefaultUser(
-    defaultWalletUser: Record<string, unknown>
-  ) {
-    const args = {
-      ...defaultWalletUser,
-      isEmailVerified: true
-    }
-
-    const createdWalletUser = await User.query().insertAndFetch(args)
+    const createdUser = await User.query().insertAndFetch(args)
 
     const defaultAccount = await this.accountService.createDefaultAccount(
-      createdWalletUser.id,
-      false
+      createdUser.id,
+      isBoutique
     )
-    return { createdWalletUser, defaultAccount }
+    return { createdUser, defaultAccount }
   }
 
   public async verifyEmail(token: string): Promise<void> {
