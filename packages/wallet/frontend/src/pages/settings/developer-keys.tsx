@@ -29,10 +29,10 @@ const DeveloperKeysPage: NextPageWithLayout<DeveloperKeysPageProps> = ({
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (ctx) => {
-  const response = await accountService.list(
-    ctx.req.headers.cookie,
-    'walletAddresses'
-  )
+  const response = await accountService.list(ctx.req.headers.cookie, [
+    'walletAddresses',
+    'walletAddressKeys'
+  ])
 
   if (!response.success || !response.result) {
     return {
@@ -45,13 +45,17 @@ export const getServerSideProps: GetServerSideProps<{
     walletAddresses: account.walletAddresses.map((pp) => ({
       ...pp,
       url: replaceWalletAddressProtocol(pp.url),
-      keyIds: pp.keyIds
-        ? {
-            id: pp.keyIds.id,
-            publicKey: pp.keyIds.publicKey,
-            createdOn: formatDate(pp.keyIds.createdOn, false)
-          }
-        : null
+      keys: pp.keys?.map((key) => ({
+        ...key,
+        id: key.id,
+        publicKey: key.publicKey,
+        createdAt: formatDate({
+          date: key.createdAt,
+          time: false,
+          month: 'long'
+        }),
+        nickname: key.nickname
+      }))
     }))
   }))
 

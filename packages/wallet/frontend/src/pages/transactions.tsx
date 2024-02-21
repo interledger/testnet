@@ -285,7 +285,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       />
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {formatDate(trx.createdAt)}
+                      {formatDate({ date: trx.createdAt })}
                     </Table.Cell>
                   </Table.Row>
                 ))
