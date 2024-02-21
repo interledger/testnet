@@ -55,10 +55,19 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   }
 }
 
-export const formatDate = (date: string, time = true): string => {
+type FormatDateArgs = {
+  date: string
+  time?: boolean
+  month?: Intl.DateTimeFormatOptions['month']
+}
+export const formatDate = ({
+  date,
+  time = true,
+  month = 'short'
+}: FormatDateArgs): string => {
   return new Date(date).toLocaleDateString('default', {
     day: '2-digit',
-    month: 'short',
+    month,
     year: 'numeric',
     ...(time && { hour: '2-digit', minute: '2-digit' })
   })
@@ -112,4 +121,14 @@ export const generateAndDownloadFile = ({
   anchor.click()
   document.body.removeChild(anchor)
   URL.revokeObjectURL(anchor.href)
+}
+
+export const replaceWalletAddressProtocol = (
+  paymentPointer: string
+): string => {
+  return paymentPointer.indexOf('https://') !== -1
+    ? paymentPointer.replace('https://', '$')
+    : paymentPointer.indexOf('http://') !== -1
+      ? paymentPointer.replace('http://', '$')
+      : paymentPointer
 }

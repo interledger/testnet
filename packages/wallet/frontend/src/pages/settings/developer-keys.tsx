@@ -4,7 +4,7 @@ import { DeveloperKeys } from '@/components/settings/DeveloperKeys'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { Account, accountService } from '@/lib/api/account'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { formatDate } from '@/utils/helpers'
+import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 
 type DeveloperKeysPageProps = InferGetServerSidePropsType<
@@ -29,10 +29,10 @@ const DeveloperKeysPage: NextPageWithLayout<DeveloperKeysPageProps> = ({
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
 }> = async (ctx) => {
-  const response = await accountService.list(
-    ctx.req.headers.cookie,
-    'walletAddresses'
-  )
+  const response = await accountService.list(ctx.req.headers.cookie, [
+    'walletAddresses',
+    'walletAddressKeys'
+  ])
 
   if (!response.success || !response.result) {
     return {
@@ -44,14 +44,18 @@ export const getServerSideProps: GetServerSideProps<{
     ...account,
     walletAddresses: account.walletAddresses.map((pp) => ({
       ...pp,
-      url: pp.url.replace('https://', '$'),
-      keyIds: pp.keyIds
-        ? {
-            id: pp.keyIds.id,
-            publicKey: pp.keyIds.publicKey,
-            createdOn: formatDate(pp.keyIds.createdOn, false)
-          }
-        : null
+      url: replaceWalletAddressProtocol(pp.url),
+      keys: pp.keys?.map((key) => ({
+        ...key,
+        id: key.id,
+        publicKey: key.publicKey,
+        createdAt: formatDate({
+          date: key.createdAt,
+          time: false,
+          month: 'long'
+        }),
+        nickname: key.nickname
+      }))
     }))
   }))
 

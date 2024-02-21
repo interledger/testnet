@@ -367,7 +367,7 @@ export const RapydSetTransferResponseSchema = z.object({
   destination_transaction_id: z.string(),
   source_ewallet_id: z.string(),
   source_transaction_id: z.string(),
-  transfer_response_at: z.number(),
+  transfer_response_at: z.number().nullable(),
   created_at: z.number(),
   metadata: z
     .object({

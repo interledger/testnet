@@ -3,15 +3,8 @@ import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
 import { BadRequest, Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { generateJwk } from '@/utils/jwk'
 import axios from 'axios'
-import {
-  generateKeyPairSync,
-  getRandomValues,
-  createPublicKey,
-  createPrivateKey
-} from 'crypto'
-import { v4 as uuid } from 'uuid'
+import { getRandomValues } from 'crypto'
 import { Cache } from '@/cache/service'
 import { WalletAddress } from './model'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
@@ -49,11 +42,6 @@ export interface CreateWalletAddressArgs {
   isWM: boolean
 }
 
-export type UpdateWalletAddressBalanceArgs = {
-  walletAddressId: string
-  balance: number
-}
-
 export type GetWalletAddressArgs = {
   walletAddressId: string
   accountId?: string
@@ -64,6 +52,7 @@ export type WalletAddressList = {
   wmWalletAddresses: WalletAddress[]
   walletAddresses: WalletAddress[]
 }
+
 interface IWalletAddressService {
   create: (params: CreateWalletAddressArgs) => Promise<WalletAddress>
   update: (args: UpdateWalletAddressArgs) => Promise<void>
@@ -292,92 +281,6 @@ export class WalletAddressService implements IWalletAddressService {
     await WalletAddress.query().findById(id).patch({
       active: false
     })
-  }
-
-  async registerKey(
-    userId: string,
-    accountId: string,
-    walletAddressId: string,
-    defaultAccount?: {
-      publicKeyPEM: string
-      privateKeyPEM: string
-      keyId: string
-    }
-  ): Promise<{ privateKey: string; publicKey: string; keyId: string }> {
-    const walletAddress = await this.getById({
-      userId,
-      accountId,
-      walletAddressId
-    })
-    let publicKey, privateKey, keyId
-    if (!defaultAccount) {
-      const generatedPairs = generateKeyPairSync('ed25519')
-      publicKey = generatedPairs.publicKey
-      privateKey = generatedPairs.privateKey
-      keyId = uuid()
-    } else {
-      publicKey = createPublicKey({
-        key: Buffer.from(defaultAccount.publicKeyPEM, 'base64')
-      })
-      privateKey = createPrivateKey({
-        key: Buffer.from(defaultAccount.privateKeyPEM, 'base64')
-      })
-      keyId = defaultAccount.keyId
-    }
-
-    const publicKeyPEM = publicKey
-      .export({ type: 'spki', format: 'pem' })
-      .toString()
-    const privateKeyPEM = privateKey
-      .export({ type: 'pkcs8', format: 'pem' })
-      .toString()
-
-    const walletAddressKey =
-      await this.rafikiClient.createRafikiWalletAddressKey(
-        generateJwk(privateKey, keyId),
-        walletAddress.id
-      )
-
-    const key = {
-      id: keyId,
-      rafikiId: walletAddressKey.id,
-      publicKey: publicKeyPEM,
-      createdOn: new Date()
-    }
-
-    await WalletAddress.query().findById(walletAddressId).patch({
-      keyIds: key
-    })
-
-    return { privateKey: privateKeyPEM, publicKey: publicKeyPEM, keyId: key.id }
-  }
-
-  async revokeKey(
-    userId: string,
-    accountId: string,
-    walletAddressId: string
-  ): Promise<void> {
-    const walletAddress = await this.getById({
-      userId,
-      accountId,
-      walletAddressId
-    })
-
-    if (!walletAddress.keyIds) {
-      return
-    }
-
-    const trx = await WalletAddress.startTransaction()
-
-    try {
-      await Promise.all([
-        walletAddress.$query(trx).patch({ keyIds: null }),
-        this.rafikiClient.revokeWalletAddressKey(walletAddress.keyIds.rafikiId)
-      ])
-      await trx.commit()
-    } catch (e) {
-      await trx.rollback()
-    }
   }
 
   async update(args: UpdateWalletAddressArgs): Promise<void> {
