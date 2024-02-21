@@ -46,6 +46,8 @@ import { createRedis } from '@/config/redis'
 import { createWalletAddressService } from '@/config/walletAddress'
 import { createKnex } from '@/config/knex'
 import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
+import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
+import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 
 export interface Cradle {
   env: Env
@@ -64,6 +66,7 @@ export interface Cradle {
   redisClient: RedisClient
   wmTransactionService: WMTransactionService
   walletAddressService: WalletAddressService
+  walletAddressKeyService: WalletAddressKeyService
   transactionService: TransactionService
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentService: OutgoingPaymentService
@@ -83,6 +86,7 @@ export interface Cradle {
   quoteController: QuoteController
   grantController: GrantController
   walletAddressController: WalletAddressController
+  walletAddressKeyController: WalletAddressKeyController
 }
 
 export async function createContainer(
@@ -110,6 +114,7 @@ export async function createContainer(
     wmTransactionService: asClass(WMTransactionService).singleton(),
     transactionService: asClass(TransactionService).singleton(),
     walletAddressService: asFunction(createWalletAddressService).singleton(),
+    walletAddressKeyService: asClass(WalletAddressKeyService).singleton(),
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
     rafikiService: asClass(RafikiService).singleton(),
@@ -127,7 +132,8 @@ export async function createContainer(
     rafikiController: asClass(RafikiController).singleton(),
     quoteController: asClass(QuoteController).singleton(),
     grantController: asClass(GrantController).singleton(),
-    walletAddressController: asClass(WalletAddressController).singleton()
+    walletAddressController: asClass(WalletAddressController).singleton(),
+    walletAddressKeyController: asClass(WalletAddressKeyController).singleton()
   })
 
   return container

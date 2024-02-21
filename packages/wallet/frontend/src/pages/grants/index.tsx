@@ -71,7 +71,7 @@ const GrantsPage: NextPageWithLayout = () => {
                       ) : null}
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {formatDate(grant.node.createdAt)}
+                      {formatDate({ date: grant.node.createdAt })}
                     </Table.Cell>
                     <Table.Cell>
                       <ButtonOrLink
