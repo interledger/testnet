@@ -285,7 +285,7 @@ export class WalletAddressService implements IWalletAddressService {
     })
     await this.transactionService.updateTransaction(
       { walletAddressId: walletAddress.id },
-      { status: 'DELETED' }
+      { active: false }
     )
   }
 
