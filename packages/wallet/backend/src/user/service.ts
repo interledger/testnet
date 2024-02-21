@@ -132,8 +132,14 @@ export class UserService implements IUserService {
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
-    const walletInfo = await this.createDefaultUser(defaultWalletUser)
-    const boutiqueInfo = await this.createDefaultUser(defaultBoutiqueUser, true)
+    const walletInfo = await this.createDefaultUser(
+      defaultWalletUser,
+      'USD Account'
+    )
+    const boutiqueInfo = await this.createDefaultUser(
+      defaultBoutiqueUser,
+      'Boutique'
+    )
 
     if (walletInfo.defaultAccount && boutiqueInfo.defaultAccount) {
       const typedArray = new Uint32Array(1)
@@ -172,7 +178,7 @@ export class UserService implements IUserService {
 
   private async createDefaultUser(
     defaultBoutiqueUser: Record<string, unknown>,
-    isBoutique = false
+    name: string
   ) {
     const args = {
       ...defaultBoutiqueUser,
@@ -182,7 +188,7 @@ export class UserService implements IUserService {
 
     const defaultAccount = await this.accountService.createDefaultAccount(
       createdUser.id,
-      isBoutique
+      name
     )
     return { createdUser, defaultAccount }
   }
