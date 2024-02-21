@@ -55,7 +55,7 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   }
 }
 
-type formatDateArgs = {
+type FormatDateArgs = {
   date: string
   time?: boolean
   month?: Intl.DateTimeFormatOptions['month']
@@ -64,7 +64,7 @@ export const formatDate = ({
   date,
   time = true,
   month = 'short'
-}: formatDateArgs): string => {
+}: FormatDateArgs): string => {
   return new Date(date).toLocaleDateString('default', {
     day: '2-digit',
     month,
