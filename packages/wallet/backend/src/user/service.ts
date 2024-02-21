@@ -132,28 +132,10 @@ export class UserService implements IUserService {
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
-    let args = {
-      ...defaultWalletUser,
-      isEmailVerified: true
-    }
-
-    const createdWalletUser = await User.query().insertAndFetch(args)
-
-    const defaultAccount = await this.accountService.createDefaultAccount(
-      createdWalletUser.id,
-      false
-    )
-
-    args = {
-      ...defaultBoutiqueUser,
-      isEmailVerified: true
-    }
-    const createdBoutiqueUser = await User.query().insertAndFetch(args)
-
-    const defaultBoutiqueAccount = await this.accountService.createDefaultAccount(
-      createdBoutiqueUser.id,
-      true
-    )
+    const { createdWalletUser, defaultAccount } =
+      await this.createWalletDefaultUser(defaultWalletUser)
+    const { createdBoutiqueUser, defaultBoutiqueAccount } =
+      await this.createBoutiqueDefaultUser(defaultBoutiqueUser)
 
     if (defaultAccount && defaultBoutiqueAccount) {
       const typedArray = new Uint32Array(1)
@@ -189,6 +171,41 @@ export class UserService implements IUserService {
 
     this.logger.info('Default users have been successfully created')
   }
+
+  private async createBoutiqueDefaultUser(
+    defaultBoutiqueUser: Record<string, unknown>
+  ) {
+    const args = {
+      ...defaultBoutiqueUser,
+      isEmailVerified: true
+    }
+    const createdBoutiqueUser = await User.query().insertAndFetch(args)
+
+    const defaultBoutiqueAccount =
+      await this.accountService.createDefaultAccount(
+        createdBoutiqueUser.id,
+        true
+      )
+    return { createdBoutiqueUser, defaultBoutiqueAccount }
+  }
+
+  private async createWalletDefaultUser(
+    defaultWalletUser: Record<string, unknown>
+  ) {
+    const args = {
+      ...defaultWalletUser,
+      isEmailVerified: true
+    }
+
+    const createdWalletUser = await User.query().insertAndFetch(args)
+
+    const defaultAccount = await this.accountService.createDefaultAccount(
+      createdWalletUser.id,
+      false
+    )
+    return { createdWalletUser, defaultAccount }
+  }
+
   public async verifyEmail(token: string): Promise<void> {
     const verifyEmailToken = hashToken(token)
 
