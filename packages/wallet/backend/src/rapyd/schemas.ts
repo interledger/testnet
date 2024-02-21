@@ -184,8 +184,8 @@ export const RapydAccountSchema = z.object({
   alias: z.string().optional(),
   balance: z.number().optional(),
   currency: z.string().optional(),
-  limit: z.number().optional(),
-  limits: z.number().optional(),
+  limit: z.number().optional().nullable(),
+  limits: z.number().optional().nullable(),
   on_hold_balance: z.number().optional(),
   received_balance: z.number().optional(),
   reserve_balance: z.number().optional()
@@ -459,7 +459,7 @@ export type RapydReleaseResponse = RapydHoldResponse
 export const PayoutMethodResponseSchema = z.object({
   payout_method_type: z.string(),
   name: z.string(),
-  payout_currencies: z.string(),
+  payout_currencies: z.string().array(),
   beneficiary_country: z.string(),
   sender_entity_types: z.string().array(),
   beneficiary_entity_types: z.string().array(),
