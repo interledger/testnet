@@ -6,11 +6,9 @@
 
 ## What is Testnet?
 
-Testnet (test network) is an open-source test application for Rafiki. In other words, a Rafiki Playground.
-It wants to use all of the functionalities of Rafiki and put its advantages to the real test.
+Testnet (test network) is an open Interledger network working with test money designed for account servicing entities to test their Interledger integration.
 
-Testnet is made up of several components, including an Interledger test wallet application,
-e-commerce application and in the near future, a bank application.
+Testnet currently includes an Interledger test wallet application, an e-commerce application and in the near future, a bank application.
 
 See Testnet in action:
 
@@ -19,7 +17,7 @@ See Testnet in action:
 
 ## What is Rafiki?
 
-Rafiki is an open-source package that exposes a comprehensive set of
+[Rafiki](https://github.com/interledger/rafiki) is an open-source package that exposes a comprehensive set of
 Interledger APIs. It's intended to be run by wallet providers, allowing them to
 offer Interledger functionality to their users.
 
