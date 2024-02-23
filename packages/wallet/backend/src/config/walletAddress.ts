@@ -8,6 +8,7 @@ import { Cache } from '@/cache/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { RedisClient } from '@/cache/redis-client'
+import { TransactionService } from '@/transaction/service'
 
 export function createWalletAddressService(
   env: Env,
@@ -15,6 +16,7 @@ export function createWalletAddressService(
   accountService: AccountService,
   rapydClient: RapydClient,
   wmTransactionService: WMTransactionService,
+  transactionService: TransactionService,
   redisClient: RedisClient,
   logger: Logger
 ) {
@@ -24,6 +26,7 @@ export function createWalletAddressService(
     env,
     new Cache<WalletAddress>(redisClient, 'WMWalletAddresses'),
     wmTransactionService,
+    transactionService,
     rapydClient,
     logger
   )
