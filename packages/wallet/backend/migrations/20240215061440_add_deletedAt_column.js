@@ -4,12 +4,11 @@
  */
 exports.up = function (knex) {
   return knex.schema.alterTable('transactions', async (table) => {
-    table.boolean('active').notNullable().defaultTo(true)
-    await knex.raw([`UPDATE transactions`, `SET active = true`].join('\n'))
+    table.timestamp('deletedAt').nullable()
     await knex.raw(
       [
         `UPDATE transactions`,
-        `SET active = false`,
+        `SET "deletedAt" = "walletAddresses"."updatedAt"`,
         `FROM "walletAddresses"`,
         `WHERE transactions."walletAddressId" = "walletAddresses".id AND "walletAddresses".active = false`
       ].join('\n')
@@ -23,6 +22,6 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
   return knex.schema.alterTable('transactions', async (table) => {
-    table.dropColumn('debt')
+    table.dropColumn('deletedAt')
   })
 }

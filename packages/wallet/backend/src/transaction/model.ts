@@ -14,7 +14,7 @@ export class TransactionBaseModel extends BaseModel {
   value!: bigint | null
   type!: TransactionType
   status!: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
-  active!: boolean
+  deletedAt!: Date | null
   expiresAt!: Date | null
 }
 
