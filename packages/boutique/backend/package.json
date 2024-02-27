@@ -6,6 +6,7 @@
     "test": "jest --passWithNoTests --maxWorkers=2"
   },
   "dependencies": {
+    "@google-cloud/logging-winston": "^6.0.0",
     "@interledger/open-payments": "^6.1.1",
     "awilix": "^10.0.1",
     "axios": "^1.6.7",
