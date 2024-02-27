@@ -346,10 +346,10 @@ export class RafikiService implements IRafikiService {
     const user = await this.userService.getByWalletId(source_ewallet)
     const isExchange = NodeCacheInstance.get(wh.data.id)
     if (user && !isExchange) {
-      let messageType = MessageType.MONEY_SENT
-      if (wh.data.metadata.type === 'instant')
-        messageType = MessageType.MONEY_SENT_SHOP
-
+      const messageType =
+        wh.data.metadata.type === 'instant'
+          ? MessageType.MONEY_SENT_SHOP
+          : MessageType.MONEY_SENT
       await this.socketService.emitMoneySentByUserId(
         user.id.toString(),
         debitAmount,
