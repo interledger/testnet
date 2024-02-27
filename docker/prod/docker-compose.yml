@@ -3,9 +3,7 @@ name: 'testnet'
 
 x-logging: &logging
   logging:
-    driver: 'json-file'
-    options:
-      max-size: '100m'
+    driver: 'gcplogs'
 
 services:
   postgres:
