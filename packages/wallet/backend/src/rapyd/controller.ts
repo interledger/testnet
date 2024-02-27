@@ -4,13 +4,15 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
 import { getRandomValues } from 'crypto'
 import { Options, RapydService } from './service'
-import { kycSchema, profileSchema, walletSchema } from './schemas'
-import { User } from '@/user/model'
 import {
+  kycSchema,
+  profileSchema,
   RapydDocumentType,
   RapydIdentityResponse,
-  RapydWallet
+  RapydWallet,
+  walletSchema
 } from './schemas'
+import { User } from '@/user/model'
 
 interface IRapydController {
   getCountryNames: ControllerFunction<Options[]>

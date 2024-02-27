@@ -12,6 +12,7 @@ import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionType } from '@/transaction/model'
 import { Logger } from 'winston'
+import { TransactionService } from '@/transaction/service'
 
 interface HandleBalanceParams {
   type: TransactionType
@@ -96,6 +97,7 @@ export class WalletAddressService implements IWalletAddressService {
     private env: Env,
     private cache: Cache<WalletAddress>,
     private wmTransactionService: WMTransactionService,
+    private transactionService: TransactionService,
     private rapydClient: RapydClient,
     private logger: Logger
   ) {}
@@ -281,6 +283,10 @@ export class WalletAddressService implements IWalletAddressService {
     await WalletAddress.query().findById(id).patch({
       active: false
     })
+    await this.transactionService.updateTransaction(
+      { walletAddressId: walletAddress.id },
+      { deletedAt: new Date() }
+    )
   }
 
   async update(args: UpdateWalletAddressArgs): Promise<void> {

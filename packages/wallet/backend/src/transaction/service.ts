@@ -85,9 +85,9 @@ export class TransactionService implements ITransactionService {
         'account.name as accountName',
         'account.assetScale'
       )
-      .fullOuterJoinRelated('[walletAddress, account.user]')
+      .leftOuterJoinRelated('[walletAddress, account.user]')
+      .whereNull('deletedAt')
       .where('account:user.id', userId)
-      .whereNotNull('transactions.id')
       .where(filterParamsWithTableNames)
       .orderBy('transactions.createdAt', orderByDate)
       .page(page, pageSize)

@@ -3,6 +3,12 @@ import { User } from './model'
 import { EmailService } from '@/email/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
+import { Env } from '@/config/env'
+import { AccountService } from '@/account/service'
+import { WalletAddressService } from '@/walletAddress/service'
+import { getRandomValues } from 'crypto'
+import { RafikiClient } from '@/rafiki/rafiki-client'
+import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 
 interface CreateUserArgs {
   email: string
@@ -22,7 +28,12 @@ interface IUserService {
 export class UserService implements IUserService {
   constructor(
     private emailService: EmailService,
-    private logger: Logger
+    private accountService: AccountService,
+    private walletAddressService: WalletAddressService,
+    private walletAddressKeyService: WalletAddressKeyService,
+    private rafikiClient: RafikiClient,
+    private logger: Logger,
+    private env: Env
   ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
@@ -108,6 +119,78 @@ export class UserService implements IUserService {
     const user = await this.getUserByToken(token)
 
     return !!user
+  }
+  public async createDefaultAccount() {
+    const existingUser = await this.getByEmail(
+      this.env.DEFAULT_WALLET_ACCOUNT.email
+    )
+
+    if (existingUser) return
+
+    const asset = await this.rafikiClient.getRafikiAsset('USD', 2)
+    if (!asset) await this.rafikiClient.createAsset('USD', 2)
+    const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
+    const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
+
+    const walletInfo = await this.createDefaultUser(
+      defaultWalletUser,
+      'USD Account'
+    )
+    const boutiqueInfo = await this.createDefaultUser(
+      defaultBoutiqueUser,
+      'Boutique'
+    )
+
+    if (walletInfo.defaultAccount && boutiqueInfo.defaultAccount) {
+      const typedArray = new Uint32Array(1)
+      getRandomValues(typedArray)
+
+      await this.walletAddressService.create({
+        accountId: walletInfo.defaultAccount.id,
+        walletAddressName: typedArray[0].toString(16),
+        publicName: 'Default Payment Pointer',
+        userId: walletInfo.createdUser.id,
+        isWM: false
+      })
+
+      const boutiqueWallet = await this.walletAddressService.create({
+        accountId: boutiqueInfo.defaultAccount.id,
+        walletAddressName: 'boutique',
+        publicName: 'Default Payment Pointer',
+        userId: boutiqueInfo.createdUser.id,
+        isWM: false
+      })
+
+      await this.walletAddressKeyService.registerKey({
+        userId: boutiqueInfo.createdUser.id,
+        accountId: boutiqueInfo.defaultAccount.id,
+        walletAddressId: boutiqueWallet.id,
+        keyPair: {
+          publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
+          privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
+          keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
+        }
+      })
+    }
+
+    this.logger.info('Default users have been successfully created')
+  }
+
+  private async createDefaultUser(
+    defaultBoutiqueUser: Record<string, unknown>,
+    name: string
+  ) {
+    const args = {
+      ...defaultBoutiqueUser,
+      isEmailVerified: true
+    }
+    const createdUser = await User.query().insertAndFetch(args)
+
+    const defaultAccount = await this.accountService.createDefaultAccount(
+      createdUser.id,
+      name
+    )
+    return { createdUser, defaultAccount }
   }
 
   public async verifyEmail(token: string): Promise<void> {

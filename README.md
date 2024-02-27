@@ -6,11 +6,11 @@
 
 ## What is Testnet?
 
-Testnet (test network) is an open-source test application for Rafiki. In other words, a Rafiki Playground.
-It wants to use all of the functionalities of Rafiki and put its advantages to the real test.
+Testnet (test network) is an open Interledger network working with test money designed for account servicing entities to test their Interledger integration.
 
-Testnet is made up of several components, including an Interledger test wallet application,
-e-commerce application and in the near future, a bank application.
+Testnet currently includes an Interledger test wallet application, an e-commerce application and in the near future, a bank application.
+
+If you are curious about the Interledger Testnet architecture diagram, then follow this [link](.github/TESTNET_architecture.md).
 
 See Testnet in action:
 
@@ -19,7 +19,7 @@ See Testnet in action:
 
 ## What is Rafiki?
 
-Rafiki is an open-source package that exposes a comprehensive set of
+[Rafiki](https://github.com/interledger/rafiki) is an open-source package that exposes a comprehensive set of
 Interledger APIs. It's intended to be run by wallet providers, allowing them to
 offer Interledger functionality to their users.
 
@@ -91,9 +91,16 @@ The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in y
 To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
 
 Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
-Currencies can be added in the `admin` environment. For example `assetCode` is `USD`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
+Currencies can be added in the `admin` environment. For example `assetCode` is `EUR`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
 
-To play with the e-commerce application, you will need to create a USD payment pointer with the name `boutique`, then generate public and private key for the payment pointer in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the `boutique` payment pointer key id and `PAYMENT_POINTER` to `http://rafiki-backend/boutique`.
+To have everything ready for `DEV` environment, we already set up some default values for Interledger Testnet, this way developers are ready to login without validation, and test e-commerce application without any additional setup:
+
+- a `USD` asset set by default in the `admin` environment
+- a user with email address `dev@email.com` and password `123456`, with a `USD` account, payment pointer and test money
+- a user with email address `boutique@email.com` and password `123456`, with a `USD` account and a payment pointer `boutique`, which is used as a receiver payment pointer at the e-commerce application
+- developer keys for the `boutique` payment pointer, these values will be copied to `.env` file from `.env.example`, as mentioned above
+
+If you would like to set up e-commerce application manually for another payment pointer, you will need to create a USD payment pointer, then generate public and private key for the payment pointer in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the payment pointer key id and `PAYMENT_POINTER` to the created payment pointer address.
 
 ### Local Playground
 

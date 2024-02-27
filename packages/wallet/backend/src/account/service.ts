@@ -300,16 +300,17 @@ export class AccountService implements IAccountService {
   }
 
   public async createDefaultAccount(
-    userId: string
+    userId: string,
+    name = 'USD Account'
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
-      (asset) => asset.code === 'EUR' && asset.scale === 2
+      (asset) => asset.code === 'USD' && asset.scale === 2
     )
     if (!asset) {
       return
     }
     const account = await this.createAccount({
-      name: 'EUR Account',
+      name,
       userId,
       assetId: asset.id
     })

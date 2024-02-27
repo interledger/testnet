@@ -131,6 +131,10 @@ export class RapydClient implements IRapydClient {
     return this.put('user', JSON.stringify(profile), RapydWalletSchema)
   }
 
+  public getProfile(walletID: string): Promise<RapydResponse<RapydWallet>> {
+    return this.get(`user/${walletID}`, RapydWalletSchema)
+  }
+
   public verifyIdentity(
     req: RapydIdentityRequest
   ): Promise<RapydResponse<RapydIdentityResponse>> {
