@@ -10,7 +10,11 @@ import { Amount } from '@/rafiki/backend/generated/graphql'
 interface ISocketService {
   init(args: http.Server): void
   emitMoneyReceivedByUserId(id: string, amount: Amount): void
-  emitMoneySentByUserId(id: string, amount: Amount): void
+  emitMoneySentByUserId(
+    id: string,
+    amount: Amount,
+    messageType: MessageType
+  ): void
 }
 
 export class SocketService implements ISocketService {
@@ -66,11 +70,15 @@ export class SocketService implements ISocketService {
     this.io?.to(userId).emit(MessageType.MONEY_RECEIVED, account, amount)
   }
 
-  async emitMoneySentByUserId(userId: string, amount: Amount) {
+  async emitMoneySentByUserId(
+    userId: string,
+    amount: Amount,
+    messageType: MessageType
+  ) {
     const account = await this.accountService.getAccountByAssetCode(
       userId,
       amount
     )
-    this.io?.to(userId).emit(MessageType.MONEY_SENT, account, amount)
+    this.io?.to(userId).emit(messageType, account, amount)
   }
 }
