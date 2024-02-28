@@ -64,7 +64,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         description: (
           <p>
             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            Boutique one click buy withdrew{' '}
+            Rafiki Boutique one click buy withdrew{' '}
             {
               formatAmount({
                 value: amount.value,
