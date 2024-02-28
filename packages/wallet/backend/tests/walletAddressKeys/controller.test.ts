@@ -21,7 +21,7 @@ import { faker } from '@faker-js/faker'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 
-describe('Wallet Address Keys', () => {
+describe('Wallet Address Keys Controller', () => {
   let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex

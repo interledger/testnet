@@ -63,18 +63,18 @@ describe('Wallet Address Key Service', () => {
       }),
       revokeWalletAddressKey: jest.fn()
     }
-    const waServiceDepsMocked = {
+    const wakServiceDepsMocked = {
       walletAddressService: {
         getById: () => Promise.resolve(walletAddress)
       },
       rafikiClient: rafikiClientMock
     }
 
-    for (const key in waServiceDepsMocked)
+    for (const key in wakServiceDepsMocked)
       Reflect.set(
         walletAddressKeyService,
         key,
-        waServiceDepsMocked[key as keyof typeof waServiceDepsMocked]
+        wakServiceDepsMocked[key as keyof typeof wakServiceDepsMocked]
       )
   }
 
