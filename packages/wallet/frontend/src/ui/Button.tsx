@@ -41,6 +41,7 @@ const buttonStyles = cva(
         ]
       },
       size: {
+        xs: 'px-1 rounded-md font-small',
         sm: 'px-2 py-1 rounded-md font-medium',
         md: 'px-3 py-2 rounded-md font-medium'
       },

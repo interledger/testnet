@@ -72,7 +72,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     // log out the user when connection error occurs
     socket.on('connect_error', async (error) => {
-      console.error('Tryng to connect again. Connection error:', error)
+      console.error('Triyng to connect again. Connection error:', error)
       setTimeout(() => {
         socket?.connect()
       }, 1000)

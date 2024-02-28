@@ -17,6 +17,8 @@ import { formatAmount, formatDate } from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 import { cx } from 'class-variance-authority'
+import { IconButton } from '@/ui/IconButton'
+import { Play } from '@/components/icons/Play'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -45,7 +47,8 @@ const statuses: SelectOption[] = [
   { label: 'Expired', value: 'EXPIRED' }
 ]
 
-const pageSize: SelectOption[] = [
+const transactionsPerPage: SelectOption[] = [
+  { label: '5', value: '5' },
   { label: '10', value: '10' },
   { label: '15', value: '15' },
   { label: '30', value: '30' },
@@ -97,6 +100,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
     () => Math.ceil(transactions.total / Number(pagination.pageSize)),
     [pagination.pageSize, transactions.total]
   )
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
 
   useEffect(() => {
     if (isUserFirstTime) {
@@ -309,28 +314,20 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         </div>
       )}
       {!error && !loading ? (
-        <div className="flex w-full items-center justify-between">
-          <Button
-            className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
-            aria-label="go to previous page"
-            disabled={Number(pagination.page) - 1 < 0}
-            onClick={() => {
-              const previousPage = Number(pagination.page) - 1
-              if (isNaN(previousPage) || previousPage < 0) return
-              redirect({ page: previousPage.toString() })
-            }}
-          >
-            Previous
-          </Button>
-          <div className="flex flex-row">
-            <Select
-              options={pageSize}
-              className="mr-2 w-20"
-              value={{ label: pagination.pageSize, value: pagination.pageSize }}
-              onChange={(option) => {
-                redirect({ pageSize: option?.value, page: 0 })
+        <>
+          <div className="flex w-full items-center justify-between">
+            <Button
+              className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+              aria-label="go to previous page"
+              disabled={Number(pagination.page) - 1 < 0}
+              onClick={() => {
+                const previousPage = Number(pagination.page) - 1
+                if (isNaN(previousPage) || previousPage < 0) return
+                redirect({ page: previousPage.toString() })
               }}
-            />
+            >
+              Previous
+            </Button>
             <Button
               className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
               aria-label="go to next page"
@@ -344,7 +341,63 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               Next
             </Button>
           </div>
-        </div>
+          <div className="flex w-full justify-center">
+            {totalPages !== 1 && (
+              <>
+                <IconButton
+                  className="mx-3"
+                  aria-label="go back"
+                  onClick={() => {
+                    const previousPage = Number(pagination.page) - 1
+                    if (isNaN(previousPage) || previousPage < 0) return
+                    redirect({ page: previousPage.toString() })
+                  }}
+                >
+                  <Play className="h-4 w-4 rotate-180" />
+                </IconButton>
+                {pages.map((page) => {
+                  return Math.abs(page - 1 - Number(pagination.page)) <= 2 ? (
+                    <li key={page} className="list-none p-1">
+                      <Button
+                        size="xs"
+                        intent="outline"
+                        className={cx(
+                          page - 1 === Number(pagination.page) &&
+                            '!bg-orange text-white'
+                        )}
+                        aria-label={`go to page ${page}`}
+                        onClick={() => {
+                          redirect({ page: page - 1 })
+                        }}
+                      >
+                        {page}
+                      </Button>
+                    </li>
+                  ) : null
+                })}
+                <IconButton
+                  className="mx-3"
+                  aria-label="go forward"
+                  onClick={() => {
+                    const nextPage = Number(pagination.page) + 1
+                    if (isNaN(nextPage) || nextPage > totalPages - 1) return
+                    redirect({ page: nextPage.toString() })
+                  }}
+                >
+                  <Play className="h-4 w-4" />
+                </IconButton>
+              </>
+            )}
+            <Select
+              options={transactionsPerPage}
+              className="ml-3 mr-2 w-20"
+              value={{ label: pagination.pageSize, value: pagination.pageSize }}
+              onChange={(option) => {
+                redirect({ pageSize: option?.value, page: 0 })
+              }}
+            />
+          </div>
+        </>
       ) : null}
     </div>
   )
