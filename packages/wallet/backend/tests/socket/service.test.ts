@@ -1,20 +1,31 @@
-import {createApp, TestApp} from '@/tests/app'
-import {Knex} from 'knex'
-import {SocketService} from '@/socket/service'
-import {Cradle, createContainer} from '@/createContainer'
-import {env} from '@/config/env'
-import {truncateTables} from '@/tests/tables'
-import {AuthService} from '@/auth/service'
-import {Request, Response} from 'express'
-import {mockCreateAccountReq, mockedAmount, mockedListAssets, mockLogInRequest, mockRapyd} from '@/tests/mocks'
-import {AccountService} from '@/account/service'
-import {createUser} from '../helpers'
-import {createRequest, createResponse, MockRequest, MockResponse} from 'node-mocks-http'
-import {withSession} from '@/middleware/withSession'
-import {applyMiddleware} from '../utils'
-import {User} from '@/user/model'
-import {AwilixContainer} from 'awilix'
-import MessageType from "@/socket/messageType";
+import { createApp, TestApp } from '@/tests/app'
+import { Knex } from 'knex'
+import { SocketService } from '@/socket/service'
+import { Cradle, createContainer } from '@/createContainer'
+import { env } from '@/config/env'
+import { truncateTables } from '@/tests/tables'
+import { AuthService } from '@/auth/service'
+import { Request, Response } from 'express'
+import {
+  mockCreateAccountReq,
+  mockedAmount,
+  mockedListAssets,
+  mockLogInRequest,
+  mockRapyd
+} from '@/tests/mocks'
+import { AccountService } from '@/account/service'
+import { createUser } from '../helpers'
+import {
+  createRequest,
+  createResponse,
+  MockRequest,
+  MockResponse
+} from 'node-mocks-http'
+import { withSession } from '@/middleware/withSession'
+import { applyMiddleware } from '../utils'
+import { User } from '@/user/model'
+import { AwilixContainer } from 'awilix'
+import MessageType from '@/socket/messageType'
 
 describe('Socket Service', () => {
   let bindings: AwilixContainer<Cradle>
