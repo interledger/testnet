@@ -113,6 +113,14 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const morePagesDisplay = (
+    <>
+      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
+      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
+      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
+    </>
+  )
+
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <PageHeader title="Transactions" />
@@ -199,6 +207,15 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               }}
             />
           </div>
+          <Select
+            options={transactionsPerPage}
+            className="w-20"
+            label="Transactions/page"
+            value={{ label: pagination.pageSize, value: pagination.pageSize }}
+            onChange={(option) => {
+              redirect({ pageSize: option?.value, page: 0 })
+            }}
+          />
         </div>
         <Button
           aria-label="clear filters"
@@ -317,7 +334,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         <>
           <div className="flex w-full items-center justify-between">
             <Button
-              className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
+              className="hidden disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500 md:flex"
               aria-label="go to previous page"
               disabled={Number(pagination.page) - 1 < 0}
               onClick={() => {
@@ -328,24 +345,10 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             >
               Previous
             </Button>
-            <Button
-              className="disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500"
-              aria-label="go to next page"
-              disabled={Number(pagination.page) + 1 > totalPages - 1}
-              onClick={() => {
-                const nextPage = Number(pagination.page) + 1
-                if (isNaN(nextPage) || nextPage > totalPages - 1) return
-                redirect({ page: nextPage.toString() })
-              }}
-            >
-              Next
-            </Button>
-          </div>
-          <div className="flex w-full justify-center">
             {totalPages !== 1 && (
-              <>
+              <div className="flex w-full justify-center">
                 <IconButton
-                  className="mx-3"
+                  className="mx-3 md:hidden"
                   aria-label="go back"
                   onClick={() => {
                     const previousPage = Number(pagination.page) - 1
@@ -356,27 +359,35 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                   <Play className="h-4 w-4 rotate-180" />
                 </IconButton>
                 {pages.map((page) => {
-                  return Math.abs(page - 1 - Number(pagination.page)) <= 2 ? (
-                    <li key={page} className="list-none p-1">
-                      <Button
-                        size="xs"
-                        intent="outline"
-                        className={cx(
-                          page - 1 === Number(pagination.page) &&
-                            '!bg-orange text-white'
-                        )}
-                        aria-label={`go to page ${page}`}
-                        onClick={() => {
-                          redirect({ page: page - 1 })
-                        }}
-                      >
-                        {page}
-                      </Button>
-                    </li>
-                  ) : null
+                  if (
+                    Math.abs(page - 1 - Number(pagination.page)) <= 1 ||
+                    page === 1 ||
+                    page === totalPages
+                  ) {
+                    return (
+                      <li key={page} className="list-none p-1">
+                        <Button
+                          size="xs"
+                          intent="outline"
+                          className={cx(
+                            page - 1 === Number(pagination.page) &&
+                              '!bg-orange text-white'
+                          )}
+                          aria-label={`go to page ${page}`}
+                          onClick={() => {
+                            redirect({ page: page - 1 })
+                          }}
+                        >
+                          {page}
+                        </Button>
+                      </li>
+                    )
+                  } else if (page === 2 || page === totalPages - 1) {
+                    return morePagesDisplay
+                  }
                 })}
                 <IconButton
-                  className="mx-3"
+                  className="mx-3 md:hidden"
                   aria-label="go forward"
                   onClick={() => {
                     const nextPage = Number(pagination.page) + 1
@@ -386,16 +397,20 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 >
                   <Play className="h-4 w-4" />
                 </IconButton>
-              </>
+              </div>
             )}
-            <Select
-              options={transactionsPerPage}
-              className="ml-3 mr-2 w-20"
-              value={{ label: pagination.pageSize, value: pagination.pageSize }}
-              onChange={(option) => {
-                redirect({ pageSize: option?.value, page: 0 })
+            <Button
+              className="hidden disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500 md:flex"
+              aria-label="go to next page"
+              disabled={Number(pagination.page) + 1 > totalPages - 1}
+              onClick={() => {
+                const nextPage = Number(pagination.page) + 1
+                if (isNaN(nextPage) || nextPage > totalPages - 1) return
+                redirect({ page: nextPage.toString() })
               }}
-            />
+            >
+              Next
+            </Button>
           </div>
         </>
       ) : null}
