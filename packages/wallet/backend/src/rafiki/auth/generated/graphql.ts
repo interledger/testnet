@@ -175,6 +175,7 @@ export type QueryGrantsArgs = {
   filter?: InputMaybe<GrantFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+  sortOrder?: InputMaybe<SortOrder>;
 };
 
 export type RevokeGrantInput = {
@@ -187,6 +188,13 @@ export type RevokeGrantMutationResponse = MutationResponse & {
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
 };
+
+export enum SortOrder {
+  /** Choose ascending order for results. */
+  Asc = 'ASC',
+  /** Choose descending order for results. */
+  Desc = 'DESC'
+}
 
 export type GetGrantsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
