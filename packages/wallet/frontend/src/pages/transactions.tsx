@@ -384,7 +384,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     )
                   } else if (page === 2 || page === totalPages - 1) {
                     return morePagesDisplay
-                  }
+                  } else return null
                 })}
                 <IconButton
                   className="mx-3 md:hidden"
