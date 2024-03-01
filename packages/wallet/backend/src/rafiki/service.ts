@@ -12,6 +12,7 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Account } from '@/account/model'
 import { WMTransaction } from '@/webMonetization/transaction/model'
+import MessageType from '@/socket/messageType'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -344,11 +345,17 @@ export class RafikiService implements IRafikiService {
 
     const user = await this.userService.getByWalletId(source_ewallet)
     const isExchange = NodeCacheInstance.get(wh.data.id)
-    if (user && !isExchange)
+    if (user && !isExchange) {
+      const messageType =
+        wh.data.metadata.type === 'instant'
+          ? MessageType.MONEY_SENT_SHOP
+          : MessageType.MONEY_SENT
       await this.socketService.emitMoneySentByUserId(
         user.id.toString(),
-        debitAmount
+        debitAmount,
+        messageType
       )
+    }
 
     this.logger.info(
       `Succesfully transfered ${this.amountToNumber(

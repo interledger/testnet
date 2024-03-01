@@ -25,6 +25,7 @@ import { withSession } from '@/middleware/withSession'
 import { applyMiddleware } from '../utils'
 import { User } from '@/user/model'
 import { AwilixContainer } from 'awilix'
+import MessageType from '@/socket/messageType'
 
 describe('Socket Service', () => {
   let bindings: AwilixContainer<Cradle>
@@ -115,7 +116,8 @@ describe('Socket Service', () => {
 
       const result = await socketService.emitMoneySentByUserId(
         userId,
-        mockedAmount
+        mockedAmount,
+        MessageType.MONEY_SENT
       )
       expect(result).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)

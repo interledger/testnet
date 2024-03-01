@@ -59,6 +59,34 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       )
     })
 
+    socket?.on('MONEY_SENT_SHOP', (account, amount) => {
+      toast({
+        description: (
+          <p>
+            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+            Rafiki Boutique one click buy withdrew{' '}
+            {
+              formatAmount({
+                value: amount.value,
+                assetCode: amount.assetCode,
+                assetScale: amount.assetScale
+              }).amount
+            }{' '}
+            from your account {account.name}.
+          </p>
+        ),
+        variant: 'success'
+      })
+      updateBalance(
+        {
+          balance: account.balance,
+          assetCode: account.assetCode,
+          assetScale: account.assetScale
+        },
+        account.balance
+      )
+    })
+
     socket?.on('MONEY_SENT', (account) => {
       updateBalance(
         {
