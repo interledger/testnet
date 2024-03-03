@@ -123,7 +123,7 @@ services:
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
-      PORT: ${RAFIKI_AUTH_PORT}
+      AUTH_PORT: ${RAFIKI_AUTH_PORT}
       ADMIN_PORT: ${RAFIKI_AUTH_ADMIN_PORT}
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT}
       AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL}
@@ -163,7 +163,6 @@ services:
       ILP_ADDRESS: ${RAFIKI_BACKEND_ILP_ADDRESS}
       STREAM_SECRET: ${RAFIKI_BACKEND_STREAM_SECRET}
       ADMIN_KEY: ${RAFIKI_BACKEND_ADMIN_KEY}
-      PUBLIC_HOST: ${RAFIKI_BACKEND_PUBLIC_HOST}
       OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL}
       REDIS_URL: ${RAFIKI_BACKEND_REDIS_URL}
       WALLET_ADDRESS_URL: ${RAFIKI_BACKEND_WALLET_ADDRESS_URL}
@@ -207,7 +206,7 @@ services:
     <<: *logging
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.13.57
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.14.176
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle

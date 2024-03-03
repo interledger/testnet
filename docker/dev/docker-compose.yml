@@ -98,7 +98,7 @@ services:
       - '3006:3006'
       - '3008:3008'
     environment:
-      PORT: 3006
+      AUTH_PORT: 3006
       INTROSPECTION_PORT: 3007
       ADMIN_PORT: 3008
       NODE_ENV: development
@@ -140,7 +140,6 @@ services:
       ILP_ADDRESS: test.net
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
-      PUBLIC_HOST: http://rafiki-backend
       OPEN_PAYMENTS_URL: http://rafiki-backend
       REDIS_URL: redis://redis:6379/0
       WALLET_ADDRESS_URL: https://rafiki-backend/.well-known/pay
@@ -175,7 +174,7 @@ services:
     <<: *logging
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.13.57
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.14.176
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
