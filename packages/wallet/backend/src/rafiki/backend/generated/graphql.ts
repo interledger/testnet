@@ -1426,6 +1426,13 @@ export type CreateReceiverMutationVariables = Exact<{
 
 export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
+export type GetReceiverQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type GetReceiverQuery = { __typename?: 'Query', receiver?: { __typename?: 'Receiver', completed: boolean, createdAt: string, expiresAt?: string | null, metadata?: any | null, id: string, walletAddressUrl: string, updatedAt: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null };
+
 export type CreateWalletAddressKeyMutationVariables = Exact<{
   input: CreateWalletAddressKeyInput;
 }>;

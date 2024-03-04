@@ -125,9 +125,10 @@ export class QuoteService implements IQuoteService {
         amount: value
       })
       if (isIncomingPayment) {
-        const payment = await this.incomingPaymentService.getReceiver(
-          params.receiver
-        )
+        const payment =
+          await this.incomingPaymentService.getPaymentDetailsByUrl(
+            params.receiver
+          )
 
         const amount = payment?.value
           ? transformBalance(payment?.value, assetDetails.assetScale)

@@ -42,7 +42,9 @@ import {
   UpdateWalletAddressMutation,
   UpdateWalletAddressMutationVariables,
   WithdrawLiquidityMutation,
-  WithdrawLiquidityMutationVariables
+  WithdrawLiquidityMutationVariables,
+  GetReceiverQuery,
+  GetReceiverQueryVariables
 } from './backend/generated/graphql'
 import {
   createAssetMutation,
@@ -67,7 +69,10 @@ import {
   createQuoteMutation,
   getQuoteQuery
 } from './backend/request/quote.request'
-import { createReceiverMutation } from '@/rafiki/backend/request/receiver.request'
+import {
+  createReceiverMutation,
+  getReceiverQuery
+} from '@/rafiki/backend/request/receiver.request'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -192,6 +197,15 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return paymentResponse.receiver as Receiver
+  }
+
+  public async getReceiverById(id: string): Promise<Receiver> {
+    const response = await this.gqlClient.request<
+      GetReceiverQuery,
+      GetReceiverQueryVariables
+    >(getReceiverQuery, { id })
+
+    return response.receiver as Receiver
   }
 
   public async withdrawLiqudity(eventId: string) {
