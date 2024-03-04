@@ -106,6 +106,7 @@ services:
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
       IDENTITY_SERVER_DOMAIN: http://localhost:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
+      WAIT_SECONDS: 1
     depends_on:
       - postgres
     <<: *logging
