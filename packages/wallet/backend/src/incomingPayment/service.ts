@@ -104,7 +104,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     }
 
     const value = receiver.incomingAmount?.value
-      ? receiver.incomingAmount.value - receiver.receivedAmount?.value
+      ? receiver.incomingAmount.value - receiver.receivedAmount.value
       : 0n
 
     return {
