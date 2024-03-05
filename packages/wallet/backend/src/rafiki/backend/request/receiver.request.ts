@@ -26,3 +26,27 @@ export const createReceiverMutation = gql`
     }
   }
 `
+
+export const getReceiverQuery = gql`
+  query GetReceiverQuery($id: String!) {
+    receiver(id: $id) {
+      completed
+      createdAt
+      expiresAt
+      metadata
+      id
+      incomingAmount {
+        assetCode
+        assetScale
+        value
+      }
+      walletAddressUrl
+      receivedAmount {
+        assetCode
+        assetScale
+        value
+      }
+      updatedAt
+    }
+  }
+`

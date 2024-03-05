@@ -8,16 +8,12 @@ import { loginUser } from '@/tests/utils'
 import { truncateTables } from '@/tests/tables'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
-import {
-  generateMockedTransaction,
-  mockedListAssets,
-  mockExternalPayment
-} from '@/tests/mocks'
+import { mockedListAssets, mockExternalPayment } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
 import { NotFound } from '@/errors'
-import { Transaction } from '@/transaction/model'
 import axios from 'axios'
+import { Receiver } from '@/rafiki/backend/generated/graphql'
 
 describe('Incoming Payment Service', () => {
   let bindings: AwilixContainer<Cradle>
@@ -62,6 +58,26 @@ describe('Incoming Payment Service', () => {
           id: receiverID || faker.string.uuid(),
           walletAddressUrl: faker.internet.url(),
           completed: true
+        }),
+        getReceiverById: (): Receiver => ({
+          id: receiverID || faker.string.uuid(),
+          walletAddressUrl: faker.internet.url(),
+          completed: true,
+          incomingAmount: {
+            value: 1000n,
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          receivedAmount: {
+            value: 500n,
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          createdAt: faker.date.recent().toISOString(),
+          updatedAt: faker.date.recent().toISOString(),
+          metadata: {
+            description: 'Fake receiver'
+          }
         })
       }
     }
@@ -128,39 +144,14 @@ describe('Incoming Payment Service', () => {
 
   describe('Get PaymentDetails By Url', () => {
     it('should get payment details successfully', async () => {
-      const { walletAddress, account } =
-        await prepareIncomePaymentDependencies()
       const paymentId = faker.string.uuid()
-      const transaction = await Transaction.query().insert(
-        generateMockedTransaction({
-          walletAddressId: walletAddress.id,
-          accountId: account.id,
-          paymentId
-        })
-      )
       const url = `${faker.internet.url()}/${paymentId}`
       const result = await incopmPaymentService.getPaymentDetailsByUrl(url)
       expect(result).toMatchObject({
-        description: transaction.description,
-        assetCode: transaction.assetCode
+        description: 'Fake receiver',
+        assetCode: 'USD',
+        value: 5
       })
-    })
-
-    it('should throw error with wrong payment id', async () => {
-      const { walletAddress, account } =
-        await prepareIncomePaymentDependencies()
-      await Transaction.query().insert(
-        generateMockedTransaction({
-          walletAddressId: walletAddress.id,
-          accountId: account.id
-        })
-      )
-      const url = `${faker.internet.url()}/${faker.string.uuid()}`
-      await expect(
-        incopmPaymentService.getPaymentDetailsByUrl(url)
-      ).rejects.toThrowError(
-        /The provided incoming payment URL could not be found./
-      )
     })
   })
   describe('getExternalPayment', () => {

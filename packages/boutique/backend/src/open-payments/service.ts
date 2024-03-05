@@ -11,7 +11,8 @@ import {
   WalletAddress,
   PendingGrant,
   Quote,
-  isPendingGrant
+  isPendingGrant,
+  GrantContinuation
 } from '@interledger/open-payments'
 import { randomUUID } from 'crypto'
 import { Logger } from 'winston'
@@ -309,6 +310,12 @@ export class OpenPayments implements IOpenPayments {
         throw new InternalServerError()
       })
 
+    if (!this.isGrant(continuation)) {
+      this.logger.error('Expected grant response.')
+      this.logger.debug(continuation)
+      throw new InternalServerError()
+    }
+
     return {
       accessToken: continuation.access_token.value,
       manageUrl: continuation.access_token.manage.replace(
@@ -316,6 +323,12 @@ export class OpenPayments implements IOpenPayments {
         'rafiki-auth'
       )
     }
+  }
+
+  private isGrant(
+    continuation: GrantContinuation | Grant
+  ): continuation is Grant {
+    return (continuation as Grant).access_token !== undefined
   }
 
   public async instantBuy(

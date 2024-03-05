@@ -3,11 +3,9 @@ import { NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
 import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { Transaction } from '@/transaction/model'
-import { extractUuidFromUrl, transformAmount } from '@/utils/helpers'
+import { transformAmount } from '@/utils/helpers'
 import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add, Duration } from 'date-fns'
-import { Logger } from 'winston'
 import axios from 'axios'
 import { Env } from '@/config/env'
 
@@ -50,7 +48,6 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
-    private logger: Logger,
     private env: Env
   ) {}
 
@@ -96,49 +93,24 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     return response.id
   }
 
-  // Instead of querying our Transaction model, should we fetch this information from Rafiki?
-  // Reasoning:
-  // - An incoming payment can be fulfilled by multiple outgoing payments;
-  // - If we have an incoming payment that awaits $10 and we send $5 initially,
-  //   inserting the IP URL in the receiver field again, currently shows that the incoming amount
-  //   is still $10.
-  // - By fetching the IP details from Rafiki, we can calculate how much more is needed
-  //   to fulfill this specific IP (after making an initial outgoing payment of $5).
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetails> {
-    const id = extractUuidFromUrl(url)
-
-    const transaction = await Transaction.query()
-      .where('paymentId', id)
-      .where('status', 'PENDING')
-      .first()
-      .withGraphFetched({ walletAddress: { account: true } })
-
-    if (!transaction) {
-      throw new NotFound(
-        'The provided incoming payment URL could not be found.'
-      )
+    const receiver = await this.rafikiClient.getReceiverById(url)
+    const asset = {
+      scale:
+        receiver.incomingAmount?.assetScale ??
+        receiver.receivedAmount.assetScale,
+      code:
+        receiver.incomingAmount?.assetCode ?? receiver.receivedAmount.assetCode
     }
 
-    const asset = await this.rafikiClient.getAssetById(
-      transaction.walletAddress?.account.assetId
-    )
-    if (!asset) {
-      throw new NotFound()
-    }
+    const value = receiver.incomingAmount?.value
+      ? receiver.incomingAmount.value - receiver.receivedAmount.value
+      : 0n
 
     return {
-      description: transaction.description,
-      value: parseFloat(transformAmount(transaction.value ?? 0n, asset.scale)),
-      assetCode: transaction.assetCode
-    }
-  }
-
-  public async getReceiver(receiver: string) {
-    try {
-      // @TODO: replace with get receiver from rafiki when implemented
-      return await this.getPaymentDetailsByUrl(receiver)
-    } catch (_e) {
-      this.logger.info(`Could not find transaction for ${receiver}`)
+      description: receiver.metadata.description,
+      value: parseFloat(transformAmount(value, asset.scale)),
+      assetCode: asset.code
     }
   }
 
