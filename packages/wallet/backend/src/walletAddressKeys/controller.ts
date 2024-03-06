@@ -16,12 +16,6 @@ interface IWalletAddressKeyController {
   list: ControllerFunction<WalletAddressKeys[]>
 }
 
-interface KeyPair {
-  publicKey: string
-  privateKey: string
-  keyId: string
-}
-
 export class WalletAddressKeyController implements IWalletAddressKeyController {
   constructor(private walletAddressKeyService: WalletAddressKeyService) {}
 
@@ -75,7 +69,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
 
   registerKey = async (
     req: Request,
-    res: CustomResponse<KeyPair>,
+    res: CustomResponse<KeyResponse>,
     next: NextFunction
   ) => {
     try {
