@@ -11,7 +11,7 @@ export type KeyResponse = {
   privateKey: string
   publicKey: string
   keyId: string
-  nickname?: string
+  nickname: string
 }
 
 interface WalletAddressKeyArgs {
@@ -21,7 +21,7 @@ interface WalletAddressKeyArgs {
 }
 
 interface RegisterKeyArgs extends WalletAddressKeyArgs {
-  nickname?: string
+  nickname: string
   keyPair?: {
     publicKeyPEM: string
     privateKeyPEM: string
