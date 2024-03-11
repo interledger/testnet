@@ -1,5 +1,5 @@
 import { Order } from '@/order/model'
-import { BaseModel } from '@/shared/model'
+import { BaseModel } from '@/common/model'
 import { Model } from 'objection'
 
 export class User extends BaseModel {

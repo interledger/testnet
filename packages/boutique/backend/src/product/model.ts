@@ -1,5 +1,5 @@
 import { OrderItem } from '@/order-item/model'
-import { BaseModel } from '@/shared/model'
+import { BaseModel } from '@/common/model'
 import { Model } from 'objection'
 
 export class Product extends BaseModel {

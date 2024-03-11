@@ -1,4 +1,4 @@
-import { BaseModel } from '@/shared/model'
+import { BaseModel } from '@/common/model'
 import { User } from '@/user/model'
 import { Model } from 'objection'
 

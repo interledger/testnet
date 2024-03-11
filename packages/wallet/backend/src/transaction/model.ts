@@ -1,5 +1,5 @@
 import { Model } from 'objection'
-import { BaseModel } from '@/shared/model'
+import { BaseModel } from '@/common//model'
 import { WalletAddress } from '@/walletAddress/model'
 import { Account } from '@/account/model'
 

@@ -1,7 +1,7 @@
 import { NotFound } from '@/errors'
 import { Order } from '@/order/model'
 import { Product } from '@/product/model'
-import { BaseModel } from '@/shared/model'
+import { BaseModel } from '@/common//model'
 import { Model, QueryContext } from 'objection'
 
 export class OrderItem extends BaseModel {

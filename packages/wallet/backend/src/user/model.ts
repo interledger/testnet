@@ -1,5 +1,5 @@
 import { Account } from '@/account/model'
-import { BaseModel } from '@/shared/model'
+import { BaseModel } from '@/common//model'
 import { Session } from '@/session/model'
 import { Model, ModelOptions, QueryContext } from 'objection'
 import { bcryptVerify } from 'hash-wasm'
