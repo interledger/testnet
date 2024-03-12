@@ -2,7 +2,6 @@ import { EmailService } from '@/email/service'
 import { GrantController } from '@/grant/controller'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
 import { IncomingPaymentService } from '@/incomingPayment/service'
-import { setRateLimit } from '@/middleware/rateLimit'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { WalletAddressController } from '@/walletAddress/controller'
@@ -165,7 +164,7 @@ export class App {
     app.use(withSession)
 
     // Auth Routes
-    router.post('/signup', setRateLimit(2, 5 * 60, true), authController.signUp)
+    router.post('/signup', authController.signUp)
     router.post('/login', authController.logIn)
     router.post('/logout', isAuth, authController.logOut)
 
