@@ -125,7 +125,7 @@ const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
               walletAddressesCount={walletAddresses.length}
               walletAddressIdx={walletAddressIdx}
             >
-              <WalletAddress />
+              <WalletAddressInfo />
             </WalletAddressProvider>
           ))}
         </ul>
@@ -134,7 +134,7 @@ const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
   )
 }
 
-const WalletAddress = () => {
+const WalletAddressInfo = () => {
   const { walletAddress } = useWalletAddressContext()
   return (
     <li key={walletAddress.url} className="relative flex gap-x-1 text-green">
