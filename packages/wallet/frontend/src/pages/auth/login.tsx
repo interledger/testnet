@@ -32,7 +32,9 @@ const LoginPage: NextPageWithLayout = () => {
             const response = await userService.login(data)
 
             if (response.success) {
-              const isInvalidCallbackUrl = !callBackUrl.startsWith('/') && !callBackUrl.startsWith(window.location.origin);
+              const isInvalidCallbackUrl =
+                !callBackUrl.startsWith('/') &&
+                !callBackUrl.startsWith(window.location.origin)
               if (isInvalidCallbackUrl) {
                 router.push('/')
               } else {
