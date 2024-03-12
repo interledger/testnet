@@ -32,7 +32,12 @@ const LoginPage: NextPageWithLayout = () => {
             const response = await userService.login(data)
 
             if (response.success) {
-              router.push(callBackUrl)
+              const isInvalidCallbackUrl = !callBackUrl.startsWith('/') && !callBackUrl.startsWith(window.location.origin);
+              if (isInvalidCallbackUrl) {
+                router.push('/')
+              } else {
+                router.push(callBackUrl)
+              }
             } else {
               const { errors, message } = response
               loginForm.setError('root', { message })
