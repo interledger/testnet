@@ -48,8 +48,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(winston@3.12.0)
       '@interledger/open-payments':
-        specifier: ^6.6.0
-        version: 6.7.0
+        specifier: ^6.7.1
+        version: 6.7.1
       awilix:
         specifier: ^10.0.1
         version: 10.0.1
@@ -2692,8 +2692,8 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /@interledger/open-payments@6.7.0:
-    resolution: {integrity: sha512-ibIpNHNZknhYWCy/SqUNWybwDkkhaM/H9lIXruEKsBogkh5l/ouXw78DrOYuzTTIb+3T4x6LlTJk/PGBht8S8Q==}
+  /@interledger/open-payments@6.7.1:
+    resolution: {integrity: sha512-wrSe0Z9ogn6WpLvZQTnacyTBbHbiiXP78anAxQsPAvXh2degj82RSQJiSboSAWkC4yYPyIu7JMo3PVGC0ZTl2w==}
     dependencies:
       '@interledger/http-signature-utils': 2.0.2
       '@interledger/openapi': 1.2.1
