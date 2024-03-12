@@ -1,6 +1,6 @@
 import { OrderItem } from '@/order-item/model'
-import { BaseModel } from '@/common/model'
 import { Model } from 'objection'
+import {BaseModel} from "@shared/backend/src/model";
 
 export class Product extends BaseModel {
   static tableName = 'products'

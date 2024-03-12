@@ -1,6 +1,6 @@
-import { BaseModel } from '@/common/model'
 import { User } from '@/user/model'
 import { Model } from 'objection'
+import {BaseModel} from "@shared/backend/src/model";
 
 export class Session extends BaseModel {
   static tableName = 'sessions'

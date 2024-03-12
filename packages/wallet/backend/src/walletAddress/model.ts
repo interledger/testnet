@@ -1,8 +1,8 @@
 import { Model } from 'objection'
-import { BaseModel } from '@/common//model'
 import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
+import {BaseModel} from "@shared/backend/src/model";
 
 export class WalletAddress extends BaseModel {
   static tableName = 'walletAddresses'
