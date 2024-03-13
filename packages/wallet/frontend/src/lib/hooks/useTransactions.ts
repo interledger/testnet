@@ -8,7 +8,10 @@ import {
 import { SelectOption } from '@/ui/forms/Select'
 import { useTypedRouter } from './useTypedRouter'
 
-type TransactionsQueryParams = Record<keyof TransactionsFilters, string | number>
+type TransactionsQueryParams = Record<
+  keyof TransactionsFilters,
+  string | number
+>
 const ORDER_DIRECTION = {
   ASC: 'ASC',
   DESC: 'DESC'
