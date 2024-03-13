@@ -1,8 +1,9 @@
-import { useRouter } from 'next/router'
-import { ZodSchema, z } from 'zod'
+import { type NextRouter, useRouter } from 'next/router'
+import { z } from 'zod'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useTypedRouter: any = <T extends ZodSchema>(schema: T) => {
+export function useTypedRouter<T extends z.ZodSchema>(
+  schema: T
+): NextRouter & { query: z.infer<T> } {
   const { query, ...router } = useRouter()
 
   return {

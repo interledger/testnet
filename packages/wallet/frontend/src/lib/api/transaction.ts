@@ -53,8 +53,8 @@ export const transactionListQuerySchema = z.object({
 })
 
 type ListTransactionArgs = {
-  filters?: Record<string, string>
-  pagination?: Record<string, string>
+  filters?: Record<string, string | number>
+  pagination?: Record<string, string | number>
 }
 type ListTransactionsResult = SuccessResponse<TransactionsPage>
 type ListTransactionsResponse = ListTransactionsResult | ErrorResponse

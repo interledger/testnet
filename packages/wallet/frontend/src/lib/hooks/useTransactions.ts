@@ -8,7 +8,7 @@ import {
 import { SelectOption } from '@/ui/forms/Select'
 import { useTypedRouter } from './useTypedRouter'
 
-type TransactionsQueryParams = Record<keyof TransactionsFilters, string>
+type TransactionsQueryParams = Record<keyof TransactionsFilters, string | number>
 const ORDER_DIRECTION = {
   ASC: 'ASC',
   DESC: 'DESC'
@@ -47,8 +47,8 @@ export const useTransactions = () => {
 
   const fetch = useCallback(
     async (
-      filters: Record<string, string>,
-      pagination: Record<string, string>
+      filters: Record<string, string | number>,
+      pagination: Record<string, string | number>
     ) => {
       const response = await request(transactionService.list, {
         filters,

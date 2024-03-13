@@ -38,6 +38,9 @@ const buttonStyles = cva(
         error: ['text-pink bg-white hover:bg-white-1'],
         outline: [
           'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
+        ],
+        outlineGreen: [
+          'bg-transparent text-green-3 border border-green-3 hover:text-white hover:bg-green-3'
         ]
       },
       size: {

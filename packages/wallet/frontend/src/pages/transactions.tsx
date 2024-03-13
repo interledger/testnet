@@ -19,6 +19,7 @@ import { Button } from '@/ui/Button'
 import { cx } from 'class-variance-authority'
 import { IconButton } from '@/ui/IconButton'
 import { Play } from '@/components/icons/Play'
+import { Label } from '@/ui/forms/Label'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -124,99 +125,90 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <PageHeader title="Transactions" />
-      <div className="w-full">
-        <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12">
-          <div className="md:col-span-3">
-            <Select
-              options={accounts}
-              label="Account"
-              placeholder="Select account..."
-              value={currentAccount}
-              onChange={(option) => {
-                if (option) {
-                  if (
-                    option.value &&
-                    option.value !== currentWalletAddress.value
-                  ) {
-                    redirect({
-                      accountId: option.value,
-                      walletAddressId: '',
-                      page: '0'
-                    })
-                  } else {
-                    redirect({ accountId: option.value, page: '0' })
-                  }
-                }
-              }}
-            />
-          </div>
-          <div className="md:col-span-3">
-            <Select
-              options={
-                currentAccount.value === ''
-                  ? walletAddresses
-                  : walletAddresses.filter(
-                      (pp) => pp.accountId === currentAccount.value
-                    )
-              }
-              label="Payment Pointer"
-              placeholder="Select payment pointer..."
-              value={
-                currentWalletAddress.accountId !== currentAccount.value &&
-                currentAccount.value !== ''
-                  ? { ...defaultOption, accountId: '' }
-                  : currentWalletAddress
-              }
-              onChange={(option) => {
-                if (option) {
-                  if (
-                    currentAccount.value &&
-                    option.accountId !== currentAccount.value
-                  ) {
-                    redirect({ walletAddressId: '' })
-                  } else {
-                    redirect({ walletAddressId: option.value })
-                  }
-                }
-              }}
-            />
-          </div>
-          <div className="md:col-span-3 lg:col-span-2">
-            <Select
-              options={types}
-              label="Type"
-              placeholder="Select type..."
-              value={currentType}
-              onChange={(option) => {
-                if (option) {
-                  redirect({ type: option.value, page: '0' })
-                }
-              }}
-            />
-          </div>
-          <div className="md:col-span-3 lg:col-span-2">
-            <Select
-              options={statuses}
-              label="Status"
-              placeholder="Select status..."
-              value={currentStatus}
-              onChange={(option) => {
-                if (option) {
-                  redirect({ status: option.value, page: '0' })
-                }
-              }}
-            />
-          </div>
+      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12">
+        <div className="md:col-span-3">
           <Select
-            options={transactionsPerPage}
-            className="w-20"
-            label="Transactions/page"
-            value={{ label: pagination.pageSize, value: pagination.pageSize }}
+            options={accounts}
+            label="Account"
+            placeholder="Select account..."
+            value={currentAccount}
             onChange={(option) => {
-              redirect({ pageSize: option?.value, page: 0 })
+              if (option) {
+                if (
+                  option.value &&
+                  option.value !== currentWalletAddress.value
+                ) {
+                  redirect({
+                    accountId: option.value,
+                    walletAddressId: '',
+                    page: '0'
+                  })
+                } else {
+                  redirect({ accountId: option.value, page: '0' })
+                }
+              }
             }}
           />
         </div>
+        <div className="md:col-span-3">
+          <Select
+            options={
+              currentAccount.value === ''
+                ? walletAddresses
+                : walletAddresses.filter(
+                    (pp) => pp.accountId === currentAccount.value
+                  )
+            }
+            label="Payment Pointer"
+            placeholder="Select payment pointer..."
+            value={
+              currentWalletAddress.accountId !== currentAccount.value &&
+              currentAccount.value !== ''
+                ? { ...defaultOption, accountId: '' }
+                : currentWalletAddress
+            }
+            onChange={(option) => {
+              if (option) {
+                if (
+                  currentAccount.value &&
+                  option.accountId !== currentAccount.value
+                ) {
+                  redirect({ walletAddressId: '' })
+                } else {
+                  redirect({ walletAddressId: option.value })
+                }
+              }
+            }}
+          />
+        </div>
+        <div className="md:col-span-3 lg:col-span-2">
+          <Select
+            options={types}
+            label="Type"
+            placeholder="Select type..."
+            value={currentType}
+            onChange={(option) => {
+              if (option) {
+                redirect({ type: option.value, page: '0' })
+              }
+            }}
+          />
+        </div>
+        <div className="md:col-span-3 lg:col-span-2">
+          <Select
+            options={statuses}
+            label="Status"
+            placeholder="Select status..."
+            value={currentStatus}
+            onChange={(option) => {
+              if (option) {
+                redirect({ status: option.value, page: '0' })
+              }
+            }}
+          />
+        </div>
+      </div>
+      <div className="flex w-full items-center justify-between xl:pr-10">
         <Button
           aria-label="clear filters"
           intent="outline"
@@ -234,6 +226,17 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         >
           Clear filters
         </Button>
+        <div className="flex flex-col items-center justify-center gap-2 md:flex-row">
+          <Label>Transactions/page</Label>
+          <Select
+            options={transactionsPerPage}
+            className="w-20"
+            value={{ label: pagination.pageSize, value: pagination.pageSize }}
+            onChange={(option) => {
+              redirect({ pageSize: option?.value, page: 0 })
+            }}
+          />
+        </div>
       </div>
 
       {error ? (
@@ -368,10 +371,10 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       <li key={page} className="list-none p-1">
                         <Button
                           size="xs"
-                          intent="outline"
+                          intent="outlineGreen"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
-                              '!bg-orange text-white'
+                              '!bg-green-4 !text-green-3 !border-green-3'
                           )}
                           aria-label={`go to page ${page}`}
                           onClick={() => {
