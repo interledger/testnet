@@ -8,7 +8,7 @@ const DIRECTION = {
   right: '-rotate-90'
 } as const
 
-type Direction = keyof typeof DIRECTION
+export type Direction = keyof typeof DIRECTION
 
 type ChevronProps = SVGProps<SVGSVGElement> & {
   direction?: Direction

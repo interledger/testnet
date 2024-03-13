@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   ErrorResponse,
   SuccessResponse,
@@ -40,36 +41,48 @@ export type TransactionsPage = {
   total: number
 }
 
-type ListTranscationArgs = {
-  filters?: Record<string, string>
-  pagination?: Record<string, string>
+export const transactionListQuerySchema = z.object({
+  accountId: z.string().uuid().optional(),
+  walletAddressId: z.string().uuid().optional(),
+  assetCode: z.string().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  page: z.coerce.number().int().nonnegative().default(0).optional(),
+  pageSize: z.coerce.number().int().positive().default(10).optional(),
+  orderByDate: z.enum(['ASC', 'DESC']).default('DESC').optional()
+})
+
+type ListTransactionArgs = {
+  filters?: Record<string, string | number>
+  pagination?: Record<string, string | number>
 }
 type ListTransactionsResult = SuccessResponse<TransactionsPage>
 type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
 
 interface TransactionService {
-  list(args?: ListTranscationArgs): Promise<ListTransactionsResponse>
+  list(args?: ListTransactionArgs): Promise<ListTransactionsResponse>
 }
 
 export const createTransactionService = (): TransactionService => {
   return {
     async list(args) {
-      const params = new URLSearchParams()
+      const searchParams = new URLSearchParams()
       for (const key in args?.filters) {
         if (typeof args?.filters[key] !== 'undefined') {
-          params.append(`filter[${key}]`, args?.filters[key].toString())
+          searchParams.append(`filter[${key}]`, args?.filters[key].toString())
         }
       }
 
       for (const key in args?.pagination) {
         if (typeof args?.pagination[key] !== 'undefined') {
-          params.append(key, args?.pagination[key].toString())
+          searchParams.append(key, args?.pagination[key].toString())
         }
       }
 
       try {
         const response = await httpClient
-          .get(`transactions?${params}`, {
+          .get('transactions', {
+            searchParams,
             retry: 0
           })
           .json<ListTransactionsResult>()

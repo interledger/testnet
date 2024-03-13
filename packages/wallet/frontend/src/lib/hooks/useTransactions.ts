@@ -1,17 +1,31 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useHttpRequest } from './useHttp'
-import { TransactionsPage, transactionService } from '../api/transaction'
-import { useRouter } from 'next/router'
+import {
+  TransactionsPage,
+  transactionListQuerySchema,
+  transactionService
+} from '../api/transaction'
 import { SelectOption } from '@/ui/forms/Select'
+import { useTypedRouter } from './useTypedRouter'
 
-type TransactionsQueryParams = Record<keyof TransactionsFilters, string>
+type TransactionsQueryParams = Record<
+  keyof TransactionsFilters,
+  string | number
+>
+const ORDER_DIRECTION = {
+  ASC: 'ASC',
+  DESC: 'DESC'
+}
+export type OrderByDirection = keyof typeof ORDER_DIRECTION
 
 export type TransactionsFilters = {
   page: string
+  pageSize: string
   accountId: SelectOption
   walletAddressId: SelectOption
   type: SelectOption
   status: SelectOption
+  orderByDate: OrderByDirection
 }
 
 const defaultState = {
@@ -20,17 +34,24 @@ const defaultState = {
 }
 
 export const useTransactions = () => {
-  const router = useRouter()
-  const { accountId, walletAddressId, type, status, page } =
-    router.query as TransactionsQueryParams
+  const router = useTypedRouter(transactionListQuerySchema)
+  const {
+    accountId,
+    walletAddressId,
+    type,
+    status,
+    page,
+    pageSize,
+    orderByDate
+  } = router.query as TransactionsQueryParams
   const [request, loading, error] = useHttpRequest()
   const [transactions, setTransactions] =
     useState<TransactionsPage>(defaultState)
 
   const fetch = useCallback(
     async (
-      filters: Record<string, string>,
-      pagination: Record<string, string>
+      filters: Record<string, string | number>,
+      pagination: Record<string, string | number>
     ) => {
       const response = await request(transactionService.list, {
         filters,
@@ -51,14 +72,31 @@ export const useTransactions = () => {
         type,
         status
       },
-      { page: page ?? 0 }
+      {
+        page: page ?? 0,
+        pageSize: pageSize ?? 10,
+        orderByDate: orderByDate ?? 'DESC'
+      }
     )
-  }, [fetch, accountId, walletAddressId, type, status, page])
+  }, [
+    fetch,
+    accountId,
+    walletAddressId,
+    type,
+    status,
+    page,
+    pageSize,
+    orderByDate
+  ])
 
   return [
     transactions,
     { accountId, walletAddressId, type, status },
-    { page: page ?? 0 },
+    {
+      page: page ?? 0,
+      pageSize: pageSize ?? 10,
+      orderByDate: orderByDate ?? 'DESC'
+    },
     fetch,
     loading,
     error
