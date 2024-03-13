@@ -35,8 +35,8 @@ const LoginPage: NextPageWithLayout = () => {
               const isIncorrectCallbackUrl =
                 !callBackUrl.startsWith('/') &&
                 !callBackUrl.startsWith(window.location.origin)
-              isIncorrectCallbackUrl ?
-                router.push('/')
+              isIncorrectCallbackUrl
+                ? router.push('/')
                 : router.push(callBackUrl)
             } else {
               const { errors, message } = response
