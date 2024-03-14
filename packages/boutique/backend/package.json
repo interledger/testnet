@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.0",
-    "@interledger/open-payments": "^6.6.0",
+    "@interledger/open-payments": "^6.7.1",
     "@shared/backend": "workspace:*",
     "awilix": "^10.0.1",
     "axios": "^1.6.7",
@@ -30,6 +30,6 @@
     "node-mocks-http": "^1.14.1",
     "ts-jest": "^29.1.2",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   }
 }
