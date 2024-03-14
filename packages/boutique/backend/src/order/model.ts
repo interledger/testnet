@@ -2,7 +2,7 @@ import { OrderItem } from '@/order-item/model'
 import { Payment } from '@/payment/model'
 import { User } from '@/user/model'
 import { Model, TransactionOrKnex } from 'objection'
-import { BaseModel } from '@shared/backend/src/model'
+import { BaseModel } from '@shared/backend'
 
 export enum OrderStatus {
   PROCESSING = 'PROCESSING',

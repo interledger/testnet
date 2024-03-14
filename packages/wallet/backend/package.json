@@ -2,14 +2,15 @@
   "name": "@wallet/backend",
   "scripts": {
     "start": "node -r tsconfig-paths/register dist/index.js",
-    "build": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build:deps": "pnpm --filter @shared/backend build",
+    "build": "pnpm build:deps && tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "jest --passWithNoTests --maxWorkers=75%",
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.0",
     "@sendgrid/mail": "^8.1.1",
-    "@shared/backend": "file:../../shared/backend",
+    "@shared/backend": "workspace:*",
     "awilix": "^10.0.1",
     "axios": "^1.6.7",
     "cors": "^2.8.5",

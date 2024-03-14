@@ -50,6 +50,9 @@ importers:
       '@interledger/open-payments':
         specifier: ^6.6.0
         version: 6.7.0
+      '@shared/backend':
+        specifier: workspace:*
+        version: link:../../shared/backend
       awilix:
         specifier: ^10.0.1
         version: 10.0.1
@@ -203,6 +206,22 @@ importers:
         specifier: ^5.1.5
         version: 5.1.5
 
+  packages/shared/backend:
+    dependencies:
+      objection:
+        specifier: ^3.1.4
+        version: 3.1.4(knex@3.1.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^18.14.0
+        version: 18.18.3
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
   packages/wallet/backend:
     dependencies:
       '@google-cloud/logging-winston':
@@ -212,8 +231,8 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
       '@shared/backend':
-        specifier: file:../../shared/backend
-        version: file:packages/shared/backend(knex@3.1.0)
+        specifier: workspace:*
+        version: link:../../shared/backend
       awilix:
         specifier: ^10.0.1
         version: 10.0.1
@@ -12059,14 +12078,4 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-    dev: false
-
-  file:packages/shared/backend(knex@3.1.0):
-    resolution: {directory: packages/shared/backend, type: directory}
-    id: file:packages/shared/backend
-    name: '@shared/backend'
-    dependencies:
-      objection: 3.1.4(knex@3.1.0)
-    transitivePeerDependencies:
-      - knex
     dev: false

@@ -2,7 +2,7 @@ import { Model } from 'objection'
 import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
-import { BaseModel } from '@shared/backend/src/model'
+import { BaseModel } from '@shared/backend'
 
 export class WalletAddress extends BaseModel {
   static tableName = 'walletAddresses'
