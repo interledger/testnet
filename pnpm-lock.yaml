@@ -203,22 +203,6 @@ importers:
         specifier: ^5.1.5
         version: 5.1.5
 
-  packages/shared/backend:
-    dependencies:
-      objection:
-        specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0)
-    devDependencies:
-      '@types/node':
-        specifier: ^18.14.0
-        version: 18.18.3
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.8
-      typescript:
-        specifier: ^5.3.3
-        version: 5.3.3
-
   packages/wallet/backend:
     dependencies:
       '@google-cloud/logging-winston':
@@ -227,6 +211,9 @@ importers:
       '@sendgrid/mail':
         specifier: ^8.1.1
         version: 8.1.1
+      '@shared/backend':
+        specifier: file:../../shared/backend
+        version: file:packages/shared/backend(knex@3.1.0)
       awilix:
         specifier: ^10.0.1
         version: 10.0.1
@@ -8592,52 +8579,6 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /knex@3.1.0:
-    resolution: {integrity: sha512-GLoII6hR0c4ti243gMs5/1Rb3B+AjwMOfjYm97pu0FOQa7JH56hgBxYf5WK2525ceSbBY1cjeZ9yk99GPMB6Kw==}
-    engines: {node: '>=16'}
-    hasBin: true
-    peerDependencies:
-      better-sqlite3: '*'
-      mysql: '*'
-      mysql2: '*'
-      pg: '*'
-      pg-native: '*'
-      sqlite3: '*'
-      tedious: '*'
-    peerDependenciesMeta:
-      better-sqlite3:
-        optional: true
-      mysql:
-        optional: true
-      mysql2:
-        optional: true
-      pg:
-        optional: true
-      pg-native:
-        optional: true
-      sqlite3:
-        optional: true
-      tedious:
-        optional: true
-    dependencies:
-      colorette: 2.0.19
-      commander: 10.0.1
-      debug: 4.3.4
-      escalade: 3.1.1
-      esm: 3.2.25
-      get-package-type: 0.1.0
-      getopts: 2.3.0
-      interpret: 2.2.0
-      lodash: 4.17.21
-      pg-connection-string: 2.6.2
-      rechoir: 0.8.0
-      resolve-from: 5.0.0
-      tarn: 3.0.2
-      tildify: 2.0.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /knex@3.1.0(pg@8.11.3):
     resolution: {integrity: sha512-GLoII6hR0c4ti243gMs5/1Rb3B+AjwMOfjYm97pu0FOQa7JH56hgBxYf5WK2525ceSbBY1cjeZ9yk99GPMB6Kw==}
     engines: {node: '>=16'}
@@ -9296,7 +9237,7 @@ packages:
       ajv: 8.12.0
       ajv-formats: 2.1.1(ajv@8.12.0)
       db-errors: 0.2.3
-      knex: 3.1.0
+      knex: 3.1.0(pg@8.11.3)
     dev: false
 
   /on-exit-leak-free@2.1.1:
@@ -12118,4 +12059,14 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: false
+
+  file:packages/shared/backend(knex@3.1.0):
+    resolution: {directory: packages/shared/backend, type: directory}
+    id: file:packages/shared/backend
+    name: '@shared/backend'
+    dependencies:
+      objection: 3.1.4(knex@3.1.0)
+    transitivePeerDependencies:
+      - knex
     dev: false
