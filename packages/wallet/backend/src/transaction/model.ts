@@ -1,7 +1,7 @@
 import { Model } from 'objection'
 import { WalletAddress } from '@/walletAddress/model'
 import { Account } from '@/account/model'
-import {BaseModel} from "@shared/backend/src/model";
+import { BaseModel } from '@shared/backend/src/model'
 
 export type TransactionType = 'INCOMING' | 'OUTGOING'
 export type TransactionExtended = Transaction & {

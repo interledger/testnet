@@ -3,7 +3,7 @@ import { Session } from '@/session/model'
 import { Model, ModelOptions, QueryContext } from 'objection'
 import { bcryptVerify } from 'hash-wasm'
 import { encryptPassword } from '@/utils/helpers'
-import {BaseModel} from "@shared/backend/src/model";
+import { BaseModel } from '@shared/backend/src/model'
 
 export class User extends BaseModel {
   static tableName = 'users'

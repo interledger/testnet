@@ -1,6 +1,6 @@
 import { Order } from '@/order/model'
 import { Model, QueryContext } from 'objection'
-import {BaseModel} from "@shared/backend/src/model";
+import { BaseModel } from '@shared/backend/src/model'
 
 export enum PaymentStatus {
   PENDING = 'PENDING',
