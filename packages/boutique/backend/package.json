@@ -9,7 +9,7 @@
     "@google-cloud/logging-winston": "^6.0.0",
     "@interledger/open-payments": "^6.7.1",
     "awilix": "^10.0.1",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "cors": "^2.8.5",
     "express": "^4.18.3",
     "helmet": "^7.1.0",
