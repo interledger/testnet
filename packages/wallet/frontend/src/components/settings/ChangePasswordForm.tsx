@@ -8,6 +8,7 @@ import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { usePasswordContext } from '@/lib/context/password'
+import { useEffect } from 'react'
 
 export const ChangePasswordForm = () => {
   const changePasswordForm = useZodForm({
@@ -15,6 +16,10 @@ export const ChangePasswordForm = () => {
   })
   const [openDialog, closeDialog] = useDialog()
   const { setIsChangePassword } = usePasswordContext()
+
+  useEffect(() => {
+    changePasswordForm.setFocus('oldPassword')
+  }, [changePasswordForm])
 
   return (
     <div className="pt-5">

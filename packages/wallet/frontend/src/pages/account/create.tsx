@@ -42,8 +42,9 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
         setRunOnboarding(true)
       }, 300)
     }
+    createAccountForm.setFocus('name')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [createAccountForm])
 
   return (
     <>
