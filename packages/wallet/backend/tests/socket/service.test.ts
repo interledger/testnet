@@ -25,7 +25,7 @@ import { withSession } from '@/middleware/withSession'
 import { applyMiddleware } from '../utils'
 import { User } from '@/user/model'
 import { AwilixContainer } from 'awilix'
-import MessageType from '@/socket/messageType'
+import { MessageType } from '@/socket/messageType'
 
 describe('Socket Service', () => {
   let bindings: AwilixContainer<Cradle>

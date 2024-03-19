@@ -1,7 +1,10 @@
-enum MessageType {
+export enum MessageType {
   MONEY_RECEIVED = 'MONEY_RECEIVED',
   MONEY_SENT = 'MONEY_SENT',
   MONEY_SENT_SHOP = 'MONEY_SENT_SHOP'
 }
 
-export default MessageType
+export enum MessageErrorType {
+  EXCEPTION = 'EXCEPTION',
+  ERROR_MINOR_CURRENCY_UNITS = 'ERROR_MINOR_CURRENCY_UNITS'
+}

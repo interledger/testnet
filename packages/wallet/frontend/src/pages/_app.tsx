@@ -86,6 +86,17 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         account.balance
       )
     })
+    socket?.on('EXCEPTION', (errType, message) => {
+      toast({
+        description: (
+          <p>
+            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+            {message} and the error code is {errType}.
+          </p>
+        ),
+        variant: 'error'
+      })
+    })
 
     socket?.on('MONEY_SENT', (account) => {
       updateBalance(

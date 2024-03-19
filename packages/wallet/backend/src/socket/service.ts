@@ -3,7 +3,7 @@ import { Logger } from 'winston'
 import socketIo from 'socket.io'
 import http from 'http'
 import { AccountService } from '@/account/service'
-import MessageType from './messageType'
+import { MessageErrorType, MessageType } from './messageType'
 import { withSession } from '@/middleware/withSession'
 import { Amount } from '@/rafiki/backend/generated/graphql'
 
@@ -80,5 +80,13 @@ export class SocketService implements ISocketService {
       amount
     )
     this.io?.to(userId).emit(messageType, account, amount)
+  }
+
+  async emitError(
+    userId: string,
+    errorType: MessageErrorType,
+    message: string
+  ) {
+    this.io?.to(userId).emit(MessageErrorType.EXCEPTION, errorType, message)
   }
 }

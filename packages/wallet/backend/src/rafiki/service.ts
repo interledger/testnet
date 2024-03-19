@@ -12,7 +12,7 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Account } from '@/account/model'
 import { WMTransaction } from '@/webMonetization/transaction/model'
-import MessageType from '@/socket/messageType'
+import { MessageErrorType, MessageType } from '@/socket/messageType'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -209,14 +209,33 @@ export class RafikiService implements IRafikiService {
       source_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET
     })
 
+    const user = await this.userService.getByWalletId(receiverWalletId)
+
     if (transferResult.status?.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to transfer from ${
-          this.env.RAPYD_SETTLEMENT_EWALLET
-        } into ${receiverWalletId} error message: ${
-          transferResult.status?.message || 'unknown'
-        }`
-      )
+      switch (transferResult.status?.error_code) {
+        case MessageErrorType.ERROR_MINOR_CURRENCY_UNITS:
+          if (!user)
+            throw Error('User should not be undefined for emitting socket')
+
+          await this.socketService.emitError(
+            user.id.toString(),
+            MessageErrorType.ERROR_MINOR_CURRENCY_UNITS,
+            `Unable to transfer from ${
+              this.env.RAPYD_SETTLEMENT_EWALLET
+            } into ${receiverWalletId} error message: ${
+              transferResult.status?.message || 'unknown'
+            }`
+          )
+          break
+        default:
+          throw new Error(
+            `Unable to transfer from ${
+              this.env.RAPYD_SETTLEMENT_EWALLET
+            } into ${receiverWalletId} error message: ${
+              transferResult.status?.message || 'unknown'
+            }`
+          )
+      }
     }
 
     await this.rafikiClient.withdrawLiqudity(wh.id)
@@ -226,7 +245,6 @@ export class RafikiService implements IRafikiService {
       { status: 'COMPLETED', value: amount.value }
     )
 
-    const user = await this.userService.getByWalletId(receiverWalletId)
     const isExchange = NodeCacheInstance.get(wh.data.id)
     if (user && !isExchange)
       await this.socketService.emitMoneyReceivedByUserId(

@@ -253,6 +253,9 @@ export class RapydClient implements IRapydClient {
           this.env.RAPYD_SETTLEMENT_EWALLET
         )
         return await this.transferLiquidity(req, true)
+      } else if (err instanceof AxiosError) {
+        this.logger.error(JSON.stringify(err.response?.data?.status))
+        return err.response?.data
       }
 
       throw err
