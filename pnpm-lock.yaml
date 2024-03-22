@@ -208,6 +208,9 @@ importers:
 
   packages/shared/backend:
     dependencies:
+      knex:
+        specifier: ^3.1.0
+        version: 3.1.0(pg@8.11.3)
       objection:
         specifier: ^3.1.4
         version: 3.1.4(knex@3.1.0)

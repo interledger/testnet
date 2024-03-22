@@ -15,7 +15,7 @@ import {
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
 import { applyMiddleware } from '@/tests/utils'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import {
   createRequest,
   createResponse,
