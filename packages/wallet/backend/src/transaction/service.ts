@@ -145,6 +145,11 @@ export class TransactionService implements ITransactionService {
     params: OutgoingPayment,
     walletAddress: WalletAddress
   ) {
+    const existentTransaction = await Transaction.query().findOne({ paymentId: params.id })
+    if (existentTransaction) {
+      return existentTransaction
+    }
+
     const amount = params.debitAmount
     return Transaction.query().insert({
       walletAddressId: params.walletAddressId,
