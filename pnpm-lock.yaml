@@ -369,8 +369,8 @@ importers:
         specifier: ^7.51.1
         version: 7.51.1(react@18.2.0)
       react-joyride:
-        specifier: ^2.5.4
-        version: 2.7.4(@types/react@18.2.69)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^2.8.0
+        version: 2.8.0(@types/react@18.2.69)(react-dom@18.2.0)(react@18.2.0)
       react-select:
         specifier: ^5.8.0
         version: 5.8.0(@types/react@18.2.69)(react-dom@18.2.0)(react@18.2.0)
@@ -1722,7 +1722,7 @@ packages:
   /@gilbarbara/types@0.2.2:
     resolution: {integrity: sha512-QuQDBRRcm1Q8AbSac2W1YElurOhprj3Iko/o+P1fJxUWS4rOGKMVli98OXS7uo4z+cKAif6a+L9bcZFSyauQpQ==}
     dependencies:
-      type-fest: 4.10.3
+      type-fest: 4.13.1
     dev: false
 
   /@google-cloud/common@5.0.1:
@@ -9808,8 +9808,8 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-joyride@2.7.4(@types/react@18.2.69)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-7MPuqM/z3g9iqCJZnmKNM2RArNgqYBpM8iknny4KjrHp/2wXlPtFL0LpqGiBhtiC0dCC2xe3pNpD9GdLZ2NxMA==}
+  /react-joyride@2.8.0(@types/react@18.2.69)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-h/z3QS6dk+KKw1RuVnDJKFRuoHy/L4eyqZSGZ4S9vIn+/c4lec3svhGQBUhcjvBjl/fFPkN9Uag+l6PPKkj66A==}
     peerDependencies:
       react: 15 - 18
       react-dom: 15 - 18
@@ -9827,7 +9827,7 @@ packages:
       scroll: 3.0.1
       scrollparent: 2.1.0
       tree-changes: 0.11.2
-      type-fest: 4.10.3
+      type-fest: 4.13.1
     transitivePeerDependencies:
       - '@types/react'
     dev: false
@@ -11154,8 +11154,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /type-fest@4.10.3:
-    resolution: {integrity: sha512-JLXyjizi072smKGGcZiAJDCNweT8J+AuRxmPZ1aG7TERg4ijx9REl8CNhbr36RV4qXqL1gO1FF9HL8OkVmmrsA==}
+  /type-fest@4.13.1:
+    resolution: {integrity: sha512-ASMgM+Vf2cLwDMt1KXSkMUDSYCxtckDJs8zsaVF/mYteIsiARKCVtyXtcK38mIKbLTctZP8v6GMqdNaeI3fo7g==}
     engines: {node: '>=16'}
     dev: false
 
