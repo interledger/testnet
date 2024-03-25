@@ -1,6 +1,8 @@
+import { TypedResponseBody } from '@shared/backend'
+
 export abstract class BaseError
   extends Error
-  implements BaseResponseBody<never>
+  implements TypedResponseBody<never>
 {
   public readonly success: boolean
   public readonly statusCode: number

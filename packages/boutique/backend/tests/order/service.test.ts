@@ -9,7 +9,7 @@ import { mockProduct } from '../mocks'
 import { createProducts } from '../helpers'
 import { OrderStatus, type Order } from '@/order/model'
 import { IUserService } from '@/user/service'
-import { deleteProperty } from '@/shared/utils'
+import { deleteProperty } from '@shared/backend'
 import { NotFound } from '@/errors'
 import { truncateTables } from '@shared/backend/tests'
 

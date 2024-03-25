@@ -4,13 +4,14 @@ import { GetGrantsQuery, Grant } from '@/rafiki/auth/generated/graphql'
 import { validate } from '@/shared/validate'
 import { grantResponseSchema } from '@/grant/validation'
 import { GrantService } from '@/grant/service'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IGrantController {
-  list: ControllerFunction<Grant[]>
-  getById: ControllerFunction<Grant>
-  revoke: ControllerFunction<void>
-  getByInteraction: ControllerFunction<Grant>
-  setInteractionResponse: ControllerFunction<Grant>
+  list: Controller<Grant[]>
+  getById: Controller<Grant>
+  revoke: Controller<void>
+  getByInteraction: Controller<Grant>
+  setInteractionResponse: Controller<Grant>
 }
 
 export class GrantController implements IGrantController {
@@ -26,7 +27,7 @@ export class GrantController implements IGrantController {
   ) => {
     try {
       const grants = await this.grantService.list(req.session.user.id)
-      res.json({ success: true, message: 'Success', result: grants })
+      res.json(toSuccessResponse(grants))
     } catch (e) {
       next(e)
     }
@@ -42,7 +43,7 @@ export class GrantController implements IGrantController {
         req.session.user.id,
         req.body
       )
-      res.json({ success: true, message: 'Success', result: grants })
+      res.json(toSuccessResponse(grants))
     } catch (e) {
       next(e)
     }
@@ -52,7 +53,7 @@ export class GrantController implements IGrantController {
     try {
       await this.rafikiAuthService.revokeGrant(req.params.id)
 
-      res.json({ success: true, message: 'Success' })
+      res.json(toSuccessResponse())
     } catch (e) {
       next(e)
     }
@@ -66,7 +67,7 @@ export class GrantController implements IGrantController {
     try {
       const grant = await this.rafikiAuthService.getGrantById(req.params.id)
 
-      res.json({ success: true, message: 'Success', result: grant })
+      res.json(toSuccessResponse(grant))
     } catch (e) {
       next(e)
     }
@@ -84,7 +85,7 @@ export class GrantController implements IGrantController {
         req.params.nonce
       )
 
-      res.json({ success: true, message: 'Success', result: grant })
+      res.json(toSuccessResponse(grant))
     } catch (e) {
       next(e)
     }
@@ -107,7 +108,7 @@ export class GrantController implements IGrantController {
         response
       )
 
-      res.json({ success: true, message: 'Success', result: grant })
+      res.json(toSuccessResponse(grant))
     } catch (e) {
       next(e)
     }

@@ -4,11 +4,12 @@ import { AuthService } from './service'
 import { logInSchema, signUpSchema } from './validation'
 import { UserService } from '@/user/service'
 import { Unauthorized } from '@/errors'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IAuthController {
-  signUp: ControllerFunction
-  logIn: ControllerFunction
-  verifyEmail: ControllerFunction
+  signUp: Controller
+  logIn: Controller
+  verifyEmail: Controller
 }
 
 export class AuthController implements IAuthController {
@@ -28,7 +29,7 @@ export class AuthController implements IAuthController {
 
       res
         .status(201)
-        .json({ success: true, message: 'User created successfully' })
+        .json(toSuccessResponse(undefined, 'User created successfully'))
     } catch (e) {
       next(e)
     }
