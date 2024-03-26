@@ -4,7 +4,7 @@ import type { Response, Request, NextFunction } from 'express'
 type Send<ResBody = any, T = Response<ResBody>> = (body?: ResBody) => T
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface TypedResponseBody<T = any> {
+export type TypedResponseBody<T = any> = {
   success: boolean
   message: string
   result?: T
