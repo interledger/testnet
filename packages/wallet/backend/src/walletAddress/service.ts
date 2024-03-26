@@ -1,7 +1,6 @@
 import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
-import { BadRequest, Conflict, NotFound } from '@/errors'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import axios from 'axios'
 import { getRandomValues } from 'crypto'
@@ -13,6 +12,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionType } from '@/transaction/model'
 import { Logger } from 'winston'
 import { TransactionService } from '@/transaction/service'
+import {BadRequest, Conflict, NotFound} from "@shared/backend";
 
 interface HandleBalanceParams {
   type: TransactionType

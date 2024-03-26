@@ -3,8 +3,7 @@ import { NextFunction, Request } from 'express'
 import { AuthService } from './service'
 import { logInSchema, signUpSchema } from './validation'
 import { UserService } from '@/user/service'
-import { Unauthorized } from '@/errors'
-import { Controller, toSuccessResponse } from '@shared/backend'
+import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
 
 interface IAuthController {
   signUp: Controller

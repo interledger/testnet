@@ -1,4 +1,3 @@
-import { Unauthorized } from '@/errors'
 import type { NextFunction, Request } from 'express'
 import type { UserService } from './service'
 import type { User } from './model'
@@ -8,7 +7,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema
 } from '@/user/validation'
-import { Controller, toSuccessResponse } from '@shared/backend'
+import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
 
 interface UserFlags {
   needsWallet: boolean

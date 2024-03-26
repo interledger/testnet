@@ -1,6 +1,6 @@
-import { BaseError } from '@/errors/Base'
 import type { Request, NextFunction } from 'express'
 import { AxiosError } from 'axios'
+import {BaseError} from "@shared/backend";
 import { generateLogger } from '@/config/logger'
 import { env } from '@/config/env'
 

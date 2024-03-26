@@ -9,8 +9,7 @@ import { mockProduct } from '../mocks'
 import { createProducts } from '../helpers'
 import { OrderStatus, type Order } from '@/order/model'
 import { IUserService } from '@/user/service'
-import { deleteProperty } from '@shared/backend'
-import { NotFound } from '@/errors'
+import { deleteProperty, NotFound } from '@shared/backend'
 import { truncateTables } from '@shared/backend/tests'
 
 describe('Order Service', (): void => {
