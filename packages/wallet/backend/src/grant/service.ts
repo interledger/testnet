@@ -1,7 +1,7 @@
 import { GetGrantsQueryVariables, Grant } from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
-import { Forbidden } from '@/errors'
 import { WalletAddressService } from '@/walletAddress/service'
+import { Forbidden } from '@shared/backend'
 
 interface IGrantService {
   getGrantByInteraction: (

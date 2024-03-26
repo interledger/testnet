@@ -9,9 +9,8 @@ import express, {
 import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
-import { BaseError } from './errors/base'
 import { Model } from 'objection'
-import { isObject } from '@shared/backend'
+import {BaseError, isObject} from '@shared/backend'
 import path from 'path'
 
 export class App {

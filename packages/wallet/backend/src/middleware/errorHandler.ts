@@ -1,7 +1,7 @@
 import { logger } from '@/config/logger'
-import { BaseError } from '@/errors/Base'
 import type { Request, NextFunction } from 'express'
 import { AxiosError } from 'axios'
+import {BaseError} from "@shared/backend";
 
 export const errorHandler = (
   e: Error,

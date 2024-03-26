@@ -7,9 +7,9 @@ import {
 } from '@interledger/open-payments'
 import { InMemoryCache } from './in-memory'
 import { Env } from '@/config/env'
-import { InternalServerError } from '@/errors'
 import { Logger } from 'winston'
 import { replaceHost } from '@/shared/utils'
+import { InternalServerError } from '@shared/backend'
 
 export class TokenCache extends InMemoryCache<string> {
   private walletAddress!: WalletAddress

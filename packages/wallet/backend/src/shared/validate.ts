@@ -1,6 +1,6 @@
 import { Request } from 'express'
 import { AnyZodObject, z, ZodEffects } from 'zod'
-import { BadRequest } from '@/errors'
+import { BadRequest } from '@shared/backend'
 
 export async function validate<
   T extends AnyZodObject | ZodEffects<AnyZodObject>

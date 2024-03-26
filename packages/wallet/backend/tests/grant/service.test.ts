@@ -7,10 +7,10 @@ import { env } from '@/config/env'
 import { loginUser } from '@/tests/utils'
 import { faker } from '@faker-js/faker'
 import { truncateTables } from '@shared/backend/tests'
-import { Forbidden } from '@/errors'
 import { mockedListGrant } from '@/tests/mocks'
 import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 import { AwilixContainer } from 'awilix'
+import { Forbidden } from '@shared/backend'
 
 describe('Grant Service', () => {
   let bindings: AwilixContainer<Cradle>

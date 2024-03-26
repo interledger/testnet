@@ -12,7 +12,7 @@ import { mockedListAssets } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { loginUser } from '@/tests/utils'
 import { AuthService } from '@/auth/service'
-import { NotFound } from '@/errors'
+import { NotFound } from '@shared/backend'
 
 describe('Wallet Address Key Service', () => {
   let bindings: AwilixContainer<Cradle>

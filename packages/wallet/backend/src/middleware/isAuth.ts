@@ -1,5 +1,5 @@
-import { Unauthorized } from '@/errors'
 import type { NextFunction, Request, Response } from 'express'
+import { Unauthorized } from '@shared/backend'
 
 const KYCRoutes = ['/wallet', '/verify', '/countries', '/documents']
 
