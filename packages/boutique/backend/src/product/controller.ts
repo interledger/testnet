@@ -20,11 +20,11 @@ export class ProductController implements IProductController {
     private logger: Logger
   ) {}
 
-  public async get(
+  get = async (
     req: Request<GetParams>,
     res: TypedResponse<Product>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const { params } = req
       if (!params.slug) {
@@ -42,11 +42,11 @@ export class ProductController implements IProductController {
     }
   }
 
-  public async list(
+  list = async (
     _req: Request,
     res: TypedResponse<Product[]>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const products = await this.productService.list()
       res.status(200).json(toSuccessResponse(products))

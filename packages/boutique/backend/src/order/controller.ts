@@ -44,11 +44,11 @@ export class OrderController implements IOrderController {
     private oneClickCache: OneClickCache
   ) {}
 
-  public async get(
+  get = async (
     req: Request<GetParams>,
     res: TypedResponse<Order>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const { params } = req
       if (!params.id) {
@@ -64,11 +64,11 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async create(
+  create = async (
     req: Request,
     res: TypedResponse<CreateResponse>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const { products, walletAddressUrl } = await validate(
         createOrderSchema,
@@ -97,7 +97,7 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async finish(req: Request, res: TypedResponse, next: NextFunction) {
+  finish = async (req: Request, res: TypedResponse, next: NextFunction) => {
     try {
       const orderId = req.params.id
       if (!orderId) {
@@ -137,11 +137,11 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async setup(
+  setup = async (
     req: Request,
     res: TypedResponse<CreateResponse>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const { walletAddressUrl, amount } = await validate(
         oneClickSetupSchema,
@@ -159,11 +159,11 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async setupFinish(
+  setupFinish = async (
     req: Request,
     res: TypedResponse<TokenInfo>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const { interactRef, hash, identifier, result } = await validate(
         setupFinishSchema,
@@ -212,11 +212,11 @@ export class OrderController implements IOrderController {
     }
   }
 
-  public async instantBuy(
+  instantBuy = async (
     req: Request,
     res: TypedResponse<CreateResponse>,
     next: NextFunction
-  ) {
+  ) => {
     try {
       const args = await validate(instantBuySchema, req.body)
 

@@ -76,23 +76,14 @@ export class App {
       })
     )
 
-    router.get('/products', productController.list.bind(productController))
-    router.get('/products/:slug', productController.get.bind(productController))
+    router.get('/products', productController.list)
+    router.get('/products/:slug', productController.get)
 
-    router.post('/orders', orderController.create.bind(orderController))
-    router.post(
-      '/orders/instant-buy',
-      orderController.instantBuy.bind(orderController)
-    )
-    router.post(
-      '/orders/setup-one-click',
-      orderController.setup.bind(orderController)
-    )
-    router.post(
-      '/orders/setup-one-click/finish',
-      orderController.setupFinish.bind(orderController)
-    )
-    router.patch('/orders/:id', orderController.finish.bind(orderController))
+    router.post('/orders', orderController.create)
+    router.post('/orders/instant-buy', orderController.instantBuy)
+    router.post('/orders/setup-one-click', orderController.setup)
+    router.post('/orders/setup-one-click/finish', orderController.setupFinish)
+    router.patch('/orders/:id', orderController.finish)
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
