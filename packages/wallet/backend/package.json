@@ -12,10 +12,10 @@
     "@sendgrid/mail": "^8.1.1",
     "@shared/backend": "workspace:*",
     "awilix": "^10.0.1",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
-    "date-fns": "^3.4.0",
+    "date-fns": "^3.6.0",
     "disposable-email-domains": "^1.0.62",
     "express": "^4.18.3",
     "express-rate-limit": "^7.2.0",
@@ -30,9 +30,9 @@
     "objection": "^3.1.4",
     "pg": "^8.11.3",
     "randexp": "^0.5.3",
-    "socket.io": "^4.7.4",
+    "socket.io": "^4.7.5",
     "uuid": "^9.0.1",
-    "winston": "^3.12.0",
+    "winston": "^3.13.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -52,6 +52,6 @@
     "testcontainers": "^10.7.2",
     "ts-jest": "^29.1.2",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   }
 }

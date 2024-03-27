@@ -10,6 +10,7 @@ import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { useEffect } from 'react'
 
 const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
@@ -20,6 +21,9 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
+  useEffect(() => {
+    loginForm.setFocus('email')
+  }, [loginForm])
 
   return (
     <>
@@ -32,7 +36,12 @@ const LoginPage: NextPageWithLayout = () => {
             const response = await userService.login(data)
 
             if (response.success) {
-              router.push(callBackUrl)
+              const isIncorrectCallbackUrl =
+                !callBackUrl.startsWith('/') &&
+                !callBackUrl.startsWith(window.location.origin)
+              isIncorrectCallbackUrl
+                ? router.push('/')
+                : router.push(callBackUrl)
             } else {
               const { errors, message } = response
               loginForm.setError('root', { message })
