@@ -5,7 +5,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
 import { Amount } from '@/rafiki/service'
-import {Conflict, NotFound} from '@shared/backend'
+import { Conflict, NotFound } from '@shared/backend'
 
 type CreateAccountArgs = {
   userId: string

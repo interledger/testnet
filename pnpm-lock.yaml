@@ -208,6 +208,12 @@ importers:
 
   packages/shared/backend:
     dependencies:
+      '@google-cloud/logging-winston':
+        specifier: ^6.0.0
+        version: 6.0.0(winston@3.12.0)
+      axios:
+        specifier: ^1.6.7
+        version: 1.6.7
       express:
         specifier: ^4.18.3
         version: 4.18.3
@@ -217,6 +223,12 @@ importers:
       objection:
         specifier: ^3.1.4
         version: 3.1.4(knex@3.1.0)
+      winston:
+        specifier: ^3.12.0
+        version: 3.12.0
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -1798,7 +1810,7 @@ packages:
       google-auth-library: 9.6.3
       lodash.mapvalues: 4.6.0
       winston: 3.12.0
-      winston-transport: 4.5.0
+      winston-transport: 4.7.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -11868,15 +11880,6 @@ packages:
     dependencies:
       isexe: 2.0.0
     dev: true
-
-  /winston-transport@4.5.0:
-    resolution: {integrity: sha512-YpZzcUzBedhlTAfJg6vJDlyEai/IFMIVcaEZZyl3UXIl4gmqRpU7AE89AHLkbzLUsv0NVmw7ts+iztqKxxPW1Q==}
-    engines: {node: '>= 6.4.0'}
-    dependencies:
-      logform: 2.5.1
-      readable-stream: 3.6.2
-      triple-beam: 1.4.1
-    dev: false
 
   /winston-transport@4.7.0:
     resolution: {integrity: sha512-ajBj65K5I7denzer2IYW6+2bNIVqLGDHqDw3Ow8Ohh+vdW+rv4MZ6eiDvHoKhfJFZ2auyN8byXieDDJ96ViONg==}

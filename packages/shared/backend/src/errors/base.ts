@@ -1,4 +1,4 @@
-import {TypedResponseBody} from "../types";
+import { TypedResponseBody } from '../types'
 
 export abstract class BaseError
   extends Error

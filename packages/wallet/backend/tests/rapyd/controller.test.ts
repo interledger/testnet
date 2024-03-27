@@ -28,8 +28,8 @@ import {
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
 import { WalletAddressService } from '@/walletAddress/service'
-import { errorHandler } from '@/middleware/errorHandler'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Rapyd Controller', () => {
   let bindings: AwilixContainer<Cradle>

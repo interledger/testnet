@@ -22,7 +22,7 @@ import { createUser } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
 import { RapydAccountBalance } from '@/rapyd/schemas'
 import { truncateTables } from '@shared/backend/tests'
-import {BaseError} from "@shared/backend";
+import { BaseError } from '@shared/backend'
 
 describe('Asset Controller', (): void => {
   let bindings: AwilixContainer<Cradle>

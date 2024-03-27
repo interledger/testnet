@@ -1,16 +1,11 @@
 import { AwilixContainer } from 'awilix'
 import cors from 'cors'
-import express, {
-  Router,
-  type Express,
-  type Request,
-  NextFunction
-} from 'express'
+import express, { type Express, type Request, Router } from 'express'
 import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
 import { Model } from 'objection'
-import {BaseError, isObject} from '@shared/backend'
+import { errorHandler } from '@shared/backend'
 import path from 'path'
 
 export class App {
@@ -103,33 +98,11 @@ export class App {
       })
     })
 
-    router.use(this.errorHandler.bind(this))
+    router.use(errorHandler)
 
     app.use(router)
 
     return app
-  }
-
-  public errorHandler(
-    e: Error,
-    _req: Request,
-    res: TypedResponse,
-    _next: NextFunction
-  ) {
-    const logger = this.container.resolve('logger')
-
-    if (e instanceof BaseError) {
-      res.status(e.statusCode).json({
-        success: e.success,
-        message: e.message,
-        errors: e.errors
-      })
-    } else {
-      const message = isObject(e) ? e.message : 'unknown error'
-      logger.error(message)
-      logger.error(e)
-      res.status(500).json({ success: false, message: 'Internal Server Error' })
-    }
   }
 
   private async processPendingPayments() {
