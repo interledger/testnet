@@ -2,7 +2,7 @@ import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { Request, Response } from 'express'
 import {
   createRequest,
@@ -79,7 +79,7 @@ describe('Asset Controller', (): void => {
       expect(res.statusCode).toBe(200)
       const jsonData = res._getJSONData()
       expect(jsonData).toMatchObject({
-        message: 'Success'
+        message: 'SUCCESS'
       })
       expect(jsonData?.result?.length).toEqual(mockedListAssets.length)
     })

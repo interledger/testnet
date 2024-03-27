@@ -5,7 +5,7 @@ import { RapydService } from '@/rapyd/service'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { loginUser } from '@/tests/utils'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import {
   mockCreateWalletRequest,
   mockFailureRapyd,

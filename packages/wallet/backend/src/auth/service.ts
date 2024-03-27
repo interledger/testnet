@@ -1,5 +1,4 @@
 import type { User } from '@/user/model'
-import { Unauthorized } from '@/errors'
 import { addSeconds } from 'date-fns'
 import type { Env } from '@/config/env'
 import type { Session } from '@/session/model'
@@ -7,6 +6,7 @@ import type { UserService } from '@/user/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { EmailService } from '@/email/service'
 import { Logger } from 'winston'
+import { Unauthorized } from '@shared/backend'
 
 interface AuthorizeArgs {
   email: string

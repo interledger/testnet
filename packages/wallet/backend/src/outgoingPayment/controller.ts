@@ -2,9 +2,10 @@ import { OutgoingPaymentService } from '@/outgoingPayment/service'
 import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IOutgoingPaymentController {
-  create: ControllerFunction
+  create: Controller
 }
 
 export class OutgoingPaymentController implements IOutgoingPaymentController {
@@ -18,7 +19,7 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
 
       await this.outgoingPaymentService.createByQuoteId(quoteId)
 
-      res.status(200).json({ success: true, message: 'SUCCESS' })
+      res.status(200).json(toSuccessResponse())
     } catch (e) {
       next(e)
     }

@@ -3,13 +3,14 @@ import { validate } from '@/shared/validate'
 import { AccountService } from './service'
 import { accountSchema, fundSchema, withdrawFundsSchema } from './validation'
 import { Account } from '@/account/model'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IAccountController {
-  createAccount: ControllerFunction<Account>
-  listAccounts: ControllerFunction<Account[]>
-  getAccountById: ControllerFunction<Account>
-  fundAccount: ControllerFunction
-  withdrawFunds: ControllerFunction
+  createAccount: Controller<Account>
+  listAccounts: Controller<Account[]>
+  getAccountById: Controller<Account>
+  fundAccount: Controller
+  withdrawFunds: Controller
 }
 
 export class AccountController implements IAccountController {
@@ -32,11 +33,7 @@ export class AccountController implements IAccountController {
         assetId
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'SUCCESS',
-        result: createAccountResult
-      })
+      res.status(200).json(toSuccessResponse(createAccountResult))
     } catch (e) {
       next(e)
     }
@@ -65,9 +62,7 @@ export class AccountController implements IAccountController {
         includeWalletKeys
       )
 
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: accounts })
+      res.status(200).json(toSuccessResponse(accounts))
     } catch (e) {
       next(e)
     }
@@ -87,9 +82,7 @@ export class AccountController implements IAccountController {
         accountId
       )
 
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: getAccountsResult })
+      res.status(200).json(toSuccessResponse(getAccountsResult))
     } catch (e) {
       next(e)
     }
@@ -109,7 +102,7 @@ export class AccountController implements IAccountController {
 
       await this.accountService.fundAccount({ userId, amount, accountId })
 
-      res.status(200).json({ success: true, message: 'Account funded' })
+      res.status(200).json(toSuccessResponse(undefined, 'Account funded'))
     } catch (e) {
       next(e)
     }
@@ -133,7 +126,7 @@ export class AccountController implements IAccountController {
         accountId
       })
 
-      res.status(200).json({ success: true, message: 'Funds withdrawn' })
+      res.status(200).json(toSuccessResponse(undefined, 'Funds withdrawn'))
     } catch (e) {
       next(e)
     }

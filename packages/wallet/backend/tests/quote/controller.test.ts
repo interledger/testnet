@@ -16,10 +16,10 @@ import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { faker } from '@faker-js/faker'
 import { createUser } from '@/tests/helpers'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { mockCreateQuoteRequest, mockLogInRequest } from '@/tests/mocks'
-import { errorHandler } from '@/middleware/errorHandler'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Quote Controller', () => {
   let bindings: AwilixContainer<Cradle>

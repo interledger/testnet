@@ -8,7 +8,7 @@ import {
   mockOutgoingPaymenteCreatedEvent,
   mockWalletAddress
 } from '../mocks'
-import { truncateTables } from '../tables'
+import { truncateTables } from '@shared/backend/tests'
 import { AwilixContainer } from 'awilix'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'

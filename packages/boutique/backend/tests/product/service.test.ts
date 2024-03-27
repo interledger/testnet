@@ -4,11 +4,11 @@ import { createApp, TestApp } from '@/tests/app'
 import { AwilixContainer } from 'awilix'
 import { Knex } from 'knex'
 import { IProductService } from '@/product/service'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { randomUUID } from 'crypto'
 import { mockProduct } from '../mocks'
 import { createProducts } from '../helpers'
-import { NotFound } from '@/errors'
+import { NotFound } from '@shared/backend'
 
 describe('Product Service', (): void => {
   let container: AwilixContainer<Cradle>

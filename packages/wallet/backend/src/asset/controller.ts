@@ -1,9 +1,10 @@
 import { NextFunction, Request } from 'express'
 import { Asset } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IAssetController {
-  list: ControllerFunction<Asset[]>
+  list: Controller<Asset[]>
 }
 
 export class AssetController implements IAssetController {
@@ -16,7 +17,7 @@ export class AssetController implements IAssetController {
   ) => {
     try {
       const assets = await this.rafikiClient.listAssets({ first: 100 })
-      res.json({ success: true, message: 'Success', result: assets })
+      res.json(toSuccessResponse(assets))
     } catch (e) {
       next(e)
     }

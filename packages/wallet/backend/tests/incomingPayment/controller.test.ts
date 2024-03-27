@@ -1,7 +1,6 @@
 import { env } from '@/config/env'
 import { Cradle, createContainer } from '@/createContainer'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
-import { errorHandler } from '@/middleware/errorHandler'
 import { NextFunction, Request, Response } from 'express'
 import {
   MockRequest,
@@ -16,6 +15,7 @@ import {
   mockIncomingPaymentService
 } from '../mocks'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Incoming Payment Controller', () => {
   let bindings: AwilixContainer<Cradle>

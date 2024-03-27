@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { Product } from './model'
-import { NotFound } from '@/errors'
+import { NotFound } from '@shared/backend'
 
 type GetColumns = 'id' | 'slug'
 

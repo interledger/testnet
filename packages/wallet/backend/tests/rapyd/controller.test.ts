@@ -26,10 +26,10 @@ import {
   mockVerifyIdentityRequest
 } from '@/tests/mocks'
 import { createUser } from '@/tests/helpers'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { WalletAddressService } from '@/walletAddress/service'
-import { errorHandler } from '@/middleware/errorHandler'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Rapyd Controller', () => {
   let bindings: AwilixContainer<Cradle>
@@ -198,7 +198,7 @@ describe('Rapyd Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Wallet created succesfully',
+        message: 'Wallet created successfully',
         result: {
           userId,
           wallet: 'mocked_wallet'
@@ -246,7 +246,7 @@ describe('Rapyd Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Wallet created succesfully'
+        message: 'Wallet created successfully'
       })
     })
 
@@ -293,7 +293,7 @@ describe('Rapyd Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Profile updated succesfully'
+        message: 'Profile updated successfully'
       })
     })
 

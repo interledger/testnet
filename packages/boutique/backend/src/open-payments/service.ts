@@ -1,6 +1,5 @@
 import { TokenCache } from '@/cache/token'
 import { Env } from '@/config/env'
-import { BadRequest, InternalServerError } from '@/errors'
 import { Order } from '@/order/model'
 import { Payment } from '@/payment/model'
 import {
@@ -19,6 +18,7 @@ import { Logger } from 'winston'
 import { createHash } from 'crypto'
 import { OneClickCache } from '@/cache/one-click'
 import { replaceHost } from '@/shared/utils'
+import { BadRequest, InternalServerError } from '@shared/backend'
 
 interface PreparePaymentParams {
   order: Order

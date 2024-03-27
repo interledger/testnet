@@ -4,7 +4,6 @@ import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { User } from '@/user/model'
 import RandExp from 'randexp'
-import { BadRequest } from '@/errors'
 import { AnyZodObject, z, ZodEffects, ZodTypeAny } from 'zod'
 import {
   CompletePayoutRequest,
@@ -50,6 +49,7 @@ import {
   WithdrawFundsFromAccountResponseSchema
 } from './schemas'
 import { validateRapydResponse } from './schemas'
+import { BadRequest } from '@shared/backend'
 
 interface IRapydClient {
   createWallet(wallet: RapydWallet): Promise<RapydResponse<RapydWallet>>

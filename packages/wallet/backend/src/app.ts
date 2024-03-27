@@ -22,7 +22,6 @@ import { AssetController } from './asset/controller'
 import type { AuthController } from './auth/controller'
 import type { AuthService } from './auth/service'
 import type { Env } from './config/env'
-import { errorHandler } from './middleware/errorHandler'
 import { isAuth } from './middleware/isAuth'
 import { withSession } from './middleware/withSession'
 import { QuoteController } from './quote/controller'
@@ -43,6 +42,7 @@ import { RedisClient } from './cache/redis-client'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
+import { errorHandler } from '@shared/backend'
 
 export interface Bindings {
   env: Env

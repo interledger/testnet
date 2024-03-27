@@ -11,12 +11,13 @@ import {
   walletAddressSchema,
   updateWalletAddressSchema
 } from './validation'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IWalletAddressController {
-  create: ControllerFunction<WalletAddress>
-  list: ControllerFunction<WalletAddressList>
-  getById: ControllerFunction<WalletAddress>
-  softDelete: ControllerFunction
+  create: Controller<WalletAddress>
+  list: Controller<WalletAddressList>
+  getById: Controller<WalletAddress>
+  softDelete: Controller
 }
 
 export class WalletAddressController implements IWalletAddressController {
@@ -41,9 +42,7 @@ export class WalletAddressController implements IWalletAddressController {
         publicName,
         isWM
       })
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: walletAddress })
+      res.status(200).json(toSuccessResponse(walletAddress))
     } catch (e) {
       next(e)
     }
@@ -62,9 +61,7 @@ export class WalletAddressController implements IWalletAddressController {
         userId,
         accountId
       )
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: walletAddresses })
+      res.status(200).json(toSuccessResponse(walletAddresses))
     } catch (e) {
       next(e)
     }
@@ -80,9 +77,7 @@ export class WalletAddressController implements IWalletAddressController {
     try {
       const walletAddresses = await this.walletAddressService.listAll(userId)
 
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: walletAddresses })
+      res.status(200).json(toSuccessResponse(walletAddresses))
     } catch (e) {
       next(e)
     }
@@ -99,11 +94,7 @@ export class WalletAddressController implements IWalletAddressController {
       } = await validate(externalWalletAddressSchema, req)
       const externalWalletAddress =
         await this.walletAddressService.getExternalWalletAddress(url)
-      res.status(200).json({
-        success: true,
-        message: 'SUCCESS',
-        result: externalWalletAddress
-      })
+      res.status(200).json(toSuccessResponse(externalWalletAddress))
     } catch (e) {
       next(e)
     }
@@ -124,9 +115,7 @@ export class WalletAddressController implements IWalletAddressController {
         walletAddressId
       })
 
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: walletAddress })
+      res.status(200).json(toSuccessResponse(walletAddress))
     } catch (e) {
       next(e)
     }
@@ -143,10 +132,14 @@ export class WalletAddressController implements IWalletAddressController {
 
       await this.walletAddressService.softDelete(userId, id)
 
-      res.status(200).json({
-        success: true,
-        message: 'Payment pointer was successfully deleted'
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(
+            undefined,
+            'Payment pointer was successfully deleted'
+          )
+        )
     } catch (e) {
       next(e)
     }
@@ -167,10 +160,14 @@ export class WalletAddressController implements IWalletAddressController {
         publicName
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'Payment pointer was successfully updated.'
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(
+            undefined,
+            'Payment pointer was successfully updated.'
+          )
+        )
     } catch (e) {
       next(e)
     }

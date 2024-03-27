@@ -1,4 +1,3 @@
-import { NotFound } from '@/errors'
 import { User } from '@/user/model'
 import crypto from 'crypto'
 import { RapydClient } from './rapyd-client'
@@ -8,6 +7,7 @@ import {
   RapydIdentityResponse,
   RapydWallet
 } from './schemas'
+import { NotFound } from '@shared/backend'
 
 type VerifyIdentityParams = {
   userId: string

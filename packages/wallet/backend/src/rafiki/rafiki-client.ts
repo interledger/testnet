@@ -1,4 +1,3 @@
-import { BadRequest, NotFound } from '@/errors'
 import { GraphQLClient } from 'graphql-request'
 import { v4 as uuid } from 'uuid'
 import { Logger } from 'winston'
@@ -73,6 +72,7 @@ import {
   createReceiverMutation,
   getReceiverQuery
 } from '@/rafiki/backend/request/receiver.request'
+import { BadRequest, NotFound } from '@shared/backend'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>

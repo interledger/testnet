@@ -1,4 +1,3 @@
-import { Unauthorized } from '@/errors'
 import type { NextFunction, Request } from 'express'
 import type { UserService } from './service'
 import type { User } from './model'
@@ -8,6 +7,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema
 } from '@/user/validation'
+import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
 
 interface UserFlags {
   needsWallet: boolean
@@ -18,10 +18,10 @@ interface TokenValidity {
 }
 
 interface IUserController {
-  me: ControllerFunction<UserFlags>
-  requestResetPassword: ControllerFunction
-  resetPassword: ControllerFunction
-  checkToken: ControllerFunction<TokenValidity>
+  me: Controller<UserFlags>
+  requestResetPassword: Controller
+  resetPassword: Controller
+  checkToken: Controller<TokenValidity>
 }
 
 export class UserController implements IUserController {
@@ -47,18 +47,19 @@ export class UserController implements IUserController {
         throw new Unauthorized('Unauthorized')
       }
 
-      res.json({
-        success: true,
-        message: 'User retrieved successfully',
-        result: {
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          address: user.address,
-          needsWallet: !user.rapydWalletId,
-          needsIDProof: !user.kycId
-        }
-      })
+      res.json(
+        toSuccessResponse(
+          {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            address: user.address,
+            needsWallet: !user.rapydWalletId,
+            needsIDProof: !user.kycId
+          },
+          'User retrieved successfully'
+        )
+      )
     } catch (e) {
       next(e)
     }
@@ -76,10 +77,12 @@ export class UserController implements IUserController {
 
       await this.userService.requestResetPassword(email)
 
-      res.json({
-        success: true,
-        message: 'An email with reset password steps was sent to provided email'
-      })
+      res.json(
+        toSuccessResponse(
+          undefined,
+          'An email with reset password steps was sent to provided email'
+        )
+      )
     } catch (e) {
       next(e)
     }
@@ -98,10 +101,9 @@ export class UserController implements IUserController {
 
       await this.userService.resetPassword(token, password)
 
-      res.json({
-        success: true,
-        message: 'Password was updated successfully'
-      })
+      res.json(
+        toSuccessResponse(undefined, 'Password was updated successfully')
+      )
     } catch (e) {
       next(e)
     }
@@ -121,10 +123,9 @@ export class UserController implements IUserController {
 
       await this.userService.changePassword(oldPassword, newPassword, userId)
 
-      res.json({
-        success: true,
-        message: 'Password was changed successfully'
-      })
+      res.json(
+        toSuccessResponse(undefined, 'Password was changed successfully')
+      )
     } catch (e) {
       next(e)
     }
@@ -140,11 +141,7 @@ export class UserController implements IUserController {
 
       const isValid = await this.userService.validateToken(token)
 
-      res.json({
-        success: true,
-        message: 'Token was checked',
-        result: { isValid }
-      })
+      res.json(toSuccessResponse({ isValid }, 'Token was checked'))
     } catch (e) {
       next(e)
     }

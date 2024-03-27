@@ -5,6 +5,7 @@ import {
   paymentDetailsSchema
 } from '@/incomingPayment/validation'
 import { IncomingPaymentService } from '@/incomingPayment/service'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 export interface PaymentDetails {
   value: number
@@ -13,8 +14,8 @@ export interface PaymentDetails {
 }
 
 interface IIncomingPaymentController {
-  create: ControllerFunction<{ url: string }>
-  getPaymentDetailsByUrl: ControllerFunction<PaymentDetails>
+  create: Controller<{ url: string }>
+  getPaymentDetailsByUrl: Controller<PaymentDetails>
 }
 
 export class IncomingPaymentController implements IIncomingPaymentController {
@@ -38,9 +39,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
         description,
         expiration
       )
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: { url } })
+      res.status(200).json(toSuccessResponse({ url }))
     } catch (e) {
       next(e)
     }
@@ -58,9 +57,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
 
       const paymentDetails =
         await this.incomingPaymentService.getPaymentDetailsByUrl(url)
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: paymentDetails })
+      res.status(200).json(toSuccessResponse(paymentDetails))
     } catch (e) {
       next(e)
     }

@@ -1,11 +1,11 @@
 import { Knex } from 'knex'
 import { Logger } from 'winston'
 import { Payment, PaymentStatus } from './model'
-import { InternalServerError } from '@/errors'
 import { IOpenPayments } from '@/open-payments/service'
 import { IncomingPayment } from '@interledger/open-payments'
 import { TransactionOrKnex } from 'objection'
 import { IOrderService } from '@/order/service'
+import { InternalServerError } from '@shared/backend'
 
 export interface IPaymentService {
   get: (id: string) => Promise<Payment>

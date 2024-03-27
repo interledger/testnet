@@ -1,9 +1,9 @@
 import { Account } from '@/account/model'
-import { BaseModel } from '@/shared/model'
 import { Session } from '@/session/model'
 import { Model, ModelOptions, QueryContext } from 'objection'
 import { bcryptVerify } from 'hash-wasm'
 import { encryptPassword } from '@/utils/helpers'
+import { BaseModel } from '@shared/backend'
 
 export class User extends BaseModel {
   static tableName = 'users'

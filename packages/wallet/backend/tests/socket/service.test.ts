@@ -3,7 +3,7 @@ import { Knex } from 'knex'
 import { SocketService } from '@/socket/service'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { AuthService } from '@/auth/service'
 import { Request, Response } from 'express'
 import {

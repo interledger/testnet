@@ -8,13 +8,13 @@ import { mockedListAssets } from '@/tests/mocks'
 import { Cradle, createContainer } from '@/createContainer'
 import { Env, env } from '@/config/env'
 import { loginUser, uuid } from '@/tests/utils'
-import { truncateTables } from '@/tests/tables'
-import { NotFound } from '@/errors'
+import { truncateTables } from '@shared/backend/tests'
 import axios from 'axios'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { Logger } from 'winston'
 import { AwilixContainer } from 'awilix'
+import { NotFound } from '@shared/backend'
 
 describe('Wallet Address Service', () => {
   let bindings: AwilixContainer<Cradle>

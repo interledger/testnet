@@ -4,7 +4,6 @@ import { AssetController } from '@/asset/controller'
 import { AuthController } from '@/auth/controller'
 import { AuthService } from '@/auth/service'
 import { Env } from '@/config/env'
-import { logger } from '@/config/logger'
 import { EmailService } from '@/email/service'
 import { GrantController } from '@/grant/controller'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
@@ -48,6 +47,7 @@ import { createKnex } from '@/config/knex'
 import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
+import { logger } from '@shared/backend'
 
 export interface Cradle {
   env: Env

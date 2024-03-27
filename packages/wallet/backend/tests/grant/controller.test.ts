@@ -17,10 +17,10 @@ import { faker } from '@faker-js/faker'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createUser } from '@/tests/helpers'
-import { truncateTables } from '@/tests/tables'
-import { errorHandler } from '@/middleware/errorHandler'
+import { truncateTables } from '@shared/backend/tests'
 import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Grant Controller', () => {
   let bindings: AwilixContainer<Cradle>
@@ -112,7 +112,7 @@ describe('Grant Controller', () => {
       expect(data).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success'
+        message: 'SUCCESS'
       })
     })
   })
@@ -126,7 +126,7 @@ describe('Grant Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success'
+        message: 'SUCCESS'
       })
     })
 
@@ -154,7 +154,7 @@ describe('Grant Controller', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success',
+        message: 'SUCCESS',
         result: { id: 'grant' }
       })
     })
@@ -173,7 +173,7 @@ describe('Grant Controller', () => {
       expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success'
+        message: 'SUCCESS'
       })
     })
   })
@@ -190,7 +190,7 @@ describe('Grant Controller', () => {
       expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success'
+        message: 'SUCCESS'
       })
     })
 
@@ -207,7 +207,7 @@ describe('Grant Controller', () => {
       expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Success',
+        message: 'SUCCESS',
         result: {
           state: GrantState.Finalized,
           finalizationReason: GrantFinalization.Rejected

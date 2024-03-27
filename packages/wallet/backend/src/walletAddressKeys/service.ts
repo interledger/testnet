@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid'
 import { WalletAddressKeys } from './model'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
-import { NotFound } from '@/errors'
+import { NotFound } from '@shared/backend'
 
 export type KeyResponse = {
   privateKey: string

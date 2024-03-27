@@ -2,7 +2,7 @@ import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { Request, Response } from 'express'
 import {
   createRequest,
@@ -11,7 +11,6 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import type { AuthService } from '@/auth/service'
-import { errorHandler } from '@/middleware/errorHandler'
 import { applyMiddleware, uuid } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserController } from '@/user/controller'
@@ -21,6 +20,7 @@ import { faker } from '@faker-js/faker'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { User } from '@/user/model'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('User Controller', (): void => {
   let bindings: AwilixContainer<Cradle>

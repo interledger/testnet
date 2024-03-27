@@ -3,7 +3,7 @@ import { Knex } from 'knex'
 import { faker } from '@faker-js/faker'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { AwilixContainer } from 'awilix'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
@@ -12,7 +12,7 @@ import { mockedListAssets } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { loginUser } from '@/tests/utils'
 import { AuthService } from '@/auth/service'
-import { NotFound } from '@/errors'
+import { NotFound } from '@shared/backend'
 
 describe('Wallet Address Key Service', () => {
   let bindings: AwilixContainer<Cradle>

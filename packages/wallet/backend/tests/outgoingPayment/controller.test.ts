@@ -13,8 +13,8 @@ import {
   mockOutgoingPaymentService
 } from '../mocks'
 import { OutgoingPaymentController } from '@/outgoingPayment/controller'
-import { errorHandler } from '@/middleware/errorHandler'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('OutgoingPayment controller', () => {
   let bindings: AwilixContainer<Cradle>

@@ -2,7 +2,7 @@ import { createContainer, type Cradle } from '@/container'
 import { env } from '@/config/env'
 import { createApp, TestApp } from '@/tests/app'
 import { AwilixContainer } from 'awilix'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import {
   createRequest,
   createResponse,
@@ -70,7 +70,7 @@ describe('Application', (): void => {
         .spyOn(productService, 'list')
         .mockRejectedValueOnce(new Error('Unexpected error'))
 
-      await productController.list(req, res, (err: Error) => {
+      await productController.list(req, res, (err) => {
         next()
         app.errorHandler(err, req, res, next)
       })
@@ -88,7 +88,7 @@ describe('Application', (): void => {
   describe('get', (): void => {
     it('should return status 400 if the slug parameter is not provided ', async (): Promise<void> => {
       const getBySlugSpy = jest.spyOn(productService, 'getBySlug')
-      await productController.get(req, res, (err: Error) => {
+      await productController.get(req, res, (err) => {
         next()
         app.errorHandler(err, req, res, next)
       })
@@ -105,7 +105,7 @@ describe('Application', (): void => {
     it('should return status 404 if the product with the given slug does not exist', async (): Promise<void> => {
       req.params.slug = 'product-slug'
       const getBySlugSpy = jest.spyOn(productService, 'getBySlug')
-      await productController.get(req, res, (err: Error) => {
+      await productController.get(req, res, (err) => {
         next()
         app.errorHandler(err, req, res, next)
       })

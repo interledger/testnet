@@ -1,8 +1,7 @@
-import { NotFound } from '@/errors'
 import { Order } from '@/order/model'
 import { Product } from '@/product/model'
-import { BaseModel } from '@/shared/model'
 import { Model, QueryContext } from 'objection'
+import { BaseModel, NotFound } from '@shared/backend'
 
 export class OrderItem extends BaseModel {
   static tableName = 'orderItems'

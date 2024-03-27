@@ -1,4 +1,4 @@
-import type { Response, Request } from 'express'
+import type { Response } from 'express'
 import type { IronSession } from 'iron-session'
 
 declare module 'iron-session' {
@@ -10,14 +10,6 @@ declare module 'iron-session' {
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type Send<ResBody = any, T = Response<ResBody>> = (body?: ResBody) => T
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type BaseResponseBody<T = any> = {
-    success: boolean
-    message: string
-    result?: T
-    errors?: Record<string, string>
-  }
 
   type UserSessionData = {
     id: string
@@ -35,16 +27,10 @@ declare global {
 
   export interface CustomResponse<
     TData = undefined,
-    TBody = BaseResponseBody<TData>
+    TBody = TypedResponseBody<TData>
   > extends Response {
     json: Send<TBody, this>
   }
-
-  type ControllerFunction<T = undefined> = (
-    req: Request,
-    res: CustomResponse<T>,
-    next: NextFunction
-  ) => Promise<void>
 
   interface BigInt {
     toJSON(): string

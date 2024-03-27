@@ -1,12 +1,13 @@
-import { logger } from '@/config/logger'
-import { BaseError } from '@/errors/Base'
 import type { Request, NextFunction } from 'express'
 import { AxiosError } from 'axios'
+import { TypedResponse } from '../types'
+import { logger } from '../configs/logger'
+import { BaseError } from '../errors'
 
 export const errorHandler = (
   e: Error,
   _req: Request,
-  res: CustomResponse,
+  res: TypedResponse,
   _next: NextFunction
 ) => {
   if (e instanceof BaseError) {
