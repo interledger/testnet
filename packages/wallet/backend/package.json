@@ -22,7 +22,7 @@
     "hash-wasm": "^4.11.0",
     "helmet": "^7.1.0",
     "ioredis": "^5.3.2",
-    "iron-session": "^6.3.1",
+    "iron-session": "^8.0.1",
     "knex": "^3.1.0",
     "node-cache": "^5.1.2",
     "objection": "^3.1.4",
