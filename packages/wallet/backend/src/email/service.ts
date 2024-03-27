@@ -5,7 +5,7 @@ import { Logger } from 'winston'
 import { getVerifyEmailTemplate } from '@/email/templates/verifyEmail'
 import dns from 'dns'
 import domains from 'disposable-email-domains'
-import {BadRequest} from "@shared/backend";
+import { BadRequest } from '@shared/backend'
 
 interface EmailArgs {
   to: string

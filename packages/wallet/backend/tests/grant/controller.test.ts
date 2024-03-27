@@ -18,9 +18,9 @@ import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createUser } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
-import { errorHandler } from '@/middleware/errorHandler'
 import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Grant Controller', () => {
   let bindings: AwilixContainer<Cradle>

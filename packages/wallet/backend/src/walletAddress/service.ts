@@ -12,7 +12,7 @@ import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionType } from '@/transaction/model'
 import { Logger } from 'winston'
 import { TransactionService } from '@/transaction/service'
-import {BadRequest, Conflict, NotFound} from "@shared/backend";
+import { BadRequest, Conflict, NotFound } from '@shared/backend'
 
 interface HandleBalanceParams {
   type: TransactionType

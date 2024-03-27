@@ -1,16 +1,16 @@
 import type { Request, NextFunction } from 'express'
 import { AxiosError } from 'axios'
-import {BaseError} from "@shared/backend";
-import { generateLogger } from '@/config/logger'
-import { env } from '@/config/env'
+import { TypedResponse } from '../types'
+import { initLogger } from '../configs/logger'
+import { BaseError } from '../errors'
 
 export const errorHandler = (
   e: Error,
   _req: Request,
-  res: CustomResponse,
+  res: TypedResponse,
   _next: NextFunction
 ) => {
-  const logger = generateLogger(env)
+  const logger = initLogger();
   if (e instanceof BaseError) {
     res.status(e.statusCode).json({
       success: e.success,

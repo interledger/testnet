@@ -16,7 +16,7 @@ import { QuoteWithFees } from './controller'
 import { RatesService } from '@/rates/service'
 import { Account } from '@/account/model'
 import { NodeCacheInstance } from '@/utils/helpers'
-import {BadRequest, NotFound} from '@shared/backend'
+import { BadRequest, NotFound } from '@shared/backend'
 type CreateExchangeQuote = {
   userId: string
   accountId: string

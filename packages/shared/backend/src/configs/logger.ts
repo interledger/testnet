@@ -1,7 +1,9 @@
 import { createLogger, format, LoggerOptions, transports } from 'winston'
 import { LoggingWinston } from '@google-cloud/logging-winston'
 
-export const initLogger = (nodeEnv: string) => {
+let storedNodeEnv = 'development'
+export const initLogger = (nodeEnv?: string) => {
+  nodeEnv ? (storedNodeEnv = nodeEnv) : (nodeEnv = storedNodeEnv)
   const loggerTransports: LoggerOptions['transports'] = [
     new transports.Console({
       level: nodeEnv === 'development' ? 'debug' : 'info'

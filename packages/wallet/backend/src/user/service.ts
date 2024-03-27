@@ -8,7 +8,7 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { getRandomValues } from 'crypto'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
-import {BadRequest, Conflict} from "@shared/backend";
+import { BadRequest, Conflict } from '@shared/backend'
 
 interface CreateUserArgs {
   email: string
