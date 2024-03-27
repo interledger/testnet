@@ -11,14 +11,14 @@
     "@interledger/open-payments": "^6.7.1",
     "@shared/backend": "workspace:*",
     "awilix": "^10.0.1",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "cors": "^2.8.5",
     "express": "^4.18.3",
     "helmet": "^7.1.0",
     "knex": "^3.1.0",
     "objection": "^3.1.4",
     "pg": "^8.11.3",
-    "winston": "^3.12.0",
+    "winston": "^3.13.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -30,6 +30,6 @@
     "node-mocks-http": "^1.14.1",
     "ts-jest": "^29.1.2",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   }
 }

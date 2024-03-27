@@ -18,7 +18,7 @@ import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { z } from 'zod'
-import { ChangeEvent, useMemo, useState } from 'react'
+import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { SimpleArrow } from '@/components/icons/Arrow'
 import { useRouter } from 'next/router'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
@@ -82,6 +82,10 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
       )
     }
   }
+
+  useEffect(() => {
+    exchangeAssetForm.setFocus('amount')
+  }, [exchangeAssetForm])
 
   return (
     <>

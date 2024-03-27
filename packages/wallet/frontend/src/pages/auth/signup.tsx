@@ -10,6 +10,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { useEffect } from 'react'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
@@ -17,6 +18,9 @@ const SignUpPage: NextPageWithLayout = () => {
   const signUpForm = useZodForm({
     schema: signUpSchema
   })
+  useEffect(() => {
+    signUpForm.setFocus('email')
+  }, [signUpForm])
 
   return (
     <>
