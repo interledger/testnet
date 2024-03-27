@@ -46,7 +46,7 @@ importers:
     dependencies:
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
-        version: 6.0.0(winston@3.12.0)
+        version: 6.0.0(winston@3.13.0)
       '@interledger/open-payments':
         specifier: ^6.7.1
         version: 6.7.1
@@ -75,8 +75,8 @@ importers:
         specifier: ^8.11.3
         version: 8.11.3
       winston:
-        specifier: ^3.12.0
-        version: 3.12.0
+        specifier: ^3.13.0
+        version: 3.13.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -207,7 +207,7 @@ importers:
     dependencies:
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
-        version: 6.0.0(winston@3.12.0)
+        version: 6.0.0(winston@3.13.0)
       '@sendgrid/mail':
         specifier: ^8.1.1
         version: 8.1.1
@@ -275,8 +275,8 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
       winston:
-        specifier: ^3.12.0
-        version: 3.12.0
+        specifier: ^3.13.0
+        version: 3.13.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -1759,7 +1759,7 @@ packages:
       - supports-color
     dev: false
 
-  /@google-cloud/logging-winston@6.0.0(winston@3.12.0):
+  /@google-cloud/logging-winston@6.0.0(winston@3.13.0):
     resolution: {integrity: sha512-/lVp7CyT3nFOr+AjQlZnJhTIOf+kcNGB4JTziL0fkX6Ov/2qNKtRGS/NqE6cD+VSPiv5jLOty3LgkRsXMpYxQQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -1768,7 +1768,7 @@ packages:
       '@google-cloud/logging': 11.0.0
       google-auth-library: 9.6.3
       lodash.mapvalues: 4.6.0
-      winston: 3.12.0
+      winston: 3.13.0
       winston-transport: 4.5.0
     transitivePeerDependencies:
       - encoding
@@ -11606,8 +11606,8 @@ packages:
       triple-beam: 1.4.1
     dev: false
 
-  /winston@3.12.0:
-    resolution: {integrity: sha512-OwbxKaOlESDi01mC9rkM0dQqQt2I8DAUMRLZ/HpbwvDXm85IryEHgoogy5fziQy38PntgZsLlhAYHz//UPHZ5w==}
+  /winston@3.13.0:
+    resolution: {integrity: sha512-rwidmA1w3SE4j0E5MuIufFhyJPBDG7Nu71RkZor1p2+qHvJSZ9GYDA81AyleQcZbh/+V6HjeBdfnTZJm9rSeQQ==}
     engines: {node: '>= 12.0.0'}
     dependencies:
       '@colors/colors': 1.6.0
