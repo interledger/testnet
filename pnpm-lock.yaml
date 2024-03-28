@@ -50,6 +50,9 @@ importers:
       '@interledger/open-payments':
         specifier: ^6.7.1
         version: 6.7.1
+      '@shared/backend':
+        specifier: workspace:*
+        version: link:../../shared/backend
       awilix:
         specifier: ^10.0.1
         version: 10.0.1
@@ -203,6 +206,22 @@ importers:
         specifier: ^5.1.6
         version: 5.1.6
 
+  packages/shared/backend:
+    dependencies:
+      objection:
+        specifier: ^3.1.4
+        version: 3.1.4(knex@3.1.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^18.14.0
+        version: 18.18.3
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
+      typescript:
+        specifier: ^5.3.3
+        version: 5.4.3
+
   packages/wallet/backend:
     dependencies:
       '@google-cloud/logging-winston':
@@ -211,6 +230,9 @@ importers:
       '@sendgrid/mail':
         specifier: ^8.1.1
         version: 8.1.1
+      '@shared/backend':
+        specifier: workspace:*
+        version: link:../../shared/backend
       awilix:
         specifier: ^10.0.1
         version: 10.0.1
@@ -6717,7 +6739,6 @@ packages:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.5
-    dev: false
 
   /fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -7094,7 +7115,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.1
+      fast-glob: 3.3.2
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0

@@ -1,7 +1,7 @@
 import { WalletAddress } from '@/walletAddress/model'
-import { BaseModel } from '@/shared/model'
 import { User } from '@/user/model'
 import { Model } from 'objection'
+import { BaseModel } from '@shared/backend'
 
 export class Account extends BaseModel {
   static tableName = 'accounts'
