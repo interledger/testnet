@@ -10,7 +10,7 @@ import { faker } from '@faker-js/faker'
 import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
 import { loginUser, uuid } from '@/tests/utils'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { AwilixContainer } from 'awilix'
 
 describe('Quote Service', () => {
