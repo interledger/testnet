@@ -2,7 +2,7 @@ import { createContainer, type Cradle } from '@/container'
 import { env } from '@/config/env'
 import { createApp, TestApp } from '@/tests/app'
 import { AwilixContainer } from 'awilix'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import {
   createRequest,
   createResponse,

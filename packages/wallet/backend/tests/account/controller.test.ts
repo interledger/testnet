@@ -19,10 +19,10 @@ import { User } from '@/user/model'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { BaseError } from '@/errors/Base'
-import { truncateTables } from '@/tests/tables'
 import { createUser } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
 import { RapydAccountBalance } from '@/rapyd/schemas'
+import { truncateTables } from '@shared/backend/tests'
 
 describe('Asset Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
