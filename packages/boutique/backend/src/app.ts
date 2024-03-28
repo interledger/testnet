@@ -132,7 +132,7 @@ export class App {
       .catch((err) => {
         logger.error('Error while trying to process pending payments')
         logger.error(err)
-        return true
+        return false
       })
       .then((trx) => {
         if (trx) {
