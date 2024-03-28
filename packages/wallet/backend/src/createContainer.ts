@@ -4,7 +4,6 @@ import { AssetController } from '@/asset/controller'
 import { AuthController } from '@/auth/controller'
 import { AuthService } from '@/auth/service'
 import { Env } from '@/config/env'
-import { logger } from '@/config/logger'
 import { EmailService } from '@/email/service'
 import { GrantController } from '@/grant/controller'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
@@ -44,10 +43,10 @@ import {
 import { createContainer as createAwilixContainer } from 'awilix/lib/container'
 import { createRedis } from '@/config/redis'
 import { createWalletAddressService } from '@/config/walletAddress'
-import { createKnex } from '@/config/knex'
 import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
+import { createKnex, logger } from '@shared/backend'
 
 export interface Cradle {
   env: Env
