@@ -16,11 +16,11 @@
     "nprogress": "^0.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.51.0",
+    "react-hook-form": "^7.51.1",
     "react-joyride": "^2.5.4",
     "react-select": "^5.8.0",
     "sharp": "^0.33.2",
-    "socket.io-client": "^4.7.4",
+    "socket.io-client": "^4.7.5",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^1.13.2",
@@ -32,11 +32,11 @@
     "@tailwindcss/forms": "^0.5.7",
     "@types/node": "^18.14.0",
     "@types/nprogress": "^0.2.3",
-    "@types/react": "18.2.65",
-    "@types/react-dom": "18.2.21",
-    "autoprefixer": "^10.4.18",
-    "postcss": "^8.4.35",
+    "@types/react": "18.2.69",
+    "@types/react-dom": "18.2.22",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   }
 }

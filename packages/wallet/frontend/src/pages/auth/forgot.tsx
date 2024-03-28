@@ -11,12 +11,16 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
+import { useEffect } from 'react'
 
 const ForgotPasswordPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const forgotPasswordForm = useZodForm({
     schema: forgotPasswordSchema
   })
+  useEffect(() => {
+    forgotPasswordForm.setFocus('email')
+  }, [forgotPasswordForm])
 
   return (
     <>
