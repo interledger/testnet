@@ -26,7 +26,7 @@ import {
   mockVerifyIdentityRequest
 } from '@/tests/mocks'
 import { createUser } from '@/tests/helpers'
-import { truncateTables } from '@/tests/tables'
+import { truncateTables } from '@shared/backend/tests'
 import { WalletAddressService } from '@/walletAddress/service'
 import { errorHandler } from '@/middleware/errorHandler'
 import { AwilixContainer } from 'awilix'

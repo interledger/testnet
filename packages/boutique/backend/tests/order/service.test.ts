@@ -4,7 +4,6 @@ import { createApp, TestApp } from '@/tests/app'
 import { AwilixContainer } from 'awilix'
 import { Knex } from 'knex'
 import { IOrderService } from '@/order/service'
-import { truncateTables } from '@/tests/tables'
 import { randomUUID } from 'crypto'
 import { mockProduct } from '../mocks'
 import { createProducts } from '../helpers'
@@ -12,6 +11,7 @@ import { OrderStatus, type Order } from '@/order/model'
 import { IUserService } from '@/user/service'
 import { deleteProperty } from '@shared/backend'
 import { NotFound } from '@/errors'
+import { truncateTables } from '@shared/backend/tests'
 
 describe('Order Service', (): void => {
   let container: AwilixContainer<Cradle>
