@@ -1,8 +1,8 @@
 import { App } from './app'
 import { env } from './config/env'
 import { createContainer } from '@/createContainer'
-import console from "console";
-import process from "process";
+import console from 'console'
+import process from 'process'
 
 BigInt.prototype.toJSON = function (this: bigint) {
   return this.toString()

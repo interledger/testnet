@@ -1,8 +1,8 @@
 import { createContainer } from './container'
 import { env } from './config/env'
 import { App } from './app'
-import * as console from "console";
-import * as process from "process";
+import * as console from 'console'
+import * as process from 'process'
 
 export const start = async (app: App): Promise<void> => {
   await app.startServer()
