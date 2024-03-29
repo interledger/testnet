@@ -2,7 +2,6 @@ import knex from 'knex'
 import { Env } from './env'
 
 export function createKnex(env: Env) {
-  console.log('database_url', env.DATABASE_URL)
   const _knex = knex({
     client: 'postgresql',
     connection: env.DATABASE_URL,
