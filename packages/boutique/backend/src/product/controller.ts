@@ -2,7 +2,7 @@ import { NextFunction, Request } from 'express'
 import { IProductService } from './service'
 import { Product } from './model'
 import { BadRequest } from '@/errors'
-import { toSuccessResponse } from '@/shared/utils'
+import { Controller, toSuccessResponse } from '@shared/backend'
 import { Logger } from 'winston'
 
 interface GetParams {

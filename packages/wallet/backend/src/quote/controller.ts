@@ -4,9 +4,10 @@ import type { NextFunction, Request } from 'express'
 import { QuoteService } from './service'
 import { quoteSchema } from './validation'
 import { createExchangeQuoteSchema } from '@/account/validation'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IQuoteController {
-  create: ControllerFunction<Quote>
+  create: Controller<Quote>
 }
 
 export type QuoteWithFees = Quote & {
@@ -35,7 +36,7 @@ export class QuoteController implements IQuoteController {
         receiver,
         description
       })
-      res.status(200).json({ success: true, message: 'SUCCESS', result: quote })
+      res.status(200).json(toSuccessResponse(quote))
     } catch (e) {
       next(e)
     }
@@ -60,7 +61,7 @@ export class QuoteController implements IQuoteController {
         amount
       })
 
-      res.status(200).json({ success: true, message: 'SUCCESS', result: quote })
+      res.status(200).json(toSuccessResponse(quote))
     } catch (e) {
       next(e)
     }

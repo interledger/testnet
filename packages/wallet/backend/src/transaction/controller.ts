@@ -7,9 +7,10 @@ import {
 } from '@/transaction/validation'
 import { TransactionService } from '@/transaction/service'
 import { Page } from 'objection'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface ITransactionController {
-  list: ControllerFunction<Transaction[]>
+  list: Controller<Transaction[]>
 }
 
 export class TransactionController implements ITransactionController {
@@ -33,9 +34,7 @@ export class TransactionController implements ITransactionController {
         walletAddressId,
         orderByDate
       )
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: transactions })
+      res.status(200).json(toSuccessResponse(transactions))
     } catch (e) {
       next(e)
     }
@@ -62,11 +61,7 @@ export class TransactionController implements ITransactionController {
         filterParams,
         orderByDate
       })
-      res.status(200).json({
-        success: true,
-        message: 'SUCCESS',
-        result: transactions
-      })
+      res.status(200).json(toSuccessResponse(transactions))
     } catch (e) {
       next(e)
     }

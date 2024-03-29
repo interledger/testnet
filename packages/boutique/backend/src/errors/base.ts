@@ -1,3 +1,5 @@
+import { TypedResponseBody } from '@shared/backend'
+
 export abstract class BaseError
   extends Error
   implements TypedResponseBody<never>

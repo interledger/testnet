@@ -79,7 +79,7 @@ describe('Asset Controller', (): void => {
       expect(res.statusCode).toBe(200)
       const jsonData = res._getJSONData()
       expect(jsonData).toMatchObject({
-        message: 'Success'
+        message: 'SUCCESS'
       })
       expect(jsonData?.result?.length).toEqual(mockedListAssets.length)
     })

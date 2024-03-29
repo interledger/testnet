@@ -13,13 +13,14 @@ import {
   walletSchema
 } from './schemas'
 import { User } from '@/user/model'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IRapydController {
-  getCountryNames: ControllerFunction<Options[]>
-  getDocumentTypes: ControllerFunction<RapydDocumentType[]>
-  createWallet: ControllerFunction<RapydWallet>
-  verifyIdentity: ControllerFunction<RapydIdentityResponse>
-  updateProfile: ControllerFunction
+  getCountryNames: Controller<Options[]>
+  getDocumentTypes: Controller<RapydDocumentType[]>
+  createWallet: Controller<RapydWallet>
+  verifyIdentity: Controller<RapydIdentityResponse>
+  updateProfile: Controller
 }
 
 export class RapydController implements IRapydController {
@@ -37,9 +38,7 @@ export class RapydController implements IRapydController {
     try {
       const countryNamesResult = await this.rapydService.getCountryNames()
 
-      res
-        .status(200)
-        .json({ success: true, message: 'SUCCESS', result: countryNamesResult })
+      res.status(200).json(toSuccessResponse(countryNamesResult))
     } catch (e) {
       next(e)
     }
@@ -54,11 +53,7 @@ export class RapydController implements IRapydController {
       const { id: userId } = req.session.user
       const documentTypesResult =
         await this.rapydService.getDocumentTypes(userId)
-      res.status(200).json({
-        success: true,
-        message: 'SUCCESS',
-        result: documentTypesResult
-      })
+      res.status(200).json(toSuccessResponse(documentTypesResult))
     } catch (e) {
       next(e)
     }
@@ -106,11 +101,11 @@ export class RapydController implements IRapydController {
         })
       }
 
-      res.status(200).json({
-        success: true,
-        message: 'Wallet created succesfully',
-        result: createWalletResponse
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(createWalletResponse, 'Wallet created successfully')
+        )
     } catch (e) {
       next(e)
     }
@@ -154,11 +149,14 @@ export class RapydController implements IRapydController {
       req.session.user.needsIDProof = false
       await req.session.save()
 
-      res.status(200).json({
-        success: true,
-        message: 'Wallet created succesfully',
-        result: verifyIdentityResponse
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(
+            verifyIdentityResponse,
+            'Wallet created successfully'
+          )
+        )
     } catch (e) {
       next(e)
     }
@@ -178,10 +176,9 @@ export class RapydController implements IRapydController {
 
       await this.rapydService.updateProfile(userId, firstName, lastName)
 
-      res.status(200).json({
-        success: true,
-        message: 'Profile updated succesfully'
-      })
+      res
+        .status(200)
+        .json(toSuccessResponse(undefined, 'Profile updated successfully'))
     } catch (e) {
       next(e)
     }
