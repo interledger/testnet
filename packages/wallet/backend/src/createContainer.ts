@@ -46,7 +46,8 @@ import { createWalletAddressService } from '@/config/walletAddress'
 import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
-import { createKnex, logger } from '@shared/backend'
+import { generateKnex } from '@/config/knex'
+import { generateLogger } from '@/config/logger'
 
 export interface Cradle {
   env: Env
@@ -97,8 +98,8 @@ export async function createContainer(
 
   container.register({
     env: asValue(env),
-    logger: asValue(logger),
-    knex: asFunction(createKnex).singleton(),
+    logger: asFunction(generateLogger).singleton(),
+    knex: asFunction(generateKnex).singleton(),
     sessionService: asClass(SessionService).singleton(),
     emailService: asClass(EmailService).singleton(),
     userService: asClass(UserService).singleton(),

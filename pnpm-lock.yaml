@@ -223,9 +223,6 @@ importers:
       winston:
         specifier: ^3.12.0
         version: 3.13.0
-      zod:
-        specifier: ^3.22.4
-        version: 3.22.4
     devDependencies:
       '@types/express':
         specifier: ^4.17.21

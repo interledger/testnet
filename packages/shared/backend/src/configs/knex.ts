@@ -1,10 +1,9 @@
 import knex from 'knex'
-import { Env } from './env'
 
-export function createKnex(env: Env) {
+export function createKnex(databaseUrl: string) {
   const _knex = knex({
     client: 'postgresql',
-    connection: env.DATABASE_URL,
+    connection: databaseUrl,
     migrations: {
       directory: './',
       tableName: 'knex_migrations'
