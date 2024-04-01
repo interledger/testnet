@@ -1,4 +1,3 @@
-import { Conflict, NotFound } from '@/errors'
 import { Account } from './model'
 import { User } from '@/user/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
@@ -6,6 +5,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
 import { Amount } from '@/rafiki/service'
+import { Conflict, NotFound } from '@shared/backend'
 
 type CreateAccountArgs = {
   userId: string

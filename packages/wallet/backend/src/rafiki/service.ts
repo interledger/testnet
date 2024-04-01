@@ -1,5 +1,4 @@
 import { Env } from '@/config/env'
-import { BadRequest } from '@/errors'
 import { WalletAddress } from '@/walletAddress/model'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import { TransactionService } from '@/transaction/service'
@@ -13,6 +12,7 @@ import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Account } from '@/account/model'
 import { WMTransaction } from '@/webMonetization/transaction/model'
 import MessageType from '@/socket/messageType'
+import { BadRequest } from '@shared/backend'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',

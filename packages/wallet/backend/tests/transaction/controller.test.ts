@@ -28,7 +28,7 @@ import { Request, Response } from 'express'
 import { createUser } from '@/tests/helpers'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '@/transaction/model'
-import { errorHandler } from '@/middleware/errorHandler'
+import { errorHandler } from '@shared/backend'
 
 describe('Transaction Controller', (): void => {
   let bindings: AwilixContainer<Cradle>

@@ -12,7 +12,6 @@ import {
 } from 'node-mocks-http'
 import type { AuthController } from '@/auth/controller'
 import type { AuthService } from '@/auth/service'
-import { errorHandler } from '@/middleware/errorHandler'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
@@ -20,6 +19,7 @@ import { fakeLoginData, mockLogInRequest, mockSignUpRequest } from '../mocks'
 import { createUser } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
 import { getRandomToken, hashToken } from '@/utils/helpers'
+import { errorHandler } from '@shared/backend'
 
 describe('Authentication Controller', (): void => {
   let bindings: AwilixContainer<Cradle>

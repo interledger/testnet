@@ -1,6 +1,5 @@
 import { env } from '@/config/env'
 import { Cradle, createContainer } from '@/createContainer'
-import { errorHandler } from '@/middleware/errorHandler'
 import { RafikiController } from '@/rafiki/controller'
 import { NextFunction, Request, Response } from 'express'
 import {
@@ -17,6 +16,7 @@ import {
   mockRatesService
 } from '../mocks'
 import { AwilixContainer } from 'awilix'
+import { errorHandler } from '@shared/backend'
 
 describe('Rafiki controller', () => {
   let bindings: AwilixContainer<Cradle>

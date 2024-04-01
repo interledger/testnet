@@ -1,4 +1,3 @@
-import { BadRequest, Conflict } from '@/errors'
 import { User } from './model'
 import { EmailService } from '@/email/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
@@ -9,6 +8,7 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { getRandomValues } from 'crypto'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
+import { BadRequest, Conflict } from '@shared/backend'
 
 interface CreateUserArgs {
   email: string

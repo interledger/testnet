@@ -11,9 +11,9 @@ import { faker } from '@faker-js/faker'
 import { mockedListAssets, mockExternalPayment } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
-import { NotFound } from '@/errors'
 import axios from 'axios'
 import { Receiver } from '@/rafiki/backend/generated/graphql'
+import { NotFound } from '@shared/backend'
 
 describe('Incoming Payment Service', () => {
   let bindings: AwilixContainer<Cradle>

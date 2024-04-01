@@ -1,8 +1,8 @@
 import { type OrderItem } from '@/order-item/model'
 import { Order, OrderStatus } from './model'
-import { InternalServerError, NotFound } from '@/errors'
 import { TransactionOrKnex } from 'objection'
 import { Logger } from 'winston'
+import { InternalServerError, NotFound } from '@shared/backend'
 
 interface OrderItemParams extends Pick<OrderItem, 'productId' | 'quantity'> {}
 

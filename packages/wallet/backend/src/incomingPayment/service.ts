@@ -1,5 +1,4 @@
 import { AccountService } from '@/account/service'
-import { NotFound } from '@/errors'
 import { PaymentDetails } from '@/incomingPayment/controller'
 import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
@@ -8,6 +7,7 @@ import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add, Duration } from 'date-fns'
 import axios from 'axios'
 import { Env } from '@/config/env'
+import { NotFound } from '@shared/backend'
 
 interface IIncomingPaymentService {
   create: (
