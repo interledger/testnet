@@ -11,7 +11,7 @@ import type { Server } from 'http'
 import type { Cradle } from './container'
 import { BaseError } from './errors/base'
 import { Model } from 'objection'
-import { isObject } from './shared/utils'
+import { isObject } from '@shared/backend'
 import path from 'path'
 
 export class App {
@@ -132,7 +132,7 @@ export class App {
       .catch((err) => {
         logger.error('Error while trying to process pending payments')
         logger.error(err)
-        return true
+        return false
       })
       .then((trx) => {
         if (trx) {

@@ -7,13 +7,14 @@ import {
   uploadWalletAddressKey
 } from './validation'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
+import { Controller, toSuccessResponse } from '@shared/backend'
 
 interface IWalletAddressKeyController {
-  registerKey: ControllerFunction<KeyResponse>
-  revokeKey: ControllerFunction
-  uploadKey: ControllerFunction
-  patchKey: ControllerFunction
-  list: ControllerFunction<WalletAddressKeys[]>
+  registerKey: Controller<KeyResponse>
+  revokeKey: Controller
+  uploadKey: Controller
+  patchKey: Controller
+  list: Controller<WalletAddressKeys[]>
 }
 
 export class WalletAddressKeyController implements IWalletAddressKeyController {
@@ -33,11 +34,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         walletAddressId
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'SUCCESS',
-        result: keys
-      })
+      res.status(200).json(toSuccessResponse(keys))
     } catch (e) {
       next(e)
     }
@@ -58,10 +55,9 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         nickname
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'Public key nickname updated.'
-      })
+      res
+        .status(200)
+        .json(toSuccessResponse(undefined, 'Public key nickname updated.'))
     } catch (e) {
       next(e)
     }
@@ -86,11 +82,14 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         nickname
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'Public key is successfully registered.',
-        result: keyResponse
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(
+            keyResponse,
+            'Public key is successfully registered.'
+          )
+        )
     } catch (e) {
       next(e)
     }
@@ -112,10 +111,11 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         nickname
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'Public key is successfully uploaded.'
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(undefined, 'Public key is successfully uploaded.')
+        )
     } catch (e) {
       next(e)
     }
@@ -132,10 +132,11 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         keyId
       })
 
-      res.status(200).json({
-        success: true,
-        message: 'Public key was successfully revoked.'
-      })
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(undefined, 'Public key was successfully revoked.')
+        )
     } catch (e) {
       next(e)
     }
