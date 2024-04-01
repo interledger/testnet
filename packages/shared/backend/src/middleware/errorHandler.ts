@@ -10,7 +10,7 @@ export const errorHandler = (
   res: TypedResponse,
   _next: NextFunction
 ) => {
-  const logger = initLogger();
+  const logger = initLogger()
   if (e instanceof BaseError) {
     res.status(e.statusCode).json({
       success: e.success,
