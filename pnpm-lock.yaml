@@ -228,7 +228,7 @@ importers:
         specifier: ^1.8.8
         version: 1.8.8
       typescript:
-        specifier: ^5.3.3
+        specifier: ^5.4.3
         version: 5.4.3
 
   packages/wallet/backend:
