@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.0",
-    "express": "^4.18.3",
+    "express": "^4.19.2",
     "objection": "^3.1.4",
     "knex": "^3.1.0",
     "winston": "^3.12.0"
