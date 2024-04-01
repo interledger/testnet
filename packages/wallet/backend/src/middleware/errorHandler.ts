@@ -1,7 +1,8 @@
-import { logger } from '@/config/logger'
 import { BaseError } from '@/errors/Base'
 import type { Request, NextFunction } from 'express'
 import { AxiosError } from 'axios'
+import { generateLogger } from '@/config/logger'
+import { env } from '@/config/env'
 
 export const errorHandler = (
   e: Error,
@@ -9,6 +10,7 @@ export const errorHandler = (
   res: CustomResponse,
   _next: NextFunction
 ) => {
+  const logger = generateLogger(env)
   if (e instanceof BaseError) {
     res.status(e.statusCode).json({
       success: e.success,

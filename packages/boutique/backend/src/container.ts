@@ -8,9 +8,7 @@ import {
 } from 'awilix'
 import type { Env } from './config/env'
 import { type Knex } from 'knex'
-import { createKnex } from './config/knex'
 import { Logger } from 'winston'
-import { createLogger } from './config/logger'
 import { ProductService, type IProductService } from './product/service'
 import { OrderService, type IOrderService } from './order/service'
 import { UserService, type IUserService } from './user/service'
@@ -25,6 +23,8 @@ import { TokenCache } from './cache/token'
 import { IPaymentService, PaymentService } from './payment/service'
 import { InMemoryCache } from './cache/in-memory'
 import { OneClickCacheData, type OneClickCache } from './cache/one-click'
+import { generateLogger } from '@/config/logger'
+import { generateKnex } from '@/config/knex'
 
 export interface Cradle {
   env: Env
@@ -58,12 +58,12 @@ export async function createContainer(
 
   container.register({
     env: asValue(env),
-    logger: asFunction(createLogger).singleton(),
+    logger: asFunction(generateLogger).singleton(),
     opClient: asValue(client),
     openPayments: asClass(OpenPayments).singleton(),
     tokenCache: asClass(TokenCache).singleton(),
     oneClickCache: asClass(InMemoryCache<OneClickCacheData>).singleton(),
-    knex: asFunction(createKnex).singleton(),
+    knex: asFunction(generateKnex).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),
     orderService: asClass(OrderService).singleton(),

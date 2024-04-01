@@ -1,39 +1,4 @@
-import {
-  createLogger as createWinstonLogger,
-  format,
-  LoggerOptions,
-  transports
-} from 'winston'
-import { env, type Env } from './env'
-import { LoggingWinston } from '@google-cloud/logging-winston'
+import { Env } from '@/config/env'
+import { initLogger } from '@shared/backend'
 
-const loggerTransports: LoggerOptions['transports'] = [
-  new transports.Console({
-    level: env.NODE_ENV === 'development' ? 'debug' : 'info'
-  })
-]
-
-if (env.NODE_ENV === 'production') {
-  const loggingWinston = new LoggingWinston()
-  loggerTransports.push(loggingWinston)
-}
-
-export function createLogger(env: Env) {
-  const logger = createWinstonLogger({
-    silent: env.NODE_ENV === 'test',
-    format: format.combine(
-      format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:ss'
-      }),
-      format.errors({ stack: true }),
-      format.printf(
-        (info) =>
-          `[${info.timestamp}] [${info.level}] ${info.message}` +
-          (info.stack ? `\n${info.stack}` : '')
-      )
-    ),
-    transports: loggerTransports
-  })
-
-  return logger
-}
+export const generateLogger = (env: Env) => initLogger(env.NODE_ENV)

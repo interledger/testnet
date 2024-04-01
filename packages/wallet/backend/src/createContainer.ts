@@ -4,7 +4,6 @@ import { AssetController } from '@/asset/controller'
 import { AuthController } from '@/auth/controller'
 import { AuthService } from '@/auth/service'
 import { Env } from '@/config/env'
-import { logger } from '@/config/logger'
 import { EmailService } from '@/email/service'
 import { GrantController } from '@/grant/controller'
 import { IncomingPaymentController } from '@/incomingPayment/controller'
@@ -44,10 +43,11 @@ import {
 import { createContainer as createAwilixContainer } from 'awilix/lib/container'
 import { createRedis } from '@/config/redis'
 import { createWalletAddressService } from '@/config/walletAddress'
-import { createKnex } from '@/config/knex'
 import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
+import { generateKnex } from '@/config/knex'
+import { generateLogger } from '@/config/logger'
 
 export interface Cradle {
   env: Env
@@ -98,8 +98,8 @@ export async function createContainer(
 
   container.register({
     env: asValue(env),
-    logger: asValue(logger),
-    knex: asFunction(createKnex).singleton(),
+    logger: asFunction(generateLogger).singleton(),
+    knex: asFunction(generateKnex).singleton(),
     sessionService: asClass(SessionService).singleton(),
     emailService: asClass(EmailService).singleton(),
     userService: asClass(UserService).singleton(),

@@ -208,6 +208,9 @@ importers:
 
   packages/shared/backend:
     dependencies:
+      '@google-cloud/logging-winston':
+        specifier: ^6.0.0
+        version: 6.0.0(winston@3.13.0)
       express:
         specifier: ^4.18.3
         version: 4.19.2
@@ -217,6 +220,9 @@ importers:
       objection:
         specifier: ^3.1.4
         version: 3.1.4(knex@3.1.0)
+      winston:
+        specifier: ^3.12.0
+        version: 3.13.0
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
