@@ -99,7 +99,7 @@ export const Select = <
               isDisabled ? 'bg-gray-50 text-gray-600' : 'bg-white',
               isFocused ? 'border-green-3' : 'border-turqoise'
             ),
-          dropdownIndicator: () => 'p-2',
+          dropdownIndicator: () => 'p-1',
           input: () => 'disabled:text-gray-600',
           menu: () =>
             'bg-white border border-green-3 rounded-md my-1 shadow-md',

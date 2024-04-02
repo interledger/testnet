@@ -72,8 +72,8 @@ export type GrantsList = {
 export const grantsListSchema = z.object({
   after: z.string().optional(),
   before: z.string().optional(),
-  first: z.coerce.number().optional(),
-  last: z.coerce.number().optional()
+  first: z.coerce.number().int().nonnegative().optional(),
+  last: z.coerce.number().int().nonnegative().optional()
 })
 
 export type GrantListArgs = z.infer<typeof grantsListSchema>
