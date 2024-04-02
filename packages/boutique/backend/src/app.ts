@@ -114,15 +114,7 @@ export class App {
         }
       })
   }
-
-  private async processOneClickCache() {
-    const oneClickCache = this.container.resolve('oneClickCache')
-    oneClickCache.processExpired()
-    setTimeout(() => this.processOneClickCache(), 5000).unref()
-  }
-
   async processResources() {
     process.nextTick(() => this.processPendingPayments())
-    process.nextTick(() => this.processOneClickCache())
   }
 }

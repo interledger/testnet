@@ -38,11 +38,10 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
-import { RedisClient } from './cache/redis-client'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
-import { errorHandler } from '@shared/backend'
+import { errorHandler, RedisClient } from '@shared/backend'
 
 export interface Bindings {
   env: Env

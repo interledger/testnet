@@ -21,16 +21,18 @@ import {
 import { IOpenPayments, OpenPayments } from './open-payments/service'
 import { TokenCache } from './cache/token'
 import { IPaymentService, PaymentService } from './payment/service'
-import { InMemoryCache } from './cache/in-memory'
-import { OneClickCacheData, type OneClickCache } from './cache/one-click'
+import { type OneClickCache, createOneClickCache } from './cache/one-click'
 import { generateLogger } from '@/config/logger'
 import { generateKnex } from '@/config/knex'
+import { createRedis } from '@/config/redis'
+import { RedisClient } from '@shared/backend'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
   opClient: AuthenticatedClient
+  redisClient: RedisClient
   oneClickCache: OneClickCache
   tokenCache: TokenCache
   openPayments: IOpenPayments
@@ -62,8 +64,9 @@ export async function createContainer(
     opClient: asValue(client),
     openPayments: asClass(OpenPayments).singleton(),
     tokenCache: asClass(TokenCache).singleton(),
-    oneClickCache: asClass(InMemoryCache<OneClickCacheData>).singleton(),
+    oneClickCache: asFunction(createOneClickCache).singleton(),
     knex: asFunction(generateKnex).singleton(),
+    redisClient: asFunction(createRedis).singleton(),
     userService: asClass(UserService).singleton(),
     productService: asClass(ProductService).singleton(),
     orderService: asClass(OrderService).singleton(),

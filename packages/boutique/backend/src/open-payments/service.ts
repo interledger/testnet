@@ -279,7 +279,7 @@ export class OpenPayments implements IOpenPayments {
         continueUri,
         continueToken: grant.continue.access_token.value
       },
-      6000 * 10 * 5
+      { expiry: 6000 * 10 * 5 }
     )
 
     return grant.interact.redirect
