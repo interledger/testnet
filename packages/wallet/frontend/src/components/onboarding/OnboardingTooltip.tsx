@@ -18,7 +18,7 @@ export const OnboardingTooltip = ({
 
   const iconClassName = useMemo(() => {
     return `mr-4 ${index === 8 ? 'w-48' : 'w-20'}`
-  }, [index]);
+  }, [index])
 
   return (
     <div
@@ -41,12 +41,12 @@ export const OnboardingTooltip = ({
           index === 8 ||
           index === 11 ||
           index === 14) && (
-            <div className="flex items-start text-center">
-              <Button {...primaryProps}>
-                {isLastStep ? `Let's go Home` : 'Continue'}
-              </Button>
-            </div>
-          )}
+          <div className="flex items-start text-center">
+            <Button {...primaryProps}>
+              {isLastStep ? `Let's go Home` : 'Continue'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )
