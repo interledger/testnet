@@ -8,7 +8,7 @@ import {
 import { Env } from '@/config/env'
 import { Logger } from 'winston'
 import { replaceHost } from '@/shared/utils'
-import {InMemoryCache, InternalServerError} from '@shared/backend'
+import { InMemoryCache, InternalServerError } from '@shared/backend'
 
 export class TokenCache extends InMemoryCache<string> {
   private walletAddress!: WalletAddress
