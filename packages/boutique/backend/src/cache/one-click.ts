@@ -1,4 +1,4 @@
-import { Cache, RedisClient } from '@shared/backend'
+import { InMemoryCache } from '@shared/backend'
 
 export type OneClickCacheData = {
   walletAddressUrl: string
@@ -8,7 +8,4 @@ export type OneClickCacheData = {
   continueToken: string
 }
 
-export type OneClickCache = Cache<OneClickCacheData>
-
-export const createOneClickCache = (redisClient: RedisClient) =>
-  new Cache<OneClickCacheData>(redisClient, 'one-click')
+export type OneClickCache = InMemoryCache<OneClickCacheData>
