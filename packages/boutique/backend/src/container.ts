@@ -21,10 +21,10 @@ import {
 import { IOpenPayments, OpenPayments } from './open-payments/service'
 import { TokenCache } from './cache/token'
 import { IPaymentService, PaymentService } from './payment/service'
-import { InMemoryCache } from './cache/in-memory'
-import { OneClickCacheData, type OneClickCache } from './cache/one-click'
+import { type OneClickCache, OneClickCacheData } from './cache/one-click'
 import { generateLogger } from '@/config/logger'
 import { generateKnex } from '@/config/knex'
+import { InMemoryCache } from '@shared/backend'
 
 export interface Cradle {
   env: Env

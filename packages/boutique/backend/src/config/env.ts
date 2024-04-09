@@ -9,7 +9,8 @@ const envSchema = z.object({
     .default('postgres://postgres:password@localhost:5433/boutique_backend'),
   PAYMENT_POINTER: z.string().default('replace-me'),
   KEY_ID: z.string().default('replace-me'),
-  PRIVATE_KEY: z.string().default('replace-me')
+  PRIVATE_KEY: z.string().default('replace-me'),
+  REDIS_URL: z.string().default('redis://redis:6379/0')
 })
 
 export type Env = z.infer<typeof envSchema>

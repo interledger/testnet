@@ -4,10 +4,9 @@ import { AccountService } from '@/account/service'
 import { RapydClient } from '@/rapyd/rapyd-client'
 import type { Logger } from 'winston'
 import { WalletAddressService } from '@/walletAddress/service'
-import { Cache } from '@/cache/service'
+import { Cache, RedisClient } from '@shared/backend'
 import { WalletAddress } from '@/walletAddress/model'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
-import { RedisClient } from '@/cache/redis-client'
 import { TransactionService } from '@/transaction/service'
 
 export function createWalletAddressService(

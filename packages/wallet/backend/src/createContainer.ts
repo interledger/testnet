@@ -30,7 +30,6 @@ import { type Knex } from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
-import { RedisClient } from './cache/redis-client'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Logger } from 'winston'
 import {
@@ -48,6 +47,7 @@ import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { generateKnex } from '@/config/knex'
 import { generateLogger } from '@/config/logger'
+import { RedisClient } from '@shared/backend'
 
 export interface Cradle {
   env: Env

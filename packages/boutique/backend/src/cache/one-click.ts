@@ -1,4 +1,4 @@
-import { InMemoryCache } from './in-memory'
+import { InMemoryCache } from '@shared/backend'
 
 export type OneClickCacheData = {
   walletAddressUrl: string
