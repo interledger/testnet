@@ -523,7 +523,8 @@ export class RapydClient implements IRapydClient {
         this.logger.error(
           `Axios ${method} request for ${url} failed with: ${
             e.message || e.response?.data
-          }`
+          }`,
+          body ? JSON.parse(body) : {}
         )
       }
       throw e

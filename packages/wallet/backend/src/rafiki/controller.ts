@@ -44,7 +44,8 @@ export class RafikiController implements IRafikiController {
       res.status(200).send()
     } catch (e) {
       this.logger.error(
-        `Webhook response error for rafiki: ${(e as Error).message}`
+        `Webhook response error for rafiki: ${(e as Error).message}`,
+        req.body
       )
       next(e)
     }
