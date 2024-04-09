@@ -14,11 +14,14 @@ interface IRafikiController {
 }
 
 export class RafikiController implements IRafikiController {
+  private logger: Logger
   constructor(
-    private logger: Logger,
+    logger: Logger,
     private rafikiService: RafikiService,
     private ratesService: RatesService
-  ) {}
+  ) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   getRates = async (
     req: Request,
