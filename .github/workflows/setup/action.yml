@@ -1,15 +1,15 @@
-name: "Testnet Environment Setup"
-description: "Installs NodeJS, PNPM, dependencies and PNPM restores cache"
+name: 'Testnet Environment Setup'
+description: 'Installs NodeJS, PNPM, dependencies and PNPM restores cache'
 
 runs:
   # composite allows us to bundle multiple workflow steps into a single action
-  using: "composite"
+  using: 'composite'
 
   steps:
     - name: Setup NodeJS
       uses: actions/setup-node@v4
       with:
-        node-version: "lts/iron"
+        node-version: 'lts/iron'
 
     - name: Install PNPM
       uses: pnpm/action-setup@v2
