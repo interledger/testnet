@@ -97,10 +97,13 @@ export type CreateReceiverParams = {
   walletAddressUrl: string
 } & PaymentParams
 export class RafikiClient implements IRafikiClient {
+  private logger: Logger
   constructor(
-    private logger: Logger,
+    logger: Logger,
     private gqlClient: GraphQLClient
-  ) {}
+  ) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   public async createAsset(code: string, scale: number) {
     const response = await this.gqlClient.request<

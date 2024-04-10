@@ -41,7 +41,7 @@ import { GrantService } from '@/grant/service'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
-import { errorHandler, RedisClient } from '@shared/backend'
+import { initErrorHandler, RedisClient } from '@shared/backend'
 
 export interface Bindings {
   env: Env
@@ -122,6 +122,7 @@ export class App {
     const router = Router()
 
     const env = await this.container.resolve('env')
+    const logger = await this.container.resolve('logger')
     const authController = await this.container.resolve('authController')
     const userController = await this.container.resolve('userController')
     const walletAddressController = await this.container.resolve(
@@ -313,7 +314,7 @@ export class App {
     })
 
     // Global error handler
-    router.use(errorHandler)
+    router.use(initErrorHandler(logger))
 
     app.use(router)
 

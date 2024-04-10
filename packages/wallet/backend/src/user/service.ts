@@ -26,15 +26,18 @@ interface IUserService {
 }
 
 export class UserService implements IUserService {
+  private logger: Logger
   constructor(
     private emailService: EmailService,
     private accountService: AccountService,
     private walletAddressService: WalletAddressService,
     private walletAddressKeyService: WalletAddressKeyService,
     private rafikiClient: RafikiClient,
-    private logger: Logger,
+    logger: Logger,
     private env: Env
-  ) {}
+  ) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   public async create(args: CreateUserArgs): Promise<User> {
     const existingUser = await this.getByEmail(args.email)

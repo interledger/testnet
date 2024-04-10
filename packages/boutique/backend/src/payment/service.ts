@@ -17,13 +17,16 @@ export interface IPaymentService {
 export class PaymentService implements IPaymentService {
   private readonly TRESHOLD_MS: number = 5000
   private readonly MAX_ATTEMPTS: number = 5
+  private logger: Logger
 
   constructor(
-    private logger: Logger,
+    logger: Logger,
     private knex: Knex,
     private openPayments: IOpenPayments,
     private orderService: IOrderService
-  ) {}
+  ) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   public async get(id: string) {
     const payment = await Payment.query().select().findById(id)

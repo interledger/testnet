@@ -91,6 +91,7 @@ export const createWalletAddressIfFalsy = async ({
 }
 
 export class WalletAddressService implements IWalletAddressService {
+  private logger: Logger
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
@@ -99,8 +100,10 @@ export class WalletAddressService implements IWalletAddressService {
     private wmTransactionService: WMTransactionService,
     private transactionService: TransactionService,
     private rapydClient: RapydClient,
-    private logger: Logger
-  ) {}
+    logger: Logger
+  ) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   async create(args: CreateWalletAddressArgs): Promise<WalletAddress> {
     const account = await this.accountService.findAccountById(

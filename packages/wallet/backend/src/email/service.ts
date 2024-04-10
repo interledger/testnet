@@ -22,11 +22,13 @@ interface IEmailService {
 export class EmailService implements IEmailService {
   private readonly baseUrl: string
   private readonly from: MailDataRequired['from']
+  private logger: Logger
 
   constructor(
     private env: Env,
-    private logger: Logger
+    logger: Logger
   ) {
+    this.logger = logger.child({ service: this.constructor.name })
     if (this.env.SEND_EMAIL) {
       sendgrid.setApiKey(this.env.SENDGRID_API_KEY)
     }

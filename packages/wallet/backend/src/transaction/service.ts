@@ -34,11 +34,14 @@ export interface ITransactionService {
 }
 
 export class TransactionService implements ITransactionService {
+  private logger: Logger
   constructor(
     private accountService: AccountService,
-    private logger: Logger,
+    logger: Logger,
     private knex: Knex
-  ) {}
+  ) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   async list(
     userId: string,

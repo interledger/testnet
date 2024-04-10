@@ -11,7 +11,10 @@ import { addMinutes } from 'date-fns'
 export interface IWMTransactionService {}
 
 export class WMTransactionService implements IWMTransactionService {
-  constructor(private logger: Logger) {}
+  private logger: Logger
+  constructor(logger: Logger) {
+    this.logger = logger.child({ service: this.constructor.name })
+  }
 
   async updateTransaction(
     where: PartialModelObject<WMTransaction>,

@@ -13,13 +13,15 @@ import { InMemoryCache, InternalServerError } from '@shared/backend'
 export class TokenCache extends InMemoryCache<string> {
   private walletAddress!: WalletAddress
   private manageUrl!: string
+  private logger: Logger
 
   constructor(
     private env: Env,
-    private logger: Logger,
+    logger: Logger,
     private opClient: AuthenticatedClient
   ) {
     super()
+    this.logger = logger.child({ service: this.constructor.name })
   }
 
   async get(key: string): Promise<string> {

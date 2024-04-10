@@ -5,7 +5,7 @@ import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
 import { Model } from 'objection'
-import { errorHandler } from '@shared/backend'
+import { initErrorHandler } from '@shared/backend'
 import path from 'path'
 
 export class App {
@@ -46,6 +46,7 @@ export class App {
     const router = Router()
 
     const env = this.container.resolve('env')
+    const logger = this.container.resolve('logger')
     const productController = this.container.resolve('productController')
     const orderController = this.container.resolve('orderController')
 
@@ -89,7 +90,7 @@ export class App {
       })
     })
 
-    router.use(errorHandler)
+    router.use(initErrorHandler(logger))
 
     app.use(router)
 
