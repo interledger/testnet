@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.0",
-    "@interledger/open-payments": "^6.7.1",
+    "@interledger/open-payments": "^6.8.0",
     "@shared/backend": "workspace:*",
     "awilix": "^10.0.2",
     "axios": "^1.6.8",
