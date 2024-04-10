@@ -190,7 +190,7 @@ services:
     <<: *logging
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-8
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.8
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend

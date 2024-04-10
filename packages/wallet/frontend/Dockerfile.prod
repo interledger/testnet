@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 WORKDIR /testnet
 
@@ -45,7 +45,7 @@ ENV PORT=$PORT \
 
 RUN pnpm wallet:frontend build
 
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /testnet
 

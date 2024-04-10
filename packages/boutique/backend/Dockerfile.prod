@@ -1,9 +1,9 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 WORKDIR /testnet
 
 RUN corepack enable
-RUN corepack prepare pnpm@8.10.5 --activate
+RUN corepack prepare pnpm@8.15.5 --activate
 RUN apk add --no-cache \
     libc6-compat \
     python3 \
@@ -31,7 +31,7 @@ RUN rm -rf ./node_modules ./packages/shared/backend/node_modules
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile --prod \
     | grep -v "cross-device link not permitted\|Falling back to copying packages from store"
 
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /testnet
 
