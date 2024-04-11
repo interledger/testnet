@@ -39,7 +39,7 @@ const SignUpPage: NextPageWithLayout = () => {
                   content={
                     <div>
                       <h4 className="text-lg font-bold">
-                        Welcome to Interledger Test Wallet 
+                        Welcome to Interledger Test Wallet
                       </h4>
                       <p className="text-xs">
                         A verification link has been sent to your email account.
