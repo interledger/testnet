@@ -1,4 +1,4 @@
-FROM node:hydrogen-slim
+FROM node:iron-slim
 
 RUN apt-get update && \
     apt-get install -y python3 build-essential && \
@@ -9,7 +9,7 @@ WORKDIR /home/testnet
 
 # Install PNPM
 RUN corepack enable
-RUN corepack prepare pnpm@8.10.5 --activate
+RUN corepack prepare pnpm@8.15.5 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
 COPY pnpm-lock.yaml .nvmrc .npmrc ./
