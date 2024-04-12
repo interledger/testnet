@@ -119,7 +119,7 @@ services:
     <<: *logging
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.7
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.8
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -143,7 +143,7 @@ services:
     <<: *logging
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.7
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.8
     container_name: rafiki-backend
     depends_on:
       - postgres
@@ -190,7 +190,7 @@ services:
     <<: *logging
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.7
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.8
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
