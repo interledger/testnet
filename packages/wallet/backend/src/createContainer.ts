@@ -37,8 +37,6 @@ import {
   asFunction,
   asValue,
   AwilixContainer,
-  BuildResolver,
-  Constructor,
   InjectionMode
 } from 'awilix'
 import { createContainer as createAwilixContainer } from 'awilix/lib/container'
@@ -50,7 +48,7 @@ import {
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { generateKnex } from '@/config/knex'
-import { RedisClient } from '@shared/backend'
+import { asClassSingletonWithLogger, RedisClient } from '@shared/backend'
 import { generateLogger } from '@/config/logger'
 import { GraphQLClient } from 'graphql-request'
 
@@ -153,15 +151,4 @@ export async function createContainer(
   })
 
   return container
-}
-
-function asClassSingletonWithLogger<T>(
-  service: Constructor<T>,
-  logger: Logger
-): BuildResolver<T> {
-  return asClass(service)
-    .singleton()
-    .inject(() => ({
-      logger: logger.child({ service: service.name })
-    }))
 }

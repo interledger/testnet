@@ -4,9 +4,7 @@ import {
   asClass,
   asFunction,
   asValue,
-  createContainer as createAwilixContainer,
-  Constructor,
-  BuildResolver
+  createContainer as createAwilixContainer
 } from 'awilix'
 import type { Env } from './config/env'
 import { type Knex } from 'knex'
@@ -26,7 +24,7 @@ import { IPaymentService, PaymentService } from './payment/service'
 import { type OneClickCache, OneClickCacheData } from './cache/one-click'
 import { generateLogger } from '@/config/logger'
 import { generateKnex } from '@/config/knex'
-import { InMemoryCache } from '@shared/backend'
+import { asClassSingletonWithLogger, InMemoryCache } from '@shared/backend'
 
 export interface Cradle {
   env: Env
@@ -77,15 +75,4 @@ export async function createContainer(
   })
 
   return container
-}
-
-function asClassSingletonWithLogger<T>(
-  service: Constructor<T>,
-  logger: Logger
-): BuildResolver<T> {
-  return asClass(service)
-    .singleton()
-    .inject(() => ({
-      logger: logger.child({ service: service.name })
-    }))
 }
