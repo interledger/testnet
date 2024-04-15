@@ -114,13 +114,10 @@ type PayoutRequiredFieldsParams = {
 type RequiredFieldsType = Record<string, string | number | object>
 
 export class RapydClient implements IRapydClient {
-  private logger: Logger
   constructor(
-    logger: Logger,
+    private logger: Logger,
     private env: Env
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  ) {}
 
   public createWallet(
     wallet: RapydWallet

@@ -91,16 +91,13 @@ export interface IOpenPayments {
 }
 
 export class OpenPayments implements IOpenPayments {
-  private logger: Logger
   constructor(
     private env: Env,
-    logger: Logger,
+    private logger: Logger,
     private opClient: AuthenticatedClient,
     private tokenCache: TokenCache,
     private oneClickCache: OneClickCache
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  ) {}
 
   public async preparePayment(
     params: PreparePaymentParams

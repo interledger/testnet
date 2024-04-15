@@ -4,7 +4,9 @@ import {
   asClass,
   asFunction,
   asValue,
-  createContainer as createAwilixContainer
+  createContainer as createAwilixContainer,
+  Constructor,
+  BuildResolver
 } from 'awilix'
 import type { Env } from './config/env'
 import { type Knex } from 'knex'
@@ -49,6 +51,8 @@ export async function createContainer(
     injectionMode: InjectionMode.CLASSIC
   })
 
+  const logger = generateLogger(env)
+
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
     privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
@@ -58,19 +62,30 @@ export async function createContainer(
 
   container.register({
     env: asValue(env),
-    logger: asFunction(generateLogger).singleton(),
+    logger: asValue(logger),
     opClient: asValue(client),
-    openPayments: asClass(OpenPayments).singleton(),
-    tokenCache: asClass(TokenCache).singleton(),
+    openPayments: asClassSingletonWithLogger(OpenPayments, logger),
+    tokenCache: asClassSingletonWithLogger(TokenCache, logger),
     oneClickCache: asClass(InMemoryCache<OneClickCacheData>).singleton(),
     knex: asFunction(generateKnex).singleton(),
     userService: asClass(UserService).singleton(),
-    productService: asClass(ProductService).singleton(),
-    orderService: asClass(OrderService).singleton(),
-    productController: asClass(ProductController).singleton(),
-    orderController: asClass(OrderController).singleton(),
-    paymentService: asClass(PaymentService).singleton()
+    productService: asClassSingletonWithLogger(ProductService, logger),
+    orderService: asClassSingletonWithLogger(OrderService, logger),
+    productController: asClassSingletonWithLogger(ProductController, logger),
+    orderController: asClassSingletonWithLogger(OrderController, logger),
+    paymentService: asClassSingletonWithLogger(PaymentService, logger)
   })
 
   return container
+}
+
+function asClassSingletonWithLogger<T>(
+  service: Constructor<T>,
+  logger: Logger
+): BuildResolver<T> {
+  return asClass(service)
+    .singleton()
+    .inject(() => ({
+      logger: logger.child({ service: service.name })
+    }))
 }

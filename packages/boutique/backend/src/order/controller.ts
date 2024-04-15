@@ -39,18 +39,14 @@ export interface IOrderController {
 }
 
 export class OrderController implements IOrderController {
-  private logger: Logger
-
   constructor(
     private knex: Knex,
-    logger: Logger,
+    private logger: Logger,
     private openPayments: IOpenPayments,
     private orderService: IOrderService,
     private paymentService: IPaymentService,
     private oneClickCache: OneClickCache
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  ) {}
 
   get = async (
     req: Request<GetParams>,

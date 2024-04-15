@@ -76,20 +76,17 @@ interface IRafikiService {
 }
 
 export class RafikiService implements IRafikiService {
-  private logger: Logger
   constructor(
     private userService: UserService,
     private socketService: SocketService,
     private rapydClient: RapydClient,
     private env: Env,
-    logger: Logger,
+    private logger: Logger,
     private rafikiClient: RafikiClient,
     private transactionService: TransactionService,
     private walletAddressService: WalletAddressService,
     private wmTransactionService: WMTransactionService
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  ) {}
 
   public async onWebHook(wh: WebHook): Promise<void> {
     this.logger.info(

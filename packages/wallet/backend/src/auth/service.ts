@@ -26,15 +26,12 @@ interface IAuthService {
 }
 
 export class AuthService implements IAuthService {
-  private logger: Logger
   constructor(
     private userService: UserService,
     private emailService: EmailService,
-    logger: Logger,
+    private logger: Logger,
     private env: Env
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  ) {}
 
   async signUp({ email, password }: SignUpArgs): Promise<User> {
     const domain = email.split('@')[1]

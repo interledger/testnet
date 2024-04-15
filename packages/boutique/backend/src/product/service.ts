@@ -11,10 +11,7 @@ export interface IProductService {
 }
 
 export class ProductService implements IProductService {
-  private logger: Logger
-  constructor(logger: Logger) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  constructor(private logger: Logger) {}
 
   public async getById(id: string): Promise<Product> {
     const product = await this.get('id', id)

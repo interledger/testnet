@@ -37,17 +37,22 @@ import {
   asFunction,
   asValue,
   AwilixContainer,
+  BuildResolver,
+  Constructor,
   InjectionMode
 } from 'awilix'
 import { createContainer as createAwilixContainer } from 'awilix/lib/container'
 import { createRedis } from '@/config/redis'
-import { createWalletAddressService } from '@/config/walletAddress'
-import { createRafikiAuthService, createRafikiClient } from '@/config/rafiki'
+import {
+  createAuthGraphQLClient,
+  createBackendGraphQLClient
+} from '@/config/rafiki'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { generateKnex } from '@/config/knex'
-import { generateLogger } from '@/config/logger'
 import { RedisClient } from '@shared/backend'
+import { generateLogger } from '@/config/logger'
+import { GraphQLClient } from 'graphql-request'
 
 export interface Cradle {
   env: Env
@@ -57,6 +62,8 @@ export interface Cradle {
   emailService: EmailService
   userService: UserService
   authService: AuthService
+  backendGraphQLClient: GraphQLClient
+  authGraphQLClient: GraphQLClient
   rapydClient: RapydClient
   rapydService: RapydService
   rafikiClient: RafikiClient
@@ -95,32 +102,41 @@ export async function createContainer(
   const container = createAwilixContainer<Cradle>({
     injectionMode: InjectionMode.CLASSIC
   })
+  const logger = generateLogger(env)
 
   container.register({
     env: asValue(env),
-    logger: asFunction(generateLogger).singleton(),
+    logger: asValue(logger),
     knex: asFunction(generateKnex).singleton(),
     sessionService: asClass(SessionService).singleton(),
-    emailService: asClass(EmailService).singleton(),
-    userService: asClass(UserService).singleton(),
-    authService: asClass(AuthService).singleton(),
-    rapydClient: asClass(RapydClient).singleton(),
+    emailService: asClassSingletonWithLogger(EmailService, logger),
+    userService: asClassSingletonWithLogger(UserService, logger),
+    authService: asClassSingletonWithLogger(AuthService, logger),
+    backendGraphQLClient: asFunction(createBackendGraphQLClient).singleton(),
+    authGraphQLClient: asFunction(createAuthGraphQLClient).singleton(),
+    rapydClient: asClassSingletonWithLogger(RapydClient, logger),
     rapydService: asClass(RapydService).singleton(),
-    rafikiClient: asFunction(createRafikiClient).singleton(),
-    rafikiAuthService: asFunction(createRafikiAuthService).singleton(),
+    rafikiClient: asClassSingletonWithLogger(RafikiClient, logger).singleton(),
+    rafikiAuthService: asClass(RafikiAuthService).singleton(),
     accountService: asClass(AccountService).singleton(),
     ratesService: asClass(RatesService).singleton(),
     redisClient: asFunction(createRedis).singleton(),
-    wmTransactionService: asClass(WMTransactionService).singleton(),
-    transactionService: asClass(TransactionService).singleton(),
-    walletAddressService: asFunction(createWalletAddressService).singleton(),
+    wmTransactionService: asClassSingletonWithLogger(
+      WMTransactionService,
+      logger
+    ),
+    transactionService: asClassSingletonWithLogger(TransactionService, logger),
+    walletAddressService: asClassSingletonWithLogger(
+      WalletAddressService,
+      logger
+    ),
     walletAddressKeyService: asClass(WalletAddressKeyService).singleton(),
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
-    rafikiService: asClass(RafikiService).singleton(),
+    rafikiService: asClassSingletonWithLogger(RafikiService, logger),
     quoteService: asClass(QuoteService).singleton(),
     grantService: asClass(GrantService).singleton(),
-    socketService: asClass(SocketService).singleton(),
+    socketService: asClassSingletonWithLogger(SocketService, logger),
     userController: asClass(UserController).singleton(),
     authController: asClass(AuthController).singleton(),
     assetController: asClass(AssetController).singleton(),
@@ -129,7 +145,7 @@ export async function createContainer(
     transactionController: asClass(TransactionController).singleton(),
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),
     outgoingPaymentController: asClass(OutgoingPaymentController).singleton(),
-    rafikiController: asClass(RafikiController).singleton(),
+    rafikiController: asClassSingletonWithLogger(RafikiController, logger),
     quoteController: asClass(QuoteController).singleton(),
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),
@@ -137,4 +153,15 @@ export async function createContainer(
   })
 
   return container
+}
+
+function asClassSingletonWithLogger<T>(
+  service: Constructor<T>,
+  logger: Logger
+): BuildResolver<T> {
+  return asClass(service)
+    .singleton()
+    .inject(() => ({
+      logger: logger.child({ service: service.name })
+    }))
 }

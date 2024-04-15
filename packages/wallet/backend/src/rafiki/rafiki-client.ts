@@ -97,16 +97,13 @@ export type CreateReceiverParams = {
   walletAddressUrl: string
 } & PaymentParams
 export class RafikiClient implements IRafikiClient {
-  private logger: Logger
   constructor(
-    logger: Logger,
-    private gqlClient: GraphQLClient
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+    private logger: Logger,
+    private backendGraphQLClient: GraphQLClient
+  ) {}
 
   public async createAsset(code: string, scale: number) {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       CreateAssetMutation,
       CreateAssetMutationVariables
     >(createAssetMutation, { input: { code, scale } })
@@ -118,7 +115,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async listAssets(args?: QueryAssetsArgs) {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       GetAssetsQuery,
       GetAssetsQueryVariables
     >(getAssetsQuery, args ?? {})
@@ -127,7 +124,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async getAssetById(id: string): Promise<Asset> {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       GetAssetQuery,
       GetAssetQueryVariables
     >(getAssetQuery, { id })
@@ -153,7 +150,7 @@ export class RafikiClient implements IRafikiClient {
       })
     }
     const { createIncomingPayment: paymentResponse } =
-      await this.gqlClient.request<
+      await this.backendGraphQLClient.request<
         CreateIncomingPaymentMutation,
         CreateIncomingPaymentMutationVariables
       >(createIncomingPaymentMutation, {
@@ -185,12 +182,13 @@ export class RafikiClient implements IRafikiClient {
         }
       })
     }
-    const { createReceiver: paymentResponse } = await this.gqlClient.request<
-      CreateReceiverMutation,
-      CreateReceiverMutationVariables
-    >(createReceiverMutation, {
-      input
-    })
+    const { createReceiver: paymentResponse } =
+      await this.backendGraphQLClient.request<
+        CreateReceiverMutation,
+        CreateReceiverMutationVariables
+      >(createReceiverMutation, {
+        input
+      })
 
     if (!paymentResponse.success) {
       throw new Error(paymentResponse.message ?? 'Empty result')
@@ -203,7 +201,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async getReceiverById(id: string): Promise<Receiver> {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       GetReceiverQuery,
       GetReceiverQueryVariables
     >(getReceiverQuery, { id })
@@ -212,7 +210,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async withdrawLiqudity(eventId: string) {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       WithdrawLiquidityMutation,
       WithdrawLiquidityMutationVariables
     >(withdrawLiquidityMutation, {
@@ -239,7 +237,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async depositLiquidity(eventId: string) {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       DepositLiquidityMutation,
       DepositLiquidityMutationVariables
     >(depositLiquidityMutation, {
@@ -260,7 +258,7 @@ export class RafikiClient implements IRafikiClient {
     input: CreateOutgoingPaymentInput
   ): Promise<OutgoingPayment> {
     const { createOutgoingPayment: paymentResponse } =
-      await this.gqlClient.request<
+      await this.backendGraphQLClient.request<
         CreateOutgoingPaymentMutation,
         CreateOutgoingPaymentMutationVariables
       >(createOutgoingPaymentMutation, {
@@ -282,7 +280,7 @@ export class RafikiClient implements IRafikiClient {
     assetId: string,
     url: string
   ) {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       CreateWalletAddressMutation,
       CreateWalletAddressMutationVariables
     >(createWalletAddressMutation, {
@@ -306,7 +304,7 @@ export class RafikiClient implements IRafikiClient {
   public async updateWalletAddress(
     args: UpdateWalletAddressInput
   ): Promise<void> {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       UpdateWalletAddressMutation,
       UpdateWalletAddressMutationVariables
     >(updateWalletAddressMutation, {
@@ -322,7 +320,7 @@ export class RafikiClient implements IRafikiClient {
     jwk: JwkInput,
     walletAddressId: string
   ) {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       CreateWalletAddressKeyMutation,
       CreateWalletAddressKeyMutationVariables
     >(createWalletAddressKeyMutation, {
@@ -343,7 +341,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async revokeWalletAddressKey(id: string): Promise<void> {
-    const response = await this.gqlClient.request<
+    const response = await this.backendGraphQLClient.request<
       RevokeWalletAddressKeyMutation,
       RevokeWalletAddressKeyMutationVariables
     >(revokeWalletAddressKeyMutation, {
@@ -356,7 +354,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async createQuote(input: CreateQuoteInput): Promise<Quote> {
-    const { createQuote } = await this.gqlClient.request<
+    const { createQuote } = await this.backendGraphQLClient.request<
       CreateQuoteMutation,
       CreateQuoteMutationVariables
     >(createQuoteMutation, {
@@ -378,7 +376,7 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async getQuote(quoteId: string) {
-    const getQuote = await this.gqlClient.request<
+    const getQuote = await this.backendGraphQLClient.request<
       GetQuoteQuery,
       GetQuoteQueryVariables
     >(getQuoteQuery, { quoteId })

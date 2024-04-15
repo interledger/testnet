@@ -14,13 +14,10 @@ export interface IProductController {
 }
 
 export class ProductController implements IProductController {
-  private logger: Logger
   constructor(
     private productService: IProductService,
-    logger: Logger
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+    private logger: Logger
+  ) {}
 
   get = async (
     req: Request<GetParams>,

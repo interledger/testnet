@@ -22,10 +22,7 @@ export interface IOrderService {
 }
 
 export class OrderService implements IOrderService {
-  private logger: Logger
-  constructor(logger: Logger) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  constructor(private logger: Logger) {}
 
   public async create(
     params: CreateParams,

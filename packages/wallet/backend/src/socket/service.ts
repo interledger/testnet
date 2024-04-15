@@ -19,15 +19,12 @@ interface ISocketService {
 
 export class SocketService implements ISocketService {
   private io: socketIo.Server | null = null
-  private logger: Logger
 
   constructor(
-    logger: Logger,
+    private logger: Logger,
     private env: Env,
     private accountService: AccountService
-  ) {
-    this.logger = logger.child({ service: this.constructor.name })
-  }
+  ) {}
 
   init(server: http.Server) {
     this.io = new socketIo.Server(server, {
