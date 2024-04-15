@@ -25,10 +25,9 @@ import {
 import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
 import { Request, Response } from 'express'
-import { createUser } from '@/tests/helpers'
+import { createUser, errorHandler } from '@/tests/helpers'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '@/transaction/model'
-import { errorHandler } from '@shared/backend'
 
 describe('Transaction Controller', (): void => {
   let bindings: AwilixContainer<Cradle>

@@ -15,12 +15,11 @@ import { applyMiddleware, uuid } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserController } from '@/user/controller'
 import { mockLogInRequest } from '../mocks'
-import { createUser } from '@/tests/helpers'
+import { createUser, errorHandler } from '@/tests/helpers'
 import { faker } from '@faker-js/faker'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { User } from '@/user/model'
 import { AwilixContainer } from 'awilix'
-import { errorHandler } from '@shared/backend'
 
 describe('User Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
