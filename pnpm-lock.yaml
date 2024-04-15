@@ -104,7 +104,7 @@ importers:
         version: 1.14.1
       ts-jest:
         specifier: ^29.1.2
-        version: 29.1.2(@babel/core@7.23.0)(jest@29.7.0)(typescript@5.4.5)
+        version: 29.1.2(@babel/core@7.24.3)(jest@29.7.0)(typescript@5.4.5)
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -364,8 +364,8 @@ importers:
         specifier: ^1.14.1
         version: 1.14.1
       testcontainers:
-        specifier: ^10.8.1
-        version: 10.8.1
+        specifier: ^10.8.2
+        version: 10.8.2
       ts-jest:
         specifier: ^29.1.2
         version: 29.1.2(@babel/core@7.24.3)(jest@29.7.0)(typescript@5.4.5)
@@ -10941,8 +10941,8 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /testcontainers@10.8.1:
-    resolution: {integrity: sha512-2Kzeu3UfnILkhpdz2+YDu1FBFerAusdMCsltErBCJouP5j5xuxrV8BHxhlDt0xsJdM8YnhHgA2B32LmDr5AToA==}
+  /testcontainers@10.8.2:
+    resolution: {integrity: sha512-9Ink7NUyYZwOjQhk0C6R6basWy2WADNly+md3D9YDap0pcDr3C+vrO8Ah1bkYco/9Zg8VoYTHO+blkLeebBYkA==}
     dependencies:
       '@balena/dockerignore': 1.0.2
       '@types/dockerode': 3.3.24
@@ -11080,40 +11080,6 @@ packages:
 
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
-
-  /ts-jest@29.1.2(@babel/core@7.23.0)(jest@29.7.0)(typescript@5.4.5):
-    resolution: {integrity: sha512-br6GJoH/WUX4pu7FbZXuWGKGNDuU7b8Uj77g/Sp7puZV6EXzuByl6JrECvm0MzVzSTkSHWTihsXt+5XYER5b+g==}
-    engines: {node: ^16.10.0 || ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@jest/types': ^29.0.0
-      babel-jest: ^29.0.0
-      esbuild: '*'
-      jest: ^29.0.0
-      typescript: '>=4.3 <6'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@jest/types':
-        optional: true
-      babel-jest:
-        optional: true
-      esbuild:
-        optional: true
-    dependencies:
-      '@babel/core': 7.23.0
-      bs-logger: 0.2.6
-      fast-json-stable-stringify: 2.1.0
-      jest: 29.7.0(@types/node@18.18.3)
-      jest-util: 29.7.0
-      json5: 2.2.3
-      lodash.memoize: 4.1.2
-      make-error: 1.3.6
-      semver: 7.6.0
-      typescript: 5.4.5
-      yargs-parser: 21.1.1
-    dev: true
 
   /ts-jest@29.1.2(@babel/core@7.24.3)(jest@29.7.0)(typescript@5.4.5):
     resolution: {integrity: sha512-br6GJoH/WUX4pu7FbZXuWGKGNDuU7b8Uj77g/Sp7puZV6EXzuByl6JrECvm0MzVzSTkSHWTihsXt+5XYER5b+g==}
