@@ -10,16 +10,16 @@ import {
 import { Logger } from 'winston'
 import { IOpenPayments, TokenInfo } from '@/open-payments/service'
 import { validate } from '@/middleware/validate'
-import {
-  createOrderSchema,
-  finishOrderSchema,
-  instantBuySchema,
-  oneClickSetupSchema,
-  setupFinishSchema
-} from './validation'
 import { IPaymentService } from '@/payment/service'
 import { Knex } from 'knex'
 import { OneClickCache } from '@/cache/one-click'
+import {
+  instantBuySchema,
+  createOrderSchema,
+  finishOrderSchema,
+  setupFinishSchema,
+  oneClickSetupSchema
+} from '@shared/boutique'
 
 interface GetParams {
   id?: string

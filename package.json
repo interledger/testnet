@@ -9,7 +9,6 @@
     "url": "https://github.com/interledger/testnet"
   },
   "scripts": {
-    "shared:backend": "pnpm --filter @shared/backend --",
     "boutique:backend": "pnpm --filter @boutique/backend --",
     "boutique:frontend": "pnpm --filter @boutique/frontend --",
     "build": "pnpm -r build",

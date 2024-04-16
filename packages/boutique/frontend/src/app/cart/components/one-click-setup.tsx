@@ -10,10 +10,8 @@ import { InputField } from '@/components/ui/form/input-field'
 import { Button } from '@/components/ui/button'
 import { useZodForm } from '@/hooks/use-zod-form'
 import { getObjectKeys } from '@/lib/utils'
-import {
-  oneClickBuySetupSchema,
-  useSetupOneClickMutation
-} from '@/hooks/use-setup-one-click-mutation'
+import { useSetupOneClickMutation } from '@/hooks/use-setup-one-click-mutation'
+import { oneClickSetupSchema } from '@shared/boutique'
 
 export const OneClickSetupDialog = ({
   buttonClassName
@@ -21,7 +19,7 @@ export const OneClickSetupDialog = ({
   buttonClassName?: string
 }) => {
   const form = useZodForm({
-    schema: oneClickBuySetupSchema
+    schema: oneClickSetupSchema
   })
 
   const { mutate, data, isPending, isSuccess } = useSetupOneClickMutation({

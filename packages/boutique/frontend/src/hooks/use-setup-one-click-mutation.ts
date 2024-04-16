@@ -3,6 +3,7 @@ import { SuccessResponse } from '@/lib/types.ts'
 import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
+import { oneClickSetupSchema } from '@shared/boutique'
 
 interface SetupOneClickMutationParams {
   walletAddressUrl: string
@@ -12,16 +13,10 @@ interface SetupOneClickMutationParams {
 interface SetupOneClickMutationResponse {
   redirectUrl: string
 }
-
-export const oneClickBuySetupSchema = z.object({
-  walletAddressUrl: z.string(),
-  amount: z.coerce.number()
-})
-
 export function useSetupOneClickMutation(
   options?: UseMutationOptions<
     SuccessResponse<SetupOneClickMutationResponse>,
-    APIError<z.infer<typeof oneClickBuySetupSchema>>,
+    APIError<z.infer<typeof oneClickSetupSchema>>,
     SetupOneClickMutationParams
   >
 ) {
