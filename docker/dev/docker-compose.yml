@@ -150,7 +150,7 @@ services:
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       ENABLE_AUTO_PEERING: true
       AUTO_PEERING_SERVER_PORT: 3005
-      INSTANCE_NAME: 'Rafiki Money'
+      INSTANCE_NAME: 'Testnet Wallet'
       SLIPPAGE: 0.01
     depends_on:
       - postgres
