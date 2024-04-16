@@ -126,7 +126,7 @@ export const RapydWalletContactSchema = z.object({
     .union([z.literal(1), z.literal(0), z.literal(-1)])
     .optional(),
   contact_type: z.enum(['personal', 'business']).optional(),
-  country: z.string().optional(),
+  country: z.string(),
   created_at: z.number().optional(),
   date_of_birth: z.string().optional().nullable(),
   email: z.string().optional(),
