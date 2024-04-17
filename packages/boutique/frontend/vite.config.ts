@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@shared/boutique': resolve(__dirname, '../../shared/boutique/src')
+      '@shared/boutique': resolve(__dirname, '../../boutique/shared/src')
     }
   }
 })
