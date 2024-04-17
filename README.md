@@ -48,9 +48,9 @@ Please read the [contribution guidelines](.github/contributing.md) before submit
 ### Environment Setup
 
 ```sh
-# Install Node 18
-nvm install lts/hydrogen
-nvm use lts/hydrogen
+# Install Node 20
+nvm install lts/iron
+nvm use lts/iron
 
 # Install pnpm using Corepack
 corepack enable
