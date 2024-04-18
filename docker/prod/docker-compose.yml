@@ -191,6 +191,26 @@ services:
       - ../temp/:/workspace/temp/
     <<: *logging
 
+  interledger-pay:
+    image: ghcr.io/interledger/interledger-pay:latest
+    container_name: interledger-pay
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${INTERLEDGER_PAY_PORT}
+      KEY_ID: ${INTERLEDGER_PAY_KEY_ID}
+      PRIVATE_KEY: ${INTERLEDGER_PAY_PRIVATE_KEY}
+      WALLET_ADDRESS: ${INTERLEDGER_PAY_WALLET_ADDRESS}
+      REDIRECT_URL: ${INTERLEDGER_PAY_REDIRECT_URL}
+      INTERLEDGER_PAY_HOST: ${INTERLEDGER_PAY_HOST}
+      SESSION_COOKIE_SECRET_KEY: ${INTERLEDGER_PAY_SESSION_COOKIE_SECRET_KEY}
+    networks:
+      - testnet
+    restart: always
+    privileged: true
+    ports:
+      - '${INTERLEDGER_PAY_PORT}:${INTERLEDGER_PAY_PORT}'
+    <<: *logging
+
   rafiki-frontend:
     image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.8
     container_name: rafiki-frontend
