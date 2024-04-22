@@ -16,7 +16,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
     "@tanstack/react-query": "^5.29.0",
-    "@shared/boutique": "workspace:*",
+    "@boutique/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "framer-motion": "^11.0.25",
     "react": "^18.2.0",

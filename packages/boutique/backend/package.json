@@ -2,7 +2,7 @@
   "name": "@boutique/backend",
   "scripts": {
     "start": "node dist/index.js",
-    "build:deps": "pnpm --filter @shared/backend build && pnpm --filter @shared/boutique build",
+    "build:deps": "pnpm --filter @shared/backend build && pnpm --filter @boutique/shared build",
     "build": "pnpm build:deps && tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "jest --passWithNoTests --maxWorkers=2"
   },
@@ -10,7 +10,7 @@
     "@google-cloud/logging-winston": "^6.0.0",
     "@interledger/open-payments": "^6.8.2",
     "@shared/backend": "workspace:*",
-    "@shared/boutique": "workspace:*",
+    "@boutique/shared": "workspace:*",
     "awilix": "^10.0.2",
     "axios": "^1.6.8",
     "cors": "^2.8.5",

@@ -3,7 +3,7 @@ import { SuccessResponse } from '@/lib/types.ts'
 import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
-import { oneClickSetupSchema } from '@shared/boutique'
+import { oneClickSetupSchema } from '@boutique/shared'
 
 interface SetupOneClickMutationParams {
   walletAddressUrl: string

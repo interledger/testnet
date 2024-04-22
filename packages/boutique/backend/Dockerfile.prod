@@ -28,9 +28,7 @@ COPY packages/shared/backend ./packages/shared/backend
 COPY packages/boutique/shared ./packages/boutique/shared
 
 RUN pnpm boutique:backend build
-RUN rm -rf ./node_modules ./packages/boutique/backend/node_modules
-RUN rm -rf ./node_modules ./packages/shared/backend/node_modules
-RUN rm -rf ./node_modules ./packages/boutique/shared/node_modules
+RUN rm -rf ./node_modules ./packages/boutique/backend/node_modules ./packages/shared/backend/node_modules ./packages/boutique/shared/node_modules
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install -r --frozen-lockfile --prod \
     | grep -v "cross-device link not permitted\|Falling back to copying packages from store"
 

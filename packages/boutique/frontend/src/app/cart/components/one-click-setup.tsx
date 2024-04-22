@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { useZodForm } from '@/hooks/use-zod-form'
 import { getObjectKeys } from '@/lib/utils'
 import { useSetupOneClickMutation } from '@/hooks/use-setup-one-click-mutation'
-import { oneClickSetupSchema } from '@shared/boutique'
+import { oneClickSetupSchema } from '@boutique/shared'
 
 export const OneClickSetupDialog = ({
   buttonClassName

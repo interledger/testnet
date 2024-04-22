@@ -19,7 +19,7 @@ import {
   finishOrderSchema,
   setupFinishSchema,
   oneClickSetupSchema
-} from '@shared/boutique'
+} from '@boutique/shared'
 
 interface GetParams {
   id?: string

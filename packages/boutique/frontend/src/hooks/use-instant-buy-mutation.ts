@@ -4,7 +4,7 @@ import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
 import { type OrderItem } from '@/hooks/use-create-order-mutation.ts'
-import { instantBuySchema } from '@shared/boutique'
+import { instantBuySchema } from '@boutique/shared'
 
 interface InstantBuyMutationParams {
   accessToken: string

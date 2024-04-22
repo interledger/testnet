@@ -44,6 +44,9 @@ importers:
 
   packages/boutique/backend:
     dependencies:
+      '@boutique/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
         version: 6.0.0(winston@3.13.0)
@@ -53,9 +56,6 @@ importers:
       '@shared/backend':
         specifier: workspace:*
         version: link:../../shared/backend
-      '@shared/boutique':
-        specifier: workspace:*
-        version: link:../shared
       awilix:
         specifier: ^10.0.2
         version: 10.0.2
@@ -117,6 +117,9 @@ importers:
 
   packages/boutique/frontend:
     dependencies:
+      '@boutique/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@hookform/resolvers':
         specifier: ^3.3.4
         version: 3.3.4(react-hook-form@7.51.2)
@@ -141,9 +144,6 @@ importers:
       '@radix-ui/react-toast':
         specifier: ^1.1.5
         version: 1.1.5(@types/react-dom@18.2.24)(@types/react@18.2.75)(react-dom@18.2.0)(react@18.2.0)
-      '@shared/boutique':
-        specifier: workspace:*
-        version: link:../shared
       '@tanstack/react-query':
         specifier: ^5.29.0
         version: 5.29.0(react@18.2.0)
