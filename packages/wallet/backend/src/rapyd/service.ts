@@ -114,6 +114,7 @@ export class RapydService implements IRapydService {
         first_name: params.firstName,
         last_name: params.lastName,
         contact_type: 'personal',
+        country: params.country,
         address: {
           name: `${params.firstName} ${params.lastName}`,
           line_1: params.address,
