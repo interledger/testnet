@@ -220,7 +220,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                         walletAddress={walletAddress}
                         isWM={false}
                         idOnboarding={
-                          account.assetCode === 'USD' && index === 0
+                          account.assetCode === 'EUR' && index === 0
                             ? `viewTransactions`
                             : ''
                         }
