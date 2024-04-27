@@ -16,9 +16,15 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        package: ["wallet:backend", "wallet:frontend", "boutique:backend", "boutique:frontend"]
+        package:
+          [
+            'wallet:backend',
+            'wallet:frontend',
+            'boutique:backend',
+            'boutique:frontend'
+          ]
     steps:
-      - name: Checkout code 
+      - name: Checkout code
         uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
         with:
@@ -44,16 +50,16 @@ jobs:
       matrix:
         package:
           - name: rafiki-money-backend
-            identifier: "wallet:backend"
+            identifier: 'wallet:backend'
             path: packages/wallet/backend
           - name: rafiki-money-frontend
-            identifier: "wallet:frontend"
+            identifier: 'wallet:frontend'
             path: packages/wallet/frontend
           - name: rafiki-boutique-frontend
-            identifier: "boutique:frontend"
+            identifier: 'boutique:frontend'
             path: packages/boutique/frontend
           - name: rafiki-boutique-backend
-            identifier: "boutique:backend"
+            identifier: 'boutique:backend'
             path: packages/boutique/backend
     steps:
       - name: Checkout code
