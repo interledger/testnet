@@ -219,11 +219,8 @@ importers:
         version: 3.22.4
     devDependencies:
       '@types/node':
-        specifier: ^18.14.0
-        version: 18.18.3
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.8
+        specifier: ^20.12.7
+        version: 20.12.7
 
   packages/shared/backend:
     dependencies:
@@ -4442,6 +4439,12 @@ packages:
 
   /@types/node@20.10.6:
     resolution: {integrity: sha512-Vac8H+NlRNNlAmDfGUP7b5h/KA+AtWIzuXy0E6OyP8f1tCLYAtPvKRRDJjAPqhpCb0t6U2j7/xqAuLEebW2kiw==}
+    dependencies:
+      undici-types: 5.26.5
+    dev: true
+
+  /@types/node@20.12.7:
+    resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
     dependencies:
       undici-types: 5.26.5
     dev: true
