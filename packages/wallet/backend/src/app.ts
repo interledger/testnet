@@ -42,7 +42,8 @@ import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { errorHandler, RedisClient } from '@shared/backend'
-
+import specs from '@/open-api/config'
+import * as swaggerUi from 'swagger-ui-express'
 export interface Bindings {
   env: Env
   logger: Logger
@@ -161,6 +162,7 @@ export class App {
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 
     // Auth Routes
     router.post('/signup', authController.signUp)
