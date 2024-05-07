@@ -1,5 +1,5 @@
 import { Button } from '@/ui/Button'
-import { SVGProps } from 'react'
+import { SVGProps, useMemo } from 'react'
 import { TooltipRenderProps } from 'react-joyride'
 import { ONBOARDING_STEPS } from './Onboarding'
 
@@ -15,12 +15,17 @@ export const OnboardingTooltip = ({
 }: OnboardingTooltipProps) => {
   const IconStep: (props: SVGProps<SVGSVGElement>) => JSX.Element =
     ONBOARDING_STEPS[index].Icon
+
+  const iconClassName = useMemo(() => {
+    return `mr-4 ${index === 8 ? 'w-48' : 'w-20'}`
+  }, [index])
+
   return (
     <div
       {...tooltipProps}
       className="flex max-w-xl items-center rounded-lg bg-white p-3 font-semibold text-green"
     >
-      {IconStep && <IconStep className="mr-4 w-20" />}
+      {IconStep && <IconStep className={iconClassName} />}
       <div className="flex flex-col justify-center">
         <div className="pb-2">{step.content}</div>
         {index === 0 && (
