@@ -29,7 +29,7 @@ export const getVerifyEmailTemplate = (url: string): string => {
                </tr>
                   <tr>
                     <td>
-                      <p style="font-size:16px;line-height:28px;margin:16px 0;margin-bottom:30px">Welcome to Interledger Testnet. Before we get started, click on the link bellow to verify your email address.</p>
+                      <p style="font-size:16px;line-height:28px;margin:16px 0;margin-bottom:30px">Welcome to Interledger Test Wallet. Before we get started, click on the link bellow to verify your email address.</p>
                     </td>
                   </tr>
                   <tr>

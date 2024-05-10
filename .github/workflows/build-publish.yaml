@@ -1,0 +1,116 @@
+name: Build & Publish
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        package:
+          [
+            'wallet:backend',
+            'wallet:frontend',
+            'boutique:backend',
+            'boutique:frontend'
+          ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Install dependencies for ${{ matrix.package }}
+        shell: bash
+        run: |
+          pnpm ${{ matrix.package }} install --frozen-lockfile
+      - name: Run build
+        run: |
+          pnpm ${{ matrix.package }} build
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 15
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        package:
+          - name: rafiki-money-backend
+            identifier: 'wallet:backend'
+            path: packages/wallet/backend
+          - name: rafiki-money-frontend
+            identifier: 'wallet:frontend'
+            path: packages/wallet/frontend
+          - name: rafiki-boutique-frontend
+            identifier: 'boutique:frontend'
+            path: packages/boutique/frontend
+          - name: rafiki-boutique-backend
+            identifier: 'boutique:backend'
+            path: packages/boutique/backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          push: true
+          file: ${{ matrix.package.path }}/Dockerfile.prod
+          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
+
+  generate-release:
+    runs-on: ubuntu-latest
+    needs: publish
+    timeout-minutes: 5
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changes }}
+          tag: ${{ github.ref_name }}
+          token: ${{ github.token }}
+      - name: Commit CHANGELOG.md
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: main
+          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
+          file_pattern: CHANGELOG.md

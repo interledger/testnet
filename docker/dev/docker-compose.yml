@@ -90,7 +90,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.8
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.9
     restart: always
     networks:
       - testnet
@@ -113,7 +113,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.8
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.9
     restart: always
     privileged: true
     volumes:
@@ -150,7 +150,7 @@ services:
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       ENABLE_AUTO_PEERING: true
       AUTO_PEERING_SERVER_PORT: 3005
-      INSTANCE_NAME: 'Rafiki Money'
+      INSTANCE_NAME: 'Testnet Wallet'
       SLIPPAGE: 0.01
     depends_on:
       - postgres
@@ -159,7 +159,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.8
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.9
     depends_on:
       - rafiki-backend
     restart: always
@@ -175,7 +175,7 @@ services:
     <<: *logging
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.14.176
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.15.3
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
