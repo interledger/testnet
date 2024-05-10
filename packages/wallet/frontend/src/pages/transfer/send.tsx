@@ -7,6 +7,7 @@ import { DebouncedInput, Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
+import { PageHeader } from '@/components/PageHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
@@ -247,6 +248,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
+        <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
+          <PageHeader title="Send Money" />
+        </div>
         <TransferHeader type="violet" balance={balanceSnapshot} />
         <Form
           form={sendForm}

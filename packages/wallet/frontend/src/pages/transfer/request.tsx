@@ -6,6 +6,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Badge } from '@/ui/Badge'
 import { TransferHeader } from '@/components/TransferHeader'
+import { PageHeader } from '@/components/PageHeader'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { TimeUnit, requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
@@ -103,6 +104,9 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   return (
     <>
       <div className="flex flex-col lg:w-2/3">
+        <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
+          <PageHeader title="Request Money" />
+        </div>
         <TransferHeader type="turqoise" balance={balanceSnapshot} />
         <Form
           form={requestForm}
@@ -131,7 +135,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
           }}
         >
           <div className="space-y-2">
-            <Badge size="fixed" text="to" />
+            <Badge size="fixed" text="into" />
             <Select
               required
               label="Account"
