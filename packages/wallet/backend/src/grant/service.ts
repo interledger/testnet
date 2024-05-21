@@ -2,7 +2,7 @@ import { GetGrantsQueryVariables, Grant } from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { Forbidden } from '@shared/backend'
-
+import moment from 'moment'
 interface IGrantService {
   getGrantByInteraction: (
     userId: string,
@@ -80,6 +80,32 @@ export class GrantService implements IGrantService {
       args.filter = { identifier: { in: identifiers } }
     }
 
-    return await this.rafikiAuthService.listGrantsWithPagination(args)
+    const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
+    this.parseIntervals(grants.grants.edges.map((it) => it.node))
+    return grants
+  }
+
+  private parseIntervals(grants: Grant[]) {
+    for (const grant of grants)
+      for (const accessElement of grant.access)
+        if (accessElement.limits?.interval) {
+          const time = accessElement.limits?.interval.split('/')
+          const duration = moment.duration(time[2])
+          const date = moment(time[1])
+          const months = duration.asMonths()
+          if (months === 1)
+            accessElement.limits!.interval = `every month from ${date.format('ddd')}`
+          else if (months > 1 && months < 12)
+            accessElement.limits!.interval = `every ${months} month from ${date.format('ddd')}`
+          else if (months === 12)
+            accessElement.limits!.interval = `every year from ${date.format('ddd')}`
+          else if (months > 12) {
+            const years = duration.asYears()
+            accessElement.limits!.interval = `every ${years} year from ${date.format('ddd')}`
+          } else if (months < 1 && months > 0) {
+            const days = duration.asDays()
+            accessElement.limits!.interval = `every ${days} days from ${date.format('ddd')}`
+          }
+        }
   }
 }
