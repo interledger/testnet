@@ -11,7 +11,7 @@
     "@interledger/open-payments": "^6.9.0",
     "@shared/backend": "workspace:*",
     "awilix": "^10.0.2",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
