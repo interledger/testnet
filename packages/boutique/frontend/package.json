@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build:deps": "pnpm --filter @boutique/shared build",
+    "build": "pnpm build:deps && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
