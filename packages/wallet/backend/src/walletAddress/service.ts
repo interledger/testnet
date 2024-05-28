@@ -4,7 +4,7 @@ import { Env } from '@/config/env'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import axios from 'axios'
 import { getRandomValues } from 'crypto'
-import { Cache } from '@shared/backend'
+import { Cache, RedisClient } from '@shared/backend'
 import { WalletAddress } from './model'
 import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
@@ -91,16 +91,19 @@ export const createWalletAddressIfFalsy = async ({
 }
 
 export class WalletAddressService implements IWalletAddressService {
+  private cache: Cache<WalletAddress>
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
     private env: Env,
-    private cache: Cache<WalletAddress>,
+    redisClient: RedisClient,
     private wmTransactionService: WMTransactionService,
     private transactionService: TransactionService,
     private rapydClient: RapydClient,
     private logger: Logger
-  ) {}
+  ) {
+    this.cache = new Cache<WalletAddress>(redisClient, 'WMWalletAddresses')
+  }
 
   async create(args: CreateWalletAddressArgs): Promise<WalletAddress> {
     const account = await this.accountService.findAccountById(
