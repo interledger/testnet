@@ -134,3 +134,4 @@ dist
 .DS_Store
 .idea
 tmp
+.vscode/settings.json
