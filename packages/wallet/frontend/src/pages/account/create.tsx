@@ -11,13 +11,14 @@ import type {
   GetServerSideProps,
   InferGetServerSidePropsType
 } from 'next/types'
-import { accountService, createAccountSchema } from '@/lib/api/account'
+import { accountService } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
+import { createAccountSchema } from '@wallet/shared/src/responses'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({

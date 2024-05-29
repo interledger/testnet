@@ -2,7 +2,8 @@
   "name": "@wallet/frontend",
   "scripts": {
     "dev": "PORT=4003 next dev",
-    "build": "next build",
+    "build:deps": "pnpm --filter @wallet/shared build",
+    "build": "pnpm build:deps && next build",
     "start": "next start"
   },
   "dependencies": {
@@ -10,6 +11,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-toast": "^1.1.5",
     "class-variance-authority": "^0.7.0",
+    "@wallet/shared": "workspace:*",
     "ky": "^1.2.3",
     "next": "13.4.12",
     "nprogress": "^0.2.0",
