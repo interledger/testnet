@@ -8,6 +8,9 @@ export default defineConfig({
     port: 4004
   },
   resolve: {
-    alias: [{ find: '@', replacement: resolve(__dirname, 'src') }]
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '@boutique/shared': resolve(__dirname, '../../boutique/shared/src')
+    }
   }
 })
