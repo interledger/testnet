@@ -74,7 +74,9 @@ describe('Grant Service', () => {
         listGrants: jest.fn().mockReturnValue(mockedListGrant),
         listGrantsWithPagination: jest.fn().mockReturnValue({
           grants: {
-            edges: mockedListGrant.map((grant) => ({ node: grant })),
+            edges: JSON.parse(
+              JSON.stringify(mockedListGrant.map((grant) => ({ node: grant })))
+            ),
             pageInfo: {
               hasNextPage: false,
               hasPreviousPage: false
