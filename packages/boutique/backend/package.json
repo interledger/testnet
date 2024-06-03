@@ -2,14 +2,15 @@
   "name": "@boutique/backend",
   "scripts": {
     "start": "node dist/index.js",
-    "build:deps": "pnpm --filter @shared/backend build",
+    "build:deps": "pnpm --filter @shared/backend build && pnpm --filter @boutique/shared build",
     "build": "pnpm build:deps && tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --passWithNoTests --maxWorkers=2"
+    "test": "pnpm build:deps && NODE_OPTIONS='--experimental-vm-modules' jest --passWithNoTests --maxWorkers=2"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.0",
     "@interledger/open-payments": "^6.9.0",
     "@shared/backend": "workspace:*",
+    "@boutique/shared": "workspace:*",
     "awilix": "^10.0.2",
     "axios": "^1.6.8",
     "cors": "^2.8.5",

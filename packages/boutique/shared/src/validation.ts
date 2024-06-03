@@ -17,6 +17,11 @@ export const createOrderSchema = z.object({
     .nonempty()
 })
 
+export const instantBuySchema = createOrderSchema.extend({
+  accessToken: z.string(),
+  manageUrl: z.string().url()
+})
+
 export const finishOrderSchema = z.object({
   result: z.enum(['grant_rejected', 'grant_invalid']).optional(),
   hash: z.string().optional(),
@@ -30,9 +35,4 @@ export const setupFinishSchema = finishOrderSchema.extend({
 export const oneClickSetupSchema = z.object({
   walletAddressUrl: walletAddressUrlSchema,
   amount: z.number()
-})
-
-export const instantBuySchema = createOrderSchema.extend({
-  accessToken: z.string(),
-  manageUrl: z.string().url()
 })

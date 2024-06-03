@@ -15,7 +15,7 @@ import {
   mockIncomingPaymentService
 } from '../mocks'
 import { AwilixContainer } from 'awilix'
-import { errorHandler } from '@shared/backend'
+import { errorHandler } from '@/tests/helpers'
 
 describe('Incoming Payment Controller', () => {
   let bindings: AwilixContainer<Cradle>

@@ -4,7 +4,7 @@ import { Cradle } from '@/container'
 import { AwilixContainer } from 'awilix'
 import { Knex } from 'knex'
 import { NextFunction, Request, Response } from 'express'
-import { errorHandler } from '@shared/backend'
+import { initErrorHandler, initLogger } from '@shared/backend'
 
 export interface TestApp {
   port: number
@@ -32,6 +32,6 @@ export const createApp = async (
     knex,
     port: app.getPort(),
     stop: app.stop,
-    errorHandler: errorHandler
+    errorHandler: initErrorHandler(initLogger('test'))
   }
 }

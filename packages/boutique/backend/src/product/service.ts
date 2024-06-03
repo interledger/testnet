@@ -11,7 +11,7 @@ export interface IProductService {
 }
 
 export class ProductService implements IProductService {
-  constructor(private readonly logger: Logger) {}
+  constructor(private logger: Logger) {}
 
   public async getById(id: string): Promise<Product> {
     const product = await this.get('id', id)
