@@ -90,22 +90,28 @@ export class GrantService implements IGrantService {
       for (const accessElement of grant.access)
         if (accessElement.limits?.interval) {
           const time = accessElement.limits?.interval.split('/')
-          const duration = moment.duration(time[2])
-          const date = moment(time[1])
-          const months = duration.asMonths()
-          if (months === 1)
-            accessElement.limits!.interval = `every month from ${date.format('ddd')}`
-          else if (months > 1 && months < 12)
-            accessElement.limits!.interval = `every ${months} month from ${date.format('ddd')}`
-          else if (months === 12)
-            accessElement.limits!.interval = `every year from ${date.format('ddd')}`
-          else if (months > 12) {
-            const years = duration.asYears()
-            accessElement.limits!.interval = `every ${years} year from ${date.format('ddd')}`
-          } else if (months < 1 && months > 0) {
-            const days = duration.asDays()
-            accessElement.limits!.interval = `every ${days} days from ${date.format('ddd')}`
-          }
+          const isEnd = time[1].startsWith('P');
+          const duration = moment.duration(time.find(it=> it.startsWith('P')))
+          const date = moment(time.find(it=> it.endsWith('Z')))
+          const repetition = time.find(it=> it.startsWith('R'))?.[1]
+
+          if(repetition === '0')
+            accessElement.limits!.interval = `${isEnd? 'Until' : 'From'} ${date.format('MMMM Do YYYY')} with no repetition`;
+          else if(repetition === undefined)
+            accessElement.limits!.interval = `${this.processDuration(duration)} ${isEnd? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`;
+          else
+            accessElement.limits!.interval = `${repetition} times ${this.processDuration(duration)} ${isEnd? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`;
         }
   }
+
+  private processDuration(duration:moment.Duration){
+    const years = duration.years() !== 0 ? `${duration.years()} years, ` : '';
+    const months = duration.months()!== 0 ? `${duration.months()} months, ` : ''
+    const days = duration.days()!== 0 ? `${duration.days()} days, ` : ''
+    const hours = duration.hours()!== 0 ?`${duration.hours()} hours, `: ''
+    const minutes = duration.minutes()!== 0 ? `${duration.minutes()} minutes` : ''
+
+    return `Every ${years}${months}${days}${hours}${minutes}`.replace(/, $/, '');
+  }
+
 }

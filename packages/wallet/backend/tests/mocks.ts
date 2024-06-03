@@ -324,7 +324,7 @@ export const mockedListGrant = [
             assetCode: 'USD',
             assetScale: 2
           },
-          interval: 'R/2016-08-23T08:00:00Z/P1M'
+          interval: 'R5/2008-03-01T13:00:00Z/P1Y2M10DT2H30M'
         }
       }
     ]
