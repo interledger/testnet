@@ -1,4 +1,8 @@
-import { GetGrantsQueryVariables, Grant } from '@/rafiki/auth/generated/graphql'
+import {
+  Access,
+  GetGrantsQueryVariables,
+  Grant
+} from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { Forbidden } from '@shared/backend'
@@ -81,39 +85,65 @@ export class GrantService implements IGrantService {
     }
 
     const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
-    this.parseIntervals(grants.grants.edges.map((it) => it.node))
+    grants.grants.edges.forEach((edge) => {
+      edge.node.access = this.parseIntervals(edge.node.access)
+    })
     return grants
   }
 
-  private parseIntervals(grants: Grant[]) {
-    for (const grant of grants)
-      for (const accessElement of grant.access)
-        if (accessElement.limits?.interval) {
-          const time = accessElement.limits?.interval.split('/')
-          const isEnd = time[1].startsWith('P')
-          const duration = moment.duration(
-            time.find((it) => it.startsWith('P'))
-          )
-          const date = moment(time.find((it) => it.endsWith('Z')))
-          const repetition = time.find((it) => it.startsWith('R'))?.[1]
-
-          if (repetition === '0')
-            accessElement.limits!.interval = `${isEnd ? 'Until' : 'From'} ${date.format('MMMM Do YYYY')} with no repetition`
-          else if (repetition === undefined)
-            accessElement.limits!.interval = `${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
-          else
-            accessElement.limits!.interval = `${repetition} times ${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+  private parseIntervals(access: Access[]): Access[] {
+    return access.map((accessElement) => {
+      if (accessElement.limits?.interval) {
+        return {
+          ...accessElement,
+          limits: {
+            ...accessElement.limits,
+            intervalHR: this.transformFromIntervalToHR(
+              accessElement.limits.interval
+            )
+          }
         }
+      }
+      return accessElement
+    })
   }
 
+  private transformFromIntervalToHR(interval: string): string {
+    const time = interval.split('/')
+    const isEnd = time[1].startsWith('P')
+    const duration = moment.duration(time.find((it) => it.startsWith('P')))
+    const date = moment(time.find((it) => it.endsWith('Z')))
+    const repetition = time.find((it) => it.startsWith('R'))?.[1]
+
+    if (repetition === '0')
+      return `${isEnd ? 'Until' : 'From'} ${date.format('MMMM Do YYYY')} with no repetition`
+
+    if (repetition === undefined)
+      return `${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+
+    return `${repetition} times ${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+  }
   private processDuration(duration: moment.Duration) {
-    const years = duration.years() !== 0 ? `${duration.years()} years, ` : ''
+    const years =
+      duration.years() !== 0
+        ? `${duration.years()} ${duration.years() > 1 ? 'years' : 'year'}, `
+        : ''
     const months =
-      duration.months() !== 0 ? `${duration.months()} months, ` : ''
-    const days = duration.days() !== 0 ? `${duration.days()} days, ` : ''
-    const hours = duration.hours() !== 0 ? `${duration.hours()} hours, ` : ''
+      duration.months() !== 0
+        ? `${duration.months()} ${duration.months() > 1 ? 'months' : 'month'}, `
+        : ''
+    const days =
+      duration.days() !== 0
+        ? `${duration.days()} ${duration.days() > 1 ? 'days' : 'day'}, `
+        : ''
+    const hours =
+      duration.hours() !== 0
+        ? `${duration.hours()} ${duration.hours() > 1 ? 'hours' : 'hour'}, `
+        : ''
     const minutes =
-      duration.minutes() !== 0 ? `${duration.minutes()} minutes` : ''
+      duration.minutes() !== 0
+        ? `${duration.minutes()} ${duration.minutes() > 1 ? 'minutes' : 'minute'}`
+        : ''
 
     return `Every ${years}${months}${days}${hours}${minutes}`.replace(/, $/, '')
   }
