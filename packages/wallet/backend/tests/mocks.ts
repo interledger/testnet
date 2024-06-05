@@ -308,12 +308,50 @@ export const mockedListGrant = [
   {
     id: faker.string.uuid(),
     client: faker.lorem.slug(),
-    state: 'APPROVED'
+    state: 'APPROVED',
+    access: [
+      {
+        identifier: faker.internet.url(),
+        limits: {
+          receiver: null,
+          debitAmount: {
+            value: '12425',
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          receiveAmount: {
+            value: '12300',
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          interval: 'R5/2008-03-01T13:00:00Z/P1Y2M10DT2H30M'
+        }
+      }
+    ]
   },
   {
     id: faker.string.uuid(),
     client: faker.lorem.slug(),
     state: 'FINALIZED',
+    access: [
+      {
+        identifier: faker.internet.url(),
+        limits: {
+          receiver: null,
+          debitAmount: {
+            value: '12425',
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          receiveAmount: {
+            value: '12300',
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          interval: 'R/2016-08-23T08:00:00Z/P2Y'
+        }
+      }
+    ],
     finalizationReason: 'REJECTED'
   }
 ]
