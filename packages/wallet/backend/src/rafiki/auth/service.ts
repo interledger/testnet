@@ -25,7 +25,7 @@ interface IRafikiAuthService {
 export class RafikiAuthService implements IRafikiAuthService {
   constructor(
     private env: Env,
-    private gqlClient: GraphQLClient
+    private authGraphQLClient: GraphQLClient
   ) {}
 
   async listGrants(identifiers: string[]) {
@@ -33,7 +33,7 @@ export class RafikiAuthService implements IRafikiAuthService {
       return []
     }
 
-    const response = await this.gqlClient.request<
+    const response = await this.authGraphQLClient.request<
       GetGrantsQuery,
       GetGrantsQueryVariables
     >(getGrantsQuery, { filter: { identifier: { in: identifiers } } })
@@ -42,7 +42,7 @@ export class RafikiAuthService implements IRafikiAuthService {
   }
 
   async listGrantsWithPagination(args: GetGrantsQueryVariables) {
-    const response = await this.gqlClient.request<
+    const response = await this.authGraphQLClient.request<
       GetGrantsQuery,
       GetGrantsQueryVariables
     >(getGrantsQuery, args)
@@ -51,7 +51,7 @@ export class RafikiAuthService implements IRafikiAuthService {
   }
 
   async revokeGrant(grantId: string) {
-    const response = await this.gqlClient.request<
+    const response = await this.authGraphQLClient.request<
       RevokeGrantMutation,
       RevokeGrantMutationVariables
     >(revokeGrantMutation, { grantId })
@@ -62,7 +62,7 @@ export class RafikiAuthService implements IRafikiAuthService {
   }
 
   async getGrantById(grantId: string) {
-    const response = await this.gqlClient.request<
+    const response = await this.authGraphQLClient.request<
       GetGrantQuery,
       GetGrantQueryVariables
     >(getGrantByIdQuery, { grantId })

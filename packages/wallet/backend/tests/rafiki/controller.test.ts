@@ -16,7 +16,7 @@ import {
   mockRatesService
 } from '../mocks'
 import { AwilixContainer } from 'awilix'
-import { errorHandler } from '@shared/backend'
+import { errorHandler } from '@/tests/helpers'
 
 describe('Rafiki controller', () => {
   let bindings: AwilixContainer<Cradle>

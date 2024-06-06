@@ -19,13 +19,12 @@ import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { createUser } from '@/tests/helpers'
+import { createUser, errorHandler } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
 import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { WalletAddressController } from '@/walletAddress/controller'
 import { WalletAddress } from '@/walletAddress/model'
-import { errorHandler } from '@shared/backend'
 
 describe('Wallet Address', () => {
   let bindings: AwilixContainer<Cradle>

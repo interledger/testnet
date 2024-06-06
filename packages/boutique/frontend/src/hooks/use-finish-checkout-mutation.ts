@@ -3,20 +3,15 @@ import { SuccessResponse } from '@/lib/types.ts'
 import { UseMutationOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
+import { finishOrderSchema } from '@boutique/shared'
 
-type FinishCheckoutMutationParams = z.infer<typeof finishCheckoutSchema>
-
-export const finishCheckoutSchema = z.object({
-  result: z.enum(['grant_rejected', 'grant_invalid']).optional(),
-  hash: z.string().optional(),
-  interactRef: z.string().uuid().optional()
-})
+type FinishCheckoutMutationParams = z.infer<typeof finishOrderSchema>
 
 export function useFinishCheckoutMutation(
   orderId: string,
   options?: UseMutationOptions<
     SuccessResponse,
-    APIError<z.infer<typeof finishCheckoutSchema>>,
+    APIError<z.infer<typeof finishOrderSchema>>,
     FinishCheckoutMutationParams
   >
 ) {

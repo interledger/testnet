@@ -51,12 +51,32 @@ describe('Grant Service', () => {
           : jest.fn(),
         getGrantByInteraction: jest.fn().mockReturnValue({
           id: 'grant',
-          access: [{ identifier: faker.internet.url() }]
+          access: [
+            {
+              identifier: faker.internet.url(),
+              limits: {
+                receiver: null,
+                debitAmount: {
+                  value: '12425',
+                  assetCode: 'USD',
+                  assetScale: 2
+                },
+                receiveAmount: {
+                  value: '12300',
+                  assetCode: 'USD',
+                  assetScale: 2
+                },
+                interval: 'R/2016-08-23T08:00:00Z/P1M'
+              }
+            }
+          ]
         }),
         listGrants: jest.fn().mockReturnValue(mockedListGrant),
         listGrantsWithPagination: jest.fn().mockReturnValue({
           grants: {
-            edges: mockedListGrant.map((grant) => ({ node: grant })),
+            edges: JSON.parse(
+              JSON.stringify(mockedListGrant.map((grant) => ({ node: grant })))
+            ),
             pageInfo: {
               hasNextPage: false,
               hasPreviousPage: false

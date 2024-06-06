@@ -44,6 +44,9 @@ importers:
 
   packages/boutique/backend:
     dependencies:
+      '@boutique/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
         version: 6.0.0(winston@3.13.0)
@@ -114,6 +117,9 @@ importers:
 
   packages/boutique/frontend:
     dependencies:
+      '@boutique/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@hookform/resolvers':
         specifier: ^3.3.4
         version: 3.3.4(react-hook-form@7.51.3(react@18.2.0))
@@ -139,7 +145,7 @@ importers:
         specifier: ^1.1.5
         version: 1.1.5(@types/react-dom@18.2.25)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@tanstack/react-query':
-        specifier: ^5.29.2
+        specifier: ^5.29.0
         version: 5.29.2(react@18.2.0)
       class-variance-authority:
         specifier: ^0.7.0
@@ -206,11 +212,24 @@ importers:
         specifier: ^5.2.9
         version: 5.2.9(@types/node@20.12.11)
 
+  packages/boutique/shared:
+    dependencies:
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@types/node':
+        specifier: ^20.12.7
+        version: 20.12.11
+
   packages/shared/backend:
     dependencies:
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
         version: 6.0.0(winston@3.13.0)
+      awilix:
+        specifier: ^10.0.2
+        version: 10.0.2
       axios:
         specifier: ^1.6.8
         version: 1.6.8
@@ -299,6 +318,9 @@ importers:
       knex:
         specifier: ^3.1.0
         version: 3.1.0(pg@8.11.5)
+      moment:
+        specifier: ^2.30.1
+        version: 2.30.1
       node-cache:
         specifier: ^5.1.2
         version: 5.1.2
@@ -4641,6 +4663,9 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
+
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   mrmime@1.0.1:
     resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
@@ -11373,6 +11398,8 @@ snapshots:
   mkdirp-classic@0.5.3: {}
 
   mkdirp@1.0.4: {}
+
+  moment@2.30.1: {}
 
   mrmime@1.0.1: {}
 

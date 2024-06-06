@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build:deps": "pnpm --filter @boutique/shared build",
+    "build": "pnpm build:deps && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,7 +16,8 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
-    "@tanstack/react-query": "^5.29.2",
+    "@tanstack/react-query": "^5.29.0",
+    "@boutique/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "framer-motion": "^11.0.25",
     "react": "^18.2.0",

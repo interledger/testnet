@@ -1,8 +1,12 @@
-import { GetGrantsQueryVariables, Grant } from '@/rafiki/auth/generated/graphql'
+import {
+  Access,
+  GetGrantsQueryVariables,
+  Grant
+} from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { Forbidden } from '@shared/backend'
-
+import moment from 'moment'
 interface IGrantService {
   getGrantByInteraction: (
     userId: string,
@@ -80,6 +84,67 @@ export class GrantService implements IGrantService {
       args.filter = { identifier: { in: identifiers } }
     }
 
-    return await this.rafikiAuthService.listGrantsWithPagination(args)
+    const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
+    grants.grants.edges.forEach((edge) => {
+      edge.node.access = this.parseIntervals(edge.node.access)
+    })
+    return grants
+  }
+
+  private parseIntervals(access: Access[]): Access[] {
+    return access.map((accessElement) => {
+      if (accessElement.limits?.interval) {
+        return {
+          ...accessElement,
+          limits: {
+            ...accessElement.limits,
+            intervalHR: this.transformFromIntervalToHR(
+              accessElement.limits.interval
+            )
+          }
+        }
+      }
+      return accessElement
+    })
+  }
+
+  private transformFromIntervalToHR(interval: string): string {
+    const time = interval.split('/')
+    const isEnd = time[1].startsWith('P')
+    const duration = moment.duration(time.find((it) => it.startsWith('P')))
+    const date = moment(time.find((it) => it.endsWith('Z')))
+    const repetition = time.find((it) => it.startsWith('R'))?.[1]
+
+    if (repetition === '0')
+      return `${isEnd ? 'Until' : 'From'} ${date.format('MMMM Do YYYY')} with no repetition`
+
+    if (repetition === undefined)
+      return `${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+
+    return `${repetition} times ${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+  }
+  private processDuration(duration: moment.Duration) {
+    const years =
+      duration.years() !== 0
+        ? `${duration.years()} ${duration.years() > 1 ? 'years' : 'year'}, `
+        : ''
+    const months =
+      duration.months() !== 0
+        ? `${duration.months()} ${duration.months() > 1 ? 'months' : 'month'}, `
+        : ''
+    const days =
+      duration.days() !== 0
+        ? `${duration.days()} ${duration.days() > 1 ? 'days' : 'day'}, `
+        : ''
+    const hours =
+      duration.hours() !== 0
+        ? `${duration.hours()} ${duration.hours() > 1 ? 'hours' : 'hour'}, `
+        : ''
+    const minutes =
+      duration.minutes() !== 0
+        ? `${duration.minutes()} ${duration.minutes() > 1 ? 'minutes' : 'minute'}`
+        : ''
+
+    return `Every ${years}${months}${days}${hours}${minutes}`.replace(/, $/, '')
   }
 }
