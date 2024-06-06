@@ -11,7 +11,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { fundAccountSchema } from '@wallet/shared/src/responses'
+import { fundAccountSchema } from '@wallet/shared'
 
 type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account

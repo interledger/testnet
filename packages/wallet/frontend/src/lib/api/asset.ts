@@ -4,29 +4,11 @@ import {
   httpClient,
   type SuccessResponse
 } from '../httpClient'
-
-export type Asset = {
-  id: string
-  code: string
-  scale: number
-  withdrawalThreshold?: bigint
-  createdAt: string
-}
-
-export type Rates = {
-  base: string
-  rates: Record<string, number>
-}
-
-export type AssetOP = {
-  assetCode: string
-  assetScale: number
-}
+import { Asset, ExchangeRates, Rates } from '@wallet/shared'
 
 type ListAssetsResult = SuccessResponse<Asset[]>
 type ListAssetsResponse = ListAssetsResult | ErrorResponse
 
-export type ExchangeRates = Record<string, number>
 type GetExchangeRatesResponse = SuccessResponse<ExchangeRates> | ErrorResponse
 
 interface AssetService {

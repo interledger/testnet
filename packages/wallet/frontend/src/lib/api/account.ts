@@ -9,10 +9,10 @@ import { acceptQuoteSchema, Quote } from './transfers'
 import { WalletAddress } from './walletAddress'
 import {
   createAccountSchema,
-  exchangeAssetSchema,
   fundAccountSchema,
-  withdrawFundsSchema
-} from '@wallet/shared/src/responses'
+  withdrawFundsSchema,
+  exchangeAssetSchema
+} from '@wallet/shared'
 
 export type Account = {
   id: string
