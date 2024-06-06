@@ -3,13 +3,14 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
-import { Account, accountService, withdrawFundsSchema } from '@/lib/api/account'
+import { Account, accountService } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
 import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
+import { withdrawFundsSchema } from '@wallet/shared/src/responses'
 
 type WithdrawFundsDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account
