@@ -2,7 +2,7 @@
 
 ## Getting started <!-- omit in toc -->
 
-Thank you for contributing to Testnet, a Rafiki Playground :tada: Your contributions are essential to making this project better.
+Thank you for contributing to Test Network - Test Wallet and Test e-commerce, a Rafiki Playground :tada: Your contributions are essential to making this project better.
 
 ## Before you begin
 
@@ -16,7 +16,7 @@ Thank you for contributing to Testnet, a Rafiki Playground :tada: Your contribut
   - [:beetle: Issues](#beetle-issues)
   - [:hammer_and_wrench: Pull requests](#hammer_and_wrench-pull-requests)
   - [:books: Documentation](#books-documentation)
-- [Working in the testnet repository](#working-in-the-testnet-repository)
+- [Working in the test network repository](#working-in-the-testnet-repository)
   - [Labels](#labels)
   - [Code quality](#code-quality)
     - [Linting](#linting)
@@ -30,11 +30,11 @@ Thank you for contributing to Testnet, a Rafiki Playground :tada: Your contribut
 
 ## Types of contributions
 
-You can contribute to Testnet in several ways.
+You can contribute to Test Wallet and e-commerce in several ways.
 
 ### :mega: Discussions
 
-Discussions are where we have conversations about Testnet.
+Discussions are where we have conversations about Test network.
 
 If you would like to discuss topics about the broader ecosystem, have a new idea, or want to show off your work - join us in [discussions](https://github.com/interledger/testnet/discussions).
 
@@ -52,12 +52,12 @@ The team will review your pull request as soon as possible.
 
 ### :books: Documentation
 
-The project is new and available Testnet documentation is a work in progress.
+The project is new and available Test network documentation is a work in progress.
 
 Rafiki has started to maintain public-facing documentation on [rafiki.dev](https://github.com/interledger/rafiki.dev).
 A list of issues being tracked across the Interledger ecosystem (including rafiki) is maintained in the [Documentation project](https://github.com/orgs/interledger/projects/5/views/1).
 
-## Working in the Testnet repository
+## Working in the Test network repository
 
 This project uses `pnpm`. A list of steps for setting up a [local development environment](https://github.com/interledger/testnet#local-development-environment) can be found in the Readme.
 
@@ -152,6 +152,6 @@ If you encounter any issues or have a feature request, please [create a new issu
 - Please respond to any feedback promptly and make necessary changes.
 - Once the PR is approved, it will be merged into the main branch.
 
-Thank you for contributing to Testnet, a Rafiki Playground! We appreciate your time and effort in helping make Testnet better. Join our community on [Slack](https://communityinviter.com/apps/interledger/interledger-working-groups-slack) to connect with other contributors and stay updated on project developments.
+Thank you for contributing to Test network, a Rafiki Playground! We appreciate your time and effort in helping make Test Wallet and e-commerce better. Join our community on [Slack](https://communityinviter.com/apps/interledger/interledger-working-groups-slack) to connect with other contributors and stay updated on project developments.
 
 Happy coding!

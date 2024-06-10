@@ -1,18 +1,18 @@
-# Testnet
+# Test Network
 
-<a href="#what-is-testnet">
-  <img src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg" width="920" alt="Testnet picture">
+<a href="#what-is-test-network">
+  <img src="https://user-images.githubusercontent.com/117268143/220323531-538238d2-f538-4ed5-be97-163e28ebc48f.jpg" width="920" alt="Test wallet picture">
 </a>
 
-## What is Testnet?
+## What is Test Network?
 
-Testnet (test network) is an open Interledger network working with test money designed for account servicing entities to test their Interledger integration.
+Test Network is an open Interledger network working with test money designed for account servicing entities to test their Interledger integration.
 
-Testnet currently includes an Interledger test wallet application, an e-commerce application and in the near future, a bank application.
+Test Network currently includes an Interledger Test Wallet application, an e-commerce application and in the near future, a bank application.
 
-If you are curious about the Interledger Testnet architecture diagram, then follow this [link](.github/TESTNET_architecture.md).
+If you are curious about the Interledger Test Wallet architecture diagram, then follow this [link](.github/TESTNET_architecture.md).
 
-See Testnet in action:
+See Test Network in action:
 
 - [Interledger Test Wallet](https://rafiki.money)
 - [Interledger Boutique](https://rafiki.boutique)
@@ -74,7 +74,7 @@ pnpm i
 
 ### Environment Variables
 
-In order for the Rafiki Testnet playground to function, it is necessary to configure the environment variables appropriately. You must duplicate the example environment file, `.env.example`, into your local environment file, `.env`.
+In order for the Test Wallet and Test e-commerce playground to function, it is necessary to configure the environment variables appropriately. You must duplicate the example environment file, `.env.example`, into your local environment file, `.env`.
 
 > **Note**
 > The local environment file (`.env`) is **NOT** tracked in the version control system, and should **NOT** be included in any commits.
@@ -93,7 +93,7 @@ To create a new Interledger Test Wallet account, a verification email will be se
 Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
 Currencies can be added in the `admin` environment. For example `assetCode` is `EUR`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
 
-To have everything ready for `DEV` environment, we already set up some default values for Interledger Testnet, this way developers are ready to login without validation, and test e-commerce application without any additional setup:
+To have everything ready for `DEV` environment, we already set up some default values for Interledger Test Wallet, this way developers are ready to login without validation, and test e-commerce application without any additional setup:
 
 - a `USD` asset set by default in the `admin` environment
 - a user with email address `dev@email.com` and password `123456`, with a `USD` account, payment pointer and test money
@@ -118,5 +118,5 @@ Upon executing the above command, the following will be available
   - Backend at [http://localhost:3003](http://localhost:3003)
   - Admin at [http://localhost:3012](http://localhost:3012)
 
-- Interledger Boutique application
+- Interledger Boutique e-commerce application
   - [http://localhost:4004](http://localhost:4004)

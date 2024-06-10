@@ -26,7 +26,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 0
     target: 'body',
-    content: `Welcome to Testnet! Testnet is a Rafiki playground, where you can add multiple accounts and make Interledger transactions with play money. Let's begin our journey.`,
+    content: `Welcome to Test Wallet! Test Wallet is a Rafiki playground, where you can add multiple accounts and make Interledger transactions with play money. Let's begin our journey.`,
     disableOverlayClose: true,
     placement: 'center',
     Icon: Wave
@@ -139,7 +139,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 14
     target: '#transactionsList',
-    content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Testnet. Continue to play around.`,
+    content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
     Icon: HomeRooftop
   }

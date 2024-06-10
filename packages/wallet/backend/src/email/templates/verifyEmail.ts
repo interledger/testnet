@@ -10,7 +10,7 @@ export const getVerifyEmailTemplate = (url: string): string => {
               <table style="margin-top:32px;text-align:center;" align="center" border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
                 <tbody>
                   <tr>
-                    <td><a href="https://rafiki.money" target="_blank"><img alt="Interledger Testnet" src="https://raw.githubusercontent.com/interledger/testnet/60ca629046f50e3ed47406fa2cb20c6abd34be2f/packages/wallet/backend/src/emailTemplates/images/InterledgerTestnet.png" width="160" height="57" style="outline:none;border:none;text-decoration:none" /></a></td>
+                    <td><a href="https://rafiki.money" target="_blank"><img alt="Interledger Test Wallet" src="https://raw.githubusercontent.com/interledger/testnet/60ca629046f50e3ed47406fa2cb20c6abd34be2f/packages/wallet/backend/src/emailTemplates/images/InterledgerTestnet.png" width="160" height="57" style="outline:none;border:none;text-decoration:none" /></a></td>
                   </tr>
                 </tbody>
               </table>
