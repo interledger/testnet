@@ -36,7 +36,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       {token && isValid ? (
         <>
           <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
-            Provide a new password for your Testnet account.
+            Provide a new password for your Test Wallet account.
           </h2>
           <div className="w-2/3">
             <Form
