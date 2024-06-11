@@ -258,7 +258,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             <Table.Head
               columns={[
                 'Account',
-                'Payment pointer',
+                'Payment pointer name',
                 'Description',
                 'Amount',
                 'Status',
@@ -283,10 +283,15 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 transactions.results.map((trx) => (
                   <Table.Row key={trx.id}>
                     <Table.Cell>{trx.accountName}</Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
+                    <Table.Cell className="has-tooltip cursor-pointer whitespace-nowrap">
                       {trx.walletAddressPublicName ??
                         trx.walletAddressUrl ??
                         ''}
+                      {trx.walletAddressUrl ? (
+                        <span className="tooltip -ml-10 -mt-11 rounded border border-turqoise bg-white p-2 text-base shadow-lg">
+                          {trx.walletAddressUrl}
+                        </span>
+                      ) : null}
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
                       {trx.description ? (
