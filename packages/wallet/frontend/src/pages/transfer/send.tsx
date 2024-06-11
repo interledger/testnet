@@ -48,6 +48,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
   )
+  const [receiverPublicName, setReceiverPublicName] = useState('Recepient')
   const [currentExchangeRates, setCurrentExchangeRates] =
     useState<ExchangeRates>()
   const [convertAmount, setConvertAmount] = useState(0)
@@ -153,11 +154,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     if (url === '') {
       setReceiverAssetCode(null)
       setReadOnlyNotes(false)
+      setReceiverPublicName('Recepient')
       return
     }
 
     if (url.includes('/incoming-payments/')) {
       const response = await transfersService.getIncomingPaymentDetails(url)
+      setReceiverPublicName('Recepient')
 
       if (response.success && response.result) {
         let value = response.result.value
@@ -196,6 +199,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     } else {
       const walletAddressAssetCodeResponse =
         await walletAddressService.getExternal(url)
+
       if (
         !walletAddressAssetCodeResponse.success ||
         !walletAddressAssetCodeResponse.result
@@ -204,6 +208,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         return
       }
 
+      setReceiverPublicName(walletAddressAssetCodeResponse.result.publicName)
       setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
       setReadOnlyNotes(false)
     }
@@ -266,6 +271,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 openDialog(
                   <QuoteDialog
                     quote={response.result}
+                    receiverName={receiverPublicName}
                     type="quote"
                     onAccept={() => {
                       handleAcceptQuote(quoteId)
