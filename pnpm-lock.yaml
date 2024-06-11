@@ -195,7 +195,7 @@ importers:
         version: 18.2.25
       '@vitejs/plugin-react-swc':
         specifier: ^3.6.0
-        version: 3.6.0(@swc/helpers@0.5.1)(vite@5.2.9(@types/node@20.12.11))
+        version: 3.6.0(@swc/helpers@0.5.1)(vite@5.2.13(@types/node@20.12.11))
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.38)
@@ -209,8 +209,8 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
       vite:
-        specifier: ^5.2.9
-        version: 5.2.9(@types/node@20.12.11)
+        specifier: ^5.2.13
+        version: 5.2.13(@types/node@20.12.11)
 
   packages/boutique/shared:
     dependencies:
@@ -6118,8 +6118,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vite@5.2.9:
-    resolution: {integrity: sha512-uOQWfuZBlc6Y3W/DTuQ1Sr+oIXWvqljLvS881SVmAj00d5RdgShLcuXWxseWPd4HXwiYBFW/vXHfKFeqj9uQnw==}
+  vite@5.2.13:
+    resolution: {integrity: sha512-SSq1noJfY9pR3I1TUENL3rQYDQCFqgD+lM6fTRAM8Nv6Lsg5hDLaXkjETVeBt+7vZBCMoibD+6IWnT2mJ+Zb/A==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -8743,10 +8743,10 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-react-swc@3.6.0(@swc/helpers@0.5.1)(vite@5.2.9(@types/node@20.12.11))':
+  '@vitejs/plugin-react-swc@3.6.0(@swc/helpers@0.5.1)(vite@5.2.13(@types/node@20.12.11))':
     dependencies:
       '@swc/core': 1.3.107(@swc/helpers@0.5.1)
-      vite: 5.2.9(@types/node@20.12.11)
+      vite: 5.2.13(@types/node@20.12.11)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -13003,7 +13003,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@5.2.9(@types/node@20.12.11):
+  vite@5.2.13(@types/node@20.12.11):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
