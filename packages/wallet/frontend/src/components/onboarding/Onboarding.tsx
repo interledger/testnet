@@ -43,7 +43,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 2
     target: '#createAccountForm',
     content:
-      'All accounts need a name, so please add a name for your EUR account.',
+      'All accounts need a name, so please add a name for your new EUR account.',
     placement: 'center',
     disableOverlayClose: true,
     Icon: Person
@@ -59,7 +59,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 4
     target: '#walletAddress',
-    content: `In order to send and receive money, all accounts need at least a payment pointer, so let's add a payment pointer to your account.`,
+    content: `In order to send and receive money, all accounts need at least one payment pointer, so let's add a payment pointer to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Plus
@@ -68,7 +68,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 5
     target: '#fund',
     content:
-      'Your balance is currently $0. In order to make your first transaction, you need to add money to your account.',
+      'Your balance is currently €0. To make your first transaction please add play money.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: MoneyHand
@@ -93,14 +93,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 8
     target: '#sendReceive',
-    content: `You have to pay some fees in order to send payments. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest.`,
+    content: `You have to pay some fees in order to send payments. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that.`,
     disableOverlayClose: true,
     Icon: Switch
   },
   {
     // 9
     target: '#acceptQuote',
-    content: `You can review your payment details before sending the money. For now, let's continue the transaction.`,
+    content: `You can review your payment details before sending the money.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: ThumbsUp
