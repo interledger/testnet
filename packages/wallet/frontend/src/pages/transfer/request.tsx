@@ -27,7 +27,7 @@ import { Label } from '@/ui/forms/Label'
 import { FieldError } from '@/ui/forms/FieldError'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
-import { AssetOP } from '@wallet/shared'
+import { AssetOP } from '@/lib/api/asset'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit

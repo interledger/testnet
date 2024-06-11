@@ -31,11 +31,10 @@ import {
 } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
-import { assetService } from '@/lib/api/asset'
+import { AssetOP, assetService, ExchangeRates } from '@/lib/api/asset'
 import { ExchangeRate } from '@/components/ExchangeRate'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
-import { AssetOP, ExchangeRates } from '@wallet/shared'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 

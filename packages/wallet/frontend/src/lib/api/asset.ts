@@ -4,7 +4,14 @@ import {
   httpClient,
   type SuccessResponse
 } from '../httpClient'
-import { Asset, ExchangeRates, Rates } from '@wallet/shared'
+import { Asset, Rates } from '@wallet/shared'
+
+export type AssetOP = {
+  assetCode: string
+  assetScale: number
+}
+
+export type ExchangeRates = Record<string, number>
 
 type ListAssetsResult = SuccessResponse<Asset[]>
 type ListAssetsResponse = ListAssetsResult | ErrorResponse

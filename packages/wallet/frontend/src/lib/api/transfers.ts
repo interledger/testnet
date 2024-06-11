@@ -6,7 +6,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { AssetOP } from '@wallet/shared'
+import { AssetOP } from '@/lib/api/asset'
 
 export const sendSchema = z.object({
   walletAddressId: z

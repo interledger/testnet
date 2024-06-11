@@ -1,5 +1,5 @@
 import { NextFunction, Request } from 'express'
-import { Asset } from '@/rafiki/backend/generated/graphql'
+import { Asset } from '@wallet/shared'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Controller, toSuccessResponse } from '@shared/backend'
 

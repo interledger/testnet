@@ -13,7 +13,7 @@ import type {
 } from 'next/types'
 import { Account, accountService } from '@/lib/api/account'
 import { formatAmount, getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
-import { assetService } from '@/lib/api/asset'
+import { AssetOP, assetService, ExchangeRates } from '@/lib/api/asset'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
@@ -24,7 +24,7 @@ import { useRouter } from 'next/router'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
 import { balanceState } from '@/lib/balance'
 import { useSnapshot } from 'valtio'
-import { AssetOP, ExchangeRates, exchangeAssetSchema } from '@wallet/shared'
+import { exchangeAssetSchema } from '@wallet/shared'
 
 type ExchangeAssetProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({

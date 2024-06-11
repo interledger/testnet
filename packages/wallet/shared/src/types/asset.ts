@@ -1,4 +1,4 @@
-export type Asset = {
+export interface Asset {
   id: string
   code: string
   scale: number
@@ -6,14 +6,7 @@ export type Asset = {
   createdAt: string
 }
 
-export type Rates = {
+export interface Rates {
   base: string
   rates: Record<string, number>
 }
-
-export type AssetOP = {
-  assetCode: string
-  assetScale: number
-}
-
-export type ExchangeRates = Record<string, number>
