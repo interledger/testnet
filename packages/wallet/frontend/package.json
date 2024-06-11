@@ -20,7 +20,7 @@
     "react-hook-form": "^7.51.5",
     "react-joyride": "^2.5.4",
     "react-select": "^5.8.0",
-    "sharp": "^0.33.3",
+    "sharp": "^0.33.4",
     "socket.io-client": "^4.7.5",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
