@@ -11,13 +11,15 @@ type QuoteDialogProps = {
   onAccept: () => void
   quote: Quote
   type: string
+  receiverName?: string
 }
 
 export const QuoteDialog = ({
   onClose,
   onAccept,
   quote,
-  type
+  type,
+  receiverName
 }: QuoteDialogProps) => {
   const { setRunOnboarding, stepIndex, setStepIndex } = useOnboardingContext()
   const receiveAmount = formatAmount({
@@ -64,12 +66,14 @@ export const QuoteDialog = ({
                 <div className="flex flex-col items-center justify-center px-4">
                   <PaperPlane strokeWidth={2} className="h-16 w-16" />
                   <p className="text-center font-semibold text-turqoise">
-                    {type === 'quote' ? 'You send exactly: ' : 'You exchange: '}
+                    {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}
                     <br />
                     {type === 'quote'
-                      ? 'Recepient gets: '
-                      : 'You get exactly: '}
+                      ? receiverName
+                        ? `${receiverName} gets: `
+                        : 'Recepient gets: '
+                      : 'You get: '}
                     {receiveAmount.amount}
                     <br />
                     {type === 'quote' ? 'Fee: ' : 'Exchange fee: '} {fee.amount}
