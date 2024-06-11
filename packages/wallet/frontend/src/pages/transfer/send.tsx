@@ -53,6 +53,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [convertAmount, setConvertAmount] = useState(0)
   const [isToggleDisabled, setIsToggleDisabled] = useState(false)
   const [incomingPaymentAmount, setIncomingPaymentAmount] = useState(0)
+  const [readOnlyNotes, setReadOnlyNotes] = useState(false)
   const { accountsSnapshot } = useSnapshot(balanceState)
 
   const balanceSnapshot = useMemo(() => {
@@ -151,6 +152,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const onWalletAddressChange = async (url: string): Promise<void> => {
     if (url === '') {
       setReceiverAssetCode(null)
+      setReadOnlyNotes(false)
       return
     }
 
@@ -182,13 +184,14 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         sendForm.setValue('paymentType', 'receive')
         sendForm.setValue('amount', value)
         sendForm.setValue('description', response.result.description ?? '')
-
+        setReadOnlyNotes(true)
         setReceiverAssetCode(responseAssetCode)
         setConvertAmount(value)
         setIsToggleDisabled(true)
       } else {
         sendForm.setError('receiver', { message: response.message })
         setReceiverAssetCode(null)
+        setReadOnlyNotes(false)
       }
     } else {
       const walletAddressAssetCodeResponse =
@@ -202,6 +205,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       }
 
       setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
+      setReadOnlyNotes(false)
     }
 
     if (isToggleDisabled) setIsToggleDisabled(false)
@@ -396,7 +400,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                   : null
               }
             />
-            <Input {...sendForm.register('description')} label="Description" />
+            <Input
+              {...sendForm.register('description')}
+              label="Description"
+              disabled={readOnlyNotes}
+            />
           </div>
           <div className="flex justify-center py-5">
             <Button
