@@ -122,6 +122,7 @@ export const FundAccountDialog = ({
                       addOn={getCurrencySymbol(account.assetCode)}
                       error={fundAccountForm.formState?.errors?.amount?.message}
                       {...fundAccountForm.register('amount')}
+                      autoFocus
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button

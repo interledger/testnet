@@ -17,7 +17,7 @@ export const OnboardingTooltip = ({
     ONBOARDING_STEPS[index].Icon
 
   const iconClassName = useMemo(() => {
-    return `mr-4 ${index === 8 ? 'w-48' : 'w-20'}`
+    return `mr-4 ${index === 11 ? 'w-48' : 'w-20'}`
   }, [index])
 
   return (
@@ -38,9 +38,10 @@ export const OnboardingTooltip = ({
         )}
         {(index === 2 ||
           index === 6 ||
-          index === 8 ||
+          index === 10 ||
           index === 11 ||
-          index === 14) && (
+          index === 15 ||
+          index === 18) && (
           <div className="flex items-start text-center">
             <Button {...primaryProps}>
               {isLastStep ? `Let's go Home` : 'Continue'}

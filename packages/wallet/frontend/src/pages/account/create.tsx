@@ -93,6 +93,7 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
           label="Account name"
           error={createAccountForm.formState?.errors?.name?.message}
           {...createAccountForm.register('name')}
+          autoFocus
         />
         <Controller
           name="asset"
