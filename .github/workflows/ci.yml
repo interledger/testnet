@@ -73,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/setup
-      - run: pnpm wallet:backend test --detectOpenHandles --forceExit
+      - run: pnpm wallet:backend build && pnpm wallet:backend test --detectOpenHandles --forceExit
 
   test-boutique-backend:
     name: BOUTIQUE - Test backend
