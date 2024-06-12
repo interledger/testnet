@@ -1,10 +1,10 @@
 import { NextFunction, Request } from 'express'
-import { Asset } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { AssetResponse } from '@wallet/shared'
 
 interface IAssetController {
-  list: Controller<Asset[]>
+  list: Controller<AssetResponse[]>
 }
 
 export class AssetController implements IAssetController {
@@ -12,7 +12,7 @@ export class AssetController implements IAssetController {
 
   list = async (
     _req: Request,
-    res: CustomResponse<Asset[]>,
+    res: CustomResponse<AssetResponse[]>,
     next: NextFunction
   ) => {
     try {

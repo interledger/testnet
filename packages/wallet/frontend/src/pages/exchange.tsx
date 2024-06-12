@@ -24,7 +24,7 @@ import { useRouter } from 'next/router'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
 import { balanceState } from '@/lib/balance'
 import { useSnapshot } from 'valtio'
-import { exchangeAssetSchema } from '@wallet/shared/src/responses'
+import { exchangeAssetSchema } from '@wallet/shared'
 
 type ExchangeAssetProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({

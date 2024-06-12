@@ -10,7 +10,7 @@ import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
-import { withdrawFundsSchema } from '@wallet/shared/src/responses'
+import { withdrawFundsSchema } from '@wallet/shared'
 
 type WithdrawFundsDialogProps = Pick<DialogProps, 'onClose'> & {
   account: Account

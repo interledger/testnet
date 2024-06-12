@@ -5,7 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { AssetOP } from './asset'
+import { AssetOP } from '@/lib/api/asset'
 
 export const createWalletAddressSchema = z.object({
   walletAddressName: z.string().toLowerCase().min(3, {
