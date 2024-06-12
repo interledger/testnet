@@ -16,6 +16,7 @@ import { Request } from '../icons/Request'
 import { MoneyHand } from '../icons/MoneyHand'
 import { Send } from '../icons/Send'
 import { Euro } from '../icons/Euro'
+import { Clipboard, ClipboardCheck } from '../icons/Clipboard'
 
 type StepWithIcon = Step & {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -150,12 +151,57 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 15
     target: '#request',
-    content: `You can also request money by creating a payment url, and share it with someone. But for now let's see your previous transaction.`,
+    content: `Let's request money by creating a payment url, and sharing it with someone.`,
     disableOverlayClose: true,
+    spotlightClicks: true,
     Icon: Request
   },
   {
     // 16
+    target: '#selectAccountRequest',
+    content:
+      'Select any of your existing accounts you want to receive money into.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 17
+    target: '#selectWalletAddressRequest',
+    content:
+      'Select a payment pointer from the above accounts list of payment pointers.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 18
+    target: '#addAmountRequest',
+    content:
+      'Set the amount you want to receive. Then, if you want, you can add a description for the request, and set the expiration time, then click on the Request button.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 19
+    target: '#copyIncomingPaymentUrl',
+    content:
+      'You can copy your incoming payment URL request, and share it with someone, who needs to send you money.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 20
+    target: '#redirectButtonSuccess',
+    content: `Congratulations, the URL is copied to the clipboard. Save it, and let's explore your account some more.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 21
     target: '#eurAccount',
     content: 'Go inside your EUR account.',
     disableOverlayClose: true,
@@ -163,7 +209,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Euro
   },
   {
-    // 17
+    // 22
     target: '#viewTransactions',
     content: 'You can view all your incoming and outgoing transactions.',
     disableOverlayClose: true,
@@ -171,7 +217,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: TransactionCircle
   },
   {
-    // 18
+    // 23
     target: '#transactionsList',
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
@@ -199,20 +245,21 @@ const Onboarding = () => {
     if (status === STATUS.SKIPPED || status === STATUS.FINISHED) {
       handleOnboardingFinished()
     } else if (type === 'step:after' && action === 'next') {
-      if (index === 0 || index === 10 || index === 11 || index === 15) {
+      if (index === 0 || index === 10 || index === 11) {
         setStepIndex(stepIndex + 1)
-      } else {
+      } else if (index !== 19) {
+        // 19 -> request copy URL, step can continue
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }
 
       // onboarding steps leading back to Home page
-      if (index === 6 || index == 18) {
+      if (index === 6 || index == 23) {
         router.replace('/')
       }
 
       // set onboarding to never be shown again after final step
-      if (index === 18) {
+      if (index === 23) {
         handleOnboardingFinished()
       }
     }
