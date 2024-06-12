@@ -1,7 +1,7 @@
 import { NextFunction, Request } from 'express'
-import { AssetResponse } from '@wallet/shared'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { AssetResponse } from '@wallet/shared'
 
 interface IAssetController {
   list: Controller<AssetResponse[]>
