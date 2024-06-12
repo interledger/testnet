@@ -16,7 +16,6 @@ import { Request } from '../icons/Request'
 import { MoneyHand } from '../icons/MoneyHand'
 import { Send } from '../icons/Send'
 import { Euro } from '../icons/Euro'
-import { Clipboard, ClipboardCheck } from '../icons/Clipboard'
 
 type StepWithIcon = Step & {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
