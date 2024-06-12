@@ -1,12 +1,7 @@
-export interface Asset {
+export interface AssetResponse {
   id: string
   code: string
   scale: number
   withdrawalThreshold?: bigint
   createdAt: string
-}
-
-export interface Rates {
-  base: string
-  rates: Record<string, number>
 }

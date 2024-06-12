@@ -4,7 +4,7 @@ import { RatesService } from '@/rates/service'
 import { validate } from '@/shared/validate'
 import { RafikiService } from './service'
 import { ratesSchema, webhookSchema } from './validation'
-import { Rates as RatesResponse } from '@wallet/shared'
+import { RatesResponse } from '@wallet/shared'
 
 interface IRafikiController {
   getRates: (

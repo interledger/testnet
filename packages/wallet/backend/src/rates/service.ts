@@ -1,7 +1,7 @@
 import axios from 'axios'
 import NodeCache from 'node-cache'
 import { Env } from '@/config/env'
-import { Rates as RatesResponse } from '@wallet/shared'
+import { RatesResponse } from '@wallet/shared'
 
 export interface IRatesService {
   getRates: (base: string) => Promise<RatesResponse>
