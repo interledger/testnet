@@ -1,11 +1,7 @@
 import axios from 'axios'
 import NodeCache from 'node-cache'
 import { Env } from '@/config/env'
-
-export type RatesResponse = {
-  base: string
-  rates: Record<string, number>
-}
+import { RatesResponse } from '@wallet/shared'
 
 export interface IRatesService {
   getRates: (base: string) => Promise<RatesResponse>

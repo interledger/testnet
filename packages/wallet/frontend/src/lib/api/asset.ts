@@ -4,29 +4,18 @@ import {
   httpClient,
   type SuccessResponse
 } from '../httpClient'
-
-export type Asset = {
-  id: string
-  code: string
-  scale: number
-  withdrawalThreshold?: bigint
-  createdAt: string
-}
-
-export type Rates = {
-  base: string
-  rates: Record<string, number>
-}
+import { AssetResponse, RatesResponse } from '@wallet/shared'
 
 export type AssetOP = {
   assetCode: string
   assetScale: number
 }
 
-type ListAssetsResult = SuccessResponse<Asset[]>
+export type ExchangeRates = Record<string, number>
+
+type ListAssetsResult = SuccessResponse<AssetResponse[]>
 type ListAssetsResponse = ListAssetsResult | ErrorResponse
 
-export type ExchangeRates = Record<string, number>
 type GetExchangeRatesResponse = SuccessResponse<ExchangeRates> | ErrorResponse
 
 interface AssetService {
@@ -54,7 +43,7 @@ const createAssetService = (): AssetService => ({
     try {
       const response = await httpClient
         .get(`rates?base=${assetCode}`)
-        .json<Rates>()
+        .json<RatesResponse>()
 
       const rates = {
         [response.base]: 1,

@@ -1,3 +1,4 @@
+import { Info } from '@/components/icons/Info'
 import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
 import { Switch } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
@@ -72,6 +73,16 @@ export const TogglePayment = ({
         >
           {PAYMENT_RECEIVE}
         </Switch.Label>
+        <div className="has-tooltip">
+          <Info className="ml-2 h-6 w-6 cursor-pointer text-green-3" />
+          <span className="tooltip -ml-10 min-w-36 max-w-80 rounded border border-turqoise bg-white p-2 text-sm shadow-lg">
+            You have to pay some fees in order to send payments.
+            &apos;receive&apos; means that the receiver will get the exact
+            amount from the input and you will be paying a small fee in addition
+            to that. &apos;send&apos; means that the fees will be deducted from
+            the amount in the input, and receiver will get the rest.
+          </span>
+        </div>
       </div>
     </Switch.Group>
   )
