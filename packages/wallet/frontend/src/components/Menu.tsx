@@ -15,6 +15,8 @@ import { Home } from './icons/Home'
 import { Logout } from './icons/Logout'
 import { X } from './icons/X'
 import { Transactions } from './icons/Transactions'
+import { Send, SendMenu } from './icons/Send'
+import { Request, RequestMenu } from './icons/Request'
 
 type MenuItemProps = {
   name: string
@@ -28,24 +30,19 @@ type MenuItemProps = {
 
 const menuItems: MenuItemProps[] = [
   {
-    name: 'Home',
+    name: 'Accounts',
     href: '/',
     Icon: Home
   },
   {
-    name: 'Transfer',
-    href: '/transfer',
-    Icon: Banknotes,
-    childrens: [
-      {
-        name: 'Send',
-        href: '/transfer/send'
-      },
-      {
-        name: 'Request',
-        href: '/transfer/request'
-      }
-    ]
+    name: 'Send',
+    href: '/send',
+    Icon: SendMenu
+  },
+  {
+    name: 'Request',
+    href: '/request',
+    Icon: RequestMenu
   },
   {
     name: 'Transactions',

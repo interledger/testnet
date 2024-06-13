@@ -49,7 +49,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
         <div className="my-5 flex justify-between space-x-2">
           <Link
             id="send"
-            href="/transfer/send"
+            href="/send"
             onClick={() => {
               if (isUserFirstTime) {
                 setRunOnboarding(false)
@@ -64,7 +64,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
           </Link>
           <Link
             id="request"
-            href="/transfer/request"
+            href="/request"
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Request className="h-8 w-8" />
