@@ -172,7 +172,7 @@ const Onboarding = () => {
         setRunOnboarding(false)
       }
 
-      // onboarding steps leading back to Home page
+      // onboarding steps leading back to Accounts page
       if (index === 6 || index == 14) {
         router.replace('/')
       }
