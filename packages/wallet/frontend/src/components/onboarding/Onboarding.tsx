@@ -231,7 +231,9 @@ const Onboarding = () => {
     setRunOnboarding,
     stepIndex,
     setStepIndex,
-    setIsUserFirstTime
+    setIsUserFirstTime,
+    isPaymentsSkipped,
+    setIsPaymentsSkipped
   } = useOnboardingContext()
 
   const handleOnboardingFinished = () => {
@@ -246,8 +248,17 @@ const Onboarding = () => {
     } else if (type === 'step:after' && action === 'next') {
       if (index === 0 || index === 10 || index === 11) {
         setStepIndex(stepIndex + 1)
+      } else if (isPaymentsSkipped) {
+        // added Skip option for Sending or requesting payments
+        if (index === 7) {
+          setStepIndex(15)
+        }
+        if (index === 15) {
+          setStepIndex(21)
+        }
+        setIsPaymentsSkipped(false)
       } else if (index !== 19) {
-        // 19 -> request copy URL, step can continue
+        // 19 -> request copy URL, step can continue to button on the same dialog window
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }

@@ -2,6 +2,7 @@ import { Button } from '@/ui/Button'
 import { SVGProps, useMemo } from 'react'
 import { TooltipRenderProps } from 'react-joyride'
 import { ONBOARDING_STEPS } from './Onboarding'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type OnboardingTooltipProps = TooltipRenderProps
 
@@ -15,6 +16,8 @@ export const OnboardingTooltip = ({
 }: OnboardingTooltipProps) => {
   const IconStep: (props: SVGProps<SVGSVGElement>) => JSX.Element =
     ONBOARDING_STEPS[index].Icon
+
+  const { setIsPaymentsSkipped } = useOnboardingContext()
 
   const iconClassName = useMemo(() => {
     return `mr-4 ${index === 11 ? 'w-48' : 'w-20'}`
@@ -44,6 +47,19 @@ export const OnboardingTooltip = ({
           <div className="flex items-start text-center">
             <Button {...primaryProps}>
               {isLastStep ? `Let's go Home` : 'Continue'}
+            </Button>
+          </div>
+        )}
+        {(index === 7 || index === 15) && (
+          <div className="text-centers flex items-center justify-between text-[11px] sm:text-base">
+            <Button
+              {...primaryProps}
+              intent="outline"
+              onFocus={() => {
+                setIsPaymentsSkipped(true)
+              }}
+            >
+              Skip Onboarding for {index === 7 ? 'Send' : 'Request'} Money
             </Button>
           </div>
         )}
