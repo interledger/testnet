@@ -6,7 +6,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { AssetOP } from '@/lib/api/asset'
+import { PaymentDetailsResponse, QuoteResponse } from '@wallet/shared'
 
 export const sendSchema = z.object({
   walletAddressId: z
@@ -80,30 +80,13 @@ export const requestSchema = z
     }
   })
 
-type PaymentDetails = {
-  assetCode: string
-  description?: string
-  value: number
-}
-
-type AmountProps = AssetOP & {
-  value: string
-}
-
 interface Expiration {
   value: number
   unit: string
 }
 
-export interface Quote {
-  id: string
-  receiveAmount: AmountProps
-  debitAmount: AmountProps
-  fee?: AmountProps
-}
-
 type SendArgs = z.infer<typeof sendSchema>
-type QuoteResult = SuccessResponse<Quote>
+type QuoteResult = SuccessResponse<QuoteResponse>
 type SendError = ErrorResponse<SendArgs | undefined>
 type SendResponse = QuoteResult | SendError
 
@@ -116,7 +99,7 @@ type RequestResult = SuccessResponse<{ url: string }>
 type RequestError = ErrorResponse<RequestArgs | undefined>
 type RequestResponse = RequestResult | RequestError
 
-type IncomingPaymentDetailsResult = SuccessResponse<PaymentDetails>
+type IncomingPaymentDetailsResult = SuccessResponse<PaymentDetailsResponse>
 type IncomingPaymentDetailsResponse =
   | IncomingPaymentDetailsResult
   | ErrorResponse
