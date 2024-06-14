@@ -5,54 +5,11 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-
-const GRANT_STATE = {
-  APPROVED: 'APPROVED',
-  FINALIZED: 'FINALIZED',
-  PENDING: 'PENDING',
-  PROCESSING: 'PROCESSING'
-} as const
-type GrantState = keyof typeof GRANT_STATE
-
-const GRANT_FINALIZATION = {
-  ISSUED: 'ISSUED',
-  REJECTED: 'REJECTED',
-  REVOKED: 'REVOKED'
-}
-type GrantFinalization = keyof typeof GRANT_FINALIZATION
-
-type PaymentAmount = {
-  value: string
-  assetCode: string
-  assetScale: number
-  formattedAmount?: string
-}
-
-type Access = {
-  id: string
-  identifier: string | null
-  actions: string[]
-  type: string
-  limits: {
-    receiver: string | null
-    debitAmount: PaymentAmount | null
-    receiveAmount: PaymentAmount | null
-    interval: string | null
-  } | null
-}
-
-export type Grant = {
-  id: string
-  client: string
-  state: GrantState
-  createdAt: string
-  access: Access[]
-  finalizationReason?: GrantFinalization
-}
+import { GrantResponse } from '@wallet/shared'
 
 type GrantNode = {
   cursor: string
-  node: Grant
+  node: GrantResponse
 }
 
 export type GrantsPageInfo = {
@@ -80,10 +37,10 @@ export type GrantListArgs = z.infer<typeof grantsListSchema>
 type GrantsListResult = SuccessResponse<GrantsList>
 type GrantsListResponse = GrantsListResult | ErrorResponse
 
-type ListGrantsResult = SuccessResponse<Grant[]>
+type ListGrantsResult = SuccessResponse<GrantResponse[]>
 type ListGrantsResponse = ListGrantsResult | ErrorResponse
 
-type GetGrantResult = SuccessResponse<Grant>
+type GetGrantResult = SuccessResponse<GrantResponse>
 type GetGrantResponse = GetGrantResult | ErrorResponse
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
 
