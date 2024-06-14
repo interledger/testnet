@@ -11,7 +11,7 @@ import {
   formatDate,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
-import { Grant, grantsService } from '@/lib/api/grants'
+import { grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ConfirmationDialog } from '@/components/dialogs/ConfirmationDialog'
@@ -20,6 +20,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
+import { GrantResponse } from '@wallet/shared'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -86,7 +87,7 @@ const querySchema = z.object({
 })
 
 export const getServerSideProps: GetServerSideProps<{
-  grant: Grant
+  grant: GrantResponse
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 

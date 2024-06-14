@@ -1,8 +1,8 @@
-import { Grant } from '@/lib/api/grants'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { SimpleArrow } from './icons/Arrow'
+import { GrantResponse } from '@wallet/shared'
 
-type GrantDetailsProps = { grant: Grant }
+type GrantDetailsProps = { grant: GrantResponse }
 
 export const GrantDetails = ({ grant }: GrantDetailsProps) => {
   return (
