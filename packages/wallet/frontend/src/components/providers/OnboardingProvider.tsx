@@ -9,6 +9,7 @@ export const OnboardingProvider = ({ children }: OnboardingProviderProps) => {
   const [runOnboarding, setRunOnboarding] = useState(true)
   const [stepIndex, setStepIndex] = useState(0)
   const [isUserFirstTime, setIsUserFirstTime] = useState(false)
+  const [isDevKeysOnboarding, setIsDevKeysOnboarding] = useState(false)
 
   return (
     <OnboardingContext.Provider
@@ -18,7 +19,9 @@ export const OnboardingProvider = ({ children }: OnboardingProviderProps) => {
         stepIndex,
         setStepIndex,
         isUserFirstTime,
-        setIsUserFirstTime
+        setIsUserFirstTime,
+        isDevKeysOnboarding,
+        setIsDevKeysOnboarding
       }}
     >
       {children}

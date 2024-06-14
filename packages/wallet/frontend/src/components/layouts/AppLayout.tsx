@@ -12,7 +12,8 @@ type AppLayoutProps = {
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { isUserFirstTime, setIsUserFirstTime } = useOnboardingContext()
+  const { isUserFirstTime, setIsUserFirstTime, isDevKeysOnboarding } =
+    useOnboardingContext()
 
   useEffect(() => {
     setIsUserFirstTime(
@@ -24,7 +25,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
       <Menu />
-      {isUserFirstTime && <Onboarding />}
+      {(isUserFirstTime || isDevKeysOnboarding) && <Onboarding />}
       <div className="flex flex-1 flex-col pt-20 md:pl-60 md:pt-0">
         <main className="flex-1">
           <div className="py-7 md:py-10">
