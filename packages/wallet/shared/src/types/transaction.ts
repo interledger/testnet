@@ -7,28 +7,31 @@ export type TransactionType = keyof typeof TRANSACTION_TYPE
 const TRANSACTION_STATUS = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
-  REJECTED: 'REJECTED'
+  EXPIRED: 'EXPIRED',
+  FAILED: 'FAILED'
 } as const
 type TransactionStatus = keyof typeof TRANSACTION_STATUS
 
 export interface TransactionResponse {
   id: string
   paymentId: string
-  accountName: string
   walletAddressPublicName?: string
   walletAddressUrl?: string
-  description: string
-  walletAddressId: string
+  description?: string
+  walletAddressId?: string
   assetCode: string
-  assetScale: number
-  value: string
+  value: string | null | bigint
   type: TransactionType
   status: TransactionStatus
+}
+interface TransactionListResponse extends TransactionResponse {
+  assetScale: number
+  accountName: string
   createdAt: string
   updatedAt: string
 }
 
 export interface TransactionsPageResponse {
-  results: TransactionResponse[]
+  results: TransactionListResponse[]
   total: number
 }
