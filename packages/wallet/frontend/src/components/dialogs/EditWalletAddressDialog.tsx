@@ -6,7 +6,6 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import {
-  WalletAddress,
   walletAddressService,
   updateWalletAddressSchema
 } from '@/lib/api/walletAddress'
@@ -15,9 +14,10 @@ import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from './SuccessDialog'
+import { WalletAddressResponse } from '@wallet/shared/src'
 
 type EditWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
-  walletAddress: WalletAddress
+  walletAddress: WalletAddressResponse
 }
 
 export const EditWalletAddressDialog = ({

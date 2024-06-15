@@ -1,11 +1,7 @@
 import { Account } from '@/lib/api/account'
 import { Disclosure, Transition } from '@headlessui/react'
 import { Chevron } from '../icons/Chevron'
-import {
-  WalletAddress,
-  WalletAddressKey,
-  walletAddressService
-} from '@/lib/api/walletAddress'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { cx } from 'class-variance-authority'
 import { CopyButton } from '@/ui/CopyButton'
 import { Button } from '@/ui/Button'
@@ -17,9 +13,11 @@ import { useRouter } from 'next/router'
 import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
 import { GenerateKeysDialog } from '../dialogs/GenerateKeysDialog'
 import { UploadPublicKeyDialog } from '../dialogs/UploadPublicKeyDialog'
+import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
 
 type WalletAddressContextType = {
-  walletAddress: WalletAddress
+  walletAddress: WalletAddressResponse
   walletAddressesCount: number
   walletAddressIdx: number
 }
@@ -102,7 +100,7 @@ const AccountHeader = ({ name, isOpen }: DisclosureGroupHeaderProps) => {
 }
 
 type AccountPanelProps = {
-  walletAddresses: WalletAddress[]
+  walletAddresses: WalletAddressResponse[]
 }
 
 const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
@@ -173,7 +171,7 @@ const KeysGroupHeader = ({
 }
 
 type KeysGroupPanelProps = {
-  keys: WalletAddressKey
+  keys: WalletAddressKeyResponse
   accountId: string
   walletAddressId: string
 }
@@ -303,7 +301,7 @@ const WalletAddressKeyInfo = () => {
             <>
               <KeysGroupHeader
                 name={keyInfo.nickname}
-                createdAt={keyInfo.createdAt}
+                createdAt={keyInfo.createdAt.toString()}
                 isOpen={open}
               />
               <KeysGroupPanel

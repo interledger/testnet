@@ -8,10 +8,7 @@ import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { WalletAddressCard } from '@/components/cards/WalletAddressCard'
 import { Account, accountService } from '@/lib/api/account'
-import {
-  ListWalletAddresses,
-  walletAddressService
-} from '@/lib/api/walletAddress'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -34,6 +31,7 @@ import { BackButton } from '@/components/BackButton'
 import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { TemporaryWMNotice } from '@/components/TemporaryWMNotice'
+import { ListWalletAddressesResponse } from '@wallet/shared/src'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -332,7 +330,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
-  allWalletAddresses: ListWalletAddresses
+  allWalletAddresses: ListWalletAddressesResponse
   balance: FormattedAmount
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
