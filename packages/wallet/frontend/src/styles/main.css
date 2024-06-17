@@ -2,34 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
-/** 
- * The content will render inside the `__next` div (not directly in `body`).
- *
- * Example:
- *  <body>
- *    <div id="__next">
- *      <!-- CONTENT -->
- *    </div>
- *  </body>
- *
- * Applying basic styles, since it's blocking some of the `body` classes.
- */
+@layer base {
+    :root {
+        --white: 255 255 255;
+        --black: 34 34 34;
+
+        --purple: 71 12 99;
+        --purple-dark: 42 15 73;
+        --purple-bright: 126 26 192;
+
+        --pink-neon: 218 53 186;
+        --pink-light: 255 194 243;
+        --pink-dark: 192 17 160;
+
+        --teal-neon: 8 255 255;
+        --teal-light: 146 255 255;
+
+        --green: 2 187 62;
+        --green-dark: 14 123 49;
+        --green-neon: 0 255 157;
+        --green-bright: 148 255 214;
+        --green-light: 238 254 229;
+        --green-modal: 19 135 55;
+
+        --yellow-neon: 255 234 0;
+        --yellow-light: 255 248 172;
+
+        --orange-dark: 193 57 0;
+
+    }
+}
+
+:focus-visible {
+    outline: none;
+}
+
 #__next {
-  @apply h-full;
+    @apply h-full;
 }
 
 #nprogress {
-  @apply pointer-events-none;
+    @apply pointer-events-none;
 }
 
 #nprogress .bar {
-  @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink;
+    @apply bg-pink-light fixed right-0 top-0 z-[1000] h-1.5 w-full;
 }
 
 .tooltip {
-  @apply invisible absolute;
+    @apply invisible absolute;
 }
 
 .has-tooltip:hover .tooltip {
-  @apply visible z-50;
+    @apply visible z-50;
 }
