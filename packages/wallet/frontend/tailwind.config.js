@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     colors: {
       transparent: twColors.transparent,
-      white: twColors.white,
+      white: 'rgb(var(--white) / <alpha-value>)',
       black: 'rgb(var(--black) / <alpha-value>)',
       purple: {
         DEFAULT: 'rgb(var(--purple) / <alpha-value>)',
@@ -43,7 +43,7 @@ module.exports = {
     extend: {
       boxShadow: {
         'glow-button': ['0 0 0.2rem #ffffff', '0 0 0.4rem #ffffff', '0 0 1rem #da35ba', '0 0 0.4rem #da35ba', '0 0 1.4rem #da35ba', 'inset 0 0 0.6rem #da35ba'],
-        'glow-link': '[0 0 0.2rem #ffffff, 0 0 0.2rem #ffffff, 0 0 1rem #da35ba, 0 0 0.4rem #da35ba, inset 0 0 0.6rem #da35ba]',
+        'glow-link': ['0 0 0.2rem #ffffff', '0 0 0.2rem #ffffff', '0 0 1rem #da35ba', '0 0 0.4rem #da35ba', 'inset 0 0 0.6rem #da35ba'],
       },
       dropShadow: {
         'glow-svg': ['0 0 0.2rem #fff', '0 0 1rem rgb(var(--pink-neon))', '0 0 0.4rem rgb(var(--pink-neon))'],

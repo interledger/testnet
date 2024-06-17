@@ -4,6 +4,7 @@
 
 @layer base {
     :root {
+        --white: 255 255 255;
         --black: 34 34 34;
 
         --purple: 71 12 99;
