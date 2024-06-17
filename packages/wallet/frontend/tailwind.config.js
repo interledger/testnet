@@ -7,44 +7,36 @@ module.exports = {
   theme: {
     colors: {
       transparent: twColors.transparent,
-      white: {
-        DEFAULT: twColors.white,
-        1: '#FAF9F6'
-      },
-      gray: twColors.gray,
-      black: twColors.black,
-      red: twColors.red,
-      blue: {
-        1: '#b9f2ff',
-        2: '#55b2b0'
-      },
-      green: {
-        DEFAULT: '#003a2f',
-        1: '#d1f8ee',
-        2: '#80c68c',
-        3: '#2ea38d',
-        4: '#caf1e7',
-        5: '#92dbca',
-        6: '#56b1af',
-        7: '#56bab8'
-      },
-      orange: {
-        DEFAULT: '#fab882',
-        1: '#fde3cd',
-        2: '#e1a675'
-      },
-      turqoise: {
-        DEFAULT: '#56c1bf'
+      white: twColors.white,
+      black: 'rgb(var(--black) / <alpha-value>)',
+      purple: {
+        DEFAULT: 'rgb(var(--purple) / <alpha-value>)',
+        bright: 'rgb(var(--purple-bright) / <alpha-value>)',
+        dark: 'rgb(var(--purple-dark) / <alpha-value>)'
       },
       pink: {
-        DEFAULT: '#f38d94',
-        1: '#fad1d4',
-        2: '#db7f85'
+        light: 'rgb(var(--pink-light) / <alpha-value>)',
+        dark: 'rgb(var(--pink-dark) / <alpha-value>)',
+        neon: 'rgb(var(--pink-neon) / <alpha-value>)'
       },
-      violet: {
-        DEFAULT: '#8075ad',
-        1: '#ccc8de',
-        2: '#73699c'
+      teal: {
+        light: 'rgb(var(--teal-light) / <alpha-value>)',
+        neon: 'rgb(var(--teal-neon) / <alpha-value>)'
+      },
+      green: {
+        DEFAULT: 'rgb(var(--green) / <alpha-value>)',
+        light: 'rgb(var(--green-light) / <alpha-value>)',
+        bright: 'rgb(var(--green-bright) / <alpha-value>)',
+        dark: 'rgb(var(--green-dark) / <alpha-value>)',
+        neon: 'rgb(var(--green-neon) / <alpha-value>)',
+        modal: 'rgb(var(--green-modal) / <alpha-value>)'
+      },
+      yellow: {
+        light: 'rgb(var(--yellow-light) / <alpha-value>)',
+        neon: 'rgb(var(--yellow-neon) / <alpha-value>)'
+      },
+      orange: {
+        dark: 'rgb(var(--orange-dark) / <alpha-value>)'
       }
     },
     extend: {
