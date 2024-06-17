@@ -11,6 +11,7 @@ import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -134,6 +135,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <AppProvider>
         <Progress />
         <Toaster />
+        <ThemeToggle />
         {getLayout(<Component {...pageProps} />)}
       </AppProvider>
     </>
