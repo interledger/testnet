@@ -26,7 +26,7 @@ const ThemeToggle = () => {
       type="button"
       aria-pressed={isPressed}
       aria-label={isPressed ? 'Activate light mode' : 'Activate dark mode'}
-      className="border-none shadow-[0px_0px_0px_2px_rgb(var(--black))] dark:shadow-[0px_0px_0px_2px_rgb(var(--white))] fixed right-[1rem] top-[1rem] z-10 flex h-[calc(var(--diameter)_+_var(--spacing)_*_2)] w-[calc(var(--diameter)_*_2_+_var(--spacing)_*_3)] cursor-pointer items-center justify-around rounded-[2rem] bg-green-light transition-all before:absolute before:h-[var(--diameter)] before:w-[var(--diameter)] before:rounded-full before:bg-green before:transition-all dark:bg-purple-dark before:dark:bg-pink-neon dark:focus:shadow-glow-button before:start-[calc(var(--spacing)_+_var(--offset)_*_var(--is-active))] before:duration-300"
+      className="border-none shadow-[0px_0px_0px_2px_rgb(var(--black))] dark:shadow-[0px_0px_0px_2px_rgb(var(--white))] top-[1.3rem] right-20 fixed md:right-[1rem] md:top-[1rem] z-20 flex h-[calc(var(--diameter)_+_var(--spacing)_*_2)] w-[calc(var(--diameter)_*_2_+_var(--spacing)_*_3)] cursor-pointer items-center justify-around rounded-[2rem] bg-green-light transition-all before:absolute before:h-[var(--diameter)] before:w-[var(--diameter)] before:rounded-full before:bg-green before:transition-all dark:bg-purple-dark before:dark:bg-pink-neon dark:focus:shadow-glow-button before:start-[calc(var(--spacing)_+_var(--offset)_*_var(--is-active))] before:duration-300"
       onClick={() => handleThemeSwitch()}
     >
       <svg
