@@ -3,7 +3,13 @@ import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
 import { Dialog, Transition } from '@headlessui/react'
 import { useRouter } from 'next/router'
-import { Fragment, type SVGProps, useState } from 'react'
+import {
+  Fragment,
+  type SVGProps,
+  useState,
+  ComponentPropsWithRef,
+  ReactNode
+} from 'react'
 import { Bars } from './icons/Bars'
 import { Cog } from './icons/Cog'
 import { Grant } from './icons/Grant'
@@ -53,6 +59,43 @@ const menuItems: MenuItemProps[] = [
     Icon: Cog
   }
 ]
+
+interface NavLinkProps extends ComponentPropsWithRef<'a'> {
+  currentPath: string
+  children: ReactNode
+  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
+}
+
+const NavLink = ({
+  href,
+  currentPath,
+  className,
+  children,
+  Icon
+}: NavLinkProps) => {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white',
+        currentPath === href ? 'bg-green-light dark:bg-purple-dark' : null,
+        className
+      )}
+    >
+      <Icon
+        className={cn(
+          'h-6 w-6',
+          currentPath === href
+            ? 'dark:drop-shadow-glow-svg'
+            : 'dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg'
+        )}
+      />
+      <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
+        {children}
+      </span>
+    </Link>
+  )
+}
 
 export const Menu = () => {
   const router = useRouter()
@@ -105,41 +148,26 @@ export const Menu = () => {
                 </button>
                 <nav className="space-y-4">
                   {menuItems.map(({ name, href, Icon }) => (
-                    <Link
+                    <NavLink
+                      currentPath={pathname}
                       key={name}
                       href={href}
-                      onClick={() => setSidebarIsOpen(false)}
-                      className={cn(
-                        'group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white',
-                        pathname === href
-                          ? 'bg-green-light dark:bg-purple-dark'
-                          : null
-                      )}
+                      Icon={Icon}
                     >
-                      <Icon
-                        className={cn(
-                          'h-6 w-6',
-                          pathname === href
-                            ? 'dark:drop-shadow-glow-svg'
-                            : 'dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg'
-                        )}
-                      />
-                      <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
-                        {name}
-                      </span>
-                    </Link>
+                      {name}
+                    </NavLink>
                   ))}
                 </nav>
-                <div className="mt-auto space-y-5 pl-8 pr-5">
-                  <button
-                    onClick={handleLogout}
-                    aria-label="logout"
-                    className="flex items-center space-x-4 text-lg text-green"
-                  >
-                    <Logout className="text-green-3 h-8 w-8" />
-                    <span>Logout</span>
-                  </button>
-                </div>
+                <button
+                  aria-label="logout"
+                  onClick={handleLogout}
+                  className="mt-auto group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
+                >
+                  <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
+                  <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
+                    Logout
+                  </span>
+                </button>
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -169,37 +197,22 @@ export const Menu = () => {
           >
             <Logo className="text-black dark:text-white w-48 py-4 dark:group-hover:scale-100 group-hover:scale-105 transition-transform dark:group-focus:scale-100 group-focus:scale-105 duration-200 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
           </Link>
-          <div className="w-full flex-1 space-y-4">
+          <div className="w-full space-y-4">
             {menuItems.map(({ name, href, Icon }) => (
-              <Link
+              <NavLink
+                currentPath={pathname}
                 key={name}
                 href={href}
-                onClick={() => setSidebarIsOpen(false)}
-                className={cn(
-                  'group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white',
-                  pathname === href
-                    ? 'bg-green-light dark:bg-purple-dark'
-                    : null
-                )}
+                Icon={Icon}
               >
-                <Icon
-                  className={cn(
-                    'h-6 w-6',
-                    pathname === href
-                      ? 'dark:drop-shadow-glow-svg'
-                      : 'dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg'
-                  )}
-                />
-                <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
-                  {name}
-                </span>
-              </Link>
+                {name}
+              </NavLink>
             ))}
           </div>
           <button
             aria-label="logout"
             onClick={handleLogout}
-            className="group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
+            className="group mt-auto flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
           >
             <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
             <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
@@ -208,7 +221,6 @@ export const Menu = () => {
           </button>
         </nav>
       </aside>
-      {/* Desktop Menu - END*/}
     </>
   )
 }
