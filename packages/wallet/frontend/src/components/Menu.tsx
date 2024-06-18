@@ -195,8 +195,8 @@ export const Menu = () => {
       {/* Desktop Menu */}
       <aside className="relative w-max">
         <nav className="sticky top-0 flex h-screen flex-col p-6">
-          <Link href="/">
-            <Logo className="w-48 py-4" />
+          <Link className='p-2 rounded-md border border-transparent group focus:border-black dark:focus:border-white dark:focus:shadow-glow-link' href="/">
+            <Logo className="text-black dark:text-white w-48 py-4 dark:group-hover:scale-100 group-hover:scale-105 transition-transform dark:group-focus:scale-100 group-focus:scale-105 duration-200 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
           </Link>
           <div className="mt-14 hidden w-full flex-1 space-y-8 md:block">
             {menuItems.map(({ name, href, Icon, childrens }) =>
