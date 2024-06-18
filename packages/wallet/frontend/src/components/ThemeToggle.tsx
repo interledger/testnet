@@ -1,16 +1,11 @@
-import { useIsMounted } from '@/lib/hooks/useIsMounted'
 import { useTheme } from 'next-themes'
 import { CSSProperties, useState } from 'react'
 
-export const ThemeToggle = () => {
-  // Prevent hydration missmatch since we SSR.
-  const isMounted = useIsMounted()
+const ThemeToggle = () => {
   const theme = useTheme()
   const [isPressed, setIsPressed] = useState(
     theme.theme === 'dark' ? true : false
   )
-
-  if (!isMounted) return null
 
   const handleThemeSwitch = () => {
     const pressed = !isPressed
@@ -55,3 +50,7 @@ export const ThemeToggle = () => {
     </button>
   )
 }
+
+// Exporting as default. We dynamically import this component to prevent
+// hydration mismatch, since we SRR.
+export default ThemeToggle

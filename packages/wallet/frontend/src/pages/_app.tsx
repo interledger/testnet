@@ -11,7 +11,9 @@ import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import dynamic from 'next/dynamic'
+
+const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), { ssr: false })
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
