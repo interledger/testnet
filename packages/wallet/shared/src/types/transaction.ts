@@ -15,8 +15,6 @@ type TransactionStatus = keyof typeof TRANSACTION_STATUS
 export interface TransactionResponse {
   id: string
   paymentId: string
-  walletAddressPublicName?: string
-  walletAddressUrl?: string
   description?: string
   walletAddressId?: string
   assetCode: string
@@ -29,8 +27,8 @@ export interface TransactionResponse {
 interface TransactionListResponse extends TransactionResponse {
   assetScale: number
   accountName: string
-  createdAt: Date
-  updatedAt: Date
+  walletAddressPublicName?: string
+  walletAddressUrl?: string
 }
 
 export interface TransactionsPageResponse {
