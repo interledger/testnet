@@ -7,7 +7,7 @@
     --white: 255 255 255;
     --black: 34 34 34;
 
-    --purple: 71 12 99;
+    --purple: 71 12 110;
     --purple-dark: 42 15 73;
     --purple-bright: 126 26 192;
 
@@ -37,7 +37,7 @@
 }
 
 #__next {
-  @apply h-full;
+  @apply md:grid md:grid-cols-[max-content_1fr] relative;
 }
 
 #nprogress {
