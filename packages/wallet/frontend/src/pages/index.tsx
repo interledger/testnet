@@ -46,48 +46,6 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
         />
       </div>
       <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        <div className="my-5 flex justify-between space-x-2">
-          <Link
-            id="send"
-            href="/send"
-            onClick={() => {
-              if (isUserFirstTime) {
-                setRunOnboarding(false)
-              }
-            }}
-            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Send className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Send
-            </span>
-          </Link>
-          <Link
-            id="request"
-            href="/request"
-            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Request className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Request
-            </span>
-          </Link>
-          <Link
-            id="newAccount"
-            href="/account/create"
-            onClick={() => {
-              if (isUserFirstTime) {
-                setRunOnboarding(false)
-              }
-            }}
-            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white text-center shadow-md hover:border-green-6"
-          >
-            <New className="h-8 w-8" />
-            <span className="font-medium leading-5 text-green-5 group-hover:text-green-6">
-              New account
-            </span>
-          </Link>
-        </div>
         <div className="flex items-center justify-between">
           <h3
             className="text-lg font-semibold leading-none text-green"
@@ -112,7 +70,6 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
           </div>
         )}
       </div>
-      <SmallBubbles className="mt-10 block w-full md:hidden" />
     </>
   )
 }
