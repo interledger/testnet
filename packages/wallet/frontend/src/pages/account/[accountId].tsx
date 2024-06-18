@@ -34,6 +34,7 @@ import { BackButton } from '@/components/BackButton'
 import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { TemporaryWMNotice } from '@/components/TemporaryWMNotice'
+import { PageHeader } from '@/components/PageHeader'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -70,6 +71,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   return (
     <>
+      <PageHeader title={account.name} />
       <Tab.Group>
         <Tab.List>
           <div className="my-5 flex flex-row items-center justify-between p-1 md:max-w-lg">
@@ -202,14 +204,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
               </div>
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold leading-none text-green">
-                  Account
+                  Payment Pointers
                 </h3>
-              </div>
-              <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
-                <span className="font-semibold text-green">{account.name}</span>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
-                  {formattedAmount.symbol}
-                </span>
               </div>
               <div className="flex flex-col">
                 {allWalletAddresses.walletAddresses.length > 0 ? (
