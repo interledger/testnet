@@ -4,12 +4,12 @@ const TRANSACTION_TYPE = {
 } as const
 export type TransactionType = keyof typeof TRANSACTION_TYPE
 
-const TRANSACTION_STATUS = {
-  PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED',
-  EXPIRED: 'EXPIRED',
-  FAILED: 'FAILED'
-} as const
+enum TRANSACTION_STATUS {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  EXPIRED = 'EXPIRED',
+  FAILED = 'FAILED'
+}
 type TransactionStatus = keyof typeof TRANSACTION_STATUS
 
 export interface TransactionResponse {
@@ -23,12 +23,14 @@ export interface TransactionResponse {
   value: string | null | bigint
   type: TransactionType
   status: TransactionStatus
+  createdAt: Date
+  updatedAt: Date
 }
 interface TransactionListResponse extends TransactionResponse {
   assetScale: number
   accountName: string
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface TransactionsPageResponse {
