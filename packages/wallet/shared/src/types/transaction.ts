@@ -1,7 +1,7 @@
-const TRANSACTION_TYPE = {
-  INCOMING: 'INCOMING',
-  OUTGOING: 'OUTGOING'
-} as const
+enum TRANSACTION_TYPE {
+  INCOMING = 'INCOMING',
+  OUTGOING = 'OUTGOING'
+}
 export type TransactionType = keyof typeof TRANSACTION_TYPE
 
 enum TRANSACTION_STATUS {
