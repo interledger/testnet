@@ -37,11 +37,11 @@
 }
 
 #__next {
-    @apply h-full;
+  @apply h-full;
 }
 
 #nprogress {
-    @apply pointer-events-none;
+  @apply pointer-events-none;
 }
 
 #nprogress .bar {
@@ -49,9 +49,9 @@
 }
 
 .tooltip {
-    @apply invisible absolute;
+  @apply invisible absolute;
 }
 
 .has-tooltip:hover .tooltip {
-    @apply visible z-50;
+  @apply visible z-50;
 }
