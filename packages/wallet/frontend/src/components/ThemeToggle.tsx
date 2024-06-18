@@ -1,18 +1,14 @@
-import { cn } from '@/utils/helpers'
+import { useIsMounted } from '@/lib/hooks/useIsMounted'
 import { useTheme } from 'next-themes'
-import { CSSProperties, useEffect, useState } from 'react'
+import { CSSProperties, useState } from 'react'
 
 export const ThemeToggle = () => {
+  // Prevent hydration missmatch since we SSR.
+  const isMounted = useIsMounted()
   const theme = useTheme()
-  const [isMounted, setIsMounted] = useState(false)
   const [isPressed, setIsPressed] = useState(
     theme.theme === 'dark' ? true : false
   )
-
-  // Prevent hydration missmatch since we SSR.
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   if (!isMounted) return null
 
@@ -24,7 +20,6 @@ export const ThemeToggle = () => {
 
   return (
     <button
-      id="mode"
       style={
         {
           '--diameter': '2rem',
@@ -36,11 +31,7 @@ export const ThemeToggle = () => {
       type="button"
       aria-pressed={isPressed}
       aria-label={isPressed ? 'Activate light mode' : 'Activate dark mode'}
-      className={cn(
-        'border-none shadow-[0px_0px_0px_2px_rgb(var(--black))] dark:shadow-[0px_0px_0px_2px_rgb(var(--white))] fixed right-[1rem] top-[1rem] z-10 flex h-[calc(var(--diameter)_+_var(--spacing)_*_2)] w-[calc(var(--diameter)_*_2_+_var(--spacing)_*_3)] cursor-pointer items-center justify-around rounded-[2rem] bg-green-light transition-all before:absolute before:h-[var(--diameter)] before:w-[var(--diameter)] before:rounded-full before:bg-green before:transition-all dark:bg-purple-dark before:dark:bg-pink-neon dark:focus:shadow-glow-button',
-        'before:start-[calc(var(--spacing)_+_var(--offset)_*_var(--is-active))]'
-        // isPressed ? 'before:ml-['']' : 'before:left-1/4'
-      )}
+      className="border-none shadow-[0px_0px_0px_2px_rgb(var(--black))] dark:shadow-[0px_0px_0px_2px_rgb(var(--white))] fixed right-[1rem] top-[1rem] z-10 flex h-[calc(var(--diameter)_+_var(--spacing)_*_2)] w-[calc(var(--diameter)_*_2_+_var(--spacing)_*_3)] cursor-pointer items-center justify-around rounded-[2rem] bg-green-light transition-all before:absolute before:h-[var(--diameter)] before:w-[var(--diameter)] before:rounded-full before:bg-green before:transition-all dark:bg-purple-dark before:dark:bg-pink-neon dark:focus:shadow-glow-button before:start-[calc(var(--spacing)_+_var(--offset)_*_var(--is-active))] before:duration-300"
       onClick={() => handleThemeSwitch()}
     >
       <svg
