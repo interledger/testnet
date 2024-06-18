@@ -1,13 +1,9 @@
 import { useHttpRequest } from './useHttp'
 import { useCallback, useEffect, useState } from 'react'
-import {
-  GrantListArgs,
-  GrantsList,
-  grantsListSchema,
-  grantsService
-} from '../api/grants'
+import { GrantListArgs, grantsListSchema, grantsService } from '../api/grants'
 import { GRANTS_DISPLAY_NR } from '@/utils/constants'
 import { useTypedRouter } from './useTypedRouter'
+import { GrantsListResponse } from '@wallet/shared'
 
 type GrantQueryParams = Record<keyof GrantListArgs, string | number>
 
@@ -27,7 +23,7 @@ export const useGrants = () => {
   const router = useTypedRouter(grantsListSchema)
   const { after, before, first, last } = router.query as GrantQueryParams
   const [request, loading, error] = useHttpRequest()
-  const [grantsList, setGrantsList] = useState<GrantsList>(defaultState)
+  const [grantsList, setGrantsList] = useState<GrantsListResponse>(defaultState)
 
   const fetch = useCallback(
     async (pagination: Record<string, string | number>) => {
