@@ -4,7 +4,6 @@ import { Titillium_Web } from 'next/font/google'
 import { AppProvider } from '@/components/providers'
 import { Progress } from '@/ui/Progress'
 import type { AppPropsWithLayout } from '@/lib/types/app'
-import { Toaster } from '@/components/toast/Toaster'
 import { MoneyBird } from '@/components/icons/MoneyBird'
 import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
@@ -133,7 +132,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
       <AppProvider>
         <Progress />
-        <Toaster />
         {getLayout(<Component {...pageProps} />)}
       </AppProvider>
     </>

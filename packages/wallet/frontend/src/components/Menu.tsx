@@ -105,7 +105,7 @@ export const Menu = () => {
             leaveFrom="opacity-90"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gradient-overlay" />
+            <div className="bg-gradient-overlay fixed inset-0" />
           </Transition.Child>
           {/* Backdrop - END */}
           {/* Menu */}
@@ -136,7 +136,7 @@ export const Menu = () => {
                             <>
                               <Disclosure.Button className="flex w-full items-center justify-between text-xl text-green outline-none">
                                 <div className="flex space-x-4">
-                                  <Icon className="h-8 w-8 text-green-3" />
+                                  <Icon className="text-green-3 h-8 w-8" />
                                   <span className="flex-1">{name}</span>
                                 </div>
                                 <Chevron
@@ -167,7 +167,7 @@ export const Menu = () => {
                           onClick={() => setSidebarIsOpen(false)}
                           className="flex items-center space-x-4 text-xl text-green"
                         >
-                          <Icon className="h-8 w-8 text-green-3" />
+                          <Icon className="text-green-3 h-8 w-8" />
                           <span>{name}</span>
                         </Link>
                       )
@@ -180,7 +180,7 @@ export const Menu = () => {
                     aria-label="logout"
                     className="flex items-center space-x-4 text-lg text-green"
                   >
-                    <Logout className="h-8 w-8 text-green-3" />
+                    <Logout className="text-green-3 h-8 w-8" />
                     <span>Logout</span>
                   </button>
                   <MenuBubbles className="inset-x-0 hidden w-full h-sm:block" />
@@ -193,16 +193,10 @@ export const Menu = () => {
       </Transition.Root>
       {/* Mobile Menu - END */}
       {/* Desktop Menu */}
-      <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
-        <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
+      <aside className="relative w-max">
+        <nav className="sticky top-0 flex h-screen flex-col p-6">
           <Link href="/">
-            <div className="flex items-center font-semibold text-green">
-              <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
-              <div className="pl-2">
-                <div className="text-lg md:text-2xl">Interledger</div>
-                <div className="text-sm md:text-lg">test wallet</div>
-              </div>
-            </div>
+            <Logo className="w-48 py-4" />
           </Link>
           <div className="mt-14 hidden w-full flex-1 space-y-8 md:block">
             {menuItems.map(({ name, href, Icon, childrens }) =>
@@ -279,8 +273,8 @@ export const Menu = () => {
               <Bars strokeWidth={2.5} className="h-10 w-10" />
             </button>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </aside>
       {/* Desktop Menu - END*/}
     </>
   )
