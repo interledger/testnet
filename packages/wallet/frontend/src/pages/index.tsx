@@ -35,7 +35,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
 
   return (
     <>
-      <div className="flex items-center justify-between shadow-glow md:flex-col md:items-start md:justify-start">
+      <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader
           title={`Hello${
             user.firstName && user.lastName
@@ -55,20 +55,20 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
                 setRunOnboarding(false)
               }
             }}
-            className="border-green-5 hover:border-green-6 group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border bg-white shadow-md"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Send className="h-8 w-8" />
-            <span className="text-green-5 group-hover:text-green-6 font-medium">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Send
             </span>
           </Link>
           <Link
             id="request"
             href="/transfer/request"
-            className="border-green-5 hover:border-green-6 group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border bg-white shadow-md"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Request className="h-8 w-8" />
-            <span className="text-green-5 group-hover:text-green-6 font-medium">
+            <span className="font-medium text-green-5 group-hover:text-green-6">
               Request
             </span>
           </Link>
@@ -80,10 +80,10 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
                 setRunOnboarding(false)
               }
             }}
-            className="border-green-5 hover:border-green-6 group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border bg-white text-center shadow-md"
+            className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white text-center shadow-md hover:border-green-6"
           >
             <New className="h-8 w-8" />
-            <span className="text-green-5 group-hover:text-green-6 font-medium leading-5">
+            <span className="font-medium leading-5 text-green-5 group-hover:text-green-6">
               New account
             </span>
           </Link>
