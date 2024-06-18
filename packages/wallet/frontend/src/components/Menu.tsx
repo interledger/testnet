@@ -6,7 +6,6 @@ import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useRouter } from 'next/router'
 import { Fragment, type SVGProps, useState } from 'react'
-import { Banknotes } from './icons/Banknotes'
 import { Bars } from './icons/Bars'
 import { Chevron } from './icons/Chevron'
 import { Cog } from './icons/Cog'
@@ -15,6 +14,8 @@ import { Home } from './icons/Home'
 import { Logout } from './icons/Logout'
 import { X } from './icons/X'
 import { Transactions } from './icons/Transactions'
+import { SendMenu } from './icons/Send'
+import { RequestMenu } from './icons/Request'
 
 type MenuItemProps = {
   name: string
@@ -28,24 +29,19 @@ type MenuItemProps = {
 
 const menuItems: MenuItemProps[] = [
   {
-    name: 'Home',
+    name: 'Accounts',
     href: '/',
     Icon: Home
   },
   {
-    name: 'Transfer',
-    href: '/transfer',
-    Icon: Banknotes,
-    childrens: [
-      {
-        name: 'Send',
-        href: '/transfer/send'
-      },
-      {
-        name: 'Request',
-        href: '/transfer/request'
-      }
-    ]
+    name: 'Send',
+    href: '/send',
+    Icon: SendMenu
+  },
+  {
+    name: 'Request',
+    href: '/request',
+    Icon: RequestMenu
   },
   {
     name: 'Transactions',
