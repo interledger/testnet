@@ -97,10 +97,8 @@ const NavLink = ({
   )
 }
 
-export const Menu = () => {
+const LogoutButton = () => {
   const router = useRouter()
-  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
-  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
 
   const handleLogout = async () => {
     const res = await userService.logout()
@@ -108,6 +106,25 @@ export const Menu = () => {
       router.push('/auth')
     }
   }
+
+  return (
+    <button
+      aria-label="logout"
+      onClick={handleLogout}
+      className="mt-auto group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
+    >
+      <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
+      <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
+        Logout
+      </span>
+    </button>
+  )
+}
+
+export const Menu = () => {
+  const router = useRouter()
+  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
+  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
 
   return (
     <>
@@ -149,6 +166,7 @@ export const Menu = () => {
                 <nav className="space-y-4">
                   {menuItems.map(({ name, href, Icon }) => (
                     <NavLink
+                      onClick={() => setSidebarIsOpen(false)}
                       currentPath={pathname}
                       key={name}
                       href={href}
@@ -158,16 +176,7 @@ export const Menu = () => {
                     </NavLink>
                   ))}
                 </nav>
-                <button
-                  aria-label="logout"
-                  onClick={handleLogout}
-                  className="mt-auto group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
-                >
-                  <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
-                  <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
-                    Logout
-                  </span>
-                </button>
+                <LogoutButton />
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -200,6 +209,7 @@ export const Menu = () => {
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, Icon }) => (
               <NavLink
+                onClick={() => setSidebarIsOpen(false)}
                 currentPath={pathname}
                 key={name}
                 href={href}
@@ -209,16 +219,7 @@ export const Menu = () => {
               </NavLink>
             ))}
           </div>
-          <button
-            aria-label="logout"
-            onClick={handleLogout}
-            className="group mt-auto flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
-          >
-            <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
-            <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
-              Logout
-            </span>
-          </button>
+          <LogoutButton />
         </nav>
       </aside>
     </>
