@@ -43,7 +43,6 @@ export const OnboardingTooltip = ({
           index === 6 ||
           index === 10 ||
           index === 11 ||
-          index === 14 ||
           index === 23 ||
           index === 31 ||
           index === 34) && (
