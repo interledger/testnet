@@ -6,8 +6,8 @@ import { accountService } from '@/lib/api/account'
 import { Link } from '@/ui/Link'
 import { type Account } from '@/lib/api/account'
 import type {
-    GetServerSideProps,
-    InferGetServerSidePropsType
+  GetServerSideProps,
+  InferGetServerSidePropsType
 } from 'next/types'
 import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
@@ -17,78 +17,85 @@ import { useEffect } from 'react'
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
-    const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
-        useOnboardingContext()
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
 
-    useEffect(() => {
-        if (isUserFirstTime) {
-            setTimeout(() => {
-                setStepIndex(stepIndex + 1)
-                setRunOnboarding(true)
-            }, 500)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+  useEffect(() => {
+    if (isUserFirstTime) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    return (
-        <>
-            <PageHeader
-                title={`Hello${user.firstName && user.lastName
-                    ? ', ' + user.firstName + ' ' + user.lastName + '!'
-                    : '!'
-                    }`}
-                message="Here is your account overview!"
-            />
-            <h2 className="leading-7 mb-6 text-2xl font-bold">Accounts</h2>
-            <div className="grid gap-6 grid-cols-2 max-w-[30rem]">
-                <Link className="focus:scale-105 hover:dark:shadow-glow-link focus:dark:shadow-glow-link text-right hover:scale-105 ease-in-out transition-[box-shadow,transform,] duration-200 aspect-[5/3] rounded-lg flex flex-col p-3 border-2" href="/account/create/" id="newAccount">
-                    <New className="w-8 h-8" />
-                    <span className="leading-[1.1rem] mt-auto overflow-hidden text-ellipsis whitespace-nowrap">New account</span>
-                </Link>
-                {accounts.length > 0 ?
-                    accounts.map((account) => (
-                        <>
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        <AccountCard
-                            key={account.id}
-                            account={account}
-                            idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                        />
-                        </>
-                    )
-                    ) : null}
-            </div>
-        </>
-    )
+  return (
+    <>
+      <PageHeader
+        title={`Hello${
+          user.firstName && user.lastName
+            ? ', ' + user.firstName + ' ' + user.lastName + '!'
+            : '!'
+        }`}
+        message="Here is your account overview!"
+      />
+      <h2 className="mb-6 text-2xl font-bold leading-7">Accounts</h2>
+      <div className="grid max-w-[30rem] grid-cols-2 gap-6">
+        <Link
+          className="flex aspect-[5/3] flex-col rounded-lg border-2 p-3 text-right transition-[box-shadow,transform,] duration-200 ease-in-out hover:scale-105 focus:scale-105 hover:dark:shadow-glow-link focus:dark:shadow-glow-link"
+          href="/account/create/"
+          id="newAccount"
+        >
+          <New className="h-8 w-8" />
+          <span className="mt-auto overflow-hidden text-ellipsis whitespace-nowrap leading-[1.1rem]">
+            New account
+          </span>
+        </Link>
+        {accounts.length > 0
+          ? accounts.map((account) => (
+              <>
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                />
+              </>
+            ))
+          : null}
+      </div>
+    </>
+  )
 }
 
 // <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
@@ -118,36 +125,36 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
 // </div>
 
 export const getServerSideProps: GetServerSideProps<{
-    accounts: Account[]
-    user: {
-        firstName: string
-        lastName: string
-        email: string
-    }
+  accounts: Account[]
+  user: {
+    firstName: string
+    lastName: string
+    email: string
+  }
 }> = async (ctx) => {
-    const response = await accountService.list(ctx.req.headers.cookie)
-    const user = await userService.me(ctx.req.headers.cookie)
+  const response = await accountService.list(ctx.req.headers.cookie)
+  const user = await userService.me(ctx.req.headers.cookie)
 
-    if (!response.success || !user.success) {
-        return {
-            notFound: true
-        }
-    }
-
+  if (!response.success || !user.success) {
     return {
-        props: {
-            accounts: response.result ?? [],
-            user: {
-                firstName: user.result?.firstName ?? '',
-                lastName: user.result?.lastName ?? '',
-                email: user.result?.email ?? ''
-            }
-        }
+      notFound: true
     }
+  }
+
+  return {
+    props: {
+      accounts: response.result ?? [],
+      user: {
+        firstName: user.result?.firstName ?? '',
+        lastName: user.result?.lastName ?? '',
+        email: user.result?.email ?? ''
+      }
+    }
+  }
 }
 
-HomePage.getLayout = function(page) {
-    return <AppLayout>{page}</AppLayout>
+HomePage.getLayout = function (page) {
+  return <AppLayout>{page}</AppLayout>
 }
 
 export default HomePage
