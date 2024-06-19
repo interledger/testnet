@@ -34,16 +34,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         })
       }}
       to={`/products/${slug}`}
-      className={`
-        rounded-xl transition-transform hover:scale-105 hover:shadow-md focus:scale-105
-        focus:outline-none
-        [&:nth-child(4n+1)]:bg-gradient-orange
-        [&:nth-child(4n+2)]:bg-gradient-pink
-        [&:nth-child(4n+3)]:bg-gradient-primary 
-        [&:nth-child(4n+4)]:bg-gradient-violet
-        [&:nth-child(4n+5)]:bg-gradient-primary
-        [&:nth-child(4n+6)]:bg-gradient-pink
-        `}
+      className={`rounded-xl transition-transform hover:scale-105 hover:shadow-md focus:scale-105 focus:outline-none [&:nth-child(4n+1)]:bg-gradient-orange [&:nth-child(4n+2)]:bg-gradient-pink [&:nth-child(4n+3)]:bg-gradient-primary [&:nth-child(4n+4)]:bg-gradient-violet [&:nth-child(4n+5)]:bg-gradient-primary [&:nth-child(4n+6)]:bg-gradient-pink`}
     >
       <Card className="relative border-none text-white">
         <CardHeader>

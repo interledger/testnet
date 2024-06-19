@@ -19,7 +19,7 @@ import { Select, type SelectOption } from '@/ui/forms/Select'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { walletAddressService } from '@/lib/api/walletAddress'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -27,6 +27,7 @@ import { Label } from '@/ui/forms/Label'
 import { FieldError } from '@/ui/forms/FieldError'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 import { AssetOP } from '@/lib/api/asset'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
@@ -45,6 +46,8 @@ type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
+  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
   const [walletAddresses, setWalletAddresses] = useState<
     SelectWalletAddressOption[]
   >([])
@@ -70,6 +73,16 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       assetScale: selectedAccount.assetScale
     }).amount
   }, [accountsSnapshot, selectedAccount])
+
+  useEffect(() => {
+    if (isUserFirstTime) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const getWalletAddresses = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -115,7 +128,12 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
             if (response.success) {
               openDialog(
                 <SuccessDialog
-                  onClose={closeDialog}
+                  onClose={() => {
+                    if (isUserFirstTime) {
+                      setRunOnboarding(false)
+                    }
+                    closeDialog()
+                  }}
                   copyToClipboard={response.result?.url}
                   title="Funds requested."
                   content="Funds were successfully requested"
@@ -123,6 +141,10 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                   redirectText="Go to your accounts"
                 />
               )
+              if (isUserFirstTime) {
+                setStepIndex(stepIndex + 1)
+                setRunOnboarding(true)
+              }
             } else {
               const { errors, message } = response
               requestForm.setError('root', { message })
@@ -142,9 +164,19 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               placeholder="Select account..."
               options={accounts}
               isSearchable={false}
+              id="selectAccountRequest"
+              onMenuOpen={() => {
+                if (isUserFirstTime) {
+                  setRunOnboarding(false)
+                }
+              }}
               onChange={(option) => {
                 if (option) {
                   getWalletAddresses(option.value)
+                  if (isUserFirstTime) {
+                    setStepIndex(stepIndex + 1)
+                    setRunOnboarding(true)
+                  }
                 }
               }}
             />
@@ -164,9 +196,19 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                   error={requestForm.formState.errors.walletAddressId?.message}
                   placeholder="Select payment pointer..."
                   value={value}
+                  id="selectWalletAddressRequest"
+                  onMenuOpen={() => {
+                    if (isUserFirstTime) {
+                      setRunOnboarding(false)
+                    }
+                  }}
                   onChange={(option) => {
                     if (option) {
                       requestForm.setValue('walletAddressId', { ...option })
+                      if (isUserFirstTime) {
+                        setStepIndex(stepIndex + 1)
+                        setRunOnboarding(true)
+                      }
                     }
                   }}
                 />
@@ -179,6 +221,12 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               {...requestForm.register('amount')}
               error={requestForm.formState.errors.amount?.message}
               label="Amount"
+              id="addAmountRequest"
+              onClick={() => {
+                if (isUserFirstTime) {
+                  setRunOnboarding(false)
+                }
+              }}
             />
             <Input
               {...requestForm.register('description')}
