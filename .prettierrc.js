@@ -7,5 +7,7 @@ module.exports = {
   singleQuote: true,
   quoteProps: 'consistent',
   jsxSingleQuote: false,
-  trailingComma: 'none'
+  trailingComma: 'none',
+  plugins: ['prettier-plugin-tailwindcss'],
+  tailwindConfig: './packages/wallet/frontend/tailwind.config.js'
 }

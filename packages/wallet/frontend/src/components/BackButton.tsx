@@ -12,7 +12,7 @@ export const BackButton = () => {
         router.back()
       }}
     >
-      <Back className="mr-5 mt-1 h-5 w-5 text-turqoise" />
+      <Back className="text-green h-4 w-4" />
     </button>
   )
 }
