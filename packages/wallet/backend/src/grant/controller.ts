@@ -1,10 +1,11 @@
 import { NextFunction, Request } from 'express'
 import { RafikiAuthService } from '@/rafiki/auth/service'
-import { GetGrantsQuery, Grant } from '@/rafiki/auth/generated/graphql'
+import { Grant } from '@/rafiki/auth/generated/graphql'
 import { validate } from '@/shared/validate'
 import { grantResponseSchema } from '@/grant/validation'
 import { GrantService } from '@/grant/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { GrantResponse, GrantsListResponse } from '@wallet/shared'
 
 interface IGrantController {
   list: Controller<Grant[]>
@@ -22,7 +23,7 @@ export class GrantController implements IGrantController {
 
   list = async (
     req: Request,
-    res: CustomResponse<Grant[]>,
+    res: CustomResponse<GrantResponse[]>,
     next: NextFunction
   ) => {
     try {
@@ -35,7 +36,7 @@ export class GrantController implements IGrantController {
 
   listWithPagination = async (
     req: Request,
-    res: CustomResponse<GetGrantsQuery>,
+    res: CustomResponse<GrantsListResponse>,
     next: NextFunction
   ) => {
     try {
@@ -61,7 +62,7 @@ export class GrantController implements IGrantController {
 
   getById = async (
     req: Request,
-    res: CustomResponse<Grant>,
+    res: CustomResponse<GrantResponse>,
     next: NextFunction
   ) => {
     try {
@@ -75,7 +76,7 @@ export class GrantController implements IGrantController {
 
   getByInteraction = async (
     req: Request,
-    res: CustomResponse<Grant>,
+    res: CustomResponse<GrantResponse>,
     next: NextFunction
   ) => {
     try {
@@ -93,7 +94,7 @@ export class GrantController implements IGrantController {
 
   setInteractionResponse = async (
     req: Request,
-    res: CustomResponse<Grant>,
+    res: CustomResponse<GrantResponse>,
     next: NextFunction
   ) => {
     try {

@@ -4,12 +4,13 @@ import type {
 } from 'next/types'
 import { z } from 'zod'
 import { formatAmount, replaceWalletAddressProtocol } from '@/utils/helpers'
-import { Grant, grantsService } from '@/lib/api/grants'
+import { grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import Image from 'next/image'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
+import { GrantResponse } from '@wallet/shared'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -123,7 +124,7 @@ const querySchema = z.object({
 })
 
 export const getServerSideProps: GetServerSideProps<{
-  grant: Grant
+  grant: GrantResponse
   interactionId: string
   nonce: string
   clientName: string

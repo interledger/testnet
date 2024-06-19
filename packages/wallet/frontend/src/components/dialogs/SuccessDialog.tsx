@@ -92,6 +92,7 @@ export const SuccessDialog = ({
                       ctaText="Copy incoming payment URL"
                       value={copyToClipboard}
                       aria-label="copy api key"
+                      id="copyIncomingPaymentUrl"
                     />
                   )}
                 </div>

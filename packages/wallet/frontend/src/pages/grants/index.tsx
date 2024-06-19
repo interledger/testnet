@@ -10,7 +10,6 @@ import { Table } from '@/ui/Table'
 import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { ButtonOrLink } from '@/ui/ButtonOrLink'
-import { SimpleArrow } from '@/components/icons/Arrow'
 
 const GrantsPage: NextPageWithLayout = () => {
   const redirect = useRedirect<GrantListArgs>({
@@ -52,22 +51,27 @@ const GrantsPage: NextPageWithLayout = () => {
                       {replaceWalletAddressProtocol(grant.node.client)}
                     </Table.Cell>
                     <Table.Cell>
-                      <Badge
-                        intent={getStatusBadgeIntent(grant.node.state)}
-                        size="md"
-                        text={grant.node.state}
-                      />
+                      {!grant.node.finalizationReason ? (
+                        <Badge
+                          intent={getStatusBadgeIntent(grant.node.state)}
+                          size="md"
+                          text={grant.node.state}
+                        />
+                      ) : null}
                       {grant.node.finalizationReason ? (
-                        <>
-                          <SimpleArrow className="inline h-3 w-3"></SimpleArrow>
-                          <Badge
-                            intent={getStatusBadgeIntent(
-                              grant.node.finalizationReason
-                            )}
-                            size="md"
-                            text={grant.node.finalizationReason}
-                          />
-                        </>
+                        <Badge
+                          intent={getStatusBadgeIntent(
+                            grant.node.finalizationReason
+                          )}
+                          size="md"
+                          text={
+                            grant.node.finalizationReason === 'REVOKED'
+                              ? 'REJECTED'
+                              : grant.node.finalizationReason === 'ISSUED'
+                                ? 'APPROVED'
+                                : 'REJECTED'
+                          }
+                        />
                       ) : null}
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">

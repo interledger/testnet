@@ -22,7 +22,7 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
               <img
                 src={`${IMAGES_URL}${item.image}`}
                 alt={item.name}
-                className="h-20 w-20 flex-none rounded-md  border border-green-3 bg-green-1 object-cover object-center"
+                className="h-20 w-20 flex-none rounded-md border border-green-3 bg-green-1 object-cover object-center"
               />
               <div className="flex-auto space-y-1">
                 <h3>{item.name}</h3>
@@ -42,7 +42,7 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
             <dt>Subtotal</dt>
             <dd className="font-bold">{formatPrice(summary.totalAmount)}</dd>
           </div>
-          <div className=" flex items-center justify-between border-t border-green pt-4">
+          <div className="flex items-center justify-between border-t border-green pt-4">
             <dt>Fees</dt>
             <dd className="text-sm">
               Fees will be calculated at the next step

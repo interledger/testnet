@@ -1,8 +1,6 @@
-import { Grant } from '@/lib/api/grants'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
-import { SimpleArrow } from './icons/Arrow'
-
-type GrantDetailsProps = { grant: Grant }
+import { GrantResponse } from '@wallet/shared'
+type GrantDetailsProps = { grant: GrantResponse }
 
 export const GrantDetails = ({ grant }: GrantDetailsProps) => {
   return (
@@ -17,18 +15,25 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
       </div>
       <div className="flex items-center">
         <span className="mr-4">State: </span>
-        <Badge
-          intent={getStatusBadgeIntent(grant.state)}
-          size="md"
-          text={grant.state}
-        />
+        {!grant.finalizationReason ? (
+          <Badge
+            intent={getStatusBadgeIntent(grant.state)}
+            size="md"
+            text={grant.state}
+          />
+        ) : null}
         {grant.finalizationReason ? (
           <>
-            <SimpleArrow className="inline h-3 w-3"></SimpleArrow>
             <Badge
               intent={getStatusBadgeIntent(grant.finalizationReason)}
               size="md"
-              text={grant.finalizationReason}
+              text={
+                grant.finalizationReason === 'REVOKED'
+                  ? 'REJECTED'
+                  : grant.finalizationReason === 'ISSUED'
+                    ? 'APPROVED'
+                    : 'REJECTED'
+              }
             />
           </>
         ) : null}
