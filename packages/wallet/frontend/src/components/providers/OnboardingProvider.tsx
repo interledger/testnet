@@ -11,7 +11,7 @@ export const OnboardingProvider = ({ children }: OnboardingProviderProps) => {
   const [isUserFirstTime, setIsUserFirstTime] = useState(false)
   const [isDevKeysOnboarding, setIsDevKeysOnboarding] = useState(false)
   const [isPaymentsSkipped, setIsPaymentsSkipped] = useState(false)
-  x
+
   return (
     <OnboardingContext.Provider
       value={{
