@@ -54,75 +54,17 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
         </Link>
         {accounts.length > 0
           ? accounts.map((account) => (
-              <>
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-                <AccountCard
-                  key={account.id}
-                  account={account}
-                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                />
-              </>
+              <AccountCard
+                key={account.id}
+                account={account}
+                idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+              />
             ))
           : null}
       </div>
     </>
   )
 }
-
-// <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-//   <div className="flex items-center justify-between">
-//     <h3
-//       className="text-lg font-semibold leading-none text-green"
-//       id="accounts"
-//     >
-//       My Accounts
-//     </h3>
-//   </div>
-//   {accounts.length > 0 ? (
-//     <div className="grid grid-cols-2 gap-6">
-//       {accounts.map((account) => (
-//         <AccountCard
-//           key={account.id}
-//           account={account}
-//           idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-//         />
-//       ))}
-//     </div>
-//   ) : (
-//     <div className="flex items-center justify-center p-4 text-green">
-//       No accounts.
-//     </div>
-//   )}
-// </div>
 
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]

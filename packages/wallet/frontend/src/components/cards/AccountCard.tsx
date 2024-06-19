@@ -28,7 +28,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
 
   return (
     <Link
-        id={idOnboarding}
+      id={idOnboarding}
       href={`account/${account.id}`}
       // prettier-ignore
       className={`text-right ease-in-out transition-[box-shadow,transform,] duration-200 aspect-[5/3] rounded-lg flex flex-col p-3 border-2
@@ -50,9 +50,15 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
         }
       }}
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-white dark:text-purple text-xl">{formattedAmount.symbol}</span>
-      <span className="leading-4 mt-auto text-[--accent] text-ellipsis whitespace-nowrap overflow-hidden">{account.name}</span>
-      <span className="text-[--accent] text-2xl font-semibold -tracking-wider">{formattedAmount.amount}</span>
+      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-xl text-white dark:text-purple">
+        {formattedAmount.symbol}
+      </span>
+      <span className="mt-auto overflow-hidden text-ellipsis whitespace-nowrap leading-4 text-[--accent]">
+        {account.name}
+      </span>
+      <span className="text-2xl font-semibold -tracking-wider text-[--accent]">
+        {formattedAmount.amount}
+      </span>
     </Link>
   )
 }
