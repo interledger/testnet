@@ -149,7 +149,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
 
   // DEV KEYS Onboarding steps
-  // 15
+  // 24
   {
     target: '#devKeysInfo',
     content: (
@@ -170,7 +170,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Wave
   },
   {
-    // 16
+    // 25
     target: '#accountsList',
     content: `On this page you have a list of all your accounts. Expand an account to see all your payment pointers and the developer keys.`,
     disableOverlayClose: true,
@@ -178,7 +178,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 17
+    // 26
     target: '#generateKey',
     content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one. `,
     disableOverlayClose: true,
@@ -186,7 +186,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Key
   },
   {
-    // 18
+    // 27
     target: '#nickname',
     content: `It's important to add a nickname for the set of Developer Keys, as it will be easier to organize if you have multiple. Add a nickname, then click on Generate keys button.`,
     disableOverlayClose: true,
@@ -194,7 +194,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: PersonDoc
   },
   {
-    // 19
+    // 28
     target: '#copyKey',
     content: `The private key has been downloaded to your machine. You can copy it to the clipboard, or copy the Base64 encoded version here.`,
     disableOverlayClose: true,
@@ -202,7 +202,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 20
+    // 29
     target: '#closeButtonSuccess',
     content: `The private key is copied to the clipboard. You can paste it somewhere and then let's go see your generated keys.`,
     disableOverlayClose: true,
@@ -210,7 +210,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 21
+    // 30
     target: '#keysList',
     content: `Here you have a list of all your keys organized by nickname. Expand a section to see your developer keys details.`,
     disableOverlayClose: true,
@@ -218,14 +218,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 22
+    // 31
     target: '#keysDetails',
     content: `Here you can copy your Key ID, see your Public Key, and also Revoke your keys, if you don't need them anymore. For now, let's see how you can also upload public keys.`,
     disableOverlayClose: true,
     Icon: Key
   },
   {
-    // 23
+    // 32
     target: '#uploadKey',
     content: `Click on the Upload key button.`,
     disableOverlayClose: true,
@@ -233,14 +233,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 24
+    // 33
     target: '#nicknameUpload',
     content: `Add a nickname, use the provided Base64 encoded Public Key, or use a new one, and click on the Upload key button. The new key will appear in the list.`,
     disableOverlayClose: true,
     Icon: Key
   },
   {
-    // 25
+    // 34
     target: 'body',
     content: (
       <>
@@ -288,12 +288,12 @@ const Onboarding = () => {
       if (
         index === 0 ||
         index === 11 ||
-        index === 15 ||
-        index === 16 ||
-        index === 22
+        index === 24 ||
+        index === 25 ||
+        index === 31
       ) {
         setStepIndex(stepIndex + 1)
-      } else if (index !== 19) {
+      } else if (index !== 28) {
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }

@@ -28,7 +28,7 @@ export const OnboardingTooltip = ({
       {IconStep && <IconStep className={iconClassName} />}
       <div className="flex flex-col justify-center">
         <div className="pb-2">{step.content}</div>
-        {(index === 0 || index === 15) && (
+        {(index === 0 || index === 24) && (
           <div className="text-centers flex items-center justify-between text-[11px] sm:text-base">
             <Button {...primaryProps}>Let&apos;s go</Button>
             <Button {...skipProps} intent="outline">
@@ -41,8 +41,8 @@ export const OnboardingTooltip = ({
           index === 8 ||
           index === 11 ||
           index === 14 ||
-          index === 22 ||
-          index === 25) && (
+          index === 31 ||
+          index === 34) && (
           <div className="flex items-start text-center">
             <Button {...primaryProps}>
               {isLastStep ? `The End` : 'Continue'}
