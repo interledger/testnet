@@ -56,7 +56,7 @@ export const Summary = () => {
             <dt>Subtotal</dt>
             <dd className="font-bold">{orderSubTotal}</dd>
           </div>
-          <div className=" flex items-center justify-between border-t border-green pt-4">
+          <div className="flex items-center justify-between border-t border-green pt-4">
             <dt>Fees</dt>
             <dd className="text-sm">Fees will be calculated at checkout</dd>
           </div>

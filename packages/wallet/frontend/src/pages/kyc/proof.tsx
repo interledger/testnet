@@ -143,7 +143,7 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
                         ? 'border-orange text-orange'
                         : 'border-turqoise text-turqoise'
                       : 'border-turqoise text-turqoise peer-checked:border-orange peer-checked:text-orange',
-                    'w-[150px] cursor-pointer rounded-xl border  bg-white p-2 text-center text-base font-light shadow-md sm:min-w-[100px]'
+                    'w-[150px] cursor-pointer rounded-xl border bg-white p-2 text-center text-base font-light shadow-md sm:min-w-[100px]'
                   )}
                 >
                   {document.name}

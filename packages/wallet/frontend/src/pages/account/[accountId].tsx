@@ -288,16 +288,11 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                   <div className="flex flex-col">
                     {allWalletAddresses.wmWalletAddresses.length > 0 ? (
                       allWalletAddresses.wmWalletAddresses.map(
-                        (walletAddress, index) => (
+                        (walletAddress) => (
                           <WalletAddressCard
                             key={walletAddress.id}
                             walletAddress={walletAddress}
                             isWM={true}
-                            idOnboarding={
-                              account.assetCode === 'USD' && index === 0
-                                ? `viewTransactions`
-                                : ''
-                            }
                           />
                         )
                       )
