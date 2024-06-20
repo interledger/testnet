@@ -136,9 +136,11 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  console.log('logggs', ctx.query)
   const grantInteractionResponse = await grantsService.getInteraction(
     result.data.interactId,
     result.data.nonce,
+    result.data.clientName,
     ctx.req.headers.cookie
   )
 
@@ -157,7 +159,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  grantInteractionResponse.result.access.map((access) => {
+  grantInteractionResponse.result.grant.access.map((access) => {
     access.identifier = access.identifier
       ? replaceWalletAddressProtocol(access.identifier)
       : null
@@ -175,11 +177,11 @@ export const getServerSideProps: GetServerSideProps<{
       }
     }
   })
-  grantInteractionResponse.result.client = result.data.clientUri
+  grantInteractionResponse.result.grant.client = result.data.clientUri
 
   return {
     props: {
-      grant: grantInteractionResponse.result,
+      grant: grantInteractionResponse.result.grant,
       interactionId: result.data.interactId,
       nonce: result.data.nonce,
       clientName: result.data.clientName

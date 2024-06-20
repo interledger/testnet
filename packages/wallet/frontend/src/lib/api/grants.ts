@@ -26,6 +26,11 @@ export type GrantsList = {
   }
 }
 
+export type GrantLocation = {
+  grant: GrantResponse
+  oneClick: boolean
+}
+
 export const grantsListSchema = z.object({
   after: z.string().optional(),
   before: z.string().optional(),
@@ -40,7 +45,7 @@ type GrantsListResponse = GrantsListResult | ErrorResponse
 type ListGrantsResult = SuccessResponse<GrantResponse[]>
 type ListGrantsResponse = ListGrantsResult | ErrorResponse
 
-type GetGrantResult = SuccessResponse<GrantResponse>
+type GetGrantResult = SuccessResponse<GrantLocation>
 type GetGrantResponse = GetGrantResult | ErrorResponse
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
 
@@ -58,6 +63,7 @@ interface GrantsService {
   getInteraction: (
     interactionId: string,
     nonce: string,
+    clientName: string,
     cookies?: string
   ) => Promise<GetGrantResponse>
   finalizeInteraction: (
@@ -113,10 +119,10 @@ const createGrantsService = (): GrantsService => ({
     }
   },
 
-  async getInteraction(interactionId, nonce, cookies) {
+  async getInteraction(interactionId, nonce, clientName, cookies) {
     try {
       const response = await httpClient
-        .get(`grant-interactions/${interactionId}/${nonce}`, {
+        .get(`grant-interactions/${interactionId}/${nonce}/${clientName}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }

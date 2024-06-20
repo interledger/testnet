@@ -277,7 +277,7 @@ export class App {
     router.get('/grants/:id', isAuth, grantController.getById)
     router.delete('/grants/:id', isAuth, grantController.revoke)
     router.get(
-      '/grant-interactions/:interactionId/:nonce',
+      '/grant-interactions/:interactionId/:nonce/:clientName',
       isAuth,
       grantController.getByInteraction
     )

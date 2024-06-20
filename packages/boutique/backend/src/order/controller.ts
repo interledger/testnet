@@ -154,10 +154,17 @@ export class OrderController implements IOrderController {
 
       const redirectUrl = await this.openPayments.setupOneClick(
         walletAddressUrl,
-        amount
+        Number(amount)
+      )
+      const redirectUrlOneClick = new URL(redirectUrl)
+      redirectUrlOneClick.searchParams.set(
+        'clientName',
+        `${redirectUrlOneClick.searchParams.get('clientName')}@oneClick`
       )
 
-      res.status(200).json(toSuccessResponse({ redirectUrl }))
+      res
+        .status(200)
+        .json(toSuccessResponse({ redirectUrl: redirectUrlOneClick.href }))
     } catch (err) {
       next(err)
     }
