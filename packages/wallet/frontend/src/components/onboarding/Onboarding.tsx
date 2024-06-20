@@ -372,9 +372,10 @@ const Onboarding = () => {
         index === 25 ||
         index === 31
       ) {
+        // there is a button on these tooltips, the click of the button increases the onboarding step index
         setStepIndex(stepIndex + 1)
       } else if (isPaymentsSkipped) {
-        // added Skip option for Sending or requesting payments
+        // added Skip option for Sending or Requesting payments
         if (index === 7) {
           setStepIndex(15)
         }
