@@ -2,21 +2,20 @@ import { useRouter } from 'next/router'
 import { SVGProps } from 'react'
 import ReactJoyride, { CallBackProps, STATUS, Step } from 'react-joyride'
 import { useOnboardingContext } from '../../lib/context/onboarding'
-import { Dollar } from '../icons/Dollar'
 import { HomeRooftop } from '../icons/HomeRooftop'
-import { MoneyCircle } from '../icons/MoneyCircle'
-import { MoneyHand } from '../icons/MoneyHand'
-import { MoneyOut } from '../icons/MoneyOut'
-import { PaperPlane } from '../icons/PaperPlane'
 import { Person } from '../icons/Person'
 import { PersonDoc } from '../icons/PersonDoc'
-import { Plus } from '../icons/Plus'
 import { Pointer } from '../icons/Pointer'
 import { Switch } from '../icons/Switch'
 import { ThumbsUp } from '../icons/ThumbsUp'
 import { TransactionCircle } from '../icons/TransactionCircle'
 import { Wave } from '../icons/Wave'
 import { OnboardingTooltip } from './OnboardingTooltip'
+import { New } from '../icons/New'
+import { Request } from '../icons/Request'
+import { MoneyHand } from '../icons/MoneyHand'
+import { Send } from '../icons/Send'
+import { Euro } from '../icons/Euro'
 
 type StepWithIcon = Step & {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -37,13 +36,13 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `You need an account in order to deposit money and start transacting. Let's create your first account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: New
   },
   {
     // 2
     target: '#createAccountForm',
     content:
-      'All accounts need a name, so please add a name for your EUR account.',
+      'All accounts need a name, so please add a name for your new EUR account.',
     placement: 'center',
     disableOverlayClose: true,
     Icon: Person
@@ -59,19 +58,19 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 4
     target: '#walletAddress',
-    content: `In order to send and receive money, all accounts need at least a payment pointer, so let's add a payment pointer to your account.`,
+    content: `In order to send and receive money, all accounts need at least one payment pointer, so let's add a payment pointer to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Plus
+    Icon: New
   },
   {
     // 5
     target: '#fund',
     content:
-      'Your balance is currently $0. In order to make your first transaction, you need to add money to your account.',
+      'Your balance is currently €0. To make your first transaction please add play money.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: MoneyHand
+    Icon: Request
   },
   {
     // 6
@@ -79,7 +78,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: 'Congratulations, you have money in your account.',
     disableOverlayClose: true,
     placement: 'center',
-    Icon: PaperPlane
+    Icon: MoneyHand
   },
   {
     // 7
@@ -88,25 +87,60 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: MoneyOut
+    Icon: Send
   },
   {
     // 8
+    target: '#selectAccount',
+    content:
+      'Select any of your existing accounts you want to send money from.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 9
+    target: '#selectWalletAddress',
+    content:
+      'Select a payment pointer from the above accounts list of payment pointers.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 10
+    target: '#addRecipientWalletAddress',
+    content:
+      'For your first transaction, we already added a recipient payment pointer. For your future transactions here you can add the recipients payment pointer, or a received incoming payment URL.',
+    disableOverlayClose: true,
+    Icon: Pointer
+  },
+  {
+    // 11
     target: '#sendReceive',
-    content: `You have to pay some fees in order to send payments. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest.`,
+    content: `You have to pay some fees in order to send payments. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that.`,
     disableOverlayClose: true,
     Icon: Switch
   },
   {
-    // 9
+    // 12
+    target: '#addAmount',
+    content:
+      'Set the amount you want to send, add a description for the payment, if you want, then Review your transaction.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 13
     target: '#acceptQuote',
-    content: `You can review your payment details before sending the money. For now, let's continue the transaction.`,
+    content: `You can review your payment details before sending the money.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: ThumbsUp
   },
   {
-    // 10
+    // 14
     target: '#redirectButtonSuccess',
     content: `Congratulations, you have made your first Interledger transaction. Now let's explore your account some more.`,
     disableOverlayClose: true,
@@ -114,22 +148,67 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 11
+    // 15
     target: '#request',
-    content: `You can also request money by creating a payment url, and share it with someone. But for now let's see your previous transaction.`,
+    content: `Let's request money by creating a payment url, and sharing it with someone.`,
     disableOverlayClose: true,
-    Icon: MoneyCircle
+    spotlightClicks: true,
+    Icon: Request
   },
   {
-    // 12
+    // 16
+    target: '#selectAccountRequest',
+    content:
+      'Select any of your existing accounts you want to receive money into.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 17
+    target: '#selectWalletAddressRequest',
+    content:
+      'Select a payment pointer from the above accounts list of payment pointers.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 18
+    target: '#addAmountRequest',
+    content:
+      'Set the amount you want to receive. Then, if you want, you can add a description for the request, and set the expiration time, then click on the Request button.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 19
+    target: '#copyIncomingPaymentUrl',
+    content:
+      'You can copy your incoming payment URL request, and share it with someone, who needs to send you money.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 20
+    target: '#redirectButtonSuccess',
+    content: `Congratulations, the URL is copied to the clipboard. Save it, and let's explore your account some more.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 21
     target: '#eurAccount',
     content: 'Go inside your EUR account.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Dollar
+    Icon: Euro
   },
   {
-    // 13
+    // 22
     target: '#viewTransactions',
     content: 'You can view all your incoming and outgoing transactions.',
     disableOverlayClose: true,
@@ -137,7 +216,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: TransactionCircle
   },
   {
-    // 14
+    // 23
     target: '#transactionsList',
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
@@ -152,7 +231,9 @@ const Onboarding = () => {
     setRunOnboarding,
     stepIndex,
     setStepIndex,
-    setIsUserFirstTime
+    setIsUserFirstTime,
+    isPaymentsSkipped,
+    setIsPaymentsSkipped
   } = useOnboardingContext()
 
   const handleOnboardingFinished = () => {
@@ -165,20 +246,30 @@ const Onboarding = () => {
     if (status === STATUS.SKIPPED || status === STATUS.FINISHED) {
       handleOnboardingFinished()
     } else if (type === 'step:after' && action === 'next') {
-      if (index === 0 || index === 11) {
+      if (index === 0 || index === 10 || index === 11) {
         setStepIndex(stepIndex + 1)
-      } else {
+      } else if (isPaymentsSkipped) {
+        // added Skip option for Sending or requesting payments
+        if (index === 7) {
+          setStepIndex(15)
+        }
+        if (index === 15) {
+          setStepIndex(21)
+        }
+        setIsPaymentsSkipped(false)
+      } else if (index !== 19) {
+        // 19 -> request copy URL, step can continue to button on the same dialog window
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }
 
-      // onboarding steps leading back to Accounts page
-      if (index === 6 || index == 14) {
+      // onboarding steps leading back to Home page
+      if (index === 6 || index == 23) {
         router.replace('/')
       }
 
       // set onboarding to never be shown again after final step
-      if (index === 14) {
+      if (index === 23) {
         handleOnboardingFinished()
       }
     }
