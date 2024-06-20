@@ -138,7 +138,7 @@ const AccountPanel = ({ walletAddresses, index }: AccountPanelProps) => {
           setTimeout(() => {
             setStepIndex(stepIndex + 1)
             setRunOnboarding(true)
-          }, 1000)
+          }, 800)
         }
       }}
       className="px-2"
