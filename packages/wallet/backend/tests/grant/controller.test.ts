@@ -164,7 +164,7 @@ describe('Grant Controller', () => {
       req.params = {
         interactionId: faker.string.uuid(),
         nonce: faker.string.uuid(),
-        clientName: faker.string.sample(),
+        clientName: faker.string.sample()
       }
       await grantController.getByInteraction(req, res, next)
       expect(res.statusCode).toBe(200)
