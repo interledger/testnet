@@ -312,7 +312,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 33
     target: '#nicknameUpload',
-    content: `Add a nickname, use the provided Base64 encoded Public Key, or use a new one, and click on the Upload key button. The new key will appear in the list.`,
+    content: `Add a nickname, use the provided Base64 encoded Public Key (or use a new one if you get an error), and click on the Upload key button. The new key will appear in the list.`,
     disableOverlayClose: true,
     Icon: Key
   },
