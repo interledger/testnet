@@ -163,13 +163,14 @@ describe('Grant Controller', () => {
     it('should return a grant', async () => {
       req.params = {
         interactionId: faker.string.uuid(),
-        nonce: faker.string.uuid()
+        nonce: faker.string.uuid(),
+        clientName: faker.string.sample(),
       }
       await grantController.getByInteraction(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().result).toHaveProperty('id')
-      expect(res._getJSONData().result).toHaveProperty('client')
-      expect(res._getJSONData().result).toHaveProperty('state')
+      expect(res._getJSONData().result.grant).toHaveProperty('id')
+      expect(res._getJSONData().result.grant).toHaveProperty('client')
+      expect(res._getJSONData().result.grant).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS'
