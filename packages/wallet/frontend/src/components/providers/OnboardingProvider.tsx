@@ -9,6 +9,7 @@ export const OnboardingProvider = ({ children }: OnboardingProviderProps) => {
   const [runOnboarding, setRunOnboarding] = useState(true)
   const [stepIndex, setStepIndex] = useState(0)
   const [isUserFirstTime, setIsUserFirstTime] = useState(false)
+  const [isDevKeysOnboarding, setIsDevKeysOnboarding] = useState(false)
   const [isPaymentsSkipped, setIsPaymentsSkipped] = useState(false)
 
   return (
@@ -20,6 +21,8 @@ export const OnboardingProvider = ({ children }: OnboardingProviderProps) => {
         setStepIndex,
         isUserFirstTime,
         setIsUserFirstTime,
+        isDevKeysOnboarding,
+        setIsDevKeysOnboarding,
         isPaymentsSkipped,
         setIsPaymentsSkipped
       }}

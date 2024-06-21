@@ -1,6 +1,6 @@
 import type { DialogProps } from '@/lib/types/dialog'
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -16,6 +16,7 @@ import {
 } from '@/lib/api/walletAddress'
 import { SuccessDialog } from './SuccessDialog'
 import { CopyButton } from '@/ui/CopyButton'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type GenerateKeysProps = Pick<DialogProps, 'onClose'> & BaseWalletAddressArgs
 
@@ -29,6 +30,18 @@ export const GenerateKeysDialog = ({
   const generateKeysForm = useZodForm({
     schema: generateKeysSchema
   })
+  const { setRunOnboarding, isDevKeysOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
+
+  useEffect(() => {
+    if (isDevKeysOnboarding) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 100)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function generatePublicAndPrivateKeys(data: { nickname: string }) {
     const response = await walletAddressService.generateKey({
@@ -60,7 +73,7 @@ export const GenerateKeysDialog = ({
           content={
             <div className="text-base">
               <p>Your payment pointer keys were successfully generated.</p>
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-2" id="copyKey">
                 <p className="text-base">
                   The private key has been automatically downloaded to your
                   machine.
@@ -86,11 +99,18 @@ export const GenerateKeysDialog = ({
             </div>
           }
           onClose={() => {
+            if (isDevKeysOnboarding) {
+              setRunOnboarding(false)
+            }
             closeDialog()
             router.replace(router.asPath)
           }}
         />
       )
+      if (isDevKeysOnboarding) {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }
     }
   }
 
@@ -136,10 +156,16 @@ export const GenerateKeysDialog = ({
                     <Input
                       required
                       label="Nickname"
+                      id="nickname"
                       error={
                         generateKeysForm.formState?.errors?.nickname?.message
                       }
                       {...generateKeysForm.register('nickname')}
+                      onKeyDown={() => {
+                        if (isDevKeysOnboarding) {
+                          setRunOnboarding(false)
+                        }
+                      }}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
