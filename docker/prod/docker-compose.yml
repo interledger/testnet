@@ -222,6 +222,9 @@ services:
       PORT: ${RAFIKI_FRONTEND_PORT}
       GRAPHQL_URL: ${RAFIKI_FRONTEND_GRAPHQL_URL}
       OPEN_PAYMENTS_URL: ${RAFIKI_FRONTEND_OPEN_PAYMENTS_URL}
+      KRATOS_CONTAINER_PULIC_URL: 'http://kratos:4433'
+      KRATOS_BROWSER_PUBLIC_URL: 'https://admin.rafiki.money/kratos'
+      KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
     networks:
       - testnet
     restart: always
@@ -259,6 +262,19 @@ services:
   redis:
     image: 'redis:7'
     restart: unless-stopped
+    networks:
+      - testnet
+
+  kratos:
+    image: 'oryd/kratos:v0.13.0'
+    privileged: true
+    ports:
+      - '4433:4433'
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
+      - ./identity.schema.json:/etc/config/kratos/identity.schema.json
+      - ./kratos.yml:/etc/config/kratos/kratos.yml
+    entrypoint: ['/entrypoint.sh']
     networks:
       - testnet
 
