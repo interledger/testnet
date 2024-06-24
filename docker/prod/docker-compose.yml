@@ -267,12 +267,12 @@ services:
     image: 'oryd/kratos:v0.13.0'
     privileged: true
     ports:
-      - "4433:4433"
+      - '4433:4433'
     volumes:
       - ./entrypoint.sh:/entrypoint.sh
       - ./identity.schema.json:/etc/config/kratos/identity.schema.json
       - ./kratos.yml:/etc/config/kratos/kratos.yml
-    entrypoint: ["/entrypoint.sh"]
+    entrypoint: ['/entrypoint.sh']
     networks:
       - testnet
 

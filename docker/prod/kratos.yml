@@ -39,7 +39,7 @@ selfservice:
       use: link
       after:
         hooks:
-        - hook: revoke_active_sessions
+          - hook: revoke_active_sessions
 
     verification:
       enabled: false
