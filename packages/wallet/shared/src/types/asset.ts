@@ -1,3 +1,8 @@
+export type AssetOP = {
+  assetCode: string
+  assetScale: number
+}
+
 export interface AssetResponse {
   id: string
   code: string

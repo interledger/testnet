@@ -1,21 +1,19 @@
 import { WalletAddress } from '@/walletAddress/model'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
-import {
-  ExternalWalletAddress,
-  WalletAddressList,
-  WalletAddressService
-} from './service'
+import { WalletAddressService } from './service'
 import {
   externalWalletAddressSchema,
   walletAddressSchema,
   updateWalletAddressSchema
 } from './validation'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { ListWalletAddressesResponse } from '@wallet/shared/src'
+import { WalletAddressOP, WalletAddressResponse } from '@wallet/shared'
 
 interface IWalletAddressController {
   create: Controller<WalletAddress>
-  list: Controller<WalletAddressList>
+  list: Controller<ListWalletAddressesResponse>
   getById: Controller<WalletAddress>
   softDelete: Controller
 }
@@ -50,7 +48,7 @@ export class WalletAddressController implements IWalletAddressController {
 
   list = async (
     req: Request,
-    res: CustomResponse<WalletAddressList>,
+    res: CustomResponse<ListWalletAddressesResponse>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
@@ -69,7 +67,7 @@ export class WalletAddressController implements IWalletAddressController {
 
   listAll = async (
     req: Request,
-    res: CustomResponse<WalletAddress[]>,
+    res: CustomResponse<WalletAddressResponse[]>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id
@@ -85,7 +83,7 @@ export class WalletAddressController implements IWalletAddressController {
 
   getExternalWalletAddress = async (
     req: Request,
-    res: CustomResponse<ExternalWalletAddress>,
+    res: CustomResponse<WalletAddressOP>,
     next: NextFunction
   ) => {
     try {
@@ -102,7 +100,7 @@ export class WalletAddressController implements IWalletAddressController {
 
   getById = async (
     req: Request,
-    res: CustomResponse<WalletAddress>,
+    res: CustomResponse<WalletAddressResponse>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id

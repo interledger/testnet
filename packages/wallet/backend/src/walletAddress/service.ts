@@ -13,6 +13,7 @@ import { TransactionType } from '@/transaction/model'
 import { Logger } from 'winston'
 import { TransactionService } from '@/transaction/service'
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
+import { WalletAddressOP } from '@wallet/shared'
 
 interface HandleBalanceParams {
   type: TransactionType
@@ -25,14 +26,6 @@ export interface UpdateWalletAddressArgs {
   accountId: string
   walletAddressId: string
   publicName: string
-}
-
-export interface ExternalWalletAddress {
-  url: string
-  publicName: string
-  assetCode: string
-  assetScale: number
-  authServer: string
 }
 
 export interface CreateWalletAddressArgs {
@@ -316,9 +309,7 @@ export class WalletAddressService implements IWalletAddressService {
     }
   }
 
-  public async getExternalWalletAddress(
-    url: string
-  ): Promise<ExternalWalletAddress> {
+  public async getExternalWalletAddress(url: string): Promise<WalletAddressOP> {
     const headers = {
       'Host': new URL(url).host,
       'Content-Type': 'application/json',
