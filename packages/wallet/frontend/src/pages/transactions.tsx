@@ -309,7 +309,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       {trx.type === 'INCOMING' ? '+' : '-'}
                       {
                         formatAmount({
-                          value: trx.value ?? 0,
+                          value: String(trx.value) ?? 0,
                           assetCode: trx.assetCode,
                           assetScale: trx.assetScale
                         }).amount
@@ -323,7 +323,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       />
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
-                      {formatDate({ date: trx.createdAt })}
+                      {formatDate({ date: trx.createdAt.toString() })}
                     </Table.Cell>
                   </Table.Row>
                 ))

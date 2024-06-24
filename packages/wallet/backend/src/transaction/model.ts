@@ -2,6 +2,7 @@ import { Model } from 'objection'
 import { WalletAddress } from '@/walletAddress/model'
 import { Account } from '@/account/model'
 import { BaseModel } from '@shared/backend'
+import { TransactionResponse } from '@wallet/shared'
 
 export type TransactionType = 'INCOMING' | 'OUTGOING'
 export type TransactionExtended = Transaction & {
@@ -18,7 +19,10 @@ export class TransactionBaseModel extends BaseModel {
   expiresAt!: Date | null
 }
 
-export class Transaction extends TransactionBaseModel {
+export class Transaction
+  extends TransactionBaseModel
+  implements TransactionResponse
+{
   static tableName = 'transactions'
 
   description?: string
