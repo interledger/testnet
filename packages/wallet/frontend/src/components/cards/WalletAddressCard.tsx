@@ -153,11 +153,7 @@ const WalletAddressOptions = ({ walletAddress }: WalletAddressOptionsProps) => {
               leaveTo="transform opacity-0 scale-95"
             >
               <Menu.Items
-                className={`
-              fixed inset-x-0 bottom-0 z-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-green-5 focus:outline-none 
-              md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:mt-2 md:w-56
-              lg:bottom-auto lg:left-full lg:top-0 lg:ml-3 lg:mt-0 lg:origin-top-left
-              `}
+                className={`fixed inset-x-0 bottom-0 z-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-green-5 focus:outline-none md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:mt-2 md:w-56 lg:bottom-auto lg:left-full lg:top-0 lg:ml-3 lg:mt-0 lg:origin-top-left`}
               >
                 <div className="py-1 text-green">
                   <Option

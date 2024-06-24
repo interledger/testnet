@@ -92,6 +92,7 @@ export const SuccessDialog = ({
                       ctaText="Copy incoming payment URL"
                       value={copyToClipboard}
                       aria-label="copy api key"
+                      id="copyIncomingPaymentUrl"
                     />
                   )}
                 </div>
@@ -112,6 +113,7 @@ export const SuccessDialog = ({
                       intent="success"
                       aria-label="close dialog"
                       fullWidth
+                      id="closeButtonSuccess"
                       onClick={() => onClose()}
                     >
                       Close
