@@ -11,7 +11,7 @@ import {
   formatDate,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
-import { GrantLocation, grantsService } from '@/lib/api/grants'
+import { grantsService } from '@/lib/api/grants'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ConfirmationDialog } from '@/components/dialogs/ConfirmationDialog'
@@ -20,6 +20,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
+import { GrantResponse } from '@wallet/shared'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -49,8 +50,8 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
     <>
       <PageHeader title="Grant details" />
       <div className="flex flex-col items-start md:flex-col">
-        <GrantDetails grant={grant.grant}></GrantDetails>
-        {grant.grant.state !== 'FINALIZED' && (
+        <GrantDetails grant={grant}></GrantDetails>
+        {grant.state !== 'FINALIZED' && (
           <Button
             intent="secondary"
             aria-label="revoke"
@@ -59,7 +60,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
                 <ConfirmationDialog
                   confirmText="Revoke Grant"
                   message="Are you sure you want to revoke this grant?"
-                  onConfirm={() => handleRevokeConfirmation(grant.grant.id)}
+                  onConfirm={() => handleRevokeConfirmation(grant.id)}
                   onClose={closeDialog}
                 />
               )
@@ -86,7 +87,7 @@ const querySchema = z.object({
 })
 
 export const getServerSideProps: GetServerSideProps<{
-  grant: GrantLocation
+  grant: GrantResponse
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -106,13 +107,13 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  grantResponse.result.grant.createdAt = formatDate({
-    date: grantResponse.result.grant.createdAt
+  grantResponse.result.createdAt = formatDate({
+    date: grantResponse.result.createdAt
   })
-  grantResponse.result.grant.client = replaceWalletAddressProtocol(
-    grantResponse.result.grant.client
+  grantResponse.result.client = replaceWalletAddressProtocol(
+    grantResponse.result.client
   )
-  grantResponse.result.grant.access.map((access) => {
+  grantResponse.result.access.map((access) => {
     access.identifier =
       access.identifier !== null
         ? replaceWalletAddressProtocol(access.identifier)

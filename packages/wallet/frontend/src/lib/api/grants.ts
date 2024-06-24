@@ -26,7 +26,7 @@ export type GrantsList = {
   }
 }
 
-export type GrantLocation = {
+export type GrantOneClick = {
   grant: GrantResponse
   oneClick: boolean
 }
@@ -45,7 +45,9 @@ type GrantsListResponse = GrantsListResult | ErrorResponse
 type ListGrantsResult = SuccessResponse<GrantResponse[]>
 type ListGrantsResponse = ListGrantsResult | ErrorResponse
 
-type GetGrantResult = SuccessResponse<GrantLocation>
+type GetGrantOneClickResult = SuccessResponse<GrantOneClick>
+type GetGrantOneClickResponse = GetGrantOneClickResult | ErrorResponse
+type GetGrantResult = SuccessResponse<GrantResponse>
 type GetGrantResponse = GetGrantResult | ErrorResponse
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
 
@@ -65,7 +67,7 @@ interface GrantsService {
     nonce: string,
     clientName: string,
     cookies?: string
-  ) => Promise<GetGrantResponse>
+  ) => Promise<GetGrantOneClickResponse>
   finalizeInteraction: (
     args: FinalizeInteractionParams
   ) => Promise<FinalizeInteractionResponse>
@@ -127,7 +129,7 @@ const createGrantsService = (): GrantsService => ({
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<GetGrantResult>()
+        .json<GetGrantOneClickResult>()
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch grant request details.')
