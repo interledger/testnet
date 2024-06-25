@@ -75,7 +75,7 @@ export const TogglePayment = ({
         </Switch.Label>
         <div className="has-tooltip">
           <Info className="ml-2 h-6 w-6 cursor-pointer text-green-3" />
-          <span className="tooltip -ml-10 min-w-36 max-w-80 rounded border border-turqoise bg-white p-2 text-sm shadow-lg">
+          <span className="tooltip -ml-40 mr-2 min-w-36 max-w-80 rounded border border-turqoise bg-white p-2 text-sm shadow-lg sm:-ml-10">
             You have to pay some fees in order to send payments.
             &apos;send&apos; means that the fees will be deducted from the
             amount in the input, and receiver will get the rest.
