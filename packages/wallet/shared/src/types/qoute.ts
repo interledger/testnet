@@ -1,4 +1,4 @@
-import { AssetOP } from '@/types/asset'
+import { AssetOP } from './asset'
 
 type AmountProps = AssetOP & {
   value: string

@@ -5,11 +5,10 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { AssetOP } from '@wallet/shared'
 import {
   ListWalletAddressesResponse,
   WalletAddressResponse,
-    WalletAddressOP
+  WalletAddressOP
 } from '@wallet/shared'
 
 export const createWalletAddressSchema = z.object({
