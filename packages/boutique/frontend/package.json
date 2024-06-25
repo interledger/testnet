@@ -19,7 +19,7 @@
     "@tanstack/react-query": "^5.29.0",
     "@boutique/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
-    "framer-motion": "^11.0.25",
+    "framer-motion": "^11.2.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.5",
