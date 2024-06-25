@@ -35,6 +35,7 @@ import { AssetOP, assetService, ExchangeRates } from '@/lib/api/asset'
 import { ExchangeRate } from '@/components/ExchangeRate'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
+import { useTheme } from 'next-themes'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -56,6 +57,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [incomingPaymentAmount, setIncomingPaymentAmount] = useState(0)
   const [readOnlyNotes, setReadOnlyNotes] = useState(false)
   const { accountsSnapshot } = useSnapshot(balanceState)
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   const balanceSnapshot = useMemo(() => {
     if (!selectedAccount) return ''
@@ -454,16 +460,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         </Form>
       </div>
       <Image
-        className="mt-10 hidden object-cover md:block"
-        src="/send.webp"
-        alt="Send"
-        quality={100}
-        width={600}
-        height={200}
-      />
-      <Image
-        className="my-auto object-cover md:hidden"
-        src="/send-mobile.webp"
+        className="object-cover"
+        src={imageName}
         alt="Send"
         quality={100}
         width={500}

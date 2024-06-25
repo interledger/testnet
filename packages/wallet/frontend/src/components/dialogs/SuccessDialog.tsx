@@ -1,10 +1,11 @@
 import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { BirdSuccess } from '../icons/Bird'
 import type { DialogProps } from '@/lib/types/dialog'
 import { CopyButton } from '@/ui/CopyButton'
 import { cx } from 'class-variance-authority'
+import { useTheme } from 'next-themes'
+import { BirdSuccessDark, BirdSuccessLight } from '../icons/Bird'
 
 type SuccessDialogProps = DialogProps & {
   onSuccess?: () => void
@@ -37,6 +38,8 @@ export const SuccessDialog = ({
   if (onSuccess) {
     delete successButtonProps.href
   }
+
+  const theme = useTheme()
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -72,7 +75,11 @@ export const SuccessDialog = ({
                 )}
               >
                 <div>
-                  <BirdSuccess className="mx-auto h-20 w-20" />
+                  {theme.theme === 'dark' ? (
+                    <BirdSuccessDark className="mx-auto h-20 w-20" />
+                  ) : (
+                    <BirdSuccessLight className="mx-auto h-20 w-20" />
+                  )}
                   <div className="mt-3 text-center">
                     <Dialog.Title
                       as="h3"

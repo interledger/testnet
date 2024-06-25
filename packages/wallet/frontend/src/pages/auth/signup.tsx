@@ -11,9 +11,12 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
+import { cx } from 'class-variance-authority'
+import { useTheme } from 'next-themes'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
+  const theme = useTheme()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
@@ -97,7 +100,14 @@ const SignUpPage: NextPageWithLayout = () => {
           </button>
         </Form>
       </div>
-      <div className="absolute bottom-0 h-[200px] w-full bg-[url('../../public/leafs.svg')] bg-contain bg-center bg-no-repeat md:hidden"></div>
+      <div
+        className={cx(
+          'absolute bottom-0 h-[200px] w-full  bg-contain bg-center bg-no-repeat md:hidden',
+          theme.theme === 'dark'
+            ? "bg-[url('../../public/leafs-dark.svg')]"
+            : "bg-[url('../../public/leafs-light.svg')]"
+        )}
+      ></div>
       <p className="z-10 mt-auto font-extralight text-green">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">

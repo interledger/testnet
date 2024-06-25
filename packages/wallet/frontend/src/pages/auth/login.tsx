@@ -11,6 +11,7 @@ import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
@@ -21,6 +22,12 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/login-mobile-dark.webp'
+      : '/login-mobile-light.webp'
+
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -85,7 +92,7 @@ const LoginPage: NextPageWithLayout = () => {
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/login-mobile.webp"
+        src={imageName}
         alt="Login"
         quality={100}
         width={500}

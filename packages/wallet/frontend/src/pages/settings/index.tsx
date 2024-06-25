@@ -5,6 +5,7 @@ import { SettingsTabs } from '@/components/SettingsTabs'
 import { type User, userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 
 type AccountSettingsProps = InferGetServerSidePropsType<
@@ -14,22 +15,25 @@ type AccountSettingsProps = InferGetServerSidePropsType<
 const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
   user
 }) => {
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
   return (
     <>
       <PageHeader title="Personal Settings" message="Edit your details" />
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />
-        {/* <Divider />
-        <ChangePasswordForm /> */}
       </div>
       <Image
-        className="hidden md:block"
-        src="/settings.webp"
+        className="object-contain mt-10"
+        src={imageName}
         alt="Settings"
         quality={100}
-        width={400}
-        height={100}
+        width={500}
+        height={200}
       />
     </>
   )
