@@ -13,7 +13,8 @@ type AppLayoutProps = {
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { isUserFirstTime, setIsUserFirstTime } = useOnboardingContext()
+  const { isUserFirstTime, setIsUserFirstTime, isDevKeysOnboarding } =
+    useOnboardingContext()
 
   useEffect(() => {
     setIsUserFirstTime(
@@ -25,7 +26,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
       <Menu />
-      {isUserFirstTime && <Onboarding />}
+      {(isUserFirstTime || isDevKeysOnboarding) && <Onboarding />}
       <main className="mt-[84px] px-8 py-7 md:mt-0 md:px-16 md:py-12 md:[grid-column:2/3]">
         {children}
         <Toaster />

@@ -1,6 +1,6 @@
 import type { DialogProps } from '@/lib/types/dialog'
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -15,6 +15,8 @@ import {
   walletAddressService
 } from '@/lib/api/walletAddress'
 import { TextArea } from '@/ui/forms/TextArea'
+import { useOnboardingContext } from '@/lib/context/onboarding'
+import { BASE64_PUBLIC_KEY } from '@/utils/constants'
 
 type UploadPublicKeyProps = Pick<DialogProps, 'onClose'> & BaseWalletAddressArgs
 
@@ -24,12 +26,25 @@ export const UploadPublicKeyDialog = ({
   walletAddressId
 }: UploadPublicKeyProps) => {
   const router = useRouter()
+  const { setRunOnboarding, isDevKeysOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
   const [openDialog, closeDialog] = useDialog()
   const uploadKeysForm = useZodForm({
-    schema: uploadKeySchema
+    schema: uploadKeySchema,
+    defaultValues: {
+      jwk: isDevKeysOnboarding ? BASE64_PUBLIC_KEY : ''
+    }
   })
-  const keyPlaceholder =
-    'ewogICJrdHkiOiAiT0tQIiwKICAiY3J2IjogIkVkMjU1MTkiLAogICJraWQiOiAidGVzdC1rZXktZWQyNTUxOSIsCiAgIngiOiAiSnJRTGo1UF84OWlYRVM5LXZGZ3JJeTI5Y2xGOUNDX29QUHN3M2M1RDBicyIKfQ=='
+
+  useEffect(() => {
+    if (isDevKeysOnboarding) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 100)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -105,15 +120,21 @@ export const UploadPublicKeyDialog = ({
                     <Input
                       required
                       label="Nickname"
+                      id="nicknameUpload"
                       error={
                         uploadKeysForm.formState?.errors?.nickname?.message
                       }
                       {...uploadKeysForm.register('nickname')}
+                      onKeyDown={() => {
+                        if (isDevKeysOnboarding) {
+                          setRunOnboarding(false)
+                        }
+                      }}
                     />
                     <TextArea
                       required
                       label="Public key"
-                      placeholder={keyPlaceholder}
+                      placeholder={BASE64_PUBLIC_KEY}
                       error={uploadKeysForm.formState?.errors?.jwk?.message}
                       {...uploadKeysForm.register('jwk')}
                     />

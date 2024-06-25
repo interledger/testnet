@@ -5,7 +5,11 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { AssetOP } from '@/lib/api/asset'
+import {
+  ListWalletAddressesResponse,
+  WalletAddressResponse
+} from '@wallet/shared/src'
+import { WalletAddressOP } from '@wallet/shared'
 
 export const createWalletAddressSchema = z.object({
   walletAddressName: z.string().toLowerCase().min(3, {
@@ -35,30 +39,6 @@ export const uploadKeySchema = z.object({
   nickname: z.string()
 })
 
-export type WalletAddressKey = {
-  id: string
-  publicKey: string
-  createdAt: string
-  nickname: string
-}
-
-export type WalletAddress = {
-  id: string
-  url: string
-  publicName: string
-  accountId: string
-  keys: WalletAddressKey[]
-  incomingBalance: string
-  outgoingBalance: string
-  assetCode?: string
-  assetScale?: number
-}
-
-export type ListWalletAddresses = {
-  wmWalletAddresses: Array<WalletAddress>
-  walletAddresses: Array<WalletAddress>
-}
-
 type WalletAddressKeyDetails = {
   privateKey: string
   publicKey: string
@@ -70,24 +50,18 @@ export type BaseWalletAddressArgs = {
   walletAddressId: string
 }
 
-type WalletAddressOP = AssetOP & {
-  id: string
-  publicName: string
-  authServer: string
-}
-
 type GetWalletAddressArgs = { accountId: string; walletAddressId: string }
-type GetWalletAddressResult = SuccessResponse<WalletAddress>
+type GetWalletAddressResult = SuccessResponse<WalletAddressResponse>
 type GetWalletAddressResponse = GetWalletAddressResult | ErrorResponse
 
-type ListWalletAddressResult = SuccessResponse<ListWalletAddresses>
+type ListWalletAddressResult = SuccessResponse<ListWalletAddressesResponse>
 type ListWalletAddressResponse = ListWalletAddressResult | ErrorResponse
 
-type ListAllWalletAddressResult = SuccessResponse<WalletAddress[]>
+type ListAllWalletAddressResult = SuccessResponse<WalletAddressResponse[]>
 type ListAllWalletAddressResponse = ListAllWalletAddressResult | ErrorResponse
 
 type CreateWalletAddressArgs = z.infer<typeof createWalletAddressSchema>
-type CreateWalletAddressResult = SuccessResponse<WalletAddress>
+type CreateWalletAddressResult = SuccessResponse<WalletAddressResponse>
 type CreateWalletAddressError = ErrorResponse<
   CreateWalletAddressArgs | undefined
 >

@@ -1,15 +1,17 @@
 import { Account } from '@/lib/api/account'
 import { Disclosure, Transition } from '@headlessui/react'
 import { Chevron } from '../icons/Chevron'
-import {
-  WalletAddress,
-  WalletAddressKey,
-  walletAddressService
-} from '@/lib/api/walletAddress'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { cx } from 'class-variance-authority'
 import { CopyButton } from '@/ui/CopyButton'
 import { Button } from '@/ui/Button'
-import { ReactNode, createContext, useContext, useState } from 'react'
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
@@ -17,9 +19,12 @@ import { useRouter } from 'next/router'
 import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
 import { GenerateKeysDialog } from '../dialogs/GenerateKeysDialog'
 import { UploadPublicKeyDialog } from '../dialogs/UploadPublicKeyDialog'
+import { useOnboardingContext } from '@/lib/context/onboarding'
+import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
 
 type WalletAddressContextType = {
-  walletAddress: WalletAddress
+  walletAddress: WalletAddressResponse
   walletAddressesCount: number
   walletAddressIdx: number
 }
@@ -64,12 +69,19 @@ type DeveloperKeysProps = {
 export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
   return (
     <dl className="space-y-4 divide-y divide-green/10">
-      {accounts.map((account) => (
+      {accounts.map((account, accountIdx) => (
         <Disclosure as="div" key={account.name} className="pt-4">
           {({ open }) => (
             <>
-              <AccountHeader name={account.name} isOpen={open} />
-              <AccountPanel walletAddresses={account.walletAddresses} />
+              <AccountHeader
+                name={account.name}
+                isOpen={open}
+                index={accountIdx}
+              />
+              <AccountPanel
+                walletAddresses={account.walletAddresses}
+                index={accountIdx}
+              />
             </>
           )}
         </Disclosure>
@@ -81,9 +93,11 @@ export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
 type DisclosureGroupHeaderProps = {
   name: string
   isOpen: boolean
+  index: number
 }
 
-const AccountHeader = ({ name, isOpen }: DisclosureGroupHeaderProps) => {
+const AccountHeader = ({ name, isOpen, index }: DisclosureGroupHeaderProps) => {
+  const { setRunOnboarding, isDevKeysOnboarding } = useOnboardingContext()
   return (
     <dt>
       <Disclosure.Button className="flex w-full justify-between rounded-md bg-gradient-primary-dark p-2 shadow-md">
@@ -94,6 +108,12 @@ const AccountHeader = ({ name, isOpen }: DisclosureGroupHeaderProps) => {
           <Chevron
             className="h-6 w-6 text-white transition-transform duration-300"
             direction={isOpen ? 'down' : 'left'}
+            id={index === 0 ? 'accountsList' : ''}
+            onClick={() => {
+              if (isDevKeysOnboarding) {
+                setRunOnboarding(false)
+              }
+            }}
           />
         </span>
       </Disclosure.Button>
@@ -102,12 +122,23 @@ const AccountHeader = ({ name, isOpen }: DisclosureGroupHeaderProps) => {
 }
 
 type AccountPanelProps = {
-  walletAddresses: WalletAddress[]
+  walletAddresses: WalletAddressResponse[]
+  index: number
 }
 
-const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
+const AccountPanel = ({ walletAddresses, index }: AccountPanelProps) => {
+  const { setRunOnboarding, isDevKeysOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
   return (
     <Transition
+      onTransitionEnd={() => {
+        if (isDevKeysOnboarding) {
+          setTimeout(() => {
+            setStepIndex(stepIndex + 1)
+            setRunOnboarding(true)
+          }, 800)
+        }
+      }}
       className="px-2"
       enter="transition-all ease-in-out duration-300"
       enterFrom="transform max-h-0"
@@ -125,7 +156,10 @@ const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
               walletAddressesCount={walletAddresses.length}
               walletAddressIdx={walletAddressIdx}
             >
-              <WalletAddressInfo />
+              <WalletAddressInfo
+                accountIdx={index}
+                walletAddressIdx={walletAddressIdx}
+              />
             </WalletAddressProvider>
           ))}
         </ul>
@@ -134,7 +168,15 @@ const AccountPanel = ({ walletAddresses }: AccountPanelProps) => {
   )
 }
 
-const WalletAddressInfo = () => {
+type WalletAddressInfoProps = {
+  accountIdx: number
+  walletAddressIdx: number
+}
+
+const WalletAddressInfo = ({
+  accountIdx,
+  walletAddressIdx
+}: WalletAddressInfoProps) => {
   const { walletAddress } = useWalletAddressContext()
   return (
     <li key={walletAddress.url} className="relative flex gap-x-1 text-green">
@@ -142,7 +184,10 @@ const WalletAddressInfo = () => {
       <div className="max-h flex-auto space-y-2 leading-6">
         <p className="font-semibold">{walletAddress.url}</p>
         <div className="flex-none py-0.5 text-sm leading-5">
-          <WalletAddressKeyInfo />
+          <WalletAddressKeyInfo
+            accountIdx={accountIdx}
+            walletAddressIdx={walletAddressIdx}
+          />
         </div>
       </div>
     </li>
@@ -152,8 +197,25 @@ const WalletAddressInfo = () => {
 const KeysGroupHeader = ({
   name,
   createdAt,
-  isOpen
-}: DisclosureGroupHeaderProps & { createdAt: string }) => {
+  isOpen,
+  index,
+  accountIdx,
+  walletAddressIdx
+}: DisclosureGroupHeaderProps &
+  WalletAddressInfoProps & { createdAt: string }) => {
+  const { setRunOnboarding, isDevKeysOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
+
+  useEffect(() => {
+    if (isDevKeysOnboarding && (stepIndex === 29 || stepIndex === 33)) {
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 100)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <dt>
       <Disclosure.Button className="flex w-full justify-between rounded-md bg-gradient-violet px-2 shadow-md">
@@ -165,6 +227,16 @@ const KeysGroupHeader = ({
           <Chevron
             className="mt-2 h-5 w-5 text-white transition-transform duration-300"
             direction={isOpen ? 'down' : 'left'}
+            id={
+              accountIdx === 0 && walletAddressIdx === 0 && index === 0
+                ? 'keysList'
+                : ''
+            }
+            onClick={() => {
+              if (isDevKeysOnboarding) {
+                setRunOnboarding(false)
+              }
+            }}
           />
         </span>
       </Disclosure.Button>
@@ -173,7 +245,7 @@ const KeysGroupHeader = ({
 }
 
 type KeysGroupPanelProps = {
-  keys: WalletAddressKey
+  keys: WalletAddressKeyResponse
   accountId: string
   walletAddressId: string
 }
@@ -185,6 +257,9 @@ const KeysGroupPanel = ({
 }: KeysGroupPanelProps) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
+  const { setRunOnboarding, isDevKeysOnboarding, stepIndex, setStepIndex } =
+    useOnboardingContext()
+
   async function revokePublicAndPrivateKeys() {
     const response = await walletAddressService.revokeKey({
       accountId: accountId,
@@ -225,9 +300,17 @@ const KeysGroupPanel = ({
       leave="transition-all ease-in-out duration-300"
       leaveFrom="transform max-h-screen"
       leaveTo="transform max-h-0"
+      onTransitionEnd={() => {
+        if (isDevKeysOnboarding) {
+          setTimeout(() => {
+            setStepIndex(stepIndex + 1)
+            setRunOnboarding(true)
+          }, 800)
+        }
+      }}
     >
       <Disclosure.Panel as="dd" className="mt-6 px-2">
-        <div>
+        <div id="keysDetails">
           <div className="flex flex-col justify-between">
             <p className="font-normal">Key ID</p>
             <div className="flex items-center justify-between">
@@ -292,19 +375,25 @@ const WalletAddressKeyStatus = () => {
   )
 }
 
-const WalletAddressKeyInfo = () => {
+const WalletAddressKeyInfo = ({
+  accountIdx,
+  walletAddressIdx
+}: WalletAddressInfoProps) => {
   const { walletAddress } = useWalletAddressContext()
 
   return (
     <div className="flex flex-col space-y-2">
-      {walletAddress.keys.map((keyInfo) => (
-        <Disclosure as="div" key="nickname" className="pt-1">
+      {walletAddress.keys.map((keyInfo, keysIdx) => (
+        <Disclosure as="div" key={`nickname_${keysIdx}`} className="pt-1">
           {({ open }) => (
             <>
               <KeysGroupHeader
                 name={keyInfo.nickname}
-                createdAt={keyInfo.createdAt}
+                createdAt={keyInfo.createdAt.toString()}
                 isOpen={open}
+                index={keysIdx}
+                accountIdx={accountIdx}
+                walletAddressIdx={walletAddressIdx}
               />
               <KeysGroupPanel
                 keys={keyInfo}
@@ -316,20 +405,27 @@ const WalletAddressKeyInfo = () => {
         </Disclosure>
       ))}
       <hr />
-      <WalletAddressCTA />
+      <WalletAddressCTA
+        accountIdx={accountIdx}
+        walletAddressIdx={walletAddressIdx}
+      />
     </div>
   )
 }
 
-const WalletAddressCTA = () => {
+const WalletAddressCTA = ({
+  accountIdx,
+  walletAddressIdx
+}: WalletAddressInfoProps) => {
   const { walletAddress } = useWalletAddressContext()
   const [openDialog, closeDialog] = useDialog()
-
+  const { setRunOnboarding, isDevKeysOnboarding } = useOnboardingContext()
   return (
     <div className="flex flex-col justify-between gap-1 md:flex-row">
       <Button
         aria-label="generate keys"
-        onClick={() =>
+        id={accountIdx === 0 && walletAddressIdx === 0 ? 'generateKey' : ''}
+        onClick={() => {
           openDialog(
             <GenerateKeysDialog
               onClose={closeDialog}
@@ -337,13 +433,17 @@ const WalletAddressCTA = () => {
               walletAddressId={walletAddress.id}
             ></GenerateKeysDialog>
           )
-        }
+          if (isDevKeysOnboarding) {
+            setRunOnboarding(false)
+          }
+        }}
       >
         Generate public & private key
       </Button>
       <Button
         aria-label="upload keys"
-        onClick={() =>
+        id={accountIdx === 0 && walletAddressIdx === 0 ? 'uploadKey' : ''}
+        onClick={() => {
           openDialog(
             <UploadPublicKeyDialog
               onClose={closeDialog}
@@ -351,7 +451,10 @@ const WalletAddressCTA = () => {
               walletAddressId={walletAddress.id}
             ></UploadPublicKeyDialog>
           )
-        }
+          if (isDevKeysOnboarding) {
+            setRunOnboarding(false)
+          }
+        }}
       >
         Upload key
       </Button>

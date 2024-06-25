@@ -113,6 +113,7 @@ export const SuccessDialog = ({
                       intent="success"
                       aria-label="close dialog"
                       fullWidth
+                      id="closeButtonSuccess"
                       onClick={() => onClose()}
                     >
                       Close

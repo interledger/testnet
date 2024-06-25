@@ -3,8 +3,9 @@ import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
 import { BaseModel } from '@shared/backend'
+import { IWalletAddressResponse } from '@wallet/shared/src'
 
-export class WalletAddress extends BaseModel {
+export class WalletAddress extends BaseModel implements IWalletAddressResponse {
   static tableName = 'walletAddresses'
 
   publicName!: string

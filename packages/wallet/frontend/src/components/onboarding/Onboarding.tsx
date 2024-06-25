@@ -11,6 +11,8 @@ import { ThumbsUp } from '../icons/ThumbsUp'
 import { TransactionCircle } from '../icons/TransactionCircle'
 import { Wave } from '../icons/Wave'
 import { OnboardingTooltip } from './OnboardingTooltip'
+import { Key } from '../icons/Key'
+import { Home } from '../icons/Home'
 import { New } from '../icons/New'
 import { Request } from '../icons/Request'
 import { MoneyHand } from '../icons/MoneyHand'
@@ -221,6 +223,119 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
     Icon: HomeRooftop
+  },
+
+  // DEV KEYS Onboarding steps
+  // 24
+  {
+    target: '#devKeysInfo',
+    content: (
+      <>
+        Need some help with Developer Keys? Go through the Onboarding steps and
+        visit the{' '}
+        <a
+          href="https://openpayments.dev/snippets/before-you-begin/#obtain-a-public-private-key-pair-and-key-id"
+          target="/"
+          className="underline hover:text-turqoise"
+        >
+          Open Payments docs
+        </a>{' '}
+        for more details .
+      </>
+    ),
+    disableOverlayClose: true,
+    Icon: Wave
+  },
+  {
+    // 25
+    target: '#accountsList',
+    content: `On this page you have a list of all your accounts. Expand an account to see all your payment pointers and the developer keys.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 26
+    target: '#generateKey',
+    content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one. `,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Key
+  },
+  {
+    // 27
+    target: '#nickname',
+    content: `It's important to add a nickname for the set of Developer Keys, as it will be easier to organize if you have multiple. Add a nickname, then click on Generate keys button.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: PersonDoc
+  },
+  {
+    // 28
+    target: '#copyKey',
+    content: `The private key has been downloaded to your machine. You can copy it to the clipboard, or copy the Base64 encoded version here.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 29
+    target: '#closeButtonSuccess',
+    content: `The private key is copied to the clipboard. You can paste it somewhere and then let's go see your generated keys.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 30
+    target: '#keysList',
+    content: `Here you have a list of all your keys organized by nickname. Expand a section to see your developer keys details.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 31
+    target: '#keysDetails',
+    content: `Here you can copy your Key ID, see your Public Key, and also Revoke your keys, if you don't need them anymore. For now, let's see how you can also upload public keys.`,
+    disableOverlayClose: true,
+    Icon: Key
+  },
+  {
+    // 32
+    target: '#uploadKey',
+    content: `Click on the Upload key button.`,
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Pointer
+  },
+  {
+    // 33
+    target: '#nicknameUpload',
+    content: `Add a nickname, use the provided Base64 encoded Public Key (or use a new one if you get an error), and click on the Upload key button. The new key will appear in the list.`,
+    disableOverlayClose: true,
+    Icon: Key
+  },
+  {
+    // 34
+    target: 'body',
+    content: (
+      <>
+        That&apos;s it for Developer Keys Onboarding. If you need more insight,
+        don&apos;t forget to visit the{' '}
+        <a
+          href="https://openpayments.dev/snippets/before-you-begin/#obtain-a-public-private-key-pair-and-key-id"
+          target="/"
+          className="underline hover:text-turqoise"
+        >
+          Open Payments docs
+        </a>{' '}
+        .
+      </>
+    ),
+    disableOverlayClose: true,
+    placement: 'center',
+    Icon: Home
   }
 ]
 
@@ -232,12 +347,15 @@ const Onboarding = () => {
     stepIndex,
     setStepIndex,
     setIsUserFirstTime,
+    setIsDevKeysOnboarding,
     isPaymentsSkipped,
     setIsPaymentsSkipped
   } = useOnboardingContext()
 
   const handleOnboardingFinished = () => {
     setIsUserFirstTime(false)
+    setIsDevKeysOnboarding(false)
+    setRunOnboarding(false)
     window.localStorage.removeItem('isUserFirstTimeOnTestnet')
   }
 
@@ -246,10 +364,18 @@ const Onboarding = () => {
     if (status === STATUS.SKIPPED || status === STATUS.FINISHED) {
       handleOnboardingFinished()
     } else if (type === 'step:after' && action === 'next') {
-      if (index === 0 || index === 10 || index === 11) {
+      if (
+        index === 0 ||
+        index === 10 ||
+        index === 11 ||
+        index === 24 ||
+        index === 25 ||
+        index === 31
+      ) {
+        // there is a button on these tooltips, the click of the button increases the onboarding step index
         setStepIndex(stepIndex + 1)
       } else if (isPaymentsSkipped) {
-        // added Skip option for Sending or requesting payments
+        // added Skip option for Sending or Requesting payments
         if (index === 7) {
           setStepIndex(15)
         }
@@ -257,8 +383,8 @@ const Onboarding = () => {
           setStepIndex(21)
         }
         setIsPaymentsSkipped(false)
-      } else if (index !== 19) {
-        // 19 -> request copy URL, step can continue to button on the same dialog window
+      } else if (index !== 19 && index !== 28) {
+        // 19, 28 -> request copy URL and copy private key, step can continue to button on the same dialog window
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }

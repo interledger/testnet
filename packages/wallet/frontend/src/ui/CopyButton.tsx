@@ -21,7 +21,8 @@ export const CopyButton = ({
   ...props
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false)
-  const { stepIndex, setStepIndex, isUserFirstTime } = useOnboardingContext()
+  const { stepIndex, setStepIndex, isUserFirstTime, isDevKeysOnboarding } =
+    useOnboardingContext()
 
   useEffect(() => {
     setTimeout(() => {
@@ -36,7 +37,7 @@ export const CopyButton = ({
       onClick={() => {
         copyToClipboard(value)
         setIsCopied(true)
-        if (isUserFirstTime) {
+        if (isUserFirstTime || isDevKeysOnboarding) {
           setStepIndex(stepIndex + 1)
         }
       }}
