@@ -2,7 +2,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { cx } from 'class-variance-authority'
 import { Fragment, SVGProps, forwardRef } from 'react'
 import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
-import { WalletAddress, walletAddressService } from '@/lib/api/walletAddress'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { ButtonOrLink, ButtonOrLinkProps } from '@/ui/ButtonOrLink'
 import { SuccessDialog } from '../dialogs/SuccessDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
@@ -15,9 +15,10 @@ import { Trash } from '../icons/Trash'
 import { EditWalletAddressDialog } from '../dialogs/EditWalletAddressDialog'
 import { CopyButton } from '@/ui/CopyButton'
 import { formatAmount } from '@/utils/helpers'
+import { WalletAddressResponse } from '@wallet/shared/src'
 
 type WalletAddressCardProps = {
-  walletAddress: WalletAddress
+  walletAddress: WalletAddressResponse
   isWM: boolean
   idOnboarding?: string
 }
@@ -25,9 +26,9 @@ type WalletAddressCardProps = {
 type WalletAddressCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
 }
-const formattedAmount = (walletAddress: WalletAddress) => {
+const formattedAmount = (walletAddress: WalletAddressResponse) => {
   return formatAmount({
-    value: walletAddress.incomingBalance || '',
+    value: String(walletAddress.incomingBalance) || '',
     assetCode: walletAddress.assetCode || '',
     assetScale: walletAddress.assetScale || 2
   })
@@ -96,7 +97,7 @@ export const WalletAddressCard = ({
 }
 
 type WalletAddressOptionsProps = {
-  walletAddress: WalletAddress
+  walletAddress: WalletAddressResponse
 }
 
 const WalletAddressOptions = ({ walletAddress }: WalletAddressOptionsProps) => {
@@ -152,11 +153,7 @@ const WalletAddressOptions = ({ walletAddress }: WalletAddressOptionsProps) => {
               leaveTo="transform opacity-0 scale-95"
             >
               <Menu.Items
-                className={`
-              fixed inset-x-0 bottom-0 z-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-green-5 focus:outline-none 
-              md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:mt-2 md:w-56
-              lg:bottom-auto lg:left-full lg:top-0 lg:ml-3 lg:mt-0 lg:origin-top-left
-              `}
+                className={`fixed inset-x-0 bottom-0 z-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-green-5 focus:outline-none md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:mt-2 md:w-56 lg:bottom-auto lg:left-full lg:top-0 lg:ml-3 lg:mt-0 lg:origin-top-left`}
               >
                 <div className="py-1 text-green">
                   <Option

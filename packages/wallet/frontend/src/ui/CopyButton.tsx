@@ -2,6 +2,7 @@ import { Clipboard, ClipboardCheck } from '@/components/icons/Clipboard'
 import { useEffect, useState } from 'react'
 import { Button, ButtonProps } from './Button'
 import { cx } from 'class-variance-authority'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 function copyToClipboard(value: string) {
   navigator.clipboard.writeText(value)
@@ -20,6 +21,8 @@ export const CopyButton = ({
   ...props
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false)
+  const { stepIndex, setStepIndex, isUserFirstTime, isDevKeysOnboarding } =
+    useOnboardingContext()
 
   useEffect(() => {
     setTimeout(() => {
@@ -34,6 +37,9 @@ export const CopyButton = ({
       onClick={() => {
         copyToClipboard(value)
         setIsCopied(true)
+        if (isUserFirstTime || isDevKeysOnboarding) {
+          setStepIndex(stepIndex + 1)
+        }
       }}
       {...props}
     >

@@ -21,7 +21,8 @@ export const QuoteDialog = ({
   type,
   receiverName
 }: QuoteDialogProps) => {
-  const { setRunOnboarding, stepIndex, setStepIndex } = useOnboardingContext()
+  const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
+    useOnboardingContext()
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
     assetCode: quote.receiveAmount.assetCode,
@@ -85,8 +86,10 @@ export const QuoteDialog = ({
                       onClick={() => {
                         onAccept()
                         onClose()
-                        setRunOnboarding(false)
-                        setStepIndex(stepIndex + 1)
+                        if (isUserFirstTime) {
+                          setRunOnboarding(false)
+                          setStepIndex(stepIndex + 1)
+                        }
                       }}
                     >
                       Send

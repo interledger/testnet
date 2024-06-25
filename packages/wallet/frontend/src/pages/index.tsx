@@ -65,6 +65,11 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
           <Link
             id="request"
             href="/transfer/request"
+            onClick={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
+              }
+            }}
             className="group flex aspect-square basis-1/4 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
           >
             <Request className="h-8 w-8" />

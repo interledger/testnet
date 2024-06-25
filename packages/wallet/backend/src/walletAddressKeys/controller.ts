@@ -6,15 +6,15 @@ import {
   patchWalletAddressKey,
   uploadWalletAddressKey
 } from './validation'
-import { WalletAddressKeys } from '@/walletAddressKeys/model'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
 
 interface IWalletAddressKeyController {
   registerKey: Controller<KeyResponse>
   revokeKey: Controller
   uploadKey: Controller
   patchKey: Controller
-  list: Controller<WalletAddressKeys[]>
+  list: Controller<WalletAddressKeyResponse[]>
 }
 
 export class WalletAddressKeyController implements IWalletAddressKeyController {
@@ -22,7 +22,7 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
 
   list = async (
     req: Request,
-    res: CustomResponse<WalletAddressKeys[]>,
+    res: CustomResponse<WalletAddressKeyResponse[]>,
     next: NextFunction
   ) => {
     try {

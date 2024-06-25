@@ -92,9 +92,7 @@ export const getGrantByIdQuery = gql`
 export const revokeGrantMutation = gql`
   mutation RevokeGrantMutation($grantId: String!) {
     revokeGrant(input: { grantId: $grantId }) {
-      code
-      success
-      message
+      id
     }
   }
 `

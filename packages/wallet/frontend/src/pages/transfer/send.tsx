@@ -214,7 +214,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       setReadOnlyNotes(false)
     }
 
-    if (isToggleDisabled) setIsToggleDisabled(false)
+    if (isToggleDisabled) {
+      setIsToggleDisabled(false)
+    }
 
     sendForm.setValue('receiver', url)
   }
@@ -313,9 +315,19 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               placeholder="Select account..."
               options={accounts}
               isSearchable={false}
+              id="selectAccount"
+              onMenuOpen={() => {
+                if (isUserFirstTime) {
+                  setRunOnboarding(false)
+                }
+              }}
               onChange={(option) => {
                 if (option) {
                   onAccountChange(option.value)
+                  if (isUserFirstTime) {
+                    setStepIndex(stepIndex + 1)
+                    setRunOnboarding(true)
+                  }
                 }
               }}
             />
@@ -333,9 +345,19 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                   error={sendForm.formState.errors.walletAddressId?.message}
                   placeholder="Select payment pointer..."
                   value={value}
+                  id="selectWalletAddress"
+                  onMenuOpen={() => {
+                    if (isUserFirstTime) {
+                      setRunOnboarding(false)
+                    }
+                  }}
                   onChange={(option) => {
                     if (option) {
                       sendForm.setValue('walletAddressId', { ...option })
+                      if (isUserFirstTime) {
+                        setStepIndex(stepIndex + 1)
+                        setRunOnboarding(true)
+                      }
                     }
                   }}
                 />
@@ -354,6 +376,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                     error={sendForm.formState.errors.receiver?.message}
                     label="Payment pointer or Incoming payment URL"
                     value={value}
+                    id="addRecipientWalletAddress"
                     onChange={onWalletAddressChange}
                   />
                 )
@@ -365,6 +388,12 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               {...sendForm.register('amount')}
               error={sendForm.formState.errors.amount?.message}
               label="Amount"
+              id="addAmount"
+              onClick={() => {
+                if (isUserFirstTime) {
+                  setRunOnboarding(false)
+                }
+              }}
               onChange={(event) => onAmountChange(event)}
               labelHint={
                 <Controller

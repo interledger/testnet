@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useHttpRequest } from './useHttp'
 import {
-  TransactionsPage,
   transactionListQuerySchema,
   transactionService
 } from '../api/transaction'
 import { SelectOption } from '@/ui/forms/Select'
 import { useTypedRouter } from './useTypedRouter'
+import { TransactionsPageResponse } from '@wallet/shared'
 
 type TransactionsQueryParams = Record<
   keyof TransactionsFilters,
@@ -46,7 +46,7 @@ export const useTransactions = () => {
   } = router.query as TransactionsQueryParams
   const [request, loading, error] = useHttpRequest()
   const [transactions, setTransactions] =
-    useState<TransactionsPage>(defaultState)
+    useState<TransactionsPageResponse>(defaultState)
 
   const fetch = useCallback(
     async (

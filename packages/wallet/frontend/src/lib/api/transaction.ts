@@ -5,41 +5,7 @@ import {
   getError,
   httpClient
 } from '../httpClient'
-
-const TRANSACTION_TYPE = {
-  INCOMING: 'INCOMING',
-  OUTGOING: 'OUTGOING'
-} as const
-export type TransactionType = keyof typeof TRANSACTION_TYPE
-
-const TRANSACTION_STATUS = {
-  PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED',
-  REJECTED: 'REJECTED'
-} as const
-type TransactionStatus = keyof typeof TRANSACTION_STATUS
-
-export interface Transaction {
-  id: string
-  paymentId: string
-  accountName: string
-  walletAddressPublicName?: string
-  walletAddressUrl?: string
-  description: string
-  walletAddressId: string
-  assetCode: string
-  assetScale: number
-  value: string
-  type: TransactionType
-  status: TransactionStatus
-  createdAt: string
-  updatedAt: string
-}
-
-export type TransactionsPage = {
-  results: Transaction[]
-  total: number
-}
+import { TransactionsPageResponse } from '@wallet/shared'
 
 export const transactionListQuerySchema = z.object({
   accountId: z.string().uuid().optional(),
@@ -56,7 +22,7 @@ type ListTransactionArgs = {
   filters?: Record<string, string | number>
   pagination?: Record<string, string | number>
 }
-type ListTransactionsResult = SuccessResponse<TransactionsPage>
+type ListTransactionsResult = SuccessResponse<TransactionsPageResponse>
 type ListTransactionsResponse = ListTransactionsResult | ErrorResponse
 
 interface TransactionService {

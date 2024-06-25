@@ -7,6 +7,10 @@ type OnboardingContextProps = {
   setStepIndex: (stepIndex: number) => void
   isUserFirstTime: boolean
   setIsUserFirstTime: (isUserFirstTime: boolean) => void
+  isDevKeysOnboarding: boolean
+  setIsDevKeysOnboarding: (isDevKeysOnboarding: boolean) => void
+  isPaymentsSkipped: boolean
+  setIsPaymentsSkipped: (isPaymentsSkipped: boolean) => void
 }
 
 export const OnboardingContext = createContext<OnboardingContextProps | null>(

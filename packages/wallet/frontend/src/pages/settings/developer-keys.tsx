@@ -50,7 +50,7 @@ export const getServerSideProps: GetServerSideProps<{
         id: key.id,
         publicKey: key.publicKey,
         createdAt: formatDate({
-          date: key.createdAt,
+          date: key.createdAt.toString(),
           time: false,
           month: 'long'
         }),

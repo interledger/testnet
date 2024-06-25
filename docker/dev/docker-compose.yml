@@ -46,7 +46,7 @@ services:
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
-      AUTH_DOMAIN: http://rafiki-auth:3006
+      AUTH_DOMAIN: http://rafiki-auth:3009
       AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
@@ -90,7 +90,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.10
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.13
     restart: always
     networks:
       - testnet
@@ -102,18 +102,20 @@ services:
       INTROSPECTION_PORT: 3007
       ADMIN_PORT: 3008
       NODE_ENV: development
-      AUTH_SERVER_DOMAIN: http://localhost:3006
+      AUTH_SERVER_URL: http://localhost:3006
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
-      IDENTITY_SERVER_DOMAIN: http://localhost:4003/grant-interactions
+      IDENTITY_SERVER_URL: http://localhost:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
+      COOKIE_KEY: ${AUTH_COOKIE_KEY}
       WAIT_SECONDS: 1
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       - postgres
     <<: *logging
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.10
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.13
     restart: always
     privileged: true
     volumes:
@@ -159,7 +161,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.10
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.13
     depends_on:
       - rafiki-backend
     restart: always

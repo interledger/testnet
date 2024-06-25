@@ -6,8 +6,8 @@ import {
   transactionListRequestSchema
 } from '@/transaction/validation'
 import { TransactionService } from '@/transaction/service'
-import { Page } from 'objection'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { TransactionsPageResponse } from '@wallet/shared'
 
 interface ITransactionController {
   list: Controller<Transaction[]>
@@ -42,7 +42,7 @@ export class TransactionController implements ITransactionController {
 
   listAll = async (
     req: Request,
-    res: CustomResponse<Page<Transaction>>,
+    res: CustomResponse<TransactionsPageResponse>,
     next: NextFunction
   ) => {
     try {

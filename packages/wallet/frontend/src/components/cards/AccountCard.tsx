@@ -29,12 +29,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
   return (
     <Link
       href={`account/${account.id}`}
-      className={`
-        rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md
-        [&:nth-child(4n+1)]:bg-gradient-primary 
-        [&:nth-child(4n+2)]:bg-gradient-violet 
-        [&:nth-child(4n+3)]:bg-gradient-pink
-        [&:nth-child(4n+4)]:bg-gradient-orange`}
+      className={`rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md [&:nth-child(4n+1)]:bg-gradient-primary [&:nth-child(4n+2)]:bg-gradient-violet [&:nth-child(4n+3)]:bg-gradient-pink [&:nth-child(4n+4)]:bg-gradient-orange`}
       onClick={() => {
         if (isUserFirstTime) {
           setRunOnboarding(false)
