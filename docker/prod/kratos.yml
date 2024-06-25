@@ -8,7 +8,7 @@ serve:
     cors:
       enabled: true
   admin:
-    base_url: http://cloud-nine-kratos:4434/
+    base_url: http://kratos:4434/
 
 selfservice:
   default_browser_return_url: https://admin.rafiki.money/
