@@ -119,7 +119,7 @@ services:
     <<: *logging
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.10
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.13
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -127,11 +127,13 @@ services:
       ADMIN_PORT: ${RAFIKI_AUTH_ADMIN_PORT}
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT}
       AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL}
+      COOKIE_KEY: ${RAFIKI_AUTH_COOKIE_KEY}
       IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
-      IDENTITY_SERVER_DOMAIN: ${RAFIKI_AUTH_IDENTITY_SERVER_DOMAIN}
-      AUTH_SERVER_DOMAIN: ${RAFIKI_AUTH_SERVER_DOMAIN}
+      IDENTITY_SERVER_URL: ${RAFIKI_AUTH_IDENTITY_SERVER_DOMAIN}
+      AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_DOMAIN}
       WAIT_SECONDS: ${RAFIKI_AUTH_WAIT_SECONDS}
       TRUST_PROXY: true
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       - postgres
     networks:
@@ -143,7 +145,7 @@ services:
     <<: *logging
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.10
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.13
     container_name: rafiki-backend
     depends_on:
       - postgres
@@ -212,7 +214,7 @@ services:
     <<: *logging
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.10
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.13
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
@@ -220,6 +222,9 @@ services:
       PORT: ${RAFIKI_FRONTEND_PORT}
       GRAPHQL_URL: ${RAFIKI_FRONTEND_GRAPHQL_URL}
       OPEN_PAYMENTS_URL: ${RAFIKI_FRONTEND_OPEN_PAYMENTS_URL}
+      KRATOS_CONTAINER_PULIC_URL: 'http://kratos:4433'
+      KRATOS_BROWSER_PUBLIC_URL: 'https://admin.rafiki.money/kratos'
+      KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
     networks:
       - testnet
     restart: always
@@ -257,6 +262,19 @@ services:
   redis:
     image: 'redis:7'
     restart: unless-stopped
+    networks:
+      - testnet
+
+  kratos:
+    image: 'oryd/kratos:v0.13.0'
+    privileged: true
+    ports:
+      - '4433:4433'
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
+      - ./identity.schema.json:/etc/config/kratos/identity.schema.json
+      - ./kratos.yml:/etc/config/kratos/kratos.yml
+    entrypoint: ['/entrypoint.sh']
     networks:
       - testnet
 
