@@ -4,7 +4,7 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
-import { Play } from '@/components/icons/Play'
+import { PlayDark, PlayLight } from '@/components/icons/Play'
 import { signUpSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
@@ -96,7 +96,11 @@ const SignUpPage: NextPageWithLayout = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play loading={signUpForm.formState.isSubmitting} />
+            {theme.theme === 'dark' ? (
+              <PlayDark loading={signUpForm.formState.isSubmitting} />
+            ) : (
+              <PlayLight loading={signUpForm.formState.isSubmitting} />
+            )}
           </button>
         </Form>
       </div>
