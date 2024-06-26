@@ -2,25 +2,31 @@ import { useRouter } from 'next/router'
 import { SVGProps } from 'react'
 import ReactJoyride, { CallBackProps, STATUS, Step } from 'react-joyride'
 import { useOnboardingContext } from '../../lib/context/onboarding'
-import { HomeRooftop } from '../icons/HomeRooftop'
-import { Person } from '../icons/Person'
-import { PersonDoc } from '../icons/PersonDoc'
-import { Pointer } from '../icons/Pointer'
-import { Switch } from '../icons/Switch'
-import { ThumbsUp } from '../icons/ThumbsUp'
-import { TransactionCircle } from '../icons/TransactionCircle'
-import { Wave } from '../icons/Wave'
 import { OnboardingTooltip } from './OnboardingTooltip'
-import { Key } from '../icons/Key'
-import { Home } from '../icons/Home'
-import { New } from '../icons/New'
-import { Request } from '../icons/Request'
-import { MoneyHand } from '../icons/MoneyHand'
-import { Send } from '../icons/Send'
-import { Euro } from '../icons/Euro'
+import { useTheme } from 'next-themes'
+import { WaveDark, WaveLight } from '../icons/Wave'
+import { NewDark, NewLight } from '../icons/New'
+import { PersonDark, PersonLight } from '../icons/Person'
+import { PersonDocDark, PersonDocLight } from '../icons/PersonDoc'
+import { RequestDark, RequestLight } from '../icons/Request'
+import { MoneyHandDark, MoneyHandLight } from '../icons/MoneyHand'
+import { SendDark, SendLight } from '../icons/Send'
+import { PointerDark, PointerLight } from '../icons/Pointer'
+import { SwitchDark, SwitchLight } from '../icons/Switch'
+import { ThumbsUpDark, ThumbsUpLight } from '../icons/ThumbsUp'
+import { EuroDark, EuroLight } from '../icons/Euro'
+import {
+  TransactionCircleDark,
+  TransactionCircleLight
+} from '../icons/TransactionCircle'
+import { HomeRooftopDark, HomeRooftopLight } from '../icons/HomeRooftop'
+import { KeyDark, KeyLight } from '../icons/Key'
 
 type StepWithIcon = Step & {
-  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
+  Icon: {
+    light: (props: SVGProps<SVGSVGElement>) => JSX.Element
+    dark: (props: SVGProps<SVGSVGElement>) => JSX.Element
+  }
 }
 
 export const ONBOARDING_STEPS: StepWithIcon[] = [
@@ -30,7 +36,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Welcome to Test Wallet! Test Wallet is a Rafiki playground, where you can add multiple accounts and make Interledger transactions with play money. Let's begin our journey.`,
     disableOverlayClose: true,
     placement: 'center',
-    Icon: Wave
+    Icon: { light: WaveLight, dark: WaveDark }
   },
   {
     // 1
@@ -38,7 +44,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `You need an account in order to deposit money and start transacting. Let's create your first account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: New
+    Icon: { light: NewLight, dark: NewDark }
   },
   {
     // 2
@@ -47,7 +53,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'All accounts need a name, so please add a name for your new EUR account.',
     placement: 'center',
     disableOverlayClose: true,
-    Icon: Person
+    Icon: { light: PersonLight, dark: PersonDark }
   },
   {
     // 3
@@ -55,7 +61,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Let's see inside your newly created account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: PersonDoc
+    Icon: { light: PersonDocLight, dark: PersonDocDark }
   },
   {
     // 4
@@ -63,7 +69,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `In order to send and receive money, all accounts need at least one payment pointer, so let's add a payment pointer to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: New
+    Icon: { light: NewLight, dark: NewDark }
   },
   {
     // 5
@@ -72,7 +78,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Your balance is currently €0. To make your first transaction please add play money.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Request
+    Icon: { light: RequestLight, dark: RequestDark }
   },
   {
     // 6
@@ -80,7 +86,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: 'Congratulations, you have money in your account.',
     disableOverlayClose: true,
     placement: 'center',
-    Icon: MoneyHand
+    Icon: { light: MoneyHandLight, dark: MoneyHandDark }
   },
   {
     // 7
@@ -89,7 +95,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Send
+    Icon: { light: SendLight, dark: SendDark }
   },
   {
     // 8
@@ -98,7 +104,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Select any of your existing accounts you want to send money from.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 9
@@ -107,7 +113,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Select a payment pointer from the above accounts list of payment pointers.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 10
@@ -115,14 +121,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content:
       'For your first transaction, we already added a recipient payment pointer. For your future transactions here you can add the recipients payment pointer, or a received incoming payment URL.',
     disableOverlayClose: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 11
     target: '#sendReceive',
     content: `You have to pay some fees in order to send payments. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that.`,
     disableOverlayClose: true,
-    Icon: Switch
+    Icon: { light: SwitchLight, dark: SwitchDark }
   },
   {
     // 12
@@ -131,7 +137,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Set the amount you want to send, add a description for the payment, if you want, then Review your transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 13
@@ -139,7 +145,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `You can review your payment details before sending the money.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: ThumbsUp
+    Icon: { light: ThumbsUpLight, dark: ThumbsUpDark }
   },
   {
     // 14
@@ -147,7 +153,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Congratulations, you have made your first Interledger transaction. Now let's explore your account some more.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 15
@@ -155,7 +161,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Let's request money by creating a payment url, and sharing it with someone.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Request
+    Icon: { light: RequestLight, dark: RequestDark }
   },
   {
     // 16
@@ -164,7 +170,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Select any of your existing accounts you want to receive money into.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 17
@@ -173,7 +179,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Select a payment pointer from the above accounts list of payment pointers.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 18
@@ -182,7 +188,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'Set the amount you want to receive. Then, if you want, you can add a description for the request, and set the expiration time, then click on the Request button.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 19
@@ -191,7 +197,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       'You can copy your incoming payment URL request, and share it with someone, who needs to send you money.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 20
@@ -199,7 +205,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Congratulations, the URL is copied to the clipboard. Save it, and let's explore your account some more.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 21
@@ -207,7 +213,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: 'Go inside your EUR account.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Euro
+    Icon: { light: EuroLight, dark: EuroDark }
   },
   {
     // 22
@@ -215,14 +221,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: 'You can view all your incoming and outgoing transactions.',
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: TransactionCircle
+    Icon: { light: TransactionCircleLight, dark: TransactionCircleDark }
   },
   {
     // 23
     target: '#transactionsList',
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
-    Icon: HomeRooftop
+    Icon: { light: HomeRooftopLight, dark: HomeRooftopDark }
   },
 
   // DEV KEYS Onboarding steps
@@ -244,7 +250,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
       </>
     ),
     disableOverlayClose: true,
-    Icon: Wave
+    Icon: { light: WaveLight, dark: WaveDark }
   },
   {
     // 25
@@ -252,7 +258,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `On this page you have a list of all your accounts. Expand an account to see all your payment pointers and the developer keys.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 26
@@ -260,7 +266,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one. `,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Key
+    Icon: { light: KeyLight, dark: KeyDark }
   },
   {
     // 27
@@ -268,7 +274,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `It's important to add a nickname for the set of Developer Keys, as it will be easier to organize if you have multiple. Add a nickname, then click on Generate keys button.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: PersonDoc
+    Icon: { light: PersonDocLight, dark: PersonDocDark }
   },
   {
     // 28
@@ -276,7 +282,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `The private key has been downloaded to your machine. You can copy it to the clipboard, or copy the Base64 encoded version here.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 29
@@ -284,7 +290,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `The private key is copied to the clipboard. You can paste it somewhere and then let's go see your generated keys.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 30
@@ -292,14 +298,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Here you have a list of all your keys organized by nickname. Expand a section to see your developer keys details.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 31
     target: '#keysDetails',
     content: `Here you can copy your Key ID, see your Public Key, and also Revoke your keys, if you don't need them anymore. For now, let's see how you can also upload public keys.`,
     disableOverlayClose: true,
-    Icon: Key
+    Icon: { light: KeyLight, dark: KeyDark }
   },
   {
     // 32
@@ -307,14 +313,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     content: `Click on the Upload key button.`,
     disableOverlayClose: true,
     spotlightClicks: true,
-    Icon: Pointer
+    Icon: { light: PointerLight, dark: PointerDark }
   },
   {
     // 33
     target: '#nicknameUpload',
     content: `Add a nickname, use the provided Base64 encoded Public Key (or use a new one if you get an error), and click on the Upload key button. The new key will appear in the list.`,
     disableOverlayClose: true,
-    Icon: Key
+    Icon: { light: KeyLight, dark: KeyDark }
   },
   {
     // 34
@@ -335,12 +341,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     ),
     disableOverlayClose: true,
     placement: 'center',
-    Icon: Home
+    Icon: { light: HomeRooftopLight, dark: HomeRooftopDark }
   }
 ]
 
 const Onboarding = () => {
   const router = useRouter()
+  const theme = useTheme()
+
   const {
     runOnboarding,
     setRunOnboarding,
@@ -409,6 +417,11 @@ const Onboarding = () => {
       callback={handleCallback}
       continuous
       run={runOnboarding}
+      styles={{
+        options: {
+          arrowColor: theme.theme === 'dark' ? '#470c6e' : '#ffffff'
+        }
+      }}
     />
   )
 }
