@@ -160,14 +160,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </div>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold leading-none text-green">
-            Account
+            Payment Pointers
           </h3>
-        </div>
-        <div className="flex items-center justify-between rounded-md bg-gradient-primary px-3 py-2">
-          <span className="font-semibold text-green">{account.name}</span>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold mix-blend-screen">
-            {formattedAmounts.amountScale2.symbol}
-          </span>
         </div>
         <div className="flex flex-col">
           {allWalletAddresses.length > 0 ? (
