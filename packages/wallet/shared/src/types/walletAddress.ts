@@ -1,5 +1,5 @@
 import { AssetOP } from './asset'
-import { WalletAddressKeyResponse } from './WalletAddressKey'
+import { WalletAddressKeyResponse } from './walletAddressKey'
 
 export interface IWalletAddressResponse {
   id: string

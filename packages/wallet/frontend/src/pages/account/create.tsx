@@ -18,7 +18,7 @@ import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
-import { createAccountSchema } from '@wallet/shared/src'
+import { createAccountSchema } from '@wallet/shared'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({

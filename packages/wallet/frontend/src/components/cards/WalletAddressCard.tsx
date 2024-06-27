@@ -14,7 +14,7 @@ import { PencilSquare } from '../icons/Pencil'
 import { Trash } from '../icons/Trash'
 import { EditWalletAddressDialog } from '../dialogs/EditWalletAddressDialog'
 import { CopyButton } from '@/ui/CopyButton'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 
 type WalletAddressCardProps = {
   walletAddress: WalletAddressResponse
