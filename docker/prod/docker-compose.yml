@@ -271,8 +271,8 @@ services:
     ports:
       - '4433:4433'
     volumes:
-      - ./entrypoint.sh:/entrypoint.sh
-      - ./identity.schema.json:/etc/config/kratos/identity.schema.json
+      - ../entrypoint.sh:/entrypoint.sh
+      - ../identity.schema.json:/etc/config/kratos/identity.schema.json
       - ./kratos.yml:/etc/config/kratos/kratos.yml
     entrypoint: ['/entrypoint.sh']
     networks:
