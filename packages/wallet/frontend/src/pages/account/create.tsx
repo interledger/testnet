@@ -18,7 +18,7 @@ import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
-import { createAccountSchema } from '@wallet/shared'
+import { createAccountSchema } from '@wallet/shared/src'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
@@ -28,7 +28,7 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const defaultValue = {
-    asset: assets.find((asset) => asset.label === 'USD')
+    asset: assets.find((asset) => asset.label === 'EUR')
   }
 
   const createAccountForm = useZodForm({

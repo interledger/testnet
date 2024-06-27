@@ -14,7 +14,6 @@ import { PencilSquare } from '../icons/Pencil'
 import { Trash } from '../icons/Trash'
 import { EditWalletAddressDialog } from '../dialogs/EditWalletAddressDialog'
 import { CopyButton } from '@/ui/CopyButton'
-import { formatAmount } from '@/utils/helpers'
 import { WalletAddressResponse } from '@wallet/shared/src'
 
 type WalletAddressCardProps = {
@@ -24,13 +23,6 @@ type WalletAddressCardProps = {
 
 type WalletAddressCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
-}
-const formattedAmount = (walletAddress: WalletAddressResponse) => {
-  return formatAmount({
-    value: String(walletAddress.incomingBalance) || '',
-    assetCode: walletAddress.assetCode || '',
-    assetScale: walletAddress.assetScale || 2
-  })
 }
 
 const WalletAddressCardButton = forwardRef<
