@@ -67,15 +67,14 @@ export const WalletAddressCard = ({
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{walletAddress.url}</span>
         <div className="flex">
-          
-            <WalletAddressCardButton
-              href={`/transactions?walletAddressId=${walletAddress.id}`}
-              aria-label="view payment pointer"
-              id={idOnboarding}
-            >
-              View
-            </WalletAddressCardButton>
-          
+          <WalletAddressCardButton
+            href={`/transactions?walletAddressId=${walletAddress.id}`}
+            aria-label="view payment pointer"
+            id={idOnboarding}
+          >
+            View
+          </WalletAddressCardButton>
+
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"

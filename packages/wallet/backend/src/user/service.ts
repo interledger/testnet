@@ -149,14 +149,14 @@ export class UserService implements IUserService {
         accountId: walletInfo.defaultAccount.id,
         walletAddressName: typedArray[0].toString(16),
         publicName: 'Default Payment Pointer',
-        userId: walletInfo.createdUser.id,
+        userId: walletInfo.createdUser.id
       })
 
       const boutiqueWallet = await this.walletAddressService.create({
         accountId: boutiqueInfo.defaultAccount.id,
         walletAddressName: 'boutique',
         publicName: 'Default Payment Pointer',
-        userId: boutiqueInfo.createdUser.id,
+        userId: boutiqueInfo.createdUser.id
       })
 
       await this.walletAddressKeyService.registerKey({

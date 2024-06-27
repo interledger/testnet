@@ -68,7 +68,7 @@ export const createWalletAddressIfFalsy = async ({
     userId,
     accountId,
     walletAddressName: getRandomValues(new Uint32Array(1))[0].toString(16),
-    publicName,
+    publicName
   })
 
   return newWalletAddress
@@ -82,8 +82,7 @@ export class WalletAddressService implements IWalletAddressService {
     private transactionService: TransactionService,
     private rapydClient: RapydClient,
     private logger: Logger
-  ) {
-  }
+  ) {}
 
   async create(args: CreateWalletAddressArgs): Promise<WalletAddress> {
     const account = await this.accountService.findAccountById(
@@ -279,9 +278,7 @@ export class WalletAddressService implements IWalletAddressService {
       )
     }
 
-    this.logger.debug(
-      `Passed first throw`
-    )
+    this.logger.debug(`Passed first throw`)
 
     // 10000000 is 0.01 i.e. one cent in asset scale 9
     // One cent is the lowest number that can be represented in asset scale 2 by Rapyd
@@ -299,9 +296,7 @@ export class WalletAddressService implements IWalletAddressService {
       )
     }
 
-    this.logger.debug(
-      `Passed second throw`
-    )
+    this.logger.debug(`Passed second throw`)
 
     let destination = walletAddress.account.user.rapydWalletId
     let source = this.env.RAPYD_SETTLEMENT_EWALLET
@@ -325,9 +320,7 @@ export class WalletAddressService implements IWalletAddressService {
           debt: raw('?? + ?', ['debt', amount])
         })
 
-        this.logger.debug(
-          `Early return`
-        )
+        this.logger.debug(`Early return`)
         return
       }
 
@@ -338,10 +331,8 @@ export class WalletAddressService implements IWalletAddressService {
       )
     }
 
-    this.logger.debug(
-      `Passed third throw`
-    )
-    
+    this.logger.debug(`Passed third throw`)
+
     const updatedField: keyof Pick<
       PartialModelObject<WalletAddress>,
       'incomingBalance' | 'outgoingBalance'

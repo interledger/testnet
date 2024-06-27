@@ -19,7 +19,7 @@ export const createWalletAddressSchema = z.object({
   publicName: z.string().min(3, {
     message:
       'The public name of the payment pointer should be at least 3 characters long'
-  }),
+  })
 })
 
 export const updateWalletAddressSchema = z.object({

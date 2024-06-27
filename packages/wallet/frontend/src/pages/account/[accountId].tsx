@@ -118,7 +118,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
               <p className="text-2xl font-semibold md:text-4xl">
                 {formattedAmounts.amountScale2.amount}
               </p>
-              <p className="text-sm font-light md:text-md">
+              <p className="md:text-md text-sm font-light">
                 {formattedAmounts.amountScale9.amount}
               </p>
             </div>
@@ -129,14 +129,14 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 id="walletAddress"
                 onClick={() => {
                   if (isUserFirstTime) {
-                    setRunOnboarding(false);
+                    setRunOnboarding(false)
                   }
                   openDialog(
                     <CreateWalletAddressDialog
                       accountName={account.name}
                       onClose={closeDialog}
                     />
-                  );
+                  )
                 }}
                 className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
               >
@@ -154,14 +154,14 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 id="fund"
                 onClick={() => {
                   if (isUserFirstTime) {
-                    setRunOnboarding(false);
+                    setRunOnboarding(false)
                   }
                   openDialog(
                     <FundAccountDialog
                       account={account}
                       onClose={closeDialog}
                     />
-                  );
+                  )
                 }}
                 className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
               >
@@ -231,7 +231,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </Tab.Panel>
       </Tab.Group>
     </>
-  )  
+  )
 }
 
 const querySchema = z.object({

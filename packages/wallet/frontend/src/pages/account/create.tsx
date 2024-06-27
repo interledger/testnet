@@ -138,7 +138,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = response.result
-    ?.filter((asset) => asset.scale <= 9 )
+    ?.filter((asset) => asset.scale <= 9)
     ?.map((asset) => ({
       value: asset.id,
       label: asset.code

@@ -347,7 +347,7 @@ export class App {
         return false
       })
       .then((trx) => {
-        const newTimestamp = new Date();
+        const newTimestamp = new Date()
         if (trx) {
           process.nextTick(() => this.keepBalancesSynced(newTimestamp))
         } else {

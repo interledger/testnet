@@ -82,7 +82,7 @@ export class RafikiService implements IRafikiService {
     private logger: Logger,
     private rafikiClient: RafikiClient,
     private transactionService: TransactionService,
-    private walletAddressService: WalletAddressService,
+    private walletAddressService: WalletAddressService
   ) {}
 
   public async onWebHook(wh: WebHook): Promise<void> {
@@ -338,7 +338,6 @@ export class RafikiService implements IRafikiService {
     }
 
     const sentAmount = this.parseAmount(wh.data.sentAmount as AmountJSON)
-
 
     const source_ewallet = await this.getRapydWalletId(walletAddress)
 

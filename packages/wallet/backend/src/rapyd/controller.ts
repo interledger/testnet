@@ -96,7 +96,7 @@ export class RapydController implements IRapydController {
           accountId: defaultAccount.id,
           walletAddressName,
           publicName: 'Default Payment Pointer',
-          userId: id,
+          userId: id
         })
       }
 

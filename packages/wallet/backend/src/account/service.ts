@@ -218,7 +218,10 @@ export class AccountService implements IAccountService {
     )
   }
 
-  async getVirtualAccountBalance(userId: string, assetCode: string): Promise<bigint> {
+  async getVirtualAccountBalance(
+    userId: string,
+    assetCode: string
+  ): Promise<bigint> {
     const account = await Account.query()
       .where('userId', userId)
       .where('assetCode', assetCode)

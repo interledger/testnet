@@ -36,7 +36,7 @@ export class WalletAddressController implements IWalletAddressController {
         userId,
         accountId,
         walletAddressName,
-        publicName,
+        publicName
       })
       res.status(200).json(toSuccessResponse(walletAddress))
     } catch (e) {

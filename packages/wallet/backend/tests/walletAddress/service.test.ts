@@ -29,7 +29,7 @@ describe('Wallet Address Service', () => {
 
   const prepareWADependencies = async (
     paymentPointerName: string,
-    isAccountAssigned = true,
+    isAccountAssigned = true
   ) => {
     let extraAcc = {} as Account
     if (!isAccountAssigned)
@@ -57,7 +57,7 @@ describe('Wallet Address Service', () => {
       accountId: isAccountAssigned ? account.id : extraAcc.id,
       id: faker.string.uuid(),
       assetCode: undefined,
-      assetScale: 9,
+      assetScale: 9
     })
 
     return {
@@ -138,7 +138,7 @@ describe('Wallet Address Service', () => {
         userId,
         accountId: account.id,
         walletAddressName: 'my-wallet',
-        publicName: 'My Wallet',
+        publicName: 'My Wallet'
       })
       expect(result).toHaveProperty('publicName')
       expect(result).toHaveProperty('accountId')
@@ -155,7 +155,7 @@ describe('Wallet Address Service', () => {
         userId,
         accountId: account.id,
         walletAddressName: 'my-wallet',
-        publicName: 'My Wallet',
+        publicName: 'My Wallet'
       })
       expect(result).toHaveProperty('publicName')
       expect(result).toHaveProperty('accountId')
@@ -173,7 +173,7 @@ describe('Wallet Address Service', () => {
           userId,
           accountId: account.id,
           walletAddressName: 'my-work',
-          publicName: 'My Work',
+          publicName: 'My Work'
         })
       ).rejects.toThrowError(
         /This payment pointer already exists. Please choose another name./
@@ -323,25 +323,29 @@ describe('Wallet Address Service', () => {
 
   describe('Sum By Wallet AddressId Since', () => {
     it('should complete without errors for zero sum', async () => {
-      await prepareWADependencies('my-wallet', true);
-  
-      await expect(waService.keepBalancesSynced(new Date(0))).resolves.toBeUndefined();
-    });
-  
+      await prepareWADependencies('my-wallet', true)
+
+      await expect(
+        waService.keepBalancesSynced(new Date(0))
+      ).resolves.toBeUndefined()
+    })
+
     it('should complete without errors for non-zero sum', async () => {
-      prepareWSDepsMock(1000n);
-  
-      await prepareWADependencies('my-wallet', true);
-  
-      await expect(waService.keepBalancesSynced(new Date(0))).resolves.toBeUndefined();
-    });
-  
+      prepareWSDepsMock(1000n)
+
+      await prepareWADependencies('my-wallet', true)
+
+      await expect(
+        waService.keepBalancesSynced(new Date(0))
+      ).resolves.toBeUndefined()
+    })
+
     it('should throw missing assetCode error', async () => {
-      await prepareWADependencies('my-wallet', true);
-  
-      await expect(waService.keepBalancesSynced(new Date(0))).rejects.toThrowError(
-        /Error while processing payment pointers/
-      );
-    });
+      await prepareWADependencies('my-wallet', true)
+
+      await expect(
+        waService.keepBalancesSynced(new Date(0))
+      ).rejects.toThrowError(/Error while processing payment pointers/)
+    })
   })
 })
