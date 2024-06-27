@@ -17,6 +17,19 @@ export type Scalars = {
   UInt8: { input: number; output: number; }
 };
 
+export type AdditionalProperty = {
+  __typename?: 'AdditionalProperty';
+  key: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+  visibleInOpenPayments: Scalars['Boolean']['output'];
+};
+
+export type AdditionalPropertyInput = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+  visibleInOpenPayments: Scalars['Boolean']['input'];
+};
+
 export enum Alg {
   EdDsa = 'EdDSA'
 }
@@ -92,10 +105,18 @@ export type AssetsConnection = {
 };
 
 export type BasePayment = {
+  client?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   metadata?: Maybe<Scalars['JSONObject']['output']>;
   walletAddressId: Scalars['ID']['output'];
+};
+
+export type CancelOutgoingPaymentInput = {
+  /** Outgoing payment id */
+  id: Scalars['ID']['input'];
+  /** Reason why this Outgoing Payment has been cancelled. This value will be publicly visible in the metadata field if this outgoing payment is requested through Open Payments. */
+  reason?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateAssetInput = {
@@ -120,6 +141,8 @@ export type CreateAssetLiquidityWithdrawalInput = {
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey: Scalars['String']['input'];
+  /** This is the interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
+  timeoutSeconds: Scalars['BigInt']['input'];
 };
 
 export type CreateIncomingPaymentInput = {
@@ -133,6 +156,15 @@ export type CreateIncomingPaymentInput = {
   metadata?: InputMaybe<Scalars['JSONObject']['input']>;
   /** Id of the wallet address under which the incoming payment will be created */
   walletAddressId: Scalars['String']['input'];
+};
+
+export type CreateIncomingPaymentWithdrawalInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
+  /** The id of the incoming payment to withdraw from. */
+  incomingPaymentId: Scalars['String']['input'];
+  /** This is the interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
+  timeoutSeconds: Scalars['BigInt']['input'];
 };
 
 export type CreateOrUpdatePeerByUrlInput = {
@@ -160,6 +192,19 @@ export type CreateOrUpdatePeerByUrlMutationResponse = MutationResponse & {
   success: Scalars['Boolean']['output'];
 };
 
+export type CreateOutgoingPaymentFromIncomingPaymentInput = {
+  /** Amount to send (fixed send) */
+  debitAmount: AmountInput;
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  /** Incoming payment url to create the outgoing payment from */
+  incomingPayment: Scalars['String']['input'];
+  /** Additional metadata associated with the outgoing payment. */
+  metadata?: InputMaybe<Scalars['JSONObject']['input']>;
+  /** Id of the wallet address under which the outgoing payment will be created */
+  walletAddressId: Scalars['String']['input'];
+};
+
 export type CreateOutgoingPaymentInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
@@ -169,6 +214,15 @@ export type CreateOutgoingPaymentInput = {
   quoteId: Scalars['String']['input'];
   /** Id of the wallet address under which the outgoing payment will be created */
   walletAddressId: Scalars['String']['input'];
+};
+
+export type CreateOutgoingPaymentWithdrawalInput = {
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey: Scalars['String']['input'];
+  /** The id of the outgoing payment to withdraw from. */
+  outgoingPaymentId: Scalars['String']['input'];
+  /** This is the interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
+  timeoutSeconds: Scalars['BigInt']['input'];
 };
 
 export type CreatePeerInput = {
@@ -199,6 +253,8 @@ export type CreatePeerLiquidityWithdrawalInput = {
   idempotencyKey: Scalars['String']['input'];
   /** The id of the peer to create the withdrawal for. */
   peerId: Scalars['String']['input'];
+  /** This is the interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
+  timeoutSeconds: Scalars['BigInt']['input'];
 };
 
 export type CreatePeerMutationResponse = MutationResponse & {
@@ -244,6 +300,8 @@ export type CreateReceiverResponse = {
 };
 
 export type CreateWalletAddressInput = {
+  /** Additional properties associated with the [walletAddress]. */
+  additionalProperties?: InputMaybe<Array<AdditionalPropertyInput>>;
   /** Asset of the wallet address */
   assetId: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
@@ -283,6 +341,8 @@ export type CreateWalletAddressWithdrawalInput = {
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey: Scalars['String']['input'];
+  /** This is the interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
+  timeoutSeconds: Scalars['BigInt']['input'];
   /** The id of the Open Payments wallet address to create the withdrawal for. */
   walletAddressId: Scalars['String']['input'];
 };
@@ -290,6 +350,20 @@ export type CreateWalletAddressWithdrawalInput = {
 export enum Crv {
   Ed25519 = 'Ed25519'
 }
+
+export type DeleteAssetInput = {
+  /** Asset id */
+  id: Scalars['ID']['input'];
+  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type DeleteAssetMutationResponse = MutationResponse & {
+  __typename?: 'DeleteAssetMutationResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
 
 export type DeletePeerInput = {
   id: Scalars['ID']['input'];
@@ -421,6 +495,8 @@ export type HttpOutgoingInput = {
 
 export type IncomingPayment = BasePayment & Model & {
   __typename?: 'IncomingPayment';
+  /** Information about the wallet address of the Open Payments client that created the incoming payment. */
+  client?: Maybe<Scalars['String']['output']>;
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
   /** Date-time of expiry. After this time, the incoming payment will not accept further payments made to it. */
@@ -437,7 +513,7 @@ export type IncomingPayment = BasePayment & Model & {
   receivedAmount: Amount;
   /** Incoming payment state */
   state: IncomingPaymentState;
-  /** Id of the wallet address under which this incoming payment was created */
+  /** Id of the wallet address under which this incoming payment was created. */
   walletAddressId: Scalars['ID']['output'];
 };
 
@@ -533,16 +609,24 @@ export type Model = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Cancel Outgoing Payment */
+  cancelOutgoingPayment: OutgoingPaymentResponse;
   /** Create an asset */
   createAsset: AssetMutationResponse;
   /** Withdraw asset liquidity */
   createAssetLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create an internal Open Payments Incoming Payment. The receiver has a wallet address on this Rafiki instance. */
   createIncomingPayment: IncomingPaymentResponse;
+  /** Withdraw incoming payment liquidity */
+  createIncomingPaymentWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create a peer using a URL */
   createOrUpdatePeerByUrl: CreateOrUpdatePeerByUrlMutationResponse;
   /** Create an Open Payments Outgoing Payment */
   createOutgoingPayment: OutgoingPaymentResponse;
+  /** Create an Open Payments Outgoing Payment from an incoming payment */
+  createOutgoingPaymentFromIncomingPayment: OutgoingPaymentResponse;
+  /** Withdraw outgoing payment liquidity */
+  createOutgoingPaymentWithdrawal?: Maybe<LiquidityMutationResponse>;
   /** Create a peer */
   createPeer: CreatePeerMutationResponse;
   /** Withdraw peer liquidity */
@@ -557,6 +641,8 @@ export type Mutation = {
   createWalletAddressKey?: Maybe<CreateWalletAddressKeyMutationResponse>;
   /** Withdraw liquidity from a wallet address received via Web Monetization. */
   createWalletAddressWithdrawal?: Maybe<WalletAddressWithdrawalMutationResponse>;
+  /** Delete an asset */
+  deleteAsset: DeleteAssetMutationResponse;
   /** Delete a peer */
   deletePeer: DeletePeerMutationResponse;
   /** Deposit asset liquidity */
@@ -588,13 +674,14 @@ export type Mutation = {
   voidLiquidityWithdrawal?: Maybe<LiquidityMutationResponse>;
   /**
    * Withdraw webhook event liquidity
-   * @deprecated Use `withdrawOutgoingPaymentLiquidity, withdrawIncomingPaymentLiquidity, or createWalletAddressWithdrawal`
+   * @deprecated Use `createOutgoingPaymentWithdrawal, createIncomingPaymentWithdrawal, or createWalletAddressWithdrawal`
    */
   withdrawEventLiquidity?: Maybe<LiquidityMutationResponse>;
-  /** Withdraw incoming payment liquidity */
-  withdrawIncomingPaymentLiquidity?: Maybe<LiquidityMutationResponse>;
-  /** Withdraw outgoing payment liquidity */
-  withdrawOutgoingPaymentLiquidity?: Maybe<LiquidityMutationResponse>;
+};
+
+
+export type MutationCancelOutgoingPaymentArgs = {
+  input: CancelOutgoingPaymentInput;
 };
 
 
@@ -613,6 +700,11 @@ export type MutationCreateIncomingPaymentArgs = {
 };
 
 
+export type MutationCreateIncomingPaymentWithdrawalArgs = {
+  input: CreateIncomingPaymentWithdrawalInput;
+};
+
+
 export type MutationCreateOrUpdatePeerByUrlArgs = {
   input: CreateOrUpdatePeerByUrlInput;
 };
@@ -620,6 +712,16 @@ export type MutationCreateOrUpdatePeerByUrlArgs = {
 
 export type MutationCreateOutgoingPaymentArgs = {
   input: CreateOutgoingPaymentInput;
+};
+
+
+export type MutationCreateOutgoingPaymentFromIncomingPaymentArgs = {
+  input: CreateOutgoingPaymentFromIncomingPaymentInput;
+};
+
+
+export type MutationCreateOutgoingPaymentWithdrawalArgs = {
+  input: CreateOutgoingPaymentWithdrawalInput;
 };
 
 
@@ -655,6 +757,11 @@ export type MutationCreateWalletAddressKeyArgs = {
 
 export type MutationCreateWalletAddressWithdrawalArgs = {
   input: CreateWalletAddressWithdrawalInput;
+};
+
+
+export type MutationDeleteAssetArgs = {
+  input: DeleteAssetInput;
 };
 
 
@@ -727,16 +834,6 @@ export type MutationWithdrawEventLiquidityArgs = {
   input: WithdrawEventLiquidityInput;
 };
 
-
-export type MutationWithdrawIncomingPaymentLiquidityArgs = {
-  input: WithdrawIncomingPaymentLiquidityInput;
-};
-
-
-export type MutationWithdrawOutgoingPaymentLiquidityArgs = {
-  input: WithdrawOutgoingPaymentLiquidityInput;
-};
-
 export type MutationResponse = {
   code: Scalars['String']['output'];
   message: Scalars['String']['output'];
@@ -745,6 +842,8 @@ export type MutationResponse = {
 
 export type OutgoingPayment = BasePayment & Model & {
   __typename?: 'OutgoingPayment';
+  /** Information about the wallet address of the Open Payments client that created the outgoing payment. */
+  client?: Maybe<Scalars['String']['output']>;
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
   /** Amount to send (fixed send) */
@@ -792,6 +891,8 @@ export type OutgoingPaymentResponse = {
 };
 
 export enum OutgoingPaymentState {
+  /** Payment cancelled */
+  Cancelled = 'CANCELLED',
   /** Successful completion */
   Completed = 'COMPLETED',
   /** Payment failed */
@@ -816,6 +917,8 @@ export type PageInfo = {
 
 export type Payment = BasePayment & Model & {
   __typename?: 'Payment';
+  /** Information about the wallet address of the Open Payments client that created the payment. */
+  client?: Maybe<Scalars['String']['output']>;
   /** Date-time of creation */
   createdAt: Scalars['String']['output'];
   /** Payment id */
@@ -915,7 +1018,7 @@ export type Query = {
   quote?: Maybe<Quote>;
   /** Get an local or remote Open Payments Incoming Payment. The receiver has a wallet address on either this or another Open Payments resource server. */
   receiver?: Maybe<Receiver>;
-  /** Fetch a wallet address */
+  /** Fetch a wallet address. */
   walletAddress?: Maybe<WalletAddress>;
   /** Fetch a page of wallet addresses. */
   walletAddresses: WalletAddressesConnection;
@@ -1201,6 +1304,8 @@ export type VoidLiquidityWithdrawalInput = {
 
 export type WalletAddress = Model & {
   __typename?: 'WalletAddress';
+  /** List additional properties associated with this wallet address. */
+  additionalProperties?: Maybe<Array<Maybe<AdditionalProperty>>>;
   /** Asset of the wallet address */
   asset: Asset;
   /** Date-time of creation */
@@ -1221,6 +1326,8 @@ export type WalletAddress = Model & {
   status: WalletAddressStatus;
   /** Wallet Address URL */
   url: Scalars['String']['output'];
+  /** List of keys associated with this wallet address */
+  walletAddressKeys?: Maybe<WalletAddressKeyConnection>;
 };
 
 
@@ -1250,6 +1357,15 @@ export type WalletAddressQuotesArgs = {
   sortOrder?: InputMaybe<SortOrder>;
 };
 
+
+export type WalletAddressWalletAddressKeysArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  sortOrder?: InputMaybe<SortOrder>;
+};
+
 export type WalletAddressEdge = {
   __typename?: 'WalletAddressEdge';
   cursor: Scalars['String']['output'];
@@ -1268,6 +1384,18 @@ export type WalletAddressKey = Model & {
   revoked: Scalars['Boolean']['output'];
   /** Id of the wallet address to which this key belongs to */
   walletAddressId: Scalars['ID']['output'];
+};
+
+export type WalletAddressKeyConnection = {
+  __typename?: 'WalletAddressKeyConnection';
+  edges: Array<WalletAddressKeyEdge>;
+  pageInfo: PageInfo;
+};
+
+export type WalletAddressKeyEdge = {
+  __typename?: 'WalletAddressKeyEdge';
+  cursor: Scalars['String']['output'];
+  node: WalletAddressKey;
 };
 
 export enum WalletAddressStatus {
@@ -1335,20 +1463,6 @@ export type WithdrawEventLiquidityInput = {
   eventId: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey: Scalars['String']['input'];
-};
-
-export type WithdrawIncomingPaymentLiquidityInput = {
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey: Scalars['String']['input'];
-  /** The id of the incoming payment to withdraw from. */
-  incomingPaymentId: Scalars['String']['input'];
-};
-
-export type WithdrawOutgoingPaymentLiquidityInput = {
-  /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
-  idempotencyKey: Scalars['String']['input'];
-  /** The id of the outgoing payment to withdraw from. */
-  outgoingPaymentId: Scalars['String']['input'];
 };
 
 export type CreateAssetMutationVariables = Exact<{
