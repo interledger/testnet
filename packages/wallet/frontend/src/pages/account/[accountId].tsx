@@ -28,7 +28,7 @@ import { z } from 'zod'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { PageHeader } from '@/components/PageHeader'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 

@@ -3,7 +3,7 @@ import { Account } from '@/account/model'
 import { Transaction } from '@/transaction/model'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
 import { BaseModel } from '@shared/backend'
-import { IWalletAddressResponse } from '@wallet/shared/src'
+import { IWalletAddressResponse } from '@wallet/shared'
 
 export class WalletAddress extends BaseModel implements IWalletAddressResponse {
   static tableName = 'walletAddresses'
