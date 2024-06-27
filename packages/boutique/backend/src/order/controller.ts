@@ -156,15 +156,7 @@ export class OrderController implements IOrderController {
         walletAddressUrl,
         Number(amount)
       )
-      const redirectUrlOneClick = new URL(redirectUrl)
-      redirectUrlOneClick.searchParams.set(
-        'clientName',
-        `${redirectUrlOneClick.searchParams.get('clientName')}@oneClick`
-      )
-
-      res
-        .status(200)
-        .json(toSuccessResponse({ redirectUrl: redirectUrlOneClick.href }))
+      res.status(200).json(toSuccessResponse({ redirectUrl }))
     } catch (err) {
       next(err)
     }

@@ -26,11 +26,6 @@ export type GrantsList = {
   }
 }
 
-export type GrantOneClick = {
-  grant: GrantResponse
-  oneClick: boolean
-}
-
 export const grantsListSchema = z.object({
   after: z.string().optional(),
   before: z.string().optional(),
@@ -45,8 +40,6 @@ type GrantsListResponse = GrantsListResult | ErrorResponse
 type ListGrantsResult = SuccessResponse<GrantResponse[]>
 type ListGrantsResponse = ListGrantsResult | ErrorResponse
 
-type GetGrantOneClickResult = SuccessResponse<GrantOneClick>
-type GetGrantOneClickResponse = GetGrantOneClickResult | ErrorResponse
 type GetGrantResult = SuccessResponse<GrantResponse>
 type GetGrantResponse = GetGrantResult | ErrorResponse
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
@@ -65,9 +58,8 @@ interface GrantsService {
   getInteraction: (
     interactionId: string,
     nonce: string,
-    clientName: string,
     cookies?: string
-  ) => Promise<GetGrantOneClickResponse>
+  ) => Promise<GetGrantResponse>
   finalizeInteraction: (
     args: FinalizeInteractionParams
   ) => Promise<FinalizeInteractionResponse>
@@ -121,15 +113,15 @@ const createGrantsService = (): GrantsService => ({
     }
   },
 
-  async getInteraction(interactionId, nonce, clientName, cookies) {
+  async getInteraction(interactionId, nonce, cookies) {
     try {
       const response = await httpClient
-        .get(`grant-interactions/${interactionId}/${nonce}/${clientName}`, {
+        .get(`grant-interactions/${interactionId}/${nonce}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<GetGrantOneClickResult>()
+        .json<GetGrantResponse>()
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch grant request details.')

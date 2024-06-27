@@ -86,12 +86,7 @@ export class GrantController implements IGrantController {
         req.params.nonce
       )
 
-      res.json(
-        toSuccessResponse({
-          grant,
-          oneClick: req.params.clientName.includes('@oneClick')
-        })
-      )
+      res.json(toSuccessResponse(grant))
     } catch (e) {
       next(e)
     }
