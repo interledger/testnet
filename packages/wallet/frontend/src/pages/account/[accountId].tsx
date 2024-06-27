@@ -81,7 +81,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   return (
     <>
       <PageHeader title={account.name} />
-      <div className="text-green items-center mt-6" id="balance">
+      <div className="mt-6 items-center text-green" id="balance">
         <h2 className="text-lg font-light md:text-xl">Balance</h2>
         <div className="text-2xl font-semibold md:text-4xl">
           {formattedAmounts.amountScale2.amount}
