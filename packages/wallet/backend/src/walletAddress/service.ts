@@ -280,12 +280,9 @@ export class WalletAddressService implements IWalletAddressService {
 
     this.logger.debug(`Passed first throw`)
 
-    // 10000000 is 0.01 i.e. one cent in asset scale 9
-    // One cent is the lowest number that can be represented in asset scale 2 by Rapyd
-    const rapydMinRepresentation = 10000000n
     const amount = Number(
       (
-        Number(balance * rapydMinRepresentation) *
+        Number(balance * this.env.RAPYD_THRESHOLD) *
         10 ** -walletAddress.assetScale
       ).toPrecision(2)
     )
@@ -340,7 +337,7 @@ export class WalletAddressService implements IWalletAddressService {
     const updatePart: PartialModelObject<WalletAddress> = {
       [updatedField]: raw('?? - ?', [
         updatedField,
-        rapydMinRepresentation * balance
+        this.env.RAPYD_THRESHOLD * balance
       ])
     }
 
@@ -400,14 +397,10 @@ export class WalletAddressService implements IWalletAddressService {
             outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
           })
 
-        // 10000000 is 0.01 i.e. one cent in asset scale 9
-        // One cent is the lowest number that can be represented in asset scale 2 by Rapyd
-        const rapydMinRepresentation = 10000000n
-
         const incomingBalance =
-          tmpWalletAddress.incomingBalance / rapydMinRepresentation
+          tmpWalletAddress.incomingBalance / this.env.RAPYD_THRESHOLD
         const outgoingBalance =
-          tmpWalletAddress.outgoingBalance / rapydMinRepresentation
+          tmpWalletAddress.outgoingBalance / this.env.RAPYD_THRESHOLD
 
         this.logger.debug(
           `Incoming balance: ${incomingBalance}. Outgoing balance: ${outgoingBalance}`
