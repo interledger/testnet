@@ -12,7 +12,6 @@ export class WalletAddress extends BaseModel implements IWalletAddressResponse {
   readonly id!: string
   readonly url!: string
   readonly accountId!: string
-  isWM!: boolean
   assetCode!: string | null
   assetScale!: number | null
   incomingBalance!: bigint

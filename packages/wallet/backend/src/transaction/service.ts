@@ -1,5 +1,5 @@
-import { Transaction } from './model'
-import { OrderByDirection, Page, PartialModelObject } from 'objection'
+import { Transaction, TransactionType } from './model'
+import { OrderByDirection, Page, PartialModelObject, TransactionOrKnex } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
 import { PaginationQueryParams } from '@/shared/types'
@@ -163,5 +163,29 @@ export class TransactionService implements ITransactionService {
       status: 'PENDING',
       description: params.metadata?.description
     })
+  }
+
+  async sumByWalletAddressIdSince(
+    walletAddressId: string,
+    type: TransactionType,
+    since: Date,
+    trx?: TransactionOrKnex
+  ) {
+    //TODO updatedAt instead of createdAt?
+    const transactions = await Transaction.query(trx).where({
+      walletAddressId,
+      type,
+      status: 'COMPLETED'
+    }).andWhere('createdAt', '>', since);
+
+    const ids = transactions.map(({ id }) => id)
+    const sumResult = (await Transaction.query(trx)
+      .whereIn('id', ids)
+      .sum('value')) as unknown as [{ sum: bigint }]
+
+    return {
+      ids,
+      sum: sumResult[0].sum ?? 0n
+    }
   }
 }

@@ -8,12 +8,11 @@ import {
   updateWalletAddressSchema
 } from './validation'
 import { Controller, toSuccessResponse } from '@shared/backend'
-import { ListWalletAddressesResponse } from '@wallet/shared/src'
 import { WalletAddressOP, WalletAddressResponse } from '@wallet/shared'
 
 interface IWalletAddressController {
   create: Controller<WalletAddress>
-  list: Controller<ListWalletAddressesResponse>
+  list: Controller<WalletAddress[]>
   getById: Controller<WalletAddress>
   softDelete: Controller
 }
@@ -30,7 +29,7 @@ export class WalletAddressController implements IWalletAddressController {
       const userId = req.session.user.id
       const { accountId } = req.params
       const {
-        body: { walletAddressName, publicName, isWM }
+        body: { walletAddressName, publicName }
       } = await validate(walletAddressSchema, req)
 
       const walletAddress = await this.walletAddressService.create({
@@ -38,7 +37,6 @@ export class WalletAddressController implements IWalletAddressController {
         accountId,
         walletAddressName,
         publicName,
-        isWM
       })
       res.status(200).json(toSuccessResponse(walletAddress))
     } catch (e) {
@@ -48,7 +46,7 @@ export class WalletAddressController implements IWalletAddressController {
 
   list = async (
     req: Request,
-    res: CustomResponse<ListWalletAddressesResponse>,
+    res: CustomResponse<WalletAddress[]>,
     next: NextFunction
   ) => {
     const userId = req.session.user.id

@@ -44,7 +44,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 2
     target: '#createAccountForm',
     content:
-      'All accounts need a name, so please add a name for your new EUR account.',
+      'All accounts need a name, so please add a name for your new USD account.',
     placement: 'center',
     disableOverlayClose: true,
     Icon: Person
@@ -203,8 +203,8 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 21
-    target: '#eurAccount',
-    content: 'Go inside your EUR account.',
+    target: '#usdAccount',
+    content: 'Go inside your USD account.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Euro

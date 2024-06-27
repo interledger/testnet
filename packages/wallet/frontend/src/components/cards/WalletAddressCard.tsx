@@ -19,7 +19,6 @@ import { WalletAddressResponse } from '@wallet/shared/src'
 
 type WalletAddressCardProps = {
   walletAddress: WalletAddressResponse
-  isWM: boolean
   idOnboarding?: string
 }
 
@@ -61,7 +60,6 @@ WalletAddressCardButton.displayName = 'WalletAddressCardButton'
 
 export const WalletAddressCard = ({
   walletAddress,
-  isWM,
   idOnboarding
 }: WalletAddressCardProps) => {
   return (
@@ -69,11 +67,7 @@ export const WalletAddressCard = ({
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{walletAddress.url}</span>
         <div className="flex">
-          {isWM ? (
-            <span className="flex items-center justify-center px-3">
-              {formattedAmount(walletAddress).amount}
-            </span>
-          ) : (
+          
             <WalletAddressCardButton
               href={`/transactions?walletAddressId=${walletAddress.id}`}
               aria-label="view payment pointer"
@@ -81,7 +75,7 @@ export const WalletAddressCard = ({
             >
               View
             </WalletAddressCardButton>
-          )}
+          
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"

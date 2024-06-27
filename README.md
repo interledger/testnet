@@ -91,7 +91,7 @@ The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in y
 To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
 
 Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
-Currencies can be added in the `admin` environment. For example `assetCode` is `EUR`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
+Currencies can be added in the `admin` environment. For example `assetCode` is `USD`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
 
 To have everything ready for `DEV` environment, we already set up some default values for Interledger Test Wallet, this way developers are ready to login without validation, and test e-commerce application without any additional setup:
 

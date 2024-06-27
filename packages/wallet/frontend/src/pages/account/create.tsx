@@ -28,7 +28,7 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const defaultValue = {
-    asset: assets.find((asset) => asset.label === 'EUR')
+    asset: assets.find((asset) => asset.label === 'USD')
   }
 
   const createAccountForm = useZodForm({
@@ -138,7 +138,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = response.result
-    ?.filter((asset) => asset.scale <= 2)
+    ?.filter((asset) => asset.scale <= 9 )
     ?.map((asset) => ({
       value: asset.id,
       label: asset.code

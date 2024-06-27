@@ -107,7 +107,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
               <AccountCard
                 key={account.id}
                 account={account}
-                idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                idOnboarding={account.assetCode === 'USD' ? 'usdAccount' : ''}
               />
             ))}
           </div>

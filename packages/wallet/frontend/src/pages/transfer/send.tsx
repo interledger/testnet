@@ -113,7 +113,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       return
     }
 
-    const walletAddresses = walletAddressesResponse.result.walletAddresses.map(
+    const walletAddresses = walletAddressesResponse.result.map(
       (walletAddress) => ({
         label: `${walletAddress.publicName} (${replaceWalletAddressProtocol(walletAddress.url)})`,
         value: walletAddress.id

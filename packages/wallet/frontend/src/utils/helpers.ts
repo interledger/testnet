@@ -45,8 +45,10 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
     maximumFractionDigits: assetScale,
     minimumFractionDigits: assetScale
   })
+  //TODO make this work properly
+  const numberValue = Number(value) / Math.pow(10, assetScale);
 
-  const amount = formatter.format(Number(`${value}e-${assetScale}`))
+  const amount = formatter.format(numberValue)
   const symbol = getCurrencySymbol(assetCode)
 
   return {

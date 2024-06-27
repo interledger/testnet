@@ -38,7 +38,6 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
@@ -78,7 +77,6 @@ export interface Bindings {
   grantService: GrantService
   emailService: EmailService
   socketService: SocketService
-  wmTransactionService: WMTransactionService
 }
 
 export class App {
@@ -336,24 +334,25 @@ export class App {
       })
   }
 
-  private async processWMWalletAddresses() {
+  private async keepBalancesSynced(lastProcessedTimestamp: Date) {
     const logger = await this.container.resolve('logger')
     const walletAddressService = await this.container.resolve(
       'walletAddressService'
     )
 
     return walletAddressService
-      .processWMWalletAddresses()
+      .keepBalancesSynced(lastProcessedTimestamp)
       .catch((e) => {
         logger.error(e)
         return false
       })
       .then((trx) => {
+        const newTimestamp = new Date();
         if (trx) {
-          process.nextTick(() => this.processWMWalletAddresses())
+          process.nextTick(() => this.keepBalancesSynced(newTimestamp))
         } else {
           setTimeout(
-            () => this.processWMWalletAddresses(),
+            () => this.keepBalancesSynced(lastProcessedTimestamp),
             1000 * 60 * 5
           ).unref()
         }
@@ -362,7 +361,7 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-    process.nextTick(() => this.processWMWalletAddresses())
+    process.nextTick(() => this.keepBalancesSynced(new Date()))
   }
 
   async createDefaultUsers() {

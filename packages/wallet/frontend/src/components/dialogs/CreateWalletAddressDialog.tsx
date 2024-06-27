@@ -13,8 +13,6 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { Checkbox } from '@/ui/forms/Checkbox'
-import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -71,11 +69,9 @@ export const CreateWalletAddressDialog = ({
                 </Dialog.Title>
 
                 <div className="px-4">
-                  <TemporaryWMNotice />
                   <Form
                     form={createWalletAddressForm}
                     onSubmit={async (data) => {
-                      data.isWM = isWebMonetization ? true : data.isWM
                       const response = await walletAddressService.create(
                         accountId,
                         data
@@ -134,14 +130,6 @@ export const CreateWalletAddressDialog = ({
                           ?.message
                       }
                       {...createWalletAddressForm.register('publicName')}
-                    />
-                    <Checkbox
-                      label="I want to use this payment pointer for Web Monetization"
-                      checked={isWebMonetization}
-                      onClick={(e) => {
-                        if (isWebMonetization) e.preventDefault()
-                      }}
-                      {...createWalletAddressForm.register('isWM')}
                     />
                     <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
                       <Button
