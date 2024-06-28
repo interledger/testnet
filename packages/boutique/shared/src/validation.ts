@@ -34,5 +34,9 @@ export const setupFinishSchema = finishOrderSchema.extend({
 
 export const oneClickSetupSchema = z.object({
   walletAddressUrl: walletAddressUrlSchema,
-  amount: z.number()
+  amount: z
+    .union([z.string(), z.number()])
+    .refine((value) => !isNaN(Number(value)), {
+      message: 'Must be a valid number'
+    })
 })

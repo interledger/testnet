@@ -121,7 +121,7 @@ const createGrantsService = (): GrantsService => ({
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<GetGrantResult>()
+        .json<GetGrantResponse>()
       return response
     } catch (error) {
       return getError(error, 'Unable to fetch grant request details.')
