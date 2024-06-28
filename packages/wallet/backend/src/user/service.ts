@@ -155,7 +155,7 @@ export class UserService implements IUserService {
       const boutiqueWallet = await this.walletAddressService.create({
         accountId: boutiqueInfo.defaultAccount.id,
         walletAddressName: 'boutique',
-        publicName: 'Default Payment Pointer',
+        publicName: 'Rafiki Boutique',
         userId: boutiqueInfo.createdUser.id
       })
 

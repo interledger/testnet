@@ -21,8 +21,6 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />
-        {/* <Divider />
-        <ChangePasswordForm /> */}
       </div>
       <SmallBubbles className="mt-10 block w-full md:hidden" />
       <Image

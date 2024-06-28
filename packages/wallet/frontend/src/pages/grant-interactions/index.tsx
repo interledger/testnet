@@ -58,10 +58,21 @@ const GrantInteractionPage = ({
           width={500}
           height={150}
         />
-        <div className="mt-20 text-xl text-green">
-          <span className="font-semibold">{client}</span> wants to access your
-          wallet account and withdraw{' '}
-          {access?.limits?.debitAmount?.formattedAmount}.
+        <div className="mt-20 text-base">
+          <div>
+            <span className="font-semibold">{client}</span> is requesting access
+            to make a payment on your behalf.
+          </div>
+          <div>
+            Wallet Address client:{' '}
+            <span className="font-semibold">{grant.client}</span>
+          </div>
+          <div>
+            Total amount to debit:{' '}
+            <span className="font-semibold">
+              {access?.limits?.debitAmount?.formattedAmount}
+            </span>
+          </div>
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
@@ -97,8 +108,8 @@ const GrantInteractionPage = ({
         />
         <div className="mt-20 text-xl text-green">
           The request from <span className="font-semibold">{client}</span> to
-          access your wallet account and withdraw{' '}
-          {access?.limits?.debitAmount?.formattedAmount} was previously
+          make a payment on your behalf for the amount of
+          {access?.limits?.debitAmount?.formattedAmount}, was previously
           processed.
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
