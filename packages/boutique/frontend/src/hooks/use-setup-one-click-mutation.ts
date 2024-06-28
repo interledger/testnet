@@ -7,7 +7,7 @@ import { oneClickSetupSchema } from '@boutique/shared'
 
 interface SetupOneClickMutationParams {
   walletAddressUrl: string
-  amount: number
+  amount: number | string
 }
 
 interface SetupOneClickMutationResponse {

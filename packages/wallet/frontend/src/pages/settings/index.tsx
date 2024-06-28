@@ -20,8 +20,6 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />
-        {/* <Divider />
-        <ChangePasswordForm /> */}
       </div>
       <Image
         className="hidden md:block"
