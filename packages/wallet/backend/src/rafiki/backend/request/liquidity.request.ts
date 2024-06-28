@@ -8,10 +8,7 @@ export const withdrawLiquidityMutation = gql`
     withdrawEventLiquidity(
       input: { eventId: $eventId, idempotencyKey: $idempotencyKey }
     ) {
-      code
       success
-      message
-      error
     }
   }
 `
@@ -24,10 +21,7 @@ export const depositLiquidityMutation = gql`
     depositEventLiquidity(
       input: { eventId: $eventId, idempotencyKey: $idempotencyKey }
     ) {
-      code
       success
-      message
-      error
     }
   }
 `

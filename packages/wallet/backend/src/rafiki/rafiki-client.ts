@@ -1,6 +1,5 @@
 import { GraphQLClient } from 'graphql-request'
 import { v4 as uuid } from 'uuid'
-import { Logger } from 'winston'
 import {
   Asset,
   CreateAssetMutation,
@@ -97,17 +96,14 @@ export type CreateReceiverParams = {
   walletAddressUrl: string
 } & PaymentParams
 export class RafikiClient implements IRafikiClient {
-  constructor(
-    private logger: Logger,
-    private backendGraphQLClient: GraphQLClient
-  ) {}
+  constructor(private backendGraphQLClient: GraphQLClient) {}
 
   public async createAsset(code: string, scale: number) {
     const response = await this.backendGraphQLClient.request<
       CreateAssetMutation,
       CreateAssetMutationVariables
     >(createAssetMutation, { input: { code, scale } })
-    if (!response.createAsset.success || !response.createAsset.asset) {
+    if (!response.createAsset || !response.createAsset.asset) {
       throw new Error('Data was empty')
     }
 
@@ -157,8 +153,8 @@ export class RafikiClient implements IRafikiClient {
         input
       })
 
-    if (!paymentResponse.success) {
-      throw new Error(paymentResponse.message ?? 'Empty result')
+    if (!paymentResponse) {
+      throw new Error('Empty result')
     }
     if (!paymentResponse.payment) {
       throw new Error('Unable to fetch created incoming payment')
@@ -190,8 +186,8 @@ export class RafikiClient implements IRafikiClient {
         input
       })
 
-    if (!paymentResponse.success) {
-      throw new Error(paymentResponse.message ?? 'Empty result')
+    if (!paymentResponse) {
+      throw new Error('Empty result')
     }
     if (!paymentResponse.receiver) {
       throw new Error('Unable to fetch created receiver')
@@ -219,18 +215,15 @@ export class RafikiClient implements IRafikiClient {
     })
 
     if (!response.withdrawEventLiquidity?.success) {
-      if (response.withdrawEventLiquidity?.message === 'Transfer exists') {
-        return true
-      }
-
-      if (response.withdrawEventLiquidity?.message === 'Invalid id') {
-        this.logger.debug(`Nothing to withdraw for event ${eventId}`)
-        return true
-      }
-      throw new BadRequest(
-        response.withdrawEventLiquidity?.message ||
-          'Unable to withdrawLiquidity from rafiki'
-      )
+      // if (response.withdrawEventLiquidity?.message === 'Transfer exists') {
+      //   return true
+      // }
+      //
+      // if (response.withdrawEventLiquidity?.message === 'Invalid id') {
+      //   this.logger.debug(`Nothing to withdraw for event ${eventId}`)
+      //   return true
+      // }
+      throw new BadRequest('Unable to withdrawLiquidity from rafiki')
     }
 
     return true
@@ -246,9 +239,7 @@ export class RafikiClient implements IRafikiClient {
     })
 
     if (!response.depositEventLiquidity?.success) {
-      throw new BadRequest(
-        response.depositEventLiquidity?.message || 'Unable to deposit to rafiki'
-      )
+      throw new BadRequest('Unable to deposit to rafiki')
     }
 
     return true
@@ -265,8 +256,8 @@ export class RafikiClient implements IRafikiClient {
         input
       })
 
-    if (!paymentResponse.success) {
-      throw new Error(paymentResponse.message ?? 'Empty result')
+    if (!paymentResponse) {
+      throw new Error('Empty result')
     }
     if (!paymentResponse.payment) {
       throw new Error('Unable to fetch created outgoing payment')
@@ -291,8 +282,8 @@ export class RafikiClient implements IRafikiClient {
       }
     })
 
-    if (!response.createWalletAddress.success) {
-      throw new Error(response.createWalletAddress.message)
+    if (!response.createWalletAddress) {
+      throw new Error('Empty result')
     }
     if (!response.createWalletAddress.walletAddress) {
       throw new Error('Unable to fetch created wallet address')
@@ -311,8 +302,8 @@ export class RafikiClient implements IRafikiClient {
       input: args
     })
 
-    if (!response.updateWalletAddress.success) {
-      throw new Error(response.updateWalletAddress.message)
+    if (!response.updateWalletAddress) {
+      throw new Error('Empty result')
     }
   }
 
@@ -330,8 +321,8 @@ export class RafikiClient implements IRafikiClient {
       }
     })
 
-    if (!response.createWalletAddressKey?.success) {
-      throw new Error(response.createWalletAddressKey?.message)
+    if (!response.createWalletAddressKey) {
+      throw new Error('Empty result')
     }
     if (!response.createWalletAddressKey.walletAddressKey) {
       throw new Error('Unable to fetch created wallet address key')
@@ -348,8 +339,8 @@ export class RafikiClient implements IRafikiClient {
       input: { id }
     })
 
-    if (!response.revokeWalletAddressKey?.success) {
-      throw new Error(response.revokeWalletAddressKey?.message)
+    if (!response.revokeWalletAddressKey) {
+      throw new Error('Empty result')
     }
   }
 
@@ -361,15 +352,15 @@ export class RafikiClient implements IRafikiClient {
       input
     })
 
-    if (
-      createQuote.code === '400' &&
-      createQuote.message === 'invalid amount'
-    ) {
-      throw new BadRequest('Fees exceed send amount')
-    }
+    // if (
+    //   createQuote.code === '400' &&
+    //   createQuote.message === 'invalid amount'
+    // ) {
+    //   throw new BadRequest('Fees exceed send amount')
+    // }
 
     if (!createQuote.quote) {
-      throw new Error(createQuote.message || 'Unable to create Quote')
+      throw new Error('Unable to create Quote')
     }
 
     return createQuote.quote
