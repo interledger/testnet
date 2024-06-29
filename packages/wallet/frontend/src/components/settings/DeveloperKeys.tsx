@@ -20,8 +20,8 @@ import { ConfirmationDialog } from '../dialogs/ConfirmationDialog'
 import { GenerateKeysDialog } from '../dialogs/GenerateKeysDialog'
 import { UploadPublicKeyDialog } from '../dialogs/UploadPublicKeyDialog'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { WalletAddressResponse } from '@wallet/shared/src'
-import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
+import { WalletAddressResponse } from '@wallet/shared'
+import { WalletAddressKeyResponse } from '@wallet/shared'
 
 type WalletAddressContextType = {
   walletAddress: WalletAddressResponse

@@ -12,7 +12,7 @@ import {
   withdrawFundsSchema,
   exchangeAssetSchema
 } from '@wallet/shared'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 
 export type Account = {
   id: string

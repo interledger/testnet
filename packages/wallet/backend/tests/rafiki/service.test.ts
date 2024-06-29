@@ -64,7 +64,6 @@ describe('Rafiki Service', () => {
       walletAddressService: {
         findByIdWithoutValidation: () => walletAddress || mockWalletAddress
       },
-      wmTransactionService: {},
       env: bindings.resolve('env'),
       logger: bindings.resolve('logger')
     }

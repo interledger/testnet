@@ -135,8 +135,7 @@ describe('Wallet Address', () => {
       }
       req.body = {
         walletAddressName: faker.lorem.slug(),
-        publicName: faker.lorem.words({ min: 2, max: 2 }),
-        isWM: false
+        publicName: faker.lorem.words({ min: 2, max: 2 })
       }
       await walletAddressController.create(req, res, next)
       expect(res.statusCode).toBe(200)
@@ -156,8 +155,7 @@ describe('Wallet Address', () => {
       }
       req.body = {
         walletAddressName: faker.lorem.slug(),
-        publicName: faker.lorem.words({ min: 2, max: 2 }),
-        isWM: false
+        publicName: faker.lorem.words({ min: 2, max: 2 })
       }
       await walletAddressController.create(req, res, (err) => {
         next()

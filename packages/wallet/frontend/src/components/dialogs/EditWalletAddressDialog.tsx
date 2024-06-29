@@ -14,7 +14,7 @@ import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from './SuccessDialog'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 
 type EditWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
   walletAddress: WalletAddressResponse

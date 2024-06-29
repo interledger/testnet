@@ -1,5 +1,5 @@
 import { AssetOP } from './asset'
-import { WalletAddressKeyResponse } from './WalletAddressKey'
+import { WalletAddressKeyResponse } from './walletAddressKey'
 
 export interface IWalletAddressResponse {
   id: string
@@ -14,11 +14,6 @@ export interface IWalletAddressResponse {
 
 export interface WalletAddressResponse extends IWalletAddressResponse {
   keys: WalletAddressKeyResponse[]
-}
-
-export interface ListWalletAddressesResponse {
-  wmWalletAddresses: Array<WalletAddressResponse>
-  walletAddresses: Array<WalletAddressResponse>
 }
 
 export type WalletAddressOP = AssetOP & {

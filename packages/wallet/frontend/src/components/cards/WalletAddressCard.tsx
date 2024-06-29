@@ -14,24 +14,15 @@ import { PencilSquare } from '../icons/Pencil'
 import { Trash } from '../icons/Trash'
 import { EditWalletAddressDialog } from '../dialogs/EditWalletAddressDialog'
 import { CopyButton } from '@/ui/CopyButton'
-import { formatAmount } from '@/utils/helpers'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 
 type WalletAddressCardProps = {
   walletAddress: WalletAddressResponse
-  isWM: boolean
   idOnboarding?: string
 }
 
 type WalletAddressCardButtonProps = ButtonOrLinkProps & {
   ['aria-label']: string
-}
-const formattedAmount = (walletAddress: WalletAddressResponse) => {
-  return formatAmount({
-    value: String(walletAddress.incomingBalance) || '',
-    assetCode: walletAddress.assetCode || '',
-    assetScale: walletAddress.assetScale || 2
-  })
 }
 
 const WalletAddressCardButton = forwardRef<
@@ -61,7 +52,6 @@ WalletAddressCardButton.displayName = 'WalletAddressCardButton'
 
 export const WalletAddressCard = ({
   walletAddress,
-  isWM,
   idOnboarding
 }: WalletAddressCardProps) => {
   return (
@@ -69,19 +59,14 @@ export const WalletAddressCard = ({
       <div className="flex flex-1 items-center justify-between space-x-2">
         <span className="px-1 font-medium">{walletAddress.url}</span>
         <div className="flex">
-          {isWM ? (
-            <span className="flex items-center justify-center px-3">
-              {formattedAmount(walletAddress).amount}
-            </span>
-          ) : (
-            <WalletAddressCardButton
-              href={`/transactions?walletAddressId=${walletAddress.id}`}
-              aria-label="view payment pointer"
-              id={idOnboarding}
-            >
-              View
-            </WalletAddressCardButton>
-          )}
+          <WalletAddressCardButton
+            href={`/transactions?walletAddressId=${walletAddress.id}`}
+            aria-label="view payment pointer"
+            id={idOnboarding}
+          >
+            View
+          </WalletAddressCardButton>
+
           <CopyButton
             aria-label="copy pp"
             className="h-7 w-7"
