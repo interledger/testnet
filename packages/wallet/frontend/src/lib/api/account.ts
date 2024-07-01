@@ -5,11 +5,8 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { WalletAddress } from './walletAddress'
-import {
-  createAccountSchema,
-  fundAccountSchema,
-} from '@wallet/shared'
+import { createAccountSchema, fundAccountSchema } from '@wallet/shared'
+import { WalletAddressResponse } from '@wallet/shared/src'
 
 export type Account = {
   id: string
@@ -18,7 +15,7 @@ export type Account = {
   assetScale: number
   assetId: string
   balance: string
-  walletAddresses: WalletAddress[]
+  walletAddresses: WalletAddressResponse[]
 }
 
 type GetAccountResult = SuccessResponse<Account>

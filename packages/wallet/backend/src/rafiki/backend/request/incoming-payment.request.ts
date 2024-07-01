@@ -3,8 +3,6 @@ import { gql } from 'graphql-request'
 export const createIncomingPaymentMutation = gql`
   mutation CreateIncomingPaymentMutation($input: CreateIncomingPaymentInput!) {
     createIncomingPayment(input: $input) {
-      code
-      message
       payment {
         createdAt
         metadata
@@ -23,7 +21,6 @@ export const createIncomingPaymentMutation = gql`
         }
         state
       }
-      success
     }
   }
 `

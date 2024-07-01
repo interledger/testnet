@@ -56,8 +56,8 @@ export class RafikiAuthService implements IRafikiAuthService {
       RevokeGrantMutationVariables
     >(revokeGrantMutation, { grantId })
 
-    if (!response.revokeGrant.success) {
-      throw new Error(response.revokeGrant.message)
+    if (!response.revokeGrant.id) {
+      throw new Error('Grant could not be revoked')
     }
   }
 

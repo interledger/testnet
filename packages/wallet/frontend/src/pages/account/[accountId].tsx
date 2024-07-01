@@ -4,10 +4,7 @@ import { New } from '@/components/icons/New'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { WalletAddressCard } from '@/components/cards/WalletAddressCard'
 import { Account, accountService } from '@/lib/api/account'
-import {
-  ListWalletAddresses,
-  walletAddressService
-} from '@/lib/api/walletAddress'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -31,6 +28,7 @@ import { cx } from 'class-variance-authority'
 import { TemporaryWMNotice } from '@/components/TemporaryWMNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { RequestMenu } from '@/components/icons/Request'
+import { ListWalletAddressesResponse } from '@wallet/shared/src'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -153,9 +151,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                           >
                             <td>{walletAddress.url}</td>
                             <td>View</td>
-                            <td>
-                                Actions
-                            </td>
+                            <td>Actions</td>
                           </tr>
                         )
                       )
@@ -285,7 +281,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
-  allWalletAddresses: ListWalletAddresses
+  allWalletAddresses: ListWalletAddressesResponse
   balance: FormattedAmount
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)

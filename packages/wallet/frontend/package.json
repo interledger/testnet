@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.19",
-    "@hookform/resolvers": "^3.3.4",
+    "@hookform/resolvers": "^3.6.0",
     "@radix-ui/react-toast": "^1.1.5",
     "@wallet/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
@@ -38,7 +38,7 @@
     "@types/react-dom": "18.2.25",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3",
+    "tailwindcss": "^3.4.4",
     "typescript": "^5.4.5"
   }
 }

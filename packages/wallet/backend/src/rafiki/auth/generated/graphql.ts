@@ -128,12 +128,6 @@ export type MutationRevokeGrantArgs = {
   input: RevokeGrantInput;
 };
 
-export type MutationResponse = {
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
-};
-
 export type PageInfo = {
   __typename?: 'PageInfo';
   /** Paginating forwards: the cursor to continue. */
@@ -182,11 +176,9 @@ export type RevokeGrantInput = {
   grantId: Scalars['String']['input'];
 };
 
-export type RevokeGrantMutationResponse = MutationResponse & {
+export type RevokeGrantMutationResponse = {
   __typename?: 'RevokeGrantMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
 };
 
 export enum SortOrder {
@@ -219,4 +211,4 @@ export type RevokeGrantMutationVariables = Exact<{
 }>;
 
 
-export type RevokeGrantMutation = { __typename?: 'Mutation', revokeGrant: { __typename?: 'RevokeGrantMutationResponse', code: string, success: boolean, message: string } };
+export type RevokeGrantMutation = { __typename?: 'Mutation', revokeGrant: { __typename?: 'RevokeGrantMutationResponse', id: string } };
