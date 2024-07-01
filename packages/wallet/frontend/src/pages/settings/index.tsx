@@ -4,7 +4,6 @@ import { PersonalSettingsForm } from '@/components/settings/PersonalSettingsForm
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { type User, userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { SmallBubbles } from '@/ui/Bubbles'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
 
@@ -22,7 +21,6 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />
       </div>
-      <SmallBubbles className="mt-10 block w-full md:hidden" />
       <Image
         className="hidden md:block"
         src="/settings.webp"

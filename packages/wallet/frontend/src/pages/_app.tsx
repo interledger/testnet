@@ -1,21 +1,36 @@
 import '@/styles/main.css'
 import Head from 'next/head'
-import { Titillium_Web } from 'next/font/google'
+import localFont from 'next/font/local'
 import { AppProvider } from '@/components/providers'
 import { Progress } from '@/ui/Progress'
 import type { AppPropsWithLayout } from '@/lib/types/app'
-import { Toaster } from '@/components/toast/Toaster'
 import { MoneyBird } from '@/components/icons/MoneyBird'
 import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
+import dynamic from 'next/dynamic'
 
-const titilium = Titillium_Web({
-  subsets: ['latin'],
-  weight: ['200', '300', '400', '600', '700', '900'],
-  preload: true
+const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), {
+  ssr: false
+})
+
+const font = localFont({
+  src: [
+    {
+      path: '../../public/fonts/DejaVuSansMono.ttf',
+      weight: '400'
+    },
+    {
+      path: '../../public/fonts/DejaVuSansMono-Bold.ttf',
+      weight: '700'
+    },
+    {
+      path: '../../public/fonts/DejaVuSansMono-Oblique.ttf',
+      style: 'italic'
+    }
+  ]
 })
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
@@ -127,13 +142,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx global>{`
         html {
-          font-family: ${titilium.style.fontFamily};
+          font-family: ${font.style.fontFamily};
         }
       `}</style>
 
       <AppProvider>
         <Progress />
-        <Toaster />
+        <ThemeToggle />
         {getLayout(<Component {...pageProps} />)}
       </AppProvider>
     </>
