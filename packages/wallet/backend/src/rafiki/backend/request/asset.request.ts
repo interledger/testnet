@@ -3,9 +3,6 @@ import { gql } from 'graphql-request'
 export const createAssetMutation = gql`
   mutation CreateAssetMutation($input: CreateAssetInput!) {
     createAsset(input: $input) {
-      code
-      success
-      message
       asset {
         id
         code

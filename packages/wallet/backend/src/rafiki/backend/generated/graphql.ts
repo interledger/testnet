@@ -90,12 +90,9 @@ export type AssetEdge = {
   node: Asset;
 };
 
-export type AssetMutationResponse = MutationResponse & {
+export type AssetMutationResponse = {
   __typename?: 'AssetMutationResponse';
   asset?: Maybe<Asset>;
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
 };
 
 export type AssetsConnection = {
@@ -184,12 +181,9 @@ export type CreateOrUpdatePeerByUrlInput = {
   peerUrl: Scalars['String']['input'];
 };
 
-export type CreateOrUpdatePeerByUrlMutationResponse = MutationResponse & {
+export type CreateOrUpdatePeerByUrlMutationResponse = {
   __typename?: 'CreateOrUpdatePeerByUrlMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
   peer?: Maybe<Peer>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type CreateOutgoingPaymentFromIncomingPaymentInput = {
@@ -257,12 +251,9 @@ export type CreatePeerLiquidityWithdrawalInput = {
   timeoutSeconds: Scalars['BigInt']['input'];
 };
 
-export type CreatePeerMutationResponse = MutationResponse & {
+export type CreatePeerMutationResponse = {
   __typename?: 'CreatePeerMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
   peer?: Maybe<Peer>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type CreateQuoteInput = {
@@ -293,10 +284,7 @@ export type CreateReceiverInput = {
 
 export type CreateReceiverResponse = {
   __typename?: 'CreateReceiverResponse';
-  code: Scalars['String']['output'];
-  message?: Maybe<Scalars['String']['output']>;
   receiver?: Maybe<Receiver>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type CreateWalletAddressInput = {
@@ -320,19 +308,13 @@ export type CreateWalletAddressKeyInput = {
   walletAddressId: Scalars['String']['input'];
 };
 
-export type CreateWalletAddressKeyMutationResponse = MutationResponse & {
+export type CreateWalletAddressKeyMutationResponse = {
   __typename?: 'CreateWalletAddressKeyMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
   walletAddressKey?: Maybe<WalletAddressKey>;
 };
 
-export type CreateWalletAddressMutationResponse = MutationResponse & {
+export type CreateWalletAddressMutationResponse = {
   __typename?: 'CreateWalletAddressMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
   walletAddress?: Maybe<WalletAddress>;
 };
 
@@ -358,11 +340,9 @@ export type DeleteAssetInput = {
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type DeleteAssetMutationResponse = MutationResponse & {
+export type DeleteAssetMutationResponse = {
   __typename?: 'DeleteAssetMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
+  asset?: Maybe<Asset>;
 };
 
 export type DeletePeerInput = {
@@ -371,10 +351,8 @@ export type DeletePeerInput = {
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type DeletePeerMutationResponse = MutationResponse & {
+export type DeletePeerMutationResponse = {
   __typename?: 'DeletePeerMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
 };
 
@@ -531,10 +509,7 @@ export type IncomingPaymentEdge = {
 
 export type IncomingPaymentResponse = {
   __typename?: 'IncomingPaymentResponse';
-  code: Scalars['String']['output'];
-  message?: Maybe<Scalars['String']['output']>;
   payment?: Maybe<IncomingPayment>;
-  success: Scalars['Boolean']['output'];
 };
 
 export enum IncomingPaymentState {
@@ -594,11 +569,8 @@ export enum LiquidityError {
   UnknownWalletAddress = 'UnknownWalletAddress'
 }
 
-export type LiquidityMutationResponse = MutationResponse & {
+export type LiquidityMutationResponse = {
   __typename?: 'LiquidityMutationResponse';
-  code: Scalars['String']['output'];
-  error?: Maybe<LiquidityError>;
-  message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
 };
 
@@ -834,12 +806,6 @@ export type MutationWithdrawEventLiquidityArgs = {
   input: WithdrawEventLiquidityInput;
 };
 
-export type MutationResponse = {
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
-};
-
 export type OutgoingPayment = BasePayment & Model & {
   __typename?: 'OutgoingPayment';
   /** Information about the wallet address of the Open Payments client that created the outgoing payment. */
@@ -884,10 +850,7 @@ export type OutgoingPaymentEdge = {
 
 export type OutgoingPaymentResponse = {
   __typename?: 'OutgoingPaymentResponse';
-  code: Scalars['String']['output'];
-  message?: Maybe<Scalars['String']['output']>;
   payment?: Maybe<OutgoingPayment>;
-  success: Scalars['Boolean']['output'];
 };
 
 export enum OutgoingPaymentState {
@@ -1148,10 +1111,7 @@ export type QuoteEdge = {
 
 export type QuoteResponse = {
   __typename?: 'QuoteResponse';
-  code: Scalars['String']['output'];
-  message?: Maybe<Scalars['String']['output']>;
   quote?: Maybe<Quote>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type Receiver = {
@@ -1183,11 +1143,8 @@ export type RevokeWalletAddressKeyInput = {
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type RevokeWalletAddressKeyMutationResponse = MutationResponse & {
+export type RevokeWalletAddressKeyMutationResponse = {
   __typename?: 'RevokeWalletAddressKeyMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
   walletAddressKey?: Maybe<WalletAddressKey>;
 };
 
@@ -1202,12 +1159,9 @@ export type SetFeeInput = {
   type: FeeType;
 };
 
-export type SetFeeResponse = MutationResponse & {
+export type SetFeeResponse = {
   __typename?: 'SetFeeResponse';
-  code: Scalars['String']['output'];
   fee?: Maybe<Fee>;
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
 };
 
 export enum SortOrder {
@@ -1217,13 +1171,6 @@ export enum SortOrder {
   Desc = 'DESC'
 }
 
-export type TransferMutationResponse = MutationResponse & {
-  __typename?: 'TransferMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
-};
-
 export type TriggerWalletAddressEventsInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
@@ -1231,13 +1178,10 @@ export type TriggerWalletAddressEventsInput = {
   limit: Scalars['Int']['input'];
 };
 
-export type TriggerWalletAddressEventsMutationResponse = MutationResponse & {
+export type TriggerWalletAddressEventsMutationResponse = {
   __typename?: 'TriggerWalletAddressEventsMutationResponse';
-  code: Scalars['String']['output'];
   /** Number of events triggered */
   count?: Maybe<Scalars['Int']['output']>;
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
 };
 
 export type UpdateAssetInput = {
@@ -1268,15 +1212,14 @@ export type UpdatePeerInput = {
   staticIlpAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type UpdatePeerMutationResponse = MutationResponse & {
+export type UpdatePeerMutationResponse = {
   __typename?: 'UpdatePeerMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
   peer?: Maybe<Peer>;
-  success: Scalars['Boolean']['output'];
 };
 
 export type UpdateWalletAddressInput = {
+  /** List additional properties associated with this wallet address. */
+  additionalProperties?: InputMaybe<Array<AdditionalPropertyInput>>;
   /** ID of wallet address to update */
   id: Scalars['ID']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. See [idempotence](https://en.wikipedia.org/wiki/Idempotence) */
@@ -1287,11 +1230,8 @@ export type UpdateWalletAddressInput = {
   status?: InputMaybe<WalletAddressStatus>;
 };
 
-export type UpdateWalletAddressMutationResponse = MutationResponse & {
+export type UpdateWalletAddressMutationResponse = {
   __typename?: 'UpdateWalletAddressMutationResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
   walletAddress?: Maybe<WalletAddress>;
 };
 
@@ -1415,12 +1355,8 @@ export type WalletAddressWithdrawal = {
   walletAddress: WalletAddress;
 };
 
-export type WalletAddressWithdrawalMutationResponse = MutationResponse & {
+export type WalletAddressWithdrawalMutationResponse = {
   __typename?: 'WalletAddressWithdrawalMutationResponse';
-  code: Scalars['String']['output'];
-  error?: Maybe<LiquidityError>;
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
   withdrawal?: Maybe<WalletAddressWithdrawal>;
 };
 
@@ -1470,7 +1406,7 @@ export type CreateAssetMutationVariables = Exact<{
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset: { __typename?: 'AssetMutationResponse', code: string, success: boolean, message: string, asset?: { __typename?: 'Asset', id: string, code: string, scale: number } | null } };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset: { __typename?: 'AssetMutationResponse', asset?: { __typename?: 'Asset', id: string, code: string, scale: number } | null } };
 
 export type GetAssetsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
@@ -1494,7 +1430,7 @@ export type CreateIncomingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, walletAddressId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, walletAddressId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
@@ -1502,7 +1438,7 @@ export type WithdrawLiquidityMutationVariables = Exact<{
 }>;
 
 
-export type WithdrawLiquidityMutation = { __typename?: 'Mutation', withdrawEventLiquidity?: { __typename?: 'LiquidityMutationResponse', code: string, success: boolean, message: string, error?: LiquidityError | null } | null };
+export type WithdrawLiquidityMutation = { __typename?: 'Mutation', withdrawEventLiquidity?: { __typename?: 'LiquidityMutationResponse', success: boolean } | null };
 
 export type DepositLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
@@ -1510,21 +1446,21 @@ export type DepositLiquidityMutationVariables = Exact<{
 }>;
 
 
-export type DepositLiquidityMutation = { __typename?: 'Mutation', depositEventLiquidity?: { __typename?: 'LiquidityMutationResponse', code: string, success: boolean, message: string, error?: LiquidityError | null } | null };
+export type DepositLiquidityMutation = { __typename?: 'Mutation', depositEventLiquidity?: { __typename?: 'LiquidityMutationResponse', success: boolean } | null };
 
 export type CreateOutgoingPaymentMutationVariables = Exact<{
   input: CreateOutgoingPaymentInput;
 }>;
 
 
-export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', code: string, message?: string | null, success: boolean, payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
 
 
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', code: string, message?: string | null, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type GetQuoteQueryVariables = Exact<{
   quoteId: Scalars['String']['input'];
@@ -1538,7 +1474,7 @@ export type CreateReceiverMutationVariables = Exact<{
 }>;
 
 
-export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', code: string, message?: string | null, success: boolean, receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type GetReceiverQueryVariables = Exact<{
   id: Scalars['String']['input'];
@@ -1552,25 +1488,25 @@ export type CreateWalletAddressKeyMutationVariables = Exact<{
 }>;
 
 
-export type CreateWalletAddressKeyMutation = { __typename?: 'Mutation', createWalletAddressKey?: { __typename?: 'CreateWalletAddressKeyMutationResponse', code: string, message: string, success: boolean, walletAddressKey?: { __typename?: 'WalletAddressKey', id: string, walletAddressId: string, revoked: boolean, createdAt: string, jwk: { __typename?: 'Jwk', alg: Alg, crv: Crv, kid: string, kty: Kty, x: string } } | null } | null };
+export type CreateWalletAddressKeyMutation = { __typename?: 'Mutation', createWalletAddressKey?: { __typename?: 'CreateWalletAddressKeyMutationResponse', walletAddressKey?: { __typename?: 'WalletAddressKey', id: string, walletAddressId: string, revoked: boolean, createdAt: string, jwk: { __typename?: 'Jwk', alg: Alg, crv: Crv, kid: string, kty: Kty, x: string } } | null } | null };
 
 export type RevokeWalletAddressKeyMutationVariables = Exact<{
   input: RevokeWalletAddressKeyInput;
 }>;
 
 
-export type RevokeWalletAddressKeyMutation = { __typename?: 'Mutation', revokeWalletAddressKey?: { __typename?: 'RevokeWalletAddressKeyMutationResponse', code: string, message: string, success: boolean, walletAddressKey?: { __typename?: 'WalletAddressKey', id: string, revoked: boolean, walletAddressId: string, createdAt: string } | null } | null };
+export type RevokeWalletAddressKeyMutation = { __typename?: 'Mutation', revokeWalletAddressKey?: { __typename?: 'RevokeWalletAddressKeyMutationResponse', walletAddressKey?: { __typename?: 'WalletAddressKey', id: string, revoked: boolean, walletAddressId: string, createdAt: string } | null } | null };
 
 export type CreateWalletAddressMutationVariables = Exact<{
   input: CreateWalletAddressInput;
 }>;
 
 
-export type CreateWalletAddressMutation = { __typename?: 'Mutation', createWalletAddress: { __typename?: 'CreateWalletAddressMutationResponse', code: string, success: boolean, message: string, walletAddress?: { __typename?: 'WalletAddress', id: string, url: string, publicName?: string | null } | null } };
+export type CreateWalletAddressMutation = { __typename?: 'Mutation', createWalletAddress: { __typename?: 'CreateWalletAddressMutationResponse', walletAddress?: { __typename?: 'WalletAddress', id: string, url: string, publicName?: string | null } | null } };
 
 export type UpdateWalletAddressMutationVariables = Exact<{
   input: UpdateWalletAddressInput;
 }>;
 
 
-export type UpdateWalletAddressMutation = { __typename?: 'Mutation', updateWalletAddress: { __typename?: 'UpdateWalletAddressMutationResponse', code: string, success: boolean, message: string } };
+export type UpdateWalletAddressMutation = { __typename?: 'Mutation', updateWalletAddress: { __typename?: 'UpdateWalletAddressMutationResponse', walletAddress?: { __typename?: 'WalletAddress', id: string, url: string, publicName?: string | null } | null } };
