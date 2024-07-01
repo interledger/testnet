@@ -37,7 +37,7 @@
 }
 
 #__next {
-  @apply h-full;
+  @apply md:grid md:grid-cols-[max-content_1fr] relative;
 }
 
 #nprogress {

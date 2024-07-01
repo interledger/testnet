@@ -24,7 +24,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }, [])
 
   return (
-    <div className="md:grid md:grid-cols-[max-content_1fr] relative">
+    <div>
       <Menu />
       {(isUserFirstTime || isDevKeysOnboarding) && <Onboarding />}
 
