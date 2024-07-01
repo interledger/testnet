@@ -1,5 +1,4 @@
 import { AccountService } from '@/account/service'
-import { PaymentDetails } from '@/incomingPayment/controller'
 import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformAmount } from '@/utils/helpers'
@@ -8,6 +7,7 @@ import { add, Duration } from 'date-fns'
 import axios from 'axios'
 import { Env } from '@/config/env'
 import { NotFound } from '@shared/backend'
+import { PaymentDetailsResponse } from '@wallet/shared'
 
 interface IIncomingPaymentService {
   create: (
@@ -16,7 +16,7 @@ interface IIncomingPaymentService {
     amount: number,
     description: string
   ) => Promise<string>
-  getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetails>
+  getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetailsResponse>
 }
 
 interface CreateReceiverParams {
@@ -93,7 +93,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     return response.id
   }
 
-  async getPaymentDetailsByUrl(url: string): Promise<PaymentDetails> {
+  async getPaymentDetailsByUrl(url: string): Promise<PaymentDetailsResponse> {
     const receiver = await this.rafikiClient.getReceiverById(url)
     const asset = {
       scale:

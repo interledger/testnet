@@ -6,16 +6,11 @@ import {
 } from '@/incomingPayment/validation'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
-
-export interface PaymentDetails {
-  value: number
-  description?: string
-  assetCode: string
-}
+import { PaymentDetailsResponse } from '@wallet/shared'
 
 interface IIncomingPaymentController {
   create: Controller<{ url: string }>
-  getPaymentDetailsByUrl: Controller<PaymentDetails>
+  getPaymentDetailsByUrl: Controller<PaymentDetailsResponse>
 }
 
 export class IncomingPaymentController implements IIncomingPaymentController {
@@ -47,7 +42,7 @@ export class IncomingPaymentController implements IIncomingPaymentController {
 
   getPaymentDetailsByUrl = async (
     req: Request,
-    res: CustomResponse<PaymentDetails>,
+    res: CustomResponse<PaymentDetailsResponse>,
     next: NextFunction
   ) => {
     try {
