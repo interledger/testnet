@@ -4,7 +4,7 @@ import { Button, ButtonProps } from './Button'
 import { cx } from 'class-variance-authority'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 
-function copyToClipboard(value: string) {
+export function copyToClipboard(value: string) {
   navigator.clipboard.writeText(value)
 }
 
