@@ -16,6 +16,7 @@ import {
 } from '@/ui/Tooltip'
 import { copyToClipboard } from '@/ui/CopyButton'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { formatAmount } from '@/utils/helpers'
 
 interface WalletAddressesTableProps {
   isWM: boolean
@@ -30,6 +31,14 @@ interface WalletAddressRowProps {
 }
 
 type WalletAddressRowContextValue = WalletAddressRowProps
+
+const formattedAmount = (walletAddress: IWalletAddressResponse) => {
+  return formatAmount({
+    value: walletAddress.incomingBalance.toString() || '',
+    assetCode: walletAddress.assetCode || '',
+    assetScale: walletAddress.assetScale || 2
+  })
+}
 
 export const WalletAddressRowContext =
   createContext<WalletAddressRowContextValue>(
@@ -147,10 +156,12 @@ export const WalletAddressRow = ({
         <td>
           <CopyWalletAddress />
         </td>
-        {isWM ? (
-          <span className="flex items-center justify-center px-3">test</span>
-        ) : (
-          <td>
+        <td>
+          {isWM ? (
+            <span className="flex items-center justify-center px-3">
+              {formattedAmount(walletAddress).amount}
+            </span>
+          ) : (
             <Link
               href={`/transactions?walletAddressId=${walletAddress.id}`}
               aria-label="view payment pointer transactions"
@@ -158,8 +169,8 @@ export const WalletAddressRow = ({
             >
               View
             </Link>
-          </td>
-        )}
+          )}
+        </td>
         <td>
           <EditWalletAddress />
         </td>

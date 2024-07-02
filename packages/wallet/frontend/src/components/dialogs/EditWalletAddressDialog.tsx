@@ -17,7 +17,7 @@ import { SuccessDialog } from './SuccessDialog'
 import { IWalletAddressResponse } from '@wallet/shared'
 
 type EditWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
-  walletAddress: IWalletAddressResponse 
+  walletAddress: IWalletAddressResponse
 }
 
 export const EditWalletAddressDialog = ({

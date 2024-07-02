@@ -172,22 +172,22 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                   >
                     <New className="w-8 h-8 mb-1 transition-[filter] duration-200 group-focus:dark:drop-shadow-glow-svg group-hover:dark:drop-shadow-glow-svg" />
                     <span className="group-focus:underline group-focus:underline-offset-2 group-hover:hover:underline underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110">
-                      Add payment pointer
+                      Add WM payment pointer
                     </span>
                   </button>
                 </div>
-            <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
-            {allWalletAddresses.wmWalletAddresses.length > 0 ? (
-              <WalletAddressesTable
-                account={account}
-                walletAddresses={allWalletAddresses.wmWalletAddresses}
-                isWM={false}
-              />
-            ) : (
-              <div className="p-4">
-                No Web Monetization payment pointers found for this account.
-              </div>
-            )}
+                <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
+                {allWalletAddresses.wmWalletAddresses.length > 0 ? (
+                  <WalletAddressesTable
+                    account={account}
+                    walletAddresses={allWalletAddresses.wmWalletAddresses}
+                    isWM={true}
+                  />
+                ) : (
+                  <div className="p-4">
+                    No Web Monetization payment pointers found for this account.
+                  </div>
+                )}
               </>
             ) : (
               <TemporaryWMNotice />
