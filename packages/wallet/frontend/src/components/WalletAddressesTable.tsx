@@ -150,7 +150,7 @@ export const WalletAddressRow = ({
       value={{ walletAddress, isWM, idOnboarding }}
     >
       <tr
-        className="[&>td]:p-4 [&>td]:border-b [&>td]:border-pink-neon hover:bg-green-light dark:hover:bg-purple-dark"
+        className="[&>td]:p-4 [&>td]:border-b [&>td]:border-green dark:[&>td]:border-pink-neon hover:bg-green-light dark:hover:bg-purple-dark"
         key={walletAddress.id}
       >
         <td>
