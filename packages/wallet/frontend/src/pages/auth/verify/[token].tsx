@@ -7,6 +7,7 @@ import { Button } from '@/ui/Button'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
 import { userService } from '@/lib/api/user'
+import { useTheme } from 'next-themes'
 
 type VerifyEmailPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -16,6 +17,12 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
   verified,
   message
 }) => {
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
+
   return (
     <>
       <HeaderLogo header="Email verification" />
@@ -37,7 +44,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
 
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/welcome-mobile.webp"
+        src={imageName}
         alt="Verify email"
         quality={100}
         width={400}

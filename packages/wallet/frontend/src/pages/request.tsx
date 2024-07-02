@@ -29,6 +29,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { AssetOP } from '@/lib/api/asset'
+import { useTheme } from 'next-themes'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -58,6 +59,11 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     schema: requestSchema,
     mode: 'onSubmit'
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   const balanceSnapshot = useMemo(() => {
     if (!selectedAccount) return ''
@@ -289,16 +295,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
         </Form>
       </div>
       <Image
-        className="mt-10 hidden object-cover md:block"
-        src="/request.webp"
-        alt="Request"
-        quality={100}
-        width={600}
-        height={200}
-      />
-      <Image
-        className="my-auto object-cover md:hidden"
-        src="/request-mobile.webp"
+        className="object-cover"
+        src={imageName}
         alt="Request"
         quality={100}
         width={500}

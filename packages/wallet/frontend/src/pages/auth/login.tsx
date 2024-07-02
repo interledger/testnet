@@ -4,13 +4,14 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
-import { Play } from '@/components/icons/Play'
+import { PlayDark, PlayLight } from '@/components/icons/Play'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
@@ -21,6 +22,12 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/login-mobile-dark.webp'
+      : '/login-mobile-light.webp'
+
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -79,13 +86,17 @@ const LoginPage: NextPageWithLayout = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play loading={loginForm.formState.isSubmitting} />
+            {theme.theme === 'dark' ? (
+              <PlayDark loading={loginForm.formState.isSubmitting} />
+            ) : (
+              <PlayLight loading={loginForm.formState.isSubmitting} />
+            )}
           </button>
         </Form>
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/login-mobile.webp"
+        src={imageName}
         alt="Login"
         quality={100}
         width={500}

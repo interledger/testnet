@@ -12,12 +12,19 @@ import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 const ForgotPasswordPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const forgotPasswordForm = useZodForm({
     schema: forgotPasswordSchema
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
+
   useEffect(() => {
     forgotPasswordForm.setFocus('email')
   }, [forgotPasswordForm])
@@ -79,7 +86,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/welcome-mobile.webp"
+        src={imageName}
         alt="Forgot password"
         quality={100}
         width={400}
