@@ -24,7 +24,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }, [])
 
   return (
-    <div>
+    <>
       <Menu />
       {(isUserFirstTime || isDevKeysOnboarding) && <Onboarding />}
 
@@ -33,6 +33,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <Toaster />
         <Bubbles className="fixed inset-y-0 right-0 hidden h-full lg:block" />
       </main>
-    </div>
+    </>
   )
 }
