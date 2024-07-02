@@ -97,7 +97,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     } catch (e) {
       if (e instanceof UniqueViolationError)
         throw new BadRequest(
-          'Same key already uploaded. Please upload a unique one'
+          'Same key already uploaded. Please upload a unique one.'
         )
       else throw e
     }
