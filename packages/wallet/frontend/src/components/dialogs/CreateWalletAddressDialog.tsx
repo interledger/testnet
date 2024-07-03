@@ -48,7 +48,7 @@ export const CreateWalletAddressDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -62,15 +62,13 @@ export const CreateWalletAddressDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <Dialog.Title
                   as="h3"
-                  className="text-center text-2xl font-medium text-green-6"
+                  className="text-center text-2xl font-bold"
                 >
                   Create {titleExtra} Payment Pointer
                 </Dialog.Title>
-
-                <div className="px-4">
                   <TemporaryWMNotice />
                   <Form
                     form={createWalletAddressForm}
@@ -129,6 +127,7 @@ export const CreateWalletAddressDialog = ({
                     <Input
                       required
                       label="Public name"
+                      placeholder="test"
                       error={
                         createWalletAddressForm.formState?.errors?.publicName
                           ?.message
@@ -143,7 +142,14 @@ export const CreateWalletAddressDialog = ({
                       }}
                       {...createWalletAddressForm.register('isWM')}
                     />
-                    <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
+                    <div className="mt-5 flex justify-between">
+                    <Button
+                    intent="outline"
+                    aria-label="close dialog"
+                    onClick={() => onClose()}
+                    >
+                    Cancel
+                    </Button>
                       <Button
                         aria-label="create payment pointer"
                         type="submit"
@@ -151,16 +157,8 @@ export const CreateWalletAddressDialog = ({
                       >
                         Create
                       </Button>
-                      <Button
-                        intent="outline"
-                        aria-label="close dialog"
-                        onClick={() => onClose()}
-                      >
-                        Cancel
-                      </Button>
                     </div>
                   </Form>
-                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

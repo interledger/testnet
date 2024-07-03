@@ -29,7 +29,7 @@ export const ConfirmationDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -43,7 +43,7 @@ export const ConfirmationDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white px-4 py-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <div className="flex flex-col items-center justify-center px-4">
                   <Warning strokeWidth={2} className="h-16 w-16 text-pink" />
                   <p className="text-center font-semibold text-pink">
@@ -54,9 +54,11 @@ export const ConfirmationDialog = ({
                       </>
                     )}
                   </p>
-                  <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
+                  <div className="mt-5 flex justify-between">
+                  <Button aria-label="close dialog" onClick={() => onClose()}>
+                  Close
+                  </Button>
                     <Button
-                      intent="secondary"
                       aria-label={confirmText ?? 'continue'}
                       onClick={() => {
                         onConfirm()
@@ -64,9 +66,6 @@ export const ConfirmationDialog = ({
                       }}
                     >
                       {confirmText ?? 'Continue'}
-                    </Button>
-                    <Button aria-label="close dialog" onClick={() => onClose()}>
-                      Close
                     </Button>
                   </div>
                 </div>

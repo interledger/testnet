@@ -32,8 +32,8 @@
   }
 }
 
-:focus-visible {
-  outline: none;
+html.dark *:focus-visible {
+    outline: none
 }
 
 #__next {
