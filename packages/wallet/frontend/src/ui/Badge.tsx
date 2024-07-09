@@ -5,11 +5,18 @@ const badgeStyles = cva(
   {
     variants: {
       intent: {
-        primary: ['bg-gradient-to-r from-green-5 to-green-6 text-white'],
-        green: ['bg-green-4 text-green-3'],
-        orange: ['bg-orange-1 text-orange-2'],
-        pink: ['bg-pink-1 text-pink-2'],
-        violet: ['bg-violet-1 text-violet-2']
+        green: [
+          'border border-green-dark text-green-dark dark:border-teal-neon dark:text-teal-neon'
+        ],
+        orange: [
+          'border border-orange-dark text-orange-dark dark:border-yellow-neon dark:text-yellow-neon'
+        ],
+        pink: [
+          'border border-pink-dark text-pink-dark dark:border-pink-light dark:text-pink-light'
+        ],
+        violet: [
+          'border border-purple-light text-pink-light dark:border-pink-neon dark:text-pink-neon'
+        ]
       },
       size: {
         fixed: ['w-10'],
@@ -18,7 +25,7 @@ const badgeStyles = cva(
       }
     },
     defaultVariants: {
-      intent: 'primary'
+      intent: 'green'
     }
   }
 )
@@ -55,6 +62,6 @@ export const getStatusBadgeIntent = (
     case 'REVOKED':
       return 'violet'
     default:
-      return 'primary'
+      return 'green'
   }
 }

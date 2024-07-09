@@ -290,7 +290,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                         trx.walletAddressUrl ??
                         ''}
                       {trx.walletAddressUrl ? (
-                        <span className="tooltip -ml-10 -mt-11 rounded border border-turqoise bg-white p-2 text-base shadow-lg">
+                        <span className="tooltip -ml-10 -mt-11 rounded-md bg-green-dark dark:bg-purple-bright p-2 text-white shadow-lg">
                           {trx.walletAddressUrl}
                         </span>
                       ) : null}
@@ -304,8 +304,10 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     </Table.Cell>
                     <Table.Cell
                       className={cx(
-                        trx.type === 'INCOMING' && 'text-green-3',
-                        trx.type === 'OUTGOING' && 'text-pink-2'
+                        trx.type === 'INCOMING' &&
+                          'text-green-dark dark:text-green-neon',
+                        trx.type === 'OUTGOING' &&
+                          'text-pink-dark dark:text-yellow-neon'
                       )}
                     >
                       {trx.type === 'INCOMING' ? '+' : '-'}
