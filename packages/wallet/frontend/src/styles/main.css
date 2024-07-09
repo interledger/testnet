@@ -33,7 +33,7 @@
 }
 
 html.dark *:focus-visible {
-    outline: none
+  outline: none;
 }
 
 #__next {

@@ -5,16 +5,16 @@ import { forwardRef } from 'react'
 import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
 
 const buttonStyles = cva(
-  ['inline-flex items-center justify-center outline-none border-2 border-transparent underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button'],
+  [
+    'inline-flex items-center justify-center outline-none border-2 border-transparent underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button'
+  ],
   {
     variants: {
       intent: {
-        primary: [
-          'bg-green-dark dark:bg-pink-neon text-white'
-        ],
+        primary: ['bg-green-dark dark:bg-pink-neon text-white'],
         outline: [
           'bg-transparent border-green-dark text-green-dark dark:border-pink-neon dark:text-pink-light'
-        ],
+        ]
       },
       size: {
         md: 'p-3 rounded-md'
@@ -44,7 +44,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <ButtonOrLink
         ref={ref}
-        className={cx(className, buttonStyles({ intent, size, fullWidth }), "hover:decoration-")}
+        className={cx(
+          className,
+          buttonStyles({ intent, size, fullWidth }),
+          'hover:decoration-'
+        )}
         {...props}
       >
         {loading && (

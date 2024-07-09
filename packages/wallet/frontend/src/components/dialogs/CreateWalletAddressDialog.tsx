@@ -69,96 +69,94 @@ export const CreateWalletAddressDialog = ({
                 >
                   Create {titleExtra} Payment Pointer
                 </Dialog.Title>
-                  <TemporaryWMNotice />
-                  <Form
-                    form={createWalletAddressForm}
-                    onSubmit={async (data) => {
-                      data.isWM = isWebMonetization ? true : data.isWM
-                      const response = await walletAddressService.create(
-                        accountId,
-                        data
-                      )
+                <TemporaryWMNotice />
+                <Form
+                  form={createWalletAddressForm}
+                  onSubmit={async (data) => {
+                    data.isWM = isWebMonetization ? true : data.isWM
+                    const response = await walletAddressService.create(
+                      accountId,
+                      data
+                    )
 
-                      if (response.success) {
-                        router.replace(router.asPath)
-                        onClose()
-                        if (isUserFirstTime) {
-                          setTimeout(() => {
-                            setStepIndex(stepIndex + 1)
-                            setRunOnboarding(true)
-                          }, 1000)
-                        }
-                      } else {
-                        const { errors, message } = response
-                        createWalletAddressForm.setError('root', {
-                          message
-                        })
-
-                        if (errors) {
-                          getObjectKeys(errors).map((field) =>
-                            createWalletAddressForm.setError(field, {
-                              message: errors[field]
-                            })
-                          )
-                        }
+                    if (response.success) {
+                      router.replace(router.asPath)
+                      onClose()
+                      if (isUserFirstTime) {
+                        setTimeout(() => {
+                          setStepIndex(stepIndex + 1)
+                          setRunOnboarding(true)
+                        }, 1000)
                       }
-                    }}
-                  >
+                    } else {
+                      const { errors, message } = response
+                      createWalletAddressForm.setError('root', {
+                        message
+                      })
+
+                      if (errors) {
+                        getObjectKeys(errors).map((field) =>
+                          createWalletAddressForm.setError(field, {
+                            message: errors[field]
+                          })
+                        )
+                      }
+                    }
+                  }}
+                >
+                  <Input
+                    disabled={true}
+                    value={accountName}
+                    label="Account"
+                    readOnly
+                  />
+                  <div>
                     <Input
-                      disabled={true}
-                      value={accountName}
-                      label="Account"
-                      readOnly
-                    />
-                    <div>
-                      <Input
-                        addOn={OPEN_PAYMENTS_HOST}
-                        required
-                        label="Payment Pointer name"
-                        error={
-                          createWalletAddressForm.formState?.errors
-                            ?.walletAddressName?.message
-                        }
-                        {...createWalletAddressForm.register(
-                          'walletAddressName'
-                        )}
-                      />
-                    </div>
-                    <Input
+                      addOn={OPEN_PAYMENTS_HOST}
                       required
-                      label="Public name"
-                      placeholder="test"
+                      label="Payment Pointer name"
                       error={
-                        createWalletAddressForm.formState?.errors?.publicName
-                          ?.message
+                        createWalletAddressForm.formState?.errors
+                          ?.walletAddressName?.message
                       }
-                      {...createWalletAddressForm.register('publicName')}
+                      {...createWalletAddressForm.register('walletAddressName')}
                     />
-                    <Checkbox
-                      label="I want to use this payment pointer for Web Monetization"
-                      checked={isWebMonetization}
-                      onClick={(e) => {
-                        if (isWebMonetization) e.preventDefault()
-                      }}
-                      {...createWalletAddressForm.register('isWM')}
-                    />
-                    <div className="mt-5 flex justify-between">
+                  </div>
+                  <Input
+                    required
+                    label="Public name"
+                    placeholder="test"
+                    error={
+                      createWalletAddressForm.formState?.errors?.publicName
+                        ?.message
+                    }
+                    {...createWalletAddressForm.register('publicName')}
+                  />
+                  <Checkbox
+                    label="I want to use this payment pointer for Web Monetization"
+                    checked={isWebMonetization}
+                    onClick={(e) => {
+                      if (isWebMonetization) e.preventDefault()
+                    }}
+                    {...createWalletAddressForm.register('isWM')}
+                  />
+                  <div className="mt-5 flex justify-between">
                     <Button
-                    intent="outline"
-                    aria-label="close dialog"
-                    onClick={() => onClose()}
+                      intent="outline"
+                      aria-label="close dialog"
+                      onClick={() => onClose()}
                     >
-                    Cancel
+                      Cancel
                     </Button>
-                      <Button
-                        aria-label="create payment pointer"
-                        type="submit"
-                        loading={createWalletAddressForm.formState.isSubmitting}
-                      >
-                        Create
-                      </Button>
-                    </div>
-                  </Form>
+                    <Button
+                      aria-label="create payment pointer"
+                      type="submit"
+                      loading={createWalletAddressForm.formState.isSubmitting}
+                    >
+                      Create
+                    </Button>
+                  </div>
+                </Form>
               </Dialog.Panel>
             </Transition.Child>
           </div>

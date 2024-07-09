@@ -117,13 +117,13 @@ export const EditWalletAddressDialog = ({
                       {...form.register('publicName')}
                     />
                     <div className="mt-5 flex justify-between">
-                    <Button
-                    intent="outline"
-                    aria-label="close dialog"
-                    onClick={() => onClose()}
-                    >
-                    Cancel
-                    </Button>
+                      <Button
+                        intent="outline"
+                        aria-label="close dialog"
+                        onClick={() => onClose()}
+                      >
+                        Cancel
+                      </Button>
                       <Button
                         aria-label="save payment pointer"
                         type="submit"

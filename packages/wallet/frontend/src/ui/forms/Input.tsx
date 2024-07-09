@@ -44,7 +44,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {label && (
             <Label htmlFor={id} hint={labelHint}>
               {label}{' '}
-              {props.required ? <span className="text-pink-neon">*</span> : null}
+              {props.required ? (
+                <span className="text-pink-neon">*</span>
+              ) : null}
             </Label>
           )}
           <div className="mt-1 flex">

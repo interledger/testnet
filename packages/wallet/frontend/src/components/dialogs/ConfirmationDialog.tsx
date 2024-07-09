@@ -55,9 +55,9 @@ export const ConfirmationDialog = ({
                     )}
                   </p>
                   <div className="mt-5 flex justify-between">
-                  <Button aria-label="close dialog" onClick={() => onClose()}>
-                  Close
-                  </Button>
+                    <Button aria-label="close dialog" onClick={() => onClose()}>
+                      Close
+                    </Button>
                     <Button
                       aria-label={confirmText ?? 'continue'}
                       onClick={() => {
