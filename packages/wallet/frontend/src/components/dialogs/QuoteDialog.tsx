@@ -1,15 +1,15 @@
-import { Quote } from '@/lib/api/transfers'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { Button } from '@/ui/Button'
 import { formatAmount, getFee } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { PaperPlane } from '../icons/PaperPlane'
+import { QuoteResponse } from '@wallet/shared'
 
 type QuoteDialogProps = {
   onClose: () => void
   onAccept: () => void
-  quote: Quote
+  quote: QuoteResponse
   type: string
   receiverName?: string
 }
