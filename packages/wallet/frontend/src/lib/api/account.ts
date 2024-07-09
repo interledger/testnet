@@ -5,13 +5,14 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { acceptQuoteSchema, Quote } from './transfers'
+import { acceptQuoteSchema } from './transfers'
 import {
   createAccountSchema,
   fundAccountSchema,
   withdrawFundsSchema,
   exchangeAssetSchema
 } from '@wallet/shared'
+import { QuoteResponse } from '@wallet/shared'
 import { WalletAddressResponse } from '@wallet/shared/src'
 
 export type Account = {
@@ -44,7 +45,7 @@ type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
 type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
 type ExchangeArgs = z.infer<typeof exchangeAssetSchema>
-type QuoteResult = SuccessResponse<Quote>
+type QuoteResult = SuccessResponse<QuoteResponse>
 type ExchangeResponse = QuoteResult | ErrorResponse<ExchangeArgs | undefined>
 
 type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
