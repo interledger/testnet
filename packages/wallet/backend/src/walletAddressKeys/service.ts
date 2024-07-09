@@ -5,7 +5,8 @@ import { v4 as uuid } from 'uuid'
 import { WalletAddressKeys } from './model'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
-import { NotFound } from '@shared/backend'
+import { BadRequest, NotFound } from '@shared/backend'
+import { UniqueViolationError } from 'objection'
 
 export type KeyResponse = {
   privateKey: string
@@ -91,7 +92,15 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       walletAddressId
     }
 
-    await WalletAddressKeys.query().insert(key)
+    try {
+      await WalletAddressKeys.query().insert(key)
+    } catch (e) {
+      if (e instanceof UniqueViolationError)
+        throw new BadRequest(
+          'Same key already uploaded. Please upload a unique one.'
+        )
+      else throw e
+    }
   }
 
   async registerKey({
