@@ -50,7 +50,7 @@ services:
       AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
-      SEND_EMAIL: ${SEND_EMAIL}
+      SEND_EMAIL: ${SEND_EMAIL:-false}
       RATE_API_KEY: ${RATE_API_KEY}
       BASE_ASSET_SCALE: 2
       MAX_ASSET_SCALE: 9
@@ -90,7 +90,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.13
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.14
     restart: always
     networks:
       - testnet
@@ -105,8 +105,8 @@ services:
       AUTH_SERVER_URL: http://localhost:3006
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres/rafiki_auth
       IDENTITY_SERVER_URL: http://localhost:4003/grant-interactions
-      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
-      COOKIE_KEY: ${AUTH_COOKIE_KEY}
+      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
+      COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
       WAIT_SECONDS: 1
       REDIS_URL: redis://redis:6379/0
     depends_on:
@@ -115,7 +115,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.13
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.14
     restart: always
     privileged: true
     volumes:
@@ -141,6 +141,7 @@ services:
       AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
       AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
       ILP_ADDRESS: test.net
+      ILP_CONNECTOR_URL: http://127.0.0.1:3002
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
       OPEN_PAYMENTS_URL: http://rafiki-backend
@@ -154,6 +155,7 @@ services:
       AUTO_PEERING_SERVER_PORT: 3005
       INSTANCE_NAME: 'Testnet Wallet'
       SLIPPAGE: 0.01
+      KEY_ID: rafiki
     depends_on:
       - postgres
       - redis
@@ -161,7 +163,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.13
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.14
     depends_on:
       - rafiki-backend
     restart: always
@@ -174,7 +176,27 @@ services:
       PORT: 3012
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
       OPEN_PAYMENTS_URL: https://rafiki-backend/
+      ENABLE_INSECURE_MESSAGE_COOKIE: true
+      KRATOS_CONTAINER_PUBLIC_URL: 'http://kratos:4433'
+      KRATOS_BROWSER_PUBLIC_URL: 'http://localhost:4433'
+      KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
     <<: *logging
+
+  kratos:
+    image: 'oryd/kratos:v0.13.0'
+    privileged: true
+    depends_on:
+      - postgres
+      - mailslurper
+    ports:
+      - '4433:4433'
+    volumes:
+      - ../entrypoint.sh:/entrypoint.sh
+      - ../identity.schema.json:/etc/config/kratos/identity.schema.json
+      - ./kratos.yml:/etc/config/kratos/kratos.yml
+    entrypoint: ['/entrypoint.sh']
+    networks:
+      - testnet
 
   tigerbeetle:
     image: ghcr.io/tigerbeetle/tigerbeetle:0.15.3
@@ -205,6 +227,14 @@ services:
   redis:
     image: 'redis:7'
     restart: unless-stopped
+    networks:
+      - testnet
+
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - '4436:4436'
+      - '4437:4437'
     networks:
       - testnet
 

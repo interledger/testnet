@@ -5,9 +5,6 @@ export const createWalletAddressKeyMutation = gql`
     $input: CreateWalletAddressKeyInput!
   ) {
     createWalletAddressKey(input: $input) {
-      code
-      message
-      success
       walletAddressKey {
         id
         walletAddressId
@@ -30,9 +27,6 @@ export const revokeWalletAddressKeyMutation = gql`
     $input: RevokeWalletAddressKeyInput!
   ) {
     revokeWalletAddressKey(input: $input) {
-      code
-      message
-      success
       walletAddressKey {
         id
         revoked

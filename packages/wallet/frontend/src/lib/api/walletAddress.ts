@@ -5,7 +5,11 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { WalletAddressOP, WalletAddressResponse } from '@wallet/shared'
+import {
+  ListWalletAddressesResponse,
+  WalletAddressResponse,
+  WalletAddressOP
+} from '@wallet/shared'
 
 export const createWalletAddressSchema = z.object({
   walletAddressName: z.string().toLowerCase().min(3, {

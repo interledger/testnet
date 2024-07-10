@@ -5,6 +5,7 @@ import { QuoteService } from './service'
 import { quoteSchema } from './validation'
 import { createExchangeQuoteSchema } from '@/account/validation'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { QuoteResponse } from '@wallet/shared'
 
 interface IQuoteController {
   create: Controller<Quote>
@@ -19,7 +20,7 @@ export class QuoteController implements IQuoteController {
 
   create = async (
     req: Request,
-    res: CustomResponse<QuoteWithFees | Quote>,
+    res: CustomResponse<QuoteResponse>,
     next: NextFunction
   ) => {
     try {
@@ -44,7 +45,7 @@ export class QuoteController implements IQuoteController {
 
   createExchangeQuote = async (
     req: Request,
-    res: CustomResponse<QuoteWithFees | Quote>,
+    res: CustomResponse<QuoteResponse>,
     next: NextFunction
   ) => {
     try {

@@ -112,7 +112,7 @@ export async function createContainer(
     authGraphQLClient: asFunction(createAuthGraphQLClient).singleton(),
     rapydClient: asClassSingletonWithLogger(RapydClient, logger),
     rapydService: asClass(RapydService).singleton(),
-    rafikiClient: asClassSingletonWithLogger(RafikiClient, logger).singleton(),
+    rafikiClient: asClass(RafikiClient).singleton(),
     rafikiAuthService: asClass(RafikiAuthService).singleton(),
     accountService: asClass(AccountService).singleton(),
     ratesService: asClass(RatesService).singleton(),
