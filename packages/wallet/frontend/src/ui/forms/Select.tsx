@@ -32,7 +32,7 @@ const Input = <
   return (
     <components.Input
       inputClassName={cx(
-        'focus:ring-0 focus:ring-offset-0 border m-0.5 py-0.5 border-turqoise text-black',
+        'focus:ring-0 focus:ring-offset-0 border m-0.5 py-0.5 border-green dark:border-pink-neon',
         inputClassName
       )}
       {...props}
@@ -88,7 +88,9 @@ export const Select = <
       {label && (
         <Label htmlFor={id} hint={labelHint}>
           {label}{' '}
-          {props.required ? <span className="text-red-500">*</span> : null}
+          {props.required ? (
+            <span className="text-pink-dark dark:text-pink-neon">*</span>
+          ) : null}
         </Label>
       )}
       <ReactSelect
@@ -102,23 +104,25 @@ export const Select = <
         classNames={{
           control: ({ isDisabled, isFocused }) =>
             cx(
-              'rounded-md shadow-md border',
+              'rounded-md shadow-md border bg-white dark:bg-purple',
               isDisabled ? 'bg-gray-50 text-gray-600' : 'bg-white',
-              isFocused ? 'border-green-3' : 'border-turqoise'
+              isFocused
+                ? 'border-black dark:shadow-glow-link dark:border-white'
+                : 'border-green dark:border-pink-neon'
             ),
           dropdownIndicator: () => 'p-1',
           input: () => 'disabled:text-gray-600',
           menu: () =>
-            'bg-white border border-green-3 rounded-md my-1 shadow-md',
+            'bg-white dark:bg-purple border border-green dark:border-pink-neon rounded-md my-1 shadow-md',
           menuList: () => '',
           noOptionsMessage: () => 'text-gray-600 py-2 px-3',
           option: ({ isFocused, isSelected }) =>
             cx(
               'py-2 px-3',
               isSelected
-                ? 'bg-green-3 text-white'
+                ? 'bg-green-light dark:bg-purple-dark dark:text-white'
                 : isFocused
-                  ? 'bg-green-3/50 text-white'
+                  ? 'bg-green-light dark:bg-purple-dark dark:text-white'
                   : ''
             ),
           singleValue: () => 'mx-0.5',

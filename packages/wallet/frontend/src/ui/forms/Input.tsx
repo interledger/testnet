@@ -44,12 +44,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {label && (
             <Label htmlFor={id} hint={labelHint}>
               {label}{' '}
-              {props.required ? <span className="text-red-500">*</span> : null}
+              {props.required ? (
+                <span className="text-pink-dark dark:text-pink-neon">*</span>
+              ) : null}
             </Label>
           )}
           <div className="mt-1 flex rounded-md shadow-sm">
             {addOn ? (
-              <span className="inline-flex items-center whitespace-pre rounded-l-md border border-r-0 border-turqoise bg-gray-50 px-3 text-gray-600">
+              <span className="inline-flex items-center whitespace-pre rounded-l-md border border-r-0 border-green dark:border-pink-neon dark:bg-purple dark:text-teal-neon px-3">
                 {addOn}
               </span>
             ) : null}
@@ -59,7 +61,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 ref={ref}
                 type={type ?? 'text'}
                 className={cx(
-                  'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
+                  'block w-full min-w-0 flex-1 rounded-md border border-green dark:border-pink-neon dark:bg-purple pl-1 py-1.5 placeholder:text-black/50 dark:placeholder:text-white/50 focus:border-black dark:focus:shadow-glow-link dark:focus:border-white focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
                   addOn ? 'rounded-l-none' : '',
                   trailing ? 'rounded-r-none' : '',
                   isLoading ? 'pr-10' : '',
@@ -74,7 +76,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ) : null}
             </div>
             {trailing ? (
-              <span className="inline-flex items-center whitespace-pre rounded-r-md border border-l-0 border-turqoise bg-gray-50 px-3 text-gray-600">
+              <span className="inline-flex items-center whitespace-pre rounded-r-md border border-l-0 border-green  dark:border-pink-neon dark:bg-purple px-3 dark:text-teal-neon">
                 {trailing}
               </span>
             ) : null}

@@ -382,7 +382,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       <li key={page} className="list-none p-1">
                         <Button
                           size="xs"
-                          intent="outlineGreen"
+                          intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
                               '!border-green-3 !bg-green-4 !text-green-3'

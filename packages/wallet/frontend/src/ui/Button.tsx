@@ -29,18 +29,19 @@ const buttonStyles = cva(
     variants: {
       intent: {
         primary: [
-          'text-white bg-gradient-to-r from-green-5 to-green-6 hover:bg-gradient-primary-dark'
+          'text-white bg-green-dark hover:bg-white border hover:border-green-dark hover:text-green-dark dark:border-none dark:hover:text-white dark:bg-pink-neon dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
         ],
         secondary: [
-          'text-white bg-gradient-secondary hover:bg-gradient-secondary-dark'
+          'text-green-dark bg-white border border-green-dark hover:underline dark:bg-purple dark:border-pink-neon dark:text-pink-light dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
         ],
-        success: ['text-green-3 bg-white hover:bg-white-1'],
-        error: ['text-pink bg-white hover:bg-white-1'],
+        success: [
+          'text-green-modal border border-green-modal bg-white hover:bg-green-light dark:bg-purple dark:border-green-neon dark:text-green-neon dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
+        ],
+        error: [
+          'text-orange-dark border border-orange-dark bg-white hover:bg-orange-dark hover:text-white dark:bg-purple dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
+        ],
         outline: [
-          'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
-        ],
-        outlineGreen: [
-          'bg-transparent text-green-3 border border-green-3 hover:text-white hover:bg-green-3'
+          'text-green-dark border border-green-dark hover:text-white hover:bg-green-dark dark:bg-purple dark:border-pink-neon dark:text-white dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
         ]
       },
       size: {
