@@ -6,7 +6,6 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import {
-  ListWalletAddressesResponse,
   WalletAddressResponse,
   WalletAddressOP
 } from '@wallet/shared'
