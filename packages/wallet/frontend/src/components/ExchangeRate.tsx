@@ -1,7 +1,8 @@
 import { getCurrencySymbol } from '@/utils/helpers'
 import { memo } from 'react'
 import { SimpleArrow } from './icons/Arrow'
-import { AssetOP, ExchangeRates } from '@/lib/api/asset'
+import { ExchangeRates } from '@/lib/api/asset'
+import { AssetOP } from '@wallet/shared'
 
 type ExchangeRateProps = {
   convertAmount: number

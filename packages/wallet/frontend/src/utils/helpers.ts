@@ -1,7 +1,7 @@
 import { cx, CxOptions } from 'class-variance-authority'
-import { Quote } from '../lib/api/transfers'
 import { twMerge } from 'tailwind-merge'
-import { AssetOP } from '@/lib/api/asset'
+import { AssetOP } from '@wallet/shared'
+import { QuoteResponse } from '@wallet/shared'
 
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
@@ -73,7 +73,7 @@ export const formatDate = ({
   })
 }
 
-export const getFee = (quote: Quote): FormattedAmount => {
+export const getFee = (quote: QuoteResponse): FormattedAmount => {
   if (quote.fee) {
     return formatAmount({
       assetCode: quote.fee.assetCode,
