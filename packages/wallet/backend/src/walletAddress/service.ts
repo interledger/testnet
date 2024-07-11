@@ -278,8 +278,6 @@ export class WalletAddressService implements IWalletAddressService {
       )
     }
 
-    this.logger.debug(`Passed first throw`)
-
     const amount = Number(
       (
         Number(balance * this.env.RAPYD_THRESHOLD) *
@@ -292,8 +290,6 @@ export class WalletAddressService implements IWalletAddressService {
         `Missing Rapyd wallet ID for user "${walletAddress.account.user.id}"`
       )
     }
-
-    this.logger.debug(`Passed second throw`)
 
     let destination = walletAddress.account.user.rapydWalletId
     let source = this.env.RAPYD_SETTLEMENT_EWALLET
@@ -316,8 +312,6 @@ export class WalletAddressService implements IWalletAddressService {
         await walletAddress.$relatedQuery('account', trx).patch({
           debt: raw('?? + ?', ['debt', amount])
         })
-
-        this.logger.debug(`Early return`)
         return
       }
 
@@ -327,8 +321,6 @@ export class WalletAddressService implements IWalletAddressService {
         }`
       )
     }
-
-    this.logger.debug(`Passed third throw`)
 
     const updatedField: keyof Pick<
       PartialModelObject<WalletAddress>,
@@ -354,7 +346,6 @@ export class WalletAddressService implements IWalletAddressService {
       walletAddress.$query(trx).update(updatePart)
     ])
 
-    //TODO remove this after testing
     this.logger.debug(
       `Proccesed asset scale 9 transactions for payment pointer ${walletAddress.url}. Type: ${type} | Amount: ${amount}`
     )

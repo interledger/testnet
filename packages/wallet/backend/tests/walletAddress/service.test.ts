@@ -29,7 +29,9 @@ describe('Wallet Address Service', () => {
 
   const prepareWADependencies = async (
     paymentPointerName: string,
-    isAccountAssigned = true
+    isAccountAssigned = true,
+    assetCode?: string,
+    assetScale?: number,
   ) => {
     let extraAcc = {} as Account
     if (!isAccountAssigned)
@@ -56,8 +58,8 @@ describe('Wallet Address Service', () => {
       publicName: faker.string.alpha(10),
       accountId: isAccountAssigned ? account.id : extraAcc.id,
       id: faker.string.uuid(),
-      assetCode: undefined,
-      assetScale: 9
+      assetCode: assetCode || undefined,
+      assetScale: assetScale || undefined
     })
 
     return {
@@ -323,7 +325,9 @@ describe('Wallet Address Service', () => {
 
   describe('Sum By Wallet AddressId Since', () => {
     it('should complete without errors for zero sum', async () => {
-      await prepareWADependencies('my-wallet', true)
+      await prepareWADependencies('my-wallet', true,
+        'USD',
+        9)
 
       await expect(
         waService.keepBalancesSynced(new Date(0))
@@ -333,8 +337,9 @@ describe('Wallet Address Service', () => {
     it('should complete without errors for non-zero sum', async () => {
       prepareWSDepsMock(1000n)
 
-      await prepareWADependencies('my-wallet', true)
-
+      await prepareWADependencies('my-wallet', true,
+      'USD',
+      9)
       await expect(
         waService.keepBalancesSynced(new Date(0))
       ).resolves.toBeUndefined()
