@@ -290,7 +290,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                         trx.walletAddressUrl ??
                         ''}
                       {trx.walletAddressUrl ? (
-                        <span className="tooltip -ml-10 -mt-11 rounded border border-turqoise bg-white p-2 text-base shadow-lg">
+                        <span className="tooltip -ml-10 -mt-11 rounded border border-green text-black bg-white dark:border-pink-neon dark:bg-purple dark:text-white p-2 shadow-lg">
                           {trx.walletAddressUrl}
                         </span>
                       ) : null}
