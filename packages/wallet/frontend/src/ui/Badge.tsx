@@ -1,21 +1,21 @@
 import { cva, cx, type VariantProps } from 'class-variance-authority'
 
 const badgeStyles = cva(
-  ['inline-flex items-center justify-center rounded-md text-sm'],
+  ['inline-flex items-center justify-center rounded-md text-sm border'],
   {
     variants: {
       intent: {
         green: [
-          'border border-green-dark text-green-dark dark:border-teal-neon dark:text-teal-neon'
+          'border-green-dark text-green-dark dark:border-teal-neon dark:text-teal-neon'
         ],
         orange: [
-          'border border-orange-dark text-orange-dark dark:border-yellow-neon dark:text-yellow-neon'
+          'border-orange-dark text-orange-dark dark:border-yellow-neon dark:text-yellow-neon'
         ],
         pink: [
-          'border border-pink-dark text-pink-dark dark:border-pink-light dark:text-pink-light'
+          'border-pink-dark text-pink-dark dark:border-pink-light dark:text-pink-light'
         ],
         violet: [
-          'border border-purple-light text-pink-light dark:border-pink-neon dark:text-pink-neon'
+          'border-purple-light text-pink-light dark:border-pink-neon dark:text-pink-neon'
         ]
       },
       size: {
