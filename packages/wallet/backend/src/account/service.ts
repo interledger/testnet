@@ -246,7 +246,10 @@ export class AccountService implements IAccountService {
       accountId: existingAccount.id,
       paymentId: transactions[transactions.length - 1].id,
       assetCode: existingAccount.assetCode,
-      value: transformBalance(args.amount, this.env.MAX_ASSET_SCALE || asset.scale),
+      value: transformBalance(
+        args.amount,
+        this.env.MAX_ASSET_SCALE || asset.scale
+      ),
       type: 'INCOMING',
       status: 'COMPLETED',
       description: 'Fund account'

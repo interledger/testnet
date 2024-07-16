@@ -46,7 +46,7 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
     minimumFractionDigits: assetScale
   })
   // All assets will have asset scale 9 by default so we treat the amounts as such when formatting
-  const maxAssetScale = 9;
+  const maxAssetScale = 9
   const amount = formatter.format(Number(`${value}e-${maxAssetScale}`))
   const symbol = getCurrencySymbol(assetCode)
 

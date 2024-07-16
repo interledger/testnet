@@ -47,9 +47,9 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
     const value = snapshotAccount?.balance || account.balance
 
-    const baseAssetScale = 2;
-    const maxAssetScale = 9;
-    
+    const baseAssetScale = 2
+    const maxAssetScale = 9
+
     const amountScale2 = formatAmount({
       value: value,
       assetCode: account.assetCode,
