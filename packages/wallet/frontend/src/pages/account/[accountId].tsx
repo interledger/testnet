@@ -34,9 +34,8 @@ type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  allWalletAddresses
-  //TODO add this to account.balance
-  // balance
+  allWalletAddresses,
+  balance
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const { accountsSnapshot } = useSnapshot(balanceState)
@@ -45,19 +44,25 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       (item) => item.assetCode === account.assetCode
     )
 
-    const value = snapshotAccount?.balance || account.balance
-
     const baseAssetScale = 2
     const maxAssetScale = 9
 
+    const snapshotBalance = snapshotAccount
+      ? Number(snapshotAccount.balance)
+      : 0
+    const accountBalance =
+      Number(account.balance) * Math.pow(10, maxAssetScale - account.assetScale)
+
+    // `balance` represents incoming amount - outgoing amount in asset scale 9
+    const value = ((snapshotBalance || accountBalance) + balance).toString()
     const amountScale2 = formatAmount({
-      value: value,
+      value,
       assetCode: account.assetCode,
       assetScale: baseAssetScale
     })
 
     const amountScale9 = formatAmount({
-      value: value,
+      value,
       assetCode: account.assetCode,
       assetScale: maxAssetScale
     })
@@ -197,7 +202,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   allWalletAddresses: WalletAddressResponse[]
-  balance: FormattedAmount
+  balance: number
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -233,11 +238,7 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       account: accountResponse.result,
       allWalletAddresses: walletAddressesResponse.result,
-      balance: formatAmount({
-        value: balance.toString(),
-        assetCode: accountResponse.result.assetCode,
-        assetScale: 9
-      })
+      balance
     }
   }
 }

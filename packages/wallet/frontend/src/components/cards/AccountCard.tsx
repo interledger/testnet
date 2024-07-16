@@ -20,8 +20,17 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
       (item) => item.assetCode === account.assetCode
     )
     const baseAssetScale = 2
+    const maxAssetScale = 9
+
+    const snapshotBalance = snapshotAccount
+      ? Number(snapshotAccount.balance)
+      : 0
+    const accountBalance =
+      Number(account.balance) * Math.pow(10, maxAssetScale - account.assetScale)
+    const value = (snapshotBalance || accountBalance).toString()
+
     return formatAmount({
-      value: snapshotAccount?.balance || account.balance,
+      value,
       assetCode: account.assetCode,
       assetScale: baseAssetScale
     })
