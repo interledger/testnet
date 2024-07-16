@@ -6,6 +6,7 @@ import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
 import { Amount } from '@/rafiki/service'
 import { Conflict, NotFound } from '@shared/backend'
+import { Env } from '@/config/env'
 
 type CreateAccountArgs = {
   userId: string
@@ -38,7 +39,8 @@ interface IAccountService {
 export class AccountService implements IAccountService {
   constructor(
     private rapydClient: RapydClient,
-    private rafikiClient: RafikiClient
+    private rafikiClient: RafikiClient,
+    private env: Env
   ) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
@@ -244,7 +246,7 @@ export class AccountService implements IAccountService {
       accountId: existingAccount.id,
       paymentId: transactions[transactions.length - 1].id,
       assetCode: existingAccount.assetCode,
-      value: transformBalance(args.amount, asset.scale),
+      value: transformBalance(args.amount, this.env.MAX_ASSET_SCALE || asset.scale),
       type: 'INCOMING',
       status: 'COMPLETED',
       description: 'Fund account'

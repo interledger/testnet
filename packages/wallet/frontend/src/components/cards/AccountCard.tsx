@@ -19,10 +19,11 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
     const snapshotAccount = accountsSnapshot.find(
       (item) => item.assetCode === account.assetCode
     )
+    const baseAssetScale = 2;
     return formatAmount({
       value: snapshotAccount?.balance || account.balance,
       assetCode: account.assetCode,
-      assetScale: account.assetScale
+      assetScale: baseAssetScale
     })
   }, [account, accountsSnapshot])
 
