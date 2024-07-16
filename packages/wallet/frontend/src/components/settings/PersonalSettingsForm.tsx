@@ -3,15 +3,16 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useEffect, useState } from 'react'
-import { User, profileSchema, userService } from '@/lib/api/user'
+import { profileSchema, userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '../dialogs/ErrorDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { usePasswordContext } from '@/lib/context/password'
+import { UserResponse } from '@wallet/shared'
 
 type PersonalSettingsFormProps = {
-  user: User
+  user: UserResponse
 }
 
 export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
