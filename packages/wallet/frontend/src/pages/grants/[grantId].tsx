@@ -51,7 +51,8 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       <PageHeader title="Grant details" />
       <div className="flex flex-col items-start md:flex-col">
         <GrantDetails grant={grant}></GrantDetails>
-        {grant.state !== 'FINALIZED' && (
+        {(grant.finalizationReason === 'ISSUED' ||
+          grant.state !== 'FINALIZED') && (
           <Button
             intent="secondary"
             aria-label="revoke"
