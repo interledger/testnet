@@ -14,7 +14,6 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Link } from '@/ui/Link'
 import {
-  FormattedAmount,
   formatAmount,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
