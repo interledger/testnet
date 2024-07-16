@@ -1,6 +1,5 @@
 import type { NextFunction, Request } from 'express'
 import type { UserService } from './service'
-import type { User } from './model'
 import { validate } from '@/shared/validate'
 import {
   changePasswordSchema,
@@ -8,20 +7,14 @@ import {
   resetPasswordSchema
 } from '@/user/validation'
 import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
-
-interface UserFlags {
-  needsWallet: boolean
-  needsIDProof: boolean
-}
-interface TokenValidity {
-  isValid: boolean
-}
+import { UserResponse } from '@wallet/shared'
+import { ValidTokenResponse } from '@wallet/shared/src'
 
 interface IUserController {
-  me: Controller<UserFlags>
+  me: Controller<UserResponse>
   requestResetPassword: Controller
   resetPassword: Controller
-  checkToken: Controller<TokenValidity>
+  checkToken: Controller<ValidTokenResponse>
 }
 
 export class UserController implements IUserController {
@@ -29,9 +22,7 @@ export class UserController implements IUserController {
 
   me = async (
     req: Request,
-    res: CustomResponse<
-      Pick<User, 'email' | 'firstName' | 'lastName' | 'address'> & UserFlags
-    >,
+    res: CustomResponse<UserResponse>,
     next: NextFunction
   ) => {
     try {
@@ -133,7 +124,7 @@ export class UserController implements IUserController {
 
   checkToken = async (
     req: Request,
-    res: CustomResponse<TokenValidity>,
+    res: CustomResponse<ValidTokenResponse>,
     next: NextFunction
   ) => {
     try {
