@@ -67,7 +67,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       amountScale2: amountScale2,
       amountScale9: amountScale9
     }
-  }, [account, accountsSnapshot])
+  }, [account, accountsSnapshot, balance])
 
   const { isUserFirstTime, setRunOnboarding, setStepIndex, stepIndex } =
     useOnboardingContext()
