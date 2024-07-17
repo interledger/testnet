@@ -67,10 +67,23 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
         item.assetCode === selectedAccount.assetCode &&
         item.assetScale === selectedAccount.assetScale
     )
+
+    const baseAssetScale = 2
+    const maxAssetScale = 9
+
+    const snapshotBalance = snapshotAccount
+      ? Number(snapshotAccount.balance)
+      : 0
+    const accountBalance =
+      Number(selectedAccount.balance) *
+      Math.pow(10, maxAssetScale - selectedAccount.assetScale)
+
+    const value = (snapshotBalance || accountBalance).toString()
+
     return formatAmount({
-      value: snapshotAccount?.balance || selectedAccount.balance,
+      value,
       assetCode: selectedAccount.assetCode,
-      assetScale: selectedAccount.assetScale
+      assetScale: baseAssetScale
     }).amount
   }, [accountsSnapshot, selectedAccount])
 
