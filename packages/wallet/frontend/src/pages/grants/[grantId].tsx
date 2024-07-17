@@ -60,7 +60,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
               openDialog(
                 <ConfirmationDialog
                   confirmText="Revoke Grant"
-                  message="Are you sure you want to revoke this grant?"
+                  message="Revoking a grant will prevent future payments from this client. You will need to give the client access again to allow them to initiate further payments. FInalized payments will not change. Are you sure you want to revoke this grant?"
                   onConfirm={() => handleRevokeConfirmation(grant.id)}
                   onClose={closeDialog}
                 />
