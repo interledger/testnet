@@ -118,9 +118,9 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 
   const morePagesDisplay = (
     <>
-      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
-      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
-      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
+      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
+      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
+      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
     </>
   )
 
@@ -246,7 +246,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           <p className="text-lg">{error}</p>
           <Button
             aria-label="refresh transactions table"
-            intent="secondary"
+            intent="outline"
             onClick={() => fetch(filters, pagination)}
           >
             Refresh table
@@ -289,11 +289,14 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       {trx.walletAddressPublicName ??
                         trx.walletAddressUrl ??
                         ''}
-                      {trx.walletAddressUrl ? (
-                        <span className="tooltip -ml-10 -mt-11 rounded border border-green text-black bg-white dark:border-pink-neon dark:bg-purple dark:text-white p-2 shadow-lg">
-                          {trx.walletAddressUrl}
-                        </span>
-                      ) : null}
+                      {
+                        // TODO replace tooltip with Radix UI tooltip
+                        trx.walletAddressUrl ? (
+                          <span className="tooltip -ml-10 -mt-11 rounded-md bg-green-dark p-2 text-white shadow-lg dark:bg-purple-bright">
+                            {trx.walletAddressUrl}
+                          </span>
+                        ) : null
+                      }
                     </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
                       {trx.description ? (
@@ -304,8 +307,10 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     </Table.Cell>
                     <Table.Cell
                       className={cx(
-                        trx.type === 'INCOMING' && 'text-green-3',
-                        trx.type === 'OUTGOING' && 'text-pink-2'
+                        trx.type === 'INCOMING' &&
+                          'text-green-dark dark:text-green-neon',
+                        trx.type === 'OUTGOING' &&
+                          'text-pink-dark dark:text-yellow-neon'
                       )}
                     >
                       {trx.type === 'INCOMING' ? '+' : '-'}
@@ -344,7 +349,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         <>
           <div className="flex w-full items-center justify-between">
             <Button
-              className="hidden disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500 md:flex"
+              className="disabled:from-gray-400 disabled:to-gray-500 hidden disabled:pointer-events-none md:flex"
               aria-label="go to previous page"
               disabled={Number(pagination.page) - 1 < 0}
               onClick={() => {
@@ -381,7 +386,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     return (
                       <li key={page} className="list-none p-1">
                         <Button
-                          size="xs"
                           intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
@@ -412,13 +416,13 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                   {theme.theme === 'dark' ? (
                     <PlayDark className="h-4 w-4" />
                   ) : (
-                    <PlayLight className="h-4 w-4 " />
+                    <PlayLight className="h-4 w-4" />
                   )}
                 </IconButton>
               </div>
             )}
             <Button
-              className="hidden disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500 md:flex"
+              className="disabled:from-gray-400 disabled:to-gray-500 hidden disabled:pointer-events-none md:flex"
               aria-label="go to next page"
               disabled={Number(pagination.page) + 1 > totalPages - 1}
               onClick={() => {

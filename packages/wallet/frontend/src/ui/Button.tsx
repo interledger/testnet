@@ -4,50 +4,22 @@ import { forwardRef } from 'react'
 
 import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
 
-/**
- * CVA helps us define variants for our components.
- *
- * For this button component, we created two variants: `intent` and `size`.
- *
- * The `VariantProps` helper is going to extract the variants types so we can
- * safely type our button.
- *
- * Usage:
- *  - <Button intent='primary' size='md'>My Button</Button>
- *
- * We can define `defaultVariants` for the component. In our case, if there is
- * no `intent` or `size` passed in, they will use the default variants specified
- * in `defaultVariants` object (in our case `intent -> primary` and `size => md`).
- *
- * Example:
- *  - <Button>My Button</Button>
- */
-
 const buttonStyles = cva(
-  ['inline-flex items-center justify-center hover:shadow-md outline-none'],
+  [
+    'inline-flex items-center justify-center outline-none border-2 underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button'
+  ],
   {
     variants: {
       intent: {
         primary: [
-          'text-white bg-green-dark hover:bg-white border hover:border-green-dark hover:text-green-dark dark:border-none dark:hover:text-white dark:bg-pink-neon dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
-        ],
-        secondary: [
-          'text-green-dark bg-white border border-green-dark hover:underline dark:bg-purple dark:border-pink-neon dark:text-pink-light dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
-        ],
-        success: [
-          'text-green-modal border border-green-modal bg-white hover:bg-green-light dark:bg-purple dark:border-green-neon dark:text-green-neon dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
-        ],
-        error: [
-          'text-orange-dark border border-orange-dark bg-white hover:bg-orange-dark hover:text-white dark:bg-purple dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
+          'border-transparent bg-green-dark dark:bg-pink-neon text-white'
         ],
         outline: [
-          'text-green-dark border border-green-dark hover:text-white hover:bg-green-dark dark:bg-purple dark:border-pink-neon dark:text-white dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
+          'bg-transparent border-green-dark text-green-dark dark:border-pink-neon dark:text-pink-light'
         ]
       },
       size: {
-        xs: 'px-1 rounded-md font-small',
-        sm: 'px-2 py-1 rounded-md font-medium',
-        md: 'px-3 py-2 rounded-md font-medium'
+        md: 'p-3 rounded-md'
       },
       fullWidth: {
         true: 'w-full'
@@ -74,7 +46,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <ButtonOrLink
         ref={ref}
-        className={cx(className, buttonStyles({ intent, size, fullWidth }))}
+        className={cx(
+          className,
+          buttonStyles({ intent, size, fullWidth }),
+          'hover:decoration-'
+        )}
         {...props}
       >
         {loading && (

@@ -12,18 +12,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const id = useId()
     return (
       <div>
-        <div className="mt-1 flex justify-evenly">
+        <div className="mt-1 flex items-center gap-3 [font-size:smaller]">
           <input
             id={id}
             ref={ref}
             type="checkbox"
-            className="mt-1 cursor-pointer rounded-md border border-green dark:border-pink-neon focus:border-black dark:focus:shadow-glow-link dark:focus:border-white focus:ring-green-5 disabled:bg-gray-50"
+            className="cursor-pointer rounded-md border text-green accent-green dark:accent-pink-neon dark:focus:shadow-glow-button disabled:bg-black/5"
             {...props}
           />
-          <label
-            htmlFor={id}
-            className="text-md cursor-pointer pl-1 font-medium leading-6"
-          >
+          <label htmlFor={id} className="text-left">
             {label}
           </label>
         </div>

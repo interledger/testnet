@@ -53,11 +53,11 @@ export const SuccessDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-white/80 transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
+          <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -69,7 +69,7 @@ export const SuccessDialog = ({
             >
               <Dialog.Panel
                 className={cx(
-                  'relative w-full overflow-hidden rounded-lg bg-gradient-success p-8 shadow-md',
+                  'relative w-full space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl',
                   size === 'xs' && 'max-w-xs',
                   size === 'lg' && 'max-w-lg'
                 )}
@@ -83,17 +83,15 @@ export const SuccessDialog = ({
                   <div className="mt-3 text-center">
                     <Dialog.Title
                       as="h3"
-                      className="text-3xl font-medium text-white"
+                      className="text-2xl text-center font-bold"
                     >
                       {title}
                     </Dialog.Title>
 
-                    <div className="mt-2 text-sm font-light text-white">
-                      {content}
-                    </div>
+                    <div className="mt-2 text-sm font-light">{content}</div>
                   </div>
                 </div>
-                <div className="my-5">
+                <div className="mt-5 grid grid-cols-1 gap-3">
                   {copyToClipboard && (
                     <CopyButton
                       ctaText="Copy incoming payment URL"
@@ -102,12 +100,10 @@ export const SuccessDialog = ({
                       id="copyIncomingPaymentUrl"
                     />
                   )}
-                </div>
-                <div className="mt-5 grid grid-cols-1 gap-3">
                   {(onSuccess || redirect) && (
                     <Button
                       id="redirectButtonSuccess"
-                      intent="secondary"
+                      intent="primary"
                       aria-label={redirectText ?? 'redirect'}
                       fullWidth
                       {...successButtonProps}
@@ -117,7 +113,7 @@ export const SuccessDialog = ({
                   )}
                   {!onSuccess && (
                     <Button
-                      intent="success"
+                      intent="outline"
                       aria-label="close dialog"
                       fullWidth
                       id="closeButtonSuccess"
