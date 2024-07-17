@@ -18,6 +18,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ref={ref}
             type="checkbox"
             className="disabled:bg-gray-50 mt-1 cursor-pointer rounded-md border border-green focus:border-black focus:ring-green-bright dark:border-pink-neon dark:focus:border-white dark:focus:shadow-glow-link"
+            {...props}
           />
           <label
             htmlFor={id}
