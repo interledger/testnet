@@ -103,11 +103,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 >
                   Reset
                 </Button>
-                <Button
-                  intent="secondary"
-                  aria-label="cancel"
-                  href="/auth/login"
-                >
+                <Button intent="outline" aria-label="cancel" href="/auth/login">
                   Cancel
                 </Button>
               </div>

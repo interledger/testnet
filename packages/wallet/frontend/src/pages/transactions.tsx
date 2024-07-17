@@ -246,7 +246,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           <p className="text-lg">{error}</p>
           <Button
             aria-label="refresh transactions table"
-            intent="secondary"
+            intent="outline"
             onClick={() => fetch(filters, pagination)}
           >
             Refresh table
@@ -386,8 +386,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     return (
                       <li key={page} className="list-none p-1">
                         <Button
-                          size="xs"
-                          intent="outlineGreen"
+                          intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
                               '!border-green-3 !bg-green-4 !text-green-3'
