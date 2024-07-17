@@ -88,7 +88,7 @@ const GrantInteractionPage = ({
             Accept
           </Button>
           <Button
-            intent="secondary"
+            intent="outline"
             aria-label="decline"
             onClick={() => {
               finalizeGrantRequest('reject')

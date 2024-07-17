@@ -59,7 +59,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
         <GrantDetails grant={grant}></GrantDetails>
         {grant.state !== 'FINALIZED' && (
           <Button
-            intent="secondary"
+            intent="outline"
             aria-label="revoke"
             onClick={() => {
               openDialog(

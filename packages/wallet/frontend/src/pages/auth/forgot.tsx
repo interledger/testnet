@@ -78,7 +78,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
             >
               Get reset password link
             </Button>
-            <Button intent="secondary" aria-label="cancel" href="login">
+            <Button intent="outline" aria-label="cancel" href="login">
               Cancel
             </Button>
           </div>
