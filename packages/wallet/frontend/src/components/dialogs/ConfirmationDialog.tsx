@@ -44,8 +44,8 @@ export const ConfirmationDialog = ({
               leaveTo="opacity-0 translate-y-4"
             >
               <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
-                <div className="flex flex-col items-center justify-center px-4">
-                  <Warning strokeWidth={2} className="h-16 w-16 text-pink" />
+                <div className="flex flex-col text-center px-4">
+                  <Warning strokeWidth={2} className="h-16 w-16 mx-auto" />
                   <p className="text-center font-semibold text-pink">
                     {message ?? (
                       <>
