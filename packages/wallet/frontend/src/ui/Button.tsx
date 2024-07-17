@@ -12,10 +12,10 @@ const buttonStyles = cva(
     variants: {
       intent: {
         primary: [
-          'border-transparent bg-green-dark dark:bg-pink-neon text-white'
+          'text-white bg-green-dark hover:bg-white border hover:border-green-dark hover:text-green-dark dark:border-none dark:hover:text-white dark:bg-pink-neon dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
         ],
         outline: [
-          'bg-transparent border-green-dark text-green-dark dark:border-pink-neon dark:text-pink-light'
+          'text-green-dark border border-green-dark hover:text-white hover:bg-green-dark dark:bg-purple dark:border-pink-neon dark:text-white dark:hover:border-black dark:hover:shadow-glow-link dark:hover:border-white'
         ]
       },
       size: {

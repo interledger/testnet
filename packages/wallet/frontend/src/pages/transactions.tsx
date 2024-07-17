@@ -292,7 +292,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       {
                         // TODO replace tooltip with Radix UI tooltip
                         trx.walletAddressUrl ? (
-                          <span className="tooltip -ml-10 -mt-11 rounded-md bg-green-dark p-2 text-white shadow-lg dark:bg-purple-bright">
+                          <span className="tooltip -ml-10 -mt-11 rounded border border-green bg-white p-2 text-black shadow-lg dark:border-pink-neon dark:bg-purple dark:text-white">
                             {trx.walletAddressUrl}
                           </span>
                         ) : null
