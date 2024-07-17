@@ -22,7 +22,7 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-white/80 transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -36,7 +36,7 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xs overflow-hidden rounded-lg bg-gradient-error p-8 shadow-md">
+              <Dialog.Panel className="relative w-full max-w-xs space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <div>
                   {' '}
                   {theme.theme === 'dark' ? (
@@ -44,22 +44,17 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
                   ) : (
                     <BirdErrorLight className="mx-auto h-20 w-20" />
                   )}
-                  <div className="mt-3 text-center">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-3xl font-medium text-white"
-                    >
-                      {title}
-                    </Dialog.Title>
-
-                    <p className="mt-2 text-sm font-light text-white">
-                      {content}
-                    </p>
-                  </div>
+                  <Dialog.Title
+                    as="h3"
+                    className="text-center text-2xl font-bold"
+                  >
+                    {title}
+                  </Dialog.Title>
+                  <p className="mt-2 text-sm font-light">{content}</p>
                 </div>
                 <div className="mt-5 grid grid-cols-1 gap-3">
                   <Button
-                    intent="error"
+                    intent="outline"
                     aria-label="close dialog"
                     fullWidth
                     onClick={() => onClose()}

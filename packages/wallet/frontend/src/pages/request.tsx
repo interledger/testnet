@@ -143,6 +143,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                   copyToClipboard={response.result?.url}
                   title="Funds requested."
                   content="Funds were successfully requested"
+                  size="lg"
                   redirect={`/`}
                   redirectText="Go to your accounts"
                 />
