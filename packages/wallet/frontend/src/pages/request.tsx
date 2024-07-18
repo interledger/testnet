@@ -165,7 +165,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
           <Badge
             size="fixed"
             text="into"
-            intent="pink"
+            intent="info"
             className="self-start"
           />
           <div className="space-y-4">
