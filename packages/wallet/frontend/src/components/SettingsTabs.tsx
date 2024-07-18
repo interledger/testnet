@@ -51,7 +51,7 @@ export const SettingsTabs = () => {
             {pathname === tab.href && tab.name === 'Developer Keys' ? (
               <IconButton
                 aria-label="info-dev-keys"
-                className="ml-2 text-green-3 hover:text-green"
+                className="ml-2 text-green hover:text-black dark:text-pink-neon dark:hover:text-white"
                 id="devKeysInfo"
                 onClick={() => {
                   setIsDevKeysOnboarding(true)

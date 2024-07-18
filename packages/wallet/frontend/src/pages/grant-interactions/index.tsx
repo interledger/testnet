@@ -11,6 +11,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
+import { useTheme } from 'next-themes'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -27,6 +28,9 @@ const GrantInteractionPage = ({
   const router = useRouter()
   const access = grant.access.find((el) => el.type === 'outgoing-payment')
   const isPendingGrant = grant.state === 'PENDING'
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark' ? '/grants-dark.webp' : '/grants-light.webp'
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -52,7 +56,7 @@ const GrantInteractionPage = ({
       <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
-          src="/grants.webp"
+          src={imageName}
           alt="Grants"
           quality={100}
           width={500}
@@ -84,7 +88,7 @@ const GrantInteractionPage = ({
             Accept
           </Button>
           <Button
-            intent="secondary"
+            intent="outline"
             aria-label="decline"
             onClick={() => {
               finalizeGrantRequest('reject')
@@ -100,7 +104,7 @@ const GrantInteractionPage = ({
       <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
-          src="/grants.webp"
+          src={imageName}
           alt="Grants"
           quality={100}
           width={500}

@@ -49,7 +49,7 @@ export const QuoteDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -63,9 +63,9 @@ export const QuoteDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white px-4 py-8 shadow-xl">
-                <div className="flex flex-col items-center justify-center px-4">
-                  <PaperPlane strokeWidth={2} className="h-16 w-16" />
+              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
+                <div className="flex flex-col text-center">
+                  <PaperPlane strokeWidth={2} className="h-16 w-16 mx-auto" />
                   <p className="text-center font-semibold text-turqoise">
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}
@@ -79,7 +79,14 @@ export const QuoteDialog = ({
                     <br />
                     {type === 'quote' ? 'Fee: ' : 'Exchange fee: '} {fee.amount}
                   </p>
-                  <div className="mt-5 flex w-full flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
+                  <div className="mt-5 flex justify-between">
+                    <Button
+                      intent="outline"
+                      aria-label="decline"
+                      onClick={() => onClose()}
+                    >
+                      Decline
+                    </Button>
                     <Button
                       id="acceptQuote"
                       aria-label="accept quote"
@@ -93,13 +100,6 @@ export const QuoteDialog = ({
                       }}
                     >
                       Send
-                    </Button>
-                    <Button
-                      intent="secondary"
-                      aria-label="decline"
-                      onClick={() => onClose()}
-                    >
-                      Decline
                     </Button>
                   </div>
                 </div>
