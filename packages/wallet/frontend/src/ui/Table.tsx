@@ -9,7 +9,7 @@ type TableProps = ComponentProps<'table'> & {
 export const Table = ({ children, className, ...props }: TableProps) => {
   return (
     <div className="overflow-x-auto">
-      <table className={cx(className, 'min-w-full table-fixed')} {...props}>
+      <table className={cx(className, 'border-collapse')} {...props}>
         {children}
       </table>
     </div>
@@ -43,7 +43,7 @@ const THead = ({
           <th
             key={col}
             className={cx(
-              'border-b border-green dark:border-pink-neon p-4 text-left font-bold md:px-3',
+              'border-b border-green dark:border-pink-neon p-4 text-left font-bold',
               sort?.find((item) => item.header === col) !== undefined &&
                 'cursor-pointer'
             )}
@@ -104,7 +104,7 @@ type TCellProps = ComponentProps<'td'> & {
 
 const TCell = ({ children, className, ...props }: TCellProps) => {
   return (
-    <td className={cx(className, 'p-4 md:px-3')} {...props}>
+    <td className={cx(className, 'p-4')} {...props}>
       {children}
     </td>
   )

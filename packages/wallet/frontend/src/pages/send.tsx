@@ -191,7 +191,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         }
 
         sendForm.clearErrors('receiver')
-        sendForm.setValue('paymentType', 'receive')
+        sendForm.setValue('paymentType', 'Receive')
         sendForm.setValue('amount', value)
         sendForm.setValue('description', response.result.description ?? '')
         setReadOnlyNotes(true)
@@ -264,202 +264,199 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   }
 
   return (
-    <>
-      <div className="flex flex-col lg:w-2/3">
-        <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
-          <PageHeader title="Send Money" />
-        </div>
-        <TransferHeader type="violet" balance={balanceSnapshot} />
-        <Form
-          form={sendForm}
-          onSubmit={async (data) => {
-            const response = await transfersService.send(data)
-            if (response.success) {
-              if (response.result) {
-                const quoteId = response.result.id
-                openDialog(
-                  <QuoteDialog
-                    quote={response.result}
-                    receiverName={receiverPublicName}
-                    type="quote"
-                    onAccept={() => {
-                      handleAcceptQuote(quoteId)
-                      closeDialog
-                    }}
-                    onClose={closeDialog}
-                  />
-                )
+    <div className="w-full lg:max-w-xl">
+      <PageHeader title="Send Money" />
+      <TransferHeader type="violet" balance={balanceSnapshot} />
+      <Form
+        className="px-3"
+        form={sendForm}
+        onSubmit={async (data) => {
+          const response = await transfersService.send(data)
+          if (response.success) {
+            if (response.result) {
+              const quoteId = response.result.id
+              openDialog(
+                <QuoteDialog
+                  quote={response.result}
+                  receiverName={receiverPublicName}
+                  type="quote"
+                  onAccept={() => {
+                    handleAcceptQuote(quoteId)
+                    closeDialog
+                  }}
+                  onClose={closeDialog}
+                />
+              )
+              if (isUserFirstTime) {
+                setStepIndex(stepIndex + 1)
+                setRunOnboarding(true)
+              }
+            } else {
+              openDialog(
+                <ErrorDialog
+                  content="Something went wrong while fetching your quote. Please try again."
+                  onClose={closeDialog}
+                />
+              )
+            }
+          } else {
+            const { errors, message } = response
+            sendForm.setError('root', { message })
+
+            if (errors) {
+              getObjectKeys(errors).map((field) =>
+                sendForm.setError(field, { message: errors[field] })
+              )
+            }
+          }
+        }}
+      >
+        <Badge size="fixed" text="from" intent="pink" className="self-start" />
+        <div className="space-y-4">
+          <Select
+            required
+            label="Account"
+            placeholder="Select account..."
+            options={accounts}
+            isSearchable={false}
+            id="selectAccount"
+            onMenuOpen={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
+              }
+            }}
+            onChange={(option) => {
+              if (option) {
+                onAccountChange(option.value)
                 if (isUserFirstTime) {
                   setStepIndex(stepIndex + 1)
                   setRunOnboarding(true)
                 }
-              } else {
-                openDialog(
-                  <ErrorDialog
-                    content="Something went wrong while fetching your quote. Please try again."
-                    onClose={closeDialog}
-                  />
-                )
               }
-            } else {
-              const { errors, message } = response
-              sendForm.setError('root', { message })
-
-              if (errors) {
-                getObjectKeys(errors).map((field) =>
-                  sendForm.setError(field, { message: errors[field] })
-                )
-              }
-            }
-          }}
-        >
-          <div className="space-y-2">
-            <Badge size="fixed" text="from" />
-            <Select
-              required
-              label="Account"
-              placeholder="Select account..."
-              options={accounts}
-              isSearchable={false}
-              id="selectAccount"
-              onMenuOpen={() => {
-                if (isUserFirstTime) {
-                  setRunOnboarding(false)
+            }}
+          />
+          <Controller
+            name="walletAddressId"
+            control={sendForm.control}
+            render={({ field: { value } }) => (
+              <Select<SelectOption>
+                required
+                label="Payment pointer"
+                options={walletAddresses}
+                aria-invalid={
+                  sendForm.formState.errors.walletAddressId ? 'true' : 'false'
                 }
-              }}
-              onChange={(option) => {
-                if (option) {
-                  onAccountChange(option.value)
+                error={sendForm.formState.errors.walletAddressId?.message}
+                placeholder="Select payment pointer..."
+                value={value}
+                id="selectWalletAddress"
+                onMenuOpen={() => {
                   if (isUserFirstTime) {
-                    setStepIndex(stepIndex + 1)
-                    setRunOnboarding(true)
+                    setRunOnboarding(false)
                   }
-                }
-              }}
-            />
-            <Controller
-              name="walletAddressId"
-              control={sendForm.control}
-              render={({ field: { value } }) => (
-                <Select<SelectOption>
-                  required
-                  label="Payment pointer"
-                  options={walletAddresses}
-                  aria-invalid={
-                    sendForm.formState.errors.walletAddressId ? 'true' : 'false'
-                  }
-                  error={sendForm.formState.errors.walletAddressId?.message}
-                  placeholder="Select payment pointer..."
-                  value={value}
-                  id="selectWalletAddress"
-                  onMenuOpen={() => {
+                }}
+                onChange={(option) => {
+                  if (option) {
+                    sendForm.setValue('walletAddressId', { ...option })
                     if (isUserFirstTime) {
-                      setRunOnboarding(false)
+                      setStepIndex(stepIndex + 1)
+                      setRunOnboarding(true)
                     }
-                  }}
-                  onChange={(option) => {
-                    if (option) {
-                      sendForm.setValue('walletAddressId', { ...option })
-                      if (isUserFirstTime) {
-                        setStepIndex(stepIndex + 1)
-                        setRunOnboarding(true)
-                      }
-                    }
-                  }}
+                  }
+                }}
+              />
+            )}
+          />
+        </div>
+        <Badge size="fixed" text="to" intent="pink" className="self-start" />
+        <div className="space-y-4">
+          <Controller
+            name="receiver"
+            control={sendForm.control}
+            render={({ field: { value } }) => {
+              return (
+                <DebouncedInput
+                  required
+                  error={sendForm.formState.errors.receiver?.message}
+                  label="Payment pointer or Incoming payment URL"
+                  value={value}
+                  id="addRecipientWalletAddress"
+                  onChange={onWalletAddressChange}
                 />
-              )}
-            />
-          </div>
-          <div className="space-y-2">
-            <Badge size="fixed" text="to" />
-            <Controller
-              name="receiver"
-              control={sendForm.control}
-              render={({ field: { value } }) => {
-                return (
-                  <DebouncedInput
-                    required
-                    error={sendForm.formState.errors.receiver?.message}
-                    label="Payment pointer or Incoming payment URL"
-                    value={value}
-                    id="addRecipientWalletAddress"
-                    onChange={onWalletAddressChange}
-                  />
-                )
-              }}
-            />
-            <input type="hidden" {...sendForm.register('paymentType')} />
-            <Input
-              required
-              {...sendForm.register('amount')}
-              error={sendForm.formState.errors.amount?.message}
-              label="Amount"
-              id="addAmount"
-              onClick={() => {
-                if (isUserFirstTime) {
-                  setRunOnboarding(false)
-                }
-              }}
-              onChange={(event) => onAmountChange(event)}
-              labelHint={
-                <Controller
-                  name="paymentType"
-                  defaultValue={PAYMENT_SEND}
-                  control={sendForm.control}
-                  render={({ field: { onChange, value } }) => {
-                    return (
-                      <TogglePayment
-                        type={value}
-                        disabled={isToggleDisabled}
-                        onChange={(newValue) => {
-                          if (isToggleDisabled) {
-                            sendForm.setValue('paymentType', PAYMENT_RECEIVE)
-                            onChange(PAYMENT_RECEIVE)
-                          } else {
-                            sendForm.setValue(
-                              'paymentType',
-                              newValue ? PAYMENT_RECEIVE : PAYMENT_SEND
-                            )
-                            onChange(newValue ? PAYMENT_RECEIVE : PAYMENT_SEND)
-                          }
-                        }}
-                      />
-                    )
-                  }}
-                />
+              )
+            }}
+          />
+          <input type="hidden" {...sendForm.register('paymentType')} />
+          <Input
+            required
+            {...sendForm.register('amount')}
+            error={sendForm.formState.errors.amount?.message}
+            label="Amount"
+            id="addAmount"
+            onClick={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
               }
-            />
-            <ExchangeRate
-              convertAmount={convertAmount}
-              currentExchangeRates={currentExchangeRates}
-              receiverAssetCode={receiverAssetCode}
-              selectedAsset={
-                selectedAccount
-                  ? {
-                      assetCode: selectedAccount?.assetCode,
-                      assetScale: selectedAccount?.assetScale
-                    }
-                  : null
-              }
-            />
-            <Input
-              {...sendForm.register('description')}
-              label="Description"
-              disabled={readOnlyNotes}
-            />
-          </div>
-          <div className="flex justify-center py-5">
-            <Button
-              aria-label="Pay"
-              type="submit"
-              className="w-30"
-              loading={sendForm.formState.isSubmitting}
-            >
-              Review Payment
-            </Button>
-          </div>
-        </Form>
-      </div>
+            }}
+            onChange={(event) => onAmountChange(event)}
+            labelHint={
+              <Controller
+                name="paymentType"
+                defaultValue={PAYMENT_SEND}
+                control={sendForm.control}
+                render={({ field: { onChange, value } }) => {
+                  return (
+                    <TogglePayment
+                      type={value}
+                      disabled={isToggleDisabled}
+                      onChange={(newValue) => {
+                        if (isToggleDisabled) {
+                          sendForm.setValue('paymentType', PAYMENT_RECEIVE)
+                          onChange(PAYMENT_RECEIVE)
+                        } else {
+                          sendForm.setValue(
+                            'paymentType',
+                            newValue ? PAYMENT_RECEIVE : PAYMENT_SEND
+                          )
+                          onChange(newValue ? PAYMENT_RECEIVE : PAYMENT_SEND)
+                        }
+                      }}
+                    />
+                  )
+                }}
+              />
+            }
+          />
+          <ExchangeRate
+            convertAmount={convertAmount}
+            currentExchangeRates={currentExchangeRates}
+            receiverAssetCode={receiverAssetCode}
+            selectedAsset={
+              selectedAccount
+                ? {
+                    assetCode: selectedAccount?.assetCode,
+                    assetScale: selectedAccount?.assetScale
+                  }
+                : null
+            }
+          />
+          <Input
+            {...sendForm.register('description')}
+            label="Description"
+            disabled={readOnlyNotes}
+          />
+        </div>
+        <div className="flex justify-center py-5">
+          <Button
+            aria-label="Pay"
+            type="submit"
+            className="w-30"
+            loading={sendForm.formState.isSubmitting}
+          >
+            Review Payment
+          </Button>
+        </div>
+      </Form>
       <Image
         className="object-cover"
         src={imageName}
@@ -468,7 +465,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         width={500}
         height={200}
       />
-    </>
+    </div>
   )
 }
 

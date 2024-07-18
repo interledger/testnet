@@ -104,7 +104,7 @@ export const Select = <
         classNames={{
           control: ({ isDisabled, isFocused }) =>
             cx(
-              'rounded-md shadow-md border bg-white dark:bg-purple',
+              'rounded-md border bg-white dark:bg-purple',
               isDisabled ? 'bg-gray-50 text-gray-600' : 'bg-white',
               isFocused
                 ? 'border-black dark:shadow-glow-link dark:border-white'
@@ -113,7 +113,7 @@ export const Select = <
           dropdownIndicator: () => 'p-1',
           input: () => 'disabled:text-gray-600',
           menu: () =>
-            'bg-white dark:bg-purple border border-green dark:border-pink-neon rounded-md my-1 shadow-md',
+            'bg-white dark:bg-purple border dark:border-pink-light rounded-md my-1 shadow-md overflow-hidden',
           menuList: () => '',
           noOptionsMessage: () => 'text-gray-600 py-2 px-3',
           option: ({ isFocused, isSelected }) =>
@@ -126,8 +126,8 @@ export const Select = <
                   : ''
             ),
           singleValue: () => 'mx-0.5',
-          valueContainer: () => 'py-1 px-2',
-          placeholder: () => 'mx-0.5 text-gray-600'
+          valueContainer: () => 'p-2',
+          placeholder: () => 'mx-0.5 text-black/50 dark:text-white/70'
         }}
         className={className}
         id={id}

@@ -5,8 +5,8 @@ import { cx } from 'class-variance-authority'
 import { useState, useEffect } from 'react'
 
 const TYPES = {
-  send: { text: 'text-pink', bg: 'bg-pink' },
-  receive: { text: 'text-violet', bg: 'bg-violet' }
+  Send: { bg: 'bg-green dark:bg-pink-neon' },
+  Receive: { bg: 'bg-pink-dark dark:bg-teal-neon' }
 } as const
 
 type ToggleTypes = keyof typeof TYPES
@@ -43,7 +43,9 @@ export const TogglePayment = ({
         <Switch.Label
           className={cx(
             'pr-1',
-            disabled ? 'text-black/40' : `cursor-pointer text-pink`
+            disabled
+              ? 'text-black/50 dark:text-white/50'
+              : 'cursor-pointer text-green-dark dark:text-pink-light'
           )}
         >
           {PAYMENT_SEND}
@@ -53,22 +55,24 @@ export const TogglePayment = ({
           checked={enabled || disabled}
           onChange={handleOnChange}
           className={cx(
-            'relative inline-flex h-5 w-10 items-center rounded-full outline-none',
+            'relative inline-flex w-[2.3rem] h-[1.4rem] items-center rounded-full outline-none',
             disabled ? 'bg-black/40' : TYPES[type].bg
           )}
         >
           <span className="sr-only">Choose payment type</span>
           <span
             className={cx(
-              'inline-block h-4 w-4 transform rounded-full bg-white transition',
-              enabled || disabled ? 'translate-x-5' : 'translate-x-1'
+              'absolute inline-block w-[1.1rem] h-[1.1rem] transform rounded-full bg-white transition left-[.15rem] top-[.15rem]',
+              enabled || disabled ? 'translate-x-[calc(100%-.2rem)]' : ''
             )}
           />
         </Switch>
         <Switch.Label
           className={cx(
             'pl-1',
-            disabled ? 'text-black/40' : 'cursor-pointer text-violet'
+            disabled
+              ? 'text-black/50 dark:text-white/50'
+              : 'cursor-pointer text-pink-dark dark:text-teal-light'
           )}
         >
           {PAYMENT_RECEIVE}

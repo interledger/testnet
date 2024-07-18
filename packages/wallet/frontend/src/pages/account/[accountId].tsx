@@ -112,7 +112,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 className="group dark:hover:shadow-glow-button dark:focus:shadow-glow-button duration-200 transition-[box-shadow] flex-grow-0 flex-shrink-0 basis-1/4 flex flex-col items-center justify-center aspect-square border-2 rounded-lg text-center min-w-28"
               >
                 <New className="w-8 h-8 mb-1 transition-[filter] duration-200 group-focus:dark:drop-shadow-glow-svg group-hover:dark:drop-shadow-glow-svg" />
-                <span className="group-focus:underline group-focus:underline-offset-2 group-hover:hover:underline underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110">
+                <span className="group-focus:underline group-focus:underline-offset-2 group-hover:underline dark:group-hover:decoration-transparent underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110">
                   Add payment pointer
                 </span>
               </button>
@@ -132,7 +132,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                 className="group dark:hover:shadow-glow-button dark:focus:shadow-glow-button duration-200 transition-[box-shadow] flex-grow-0 flex-shrink-0 basis-1/4 flex flex-col items-center justify-center aspect-square border-2 rounded-lg text-center min-w-28"
               >
                 <RequestMenu className="w-8 h-8 mb-1 transition-[filter] duration-200 group-focus:dark:drop-shadow-glow-svg group-hover:dark:drop-shadow-glow-svg" />
-                <span className="group-focus:underline group-focus:underline-offset-2 group-hover:hover:underline underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110">
+                <span
+                  className="group-focus:underline group-focus:underline-offset-2 group-hover:underline
+                dark:group-hover:decoration-transparent underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110"
+                >
                   Add money
                 </span>
               </button>

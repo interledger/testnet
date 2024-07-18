@@ -24,7 +24,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             id={id}
             ref={ref}
             rows={4}
-            className="w-full cursor-pointer rounded-md border border-green pl-1 placeholder:text-black/20 focus:border-black dark:border-pink-neon dark:bg-purple dark:placeholder:text-white/40 dark:focus:border-white dark:focus:shadow-glow-link"
+            className="w-full p-2 cursor-pointer rounded-md border placeholder:text-black/50 dark:placeholder:text-white/50 border-green dark:border-pink-neon dark:bg-purple focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
             {...props}
           />
         </div>
