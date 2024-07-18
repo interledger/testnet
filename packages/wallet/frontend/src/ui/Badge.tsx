@@ -12,10 +12,13 @@ const badgeStyles = cva(
           'border-orange-dark text-orange-dark dark:border-yellow-neon dark:text-yellow-neon'
         ],
         pink: [
-          'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
+          'border-pink-dark text-pink-dark dark:border-pink-neon dark:text-pink-neon'
         ],
         violet: [
           'border-purple-light text-pink-light dark:border-pink-neon dark:text-pink-neon'
+        ],
+        info: [
+          'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
         ]
       },
       size: {
