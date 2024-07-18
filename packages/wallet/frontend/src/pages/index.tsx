@@ -41,7 +41,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
         message="Here is your account overview!"
       />
       <h2 className="mb-6 text-2xl font-bold leading-7">Accounts</h2>
-      <div className="grid max-w-[30rem] grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 md:max-w-[30rem]">
         <Link
           className="flex aspect-[5/3] flex-col rounded-lg border-2 p-3 text-right transition-[box-shadow,transform,] duration-200 ease-in-out hover:scale-105 focus:scale-105 hover:dark:shadow-glow-link focus:dark:shadow-glow-link"
           href="/account/create/"

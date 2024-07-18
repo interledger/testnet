@@ -3,10 +3,10 @@ import { cva, cx, type VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
 
 import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
-
+// disabled:decoration-none disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:decoration-none disabled:focus:decoration-none disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-50
 const buttonStyles = cva(
   [
-    'inline-flex items-center justify-center outline-none border-2 underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button'
+    'inline-flex items-center justify-center outline-none border-2 underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button disabled:decoration-none disabled:bg-grey-light disabled:text-grey-dark disabled:cursor-not-allowed disabled:hover:shadow-none dark:disabled:decoration-none dark:disabled:bg-grey-light dark:disabled:text-grey-dark dark:disabled:cursor-not-allowed dark:disabled:hover:shadow-none'
   ],
   {
     variants: {
@@ -46,11 +46,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <ButtonOrLink
         ref={ref}
-        className={cx(
-          className,
-          buttonStyles({ intent, size, fullWidth }),
-          'hover:decoration-'
-        )}
+        className={cx(className, buttonStyles({ intent, size, fullWidth }))}
         {...props}
       >
         {loading && (

@@ -122,12 +122,11 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
   return (
     <>
-      <div className="flex flex-col lg:w-2/3">
-        <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
-          <PageHeader title="Request Money" />
-        </div>
-        <TransferHeader type="turqoise" balance={balanceSnapshot} />
+      <div className="w-full lg:max-w-xl">
+        <PageHeader title="Request Money" />
+        <TransferHeader type="violet" balance={balanceSnapshot} />
         <Form
+          className="px-3"
           form={requestForm}
           onSubmit={async (data) => {
             const response = await transfersService.request(data)
@@ -163,8 +162,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
             }
           }}
         >
-          <div className="space-y-2">
-            <Badge size="fixed" text="into" />
+          <Badge size="fixed" text="into" className="self-start" />
+          <div className="space-y-4">
             <Select
               required
               label="Account"
@@ -221,8 +220,6 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                 />
               )}
             />
-          </div>
-          <div className="space-y-2">
             <Input
               required
               {...requestForm.register('amount')}

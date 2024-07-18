@@ -19,7 +19,7 @@ const badgeStyles = cva(
         ]
       },
       size: {
-        fixed: ['w-10'],
+        fixed: ['px-1 py-0.5'],
         md: ['px-2 py-0.5 text-xs font-semibold uppercase'],
         lg: ['px-2.5 py-0.5 text-sm font-semibold uppercase']
       }
