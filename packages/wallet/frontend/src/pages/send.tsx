@@ -311,7 +311,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           }
         }}
       >
-        <Badge size="fixed" text="from" intent="pink" className="self-start" />
+        <Badge size="fixed" text="from" intent="info" className="self-start" />
         <div className="space-y-4">
           <Select
             required
@@ -368,7 +368,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             )}
           />
         </div>
-        <Badge size="fixed" text="to" intent="pink" className="self-start" />
+        <Badge size="fixed" text="to" intent="info" className="self-start" />
         <div className="space-y-4">
           <Controller
             name="receiver"
