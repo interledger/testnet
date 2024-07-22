@@ -311,6 +311,7 @@ export class RafikiClient implements IRafikiClient {
     jwk: JwkInput,
     walletAddressId: string
   ) {
+    console.log(JSON.stringify(jwk, undefined, 2))
     const response = await this.backendGraphQLClient.request<
       CreateWalletAddressKeyMutation,
       CreateWalletAddressKeyMutationVariables

@@ -135,7 +135,7 @@ export class OpenPayments implements IOpenPayments {
 
     let continueUri = outgoingPaymentGrant.continue.uri
     if (this.env.NODE_ENV === 'development') {
-      continueUri = replaceHost(continueUri)
+      continueUri = replaceHost(continueUri, this.env.AUTH_CONTAINER)
     }
 
     await Payment.query().insert({
@@ -214,7 +214,7 @@ export class OpenPayments implements IOpenPayments {
 
     let url = walletAddress.authServer
     if (this.env.NODE_ENV === 'development') {
-      url = url.replace('rafiki-auth', 'localhost')
+      url = url.replace(this.env.AUTH_CONTAINER, 'localhost')
     }
 
     const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}/`
@@ -224,6 +224,7 @@ export class OpenPayments implements IOpenPayments {
       this.logger.error(`Invalid hash.`)
       this.logger.error(`Received hash: "${receivedHash}"`)
       this.logger.error(`Calculated hash: "${hash}"`)
+      console.log(data)
       throw new InternalServerError()
     }
   }
@@ -267,7 +268,7 @@ export class OpenPayments implements IOpenPayments {
 
     let continueUri = grant.continue.uri
     if (this.env.NODE_ENV === 'development') {
-      continueUri = replaceHost(continueUri)
+      continueUri = replaceHost(continueUri, this.env.AUTH_CONTAINER)
     }
 
     this.oneClickCache.set(
@@ -320,7 +321,7 @@ export class OpenPayments implements IOpenPayments {
       accessToken: continuation.access_token.value,
       manageUrl: continuation.access_token.manage.replace(
         'localhost',
-        'rafiki-auth'
+        this.env.AUTH_CONTAINER
       )
     }
   }
@@ -394,7 +395,7 @@ export class OpenPayments implements IOpenPayments {
 
     return {
       accessToken: grant.access_token.value,
-      manageUrl: replaceHost(grant.access_token.manage),
+      manageUrl: replaceHost(grant.access_token.manage, this.env.AUTH_CONTAINER),
       walletAddressurl: customerWalletAddress.id
     }
   }

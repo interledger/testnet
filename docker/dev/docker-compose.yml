@@ -1,4 +1,5 @@
 version: '3.5'
+name: testnet
 
 x-logging: &logging
   logging:
@@ -182,21 +183,21 @@ services:
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
     <<: *logging
 
-  kratos:
-    image: 'oryd/kratos:v0.13.0'
-    privileged: true
-    depends_on:
-      - postgres
-      - mailslurper
-    ports:
-      - '4433:4433'
-    volumes:
-      - ../entrypoint.sh:/entrypoint.sh
-      - ../identity.schema.json:/etc/config/kratos/identity.schema.json
-      - ./kratos.yml:/etc/config/kratos/kratos.yml
-    entrypoint: ['/entrypoint.sh']
-    networks:
-      - testnet
+#  kratos:
+#    image: 'oryd/kratos:v0.13.0'
+#    privileged: true
+#    depends_on:
+#      - postgres
+#      - mailslurper
+#    ports:
+#      - '4433:4433'
+#    volumes:
+#      - ../entrypoint.sh:/entrypoint.sh
+#      - ../identity.schema.json:/etc/config/kratos/identity.schema.json
+#      - ./kratos.yml:/etc/config/kratos/kratos.yml
+#    entrypoint: ['/entrypoint.sh']
+#    networks:
+#      - testnet
 
   tigerbeetle:
     image: ghcr.io/tigerbeetle/tigerbeetle:0.15.3
@@ -230,13 +231,13 @@ services:
     networks:
       - testnet
 
-  mailslurper:
-    image: oryd/mailslurper:latest-smtps
-    ports:
-      - '4436:4436'
-      - '4437:4437'
-    networks:
-      - testnet
+#  mailslurper:
+#    image: oryd/mailslurper:latest-smtps
+#    ports:
+#      - '4436:4436'
+#      - '4437:4437'
+#    networks:
+#      - testnet
 
 networks:
   testnet:

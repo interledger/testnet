@@ -1,3 +1,3 @@
-export function replaceHost(text: string): string {
-  return text.replace('localhost', 'rafiki-auth')
+export function replaceHost(text: string, container: string): string {
+  return text.replace('localhost', container)
 }

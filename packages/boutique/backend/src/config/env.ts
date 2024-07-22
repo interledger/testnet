@@ -10,7 +10,8 @@ const envSchema = z.object({
   PAYMENT_POINTER: z.string().default('replace-me'),
   KEY_ID: z.string().default('replace-me'),
   PRIVATE_KEY: z.string().default('replace-me'),
-  REDIS_URL: z.string().default('redis://redis:6379/0')
+  REDIS_URL: z.string().default('redis://redis:6379/0'),
+  AUTH_CONTAINER: z.string().default('rafiki-auth')
 })
 
 export type Env = z.infer<typeof envSchema>

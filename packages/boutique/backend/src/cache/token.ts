@@ -76,7 +76,7 @@ export class TokenCache extends InMemoryCache<string> {
      */
     let manageUrl = token.access_token.manage
     if (this.env.NODE_ENV === 'development') {
-      manageUrl = replaceHost(manageUrl)
+      manageUrl = replaceHost(manageUrl, this.env.AUTH_CONTAINER)
     }
     this.manageUrl = manageUrl
   }
