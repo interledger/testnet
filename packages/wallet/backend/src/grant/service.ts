@@ -81,7 +81,7 @@ export class GrantService implements IGrantService {
       }
     } else {
       args.filter = args.filter ?? {}
-      args.filter = { identifier: { in: identifiers } }
+      args.filter = { ...args.filter, identifier: { in: identifiers } }
     }
 
     const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
