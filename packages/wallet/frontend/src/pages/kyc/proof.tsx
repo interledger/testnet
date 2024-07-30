@@ -140,9 +140,9 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
                   className={cx(
                     USE_TEST_DATA_KYC
                       ? document.name === 'Passport'
-                        ? 'border-orange text-orange'
-                        : 'border-turqoise text-turqoise'
-                      : 'border-turqoise text-turqoise peer-checked:border-orange peer-checked:text-orange',
+                        ? 'border-pink-dark text-pink-dark dark:border-pink-neon dark:text-pink-neon dark:bg-purple'
+                        : 'border-green text-green dark:bg-purple dark:border-teal-neon dark:text-teal-neon'
+                      : 'border-green text-green peer-checked:border-orange peer-checked:text-orange dark:border-pink-neon dark:text-pink-neon',
                     'w-[150px] cursor-pointer rounded-xl border bg-white p-2 text-center text-base font-light shadow-md sm:min-w-[100px]'
                   )}
                 >
@@ -289,7 +289,7 @@ export const getServerSideProps: GetServerSideProps<{
 IDVerificationPage.getLayout = function (page) {
   return (
     <AuthLayout image="People">
-      <HeaderLogo header="Complete KYC" type="kyc" />
+      <HeaderLogo header="Complete KYC" />
       {page}
     </AuthLayout>
   )

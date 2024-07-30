@@ -8,11 +8,11 @@ const NoAccessPage = () => {
     theme.theme === 'dark' ? '/bird-error-dark.webp' : '/bird-error-light.webp'
 
   return (
-    <div className="flex h-full flex-col items-center justify-center bg-turqoise text-center text-2xl font-semibold text-white">
+    <div className="flex h-full flex-col items-center justify-center bg-green-light dark:bg-purple text-center text-2xl font-semibold">
       <h1>Access to the given resource is forbidden.</h1>
       <Link
         href="/"
-        className="mt-5 text-xl font-semibold text-white underline"
+        className="mt-5 text-xl font-semibold underline hover:text-green dark:hover:text-pink-neon"
       >
         Go to home page
       </Link>
