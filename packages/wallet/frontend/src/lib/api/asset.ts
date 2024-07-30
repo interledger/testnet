@@ -6,11 +6,6 @@ import {
 } from '../httpClient'
 import { AssetResponse, RatesResponse } from '@wallet/shared'
 
-export type AssetOP = {
-  assetCode: string
-  assetScale: number
-}
-
 export type ExchangeRates = Record<string, number>
 
 type ListAssetsResult = SuccessResponse<AssetResponse[]>

@@ -3,8 +3,6 @@ import { gql } from 'graphql-request'
 export const createReceiverMutation = gql`
   mutation CreateReceiverMutation($input: CreateReceiverInput!) {
     createReceiver(input: $input) {
-      code
-      message
       receiver {
         createdAt
         metadata
@@ -22,7 +20,6 @@ export const createReceiverMutation = gql`
           value
         }
       }
-      success
     }
   }
 `

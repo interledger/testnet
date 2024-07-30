@@ -318,7 +318,6 @@ const KeysGroupPanel = ({
               <CopyButton
                 aria-label="copy key id"
                 className="h-7 w-7"
-                size="sm"
                 value={keys.id}
               />
             </div>
@@ -326,13 +325,13 @@ const KeysGroupPanel = ({
 
           <PublicKeyContainer publicKey={keys.publicKey} />
           <Button
-            intent="secondary"
+            intent="primary"
             aria-label="revoke keys"
             className="mt-2"
             onClick={() =>
               openDialog(
                 <ConfirmationDialog
-                  confirmText="Revoke payment pointer key"
+                  confirmText="Revoke key"
                   onConfirm={() => revokePublicAndPrivateKeys()}
                   onClose={closeDialog}
                 />
@@ -474,7 +473,6 @@ const PublicKeyContainer = ({ publicKey }: PublicKeyContainerProps) => {
       <div className="flex items-center justify-between">
         <p className="font-normal">Public key</p>
         <Button
-          size="sm"
           intent="outline"
           aria-label="show or hide public key"
           onClick={() => setIsVisible((prev) => !prev)}

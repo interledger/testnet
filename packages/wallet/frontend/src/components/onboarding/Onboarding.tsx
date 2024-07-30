@@ -21,6 +21,7 @@ import {
 } from '../icons/TransactionCircle'
 import { HomeRooftopDark, HomeRooftopLight } from '../icons/HomeRooftop'
 import { KeyDark, KeyLight } from '../icons/Key'
+import { createPortal } from 'react-dom'
 
 type StepWithIcon = Step & {
   Icon: {
@@ -409,7 +410,7 @@ const Onboarding = () => {
     }
   }
 
-  return (
+  return createPortal(
     <ReactJoyride
       steps={ONBOARDING_STEPS}
       tooltipComponent={OnboardingTooltip}
@@ -422,7 +423,8 @@ const Onboarding = () => {
           arrowColor: theme.theme === 'dark' ? '#470c6e' : '#ffffff'
         }
       }}
-    />
+    />,
+    document.body
   )
 }
 

@@ -30,7 +30,7 @@ const GrantsPage: NextPageWithLayout = () => {
           <p className="text-lg">{error}</p>
           <Button
             aria-label="refresh grants table"
-            intent="secondary"
+            intent="outline"
             onClick={() => fetch(pagination)}
           >
             Refresh table

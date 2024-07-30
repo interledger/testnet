@@ -1,0 +1,91 @@
+version: v0.13.0
+
+dsn: postgres://kratos:kratos@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+
+serve:
+  public:
+    base_url: https://admin.rafiki.money/kratos
+    cors:
+      enabled: true
+  admin:
+    base_url: http://kratos:4434/
+
+selfservice:
+  default_browser_return_url: https://admin.rafiki.money/
+  allowed_return_urls:
+    - https://admin.rafiki.money
+
+  methods:
+    link:
+      config:
+        lifespan: 1h
+        base_url: https://admin.rafiki.money/kratos
+      enabled: true
+    password:
+      enabled: true
+
+  flows:
+    error:
+      ui_url: https://admin.rafiki.money/error
+
+    settings:
+      ui_url: https://admin.rafiki.money/settings
+      privileged_session_max_age: 15m
+      required_aal: highest_available
+
+    recovery:
+      enabled: true
+      ui_url: https://admin.rafiki.money/auth/recovery
+      use: link
+      after:
+        hooks:
+          - hook: revoke_active_sessions
+
+    verification:
+      enabled: false
+
+    logout:
+      after:
+        default_browser_return_url: https://admin.rafiki.money/auth
+
+    login:
+      ui_url: https://admin.rafiki.money/auth/login
+      lifespan: 10m
+
+    registration:
+      enabled: false
+
+log:
+  level: debug
+  format: json
+  leak_sensitive_values: true
+
+secrets:
+  cookie:
+    - PLEASE-CHANGE-ME-I-AM-VERY-INSECURE
+  cipher:
+    - 32-LONG-SECRET-NOT-SECURE-AT-ALL
+
+ciphers:
+  algorithm: xchacha20-poly1305
+
+hashers:
+  algorithm: bcrypt
+  bcrypt:
+    cost: 8
+
+identity:
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json
+
+courier:
+  smtp:
+    connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
+
+session:
+  lifespan: 1h
+  cookie:
+    persistent: false
+    same_site: Strict
+    path: /

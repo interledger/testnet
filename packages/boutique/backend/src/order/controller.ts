@@ -3,6 +3,7 @@ import { IOrderService } from './service'
 import { Order } from './model'
 import {
   BadRequest,
+  Unauthorized,
   Controller,
   InternalServerError,
   toSuccessResponse
@@ -20,6 +21,7 @@ import {
   setupFinishSchema,
   oneClickSetupSchema
 } from '@boutique/shared'
+import { OpenPaymentsClientError } from '@interledger/open-payments'
 
 interface GetParams {
   id?: string
@@ -154,9 +156,8 @@ export class OrderController implements IOrderController {
 
       const redirectUrl = await this.openPayments.setupOneClick(
         walletAddressUrl,
-        amount
+        Number(amount)
       )
-
       res.status(200).json(toSuccessResponse({ redirectUrl }))
     } catch (err) {
       next(err)
@@ -240,7 +241,11 @@ export class OrderController implements IOrderController {
         })
       )
     } catch (err) {
-      next(err)
+      if (err instanceof OpenPaymentsClientError && err.status === 401)
+        next(
+          new Unauthorized('Instant-buy is not valid please initiate it again')
+        )
+      else next(err)
     }
   }
 }

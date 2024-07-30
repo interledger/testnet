@@ -13,6 +13,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
+import { useTheme } from 'next-themes'
 
 type ResetPasswordPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -29,6 +30,11 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       token: token
     }
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   return (
     <>
@@ -97,11 +103,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 >
                   Reset
                 </Button>
-                <Button
-                  intent="secondary"
-                  aria-label="cancel"
-                  href="/auth/login"
-                >
+                <Button intent="outline" aria-label="cancel" href="/auth/login">
                   Cancel
                 </Button>
               </div>
@@ -120,7 +122,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
 
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/welcome-mobile.webp"
+        src={imageName}
         alt="Forgot password"
         quality={100}
         width={400}

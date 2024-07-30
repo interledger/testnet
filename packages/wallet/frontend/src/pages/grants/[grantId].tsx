@@ -21,12 +21,18 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
 import { GrantResponse } from '@wallet/shared'
+import { useTheme } from 'next-themes'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   const handleRevokeConfirmation = async (id: string) => {
     const response = await grantsService.delete(id)
@@ -51,15 +57,16 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       <PageHeader title="Grant details" />
       <div className="flex flex-col items-start md:flex-col">
         <GrantDetails grant={grant}></GrantDetails>
-        {grant.state !== 'FINALIZED' && (
+        {(grant.finalizationReason === 'ISSUED' ||
+          grant.state !== 'FINALIZED') && (
           <Button
-            intent="secondary"
+            intent="outline"
             aria-label="revoke"
             onClick={() => {
               openDialog(
                 <ConfirmationDialog
                   confirmText="Revoke Grant"
-                  message="Are you sure you want to revoke this grant?"
+                  message="Revoking a grant will prevent future payments from this client. You will need to give the client access again to allow them to initiate further payments. Finalized payments will not change. Are you sure you want to revoke this grant?"
                   onConfirm={() => handleRevokeConfirmation(grant.id)}
                   onClose={closeDialog}
                 />
@@ -72,7 +79,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       </div>
       <Image
         className="mt-20 object-cover"
-        src="/grants.webp"
+        src={imageName}
         alt="Grants"
         quality={100}
         width={500}
