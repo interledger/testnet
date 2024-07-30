@@ -2,11 +2,12 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PersonalSettingsForm } from '@/components/settings/PersonalSettingsForm'
 import { SettingsTabs } from '@/components/SettingsTabs'
-import { type User, userService } from '@/lib/api/user'
+import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
+import { UserResponse } from '@wallet/shared'
 
 type AccountSettingsProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -40,7 +41,7 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  user: User
+  user: UserResponse
 }> = async (ctx) => {
   const response = await userService.me(ctx.req.headers.cookie)
 

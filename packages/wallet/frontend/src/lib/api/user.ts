@@ -7,6 +7,7 @@ import {
 } from '../httpClient'
 import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 import { SelectOption } from '@/ui/forms/Select'
+import { UserResponse, ValidTokenResponse } from '@wallet/shared'
 
 export const signUpSchema = z
   .object({
@@ -136,23 +137,10 @@ export const changePasswordSchema = z
     }
   })
 
-export type User = {
-  email: string
-  firstName: string
-  lastName: string
-  address: string
-  needsWallet: boolean
-  needsIDProof: boolean
-}
-
 export type Document = {
   type: string
   name: string
   isBackRequired: boolean
-}
-
-export type ValidToken = {
-  isValid: boolean
 }
 
 type SignUpArgs = z.infer<typeof signUpSchema>
@@ -173,14 +161,14 @@ type ResetPasswordArgs = z.infer<typeof resetPasswordSchema>
 type ResetPasswordError = ErrorResponse<ResetPasswordArgs | undefined>
 type ResetPasswordResponse = SuccessResponse | ResetPasswordError
 
-type CheckTokenResult = SuccessResponse<ValidToken>
+type CheckTokenResult = SuccessResponse<ValidTokenResponse>
 type CheckTokenResponse = CheckTokenResult | ErrorResponse
 
 type VerifyEmailArgs = z.infer<typeof verifyEmailSchema>
 type VerifyEmailError = ErrorResponse<VerifyEmailArgs | undefined>
 type VerifyEmailResponse = SuccessResponse | VerifyEmailError
 
-type MeResult = SuccessResponse<User>
+type MeResult = SuccessResponse<UserResponse>
 type MeResponse = MeResult | ErrorResponse
 
 type CreateWalletArgs = z.infer<typeof personalDetailsSchema>
