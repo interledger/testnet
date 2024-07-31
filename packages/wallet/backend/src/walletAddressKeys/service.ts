@@ -77,11 +77,11 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       .export({ type: 'spki', format: 'pem' })
       .toString()
 
-    const isExist = await WalletAddress.query().where({
+    const isUploaded = await WalletAddress.query().where({
       id: jwk.kid.toString()
     })
 
-    if (isExist)
+    if (isUploaded)
       throw new BadRequest(
         'Same key already uploaded. Please upload a unique one.'
       )
