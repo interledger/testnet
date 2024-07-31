@@ -6,7 +6,6 @@ import { WalletAddressKeys } from './model'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { BadRequest, NotFound } from '@shared/backend'
-import { UniqueViolationError } from 'objection'
 
 export type KeyResponse = {
   privateKey: string
@@ -78,6 +77,15 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       .export({ type: 'spki', format: 'pem' })
       .toString()
 
+    const isExist = await WalletAddress.query().where({
+      id: jwk.kid.toString()
+    })
+
+    if (isExist)
+      throw new BadRequest(
+        'Same key already uploaded. Please upload a unique one.'
+      )
+
     const walletAddressKey =
       await this.rafikiClient.createRafikiWalletAddressKey(
         jwk,
@@ -92,15 +100,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       walletAddressId
     }
 
-    try {
-      await WalletAddressKeys.query().insert(key)
-    } catch (e) {
-      if (e instanceof UniqueViolationError)
-        throw new BadRequest(
-          'Same key already uploaded. Please upload a unique one.'
-        )
-      else throw e
-    }
+    await WalletAddressKeys.query().insert(key)
   }
 
   async registerKey({
