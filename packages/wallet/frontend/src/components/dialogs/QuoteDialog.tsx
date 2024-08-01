@@ -26,11 +26,15 @@ export const QuoteDialog = ({
 
   const maxAssetScale = 9
 
-  const receiveValue =
-    (Number(quote.receiveAmount.value) * Math.pow(10, maxAssetScale - quote.receiveAmount.assetScale)).toString()
- 
-  const debitValue =
-    (Number(quote.debitAmount.value) * Math.pow(10, maxAssetScale - quote.debitAmount.assetScale)).toString()
+  const receiveValue = (
+    Number(quote.receiveAmount.value) *
+    Math.pow(10, maxAssetScale - quote.receiveAmount.assetScale)
+  ).toString()
+
+  const debitValue = (
+    Number(quote.debitAmount.value) *
+    Math.pow(10, maxAssetScale - quote.debitAmount.assetScale)
+  ).toString()
 
   const receiveAmount = formatAmount({
     value: receiveValue,
