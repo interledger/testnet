@@ -77,9 +77,11 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       .export({ type: 'spki', format: 'pem' })
       .toString()
 
-    const isUploaded = await WalletAddress.query().where({
-      id: jwk.kid.toString()
-    })
+    const isUploaded = await WalletAddress.query()
+      .where({
+        id: jwk.kid.toString()
+      })
+      .first()
 
     if (isUploaded)
       throw new BadRequest(
