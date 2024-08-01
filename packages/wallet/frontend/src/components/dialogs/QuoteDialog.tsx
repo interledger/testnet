@@ -24,7 +24,6 @@ export const QuoteDialog = ({
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
 
-  //const baseAssetScale = 2
   const maxAssetScale = 9
 
   const receiveValue =
