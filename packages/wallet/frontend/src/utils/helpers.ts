@@ -75,20 +75,32 @@ export const formatDate = ({
 }
 
 export const getFee = (quote: QuoteResponse): FormattedAmount => {
+  const maxAssetScale = 9
+
   if (quote.fee) {
+    const feeValue = (
+      Number(quote.fee.value) *
+      Math.pow(10, maxAssetScale - quote.fee.assetScale)
+    ).toString()
+
     return formatAmount({
       assetCode: quote.fee.assetCode,
       assetScale: quote.fee.assetScale,
-      value: quote.fee.value.toString()
+      value: feeValue
     })
   }
 
   const fee =
     BigInt(quote.debitAmount.value) - BigInt(quote.receiveAmount.value)
+
+  const feeValue = (
+    Number(fee) * Math.pow(10, maxAssetScale - quote.debitAmount.assetScale)
+  ).toString()
+
   return formatAmount({
     assetCode: quote.debitAmount.assetCode,
     assetScale: quote.debitAmount.assetScale,
-    value: fee.toString()
+    value: feeValue
   })
 }
 
