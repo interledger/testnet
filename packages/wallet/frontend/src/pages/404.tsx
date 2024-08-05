@@ -10,12 +10,12 @@ const NotFoundPage = () => {
       : '/login-mobile-light.webp'
 
   return (
-    <div className="flex h-full flex-col items-center justify-center bg-green-light dark:bg-purple text-center text-2xl font-semibold">
+    <div className="bg-green-light dark:bg-purple flex h-full w-screen flex-col items-center justify-center text-center text-2xl font-semibold">
       <h1>404 - Page Not Found</h1>
       <div>Sorry, this page does not exist.</div>
       <Link
         href="/"
-        className="text-xl font-semibold underline hover:text-green dark:hover:text-pink-neon"
+        className="dark:hover:text-pink-neon text-xl font-semibold underline hover:text-green"
       >
         Go to home page
       </Link>
