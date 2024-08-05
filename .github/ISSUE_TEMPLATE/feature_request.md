@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: "[FEATURE REQUEST]"
+title: '[FEATURE REQUEST]'
 labels: 'discussions: ideas'
 assignees: ''
-
 ---
 
 Thanks for taking the time to file a feature request! Please fill out this form as completely as possible.
