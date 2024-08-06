@@ -1,6 +1,6 @@
 version: v0.13.0
 
-dsn: postgres://cloud_nine_kratos:kratos_password@shared-database:5432/cloud_nine_kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+dsn: postgres://kratos:kratos@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
 
 serve:
   public:
@@ -11,9 +11,9 @@ serve:
     base_url: http://kratos:4434/
 
 selfservice:
-  default_browser_return_url: http://localhost:3010/
+  default_browser_return_url: http://localhost:3012/
   allowed_return_urls:
-    - http://localhost:3010
+    - http://localhost:3012
 
   methods:
     link:
@@ -26,16 +26,16 @@ selfservice:
 
   flows:
     error:
-      ui_url: http://localhost:3010/error
+      ui_url: http://localhost:3012/error
 
     settings:
-      ui_url: http://localhost:3010/settings
+      ui_url: http://localhost:3012/settings
       privileged_session_max_age: 15m
       required_aal: highest_available
 
     recovery:
       enabled: true
-      ui_url: http://localhost:3010/auth/recovery
+      ui_url: http://localhost:3012/auth/recovery
       use: link
       after:
         hooks:
@@ -46,10 +46,10 @@ selfservice:
 
     logout:
       after:
-        default_browser_return_url: http://localhost:3010/auth
+        default_browser_return_url: http://localhost:3012/auth
 
     login:
-      ui_url: http://localhost:3010/auth/login
+      ui_url: http://localhost:3012/auth/login
       lifespan: 10m
 
     registration:
