@@ -53,7 +53,7 @@ const GrantInteractionPage = ({
 
   return isPendingGrant ? (
     <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
-      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+      <div className="rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
           src={imageName}
@@ -101,7 +101,7 @@ const GrantInteractionPage = ({
     </div>
   ) : (
     <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
-      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+      <div className="rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
           src={imageName}
@@ -110,7 +110,7 @@ const GrantInteractionPage = ({
           width={500}
           height={150}
         />
-        <div className="mt-20 text-xl text-green">
+        <div className="mt-20 text-xl">
           The request from <span className="font-semibold">{client}</span> to
           make a payment on your behalf for the amount of
           {access?.limits?.debitAmount?.formattedAmount}, was previously
