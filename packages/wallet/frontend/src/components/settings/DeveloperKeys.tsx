@@ -220,8 +220,12 @@ const KeysGroupHeader = ({
     <dt>
       <Disclosure.Button className="flex w-full justify-between rounded-md border border-purple-bright dark:border-green-neon px-2">
         <div className="flex flex-col py-1 text-left">
-          <span className="font-semibold leading-5 text-purple-bright dark:text-green-neon">{name}</span>
-          <span className="text-xs text-purple-bright dark:text-green-neon">Created {createdAt}</span>
+          <span className="font-semibold leading-5 text-purple-bright dark:text-green-neon">
+            {name}
+          </span>
+          <span className="text-xs text-purple-bright dark:text-green-neon">
+            Created {createdAt}
+          </span>
         </div>
         <span className="ml-6 mt-1 flex items-center">
           <Chevron
@@ -403,7 +407,7 @@ const WalletAddressKeyInfo = ({
           )}
         </Disclosure>
       ))}
-      <hr className='text-green dark:text-pink-neon'/>
+      <hr className="text-green dark:text-pink-neon" />
       <WalletAddressCTA
         accountIdx={accountIdx}
         walletAddressIdx={walletAddressIdx}
