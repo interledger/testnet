@@ -103,7 +103,7 @@ describe('Wallet Address Key Service', () => {
   describe('Upload key', () => {
     it('should insert new key', async () => {
       const base64Key =
-        'ewogICJrdHkiOiAiT0tQIiwKICAiY3J2IjogIkVkMjU1MTkiLAogICJraWQiOiAidGVzdC1rZXktZWQyNTUxOSIsCiAgImQiOiAibjROaS1IcElTcFZPYm5RTVcwd09oQ0tST2FJS3FLdFdfMlpZYjJwOUtjVSIsCiAgIngiOiAiSnJRTGo1UF84OWlYRVM5LXZGZ3JJeTI5Y2xGOUNDX29QUHN3M2M1RDBicyIKfQ=='
+        'eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6InpPMDJmSjVpWmJGMm9DNldiVHpfRTRiWF82cVctSkxGV0F3Mjg5Q1JxVEkiLCJraWQiOiJiMmM1OWIyYy1iMGQ3LTRhNGQtOWI0Zi0wNWExNTYxZTEyMDcifQ=='
       await walletAddressKeyService.uploadKey({
         userId,
         accountId: walletAddress.accountId,
@@ -113,7 +113,7 @@ describe('Wallet Address Key Service', () => {
       })
       const key = await WalletAddressKeys.query().first()
       expect(key).toHaveProperty('id')
-      expect(key?.id).toBe('test-key-ed25519')
+      expect(key?.id).toBe('b2c59b2c-b0d7-4a4d-9b4f-05a1561e1207')
       expect(key?.rafikiId).toBe(rafikiKeyId)
       expect(key?.walletAddressId).toBe(walletAddress.id)
       expect(key).toHaveProperty('nickname')
