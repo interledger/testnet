@@ -49,7 +49,7 @@ export const FormError = ({ error }: FormErrorProps) => {
   if (!error) return null
 
   return (
-    <div className="flex space-x-4 rounded-lg bg-red-100 px-4 py-3 shadow-md">
+    <div className="text-left p-4 rounded-md border [font-size:smaller] border-pink-dark text-pink-dark dark:border-pink-light dark:text-pink-light flex items-center gap-2">
       <div className="flex-shrink-0">
         <XCircle className="h-6 w-6 text-red-400" />
       </div>

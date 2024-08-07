@@ -18,6 +18,7 @@ import { Request } from '../icons/Request'
 import { MoneyHand } from '../icons/MoneyHand'
 import { Send } from '../icons/Send'
 import { Euro } from '../icons/Euro'
+import { createPortal } from 'react-dom'
 
 type StepWithIcon = Step & {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -401,7 +402,7 @@ const Onboarding = () => {
     }
   }
 
-  return (
+  return createPortal(
     <ReactJoyride
       steps={ONBOARDING_STEPS}
       tooltipComponent={OnboardingTooltip}
@@ -409,7 +410,8 @@ const Onboarding = () => {
       callback={handleCallback}
       continuous
       run={runOnboarding}
-    />
+    />,
+    document.body
   )
 }
 

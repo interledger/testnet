@@ -1,7 +1,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
 
 const NotFoundPage = () => {
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/login-mobile-dark.webp'
+      : '/login-mobile-light.webp'
+
   return (
     <div className="flex h-full flex-col items-center justify-center bg-turqoise text-center text-2xl font-semibold text-white">
       <h1>404 - Page Not Found</h1>
@@ -11,7 +18,7 @@ const NotFoundPage = () => {
       </Link>
       <Image
         className="mt-10 object-cover"
-        src="/login-mobile.webp"
+        src={imageName}
         alt="Page Not Found"
         quality={100}
         width={500}

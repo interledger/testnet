@@ -44,12 +44,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {label && (
             <Label htmlFor={id} hint={labelHint}>
               {label}{' '}
-              {props.required ? <span className="text-red-500">*</span> : null}
+              {props.required ? (
+                <span className="text-pink-neon">*</span>
+              ) : null}
             </Label>
           )}
-          <div className="mt-1 flex rounded-md shadow-sm">
+          <div className="mt-1 flex">
             {addOn ? (
-              <span className="inline-flex items-center whitespace-pre rounded-l-md border border-r-0 border-turqoise bg-gray-50 px-3 text-gray-600">
+              <span className="inline-flex items-center whitespace-pre rounded-l-md border border-r-0 border-green dark:border-pink-neon bg-black/5 dark:bg-black/30 p-2">
                 {addOn}
               </span>
             ) : null}
@@ -59,7 +61,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 ref={ref}
                 type={type ?? 'text'}
                 className={cx(
-                  'block w-full min-w-0 flex-1 rounded-md border border-turqoise py-1.5 placeholder:text-black/50 focus:border-green-3 focus:outline-none focus:ring-0 disabled:bg-gray-50 disabled:text-gray-600',
+                  'bg-transparent block w-full min-w-0 flex-1 rounded-md border border-green dark:border-pink-neon p-2 placeholder:text-black/70 dark:placeholder:text-white/70 disabled:bg-black/5 dark:disabled:bg-black/30 dark:focus:shadow-glow-button',
                   addOn ? 'rounded-l-none' : '',
                   trailing ? 'rounded-r-none' : '',
                   isLoading ? 'pr-10' : '',
@@ -74,7 +76,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ) : null}
             </div>
             {trailing ? (
-              <span className="inline-flex items-center whitespace-pre rounded-r-md border border-l-0 border-turqoise bg-gray-50 px-3 text-gray-600">
+              <span className="inline-flex items-center whitespace-pre rounded-r-md border border-l-0 border-green dark:border-pink-neon bg-black/5 dark:bg-black/30 p-2">
                 {trailing}
               </span>
             ) : null}

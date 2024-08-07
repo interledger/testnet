@@ -288,7 +288,7 @@ export const getServerSideProps: GetServerSideProps<{
 
 IDVerificationPage.getLayout = function (page) {
   return (
-    <AuthLayout image="Group" background="green">
+    <AuthLayout image="People">
       <HeaderLogo header="Complete KYC" type="kyc" />
       {page}
     </AuthLayout>
