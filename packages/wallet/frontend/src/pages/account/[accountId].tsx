@@ -44,8 +44,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       ? Number(snapshotAccount.balance)
       : 0
 
-    const accountBalance =
-      Number(account.balance)
+    const accountBalance = Number(account.balance)
 
     // `balance` represents incoming amount - outgoing amount in asset scale 9
     const value = ((snapshotBalance || accountBalance) + balance).toString()

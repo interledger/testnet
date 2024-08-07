@@ -23,8 +23,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
     const snapshotBalance = snapshotAccount
       ? Number(snapshotAccount.balance)
       : 0
-    const accountBalance =
-      Number(account.balance)
+    const accountBalance = Number(account.balance)
     const value = (snapshotBalance || accountBalance).toString()
 
     return formatAmount({

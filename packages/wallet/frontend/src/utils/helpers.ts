@@ -75,7 +75,6 @@ export const formatDate = ({
 }
 
 export const getFee = (quote: QuoteResponse): FormattedAmount => {
-
   if (quote.fee) {
     return formatAmount({
       assetCode: quote.fee.assetCode,

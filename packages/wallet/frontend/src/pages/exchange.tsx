@@ -53,8 +53,7 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
     const snapshotBalance = snapshotAccount
       ? Number(snapshotAccount.balance)
       : 0
-    const accountBalance =
-      Number(account.balance)
+    const accountBalance = Number(account.balance)
 
     const value = (snapshotBalance || accountBalance).toString()
 

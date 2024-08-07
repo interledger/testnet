@@ -71,8 +71,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     const snapshotBalance = snapshotAccount
       ? Number(snapshotAccount.balance)
       : 0
-    const accountBalance =
-      Number(selectedAccount.balance)
+    const accountBalance = Number(selectedAccount.balance)
 
     const value = (snapshotBalance || accountBalance).toString()
 
