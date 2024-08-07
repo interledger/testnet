@@ -18,8 +18,9 @@ import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 import { cx } from 'class-variance-authority'
 import { IconButton } from '@/ui/IconButton'
-import { Play } from '@/components/icons/Play'
+import { PlayDark, PlayLight } from '@/components/icons/Play'
 import { Label } from '@/ui/forms/Label'
+import { useTheme } from 'next-themes'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -65,6 +66,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   accounts,
   walletAddresses
 }) => {
+  const theme = useTheme()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const redirect = useRedirect<TransactionsFilters>({
@@ -116,17 +118,17 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 
   const morePagesDisplay = (
     <>
-      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
-      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
-      <div className="mx-1 mt-6 h-1 w-1 rounded-full bg-green-4 ring-1 ring-green-3" />
+      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
+      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
+      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
     </>
   )
 
   return (
-    <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
+    <>
       <PageHeader title="Transactions" />
-      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12">
-        <div className="md:col-span-3">
+      <div className="grid w-full grid-cols-4 gap-3 md:grid-cols-6 xl:grid-cols-12">
+        <div className="col-span-4 md:col-span-3">
           <Select
             options={accounts}
             label="Account"
@@ -150,7 +152,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             }}
           />
         </div>
-        <div className="md:col-span-3">
+        <div className="col-span-4 md:col-span-3">
           <Select
             options={
               currentAccount.value === ''
@@ -181,7 +183,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             }}
           />
         </div>
-        <div className="md:col-span-3 lg:col-span-2">
+        <div className="col-span-2 md:col-span-3">
           <Select
             options={types}
             label="Type"
@@ -194,7 +196,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             }}
           />
         </div>
-        <div className="md:col-span-3 lg:col-span-2">
+        <div className="col-span-2 md:col-span-3">
           <Select
             options={statuses}
             label="Status"
@@ -208,7 +210,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           />
         </div>
       </div>
-      <div className="flex w-full items-center justify-between xl:pr-10">
+      <div className="flex w-full items-center justify-between">
         <Button
           aria-label="clear filters"
           intent="outline"
@@ -244,7 +246,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           <p className="text-lg">{error}</p>
           <Button
             aria-label="refresh transactions table"
-            intent="secondary"
+            intent="outline"
             onClick={() => fetch(filters, pagination)}
           >
             Refresh table
@@ -253,96 +255,93 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
       ) : loading ? (
         <Table.Shimmer />
       ) : (
-        <div className="w-full" id="transactionsList">
-          <Table>
-            <Table.Head
-              columns={[
-                'Account',
-                'Payment pointer name',
-                'Description',
-                'Amount',
-                'Status',
-                'Date'
-              ]}
-              sort={[
-                {
-                  header: 'Date',
-                  sortFn: () => {
-                    pagination.orderByDate === 'DESC'
-                      ? redirect({ orderByDate: 'ASC' })
-                      : redirect({ orderByDate: 'DESC' })
-                  },
-                  getDirection: () => {
-                    return pagination.orderByDate === 'DESC' ? 'down' : 'up'
-                  }
+        <Table id="transactionsList" className="min-w-[57rem]">
+          <Table.Head
+            columns={[
+              'Account',
+              'Payment pointer name',
+              'Description',
+              'Amount',
+              'Status',
+              'Date'
+            ]}
+            sort={[
+              {
+                header: 'Date',
+                sortFn: () => {
+                  pagination.orderByDate === 'DESC'
+                    ? redirect({ orderByDate: 'ASC' })
+                    : redirect({ orderByDate: 'DESC' })
+                },
+                getDirection: () => {
+                  return pagination.orderByDate === 'DESC' ? 'down' : 'up'
                 }
-              ]}
-            />
-            <Table.Body>
-              {transactions.results.length ? (
-                transactions.results.map((trx) => (
-                  <Table.Row key={trx.id}>
-                    <Table.Cell>{trx.accountName}</Table.Cell>
-                    <Table.Cell className="has-tooltip cursor-pointer whitespace-nowrap">
-                      {trx.walletAddressPublicName ??
-                        trx.walletAddressUrl ??
-                        ''}
-                      {trx.walletAddressUrl ? (
-                        <span className="tooltip -ml-10 -mt-11 rounded border border-turqoise bg-white p-2 text-base shadow-lg">
-                          {trx.walletAddressUrl}
-                        </span>
-                      ) : null}
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {trx.description ? (
-                        trx.description
-                      ) : (
-                        <p className="text-sm font-thin">No description</p>
-                      )}
-                    </Table.Cell>
-                    <Table.Cell
-                      className={cx(
-                        trx.type === 'INCOMING' && 'text-green-3',
-                        trx.type === 'OUTGOING' && 'text-pink-2'
-                      )}
-                    >
-                      {trx.type === 'INCOMING' ? '+' : '-'}
-                      {
-                        formatAmount({
-                          value: String(trx.value) ?? 0,
-                          assetCode: trx.assetCode,
-                          assetScale: trx.assetScale
-                        }).amount
-                      }
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Badge
-                        intent={getStatusBadgeIntent(trx.status)}
-                        size="md"
-                        text={trx.status}
-                      />
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {formatDate({ date: trx.createdAt.toString() })}
-                    </Table.Cell>
-                  </Table.Row>
-                ))
-              ) : (
-                <Table.Row>
-                  <Table.Cell colSpan={4} className="text-center">
-                    No transactions found.
+              }
+            ]}
+          />
+          <Table.Body>
+            {transactions.results.length ? (
+              transactions.results.map((trx) => (
+                <Table.Row key={trx.id}>
+                  <Table.Cell>{trx.accountName}</Table.Cell>
+                  <Table.Cell className="has-tooltip cursor-pointer whitespace-nowrap">
+                    {trx.walletAddressPublicName ?? trx.walletAddressUrl ?? ''}
+                    {
+                      // TODO replace tooltip with Radix UI tooltip
+                      trx.walletAddressUrl
+                    }
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap">
+                    {trx.description ? (
+                      trx.description
+                    ) : (
+                      <p className="text-sm font-thin">No description</p>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell
+                    className={cx(
+                      trx.type === 'INCOMING' &&
+                        'text-green-dark dark:text-green-neon',
+                      trx.type === 'OUTGOING' &&
+                        'text-pink-dark dark:text-yellow-neon'
+                    )}
+                  >
+                    {trx.type === 'INCOMING' ? '+' : '-'}
+                    {
+                      formatAmount({
+                        value: String(trx.value) ?? 0,
+                        assetCode: trx.assetCode,
+                        assetScale: trx.assetScale
+                      }).amount
+                    }
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      intent={getStatusBadgeIntent(trx.status)}
+                      size="md"
+                      text={trx.status}
+                    />
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap">
+                    {formatDate({ date: trx.createdAt.toString() })}
                   </Table.Cell>
                 </Table.Row>
-              )}
-            </Table.Body>
-          </Table>
-        </div>
+              ))
+            ) : (
+              <Table.Row>
+                <Table.Cell colSpan={4} className="text-center">
+                  No transactions found.
+                </Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>
       )}
       {!error && !loading ? (
         <>
           <div className="flex w-full items-center justify-between">
             <Button
-              className="hidden disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500 md:flex"
+              className="hidden md:flex"
               aria-label="go to previous page"
               disabled={Number(pagination.page) - 1 < 0}
               onClick={() => {
@@ -364,7 +363,11 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     redirect({ page: previousPage.toString() })
                   }}
                 >
-                  <Play className="h-4 w-4 rotate-180" />
+                  {theme.theme === 'dark' ? (
+                    <PlayDark className="h-4 w-4 rotate-180" />
+                  ) : (
+                    <PlayLight className="h-4 w-4 rotate-180" />
+                  )}
                 </IconButton>
                 {pages.map((page) => {
                   if (
@@ -375,8 +378,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     return (
                       <li key={page} className="list-none p-1">
                         <Button
-                          size="xs"
-                          intent="outlineGreen"
+                          intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
                               '!border-green-3 !bg-green-4 !text-green-3'
@@ -403,12 +405,16 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     redirect({ page: nextPage.toString() })
                   }}
                 >
-                  <Play className="h-4 w-4" />
+                  {theme.theme === 'dark' ? (
+                    <PlayDark className="h-4 w-4" />
+                  ) : (
+                    <PlayLight className="h-4 w-4" />
+                  )}
                 </IconButton>
               </div>
             )}
             <Button
-              className="hidden disabled:pointer-events-none disabled:from-gray-400 disabled:to-gray-500 md:flex"
+              className="hidden md:flex"
               aria-label="go to next page"
               disabled={Number(pagination.page) + 1 > totalPages - 1}
               onClick={() => {
@@ -422,7 +428,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           </div>
         </>
       ) : null}
-    </div>
+    </>
   )
 }
 

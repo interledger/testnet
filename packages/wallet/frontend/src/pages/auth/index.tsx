@@ -4,9 +4,16 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { Divider } from '@/ui/Divider'
 import { Link } from '@/ui/Link'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 
 const WelcomePage: NextPageWithLayout = () => {
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
+
   return (
     <>
       <HeaderLogo header="Welcome" />
@@ -23,7 +30,7 @@ const WelcomePage: NextPageWithLayout = () => {
       </Button>
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/welcome-mobile.webp"
+        src={imageName}
         alt="Welcome"
         quality={100}
         width={400}

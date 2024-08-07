@@ -160,8 +160,8 @@ export const getServerSideProps: GetServerSideProps<{
 
 PersonalDetailsPage.getLayout = function (page) {
   return (
-    <AuthLayout image="Group" background="green">
-      <HeaderLogo header="Complete KYC" type="kyc" />
+    <AuthLayout image="People">
+      <HeaderLogo header="Complete KYC" />
       {page}
     </AuthLayout>
   )
