@@ -67,22 +67,18 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         item.assetScale === selectedAccount.assetScale
     )
 
-    const baseAssetScale = 2
-    const maxAssetScale = 9
-
     const snapshotBalance = snapshotAccount
       ? Number(snapshotAccount.balance)
       : 0
     const accountBalance =
-      Number(selectedAccount.balance) *
-      Math.pow(10, maxAssetScale - selectedAccount.assetScale)
-
+      Number(selectedAccount.balance)
     const value = (snapshotBalance || accountBalance).toString()
 
     return formatAmount({
       value,
+      displayScale: 2,
       assetCode: selectedAccount.assetCode,
-      assetScale: baseAssetScale
+      assetScale: selectedAccount.assetScale
     }).amount
   }, [accountsSnapshot, selectedAccount])
 

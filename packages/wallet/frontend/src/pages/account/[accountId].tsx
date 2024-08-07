@@ -40,27 +40,26 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
       (item) => item.assetCode === account.assetCode
     )
 
-    const baseAssetScale = 2
-    const maxAssetScale = 9
-
     const snapshotBalance = snapshotAccount
       ? Number(snapshotAccount.balance)
       : 0
+
     const accountBalance =
-      Number(account.balance) * Math.pow(10, maxAssetScale - account.assetScale)
+      Number(account.balance)
 
     // `balance` represents incoming amount - outgoing amount in asset scale 9
     const value = ((snapshotBalance || accountBalance) + balance).toString()
     const amountScale2 = formatAmount({
       value,
+      displayScale: 2,
       assetCode: account.assetCode,
-      assetScale: baseAssetScale
+      assetScale: account.assetScale
     })
 
     const amountScale9 = formatAmount({
       value,
       assetCode: account.assetCode,
-      assetScale: maxAssetScale
+      assetScale: account.assetScale
     })
 
     return {

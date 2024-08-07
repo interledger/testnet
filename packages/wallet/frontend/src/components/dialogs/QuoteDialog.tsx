@@ -24,26 +24,14 @@ export const QuoteDialog = ({
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
 
-  const maxAssetScale = 9
-
-  const receiveValue = (
-    Number(quote.receiveAmount.value) *
-    Math.pow(10, maxAssetScale - quote.receiveAmount.assetScale)
-  ).toString()
-
-  const debitValue = (
-    Number(quote.debitAmount.value) *
-    Math.pow(10, maxAssetScale - quote.debitAmount.assetScale)
-  ).toString()
-
   const receiveAmount = formatAmount({
-    value: receiveValue,
+    value: quote.receiveAmount.value,
     assetCode: quote.receiveAmount.assetCode,
     assetScale: quote.receiveAmount.assetScale
   })
 
   const debitAmount = formatAmount({
-    value: debitValue,
+    value: quote.debitAmount.value,
     assetCode: quote.debitAmount.assetCode,
     assetScale: quote.debitAmount.assetScale
   })

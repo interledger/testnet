@@ -49,8 +49,17 @@ const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
     const snapshotAccount = accountsSnapshot.find(
       (item) => item.assetCode === account.assetCode
     )
+
+    const snapshotBalance = snapshotAccount
+      ? Number(snapshotAccount.balance)
+      : 0
+    const accountBalance =
+      Number(account.balance)
+
+    const value = (snapshotBalance || accountBalance).toString()
+
     return formatAmount({
-      value: snapshotAccount?.balance || account.balance,
+      value,
       assetCode: account.assetCode,
       assetScale: account.assetScale
     })

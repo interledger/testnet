@@ -35,19 +35,19 @@ export const getCurrencySymbol = (assetCode: string): string => {
 
 type FormatAmountArgs = AssetOP & {
   value: string
+  displayScale?: number
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
-  const { value, assetCode, assetScale } = args
+  const { value, displayScale = 9, assetCode, assetScale } = args
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: assetCode,
-    maximumFractionDigits: assetScale,
-    minimumFractionDigits: assetScale
+    maximumFractionDigits: displayScale,
+    minimumFractionDigits: displayScale
   })
-  // All assets will have asset scale 9 by default so we treat the amounts as such when formatting
-  const maxAssetScale = 9
-  const amount = formatter.format(Number(`${value}e-${maxAssetScale}`))
+
+  const amount = formatter.format(Number(`${value}e-${assetScale}`))
   const symbol = getCurrencySymbol(assetCode)
 
   return {
@@ -75,32 +75,22 @@ export const formatDate = ({
 }
 
 export const getFee = (quote: QuoteResponse): FormattedAmount => {
-  const maxAssetScale = 9
 
   if (quote.fee) {
-    const feeValue = (
-      Number(quote.fee.value) *
-      Math.pow(10, maxAssetScale - quote.fee.assetScale)
-    ).toString()
-
     return formatAmount({
       assetCode: quote.fee.assetCode,
       assetScale: quote.fee.assetScale,
-      value: feeValue
+      value: quote.fee.value
     })
   }
 
   const fee =
     BigInt(quote.debitAmount.value) - BigInt(quote.receiveAmount.value)
 
-  const feeValue = (
-    Number(fee) * Math.pow(10, maxAssetScale - quote.debitAmount.assetScale)
-  ).toString()
-
   return formatAmount({
     assetCode: quote.debitAmount.assetCode,
     assetScale: quote.debitAmount.assetScale,
-    value: feeValue
+    value: fee.toString()
   })
 }
 
