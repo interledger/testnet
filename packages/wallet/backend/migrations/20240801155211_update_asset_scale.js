@@ -7,18 +7,17 @@ const knexConfig = require('../knexfile')
  */
 exports.up = async function (knex) {
   if (process.env.NODE_ENV !== 'test') {
-    const rafikiKnex = Knex(knexConfig.rafiki_backend);
+    const rafikiKnex = Knex(knexConfig.rafiki_backend)
 
     try {
-      await rafikiKnex('assets').update({ scale: 9 });
+      await rafikiKnex('assets').update({ scale: 9 })
     } finally {
-      await rafikiKnex.destroy();
+      await rafikiKnex.destroy()
     }
   }
 
-  await knex('accounts').update({ assetScale: 9 });
-  await knex('walletAddresses').update({ assetScale: 9 });
-
+  await knex('accounts').update({ assetScale: 9 })
+  await knex('walletAddresses').update({ assetScale: 9 })
 }
 
 /**
@@ -27,16 +26,14 @@ exports.up = async function (knex) {
  */
 exports.down = async function (knex) {
   if (process.env.NODE_ENV !== 'test') {
-    const rafikiKnex = Knex(knexConfig.rafiki_backend);
+    const rafikiKnex = Knex(knexConfig.rafiki_backend)
 
     try {
-      await rafikiKnex('assets').update({ scale: 2 });
+      await rafikiKnex('assets').update({ scale: 2 })
     } finally {
-      await rafikiKnex.destroy();
+      await rafikiKnex.destroy()
     }
   }
-  await knex('accounts').update({ assetScale: 2 });
-  await knex('walletAddresses').update({ assetScale: 2 });
-
- 
-};
+  await knex('accounts').update({ assetScale: 2 })
+  await knex('walletAddresses').update({ assetScale: 2 })
+}
