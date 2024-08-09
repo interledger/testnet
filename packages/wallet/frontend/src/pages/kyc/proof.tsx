@@ -76,7 +76,7 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
   return (
     <>
       {USE_TEST_DATA_KYC && (
-        <p className="my-2 font-semibold text-pink">
+        <p className="px-2 py-8 text-center font-semibold text-pink-dark dark:text-teal-neon">
           For testing purposes Passport is selected, and images uploaded by
           default!
         </p>
@@ -118,7 +118,7 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
         }}
       >
         <div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-3">
             {documents.map((document) => (
               <div
                 key={document.type}
@@ -140,9 +140,9 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
                   className={cx(
                     USE_TEST_DATA_KYC
                       ? document.name === 'Passport'
-                        ? 'border-pink-dark text-pink-dark dark:border-pink-neon dark:text-pink-neon dark:bg-purple'
-                        : 'border-green text-green dark:bg-purple dark:border-teal-neon dark:text-teal-neon'
-                      : 'border-green text-green peer-checked:border-orange peer-checked:text-orange dark:border-pink-neon dark:text-pink-neon',
+                        ? 'border-pink-dark text-pink-dark dark:border-pink-neon dark:bg-purple dark:text-pink-neon'
+                        : 'border-green text-green dark:border-teal-neon dark:bg-purple dark:text-teal-neon'
+                      : 'peer-checked:border-orange peer-checked:text-orange border-green text-green dark:border-pink-neon dark:text-pink-neon',
                     'w-[150px] cursor-pointer rounded-xl border bg-white p-2 text-center text-base font-light shadow-md sm:min-w-[100px]'
                   )}
                 >
@@ -266,6 +266,7 @@ const IDVerificationPage: NextPageWithLayout<IDVerificationPage> = ({
         <Button
           aria-label="Verify Account"
           type="submit"
+          className="mx-2"
           loading={verifyIdentityForm.formState.isSubmitting}
         >
           Verify Account

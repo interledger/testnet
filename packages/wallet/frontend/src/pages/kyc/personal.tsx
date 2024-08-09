@@ -42,16 +42,16 @@ const PersonalDetailsPage: NextPageWithLayout<PersonalDetailsProps> = ({
 
   return (
     <>
-      <h2 className="py-2 text-xl font-semibold text-green-3">
+      <h2 className="py-2 text-xl font-semibold text-green dark:text-pink-neon">
         Personal Details
       </h2>
       {USE_TEST_DATA_KYC && (
-        <span className="font-semibold text-pink">
+        <span className="mb-10 text-center font-semibold text-pink-dark dark:text-teal-neon">
           Denmark is selected by default for testing purposes!
         </span>
       )}
       <Form
-        className="mt-2"
+        className="mt-2 px-2"
         form={personalDetailsForm}
         onSubmit={async (data) => {
           const response = await userService.createWallet(data)

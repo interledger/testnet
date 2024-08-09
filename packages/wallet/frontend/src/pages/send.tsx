@@ -266,7 +266,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   return (
     <div className="w-full lg:max-w-xl">
       <PageHeader title="Send Money" />
-      <TransferHeader type="violet" balance={balanceSnapshot} />
+      <TransferHeader type="pink" balance={balanceSnapshot} />
       <Form
         className="px-3"
         form={sendForm}
