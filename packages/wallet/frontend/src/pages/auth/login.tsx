@@ -35,7 +35,9 @@ const LoginPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Welcome" />
-      <h2 className="mb-5 mt-10 text-xl font-semibold text-green">Login</h2>
+      <h2 className="mb-5 mt-10 text-xl font-semibold text-green dark:text-teal-neon">
+        Login
+      </h2>
       <div className="w-2/3">
         <Form
           form={loginForm}
@@ -77,7 +79,7 @@ const LoginPage: NextPageWithLayout = () => {
           />
           <Link
             href="forgot"
-            className="text-sm font-extralight text-green underline"
+            className="text-sm font-extralight text-green underline dark:text-green-neon"
           >
             Forgot password?
           </Link>
@@ -102,7 +104,7 @@ const LoginPage: NextPageWithLayout = () => {
         width={500}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Not a customer?{' '}
         <Link href="signup" className="font-medium underline">
           Create an account

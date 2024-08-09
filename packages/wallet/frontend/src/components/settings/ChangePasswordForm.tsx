@@ -23,7 +23,9 @@ export const ChangePasswordForm = () => {
 
   return (
     <div className="pt-5">
-      <h3 className="text-2xl text-turqoise">Change account password</h3>
+      <h3 className="mb-5 text-2xl text-green dark:text-teal-neon">
+        Change account password
+      </h3>
       <Form
         form={changePasswordForm}
         onSubmit={async (data) => {

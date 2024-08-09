@@ -74,7 +74,7 @@ export const UploadPublicKeyDialog = ({
               <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <Dialog.Title
                   as="h3"
-                  className="text-center text-2xl font-medium text-green dark:text-pink-neon"
+                  className="text-center text-2xl font-medium"
                 >
                   Add a public key
                 </Dialog.Title>

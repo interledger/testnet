@@ -41,7 +41,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       <HeaderLogo header="Reset Password" />
       {token && isValid ? (
         <>
-          <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
+          <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
             Provide a new password for your Test Wallet account.
           </h2>
           <div className="w-2/3">
@@ -111,7 +111,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
           </div>
         </>
       ) : (
-        <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
+        <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
           The link is invalid or has expired. <br /> Please verify your link, or{' '}
           <Link href="/auth/forgot" className="font-medium underline">
             request a new link
@@ -128,7 +128,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
         width={400}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Remembered your credentials?{' '}
         <Link href="/auth/login" className="font-medium underline">
           Login

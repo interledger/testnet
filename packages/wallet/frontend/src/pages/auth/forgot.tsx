@@ -32,7 +32,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Forgot Password" />
-      <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-pink-neon">
+      <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
         You are not alone. We have all been here at some point.
       </h2>
       <div className="w-2/3">
@@ -93,7 +93,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
         width={400}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Remembered your credentials?{' '}
         <Link href="login" className="font-medium underline">
           Login

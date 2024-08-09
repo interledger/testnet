@@ -28,7 +28,9 @@ const SignUpPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Welcome" />
-      <h2 className="mb-5 mt-10 text-xl text-green">Create Account</h2>
+      <h2 className="mb-5 mt-10 text-xl text-green dark:text-teal-neon">
+        Create Account
+      </h2>
       <div className="z-10 w-2/3">
         <Form
           form={signUpForm}
@@ -112,7 +114,7 @@ const SignUpPage: NextPageWithLayout = () => {
             : "bg-[url('../../public/leafs-light.svg')]"
         )}
       ></div>
-      <p className="z-10 mt-auto text-center font-extralight text-green">
+      <p className="z-10 mt-auto text-center font-extralight text-green dark:text-green-neon">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">
           Log in
