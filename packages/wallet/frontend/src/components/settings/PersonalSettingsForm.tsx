@@ -31,7 +31,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
   return (
     <>
       <div className="mb-5">
-        <h3 className="text-2xl text-turqoise">Profile</h3>
+        <h3 className="text-2xl text-green dark:text-teal-neon">Profile</h3>
       </div>
       <Form
         form={profileForm}

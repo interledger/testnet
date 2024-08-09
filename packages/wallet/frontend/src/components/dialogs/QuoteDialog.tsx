@@ -51,7 +51,7 @@ export const QuoteDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -65,20 +65,20 @@ export const QuoteDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <div className="flex flex-col text-center">
                   {theme.theme === 'dark' ? (
                     <PaperPlaneDark
                       strokeWidth={2}
-                      className="h-16 w-16 mx-auto"
+                      className="mx-auto h-16 w-16"
                     />
                   ) : (
                     <PaperPlaneLight
                       strokeWidth={2}
-                      className="h-16 w-16 mx-auto"
+                      className="mx-auto h-16 w-16"
                     />
                   )}
-                  <p className="text-center font-semibold text-turqoise">
+                  <p className="text-center font-semibold text-green dark:text-pink-neon">
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}
                     <br />
