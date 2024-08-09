@@ -78,7 +78,7 @@ export const QuoteDialog = ({
                       className="mx-auto h-16 w-16"
                     />
                   )}
-                  <p className="text-center font-semibold text-green dark:text-pink-neon">
+                  <p className="text-center font-semibold text-green dark:text-green-neon">
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}
                     <br />

@@ -28,7 +28,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
       <HeaderLogo header="Email verification" />
       {verified ? (
         <>
-          <h2 className="mb-10 mt-10 px-2 text-center text-xl font-semibold text-green">
+          <h2 className="mb-10 mt-10 px-2 text-center text-xl font-semibold text-green dark:text-teal-neon">
             Your email has been verified. Continue to login to use Interledger
             Test Wallet.
           </h2>
@@ -37,7 +37,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
           </Button>
         </>
       ) : (
-        <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
+        <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
           Email verification unsuccessful: {message}. Please try again.
         </h2>
       )}
@@ -50,7 +50,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
         width={400}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Have an account? Continue to{' '}
         <Link href="/auth/login" className="font-medium underline">
           Login
