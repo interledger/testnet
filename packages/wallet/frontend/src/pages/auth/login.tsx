@@ -77,7 +77,7 @@ const LoginPage: NextPageWithLayout = () => {
           />
           <Link
             href="forgot"
-            className="text-sm font-extralight text-green-3 underline"
+            className="text-sm font-extralight text-green underline"
           >
             Forgot password?
           </Link>
@@ -102,7 +102,7 @@ const LoginPage: NextPageWithLayout = () => {
         width={500}
         height={200}
       />
-      <p className="mt-auto font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green">
         Not a customer?{' '}
         <Link href="signup" className="font-medium underline">
           Create an account

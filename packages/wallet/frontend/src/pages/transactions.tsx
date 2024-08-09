@@ -381,7 +381,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                           intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
-                              '!border-green-3 !bg-green-4 !text-green-3'
+                              '!dark:border-teal-neon !dark:bg-teal-neon !dark:text-teal-neon !border-green !bg-green !text-green'
                           )}
                           aria-label={`go to page ${page}`}
                           onClick={() => {

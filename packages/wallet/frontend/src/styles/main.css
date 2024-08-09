@@ -40,7 +40,7 @@ html.dark *:focus-visible {
 }
 
 #__next {
-  @apply md:grid md:grid-cols-[max-content_1fr] relative;
+  @apply relative h-full md:grid md:grid-cols-[max-content_1fr];
 }
 
 #nprogress {
@@ -48,7 +48,7 @@ html.dark *:focus-visible {
 }
 
 #nprogress .bar {
-  @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink-light;
+  @apply bg-pink-light fixed right-0 top-0 z-[1000] h-1.5 w-full;
 }
 
 .tooltip {

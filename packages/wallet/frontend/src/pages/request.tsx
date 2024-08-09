@@ -124,7 +124,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     <>
       <div className="w-full lg:max-w-xl">
         <PageHeader title="Request Money" />
-        <TransferHeader type="violet" balance={balanceSnapshot} />
+        <TransferHeader type="green" balance={balanceSnapshot} />
         <Form
           className="px-3"
           form={requestForm}

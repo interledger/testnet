@@ -128,7 +128,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
         width={400}
         height={200}
       />
-      <p className="mt-auto font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green">
         Remembered your credentials?{' '}
         <Link href="/auth/login" className="font-medium underline">
           Login

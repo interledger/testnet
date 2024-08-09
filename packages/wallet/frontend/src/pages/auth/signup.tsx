@@ -106,13 +106,13 @@ const SignUpPage: NextPageWithLayout = () => {
       </div>
       <div
         className={cx(
-          'absolute bottom-0 h-[200px] w-full  bg-contain bg-center bg-no-repeat md:hidden',
+          'absolute bottom-0 h-[200px] w-full bg-contain bg-center bg-no-repeat md:hidden',
           theme.theme === 'dark'
             ? "bg-[url('../../public/leafs-dark.svg')]"
             : "bg-[url('../../public/leafs-light.svg')]"
         )}
       ></div>
-      <p className="z-10 mt-auto font-extralight text-green">
+      <p className="z-10 mt-auto text-center font-extralight text-green">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">
           Log in

@@ -79,7 +79,9 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                   <div
                     className={cx(
                       'px-10 py-2 border-b-4 text-base sm:text-lg sm:leading-5',
-                      selected ? 'bg-green-light dark:bg-purple-dark' : 'hover:bg-green-light hover:dark:bg-purple-dark'
+                      selected
+                        ? 'bg-green-light dark:bg-purple-dark'
+                        : 'hover:bg-green-light hover:dark:bg-purple-dark'
                     )}
                   >
                     {tab}
