@@ -526,6 +526,6 @@ export const mockWalletAddress = {
 }
 
 export const mockExternalPayment = {
-  receivedAmount: { value: '0', assetCode: 'EUR', assetScale: 1 },
+  receivedAmount: { value: '0', assetCode: 'USD', assetScale: 1 },
   authServer: 'http://rafiki-auth:3006'
 }

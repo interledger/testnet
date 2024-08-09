@@ -1,7 +1,7 @@
 import { Model } from 'objection'
 import { WalletAddress } from '@/walletAddress/model'
 import { BaseModel } from '@shared/backend'
-import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
+import { WalletAddressKeyResponse } from '@wallet/shared'
 
 export class WalletAddressKeys
   extends BaseModel

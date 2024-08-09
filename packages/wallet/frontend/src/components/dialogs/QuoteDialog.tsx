@@ -23,6 +23,7 @@ export const QuoteDialog = ({
 }: QuoteDialogProps) => {
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
+
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
     assetCode: quote.receiveAmount.assetCode,

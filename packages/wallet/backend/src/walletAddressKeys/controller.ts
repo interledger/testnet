@@ -7,7 +7,7 @@ import {
   uploadWalletAddressKey
 } from './validation'
 import { Controller, toSuccessResponse } from '@shared/backend'
-import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
+import { WalletAddressKeyResponse } from '@wallet/shared'
 
 interface IWalletAddressKeyController {
   registerKey: Controller<KeyResponse>

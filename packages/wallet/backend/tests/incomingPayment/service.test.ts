@@ -168,7 +168,7 @@ describe('Incoming Payment Service', () => {
         faker.internet.url()
       )
       expect(receivedAmount).toMatchObject({
-        assetCode: 'EUR',
+        assetCode: 'USD',
         assetScale: 1,
         value: '0'
       })

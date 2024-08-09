@@ -30,7 +30,8 @@ describe('Wallet Address Service', () => {
   const prepareWADependencies = async (
     paymentPointerName: string,
     isAccountAssigned = true,
-    isWM?: { assetCode?: string; assetScale?: number; isWM: boolean }
+    assetCode?: string,
+    assetScale?: number
   ) => {
     let extraAcc = {} as Account
     if (!isAccountAssigned)
@@ -57,9 +58,8 @@ describe('Wallet Address Service', () => {
       publicName: faker.string.alpha(10),
       accountId: isAccountAssigned ? account.id : extraAcc.id,
       id: faker.string.uuid(),
-      assetCode: isWM?.assetCode || undefined,
-      assetScale: isWM?.assetScale || undefined,
-      isWM: isWM?.isWM
+      assetCode: assetCode || undefined,
+      assetScale: assetScale || undefined
     })
 
     return {
@@ -73,10 +73,6 @@ describe('Wallet Address Service', () => {
       accountService,
       env: serviceEnv,
       logger,
-      cache: {
-        get: jest.fn(),
-        set: jest.fn()
-      },
       rafikiClient: {
         createRafikiWalletAddress: () => ({
           id: faker.string.uuid(),
@@ -88,12 +84,12 @@ describe('Wallet Address Service', () => {
         revokeWalletAddressKey: jest.fn(),
         updateWalletAddress: jest.fn()
       },
-      wmTransactionService: {
-        deleteByTransactionIds: jest.fn(),
-        sumByWalletAddressId: () => ({
+      transactionService: {
+        sumByWalletAddressIdSince: () => ({
           ids: [uuid()],
           sum: sumWS
-        })
+        }),
+        updateTransaction: jest.fn()
       }
     }
 
@@ -144,8 +140,7 @@ describe('Wallet Address Service', () => {
         userId,
         accountId: account.id,
         walletAddressName: 'my-wallet',
-        publicName: 'My Wallet',
-        isWM: false
+        publicName: 'My Wallet'
       })
       expect(result).toHaveProperty('publicName')
       expect(result).toHaveProperty('accountId')
@@ -162,8 +157,7 @@ describe('Wallet Address Service', () => {
         userId,
         accountId: account.id,
         walletAddressName: 'my-wallet',
-        publicName: 'My Wallet',
-        isWM: false
+        publicName: 'My Wallet'
       })
       expect(result).toHaveProperty('publicName')
       expect(result).toHaveProperty('accountId')
@@ -181,8 +175,7 @@ describe('Wallet Address Service', () => {
           userId,
           accountId: account.id,
           walletAddressName: 'my-work',
-          publicName: 'My Work',
-          isWM: false
+          publicName: 'My Work'
         })
       ).rejects.toThrowError(
         /This payment pointer already exists. Please choose another name./
@@ -195,9 +188,7 @@ describe('Wallet Address Service', () => {
       const { account, walletAddress } =
         await prepareWADependencies('my-wallet')
       const result = await waService.list(userId, account.id)
-      expect(result).toHaveProperty('wmWalletAddresses')
-      expect(result).toHaveProperty('walletAddresses')
-      expect(result.walletAddresses[0]).toMatchObject({
+      expect(result[0]).toMatchObject({
         url: walletAddress.url,
         accountId: account.id
       })
@@ -293,7 +284,7 @@ describe('Wallet Address Service', () => {
             url: `${serviceEnv.OPEN_PAYMENTS_HOST}/test`,
             publicName: 'Test Wallet',
             assetCode: 'USD',
-            assetScale: 2
+            assetScale: 9
           }
         })
       )
@@ -307,7 +298,7 @@ describe('Wallet Address Service', () => {
         url: `${serviceEnv.OPEN_PAYMENTS_HOST}/test`,
         publicName: 'Test Wallet',
         assetCode: 'USD',
-        assetScale: 2
+        assetScale: 9
       })
     })
   })
@@ -332,37 +323,30 @@ describe('Wallet Address Service', () => {
     })
   })
 
-  describe('Sum By Wallet AddressId', () => {
-    it('should return undefined by zero sum', async () => {
-      await prepareWADependencies('my-wallet', true, {
-        assetCode: 'USD',
-        assetScale: 2,
-        isWM: true
-      })
+  describe('Sum By Wallet AddressId Since', () => {
+    it('should complete without errors for zero sum', async () => {
+      await prepareWADependencies('my-wallet', true, 'USD', 9)
 
-      const result = await waService.processWMWalletAddresses()
-      expect(result).toBeUndefined()
+      await expect(
+        waService.keepBalancesSynced(new Date(0))
+      ).resolves.toBeUndefined()
     })
 
-    it('should return undefined by non zero sum', async () => {
+    it('should complete without errors for non-zero sum', async () => {
       prepareWSDepsMock(1000n)
 
-      await prepareWADependencies('my-wallet', true, {
-        assetCode: 'USD',
-        assetScale: 2,
-        isWM: true
-      })
-
-      const result = await waService.processWMWalletAddresses()
-      expect(result).toBeUndefined()
+      await prepareWADependencies('my-wallet', true, 'USD', 9)
+      await expect(
+        waService.keepBalancesSynced(new Date(0))
+      ).resolves.toBeUndefined()
     })
 
-    it('should throw missing assetCode err', async () => {
-      await prepareWADependencies('my-wallet', true, { isWM: true })
+    it('should throw missing assetCode error', async () => {
+      await prepareWADependencies('my-wallet', true)
 
-      await expect(waService.processWMWalletAddresses()).rejects.toThrowError(
-        /Error while processing WM payment pointers/
-      )
+      await expect(
+        waService.keepBalancesSynced(new Date(0))
+      ).rejects.toThrowError(/Error while processing payment pointers/)
     })
   })
 })

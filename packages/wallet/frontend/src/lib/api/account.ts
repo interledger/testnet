@@ -13,7 +13,7 @@ import {
   exchangeAssetSchema
 } from '@wallet/shared'
 import { QuoteResponse } from '@wallet/shared'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 
 export type Account = {
   id: string

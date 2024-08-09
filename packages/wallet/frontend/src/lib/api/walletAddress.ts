@@ -5,11 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import {
-  ListWalletAddressesResponse,
-  WalletAddressResponse,
-  WalletAddressOP
-} from '@wallet/shared'
+import { WalletAddressResponse, WalletAddressOP } from '@wallet/shared'
 
 export const createWalletAddressSchema = z.object({
   walletAddressName: z.string().toLowerCase().min(3, {
@@ -19,8 +15,7 @@ export const createWalletAddressSchema = z.object({
   publicName: z.string().min(3, {
     message:
       'The public name of the payment pointer should be at least 3 characters long'
-  }),
-  isWM: z.boolean()
+  })
 })
 
 export const updateWalletAddressSchema = z.object({
@@ -54,7 +49,7 @@ type GetWalletAddressArgs = { accountId: string; walletAddressId: string }
 type GetWalletAddressResult = SuccessResponse<WalletAddressResponse>
 type GetWalletAddressResponse = GetWalletAddressResult | ErrorResponse
 
-type ListWalletAddressResult = SuccessResponse<ListWalletAddressesResponse>
+type ListWalletAddressResult = SuccessResponse<WalletAddressResponse[]>
 type ListWalletAddressResponse = ListWalletAddressResult | ErrorResponse
 
 type ListAllWalletAddressResult = SuccessResponse<WalletAddressResponse[]>
