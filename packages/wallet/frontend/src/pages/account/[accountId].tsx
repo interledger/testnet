@@ -25,7 +25,7 @@ import { Tab } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { TemporaryWMNotice } from '@/components/TemporaryWMNotice'
 import { PageHeader } from '@/components/PageHeader'
-import { RequestMenu } from '@/components/icons/Request'
+import { Request } from '@/components/icons/Request'
 import { ListWalletAddressesResponse } from '@wallet/shared/src'
 import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 
@@ -73,12 +73,12 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             {tabs.map((tab) => (
               <Tab
                 key={tab}
-                className="focus:outline focus:outline-1 focus:outline-black focus:dark:outline-none focus:dark:shadow-glow-button hover:outline hover:outline-1 hover:outline-black hover:dark:outline-none hover:dark:shadow-glow-button"
+                className="hover:outline hover:outline-1 hover:outline-black focus:outline focus:outline-1 focus:outline-black hover:dark:shadow-glow-button hover:dark:outline-none focus:dark:shadow-glow-button focus:dark:outline-none"
               >
                 {({ selected }) => (
                   <div
                     className={cx(
-                      'px-10 py-2 border-b-4 text-base sm:text-lg sm:leading-5',
+                      'border-b-4 px-10 py-2 text-base sm:text-lg sm:leading-5',
                       selected
                         ? 'bg-green-light dark:bg-purple-dark'
                         : 'hover:bg-green-light hover:dark:bg-purple-dark'
@@ -94,10 +94,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         <Tab.Panels>
           <Tab.Panel>
             <div className="mb-6">
-              <h2 className="text-xl mb-2">Balance</h2>
+              <h2 className="mb-2 text-xl">Balance</h2>
               <p className="text-3xl font-bold">{formattedAmount.amount}</p>
             </div>
-            <div className="md:max-w-lg flex gap-8 my-12">
+            <div className="my-12 flex gap-8 md:max-w-lg">
               <button
                 id="walletAddress"
                 onClick={() => {
@@ -111,10 +111,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     />
                   )
                 }}
-                className="group dark:hover:shadow-glow-button dark:focus:shadow-glow-button duration-200 transition-[box-shadow] flex-grow-0 flex-shrink-0 basis-1/4 flex flex-col items-center justify-center aspect-square border-2 rounded-lg text-center min-w-28"
+                className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
               >
-                <New className="w-8 h-8 mb-1 transition-[filter] duration-200 group-focus:dark:drop-shadow-glow-svg group-hover:dark:drop-shadow-glow-svg" />
-                <span className="group-focus:underline group-focus:underline-offset-2 group-hover:underline dark:group-hover:decoration-transparent underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110">
+                <New className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+                <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
                   Add payment pointer
                 </span>
               </button>
@@ -131,13 +131,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     />
                   )
                 }}
-                className="group dark:hover:shadow-glow-button dark:focus:shadow-glow-button duration-200 transition-[box-shadow] flex-grow-0 flex-shrink-0 basis-1/4 flex flex-col items-center justify-center aspect-square border-2 rounded-lg text-center min-w-28"
+                className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
               >
-                <RequestMenu className="w-8 h-8 mb-1 transition-[filter] duration-200 group-focus:dark:drop-shadow-glow-svg group-hover:dark:drop-shadow-glow-svg" />
-                <span
-                  className="group-focus:underline group-focus:underline-offset-2 group-hover:underline
-                dark:group-hover:decoration-transparent underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110"
-                >
+                <Request className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+                <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
                   Add money
                 </span>
               </button>
@@ -159,10 +156,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             {account.assetCode === 'USD' ? (
               <>
                 <div className="mb-6">
-                  <h2 className="text-xl mb-2">Balance</h2>
+                  <h2 className="mb-2 text-xl">Balance</h2>
                   <p className="text-3xl font-bold">{balance.amount}</p>
                 </div>
-                <div className="md:max-w-lg flex gap-8 my-12">
+                <div className="my-12 flex gap-8 md:max-w-lg">
                   <button
                     onClick={() => {
                       openDialog(
@@ -173,10 +170,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                         />
                       )
                     }}
-                    className="group dark:hover:shadow-glow-button dark:focus:shadow-glow-button duration-200 transition-[box-shadow] flex-grow-0 flex-shrink-0 basis-1/4 flex flex-col items-center justify-center aspect-square border-2 rounded-lg text-center min-w-28"
+                    className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
                   >
-                    <New className="w-8 h-8 mb-1 transition-[filter] duration-200 group-focus:dark:drop-shadow-glow-svg group-hover:dark:drop-shadow-glow-svg" />
-                    <span className="group-focus:underline group-focus:underline-offset-2 group-hover:hover:underline underline-offset-2 text-[smaller] leading-4 text-center transition-transform group-hover:scale-110 group-focus:scale-110">
+                    <New className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+                    <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2">
                       Add WM payment pointer
                     </span>
                   </button>

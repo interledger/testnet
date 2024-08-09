@@ -4,7 +4,7 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
-import { PlayDark, PlayLight } from '@/components/icons/Play'
+import { Play } from '@/components/icons/Play'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
@@ -86,11 +86,10 @@ const LoginPage: NextPageWithLayout = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            {theme.theme === 'dark' ? (
-              <PlayDark loading={loginForm.formState.isSubmitting} />
-            ) : (
-              <PlayLight loading={loginForm.formState.isSubmitting} />
-            )}
+            <Play
+              loading={loginForm.formState.isSubmitting}
+              className="text-green dark:text-pink-neon dark:hover:drop-shadow-glow-svg"
+            />
           </button>
         </Form>
       </div>

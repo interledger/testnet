@@ -17,8 +17,8 @@ import { Home } from './icons/Home'
 import { Logout } from './icons/Logout'
 import { X } from './icons/X'
 import { Transactions } from './icons/Transactions'
-import { SendMenu } from './icons/Send'
-import { RequestMenu } from './icons/Request'
+import { Send } from './icons/Send'
+import { Request } from './icons/Request'
 import { cn } from '@/utils/helpers'
 
 type MenuItemProps = {
@@ -36,12 +36,12 @@ const menuItems: MenuItemProps[] = [
   {
     name: 'Send',
     href: '/send',
-    Icon: SendMenu
+    Icon: Send
   },
   {
     name: 'Request',
     href: '/request',
-    Icon: RequestMenu
+    Icon: Request
   },
   {
     name: 'Transactions',
@@ -77,7 +77,7 @@ const NavLink = ({
     <Link
       href={href}
       className={cn(
-        'group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white',
+        'group flex items-center gap-x-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link',
         currentPath === href ? 'bg-green-light dark:bg-purple-dark' : null,
         className
       )}
@@ -90,7 +90,7 @@ const NavLink = ({
             : 'dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg'
         )}
       />
-      <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
+      <span className="origin-[center_left] transition-transform duration-200 ease-in-out group-hover:scale-110 group-focus:scale-110">
         {children}
       </span>
     </Link>
@@ -111,10 +111,10 @@ const LogoutButton = () => {
     <button
       aria-label="logout"
       onClick={handleLogout}
-      className="mt-auto group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white"
+      className="group mt-auto flex items-center gap-x-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
     >
       <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
-      <span className="group-hover:scale-110 transition-transform origin-[center_left] duration-200 ease-in-out group-focus:scale-110">
+      <span className="origin-[center_left] transition-transform duration-200 ease-in-out group-hover:scale-110 group-focus:scale-110">
         Logout
       </span>
     </button>
@@ -143,7 +143,7 @@ export const Menu = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="bg-green-modal/30 dark:bg-[#000000]/75 fixed inset-0" />
+            <div className="fixed inset-0 bg-green-modal/30 dark:bg-[#000000]/75" />
           </Transition.Child>
           <div className="fixed inset-y-0 right-0 flex">
             <Transition.Child
@@ -155,9 +155,9 @@ export const Menu = () => {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="relative flex flex-col p-6 bg-white dark:bg-purple">
+              <Dialog.Panel className="relative flex flex-col bg-white p-6 dark:bg-purple">
                 <button
-                  className="block self-end cursor-pointer border-none px-1 mb-4"
+                  className="mb-4 block cursor-pointer self-end border-none px-1"
                   type="button"
                   onClick={() => setSidebarIsOpen(false)}
                 >
@@ -183,28 +183,28 @@ export const Menu = () => {
         </Dialog>
       </Transition.Root>
 
-      <header className="block md:hidden top-0 bg-white dark:bg-purple fixed px-6 border-b-2 border-dotted inset-x-0 h-[84px]">
+      <header className="fixed inset-x-0 top-0 block h-[84px] border-b-2 border-dotted bg-white px-6 dark:bg-purple md:hidden">
         <nav className="flex items-center justify-between">
           <Link className="" href="/">
-            <Logo className="text-black dark:text-white w-48 py-4 transition-[transform,fill,color] duration-200" />
+            <Logo className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
           </Link>
           <button
             className="p-1"
             aria-label="open menu"
             onClick={() => setSidebarIsOpen(true)}
           >
-            <Bars className="stroke-black dark:stroke-white h-7 w-7" />
+            <Bars className="h-7 w-7 stroke-black dark:stroke-white" />
           </button>
         </nav>
       </header>
 
-      <aside className="hidden md:block relative w-max">
+      <aside className="relative hidden w-max md:block">
         <nav className="sticky top-0 flex h-screen flex-col p-6">
           <Link
-            className="p-2 mb-4 rounded-md border border-transparent group focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
+            className="group mb-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
             href="/"
           >
-            <Logo className="text-black dark:text-white w-48 py-4 dark:group-hover:scale-100 group-hover:scale-105 transition-transform dark:group-focus:scale-100 group-focus:scale-105 duration-200 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
+            <Logo className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
           </Link>
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, Icon }) => (

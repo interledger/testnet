@@ -18,9 +18,8 @@ import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 import { cx } from 'class-variance-authority'
 import { IconButton } from '@/ui/IconButton'
-import { PlayDark, PlayLight } from '@/components/icons/Play'
+import { Play } from '@/components/icons/Play'
 import { Label } from '@/ui/forms/Label'
-import { useTheme } from 'next-themes'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -66,7 +65,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   accounts,
   walletAddresses
 }) => {
-  const theme = useTheme()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const redirect = useRedirect<TransactionsFilters>({
@@ -363,11 +361,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     redirect({ page: previousPage.toString() })
                   }}
                 >
-                  {theme.theme === 'dark' ? (
-                    <PlayDark className="h-4 w-4 rotate-180" />
-                  ) : (
-                    <PlayLight className="h-4 w-4 rotate-180" />
-                  )}
+                  <Play className="h-4 w-4 rotate-180 text-green dark:text-pink-neon" />
                 </IconButton>
                 {pages.map((page) => {
                   if (
@@ -405,11 +399,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     redirect({ page: nextPage.toString() })
                   }}
                 >
-                  {theme.theme === 'dark' ? (
-                    <PlayDark className="h-4 w-4" />
-                  ) : (
-                    <PlayLight className="h-4 w-4" />
-                  )}
+                  <Play className="h-4 w-4 text-green dark:text-pink-neon" />
                 </IconButton>
               </div>
             )}
