@@ -23,6 +23,7 @@ module.exports = {
   rafiki_backend: {
     client: 'postgresql',
     connection: {
+      host: 'postgres',
       user: 'postgres',
       password: 'password',
       database: 'rafiki_backend'
