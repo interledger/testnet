@@ -30,8 +30,7 @@ const AuthLayout = ({ image, children }: AuthLayoutProps) => {
         <div className="relative hidden w-0 flex-1 md:block">
           <Image
             fill
-            // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            className="object-right md:object-cover lg:object-fill"
             src={imageSrc}
             alt={image}
             quality={100}
