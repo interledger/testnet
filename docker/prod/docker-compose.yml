@@ -235,7 +235,7 @@ services:
     <<: *logging
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.15.3
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.15.4
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
@@ -267,7 +267,7 @@ services:
       - testnet
 
   kratos:
-    image: 'oryd/kratos:v0.13.0'
+    image: 'oryd/kratos:v1.2.0'
     privileged: true
     ports:
       - '4433:4433'

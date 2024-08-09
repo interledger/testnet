@@ -3,8 +3,9 @@ import { Button } from '@/ui/Button'
 import { formatAmount, getFee } from '@/utils/helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { PaperPlane } from '../icons/PaperPlane'
+import { PaperPlaneDark, PaperPlaneLight } from '../icons/PaperPlane'
 import { QuoteResponse } from '@wallet/shared'
+import { useTheme } from 'next-themes'
 
 type QuoteDialogProps = {
   onClose: () => void
@@ -21,6 +22,7 @@ export const QuoteDialog = ({
   type,
   receiverName
 }: QuoteDialogProps) => {
+  const theme = useTheme()
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
   const receiveAmount = formatAmount({
@@ -65,7 +67,17 @@ export const QuoteDialog = ({
             >
               <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <div className="flex flex-col text-center">
-                  <PaperPlane strokeWidth={2} className="h-16 w-16 mx-auto" />
+                  {theme.theme === 'dark' ? (
+                    <PaperPlaneDark
+                      strokeWidth={2}
+                      className="h-16 w-16 mx-auto"
+                    />
+                  ) : (
+                    <PaperPlaneLight
+                      strokeWidth={2}
+                      className="h-16 w-16 mx-auto"
+                    />
+                  )}
                   <p className="text-center font-semibold text-turqoise">
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}

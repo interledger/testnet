@@ -73,13 +73,13 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             {tabs.map((tab) => (
               <Tab
                 key={tab}
-                className="focus:outline focus:outline-1 focus:outline-black focus:dark:outline-none focus:dark:shadow-glow-button"
+                className="focus:outline focus:outline-1 focus:outline-black focus:dark:outline-none focus:dark:shadow-glow-button hover:outline hover:outline-1 hover:outline-black hover:dark:outline-none hover:dark:shadow-glow-button"
               >
                 {({ selected }) => (
                   <div
                     className={cx(
                       'px-10 py-2 border-b-4 text-base sm:text-lg sm:leading-5',
-                      selected ? 'bg-green-light dark:bg-purple-dark' : null
+                      selected ? 'bg-green-light dark:bg-purple-dark' : 'hover:bg-green-light hover:dark:bg-purple-dark'
                     )}
                   >
                     {tab}
