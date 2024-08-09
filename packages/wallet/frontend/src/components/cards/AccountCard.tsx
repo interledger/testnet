@@ -53,10 +53,10 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
       <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-xl text-white dark:text-purple">
         {formattedAmount.symbol}
       </span>
-      <span className="mt-auto overflow-hidden text-ellipsis whitespace-nowrap leading-4 text-[--accent]">
+      <span className="mt-auto hidden overflow-hidden text-ellipsis whitespace-nowrap leading-4 text-[--accent] sm:block">
         {account.name}
       </span>
-      <span className="text-2xl font-semibold -tracking-wider text-[--accent]">
+      <span className="text-md mt-auto font-semibold -tracking-wider text-[--accent] sm:text-2xl">
         {formattedAmount.amount}
       </span>
     </Link>

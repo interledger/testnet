@@ -120,7 +120,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   )
 
   return (
-    <>
+    <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <PageHeader title="Transactions" />
       <div className="grid w-full grid-cols-4 gap-3 md:grid-cols-6 xl:grid-cols-12">
         <div className="col-span-4 md:col-span-3">
@@ -295,6 +295,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                   </Table.Cell>
                   <Table.Cell
                     className={cx(
+                      'whitespace-nowrap',
                       trx.type === 'INCOMING' &&
                         'text-green-dark dark:text-green-neon',
                       trx.type === 'OUTGOING' &&
@@ -372,7 +373,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                           intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
-                              '!dark:border-teal-neon !dark:bg-teal-neon !dark:text-teal-neon !border-green !bg-green !text-green'
+                              'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
                           )}
                           aria-label={`go to page ${page}`}
                           onClick={() => {
@@ -415,7 +416,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           </div>
         </>
       ) : null}
-    </>
+    </div>
   )
 }
 
