@@ -82,10 +82,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 500)
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

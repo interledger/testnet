@@ -440,7 +440,7 @@ importers:
         specifier: ^7.52.2
         version: 7.52.2(react@18.3.1)
       react-joyride:
-        specifier: ^2.5.4
+        specifier: ^2.8.2
         version: 2.8.2(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-select:
         specifier: ^5.8.0

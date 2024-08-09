@@ -48,7 +48,7 @@ export const CreateWalletAddressDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -62,7 +62,7 @@ export const CreateWalletAddressDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <Dialog.Title
                   as="h3"
                   className="text-center text-2xl font-bold"
@@ -83,10 +83,8 @@ export const CreateWalletAddressDialog = ({
                       router.replace(router.asPath)
                       onClose()
                       if (isUserFirstTime) {
-                        setTimeout(() => {
-                          setStepIndex(stepIndex + 1)
-                          setRunOnboarding(true)
-                        }, 1000)
+                        setStepIndex(stepIndex + 1)
+                        setRunOnboarding(true)
                       }
                     } else {
                       const { errors, message } = response

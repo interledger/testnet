@@ -20,10 +20,12 @@ import { Transactions } from './icons/Transactions'
 import { Send } from './icons/Send'
 import { Request } from './icons/Request'
 import { cn } from '@/utils/helpers'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type MenuItemProps = {
   name: string
   href: string
+  id: string
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
 }
 
@@ -31,37 +33,44 @@ const menuItems: MenuItemProps[] = [
   {
     name: 'Accounts',
     href: '/',
+    id: 'home',
     Icon: Home
   },
   {
     name: 'Send',
     href: '/send',
+    id: 'send',
     Icon: Send
   },
   {
     name: 'Request',
     href: '/request',
+    id: 'request',
     Icon: Request
   },
   {
     name: 'Transactions',
     href: '/transactions',
+    id: 'transactions',
     Icon: Transactions
   },
   {
     name: 'Grants',
     href: '/grants',
+    id: 'grants',
     Icon: Grant
   },
   {
     name: 'Settings',
     href: '/settings',
+    id: 'settings',
     Icon: Cog
   }
 ]
 
 interface NavLinkProps extends ComponentPropsWithRef<'a'> {
   currentPath: string
+  id: string
   children: ReactNode
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
 }
@@ -71,11 +80,20 @@ const NavLink = ({
   currentPath,
   className,
   children,
+  id,
   Icon
 }: NavLinkProps) => {
+  const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
+
   return (
     <Link
       href={href}
+      id={id}
+      onClick={() => {
+        if ((id === 'send' || id === 'request') && isUserFirstTime) {
+          setRunOnboarding(false)
+        }
+      }}
       className={cn(
         'group flex items-center gap-x-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link',
         currentPath === href ? 'bg-green-light dark:bg-purple-dark' : null,
@@ -164,13 +182,14 @@ export const Menu = () => {
                   <X className="h-5 w-5" />
                 </button>
                 <nav className="space-y-4">
-                  {menuItems.map(({ name, href, Icon }) => (
+                  {menuItems.map(({ name, href, id, Icon }) => (
                     <NavLink
                       onClick={() => setSidebarIsOpen(false)}
                       currentPath={pathname}
                       key={name}
                       href={href}
                       Icon={Icon}
+                      id={id}
                     >
                       {name}
                     </NavLink>
@@ -207,13 +226,14 @@ export const Menu = () => {
             <Logo className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
           </Link>
           <div className="w-full space-y-4">
-            {menuItems.map(({ name, href, Icon }) => (
+            {menuItems.map(({ name, href, id, Icon }) => (
               <NavLink
                 onClick={() => setSidebarIsOpen(false)}
                 currentPath={pathname}
                 key={name}
                 href={href}
                 Icon={Icon}
+                id={id}
               >
                 {name}
               </NavLink>

@@ -80,7 +80,6 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#balance',
     content: 'Congratulations, you have money in your account.',
     disableOverlayClose: true,
-    placement: 'center',
     Icon: MoneyHand
   },
   {
@@ -189,7 +188,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 19
     target: '#copyIncomingPaymentUrl',
     content:
-      'You can copy your incoming payment URL request, and share it with someone, who needs to send you money.',
+      'You can copy your incoming payment URL request, and share it with someone who needs to send you money.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Pointer
@@ -220,9 +219,10 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 23
-    target: '#transactionsList',
+    target: 'body',
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
+    placement: 'center',
     Icon: HomeRooftop
   },
 
@@ -386,7 +386,7 @@ const Onboarding = () => {
           setStepIndex(21)
         }
         setIsPaymentsSkipped(false)
-      } else if (index !== 19 && index !== 28) {
+      } else if (index !== 1 && index !== 19 && index !== 22 && index !== 28) {
         // 19, 28 -> request copy URL and copy private key, step can continue to button on the same dialog window
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)

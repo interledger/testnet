@@ -56,10 +56,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 500)
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -93,7 +91,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </Tab.List>
         <Tab.Panels>
           <Tab.Panel>
-            <div className="mb-6">
+            <div className="mb-6" id="balance">
               <h2 className="mb-2 text-xl">Balance</h2>
               <p className="text-3xl font-bold">{formattedAmount.amount}</p>
             </div>

@@ -106,10 +106,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 500)
+      setStepIndex(stepIndex + 1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
