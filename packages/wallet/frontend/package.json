@@ -9,8 +9,8 @@
   "dependencies": {
     "@headlessui/react": "^1.7.19",
     "@hookform/resolvers": "^3.9.0",
-    "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.1",
     "@wallet/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "ky": "^1.5.0",
