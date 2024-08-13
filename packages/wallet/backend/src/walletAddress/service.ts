@@ -126,7 +126,7 @@ export class WalletAddressService implements IWalletAddressService {
         publicName: args.publicName,
         accountId: args.accountId,
         id: rafikiWalletAddress.id,
-        assetCode: null,
+        assetCode: account.assetCode,
         assetScale: this.env.MAX_ASSET_SCALE
       })
     }

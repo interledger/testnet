@@ -127,8 +127,12 @@ export class UserService implements IUserService {
 
     if (existingUser) return
 
-    const asset = await this.rafikiClient.getRafikiAsset('USD', 2)
-    if (!asset) await this.rafikiClient.createAsset('USD', 2)
+    const asset = await this.rafikiClient.getRafikiAsset(
+      'USD',
+      this.env.MAX_ASSET_SCALE
+    )
+    if (!asset)
+      await this.rafikiClient.createAsset('USD', this.env.MAX_ASSET_SCALE)
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
