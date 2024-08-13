@@ -19,6 +19,7 @@ import { TransactionCircle } from '../icons/TransactionCircle'
 import { HomeRooftop } from '../icons/HomeRooftop'
 import { Key } from '../icons/Key'
 import { createPortal } from 'react-dom'
+import { useMenuContext } from '@/lib/context/menu'
 
 type StepWithIcon = Step & {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -93,6 +94,15 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
   {
     // 8
+    target: '#mobile_send',
+    content:
+      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
+    disableOverlayClose: true,
+    spotlightClicks: true,
+    Icon: Send
+  },
+  {
+    // 9
     target: '#selectAccount',
     content:
       'Select any of your existing accounts you want to send money from.',
@@ -101,7 +111,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 9
+    // 10
     target: '#selectWalletAddress',
     content:
       'Select a payment pointer from the above accounts list of payment pointers.',
@@ -110,7 +120,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 10
+    // 11
     target: '#addRecipientWalletAddress',
     content:
       'For your first transaction, we already added a recipient payment pointer. For your future transactions here you can add the recipients payment pointer, or a received incoming payment URL.',
@@ -118,14 +128,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 11
+    // 12
     target: '#sendReceive',
     content: `You have to pay some fees in order to send payments. 'send' means that the fees will be deducted from the amount in the input, and receiver will get the rest. 'receive' means that the receiver will get the exact amount from the input and you will be paying a small fee in addition to that.`,
     disableOverlayClose: true,
     Icon: Switch
   },
   {
-    // 12
+    // 13
     target: '#addAmount',
     content:
       'Set the amount you want to send, add a description for the payment, if you want, then Review your transaction.',
@@ -134,7 +144,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 13
+    // 14
     target: '#acceptQuote',
     content: `You can review your payment details before sending the money.`,
     disableOverlayClose: true,
@@ -142,7 +152,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: ThumbsUp
   },
   {
-    // 14
+    // 15
     target: '#redirectButtonSuccess',
     content: `Congratulations, you have made your first Interledger transaction. Now let's explore your account some more.`,
     disableOverlayClose: true,
@@ -150,7 +160,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 15
+    // 16
     target: '#request',
     content: `Let's request money by creating a payment url, and sharing it with someone.`,
     disableOverlayClose: true,
@@ -158,7 +168,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Request
   },
   {
-    // 16
+    // 17
     target: '#selectAccountRequest',
     content:
       'Select any of your existing accounts you want to receive money into.',
@@ -167,7 +177,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 17
+    // 18
     target: '#selectWalletAddressRequest',
     content:
       'Select a payment pointer from the above accounts list of payment pointers.',
@@ -176,7 +186,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 18
+    // 19
     target: '#addAmountRequest',
     content:
       'Set the amount you want to receive. Then, if you want, you can add a description for the request, and set the expiration time, then click on the Request button.',
@@ -185,7 +195,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 19
+    // 20
     target: '#copyIncomingPaymentUrl',
     content:
       'You can copy your incoming payment URL request, and share it with someone who needs to send you money.',
@@ -194,7 +204,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 20
+    // 21
     target: '#redirectButtonSuccess',
     content: `Congratulations, the URL is copied to the clipboard. Save it, and let's explore your account some more.`,
     disableOverlayClose: true,
@@ -202,7 +212,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 21
+    // 22
     target: '#eurAccount',
     content: 'Go inside your EUR account.',
     disableOverlayClose: true,
@@ -210,7 +220,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Euro
   },
   {
-    // 22
+    // 23
     target: '#viewTransactions',
     content: 'You can view all your incoming and outgoing transactions.',
     disableOverlayClose: true,
@@ -218,7 +228,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: TransactionCircle
   },
   {
-    // 23
+    // 24
     target: 'body',
     content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
@@ -227,7 +237,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   },
 
   // DEV KEYS Onboarding steps
-  // 24
+  // 25
   {
     target: '#devKeysInfo',
     content: (
@@ -248,7 +258,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Wave
   },
   {
-    // 25
+    // 26
     target: '#accountsList',
     content: `On this page you have a list of all your accounts. Expand an account to see all your payment pointers and the developer keys.`,
     disableOverlayClose: true,
@@ -256,7 +266,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 26
+    // 27
     target: '#generateKey',
     content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one.`,
     disableOverlayClose: true,
@@ -264,7 +274,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Key
   },
   {
-    // 27
+    // 28
     target: '#nickname',
     content: `It's important to add a nickname for the set of Developer Keys, as it will be easier to organize if you have multiple. Add a nickname, then click on Generate keys button.`,
     disableOverlayClose: true,
@@ -272,7 +282,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: PersonDoc
   },
   {
-    // 28
+    // 29
     target: '#copyKey',
     content: `The private key has been downloaded to your machine. You can copy it to the clipboard, or copy the Base64 encoded version here.`,
     disableOverlayClose: true,
@@ -280,7 +290,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 29
+    // 30
     target: '#closeButtonSuccess',
     content: `The private key is copied to the clipboard. You can paste it somewhere and then let's go see your generated keys.`,
     disableOverlayClose: true,
@@ -288,7 +298,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 30
+    // 31
     target: '#keysList',
     content: `Here you have a list of all your keys organized by nickname. Expand a section to see your developer keys details.`,
     disableOverlayClose: true,
@@ -296,14 +306,14 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 31
+    // 32
     target: '#keysDetails',
     content: `Here you can copy your Key ID, see your Public Key, and also Revoke your keys, if you don't need them anymore. For now, let's see how you can also upload public keys.`,
     disableOverlayClose: true,
     Icon: Key
   },
   {
-    // 32
+    // 33
     target: '#uploadKey',
     content: `Click on the Upload key button.`,
     disableOverlayClose: true,
@@ -311,7 +321,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Pointer
   },
   {
-    // 33
+    // 34
     target: '#nicknameUpload',
     content: `Add a nickname, use the provided Base64 encoded Public Key (or use a new one if you get an error), and click on the Upload key button. The new key will appear in the list.`,
     disableOverlayClose: true,
@@ -319,7 +329,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     Icon: Key
   },
   {
-    // 34
+    // 35
     target: 'body',
     content: (
       <>
@@ -355,6 +365,7 @@ const Onboarding = () => {
     setIsPaymentsSkipped
   } = useOnboardingContext()
 
+  const { setSidebarIsOpen } = useMenuContext()
   const handleOnboardingFinished = () => {
     setIsUserFirstTime(false)
     setIsDevKeysOnboarding(false)
@@ -370,34 +381,41 @@ const Onboarding = () => {
       if (
         index === 0 ||
         index === 6 ||
-        index === 10 ||
         index === 11 ||
-        index === 24 ||
-        index === 31
+        index === 12 ||
+        index === 25 ||
+        index === 32
       ) {
         // there is a button on these tooltips, the click of the button increases the onboarding step index
         setStepIndex(stepIndex + 1)
       } else if (isPaymentsSkipped) {
         // added Skip option for Sending or Requesting payments
         if (index === 7) {
-          setStepIndex(15)
+          setStepIndex(16)
         }
-        if (index === 15) {
-          setStepIndex(21)
+        if (index === 16) {
+          setStepIndex(22)
         }
         setIsPaymentsSkipped(false)
-      } else if (index !== 1 && index !== 19 && index !== 22 && index !== 28) {
-        // 19, 28 -> request copy URL and copy private key, step can continue to button on the same dialog window
+      } else if (index !== 1 && index !== 20 && index !== 23 && index !== 29) {
+        // 20, 29 -> request copy URL and copy private key, step can continue to button on the same dialog window
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }
 
+      // mobile skips and tricks
+      if (index === 6 && window.innerWidth <= 767) {
+        setRunOnboarding(false)
+        setSidebarIsOpen(true)
+        setStepIndex(8)
+      }
+
       // onboarding steps leading back to Home page
-      if (index === 23) {
+      if (index === 24) {
         router.replace('/')
       }
-      // set onboarding to never be shown again after final step
-      if (index === 23 || index === 34) {
+      // set onboarding to never be shown again after final step in user first time onboarding, or for the developer keys onboarding
+      if (index === 24 || index === 35) {
         handleOnboardingFinished()
       }
     }

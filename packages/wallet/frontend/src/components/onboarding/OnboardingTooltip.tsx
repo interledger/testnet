@@ -31,7 +31,7 @@ export const OnboardingTooltip = ({
       </div>
       <div className="flex flex-col justify-center">
         <div className="pb-2">{step.content}</div>
-        {(index === 0 || index === 24) && (
+        {(index === 0 || index === 25) && (
           <div className="flex items-center justify-between text-center text-[11px] sm:text-base">
             <Button {...primaryProps}>Let&apos;s go</Button>
             <Button {...skipProps} intent="outline">
@@ -41,18 +41,18 @@ export const OnboardingTooltip = ({
         )}
         {(index === 2 ||
           index === 6 ||
-          index === 10 ||
           index === 11 ||
-          index === 23 ||
-          index === 31 ||
-          index === 34) && (
+          index === 12 ||
+          index === 24 ||
+          index === 32 ||
+          index === 35) && (
           <div className="flex items-start text-center">
             <Button {...primaryProps}>
-              {isLastStep || index === 23 ? `The End` : 'Continue'}
+              {isLastStep || index === 24 ? `The End` : 'Continue'}
             </Button>
           </div>
         )}
-        {(index === 7 || index === 15) && (
+        {(index === 7 || index === 8 || index === 16) && (
           <div className="flex items-center justify-between text-center text-[11px] sm:text-base">
             <Button
               {...primaryProps}
@@ -61,7 +61,8 @@ export const OnboardingTooltip = ({
                 setIsPaymentsSkipped(true)
               }}
             >
-              Skip Onboarding for {index === 7 ? 'Send' : 'Request'} Money
+              Skip Onboarding for{' '}
+              {index === 7 || index === 8 ? 'Send' : 'Request'} Money
             </Button>
           </div>
         )}

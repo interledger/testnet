@@ -48,7 +48,7 @@ export const SettingsTabs = () => {
                 id="devKeysInfo"
                 onClick={() => {
                   setIsDevKeysOnboarding(true)
-                  setStepIndex(24)
+                  setStepIndex(25)
                   setRunOnboarding(true)
                 }}
               >

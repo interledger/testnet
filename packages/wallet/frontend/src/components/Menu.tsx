@@ -92,7 +92,10 @@ const NavLink = ({
       id={id}
       onClick={() => {
         setSidebarIsOpen(false)
-        if ((id === 'send' || id === 'request') && isUserFirstTime) {
+        if (
+          (id.indexOf('send') !== -1 || id.indexOf('request') !== -1) &&
+          isUserFirstTime
+        ) {
           setRunOnboarding(false)
         }
       }}
@@ -145,10 +148,20 @@ export const Menu = () => {
   const router = useRouter()
   const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
   const { sidebarIsOpen, setSidebarIsOpen } = useMenuContext()
+  const { isUserFirstTime, stepIndex, setRunOnboarding } =
+    useOnboardingContext()
 
   return (
     <>
-      <Transition.Root show={sidebarIsOpen} as={Fragment}>
+      <Transition.Root
+        show={sidebarIsOpen}
+        as={Fragment}
+        afterEnter={() => {
+          if (isUserFirstTime && stepIndex === 8) {
+            setRunOnboarding(true)
+          }
+        }}
+      >
         <Dialog
           as="div"
           className="relative z-20 md:hidden"
@@ -190,7 +203,7 @@ export const Menu = () => {
                       key={name}
                       href={href}
                       Icon={Icon}
-                      id={id}
+                      id={`mobile_${id}`}
                     >
                       {name}
                     </NavLink>

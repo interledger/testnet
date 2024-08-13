@@ -207,7 +207,7 @@ const KeysGroupHeader = ({
     useOnboardingContext()
 
   useEffect(() => {
-    if (isDevKeysOnboarding && stepIndex === 29) {
+    if (isDevKeysOnboarding && stepIndex === 30) {
       setStepIndex(stepIndex + 1)
       setRunOnboarding(true)
     }
