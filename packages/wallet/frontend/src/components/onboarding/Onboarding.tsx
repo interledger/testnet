@@ -237,11 +237,11 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
         <a
           href="https://openpayments.dev/snippets/before-you-begin/#obtain-a-public-private-key-pair-and-key-id"
           target="/"
-          className="underline hover:text-green-bright dark:hover:text-teal-neon"
+          className="underline hover:text-pink-dark dark:hover:text-teal-neon"
         >
           Open Payments docs
         </a>{' '}
-        for more details .
+        for more details.
       </>
     ),
     disableOverlayClose: true,
@@ -258,7 +258,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 26
     target: '#generateKey',
-    content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one. `,
+    content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Key
@@ -315,6 +315,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     target: '#nicknameUpload',
     content: `Add a nickname, use the provided Base64 encoded Public Key (or use a new one if you get an error), and click on the Upload key button. The new key will appear in the list.`,
     disableOverlayClose: true,
+    spotlightClicks: true,
     Icon: Key
   },
   {
@@ -327,11 +328,10 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
         <a
           href="https://openpayments.dev/snippets/before-you-begin/#obtain-a-public-private-key-pair-and-key-id"
           target="/"
-          className="underline hover:text-green-bright dark:hover:text-teal-neon"
+          className="underline hover:text-pink-dark dark:hover:text-teal-neon"
         >
-          Open Payments docs
-        </a>{' '}
-        .
+          Open Payments docs.
+        </a>
       </>
     ),
     disableOverlayClose: true,
@@ -373,7 +373,6 @@ const Onboarding = () => {
         index === 10 ||
         index === 11 ||
         index === 24 ||
-        index === 25 ||
         index === 31
       ) {
         // there is a button on these tooltips, the click of the button increases the onboarding step index
@@ -394,9 +393,11 @@ const Onboarding = () => {
       }
 
       // onboarding steps leading back to Home page
-      // set onboarding to never be shown again after final step
       if (index === 23) {
         router.replace('/')
+      }
+      // set onboarding to never be shown again after final step
+      if (index === 23 || index === 34) {
         handleOnboardingFinished()
       }
     }
