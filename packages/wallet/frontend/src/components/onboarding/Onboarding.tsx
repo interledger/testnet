@@ -394,12 +394,9 @@ const Onboarding = () => {
       }
 
       // onboarding steps leading back to Home page
-      if (index === 6 || index == 23) {
-        router.replace('/')
-      }
-
       // set onboarding to never be shown again after final step
       if (index === 23) {
+        router.replace('/')
         handleOnboardingFinished()
       }
     }
