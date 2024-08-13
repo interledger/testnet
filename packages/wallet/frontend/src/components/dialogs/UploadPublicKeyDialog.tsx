@@ -38,10 +38,8 @@ export const UploadPublicKeyDialog = ({
 
   useEffect(() => {
     if (isDevKeysOnboarding) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 100)
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -102,6 +100,11 @@ export const UploadPublicKeyDialog = ({
                       if (response.success) {
                         router.replace(router.asPath)
                         closeDialog()
+
+                        if (isDevKeysOnboarding) {
+                          setStepIndex(stepIndex + 1)
+                          setRunOnboarding(true)
+                        }
                       } else {
                         const { errors, message } = response
                         if (errors) {
@@ -142,7 +145,13 @@ export const UploadPublicKeyDialog = ({
                       <Button
                         intent="outline"
                         aria-label="close dialog"
-                        onClick={() => onClose()}
+                        onClick={() => {
+                          onClose()
+                          if (isDevKeysOnboarding) {
+                            setStepIndex(stepIndex + 1)
+                            setRunOnboarding(true)
+                          }
+                        }}
                       >
                         Cancel
                       </Button>

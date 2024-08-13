@@ -136,7 +136,7 @@ const AccountPanel = ({ walletAddresses, index }: AccountPanelProps) => {
           setTimeout(() => {
             setStepIndex(stepIndex + 1)
             setRunOnboarding(true)
-          }, 500)
+          }, 700)
         }
       }}
       className="px-2"
@@ -207,11 +207,9 @@ const KeysGroupHeader = ({
     useOnboardingContext()
 
   useEffect(() => {
-    if (isDevKeysOnboarding) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 100)
+    if (isDevKeysOnboarding && stepIndex === 29) {
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
