@@ -65,8 +65,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   accounts,
   walletAddresses
 }) => {
-  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
-    useOnboardingContext()
+  const { isUserFirstTime, stepIndex, setStepIndex } = useOnboardingContext()
   const redirect = useRedirect<TransactionsFilters>({
     path: '/transactions',
     persistQuery: true
