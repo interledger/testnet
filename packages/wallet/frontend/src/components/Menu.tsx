@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import {
   Fragment,
   type SVGProps,
-  useState,
   ComponentPropsWithRef,
   ReactNode
 } from 'react'
@@ -21,6 +20,7 @@ import { Send } from './icons/Send'
 import { Request } from './icons/Request'
 import { cn } from '@/utils/helpers'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { useMenuContext } from '@/lib/context/menu'
 
 type MenuItemProps = {
   name: string
@@ -84,12 +84,14 @@ const NavLink = ({
   Icon
 }: NavLinkProps) => {
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
+  const { setSidebarIsOpen } = useMenuContext()
 
   return (
     <Link
       href={href}
       id={id}
       onClick={() => {
+        setSidebarIsOpen(false)
         if ((id === 'send' || id === 'request') && isUserFirstTime) {
           setRunOnboarding(false)
         }
@@ -142,7 +144,7 @@ const LogoutButton = () => {
 export const Menu = () => {
   const router = useRouter()
   const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
-  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
+  const { sidebarIsOpen, setSidebarIsOpen } = useMenuContext()
 
   return (
     <>
@@ -184,7 +186,6 @@ export const Menu = () => {
                 <nav className="space-y-4">
                   {menuItems.map(({ name, href, id, Icon }) => (
                     <NavLink
-                      onClick={() => setSidebarIsOpen(false)}
                       currentPath={pathname}
                       key={name}
                       href={href}
@@ -228,7 +229,6 @@ export const Menu = () => {
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, id, Icon }) => (
               <NavLink
-                onClick={() => setSidebarIsOpen(false)}
                 currentPath={pathname}
                 key={name}
                 href={href}
