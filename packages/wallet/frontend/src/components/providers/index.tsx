@@ -3,6 +3,7 @@ import { DialogProvider } from './DialogProvider'
 import { OnboardingProvider } from './OnboardingProvider'
 import { PasswordProvider } from './PasswordProvider'
 import { ThemeProvider } from 'next-themes'
+import { MenuProvider } from './MenuProvider'
 
 type AppProviderProps = {
   children: ReactNode
@@ -16,11 +17,13 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       enableSystem={false}
       themes={['light', 'dark']}
     >
-      <OnboardingProvider>
-        <PasswordProvider>
-          <DialogProvider>{children}</DialogProvider>
-        </PasswordProvider>
-      </OnboardingProvider>
+      <MenuProvider>
+        <OnboardingProvider>
+          <PasswordProvider>
+            <DialogProvider>{children}</DialogProvider>
+          </PasswordProvider>
+        </OnboardingProvider>
+      </MenuProvider>
     </ThemeProvider>
   )
 }

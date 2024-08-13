@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import {
   Fragment,
   type SVGProps,
-  useState,
   ComponentPropsWithRef,
   ReactNode
 } from 'react'
@@ -20,6 +19,7 @@ import { Transactions } from './icons/Transactions'
 import { SendMenu } from './icons/Send'
 import { RequestMenu } from './icons/Request'
 import { cn } from '@/utils/helpers'
+import { useMenuContext } from '@/lib/context/menu'
 
 type MenuItemProps = {
   name: string
@@ -73,9 +73,12 @@ const NavLink = ({
   children,
   Icon
 }: NavLinkProps) => {
+  const { setSidebarIsOpen } = useMenuContext()
+
   return (
     <Link
       href={href}
+      onClick={() => setSidebarIsOpen(false)}
       className={cn(
         'group flex items-center p-2 gap-x-4 rounded-md border border-transparent focus:border-black dark:focus:shadow-glow-link dark:focus:border-white',
         currentPath === href ? 'bg-green-light dark:bg-purple-dark' : null,
@@ -124,7 +127,7 @@ const LogoutButton = () => {
 export const Menu = () => {
   const router = useRouter()
   const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
-  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
+  const { sidebarIsOpen, setSidebarIsOpen } = useMenuContext()
 
   return (
     <>
@@ -166,7 +169,6 @@ export const Menu = () => {
                 <nav className="space-y-4">
                   {menuItems.map(({ name, href, Icon }) => (
                     <NavLink
-                      onClick={() => setSidebarIsOpen(false)}
                       currentPath={pathname}
                       key={name}
                       href={href}
@@ -209,7 +211,6 @@ export const Menu = () => {
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, Icon }) => (
               <NavLink
-                onClick={() => setSidebarIsOpen(false)}
                 currentPath={pathname}
                 key={name}
                 href={href}
