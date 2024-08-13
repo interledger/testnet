@@ -369,6 +369,7 @@ const Onboarding = () => {
     } else if (type === 'step:after' && action === 'next') {
       if (
         index === 0 ||
+        index === 6 ||
         index === 10 ||
         index === 11 ||
         index === 24 ||
