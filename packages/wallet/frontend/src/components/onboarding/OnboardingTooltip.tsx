@@ -31,7 +31,7 @@ export const OnboardingTooltip = ({
       </div>
       <div className="flex flex-col justify-center">
         <div className="pb-2">{step.content}</div>
-        {(index === 0 || index === 25) && (
+        {(index === 0 || index === 26) && (
           <div className="flex flex-col gap-1 md:flex-row text-center text-[11px] sm:text-base md:justify-between">
             <Button {...primaryProps}>Let&apos;s go</Button>
             <Button {...skipProps} intent="outline">
