@@ -70,11 +70,10 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
             error={forgotPasswordForm.formState.errors.email?.message}
             label="E-mail"
           />
-          <div className="flex flex-col justify-between py-5 md:flex-row md:text-sm">
+          <div className="flex flex-col justify-between gap-1 py-5 md:flex-row md:text-sm md:justify-between">
             <Button
               aria-label="Forgot Password"
               type="submit"
-              className="mb-5 md:mb-0"
               loading={forgotPasswordForm.formState.isSubmitting}
             >
               Get reset password link
