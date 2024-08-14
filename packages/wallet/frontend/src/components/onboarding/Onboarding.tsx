@@ -380,7 +380,6 @@ const Onboarding = () => {
     } else if (type === 'step:after' && action === 'next') {
       if (
         index === 0 ||
-        index === 6 ||
         index === 11 ||
         index === 12 ||
         index === 25 ||
@@ -411,7 +410,7 @@ const Onboarding = () => {
       }
 
       // onboarding steps leading back to Home page
-      if (index === 24) {
+      if (index === 6 || index === 24) {
         router.replace('/')
       }
       // set onboarding to never be shown again after final step in user first time onboarding, or for the developer keys onboarding
