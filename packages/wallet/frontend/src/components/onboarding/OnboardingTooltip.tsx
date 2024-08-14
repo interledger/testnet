@@ -43,16 +43,16 @@ export const OnboardingTooltip = ({
           index === 6 ||
           index === 11 ||
           index === 12 ||
-          index === 24 ||
-          index === 32 ||
-          index === 35) && (
+          index === 25 ||
+          index === 33 ||
+          index === 36) && (
           <div className="flex items-start text-center">
             <Button {...primaryProps}>
-              {isLastStep || index === 24 ? `The End` : 'Continue'}
+              {isLastStep || index === 25 ? `The End` : 'Continue'}
             </Button>
           </div>
         )}
-        {(index === 7 || index === 8 || index === 16) && (
+        {(index === 7 || index === 8 || index === 16 || index === 17) && (
           <div className="flex items-center justify-between text-center text-[11px] sm:text-base">
             <Button
               {...primaryProps}
