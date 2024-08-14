@@ -406,7 +406,7 @@ const Onboarding = () => {
       if (index === 6 && window.innerWidth <= 767) {
         setRunOnboarding(false)
         setSidebarIsOpen(true)
-        setStepIndex(8)
+        setStepIndex(index + 1)
       }
 
       // onboarding steps leading back to Home page
