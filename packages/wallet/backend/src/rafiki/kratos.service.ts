@@ -60,7 +60,7 @@ export class KratosService {
           credentials: {
             password: {
               config: {
-                password: '12345678'
+                password: '123456'
               }
             }
           }
