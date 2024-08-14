@@ -175,7 +175,7 @@ export const getServerSideProps: GetServerSideProps<{
     if (access.limits) {
       access.limits.receiver = access.limits.receiver
         ? replaceWalletAddressProtocol(access.limits.receiver)
-        : access.limits.receiver ?? null
+        : (access.limits.receiver ?? null)
 
       if (access.limits.debitAmount) {
         access.limits.debitAmount.formattedAmount = formatAmount({
