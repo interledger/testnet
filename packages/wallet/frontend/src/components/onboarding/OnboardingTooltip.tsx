@@ -53,7 +53,7 @@ export const OnboardingTooltip = ({
           </div>
         )}
         {(index === 7 || index === 8 || index === 16 || index === 17) && (
-          <div className="flex items-center justify-between text-center text-[11px] sm:text-base">
+          <div className="flex justify-end text-[11px] sm:text-base">
             <Button
               {...primaryProps}
               intent="outline"
