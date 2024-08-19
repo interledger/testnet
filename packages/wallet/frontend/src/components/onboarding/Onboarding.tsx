@@ -410,21 +410,27 @@ const Onboarding = () => {
           setStepIndex(23)
         }
         setIsPaymentsSkipped(false)
-      } else if (index !== 1 && index !== 21 && index !== 24 && index !== 30) {
+      } else if (
+        index !== 1 &&
+        index !== 15 &&
+        index !== 21 &&
+        index !== 24 &&
+        index !== 30
+      ) {
         // 21, 30 -> request copy URL and copy private key, step can continue to button on the same dialog window
         // stop the continuous run of the onboarding either because there is a route replace or there is user interaction needed
         setRunOnboarding(false)
       }
 
       // mobile skips and tricks
-      if (index === 6 && window.innerWidth <= 767) {
+      if ((index === 6 || index === 15) && window.innerWidth <= 767) {
         setRunOnboarding(false)
         setSidebarIsOpen(true)
         setStepIndex(index + 1)
       }
 
       // onboarding steps leading back to Home page
-      if (index === 6 || index === 25) {
+      if (index === 6 || index === 15 || index === 25) {
         router.replace('/')
       }
       // set onboarding to never be shown again after final step in user first time onboarding, or for the developer keys onboarding
