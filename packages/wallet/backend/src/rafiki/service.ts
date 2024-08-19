@@ -164,7 +164,10 @@ export class RafikiService implements IRafikiService {
     return amount
   }
 
-  private amountToNumber(amount: Amount, assetScale: number = amount.assetScale): number {
+  private amountToNumber(
+    amount: Amount,
+    assetScale: number = amount.assetScale
+  ): number {
     return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
       assetScale
     )
@@ -187,7 +190,7 @@ export class RafikiService implements IRafikiService {
       }
       return
     }
-    
+
     const transferResult = await this.rapydClient.transferLiquidity({
       amount: this.amountToNumber(amount, 2),
       currency: amount.assetCode,
@@ -222,7 +225,8 @@ export class RafikiService implements IRafikiService {
 
     this.logger.info(
       `Succesfully transfered ${this.amountToNumber(
-        amount, 2
+        amount,
+        2
       )} from settlement account ${
         this.env.RAPYD_SETTLEMENT_EWALLET
       } into ${receiverWalletId} `
@@ -269,7 +273,8 @@ export class RafikiService implements IRafikiService {
 
     this.logger.info(
       `Succesfully held ${this.amountToNumber(
-        amount, 2
+        amount,
+        2
       )} in ${rapydWalletId}  on ${EventType.OutgoingPaymentCreated}`
     )
   }
@@ -322,7 +327,8 @@ export class RafikiService implements IRafikiService {
 
     this.logger.info(
       `Succesfully transfered ${this.amountToNumber(
-        debitAmount, 2
+        debitAmount,
+        2
       )} from ${source_ewallet} to settlement account on ${
         EventType.OutgoingPaymentCompleted
       }`
@@ -350,7 +356,8 @@ export class RafikiService implements IRafikiService {
     if (releaseResult.status?.status !== 'SUCCESS') {
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
-          debitAmount, 2
+          debitAmount,
+          2
         )} from ${source_ewallet} on ${
           EventType.OutgoingPaymentFailed
         }  error message:  ${releaseResult.status?.message || 'unknown'}`
