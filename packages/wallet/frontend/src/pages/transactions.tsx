@@ -18,9 +18,8 @@ import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 import { cx } from 'class-variance-authority'
 import { IconButton } from '@/ui/IconButton'
-import { PlayDark, PlayLight } from '@/components/icons/Play'
+import { Play } from '@/components/icons/Play'
 import { Label } from '@/ui/forms/Label'
-import { useTheme } from 'next-themes'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -66,9 +65,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   accounts,
   walletAddresses
 }) => {
-  const theme = useTheme()
-  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
-    useOnboardingContext()
+  const { isUserFirstTime, stepIndex, setStepIndex } = useOnboardingContext()
   const redirect = useRedirect<TransactionsFilters>({
     path: '/transactions',
     persistQuery: true
@@ -108,10 +105,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 500)
+      setStepIndex(stepIndex + 1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -125,7 +119,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   )
 
   return (
-    <>
+    <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <PageHeader title="Transactions" />
       <div className="grid w-full grid-cols-4 gap-3 md:grid-cols-6 xl:grid-cols-12">
         <div className="col-span-4 md:col-span-3">
@@ -300,6 +294,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                   </Table.Cell>
                   <Table.Cell
                     className={cx(
+                      'whitespace-nowrap',
                       trx.type === 'INCOMING' &&
                         'text-green-dark dark:text-green-neon',
                       trx.type === 'OUTGOING' &&
@@ -363,11 +358,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     redirect({ page: previousPage.toString() })
                   }}
                 >
-                  {theme.theme === 'dark' ? (
-                    <PlayDark className="h-4 w-4 rotate-180" />
-                  ) : (
-                    <PlayLight className="h-4 w-4 rotate-180" />
-                  )}
+                  <Play className="h-4 w-4 rotate-180 text-green dark:text-pink-neon" />
                 </IconButton>
                 {pages.map((page) => {
                   if (
@@ -381,7 +372,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                           intent="outline"
                           className={cx(
                             page - 1 === Number(pagination.page) &&
-                              '!dark:border-teal-neon !dark:bg-teal-neon !dark:text-teal-neon !border-green !bg-green !text-green'
+                              'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
                           )}
                           aria-label={`go to page ${page}`}
                           onClick={() => {
@@ -405,11 +396,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     redirect({ page: nextPage.toString() })
                   }}
                 >
-                  {theme.theme === 'dark' ? (
-                    <PlayDark className="h-4 w-4" />
-                  ) : (
-                    <PlayLight className="h-4 w-4" />
-                  )}
+                  <Play className="h-4 w-4 text-green dark:text-pink-neon" />
                 </IconButton>
               </div>
             )}
@@ -428,7 +415,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           </div>
         </>
       ) : null}
-    </>
+    </div>
   )
 }
 

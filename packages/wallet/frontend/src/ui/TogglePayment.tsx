@@ -5,8 +5,8 @@ import { cx } from 'class-variance-authority'
 import { useState, useEffect } from 'react'
 
 const TYPES = {
-  Send: { bg: 'bg-green dark:bg-pink-neon' },
-  Receive: { bg: 'bg-pink-dark dark:bg-teal-neon' }
+  send: { bg: 'bg-green dark:bg-pink-neon' },
+  receive: { bg: 'bg-pink-dark dark:bg-teal-neon' }
 } as const
 
 type ToggleTypes = keyof typeof TYPES

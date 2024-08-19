@@ -48,7 +48,7 @@ html.dark *:focus-visible {
 }
 
 #nprogress .bar {
-  @apply bg-pink-light fixed right-0 top-0 z-[1000] h-1.5 w-full;
+  @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink-light;
 }
 
 .tooltip {

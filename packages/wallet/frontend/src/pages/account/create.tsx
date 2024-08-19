@@ -38,14 +38,11 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 300)
+      setStepIndex(stepIndex + 1)
     }
     createAccountForm.setFocus('name')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createAccountForm])
+  }, [])
 
   return (
     <>

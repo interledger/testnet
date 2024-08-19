@@ -1,11 +1,10 @@
-import { PlayDark, PlayLight } from '@/components/icons/Play'
+import { Play } from '@/components/icons/Play'
 import { cx } from 'class-variance-authority'
 import { type ReactNode, useId } from 'react'
 import ReactSelect, { DropdownIndicatorProps, components } from 'react-select'
 import type { GroupBase, InputProps, Props } from 'react-select'
 import { FieldError } from './FieldError'
 import { Label } from './Label'
-import { useTheme } from 'next-themes'
 
 declare module 'react-select/dist/declarations/src/Select' {
   export interface Props<
@@ -47,15 +46,9 @@ const DropdownIndicator = <
 >(
   props: DropdownIndicatorProps<Option, IsMulti, Group>
 ) => {
-  const theme = useTheme()
-
   return (
     <components.DropdownIndicator {...props}>
-      {theme.theme === 'dark' ? (
-        <PlayDark className="h-4 w-4 rotate-90" />
-      ) : (
-        <PlayLight className="h-4 w-4 rotate-90" />
-      )}
+      <Play className="h-4 w-4 rotate-90 text-green dark:text-pink-neon" />
     </components.DropdownIndicator>
   )
 }

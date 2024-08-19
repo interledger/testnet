@@ -6,6 +6,7 @@ import { CopyButton } from '@/ui/CopyButton'
 import { cx } from 'class-variance-authority'
 import { useTheme } from 'next-themes'
 import { BirdSuccessDark, BirdSuccessLight } from '../icons/Bird'
+import { useOnboardingContext } from '@/lib/context/onboarding'
 
 type SuccessDialogProps = DialogProps & {
   onSuccess?: () => void
@@ -40,6 +41,7 @@ export const SuccessDialog = ({
   }
 
   const theme = useTheme()
+  const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -106,6 +108,11 @@ export const SuccessDialog = ({
                       intent="primary"
                       aria-label={redirectText ?? 'redirect'}
                       fullWidth
+                      onFocus={() => {
+                        if (isUserFirstTime) {
+                          setRunOnboarding(true)
+                        }
+                      }}
                       {...successButtonProps}
                     >
                       {redirectText}

@@ -131,12 +131,12 @@ const AccountPanel = ({ walletAddresses, index }: AccountPanelProps) => {
     useOnboardingContext()
   return (
     <Transition
-      onTransitionEnd={() => {
+      afterEnter={() => {
         if (isDevKeysOnboarding) {
           setTimeout(() => {
             setStepIndex(stepIndex + 1)
             setRunOnboarding(true)
-          }, 800)
+          }, 700)
         }
       }}
       className="px-2"
@@ -207,11 +207,9 @@ const KeysGroupHeader = ({
     useOnboardingContext()
 
   useEffect(() => {
-    if (isDevKeysOnboarding && (stepIndex === 29 || stepIndex === 33)) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 100)
+    if (isDevKeysOnboarding && stepIndex === 31) {
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -304,12 +302,10 @@ const KeysGroupPanel = ({
       leave="transition-all ease-in-out duration-300"
       leaveFrom="transform max-h-screen"
       leaveTo="transform max-h-0"
-      onTransitionEnd={() => {
+      afterEnter={() => {
         if (isDevKeysOnboarding) {
-          setTimeout(() => {
-            setStepIndex(stepIndex + 1)
-            setRunOnboarding(true)
-          }, 800)
+          setStepIndex(stepIndex + 1)
+          setRunOnboarding(true)
         }
       }}
     >
