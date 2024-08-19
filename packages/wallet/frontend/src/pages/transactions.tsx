@@ -20,6 +20,7 @@ import { cx } from 'class-variance-authority'
 import { IconButton } from '@/ui/IconButton'
 import { Play } from '@/components/icons/Play'
 import { Label } from '@/ui/forms/Label'
+import { ASSET_SCALE_IMBALANCE } from '@/utils/constants'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -280,53 +281,57 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
             />
             <Table.Body>
               {transactions.results.length ? (
-                transactions.results.map((trx) => (
-                  <Table.Row key={trx.id}>
-                    <Table.Cell>{trx.accountName}</Table.Cell>
-                    <Table.Cell className="has-tooltip cursor-pointer whitespace-nowrap">
-                      {trx.walletAddressPublicName ??
-                        trx.walletAddressUrl ??
-                        ''}
-                      {trx.walletAddressUrl ? (
-                        <span className="tooltip -ml-10 -mt-11 rounded border border-turqoise bg-white p-2 text-base shadow-lg">
-                          {trx.walletAddressUrl}
-                        </span>
-                      ) : null}
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {trx.description ? (
-                        trx.description
-                      ) : (
-                        <p className="text-sm font-thin">No description</p>
-                      )}
-                    </Table.Cell>
-                    <Table.Cell
-                      className={cx(
-                        trx.type === 'INCOMING' && 'text-green-3',
-                        trx.type === 'OUTGOING' && 'text-pink-2'
-                      )}
-                    >
-                      {trx.type === 'INCOMING' ? '+' : '-'}
-                      {
-                        formatAmount({
-                          value: String(trx.value) ?? 0,
-                          assetCode: trx.assetCode,
-                          assetScale: trx.assetScale
-                        }).amount
-                      }
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Badge
-                        intent={getStatusBadgeIntent(trx.status)}
-                        size="md"
-                        text={trx.status}
-                      />
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {formatDate({ date: trx.createdAt.toString() })}
-                    </Table.Cell>
-                  </Table.Row>
-                ))
+                transactions.results.map((trx) =>
+                  trx.description !== ASSET_SCALE_IMBALANCE ? (
+                    <>
+                      <Table.Row key={trx.id}>
+                        <Table.Cell>{trx.accountName}</Table.Cell>
+                        <Table.Cell className="has-tooltip cursor-pointer whitespace-nowrap">
+                          {trx.walletAddressPublicName ??
+                            trx.walletAddressUrl ??
+                            ''}
+                          {trx.walletAddressUrl ? (
+                            <span className="tooltip -ml-10 -mt-11 rounded border border-turqoise bg-white p-2 text-base shadow-lg">
+                              {trx.walletAddressUrl}
+                            </span>
+                          ) : null}
+                        </Table.Cell>
+                        <Table.Cell className="whitespace-nowrap">
+                          {trx.description ? (
+                            trx.description
+                          ) : (
+                            <p className="text-sm font-thin">No description</p>
+                          )}
+                        </Table.Cell>
+                        <Table.Cell
+                          className={cx(
+                            trx.type === 'INCOMING' && 'text-green-3',
+                            trx.type === 'OUTGOING' && 'text-pink-2'
+                          )}
+                        >
+                          {trx.type === 'INCOMING' ? '+' : '-'}
+                          {
+                            formatAmount({
+                              value: String(trx.value) ?? 0,
+                              assetCode: trx.assetCode,
+                              assetScale: trx.assetScale
+                            }).amount
+                          }
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Badge
+                            intent={getStatusBadgeIntent(trx.status)}
+                            size="md"
+                            text={trx.status}
+                          />
+                        </Table.Cell>
+                        <Table.Cell className="whitespace-nowrap">
+                          {formatDate({ date: trx.createdAt.toString() })}
+                        </Table.Cell>
+                      </Table.Row>
+                    </>
+                  ) : null
+                )
               ) : (
                 <Table.Row>
                   <Table.Cell colSpan={4} className="text-center">
