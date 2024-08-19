@@ -164,9 +164,9 @@ export class RafikiService implements IRafikiService {
     return amount
   }
 
-  private amountToNumber(amount: Amount): number {
+  private amountToNumber(amount: Amount, assetScale: number = amount.assetScale): number {
     return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
-      amount.assetScale
+      assetScale
     )
   }
 
@@ -187,9 +187,9 @@ export class RafikiService implements IRafikiService {
       }
       return
     }
-
+    
     const transferResult = await this.rapydClient.transferLiquidity({
-      amount: this.amountToNumber(amount),
+      amount: this.amountToNumber(amount, 2),
       currency: amount.assetCode,
       destination_ewallet: receiverWalletId,
       source_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET
@@ -222,7 +222,7 @@ export class RafikiService implements IRafikiService {
 
     this.logger.info(
       `Succesfully transfered ${this.amountToNumber(
-        amount
+        amount, 2
       )} from settlement account ${
         this.env.RAPYD_SETTLEMENT_EWALLET
       } into ${receiverWalletId} `
@@ -253,7 +253,7 @@ export class RafikiService implements IRafikiService {
       walletAddress
     )
     const holdResult = await this.rapydClient.holdLiquidity({
-      amount: this.amountToNumber(amount),
+      amount: this.amountToNumber(amount, 2),
       currency: amount.assetCode,
       ewallet: rapydWalletId
     })
@@ -269,7 +269,7 @@ export class RafikiService implements IRafikiService {
 
     this.logger.info(
       `Succesfully held ${this.amountToNumber(
-        amount
+        amount, 2
       )} in ${rapydWalletId}  on ${EventType.OutgoingPaymentCreated}`
     )
   }
@@ -285,13 +285,13 @@ export class RafikiService implements IRafikiService {
     }
 
     await this.rapydClient.releaseLiquidity({
-      amount: this.amountToNumber(debitAmount),
+      amount: this.amountToNumber(debitAmount, 2),
       currency: debitAmount.assetCode,
       ewallet: source_ewallet
     })
 
     await this.rapydClient.transferLiquidity({
-      amount: this.amountToNumber(debitAmount),
+      amount: this.amountToNumber(debitAmount, 2),
       currency: debitAmount.assetCode,
       destination_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET,
       source_ewallet
@@ -322,7 +322,7 @@ export class RafikiService implements IRafikiService {
 
     this.logger.info(
       `Succesfully transfered ${this.amountToNumber(
-        debitAmount
+        debitAmount, 2
       )} from ${source_ewallet} to settlement account on ${
         EventType.OutgoingPaymentCompleted
       }`
@@ -342,7 +342,7 @@ export class RafikiService implements IRafikiService {
     const source_ewallet = await this.getRapydWalletId(walletAddress)
 
     const releaseResult = await this.rapydClient.releaseLiquidity({
-      amount: this.amountToNumber(debitAmount),
+      amount: this.amountToNumber(debitAmount, 2),
       currency: debitAmount.assetCode,
       ewallet: source_ewallet
     })
@@ -350,7 +350,7 @@ export class RafikiService implements IRafikiService {
     if (releaseResult.status?.status !== 'SUCCESS') {
       throw new Error(
         `Unable to release amount ${this.amountToNumber(
-          debitAmount
+          debitAmount, 2
         )} from ${source_ewallet} on ${
           EventType.OutgoingPaymentFailed
         }  error message:  ${releaseResult.status?.message || 'unknown'}`
@@ -368,7 +368,7 @@ export class RafikiService implements IRafikiService {
 
     //* transfer eventual already sent money to the settlement account
     const transferResult = await this.rapydClient.transferLiquidity({
-      amount: this.amountToNumber(sentAmount),
+      amount: this.amountToNumber(sentAmount, 2),
       currency: sentAmount.assetCode,
       destination_ewallet: this.env.RAPYD_SETTLEMENT_EWALLET,
       source_ewallet

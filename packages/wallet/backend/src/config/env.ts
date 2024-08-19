@@ -34,7 +34,7 @@ const envSchema = z.object({
     .transform((value) => value === 'true'),
   BASE_ASSET_SCALE: z.coerce.number().nonnegative().default(2),
   MAX_ASSET_SCALE: z.coerce.number().nonnegative().default(9),
-  RAPYD_THRESHOLD: z.coerce.bigint().nonnegative().default(10_000_000n), // $0.01 in asset scale 9
+  RAPYD_THRESHOLD: z.coerce.bigint().nonnegative().default(100_000_000n), // $0.1 in asset scale 9
   DEBT_THRESHOLD: z.coerce.number().multipleOf(0.01).nonnegative().default(5.0), // $5.00
   DEFAULT_WALLET_ACCOUNT: z
     .object({
