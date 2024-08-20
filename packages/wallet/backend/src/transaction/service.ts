@@ -176,7 +176,6 @@ export class TransactionService implements ITransactionService {
     since: Date,
     trx?: TransactionOrKnex
   ) {
-    //TODO updatedAt instead of createdAt?
     const transactions = await Transaction.query(trx)
       .where({
         walletAddressId,
@@ -184,6 +183,7 @@ export class TransactionService implements ITransactionService {
         status: 'COMPLETED'
       })
       .andWhere('createdAt', '>', since)
+      .andWhereNot('description', 'Asset scale 9 imbalance');
 
     const ids = transactions.map(({ id }) => id)
     const sumResult = (await Transaction.query(trx)
