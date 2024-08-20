@@ -26,12 +26,14 @@ export const QuoteDialog = ({
 
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
+    displayScale: 2,
     assetCode: quote.receiveAmount.assetCode,
     assetScale: quote.receiveAmount.assetScale
   })
 
   const debitAmount = formatAmount({
     value: quote.debitAmount.value,
+    displayScale: 2,
     assetCode: quote.debitAmount.assetCode,
     assetScale: quote.debitAmount.assetScale
   })
