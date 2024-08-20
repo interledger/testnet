@@ -183,7 +183,7 @@ export class TransactionService implements ITransactionService {
         status: 'COMPLETED'
       })
       .andWhere('createdAt', '>', since)
-      .andWhereNot('description', 'Asset scale 9 imbalance');
+      .andWhereNot('description', 'Asset scale 9 imbalance')
 
     const ids = transactions.map(({ id }) => id)
     const sumResult = (await Transaction.query(trx)

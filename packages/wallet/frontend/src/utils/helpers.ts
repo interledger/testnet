@@ -42,7 +42,8 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   const { value, displayScale = 9, assetCode, assetScale } = args
 
   const scaledValue = Number(`${value}e-${assetScale}`)
-  const flooredValue = Math.floor(scaledValue * 10 ** displayScale) / 10 ** displayScale
+  const flooredValue =
+    Math.floor(scaledValue * 10 ** displayScale) / 10 ** displayScale
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',

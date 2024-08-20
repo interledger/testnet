@@ -168,10 +168,10 @@ export class RafikiService implements IRafikiService {
     amount: Amount,
     toAssetScale: number = amount.assetScale
   ): number {
-    const factor = 10 ** toAssetScale;
-    const scaledValue = Number(amount.value) * 10 ** -amount.assetScale;
-    const truncatedValue = Math.floor(scaledValue * factor) / factor;
-    return truncatedValue;
+    const factor = 10 ** toAssetScale
+    const scaledValue = Number(amount.value) * 10 ** -amount.assetScale
+    const truncatedValue = Math.floor(scaledValue * factor) / factor
+    return truncatedValue
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {

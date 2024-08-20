@@ -278,12 +278,11 @@ export class WalletAddressService implements IWalletAddressService {
       )
     }
 
-    const value = (
+    const value =
       Number(balance * this.env.RAPYD_THRESHOLD) *
       10 ** -walletAddress.assetScale
-    )
-    const factor = 10 ** this.env.BASE_ASSET_SCALE;
-    const amount =  Math.floor(value * factor) / factor;
+    const factor = 10 ** this.env.BASE_ASSET_SCALE
+    const amount = Math.floor(value * factor) / factor
 
     if (!walletAddress.account.user.rapydWalletId) {
       throw new Error(
@@ -338,7 +337,11 @@ export class WalletAddressService implements IWalletAddressService {
         accountId: walletAddress.accountId,
         paymentId: transfer.data.id,
         assetCode: walletAddress.assetCode!,
-        value: BigInt(Math.floor(amount * 10 ** this.env.MAX_ASSET_SCALE - this.env.BASE_ASSET_SCALE)),
+        value: BigInt(
+          Math.floor(
+            amount * 10 ** this.env.MAX_ASSET_SCALE - this.env.BASE_ASSET_SCALE
+          )
+        ),
         type,
         status: 'COMPLETED',
         description: 'Asset scale 9 imbalance'
