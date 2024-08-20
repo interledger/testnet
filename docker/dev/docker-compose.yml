@@ -54,7 +54,7 @@ services:
       RATE_API_KEY: ${RATE_API_KEY}
       BASE_ASSET_SCALE: 2
       MAX_ASSET_SCALE: 9
-      RAPYD_THRESHOLD: 100000000 # 0.1
+      RAPYD_THRESHOLD: 10000000 # 0.01
       DEBT_THRESHOLD: 5
       REDIS_URL: redis://redis:6379/0
     restart: always
