@@ -166,11 +166,12 @@ export class RafikiService implements IRafikiService {
 
   private amountToNumber(
     amount: Amount,
-    assetScale: number = amount.assetScale
+    toAssetScale: number = amount.assetScale
   ): number {
-    return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
-      assetScale
-    )
+    const factor = 10 ** toAssetScale;
+    const scaledValue = Number(amount.value) * 10 ** -amount.assetScale;
+    const truncatedValue = Math.floor(scaledValue * factor) / factor;
+    return truncatedValue;
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
