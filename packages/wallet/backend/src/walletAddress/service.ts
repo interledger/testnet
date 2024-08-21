@@ -366,7 +366,7 @@ export class WalletAddressService implements IWalletAddressService {
     const updatePart: PartialModelObject<WalletAddress> = {
       [updatedField]: raw('?? - ?', [
         updatedField,
-        this.env.RAPYD_THRESHOLD * balance
+        balance
       ])
     }
 
