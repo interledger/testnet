@@ -364,10 +364,7 @@ export class WalletAddressService implements IWalletAddressService {
       'incomingBalance' | 'outgoingBalance'
     > = type === 'OUTGOING' ? 'outgoingBalance' : 'incomingBalance'
     const updatePart: PartialModelObject<WalletAddress> = {
-      [updatedField]: raw('?? - ?', [
-        updatedField,
-        balance
-      ])
+      [updatedField]: raw('?? - ?', [updatedField, balance])
     }
 
     await Promise.all([
