@@ -319,7 +319,7 @@ export class WalletAddressService implements IWalletAddressService {
     }
 
     const value =
-      Number(balance * this.env.RAPYD_THRESHOLD) *
+      Number(balance) *
       10 ** -walletAddress.assetScale
     const factor = 10 ** this.env.BASE_ASSET_SCALE
     const amount = Math.floor(value * factor) / factor
@@ -427,20 +427,20 @@ export class WalletAddressService implements IWalletAddressService {
         const tmpWalletAddress = await walletAddress
           .$query(trx)
           .updateAndFetchById(walletAddress.id, {
-            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
-            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
+            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum % this.env.RAPYD_THRESHOLD]),
+            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum % this.env.RAPYD_THRESHOLD])
           })
 
         const incomingBalance =
-          tmpWalletAddress.incomingBalance / this.env.RAPYD_THRESHOLD
+          tmpWalletAddress.incomingBalance  
         const outgoingBalance =
-          tmpWalletAddress.outgoingBalance / this.env.RAPYD_THRESHOLD
+          tmpWalletAddress.outgoingBalance
 
         this.logger.debug(
           `Incoming balance: ${incomingBalance}. Outgoing balance: ${outgoingBalance}`
         )
 
-        if (incomingBalance > 0n) {
+        if (incomingBalance >= this.env.RAPYD_THRESHOLD) {
           await this.handleImbalance(
             {
               balance: incomingBalance,
@@ -451,7 +451,7 @@ export class WalletAddressService implements IWalletAddressService {
           )
         }
 
-        if (outgoingBalance > 0n) {
+        if (outgoingBalance >= this.env.RAPYD_THRESHOLD) {
           await this.handleImbalance(
             {
               balance: outgoingBalance,
