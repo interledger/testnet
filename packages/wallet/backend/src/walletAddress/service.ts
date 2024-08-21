@@ -427,11 +427,11 @@ export class WalletAddressService implements IWalletAddressService {
           .updateAndFetchById(walletAddress.id, {
             incomingBalance: raw('?? + ?', [
               'incomingBalance',
-              incoming.sum % this.env.RAPYD_THRESHOLD
+              BigInt(incoming.sum) % this.env.RAPYD_THRESHOLD
             ]),
             outgoingBalance: raw('?? + ?', [
               'outgoingBalance',
-              outgoing.sum % this.env.RAPYD_THRESHOLD
+              BigInt(outgoing.sum) % this.env.RAPYD_THRESHOLD
             ])
           })
 
