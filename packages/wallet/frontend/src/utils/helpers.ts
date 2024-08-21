@@ -2,6 +2,7 @@ import { cx, CxOptions } from 'class-variance-authority'
 import { twMerge } from 'tailwind-merge'
 import { AssetOP } from '@wallet/shared'
 import { QuoteResponse } from '@wallet/shared'
+import { WalletAddressResponse } from '@wallet/shared'
 
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
@@ -140,4 +141,19 @@ export const replaceWalletAddressProtocol = (
     : paymentPointer.indexOf('http://') !== -1
       ? paymentPointer.replace('http://', '$')
       : paymentPointer
+}
+
+export const calculateBalance = (
+  walletAddresses?: WalletAddressResponse[]
+): number => {
+  if (!walletAddresses || !Array.isArray(walletAddresses)) {
+    return 0
+  }
+
+  return walletAddresses.reduce((acc, pp) => {
+    const incoming = Number(pp.incomingBalance) || 0
+    const outgoing = Number(pp.outgoingBalance) || 0
+    console.log('Incoming - outgoing: ', acc + incoming - outgoing)
+    return acc + (incoming - outgoing)
+  }, 0)
 }

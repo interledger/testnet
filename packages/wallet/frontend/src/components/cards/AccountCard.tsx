@@ -9,9 +9,14 @@ import { useSnapshot } from 'valtio'
 type AccountCardProps = {
   account: Account
   idOnboarding?: string
+  incomingOutgoingBalance: number
 }
 
-export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
+export const AccountCard = ({
+  account,
+  idOnboarding,
+  incomingOutgoingBalance
+}: AccountCardProps) => {
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
   const { accountsSnapshot } = useSnapshot(balanceState)
 
@@ -24,7 +29,9 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
       ? Number(snapshotAccount.balance)
       : 0
     const accountBalance = Number(account.balance)
-    const value = (snapshotBalance || accountBalance).toString()
+    const value = (
+      (snapshotBalance || accountBalance) + incomingOutgoingBalance
+    ).toString()
 
     return formatAmount({
       value,
@@ -32,7 +39,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
       assetCode: account.assetCode,
       assetScale: account.assetScale
     })
-  }, [account, accountsSnapshot])
+  }, [account, accountsSnapshot, incomingOutgoingBalance])
 
   return (
     <Link

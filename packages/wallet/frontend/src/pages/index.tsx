@@ -16,10 +16,16 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
+import { calculateBalance } from '@/utils/helpers'
+import { walletAddressService } from '@/lib/api/walletAddress'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
+const HomePage: NextPageWithLayout<HomeProps> = ({
+  accounts,
+  incomingOutgoingBalances,
+  user
+}) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
 
@@ -107,6 +113,9 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
               <AccountCard
                 key={account.id}
                 account={account}
+                incomingOutgoingBalance={
+                  incomingOutgoingBalances[account.id] ?? 0
+                }
                 idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
               />
             ))}
@@ -124,28 +133,47 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
 
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
+  incomingOutgoingBalances: Record<string, number>
   user: {
     firstName: string
     lastName: string
     email: string
   }
 }> = async (ctx) => {
-  const response = await accountService.list(ctx.req.headers.cookie)
-  const user = await userService.me(ctx.req.headers.cookie)
+  const accountsResponse = await accountService.list(ctx.req.headers.cookie)
+  const userResponse = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !user.success) {
+  if (
+    !accountsResponse.success ||
+    !userResponse.success ||
+    !accountsResponse.result
+  ) {
     return {
       notFound: true
     }
   }
 
+  const incomingOutgoingBalances: Record<string, number> = {}
+  for (const account of accountsResponse.result) {
+    const walletAddressesResponse = await walletAddressService.list(
+      account.id,
+      ctx.req.headers.cookie
+    )
+    if (walletAddressesResponse.success && walletAddressesResponse.result) {
+      incomingOutgoingBalances[account.id] = calculateBalance(
+        walletAddressesResponse.result
+      )
+    }
+  }
+
   return {
     props: {
-      accounts: response.result ?? [],
+      accounts: accountsResponse.result ?? [],
+      incomingOutgoingBalances,
       user: {
-        firstName: user.result?.firstName ?? '',
-        lastName: user.result?.lastName ?? '',
-        email: user.result?.email ?? ''
+        firstName: userResponse.result?.firstName ?? '',
+        lastName: userResponse.result?.lastName ?? '',
+        email: userResponse.result?.email ?? ''
       }
     }
   }
