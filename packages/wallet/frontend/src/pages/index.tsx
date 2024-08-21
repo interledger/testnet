@@ -113,9 +113,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({
               <AccountCard
                 key={account.id}
                 account={account}
-                incomingOutgoingBalance={
-                  incomingOutgoingBalances[account.id] ?? 0
-                }
+                incomingOutgoingBalance={incomingOutgoingBalances[account.id]}
                 idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
               />
             ))}

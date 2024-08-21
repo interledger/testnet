@@ -11,6 +11,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { TimeUnit, requestSchema, transfersService } from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import {
+  calculateBalance,
   formatAmount,
   getObjectKeys,
   replaceWalletAddressProtocol
@@ -44,7 +45,10 @@ const timeUnitOptions: SelectTimeUnitOption[] = [
 
 type RequestProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
+const RequestPage: NextPageWithLayout<RequestProps> = ({
+  accounts,
+  incomingOutgoingBalances
+}) => {
   const [openDialog, closeDialog] = useDialog()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -73,15 +77,17 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       : 0
     const accountBalance = Number(selectedAccount.balance)
 
-    const value = (snapshotBalance || accountBalance).toString()
+    const value = (
+      (snapshotBalance || accountBalance) +
+      incomingOutgoingBalances[selectedAccount.value]
+    ).toString()
 
     return formatAmount({
       value,
-      displayScale: 2,
       assetCode: selectedAccount.assetCode,
       assetScale: selectedAccount.assetScale
     }).amount
-  }, [accountsSnapshot, selectedAccount])
+  }, [accountsSnapshot, selectedAccount, incomingOutgoingBalances])
 
   useEffect(() => {
     if (isUserFirstTime) {
@@ -323,20 +329,28 @@ type SelectAccountOption = SelectOption &
   }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
+  incomingOutgoingBalances: Record<string, number>
 }> = async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
   ])
 
-  if (!accountsResponse.success) {
+  if (!accountsResponse.success || !accountsResponse.result) {
     return {
       notFound: true
     }
   }
 
-  if (!accountsResponse.result) {
-    return {
-      notFound: true
+  const incomingOutgoingBalances: Record<string, number> = {}
+  for (const account of accountsResponse.result) {
+    const walletAddressesResponse = await walletAddressService.list(
+      account.id,
+      ctx.req.headers.cookie
+    )
+    if (walletAddressesResponse.success && walletAddressesResponse.result) {
+      incomingOutgoingBalances[account.id] = calculateBalance(
+        walletAddressesResponse.result
+      )
     }
   }
 
@@ -350,7 +364,8 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      accounts
+      accounts,
+      incomingOutgoingBalances
     }
   }
 }
