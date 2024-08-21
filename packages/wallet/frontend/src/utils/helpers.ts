@@ -153,7 +153,6 @@ export const calculateBalance = (
   return walletAddresses.reduce((acc, pp) => {
     const incoming = Number(pp.incomingBalance) || 0
     const outgoing = Number(pp.outgoingBalance) || 0
-    console.log('Incoming - outgoing: ', acc + incoming - outgoing)
     return acc + (incoming - outgoing)
   }, 0)
 }
