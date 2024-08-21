@@ -73,6 +73,11 @@ describe('Wallet Address Service', () => {
       accountService,
       env: serviceEnv,
       logger,
+      cache: {
+        get: jest.fn(),
+        set: jest.fn(),
+        delete: jest.fn()
+      },
       rafikiClient: {
         createRafikiWalletAddress: () => ({
           id: faker.string.uuid(),

@@ -4,6 +4,7 @@ import { Env } from '@/config/env'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import axios from 'axios'
 import { getRandomValues } from 'crypto'
+import { Cache, RedisClient } from '@shared/backend'
 import { WalletAddress } from './model'
 import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
 import { RapydClient } from '@/rapyd/rapyd-client'
@@ -75,14 +76,18 @@ export const createWalletAddressIfFalsy = async ({
 }
 
 export class WalletAddressService implements IWalletAddressService {
+  private cache: Cache<WalletAddress>
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
     private env: Env,
+    redisClient: RedisClient,
     private transactionService: TransactionService,
     private rapydClient: RapydClient,
     private logger: Logger
-  ) {}
+  ) {
+    this.cache = new Cache<WalletAddress>(redisClient, 'WalletAddresses')
+  }
 
   async create(args: CreateWalletAddressArgs): Promise<WalletAddress> {
     const account = await this.accountService.findAccountById(
@@ -129,6 +134,10 @@ export class WalletAddressService implements IWalletAddressService {
         assetCode: account.assetCode,
         assetScale: this.env.MAX_ASSET_SCALE
       })
+
+      await this.cache.set(walletAddress.id, walletAddress, {
+        expiry: 60
+      })
     }
 
     return walletAddress
@@ -154,6 +163,13 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   async getById(args: GetWalletAddressArgs): Promise<WalletAddress> {
+    const cacheHit = await this.cache.get(args.walletAddressId)
+
+    if (cacheHit) {
+      //* TODO: reset ttl
+      return cacheHit
+    }
+
     if (args.userId && args.accountId) {
       await this.accountService.findAccountById(args.accountId, args.userId)
     }
@@ -169,6 +185,10 @@ export class WalletAddressService implements IWalletAddressService {
     if (!walletAddress) {
       throw new NotFound()
     }
+
+    await this.cache.set(walletAddress.id, walletAddress, {
+      expiry: 60
+    })
 
     return walletAddress
   }
@@ -236,6 +256,16 @@ export class WalletAddressService implements IWalletAddressService {
           publicName
         })
       ])
+
+      await this.cache.delete(walletAddressId)
+      const updatedWalletAddress = await walletAddress
+        .$query(trx)
+        .findById(walletAddressId)
+      updatedWalletAddress &&
+        (await this.cache.set(walletAddressId, updatedWalletAddress, {
+          expiry: 60
+        }))
+
       await trx.commit()
     } catch (e) {
       await trx.rollback()
@@ -257,6 +287,12 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   async findByIdWithoutValidation(id: string) {
+    const cacheHit = await this.cache.get(id)
+    if (cacheHit) {
+      //* TODO: reset ttl
+      return cacheHit
+    }
+
     const walletAddress = await WalletAddress.query()
       .findById(id)
       .where('active', true)
@@ -264,6 +300,10 @@ export class WalletAddressService implements IWalletAddressService {
     if (!walletAddress) {
       throw new NotFound()
     }
+
+    await this.cache.set(walletAddress.id, walletAddress, {
+      expiry: 60
+    })
 
     return walletAddress
   }
