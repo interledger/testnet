@@ -318,9 +318,7 @@ export class WalletAddressService implements IWalletAddressService {
       )
     }
 
-    const value =
-      Number(balance) *
-      10 ** -walletAddress.assetScale
+    const value = Number(balance) * 10 ** -walletAddress.assetScale
     const factor = 10 ** this.env.BASE_ASSET_SCALE
     const amount = Math.floor(value * factor) / factor
 
@@ -427,14 +425,18 @@ export class WalletAddressService implements IWalletAddressService {
         const tmpWalletAddress = await walletAddress
           .$query(trx)
           .updateAndFetchById(walletAddress.id, {
-            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum % this.env.RAPYD_THRESHOLD]),
-            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum % this.env.RAPYD_THRESHOLD])
+            incomingBalance: raw('?? + ?', [
+              'incomingBalance',
+              incoming.sum % this.env.RAPYD_THRESHOLD
+            ]),
+            outgoingBalance: raw('?? + ?', [
+              'outgoingBalance',
+              outgoing.sum % this.env.RAPYD_THRESHOLD
+            ])
           })
 
-        const incomingBalance =
-          tmpWalletAddress.incomingBalance  
-        const outgoingBalance =
-          tmpWalletAddress.outgoingBalance
+        const incomingBalance = tmpWalletAddress.incomingBalance
+        const outgoingBalance = tmpWalletAddress.outgoingBalance
 
         this.logger.debug(
           `Incoming balance: ${incomingBalance}. Outgoing balance: ${outgoingBalance}`
