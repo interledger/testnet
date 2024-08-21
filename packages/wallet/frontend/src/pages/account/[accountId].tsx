@@ -29,6 +29,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { PageHeader } from '@/components/PageHeader'
 import { WalletAddressResponse } from '@wallet/shared'
+import { BASE_ASSET_SCALE } from '@/utils/constants'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -50,11 +51,11 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
     const accountBalance = Number(account.balance)
 
-    // `balance` represents incoming amount - outgoing amount in asset scale 9
+    // `balance` represents incoming amount - outgoing amount in asset scale MAX_ASSET_SCALE
     const value = ((snapshotBalance || accountBalance) + balance).toString()
     const amountScale2 = formatAmount({
       value,
-      displayScale: 2,
+      displayScale: BASE_ASSET_SCALE,
       assetCode: account.assetCode,
       assetScale: account.assetScale
     })

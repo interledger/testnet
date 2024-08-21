@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { balanceState } from '@/lib/balance'
 import { useSnapshot } from 'valtio'
+import { BASE_ASSET_SCALE } from '@/utils/constants'
 
 type AccountCardProps = {
   account: Account
@@ -35,7 +36,7 @@ export const AccountCard = ({
 
     return formatAmount({
       value,
-      displayScale: 2,
+      displayScale: BASE_ASSET_SCALE,
       assetCode: account.assetCode,
       assetScale: account.assetScale
     })

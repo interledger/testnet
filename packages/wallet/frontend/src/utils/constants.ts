@@ -25,3 +25,6 @@ export const BASE64_PUBLIC_KEY =
 
 // Transaction asset scale 9 imbalance note
 export const ASSET_SCALE_IMBALANCE = 'Asset scale 9 imbalance'
+
+export const MAX_ASSET_SCALE = 9;
+export const BASE_ASSET_SCALE = 2;

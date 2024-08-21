@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge'
 import { AssetOP } from '@wallet/shared'
 import { QuoteResponse } from '@wallet/shared'
 import { WalletAddressResponse } from '@wallet/shared'
+import { BASE_ASSET_SCALE, MAX_ASSET_SCALE } from './constants'
 
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
@@ -40,7 +41,7 @@ type FormatAmountArgs = AssetOP & {
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
-  const { value, displayScale = 9, assetCode, assetScale } = args
+  const { value, displayScale = MAX_ASSET_SCALE, assetCode, assetScale } = args
 
   const scaledValue = Number(`${value}e-${assetScale}`)
   const flooredValue =
@@ -85,7 +86,7 @@ export const getFee = (quote: QuoteResponse): FormattedAmount => {
     return formatAmount({
       assetCode: quote.fee.assetCode,
       assetScale: quote.fee.assetScale,
-      displayScale: 2,
+      displayScale: BASE_ASSET_SCALE,
       value: quote.fee.value
     })
   }
@@ -96,7 +97,7 @@ export const getFee = (quote: QuoteResponse): FormattedAmount => {
   return formatAmount({
     assetCode: quote.debitAmount.assetCode,
     assetScale: quote.debitAmount.assetScale,
-    displayScale: 2,
+    displayScale: BASE_ASSET_SCALE,
     value: fee.toString()
   })
 }

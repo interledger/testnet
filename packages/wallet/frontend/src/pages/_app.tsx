@@ -11,6 +11,7 @@ import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
+import { BASE_ASSET_SCALE } from '@/utils/constants'
 
 const titilium = Titillium_Web({
   subsets: ['latin'],
@@ -40,7 +41,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             {
               formatAmount({
                 value: amount.value,
-                displayScale: 2,
+                displayScale: BASE_ASSET_SCALE,
                 assetCode: amount.assetCode,
                 assetScale: amount.assetScale
               }).amount
@@ -69,7 +70,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             {
               formatAmount({
                 value: amount.value,
-                displayScale: 2,
+                displayScale: BASE_ASSET_SCALE,
                 assetCode: amount.assetCode,
                 assetScale: amount.assetScale
               }).amount

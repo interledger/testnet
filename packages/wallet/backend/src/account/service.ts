@@ -309,7 +309,7 @@ export class AccountService implements IAccountService {
     name = 'USD Account'
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
-      (asset) => asset.code === 'USD' && asset.scale === 9
+      (asset) => asset.code === 'USD' && asset.scale === this.env.MAX_ASSET_SCALE
     )
     if (!asset) {
       return

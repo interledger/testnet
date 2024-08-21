@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { PaperPlane } from '../icons/PaperPlane'
 import { QuoteResponse } from '@wallet/shared'
+import { BASE_ASSET_SCALE } from '@/utils/constants'
 
 type QuoteDialogProps = {
   onClose: () => void
@@ -26,14 +27,14 @@ export const QuoteDialog = ({
 
   const receiveAmount = formatAmount({
     value: quote.receiveAmount.value,
-    displayScale: 2,
+    displayScale: BASE_ASSET_SCALE,
     assetCode: quote.receiveAmount.assetCode,
     assetScale: quote.receiveAmount.assetScale
   })
 
   const debitAmount = formatAmount({
     value: quote.debitAmount.value,
-    displayScale: 2,
+    displayScale: BASE_ASSET_SCALE,
     assetCode: quote.debitAmount.assetCode,
     assetScale: quote.debitAmount.assetScale
   })

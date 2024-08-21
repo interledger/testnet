@@ -26,6 +26,7 @@ import { balanceState } from '@/lib/balance'
 import { useSnapshot } from 'valtio'
 import { exchangeAssetSchema } from '@wallet/shared'
 import { AssetOP } from '@wallet/shared'
+import { MAX_ASSET_SCALE } from '@/utils/constants'
 
 type ExchangeAssetProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const ExchangeAssetPage: NextPageWithLayout<ExchangeAssetProps> = ({
@@ -250,7 +251,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = assetResponse.result
-    ?.filter((asset) => asset.scale <= 2)
+    ?.filter((asset) => asset.scale <= MAX_ASSET_SCALE)
     ?.map((asset) => ({
       value: asset.id,
       label: asset.code

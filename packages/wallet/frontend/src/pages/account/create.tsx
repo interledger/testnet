@@ -19,6 +19,7 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { createAccountSchema } from '@wallet/shared'
+import { MAX_ASSET_SCALE } from '@/utils/constants'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
@@ -138,7 +139,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = response.result
-    ?.filter((asset) => asset.scale <= 9)
+    ?.filter((asset) => asset.scale <= MAX_ASSET_SCALE)
     ?.map((asset) => ({
       value: asset.id,
       label: asset.code
