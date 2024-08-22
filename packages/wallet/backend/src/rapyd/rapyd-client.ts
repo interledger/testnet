@@ -289,7 +289,7 @@ export class RapydClient implements IRapydClient {
       : ','
     const [street, city, postCode] = args.user.address?.split(', ') ?? []
     let address = [street, postCode].join(addressDelimiter)
-    if (args.assetCode === 'USD') address = address.replace(/[,\s]+/g, '')
+    if (args.assetCode === 'EUR') address = address.replace(/[,\s]+/g, '')
 
     // withdraw funds/create payout from wallet account into bank account
     const userDetails: RequiredFieldsType = {
