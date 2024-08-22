@@ -11,6 +11,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
+import { BASE_ASSET_SCALE } from '@/utils/constants'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -181,7 +182,8 @@ export const getServerSideProps: GetServerSideProps<{
         access.limits.debitAmount.formattedAmount = formatAmount({
           value: access.limits.debitAmount.value ?? 0,
           assetCode: access.limits.debitAmount.assetCode,
-          assetScale: access.limits.debitAmount.assetScale
+          assetScale: access.limits.debitAmount.assetScale,
+          displayScale: BASE_ASSET_SCALE
         }).amount
       }
     }
