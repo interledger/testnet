@@ -51,6 +51,7 @@ import { generateKnex } from '@/config/knex'
 import { asClassSingletonWithLogger, RedisClient } from '@shared/backend'
 import { generateLogger } from '@/config/logger'
 import { GraphQLClient } from 'graphql-request'
+import { KratosService } from './rafiki/kratos.service'
 
 export interface Cradle {
   env: Env
@@ -92,6 +93,7 @@ export interface Cradle {
   grantController: GrantController
   walletAddressController: WalletAddressController
   walletAddressKeyController: WalletAddressKeyController
+  kratosService: KratosService
 }
 
 export async function createContainer(
@@ -147,7 +149,8 @@ export async function createContainer(
     quoteController: asClass(QuoteController).singleton(),
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),
-    walletAddressKeyController: asClass(WalletAddressKeyController).singleton()
+    walletAddressKeyController: asClass(WalletAddressKeyController).singleton(),
+    kratosService: asClassSingletonWithLogger(KratosService, logger)
   })
 
   return container
