@@ -17,6 +17,30 @@ export type Scalars = {
   UInt8: { input: number; output: number; }
 };
 
+export type AccountingTransfer = Model & {
+  __typename?: 'AccountingTransfer';
+  /** Amount sent (fixed send) */
+  amount: Scalars['BigInt']['output'];
+  /** Date-time of creation */
+  createdAt: Scalars['String']['output'];
+  /** Credit account id */
+  creditAccountId: Scalars['ID']['output'];
+  /** Debit account id */
+  debitAccountId: Scalars['ID']['output'];
+  /** Payment id */
+  id: Scalars['ID']['output'];
+  /** Identifier that partitions the sets of accounts that can transact with each other. */
+  ledger: Scalars['UInt8']['output'];
+  /** Type of accounting transfer */
+  transferType: TransferType;
+};
+
+export type AccountingTransferConnection = {
+  __typename?: 'AccountingTransferConnection';
+  credits: Array<AccountingTransfer>;
+  debits: Array<AccountingTransfer>;
+};
+
 export type AdditionalProperty = {
   __typename?: 'AdditionalProperty';
   key: Scalars['String']['output'];
@@ -49,6 +73,16 @@ export type AmountInput = {
   /** Difference in orders of magnitude between the standard unit of an asset and a corresponding fractional unit */
   assetScale: Scalars['UInt8']['input'];
   value: Scalars['BigInt']['input'];
+};
+
+export type ApproveIncomingPaymentInput = {
+  /** Unique identifier of the incoming payment to be approved. Note: Incoming Payment must be PENDING. */
+  id: Scalars['ID']['input'];
+};
+
+export type ApproveIncomingPaymentResponse = {
+  __typename?: 'ApproveIncomingPaymentResponse';
+  payment?: Maybe<IncomingPayment>;
 };
 
 export type Asset = Model & {
@@ -107,6 +141,16 @@ export type BasePayment = {
   id: Scalars['ID']['output'];
   metadata?: Maybe<Scalars['JSONObject']['output']>;
   walletAddressId: Scalars['ID']['output'];
+};
+
+export type CancelIncomingPaymentInput = {
+  /** Unique identifier of the incoming payment to be cancelled. Note: Incoming Payment must be PENDING. */
+  id: Scalars['ID']['input'];
+};
+
+export type CancelIncomingPaymentResponse = {
+  __typename?: 'CancelIncomingPaymentResponse';
+  payment?: Maybe<IncomingPayment>;
 };
 
 export type CancelOutgoingPaymentInput = {
@@ -581,6 +625,10 @@ export type Model = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Approves the incoming payment if the incoming payment is in the PENDING state */
+  approveIncomingPayment: ApproveIncomingPaymentResponse;
+  /** Cancel the incoming payment if the incoming payment is in the PENDING state */
+  cancelIncomingPayment: CancelIncomingPaymentResponse;
   /** Cancel Outgoing Payment */
   cancelOutgoingPayment: OutgoingPaymentResponse;
   /** Create an asset */
@@ -649,6 +697,16 @@ export type Mutation = {
    * @deprecated Use `createOutgoingPaymentWithdrawal, createIncomingPaymentWithdrawal, or createWalletAddressWithdrawal`
    */
   withdrawEventLiquidity?: Maybe<LiquidityMutationResponse>;
+};
+
+
+export type MutationApproveIncomingPaymentArgs = {
+  input: ApproveIncomingPaymentInput;
+};
+
+
+export type MutationCancelIncomingPaymentArgs = {
+  input: CancelIncomingPaymentInput;
 };
 
 
@@ -815,6 +873,8 @@ export type OutgoingPayment = BasePayment & Model & {
   /** Amount to send (fixed send) */
   debitAmount: Amount;
   error?: Maybe<Scalars['String']['output']>;
+  /** Id of the Grant under which this outgoing payment was created */
+  grantId?: Maybe<Scalars['String']['output']>;
   /** Outgoing payment id */
   id: Scalars['ID']['output'];
   /** Available liquidity */
@@ -846,6 +906,12 @@ export type OutgoingPaymentEdge = {
   __typename?: 'OutgoingPaymentEdge';
   cursor: Scalars['String']['output'];
   node: OutgoingPayment;
+};
+
+export type OutgoingPaymentFilter = {
+  receiver?: InputMaybe<FilterString>;
+  state?: InputMaybe<FilterString>;
+  walletAddressId?: InputMaybe<FilterString>;
 };
 
 export type OutgoingPaymentResponse = {
@@ -963,6 +1029,8 @@ export type PostLiquidityWithdrawalInput = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Fetch a page of accounting transfers */
+  accountingTransfers: AccountingTransferConnection;
   /** Fetch an asset */
   asset?: Maybe<Asset>;
   /** Fetch a page of assets. */
@@ -971,6 +1039,8 @@ export type Query = {
   incomingPayment?: Maybe<IncomingPayment>;
   /** Fetch an Open Payments outgoing payment */
   outgoingPayment?: Maybe<OutgoingPayment>;
+  /** Fetch a page of outgoing payments by receiver */
+  outgoingPayments: OutgoingPaymentConnection;
   /** Fetch a page of combined payments */
   payments: PaymentConnection;
   /** Fetch a peer */
@@ -987,6 +1057,12 @@ export type Query = {
   walletAddresses: WalletAddressesConnection;
   /** Fetch a page of webhook events */
   webhookEvents: WebhookEventsConnection;
+};
+
+
+export type QueryAccountingTransfersArgs = {
+  id: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1011,6 +1087,16 @@ export type QueryIncomingPaymentArgs = {
 
 export type QueryOutgoingPaymentArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryOutgoingPaymentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<OutgoingPaymentFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -1077,18 +1163,12 @@ export type Quote = {
   createdAt: Scalars['String']['output'];
   /** Amount to send (fixed send) */
   debitAmount: Amount;
+  /** Estimated exchange rate */
+  estimatedExchangeRate?: Maybe<Scalars['Float']['output']>;
   /** Date-time of expiration */
   expiresAt: Scalars['String']['output'];
-  /** Upper bound of probed exchange rate */
-  highEstimatedExchangeRate: Scalars['Float']['output'];
   /** Quote id */
   id: Scalars['ID']['output'];
-  /** Lower bound of probed exchange rate */
-  lowEstimatedExchangeRate: Scalars['Float']['output'];
-  /** Maximum value per packet allowed on the possible routes */
-  maxPacketAmount: Scalars['BigInt']['output'];
-  /** Aggregate exchange rate the payment is guaranteed to meet */
-  minExchangeRate: Scalars['Float']['output'];
   /** Amount to receive (fixed receive) */
   receiveAmount: Amount;
   /** Wallet address URL of the receiver */
@@ -1169,6 +1249,15 @@ export enum SortOrder {
   Asc = 'ASC',
   /** Choose descending order for results. */
   Desc = 'DESC'
+}
+
+export enum TransferType {
+  /** Deposit transfer type. */
+  Deposit = 'DEPOSIT',
+  /** Transfer type. */
+  Transfer = 'TRANSFER',
+  /** Withdrawal transfer type. */
+  Withdrawal = 'WITHDRAWAL'
 }
 
 export type TriggerWalletAddressEventsInput = {
@@ -1453,21 +1542,21 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, id: string, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
 
 
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, highEstimatedExchangeRate: number, id: string, lowEstimatedExchangeRate: number, maxPacketAmount: bigint, minExchangeRate: number, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, id: string, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
 export type GetQuoteQueryVariables = Exact<{
   quoteId: Scalars['String']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, maxPacketAmount: bigint, minExchangeRate: number, lowEstimatedExchangeRate: number, highEstimatedExchangeRate: number, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
 
 export type CreateReceiverMutationVariables = Exact<{
   input: CreateReceiverInput;

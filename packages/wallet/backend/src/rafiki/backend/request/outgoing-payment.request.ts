@@ -12,11 +12,7 @@ export const createOutgoingPaymentMutation = gql`
         quote {
           createdAt
           expiresAt
-          highEstimatedExchangeRate
           id
-          lowEstimatedExchangeRate
-          maxPacketAmount
-          minExchangeRate
           walletAddressId
           receiveAmount {
             assetCode
