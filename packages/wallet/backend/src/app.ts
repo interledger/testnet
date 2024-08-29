@@ -10,7 +10,7 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
 import cors from 'cors'
-import express, { Router, type Express, type Request } from 'express'
+import express, { type Express, type Request, Router } from 'express'
 import helmet from 'helmet'
 import { Server } from 'http'
 import type { Knex } from 'knex'
@@ -291,11 +291,7 @@ export class App {
     router.post('/accounts', isAuth, accountController.createAccount)
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
-    router.post(
-      '/accounts/:accountId/exchange',
-      isAuth,
-      quoteController.createExchangeQuote
-    )
+
     router.post('/accounts/fund', isAuth, accountController.fundAccount)
     router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
