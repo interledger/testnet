@@ -13,7 +13,7 @@
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
     "awilix": "^10.0.2",
-    "axios": "^1.7.3",
+    "axios": "^1.7.7",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "date-fns": "^3.6.0",
