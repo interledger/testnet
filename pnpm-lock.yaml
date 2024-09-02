@@ -76,7 +76,7 @@ importers:
         version: 3.1.0(pg@8.12.0)
       objection:
         specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0(pg@8.12.0))
+        version: 3.1.4(knex@3.1.0)
       pg:
         specifier: ^8.12.0
         version: 8.12.0
@@ -122,7 +122,7 @@ importers:
         version: link:../shared
       '@hookform/resolvers':
         specifier: ^3.9.0
-        version: 3.9.0(react-hook-form@7.52.2(react@18.3.1))
+        version: 3.9.0(react-hook-form@7.53.0(react@18.3.1))
       '@radix-ui/react-dialog':
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -160,8 +160,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.52.2
-        version: 7.52.2(react@18.3.1)
+        specifier: ^7.53.0
+        version: 7.53.0(react@18.3.1)
       react-router-dom:
         specifier: ^6.26.1
         version: 6.26.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -241,7 +241,7 @@ importers:
         version: 3.1.0(pg@8.12.0)
       objection:
         specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0(pg@8.12.0))
+        version: 3.1.4(knex@3.1.0)
       winston:
         specifier: ^3.13.1
         version: 3.14.1
@@ -329,7 +329,7 @@ importers:
         version: 5.1.2
       objection:
         specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0(pg@8.12.0))
+        version: 3.1.4(knex@3.1.0)
       pg:
         specifier: ^8.12.0
         version: 8.12.0
@@ -405,7 +405,7 @@ importers:
         version: 1.7.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@hookform/resolvers':
         specifier: ^3.9.0
-        version: 3.9.0(react-hook-form@7.52.2(react@18.3.1))
+        version: 3.9.0(react-hook-form@7.53.0(react@18.3.1))
       '@radix-ui/react-toast':
         specifier: ^1.2.1
         version: 1.2.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -437,8 +437,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.52.2
-        version: 7.52.2(react@18.3.1)
+        specifier: ^7.53.0
+        version: 7.53.0(react@18.3.1)
       react-joyride:
         specifier: ^2.8.2
         version: 2.8.2(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5336,8 +5336,8 @@ packages:
       react: 15 - 18
       react-dom: 15 - 18
 
-  react-hook-form@7.52.2:
-    resolution: {integrity: sha512-pqfPEbERnxxiNMPd0bzmt1tuaPcVccywFDpyk2uV5xCIBphHV5T8SVnX9/o3kplPE1zzKt77+YIoq+EMwJp56A==}
+  react-hook-form@7.53.0:
+    resolution: {integrity: sha512-M1n3HhqCww6S2hxLxciEXy2oISPnAzxY7gvwVPrtlczTM/1dDadXgUxDpHMrMTblDOcm/AXtXxHwZ3jpg1mqKQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -7563,9 +7563,9 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@hookform/resolvers@3.9.0(react-hook-form@7.52.2(react@18.3.1))':
+  '@hookform/resolvers@3.9.0(react-hook-form@7.53.0(react@18.3.1))':
     dependencies:
-      react-hook-form: 7.52.2(react@18.3.1)
+      react-hook-form: 7.53.0(react@18.3.1)
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
@@ -11677,7 +11677,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.0.0
 
-  objection@3.1.4(knex@3.1.0(pg@8.12.0)):
+  objection@3.1.4(knex@3.1.0):
     dependencies:
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
@@ -12117,7 +12117,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       tree-changes: 0.9.3
 
-  react-hook-form@7.52.2(react@18.3.1):
+  react-hook-form@7.53.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
