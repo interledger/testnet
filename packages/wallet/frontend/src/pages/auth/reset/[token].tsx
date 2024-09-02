@@ -13,6 +13,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
+import { useTheme } from 'next-themes'
 
 type ResetPasswordPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -29,13 +30,18 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       token: token
     }
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   return (
     <>
       <HeaderLogo header="Reset Password" />
       {token && isValid ? (
         <>
-          <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
+          <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
             Provide a new password for your Test Wallet account.
           </h2>
           <div className="w-2/3">
@@ -97,11 +103,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 >
                   Reset
                 </Button>
-                <Button
-                  intent="secondary"
-                  aria-label="cancel"
-                  href="/auth/login"
-                >
+                <Button intent="outline" aria-label="cancel" href="/auth/login">
                   Cancel
                 </Button>
               </div>
@@ -109,7 +111,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
           </div>
         </>
       ) : (
-        <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
+        <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
           The link is invalid or has expired. <br /> Please verify your link, or{' '}
           <Link href="/auth/forgot" className="font-medium underline">
             request a new link
@@ -120,13 +122,13 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
 
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/welcome-mobile.webp"
+        src={imageName}
         alt="Forgot password"
         quality={100}
         width={400}
         height={200}
       />
-      <p className="mt-auto font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Remembered your credentials?{' '}
         <Link href="/auth/login" className="font-medium underline">
           Login

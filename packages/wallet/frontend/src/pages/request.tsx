@@ -29,6 +29,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { useTheme } from 'next-themes'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -58,6 +59,11 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     schema: requestSchema,
     mode: 'onSubmit'
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   const balanceSnapshot = useMemo(() => {
     if (!selectedAccount) return ''
@@ -76,10 +82,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 500)
+      setStepIndex(stepIndex === 16 ? stepIndex + 2 : stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -116,12 +120,11 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
   return (
     <>
-      <div className="flex flex-col lg:w-2/3">
-        <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
-          <PageHeader title="Request Money" />
-        </div>
-        <TransferHeader type="turqoise" balance={balanceSnapshot} />
+      <div className="w-full lg:max-w-xl">
+        <PageHeader title="Request Money" />
+        <TransferHeader type="green" balance={balanceSnapshot} />
         <Form
+          className="px-3"
           form={requestForm}
           onSubmit={async (data) => {
             const response = await transfersService.request(data)
@@ -137,6 +140,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                   copyToClipboard={response.result?.url}
                   title="Funds requested."
                   content="Funds were successfully requested"
+                  size="lg"
                   redirect={`/`}
                   redirectText="Go to your accounts"
                 />
@@ -156,8 +160,13 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
             }
           }}
         >
-          <div className="space-y-2">
-            <Badge size="fixed" text="into" />
+          <Badge
+            size="fixed"
+            text="into"
+            intent="info"
+            className="self-start"
+          />
+          <div className="space-y-4">
             <Select
               required
               label="Account"
@@ -214,8 +223,6 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                 />
               )}
             />
-          </div>
-          <div className="space-y-2">
             <Input
               required
               {...requestForm.register('amount')}
@@ -289,16 +296,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
         </Form>
       </div>
       <Image
-        className="mt-10 hidden object-cover md:block"
-        src="/request.webp"
-        alt="Request"
-        quality={100}
-        width={600}
-        height={200}
-      />
-      <Image
-        className="my-auto object-cover md:hidden"
-        src="/request-mobile.webp"
+        className="object-cover"
+        src={imageName}
         alt="Request"
         quality={100}
         width={500}

@@ -5,14 +5,11 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { acceptQuoteSchema } from './transfers'
 import {
   createAccountSchema,
   fundAccountSchema,
-  withdrawFundsSchema,
-  exchangeAssetSchema
+  withdrawFundsSchema
 } from '@wallet/shared'
-import { QuoteResponse } from '@wallet/shared'
 import { WalletAddressResponse } from '@wallet/shared/src'
 
 export type Account = {
@@ -44,14 +41,6 @@ type WithdrawFundsArgs = z.infer<typeof withdrawFundsSchema>
 type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
 type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
 
-type ExchangeArgs = z.infer<typeof exchangeAssetSchema>
-type QuoteResult = SuccessResponse<QuoteResponse>
-type ExchangeResponse = QuoteResult | ErrorResponse<ExchangeArgs | undefined>
-
-type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
-type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
-type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
-
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (
@@ -61,8 +50,6 @@ interface AccountService {
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   fund: (args: FundAccountArgs) => Promise<FundAccountResponse>
   withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
-  exchange: (accountId: string, args: ExchangeArgs) => Promise<ExchangeResponse>
-  acceptExchangeQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -149,41 +136,6 @@ const createAccountService = (): AccountService => ({
       return getError<WithdrawFundsArgs>(
         error,
         'We were not able to withdraw the funds. Please try again.'
-      )
-    }
-  },
-
-  async exchange(accountId, args) {
-    try {
-      const response = await httpClient
-        .post(`accounts/${accountId}/exchange`, {
-          json: {
-            assetCode: args.asset.label,
-            amount: args.amount
-          }
-        })
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError<ExchangeArgs>(
-        error,
-        'We were not able to exchange your money to the selected currency. Please try again.'
-      )
-    }
-  },
-
-  async acceptExchangeQuote(args) {
-    try {
-      const response = await httpClient
-        .post('outgoing-payments', {
-          json: args
-        })
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError<AcceptQuoteArgs>(
-        error,
-        'We could not send the money. Please try again.'
       )
     }
   }

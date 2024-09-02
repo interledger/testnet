@@ -11,9 +11,12 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
+import { cx } from 'class-variance-authority'
+import { useTheme } from 'next-themes'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
+  const theme = useTheme()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
@@ -25,7 +28,9 @@ const SignUpPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Welcome" />
-      <h2 className="mb-5 mt-10 text-xl text-green">Create Account</h2>
+      <h2 className="mb-5 mt-10 text-xl text-green dark:text-teal-neon">
+        Create Account
+      </h2>
       <div className="z-10 w-2/3">
         <Form
           form={signUpForm}
@@ -93,12 +98,22 @@ const SignUpPage: NextPageWithLayout = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play loading={signUpForm.formState.isSubmitting} />
+            <Play
+              loading={signUpForm.formState.isSubmitting}
+              className="text-green dark:text-pink-neon dark:hover:drop-shadow-glow-svg"
+            />
           </button>
         </Form>
       </div>
-      <div className="absolute bottom-0 h-[200px] w-full bg-[url('../../public/leafs.svg')] bg-contain bg-center bg-no-repeat md:hidden"></div>
-      <p className="z-10 mt-auto font-extralight text-green">
+      <div
+        className={cx(
+          'absolute bottom-0 h-[200px] w-full bg-contain bg-center bg-no-repeat md:hidden',
+          theme.theme === 'dark'
+            ? "bg-[url('../../public/leafs-dark.svg')]"
+            : "bg-[url('../../public/leafs-light.svg')]"
+        )}
+      ></div>
+      <p className="z-10 mt-auto text-center font-extralight text-green dark:text-green-neon">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">
           Log in

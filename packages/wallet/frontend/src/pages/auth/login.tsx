@@ -11,6 +11,7 @@ import { loginSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 const LoginPage: NextPageWithLayout = () => {
   const router = useRouter()
@@ -21,6 +22,12 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/login-mobile-dark.webp'
+      : '/login-mobile-light.webp'
+
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -28,7 +35,9 @@ const LoginPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Welcome" />
-      <h2 className="mb-5 mt-10 text-xl font-semibold text-green">Login</h2>
+      <h2 className="mb-5 mt-10 text-xl font-semibold text-green dark:text-teal-neon">
+        Login
+      </h2>
       <div className="w-2/3">
         <Form
           form={loginForm}
@@ -70,7 +79,7 @@ const LoginPage: NextPageWithLayout = () => {
           />
           <Link
             href="forgot"
-            className="text-sm font-extralight text-green-3 underline"
+            className="text-sm font-extralight text-green underline dark:text-green-neon"
           >
             Forgot password?
           </Link>
@@ -79,19 +88,22 @@ const LoginPage: NextPageWithLayout = () => {
             type="submit"
             className="m-auto py-2 sm:py-5"
           >
-            <Play loading={loginForm.formState.isSubmitting} />
+            <Play
+              loading={loginForm.formState.isSubmitting}
+              className="text-green dark:text-pink-neon dark:hover:drop-shadow-glow-svg"
+            />
           </button>
         </Form>
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/login-mobile.webp"
+        src={imageName}
         alt="Login"
         quality={100}
         width={500}
         height={200}
       />
-      <p className="mt-auto font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Not a customer?{' '}
         <Link href="signup" className="font-medium underline">
           Create an account

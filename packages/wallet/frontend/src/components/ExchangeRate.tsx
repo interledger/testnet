@@ -28,10 +28,10 @@ export const ExchangeRate = memo(
     ) {
       return (
         <div className="flex flex-col space-y-0">
-          <p className="mx-2 text-sm text-green">
+          <p className="mx-2 text-sm text-green dark:text-green-neon">
             The receiver&apos;s account is in a different currency.
           </p>
-          <p className="mx-2 text-sm text-green">
+          <p className="mx-2 text-sm text-green dark:text-green-neon">
             Exchange rate: {getCurrencySymbol(selectedAsset.assetCode)}&nbsp;
             {currentExchangeRates[selectedAsset.assetCode].toFixed(
               selectedAsset.assetScale
@@ -42,7 +42,7 @@ export const ExchangeRate = memo(
             {getCurrencySymbol(receiverAssetCode)}&nbsp;
             {currentExchangeRates[receiverAssetCode]}
           </p>
-          <p className="mx-2 text-sm text-green">
+          <p className="mx-2 text-sm text-green dark:text-green-neon">
             Exchanged amount: {getCurrencySymbol(selectedAsset.assetCode)}&nbsp;
             {convertAmount}&nbsp;
             <SimpleArrow className="inline h-3 w-3" />
