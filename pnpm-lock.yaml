@@ -419,8 +419,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0
       ky:
-        specifier: ^1.5.0
-        version: 1.6.0
+        specifier: ^1.7.2
+        version: 1.7.2
       next:
         specifier: 14.2.5
         version: 14.2.5(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4508,6 +4508,10 @@ packages:
 
   ky@1.6.0:
     resolution: {integrity: sha512-MG7hlH26oShC4Lysk5TYzXshHLfEY52IJ0ofOeCsifquqTymbXCSTx+g4rXO30XYxoM6Y1ed5pNnpULe9Rx19A==}
+    engines: {node: '>=18'}
+
+  ky@1.7.2:
+    resolution: {integrity: sha512-OzIvbHKKDpi60TnF9t7UUVAF1B4mcqc02z5PIvrm08Wyb+yOcz63GRvEuVxNT18a9E1SrNouhB4W2NNLeD7Ykg==}
     engines: {node: '>=18'}
 
   lazystream@1.0.1:
@@ -11334,6 +11338,8 @@ snapshots:
   kuler@2.0.0: {}
 
   ky@1.6.0: {}
+
+  ky@1.7.2: {}
 
   lazystream@1.0.1:
     dependencies:
