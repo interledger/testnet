@@ -49,7 +49,7 @@ importers:
         version: link:../shared
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
-        version: 6.0.0(winston@3.14.1)
+        version: 6.0.0(winston@3.14.2)
       '@interledger/open-payments':
         specifier: ^6.13.1
         version: 6.13.1
@@ -76,13 +76,13 @@ importers:
         version: 3.1.0(pg@8.12.0)
       objection:
         specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0(pg@8.12.0))
+        version: 3.1.4(knex@3.1.0)
       pg:
         specifier: ^8.12.0
         version: 8.12.0
       winston:
-        specifier: ^3.13.1
-        version: 3.14.1
+        specifier: ^3.14.2
+        version: 3.14.2
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -226,7 +226,7 @@ importers:
     dependencies:
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
-        version: 6.0.0(winston@3.14.1)
+        version: 6.0.0(winston@3.14.2)
       awilix:
         specifier: ^10.0.2
         version: 10.0.2
@@ -241,10 +241,10 @@ importers:
         version: 3.1.0(pg@8.12.0)
       objection:
         specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0(pg@8.12.0))
+        version: 3.1.4(knex@3.1.0)
       winston:
-        specifier: ^3.13.1
-        version: 3.14.1
+        specifier: ^3.14.2
+        version: 3.14.2
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -266,7 +266,7 @@ importers:
     dependencies:
       '@google-cloud/logging-winston':
         specifier: ^6.0.0
-        version: 6.0.0(winston@3.14.1)
+        version: 6.0.0(winston@3.14.2)
       '@sendgrid/mail':
         specifier: ^8.1.3
         version: 8.1.3
@@ -329,7 +329,7 @@ importers:
         version: 5.1.2
       objection:
         specifier: ^3.1.4
-        version: 3.1.4(knex@3.1.0(pg@8.12.0))
+        version: 3.1.4(knex@3.1.0)
       pg:
         specifier: ^8.12.0
         version: 8.12.0
@@ -343,8 +343,8 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
       winston:
-        specifier: ^3.13.1
-        version: 3.14.1
+        specifier: ^3.14.2
+        version: 3.14.2
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -6300,8 +6300,8 @@ packages:
     resolution: {integrity: sha512-wQCXXVgfv/wUPOfb2x0ruxzwkcZfxcktz6JIMUaPLmcNhO4bZTwA/WtDWK74xV3F2dKu8YadrFv0qhwYjVEwhA==}
     engines: {node: '>= 12.0.0'}
 
-  winston@3.14.1:
-    resolution: {integrity: sha512-CJi4Il/msz8HkdDfXOMu+r5Au/oyEjFiOZzbX2d23hRLY0narGjqfE5lFlrT5hfYJhPtM8b85/GNFsxIML/RVA==}
+  winston@3.14.2:
+    resolution: {integrity: sha512-CO8cdpBB2yqzEf8v895L+GNKYJiEq8eKlHU38af3snQBQ+sdAIUepjMSguOIJC7ICbzm0ZI+Af2If4vIJrtmOg==}
     engines: {node: '>= 12.0.0'}
 
   word-wrap@1.2.5:
@@ -7075,12 +7075,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@google-cloud/logging-winston@6.0.0(winston@3.14.1)':
+  '@google-cloud/logging-winston@6.0.0(winston@3.14.2)':
     dependencies:
       '@google-cloud/logging': 11.2.0
       google-auth-library: 9.13.0
       lodash.mapvalues: 4.6.0
-      winston: 3.14.1
+      winston: 3.14.2
       winston-transport: 4.7.1
     transitivePeerDependencies:
       - encoding
@@ -11677,7 +11677,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.0.0
 
-  objection@3.1.4(knex@3.1.0(pg@8.12.0)):
+  objection@3.1.4(knex@3.1.0):
     dependencies:
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
@@ -13251,7 +13251,7 @@ snapshots:
       readable-stream: 3.6.2
       triple-beam: 1.4.1
 
-  winston@3.14.1:
+  winston@3.14.2:
     dependencies:
       '@colors/colors': 1.6.0
       '@dabh/diagnostics': 2.0.3
