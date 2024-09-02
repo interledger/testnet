@@ -6,11 +6,7 @@ export const createQuoteMutation = gql`
       quote {
         createdAt
         expiresAt
-        highEstimatedExchangeRate
         id
-        lowEstimatedExchangeRate
-        maxPacketAmount
-        minExchangeRate
         walletAddressId
         receiveAmount {
           assetCode
@@ -44,10 +40,6 @@ export const getQuoteQuery = gql`
         assetCode
         assetScale
       }
-      maxPacketAmount
-      minExchangeRate
-      lowEstimatedExchangeRate
-      highEstimatedExchangeRate
       createdAt
       expiresAt
     }

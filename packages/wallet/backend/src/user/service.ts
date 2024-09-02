@@ -9,6 +9,7 @@ import { getRandomValues } from 'crypto'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { BadRequest, Conflict } from '@shared/backend'
+import { KratosService } from '@/rafiki/kratos.service'
 
 interface CreateUserArgs {
   email: string
@@ -32,6 +33,7 @@ export class UserService implements IUserService {
     private walletAddressService: WalletAddressService,
     private walletAddressKeyService: WalletAddressKeyService,
     private rafikiClient: RafikiClient,
+    private kratosService: KratosService,
     private logger: Logger,
     private env: Env
   ) {}
@@ -174,6 +176,7 @@ export class UserService implements IUserService {
       })
     }
 
+    await this.kratosService.run(this.env.DEFAULT_WALLET_ACCOUNT.email)
     this.logger.info('Default users have been successfully created')
   }
 
