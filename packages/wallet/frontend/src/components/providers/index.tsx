@@ -4,6 +4,7 @@ import { OnboardingProvider } from './OnboardingProvider'
 import { PasswordProvider } from './PasswordProvider'
 import { ThemeProvider } from 'next-themes'
 import { MenuProvider } from './MenuProvider'
+import { CardProvider } from './CardProvider'
 
 type AppProviderProps = {
   children: ReactNode
@@ -20,7 +21,9 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       <MenuProvider>
         <OnboardingProvider>
           <PasswordProvider>
-            <DialogProvider>{children}</DialogProvider>
+            <CardProvider>
+              <DialogProvider>{children}</DialogProvider>
+            </CardProvider>
           </PasswordProvider>
         </OnboardingProvider>
       </MenuProvider>

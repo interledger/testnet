@@ -11,10 +11,17 @@ const buttonStyles = cva(
     variants: {
       intent: {
         primary: [
-          'border-transparent bg-green-dark dark:bg-pink-neon text-white'
+          'border-transparent border-none bg-green-dark dark:bg-pink-neon text-white'
         ],
         outline: [
           'bg-transparent border-green-dark text-green-dark dark:border-pink-neon dark:text-pink-light'
+        ],
+        transparent: ['bg-transaprent border-transparent'],
+        secondary: [
+          'bg-green-light border-none text-green-dark dark:bg-pink-light dark:text-purple'
+        ],
+        danger: [
+          'bg-orange-dark border-none bg-opacity-20 text-orange-dark dark:bg-pink-light dark:text-pink-neon'
         ]
       },
       size: {
