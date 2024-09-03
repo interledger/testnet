@@ -30,7 +30,6 @@ import { type Knex } from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Logger } from 'winston'
 import {
   asClass,
@@ -70,7 +69,6 @@ export interface Cradle {
   accountService: AccountService
   ratesService: RatesService
   redisClient: RedisClient
-  wmTransactionService: WMTransactionService
   walletAddressService: WalletAddressService
   walletAddressKeyService: WalletAddressKeyService
   transactionService: TransactionService
@@ -121,10 +119,6 @@ export async function createContainer(
     accountService: asClass(AccountService).singleton(),
     ratesService: asClass(RatesService).singleton(),
     redisClient: asFunction(createRedis).singleton(),
-    wmTransactionService: asClassSingletonWithLogger(
-      WMTransactionService,
-      logger
-    ),
     transactionService: asClassSingletonWithLogger(TransactionService, logger),
     walletAddressService: asClassSingletonWithLogger(
       WalletAddressService,

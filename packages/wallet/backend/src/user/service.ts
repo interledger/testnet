@@ -129,8 +129,12 @@ export class UserService implements IUserService {
 
     if (existingUser) return
 
-    const asset = await this.rafikiClient.getRafikiAsset('USD', 2)
-    if (!asset) await this.rafikiClient.createAsset('USD', 2)
+    const asset = await this.rafikiClient.getRafikiAsset(
+      'USD',
+      this.env.BASE_ASSET_SCALE
+    )
+    if (!asset)
+      await this.rafikiClient.createAsset('USD', this.env.BASE_ASSET_SCALE)
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
@@ -151,16 +155,14 @@ export class UserService implements IUserService {
         accountId: walletInfo.defaultAccount.id,
         walletAddressName: typedArray[0].toString(16),
         publicName: 'Default Payment Pointer',
-        userId: walletInfo.createdUser.id,
-        isWM: false
+        userId: walletInfo.createdUser.id
       })
 
       const boutiqueWallet = await this.walletAddressService.create({
         accountId: boutiqueInfo.defaultAccount.id,
         walletAddressName: 'boutique',
         publicName: 'Rafiki Boutique',
-        userId: boutiqueInfo.createdUser.id,
-        isWM: false
+        userId: boutiqueInfo.createdUser.id
       })
 
       await this.walletAddressKeyService.registerKey({

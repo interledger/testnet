@@ -38,7 +38,6 @@ import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
@@ -78,7 +77,6 @@ export interface Bindings {
   grantService: GrantService
   emailService: EmailService
   socketService: SocketService
-  wmTransactionService: WMTransactionService
 }
 
 export class App {
@@ -336,33 +334,8 @@ export class App {
       })
   }
 
-  private async processWMWalletAddresses() {
-    const logger = await this.container.resolve('logger')
-    const walletAddressService = await this.container.resolve(
-      'walletAddressService'
-    )
-
-    return walletAddressService
-      .processWMWalletAddresses()
-      .catch((e) => {
-        logger.error(e)
-        return false
-      })
-      .then((trx) => {
-        if (trx) {
-          process.nextTick(() => this.processWMWalletAddresses())
-        } else {
-          setTimeout(
-            () => this.processWMWalletAddresses(),
-            1000 * 60 * 5
-          ).unref()
-        }
-      })
-  }
-
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-    process.nextTick(() => this.processWMWalletAddresses())
   }
 
   async createDefaultUsers() {

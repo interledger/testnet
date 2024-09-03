@@ -19,26 +19,16 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { formatAmount } from '@/utils/helpers'
 
 interface WalletAddressesTableProps {
-  isWM: boolean
   account: Account
   walletAddresses: IWalletAddressResponse[]
 }
 
 interface WalletAddressRowProps {
   walletAddress: IWalletAddressResponse
-  isWM: boolean
   idOnboarding: string
 }
 
 type WalletAddressRowContextValue = WalletAddressRowProps
-
-const formattedAmount = (walletAddress: IWalletAddressResponse) => {
-  return formatAmount({
-    value: walletAddress.incomingBalance.toString() || '',
-    assetCode: walletAddress.assetCode || '',
-    assetScale: walletAddress.assetScale || 2
-  })
-}
 
 export const WalletAddressRowContext =
   createContext<WalletAddressRowContextValue>(
@@ -142,13 +132,10 @@ export const CopyWalletAddress = () => {
 
 export const WalletAddressRow = ({
   walletAddress,
-  isWM,
   idOnboarding
 }: WalletAddressRowProps) => {
   return (
-    <WalletAddressRowContext.Provider
-      value={{ walletAddress, isWM, idOnboarding }}
-    >
+    <WalletAddressRowContext.Provider value={{ walletAddress, idOnboarding }}>
       <tr
         className="[&>td]:p-4 [&>td]:border-b [&>td]:border-green dark:[&>td]:border-pink-neon hover:bg-green-light dark:hover:bg-purple-dark"
         key={walletAddress.id}
@@ -157,11 +144,7 @@ export const WalletAddressRow = ({
           <CopyWalletAddress />
         </td>
         <td>
-          {isWM ? (
-            <span className="flex items-center justify-center px-3">
-              {formattedAmount(walletAddress).amount}
-            </span>
-          ) : (
+          {
             <Link
               href={`/transactions?walletAddressId=${walletAddress.id}`}
               aria-label="view payment pointer transactions"
@@ -169,7 +152,7 @@ export const WalletAddressRow = ({
             >
               View
             </Link>
-          )}
+          }
         </td>
         <td>
           <EditWalletAddress />
@@ -184,8 +167,7 @@ export const WalletAddressRow = ({
 
 export const WalletAddressesTable = ({
   account,
-  walletAddresses,
-  isWM
+  walletAddresses
 }: WalletAddressesTableProps) => {
   return (
     <div className="overflow-x-auto">
@@ -194,7 +176,6 @@ export const WalletAddressesTable = ({
           {walletAddresses.map((walletAddress, idx) => (
             <WalletAddressRow
               key={walletAddress.id}
-              isWM={isWM}
               idOnboarding={
                 account.assetCode === 'EUR' && idx === 0
                   ? 'viewTransactions'

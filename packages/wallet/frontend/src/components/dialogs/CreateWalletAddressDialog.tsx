@@ -13,18 +13,15 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { Checkbox } from '@/ui/forms/Checkbox'
 import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
-  isWebMonetization?: boolean
 }
 
 export const CreateWalletAddressDialog = ({
   onClose,
-  accountName,
-  isWebMonetization
+  accountName
 }: CreateWalletAddressDialogProps) => {
   const router = useRouter()
   const createWalletAddressForm = useZodForm({
@@ -34,7 +31,6 @@ export const CreateWalletAddressDialog = ({
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
   const accountId = router.query.accountId as string
-  const titleExtra = isWebMonetization ? 'Web Monetization' : ''
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -67,13 +63,12 @@ export const CreateWalletAddressDialog = ({
                   as="h3"
                   className="text-center text-2xl font-bold"
                 >
-                  Create {titleExtra} Payment Pointer
+                  Create Payment Pointer
                 </Dialog.Title>
                 <TemporaryWMNotice />
                 <Form
                   form={createWalletAddressForm}
                   onSubmit={async (data) => {
-                    data.isWM = isWebMonetization ? true : data.isWM
                     const response = await walletAddressService.create(
                       accountId,
                       data
@@ -129,14 +124,6 @@ export const CreateWalletAddressDialog = ({
                         ?.message
                     }
                     {...createWalletAddressForm.register('publicName')}
-                  />
-                  <Checkbox
-                    label="I want to use this payment pointer for Web Monetization"
-                    checked={isWebMonetization}
-                    onClick={(e) => {
-                      if (isWebMonetization) e.preventDefault()
-                    }}
-                    {...createWalletAddressForm.register('isWM')}
                   />
                   <div className="mt-5 flex justify-between">
                     <Button

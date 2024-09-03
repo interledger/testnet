@@ -16,11 +16,6 @@ export interface WalletAddressResponse extends IWalletAddressResponse {
   keys: WalletAddressKeyResponse[]
 }
 
-export interface ListWalletAddressesResponse {
-  wmWalletAddresses: Array<WalletAddressResponse>
-  walletAddresses: Array<WalletAddressResponse>
-}
-
 export type WalletAddressOP = AssetOP & {
   id: string
   publicName: string
