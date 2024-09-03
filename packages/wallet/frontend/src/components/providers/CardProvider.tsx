@@ -1,4 +1,4 @@
-import { CardContext } from '@/lib/context/card'
+import { CardContext, CardTypes } from '@/lib/context/card'
 import { ReactNode, useState } from 'react'
 
 type CardProviderProps = {
@@ -6,7 +6,7 @@ type CardProviderProps = {
 }
 
 export const CardProvider = ({ children }: CardProviderProps) => {
-  const [cardType, setCardType] = useState('normal')
+  const [cardType, setCardType] = useState('normal' as CardTypes)
 
   return (
     <CardContext.Provider

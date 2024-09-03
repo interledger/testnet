@@ -2,14 +2,7 @@ import { CopyButton } from '@/ui/CopyButton'
 import { NormalCard } from '../icons/NormalCard'
 import { DetailsCard } from '../icons/DetailsCard'
 import Image from 'next/image'
-
-const CARD_TYPES = {
-  normal: 'normal',
-  details: 'details',
-  frozen: 'frozen'
-} as const
-
-type CardTypes = keyof typeof CARD_TYPES
+import { CardTypes } from '@/lib/context/card'
 
 type UserCardProps = {
   type: CardTypes

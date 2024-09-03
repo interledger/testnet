@@ -6,7 +6,7 @@ const CARD_TYPES = {
   frozen: 'frozen'
 } as const
 
-type CardTypes = keyof typeof CARD_TYPES
+export type CardTypes = keyof typeof CARD_TYPES
 
 type CardContextProps = {
   cardType: CardTypes
