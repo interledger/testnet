@@ -16,7 +16,6 @@ import {
 } from '@/ui/Tooltip'
 import { copyToClipboard } from '@/ui/CopyButton'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { formatAmount } from '@/utils/helpers'
 
 interface WalletAddressesTableProps {
   account: Account

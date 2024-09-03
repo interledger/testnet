@@ -68,7 +68,7 @@ describe('Wallet Address Service', () => {
     }
   }
 
-  function prepareWSDepsMock(sumWS = 0n) {
+  function prepareWSDepsMock() {
     const waServiceDepsMocked = {
       accountService,
       env: serviceEnv,
