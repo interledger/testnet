@@ -1,12 +1,10 @@
 import { CreateWalletAddressDialog } from '@/components/dialogs/CreateWalletAddressDialog'
 import { FundAccountDialog } from '@/components/dialogs/FundAccountDialog'
 import { WithdrawFundsDialog } from '@/components/dialogs/WithdrawFundsDialog'
-import { Exchange } from '@/components/icons/Exchange'
 import { New } from '@/components/icons/New'
 import { Withdraw } from '@/components/icons/Withdraw'
 import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
-import { WalletAddressCard } from '@/components/cards/WalletAddressCard'
 import { Account, accountService } from '@/lib/api/account'
 import { walletAddressService } from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
@@ -25,6 +23,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { PageHeader } from '@/components/PageHeader'
 import { WalletAddressResponse } from '@wallet/shared'
+import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -124,16 +123,6 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
               Withdraw
             </span>
           </Link>
-          <Link
-            id="exchangeAsset"
-            href={`/exchange?assetCode=${account.assetCode}&assetScale=${account.assetScale}&id=${account.id}`}
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Exchange className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Exchange
-            </span>
-          </Link>
         </div>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold leading-none text-green">
@@ -142,17 +131,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </div>
         <div className="flex flex-col">
           {allWalletAddresses.length > 0 ? (
-            allWalletAddresses.map((walletAddress, index) => (
-              <WalletAddressCard
-                key={walletAddress.id}
-                walletAddress={walletAddress}
-                idOnboarding={
-                  account.assetCode === 'USD' && index === 0
-                    ? `viewTransactions`
-                    : ''
-                }
-              />
-            ))
+            <WalletAddressesTable
+              account={account}
+              walletAddresses={allWalletAddresses}
+            />
           ) : (
             <div className="flex items-center justify-center p-4 text-green">
               <span>No payment pointers found for this account.</span>
