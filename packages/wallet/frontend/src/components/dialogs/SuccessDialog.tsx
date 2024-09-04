@@ -71,7 +71,7 @@ export const SuccessDialog = ({
             >
               <Dialog.Panel
                 className={cx(
-                  'relative w-full space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-2 sm:p-8 shadow-xl',
+                  'relative w-full space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl',
                   size === 'xs' && 'max-w-xs',
                   size === 'lg' && 'max-w-lg'
                 )}

@@ -36,7 +36,7 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xs space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-2 sm:p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-xs space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <div>
                   {' '}
                   {theme.theme === 'dark' ? (
