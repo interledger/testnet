@@ -7,21 +7,21 @@ import { CardTypes } from '@/pages/card'
 type UserCardProps = {
   type: CardTypes
 }
-
+// ToDO - check adding cards as css, not as svg or overlay webp
 export const UserCard = ({ type }: UserCardProps) => {
   return (
     <div className="w-full h-52 items-center flex">
       {type === 'normal' ? (
         <>
-          <NormalCard className="-z-10 absolute" />
-          <span className="text-white uppercase relative top-[73px] left-[24px]">
+          <NormalCard className="absolute" />
+          <span className="text-white uppercase relative top-[73px] left-6">
             Timi Swift
           </span>
         </>
       ) : type === 'details' ? (
         <>
-          <DetailsCard className="-z-10 absolute" />
-          <div className="text-white uppercase relative top-[22px] left-[16px]">
+          <DetailsCard className="absolute" />
+          <div className="text-white uppercase relative top-[22px] left-4">
             <span>1234 5678 9012 3456</span>
             <CopyButton
               aria-label="copy key id"
@@ -45,12 +45,12 @@ export const UserCard = ({ type }: UserCardProps) => {
         </>
       ) : (
         <>
-          <NormalCard className="-z-10 absolute" />
-          <span className="text-white uppercase relative top-[73px] left-[24px] opacity-40">
+          <NormalCard className="absolute" />
+          <span className="text-white uppercase relative top-[73px] left-6 opacity-40 min-w-56">
             Timi Swift
           </span>
           <Image
-            className="object-contain -ml-[96px] opacity-70"
+            className="object-contain -ml-56 opacity-70"
             src="/frozen.webp"
             alt="Frozen"
             width={330}

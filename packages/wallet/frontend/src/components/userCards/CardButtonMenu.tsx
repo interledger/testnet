@@ -11,8 +11,9 @@ export const CardButtonMenu = ({
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
 
+  // ToDO revisit button layout shift, when clicking on butttons
   return (
-    <div className="flex gap-3 flex-row">
+    <div className="flex gap-x-3 justify-center items-center">
       <Button
         intent={isFrozen ? 'primary' : 'secondary'}
         aria-label="freeze"

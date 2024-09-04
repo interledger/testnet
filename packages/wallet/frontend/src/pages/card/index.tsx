@@ -16,7 +16,7 @@ export type CardTypes = keyof typeof CARD_TYPES
 function CardContainer() {
   const [state, setState] = useState<CardTypes>('normal')
   return (
-    <div className="flex flex-col gap-6 max-w-[329px] justify-center items-center">
+    <div className="space-y-6 max-w-[329px]">
       <UserCard type={state} />
       <CardButtonMenu fn={setState} />
     </div>
