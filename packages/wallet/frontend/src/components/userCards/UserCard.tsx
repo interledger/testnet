@@ -7,7 +7,7 @@ import { CardTypes } from '@/pages/card'
 type UserCardProps = {
   type: CardTypes
 }
-
+// ToDO - check adding cards as css, not as svg or overlay webp
 export const UserCard = ({ type }: UserCardProps) => {
   return (
     <div className="w-full h-52 items-center flex">
