@@ -1,5 +1,38 @@
 import { SVGProps } from 'react'
 
+export const Card = (props: SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      width="20"
+      height="16"
+      viewBox="0 0 20 16"
+      fill="none"
+      stroke="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M1 5H19"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7.57 9H5"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 15H4C2.343 15 1 13.657 1 12V4C1 2.343 2.343 1 4 1H16C17.657 1 19 2.343 19 4V12C19 13.657 17.657 15 16 15Z"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export const Snow = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
