@@ -21,6 +21,7 @@ import { Request } from './icons/Request'
 import { cn } from '@/utils/helpers'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useMenuContext } from '@/lib/context/menu'
+import { Card } from './icons/CardButtons'
 
 type MenuItemProps = {
   name: string
@@ -59,6 +60,12 @@ const menuItems: MenuItemProps[] = [
     href: '/grants',
     id: 'grants',
     Icon: Grant
+  },
+  {
+    name: 'Card',
+    href: '/card',
+    id: 'card',
+    Icon: Card
   },
   {
     name: 'Settings',
