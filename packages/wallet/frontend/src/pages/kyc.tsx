@@ -44,7 +44,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
 export const getServerSideProps: GetServerSideProps<{
   url: string
 }> = async (ctx) => {
-  const response = await userService.getBearerToken(
+  const response = await userService.getGateHubIframeSrc(
     { type: 'onboarding' },
     ctx.req.headers.cookie
   )

@@ -79,7 +79,7 @@ export const changePasswordSchema = z
     }
   })
 
-const getBearerTokenSchema = z.object({
+const getIframeSrcSchema = z.object({
   type: z.enum(['onboarding', 'ramp'])
 })
 
@@ -119,10 +119,10 @@ type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
 type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
 type ChangePasswordResponse = SuccessResponse | ChangePasswordError
 
-type GetBearerTokenArgs = z.infer<typeof getBearerTokenSchema>
-type GetBearerTokenResult = SuccessResponse<{ url: string }>
-type GetBearerTokenError = ErrorResponse<GetBearerTokenArgs | undefined>
-type GetBearerTokenResponse = GetBearerTokenResult | GetBearerTokenError
+type GetGateHubIframeSrcArgs = z.infer<typeof getIframeSrcSchema>
+type GetGateHubIframeSrcResult = SuccessResponse<{ url: string }>
+type GetGateHubIframeSrcError= ErrorResponse<GetGateHubIframeSrcArgs | undefined>
+type GetGateHubIframeSrcResponse = GetGateHubIframeSrcResult | GetGateHubIframeSrcError 
 
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
@@ -135,10 +135,10 @@ interface UserService {
   me: (cookies?: string) => Promise<MeResponse>
   updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
   changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
-  getBearerToken: (
-    args: GetBearerTokenArgs,
+  getGateHubIframeSrc: (
+    args: GetGateHubIframeSrcArgs,
     cookies?: string
-  ) => Promise<GetBearerTokenResponse>
+  ) => Promise<GetGateHubIframeSrcResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -300,7 +300,7 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async getBearerToken(args, cookies) {
+  async getGateHubIframeSrc(args, cookies) {
     try {
       const response = await httpClient
         .get(`gatehub/token/${args.type}`, {
@@ -308,10 +308,10 @@ const createUserService = (): UserService => ({
             ...(cookies ? { Cookie: cookies } : {})
           }
         })
-        .json<GetBearerTokenResult>()
+        .json<GetGateHubIframeSrcResult>()
       return response
     } catch (error) {
-      return getError<GetBearerTokenArgs>(
+      return getError<GetGateHubIframeSrcArgs>(
         error,
         // TODO: Better error message
         'Something went wrong. Please try again.'
