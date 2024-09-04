@@ -1,5 +1,4 @@
 import { CreateWalletAddressDialog } from '@/components/dialogs/CreateWalletAddressDialog'
-import { FundAccountDialog } from '@/components/dialogs/FundAccountDialog'
 import { New } from '@/components/icons/New'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { Account, accountService } from '@/lib/api/account'
@@ -30,6 +29,7 @@ import { ListWalletAddressesResponse } from '@wallet/shared/src'
 import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 import { WithdrawFundsDialog } from '@/components/dialogs/WithdrawFundsDialog'
 import { Withdraw } from '@/components/icons/Withdraw'
+import { Link } from '@/ui/Link'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -118,26 +118,16 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                   Add payment pointer
                 </span>
               </button>
-              <button
+              <Link
                 id="fund"
-                onClick={() => {
-                  if (isUserFirstTime) {
-                    setRunOnboarding(false)
-                  }
-                  openDialog(
-                    <FundAccountDialog
-                      account={account}
-                      onClose={closeDialog}
-                    />
-                  )
-                }}
+                href="/deposit"
                 className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
               >
                 <Request className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
                 <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-                  Add money
+                  Deposit
                 </span>
-              </button>
+              </Link>
               <button
                 id="withdraw"
                 onClick={() => {
