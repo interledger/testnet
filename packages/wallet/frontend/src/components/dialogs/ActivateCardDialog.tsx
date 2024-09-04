@@ -1,33 +1,21 @@
 import type { DialogProps } from '@/lib/types/dialog'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { Input } from '@/ui/forms/Input'
 import { Button } from '@/ui/Button'
-import { Account, accountService } from '@/lib/api/account'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from './ErrorDialog'
-import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
-import { useRouter } from 'next/router'
-import { useOnboardingContext } from '@/lib/context/onboarding'
 import { fundAccountSchema } from '@wallet/shared'
+import { UserCard } from '../userCards/UserCard'
 
-type FundAccountDialogProps = Pick<DialogProps, 'onClose'> & {
-  account: Account
-}
+type ActivateCardDialogProps = Pick<DialogProps, 'onClose'>
 
-export const FundAccountDialog = ({
-  onClose,
-  account
-}: FundAccountDialogProps) => {
-  const router = useRouter()
+export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
   const [openDialog, closeDialog] = useDialog()
-  const fundAccountForm = useZodForm({
+  const activateCardForm = useZodForm({
     schema: fundAccountSchema
   })
-  const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
-    useOnboardingContext()
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -59,69 +47,34 @@ export const FundAccountDialog = ({
                   as="h3"
                   className="text-center text-2xl font-bold"
                 >
-                  Add Money to Account
+                  Card Activation
                 </Dialog.Title>
                 <div className="px-4">
                   <Form
-                    form={fundAccountForm}
+                    form={activateCardForm}
                     onSubmit={async (data) => {
-                      const response = await accountService.fund(data)
+                      const response = { success: true }
 
                       if (!response) {
                         openDialog(
                           <ErrorDialog
                             onClose={closeDialog}
-                            content="Fund Account failed. Please try again."
+                            content="Card activation failed. Please try again."
                           />
                         )
                         return
                       }
 
                       if (response.success) {
-                        router.replace(router.asPath)
                         closeDialog()
-                        if (isUserFirstTime) {
-                          setStepIndex(stepIndex + 1)
-                          setRunOnboarding(true)
-                        }
-                      } else {
-                        const { errors, message } = response
-
-                        if (errors) {
-                          getObjectKeys(errors).map((field) =>
-                            fundAccountForm.setError(field, {
-                              message: errors[field]
-                            })
-                          )
-                        }
-                        if (message) {
-                          fundAccountForm.setError('root', { message })
-                        }
                       }
                     }}
                   >
-                    <Input
-                      disabled={true}
-                      value={account.name}
-                      error={
-                        fundAccountForm.formState.errors.accountId?.message
-                      }
-                      label="Account"
-                      readOnly
-                    />
-                    <input
-                      type="hidden"
-                      {...fundAccountForm.register('accountId')}
-                      value={account.id}
-                    />
-                    <Input
-                      required
-                      label="Amount"
-                      addOn={getCurrencySymbol(account.assetCode)}
-                      error={fundAccountForm.formState?.errors?.amount?.message}
-                      {...fundAccountForm.register('amount')}
-                      autoFocus
-                    />
+                    <div className="flex justify-center items-center flex-col gap-2">
+                      <UserCard type="normal" />
+                      Proceed with activation only if you have received the
+                      card, as it will be fully functional and payment ready.
+                    </div>
                     <div className="mt-5 flex justify-between">
                       <Button
                         intent="outline"
@@ -131,11 +84,11 @@ export const FundAccountDialog = ({
                         Cancel
                       </Button>
                       <Button
-                        aria-label="fund account"
+                        aria-label="confirm card activation"
                         type="submit"
-                        loading={fundAccountForm.formState.isSubmitting}
+                        loading={activateCardForm.formState.isSubmitting}
                       >
-                        Add money
+                        Confirm Activation
                       </Button>
                     </div>
                   </Form>

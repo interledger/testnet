@@ -59,7 +59,7 @@ export const EditWalletAddressDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-2 sm:p-8 shadow-xl">
                 <Dialog.Title
                   as="h3"
                   className="text-center text-2xl font-medium"

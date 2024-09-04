@@ -18,7 +18,7 @@ function CardContainer() {
   return (
     <div className="flex flex-col gap-6 max-w-[329px] justify-center items-center">
       <UserCard type={state} />
-      <CardButtonMenu fn={setState} />
+      <CardButtonMenu fn={setState} isActive={false} />
     </div>
   )
 }

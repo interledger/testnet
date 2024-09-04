@@ -65,7 +65,7 @@ export const QuoteDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
+              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-2 sm:p-8 shadow-xl dark:bg-purple">
                 <div className="flex flex-col text-center">
                   {theme.theme === 'dark' ? (
                     <PaperPlaneDark
