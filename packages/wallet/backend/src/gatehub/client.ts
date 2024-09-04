@@ -170,10 +170,18 @@ export class GateHubClient {
   private async request<T>(
     method: HTTP_METHODS,
     url: string,
-    body?: string
+    body?: string,
+    managedUserUuid?: string
   ): Promise<T> {
     const timestamp = Date.now().toString()
-    const headers = this.getRequestHeaders(timestamp, method, url, body ?? '')
+    const headers = this.getRequestHeaders(
+      timestamp,
+      method,
+      url,
+      body ?? '',
+      managedUserUuid
+    )
+
     try {
       const res = await axios<T>({
         method,
@@ -200,12 +208,15 @@ export class GateHubClient {
     timestamp: string,
     method: HTTP_METHODS,
     url: string,
-    body?: string
+    body?: string,
+    managedUserUuid?: string
   ) {
     return {
-      'x-gatehub-app-id': '',
+      'Content-Type': 'application/json',
+      'x-gatehub-app-id': this.env.GATEHUB_ACCESS_KEY,
       'x-gatehub-timestamp': timestamp,
-      'x-gatehub-signature': this.getSignature(timestamp, method, url, body)
+      'x-gatehub-signature': this.getSignature(timestamp, method, url, body),
+      ...(managedUserUuid && { 'x-gatehub-managed-user-uuid': managedUserUuid })
     }
   }
 
