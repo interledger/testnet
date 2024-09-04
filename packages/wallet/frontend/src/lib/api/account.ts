@@ -92,7 +92,7 @@ const createAccountService = (): AccountService => ({
         'We were not able to create your account. Please try again.'
       )
     }
-  },
+  }
 })
 
 const accountService = createAccountService()
