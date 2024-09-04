@@ -121,8 +121,12 @@ type ChangePasswordResponse = SuccessResponse | ChangePasswordError
 
 type GetGateHubIframeSrcArgs = z.infer<typeof getIframeSrcSchema>
 type GetGateHubIframeSrcResult = SuccessResponse<{ url: string }>
-type GetGateHubIframeSrcError= ErrorResponse<GetGateHubIframeSrcArgs | undefined>
-type GetGateHubIframeSrcResponse = GetGateHubIframeSrcResult | GetGateHubIframeSrcError 
+type GetGateHubIframeSrcError = ErrorResponse<
+  GetGateHubIframeSrcArgs | undefined
+>
+type GetGateHubIframeSrcResponse =
+  | GetGateHubIframeSrcResult
+  | GetGateHubIframeSrcError
 
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
