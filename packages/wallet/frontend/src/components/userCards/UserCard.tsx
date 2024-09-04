@@ -2,7 +2,7 @@ import { CopyButton } from '@/ui/CopyButton'
 import { NormalCard } from '../icons/NormalCard'
 import { DetailsCard } from '../icons/DetailsCard'
 import Image from 'next/image'
-import { CardTypes } from '@/lib/context/card'
+import { CardTypes } from '@/pages/card'
 
 type UserCardProps = {
   type: CardTypes
@@ -10,11 +10,11 @@ type UserCardProps = {
 
 export const UserCard = ({ type }: UserCardProps) => {
   return (
-    <div className="w-full h-52 items-center flex justify-center">
+    <div className="w-full h-52 items-center flex">
       {type === 'normal' ? (
         <>
           <NormalCard className="-z-10 absolute" />
-          <span className="text-white uppercase relative top-[73px] -left-[91px]">
+          <span className="text-white uppercase relative top-[73px] left-[24px]">
             Timi Swift
           </span>
         </>
@@ -50,7 +50,7 @@ export const UserCard = ({ type }: UserCardProps) => {
             Timi Swift
           </span>
           <Image
-            className="object-contain -ml-[95px] opacity-70"
+            className="object-contain -ml-[96px] opacity-70"
             src="/frozen.webp"
             alt="Frozen"
             width={330}

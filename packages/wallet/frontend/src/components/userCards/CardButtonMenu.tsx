@@ -1,21 +1,24 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
-import { useState } from 'react'
-import { useCardContext } from '@/lib/context/card'
+import { Dispatch, SetStateAction, useState } from 'react'
+import { CardTypes } from '@/pages/card'
 
-export const CardButtonMenu = () => {
+export const CardButtonMenu = ({
+  fn
+}: {
+  fn: Dispatch<SetStateAction<CardTypes>>
+}) => {
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
-  const { setCardType } = useCardContext()
 
   return (
-    <div className="flex gap-3 items-center flex-row">
+    <div className="flex gap-3 flex-row">
       <Button
         intent={isFrozen ? 'primary' : 'secondary'}
         aria-label="freeze"
         onClick={() => {
           setIsFrozen(!isFrozen)
-          isFrozen ? setCardType('normal') : setCardType('frozen')
+          isFrozen ? fn('normal') : fn('frozen')
         }}
       >
         <div className="flex gap-2 justify-center items-center">
@@ -29,7 +32,7 @@ export const CardButtonMenu = () => {
           intent={isDetailed ? 'primary' : 'secondary'}
           onClick={() => {
             setIsDetailed(!isDetailed)
-            isDetailed ? setCardType('normal') : setCardType('details')
+            isDetailed ? fn('normal') : fn('details')
           }}
         >
           <div className="flex gap-2 justify-center items-center">
