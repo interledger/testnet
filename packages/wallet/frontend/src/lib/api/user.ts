@@ -80,7 +80,7 @@ export const changePasswordSchema = z
   })
 
 const getBearerTokenSchema = z.object({
-    type: z.enum(['onboarding', 'ramp'])
+  type: z.enum(['onboarding', 'ramp'])
 })
 
 type SignUpArgs = z.infer<typeof signUpSchema>
@@ -120,7 +120,7 @@ type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
 type ChangePasswordResponse = SuccessResponse | ChangePasswordError
 
 type GetBearerTokenArgs = z.infer<typeof getBearerTokenSchema>
-type GetBearerTokenResult = SuccessResponse<{url: string}>
+type GetBearerTokenResult = SuccessResponse<{ url: string }>
 type GetBearerTokenError = ErrorResponse<GetBearerTokenArgs | undefined>
 type GetBearerTokenResponse = GetBearerTokenResult | GetBearerTokenError
 
@@ -135,7 +135,10 @@ interface UserService {
   me: (cookies?: string) => Promise<MeResponse>
   updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
   changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
-  getBearerToken: (args: GetBearerTokenArgs) => Promise<GetBearerTokenResponse>
+  getBearerToken: (
+    args: GetBearerTokenArgs,
+    cookies?: string
+  ) => Promise<GetBearerTokenResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -297,10 +300,14 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async getBearerToken(args) {
+  async getBearerToken(args, cookies) {
     try {
       const response = await httpClient
-        .get(`gatehub/token/${args.type}`)
+        .get(`gatehub/token/${args.type}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
         .json<GetBearerTokenResult>()
       return response
     } catch (error) {
