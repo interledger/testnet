@@ -52,7 +52,7 @@ export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
                 <div className="px-4">
                   <Form
                     form={activateCardForm}
-                    onSubmit={async (data) => {
+                    onSubmit={async () => {
                       const response = { success: true }
 
                       if (!response) {
