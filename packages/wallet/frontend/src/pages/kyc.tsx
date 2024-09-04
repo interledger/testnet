@@ -1,42 +1,68 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { userService } from '@/lib/api/user'
-import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import { useEffect } from 'react'
 
-type KYCPageProps = InferGetServerSidePropsType<
-  typeof getServerSideProps
->
+type KYCPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const KYCPage: NextPageWithLayout<PersonalDetailsProps> = ({
-  countries
-}) => {
-  const [openDialog, closeDialog] = useDialog()
-  const router = useRouter()
+const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
+  // const [openDialog, closeDialog] = useDialog()
+  // const router = useRouter()
+
+  useEffect(() => {
+    const onKYCComplete = (e: MessageEvent) => {
+      // TODO: Handle the received message from iframe
+      // https://docs.gatehub.net/api-documentation/c3OPAp5dM191CDAdwyYS/gatehub-products/gatehub-onboarding#message-events
+      console.log('received message from iframe', { e })
+    }
+    window.addEventListener('message', onKYCComplete, false)
+
+    return () => {
+      window.removeEventListener('message', onKYCComplete)
+    }
+  }, [])
 
   return (
     <>
       <h2 className="py-2 text-xl font-semibold text-green dark:text-pink-neon">
         Personal Details
       </h2>
+      {/* TODO: Styling */}
+      <iframe
+        src={url}
+        sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
+        scrolling="no"
+        frameBorder="0"
+        allow="camera;microphone"
+      ></iframe>
     </>
   )
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  token: string 
+  url: string
 }> = async (ctx) => {
-  const countries = await userService.getCountries(ctx.req.headers.cookie)
+  const response = await userService.getBearerToken(
+    { type: 'onboarding' },
+    ctx.req.headers.cookie
+  )
+
+  if (!response.success || !response.result) {
+    return {
+      notFound: true
+    }
+  }
+
   return {
     props: {
-      countries
+      url: response.result.url
     }
   }
 }
 
-PersonalDetailsPage.getLayout = function (page) {
+KYCPage.getLayout = function (page) {
   return (
     <AuthLayout image="People">
       <HeaderLogo header="Complete KYC" />
@@ -45,4 +71,4 @@ PersonalDetailsPage.getLayout = function (page) {
   )
 }
 
-export default PersonalDetailsPage
+export default KYCPage

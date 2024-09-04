@@ -210,7 +210,10 @@ interface UserService {
   resendVerifyEmail: (
     args: ResendVerificationEmailArgs
   ) => Promise<ResendVerificationEmailResponse>
-  getBearerToken: (args: GetBearerTokenArgs) => Promise<GetBearerTokenResponse>
+  getBearerToken: (
+    args: GetBearerTokenArgs,
+    cookies?: string
+  ) => Promise<GetBearerTokenResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -385,10 +388,14 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async getBearerToken(args) {
+  async getBearerToken(args, cookies) {
     try {
       const response = await httpClient
-        .get(`gatehub/token/${args.type}`)
+        .get(`gatehub/token/${args.type}`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
         .json<GetBearerTokenResult>()
       return response
     } catch (error) {
