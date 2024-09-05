@@ -29,9 +29,7 @@ describe('Wallet Address Service', () => {
 
   const prepareWADependencies = async (
     paymentPointerName: string,
-    isAccountAssigned = true,
-    assetCode?: string,
-    assetScale?: number
+    isAccountAssigned = true
   ) => {
     let extraAcc = {} as Account
     if (!isAccountAssigned)
@@ -57,9 +55,7 @@ describe('Wallet Address Service', () => {
       url: `${serviceEnv.OPEN_PAYMENTS_HOST}/${paymentPointerName}`,
       publicName: faker.string.alpha(10),
       accountId: isAccountAssigned ? account.id : extraAcc.id,
-      id: faker.string.uuid(),
-      assetCode: assetCode || undefined,
-      assetScale: assetScale || undefined
+      id: faker.string.uuid()
     })
 
     return {
