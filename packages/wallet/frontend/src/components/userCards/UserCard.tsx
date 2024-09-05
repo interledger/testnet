@@ -72,40 +72,42 @@ const UserCardFront = ({ name, isFrozen }: UserCardFrontProps) => {
 const UserCardBack = () => {
   return (
     <UserCardContainer>
-      <div className="bg-[#0046A5] -mx-5 mt-1 h-12" />
-      <div className="mt-auto space-y-6">
-        <div>
-          <p className="leading-3 text-xs font-medium opacity-50">
-            Card Number
-          </p>
-          <div className="flex items-center gap-x-3">
-            <p className="font-mono">4242 4242 4242 4242</p>
-            <CopyButton
-              aria-label="copy card number"
-              className="h-4 w-4 p-0"
-              copyType="card"
-              value="4242 4242 4242 4242"
-            />
-          </div>
-        </div>
-        <div className="flex gap-x-6">
+      <div className="flex flex-col h-full">
+        <div className="bg-[#0046A5] -mx-5 mt-1 h-12" />
+        <div className="mt-auto space-y-6">
           <div>
-            <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
-            <p className="font-mono">01/27</p>
-          </div>
-          <div>
-            <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
+            <p className="leading-3 text-xs font-medium opacity-50">
+              Card Number
+            </p>
             <div className="flex items-center gap-x-3">
-              <p className="font-mono">123</p>
+              <p className="font-mono">4242 4242 4242 4242</p>
               <CopyButton
-                aria-label="copy cvv"
+                aria-label="copy card number"
                 className="h-4 w-4 p-0"
                 copyType="card"
-                value="123"
+                value="4242 4242 4242 4242"
               />
             </div>
           </div>
-          <MasterCardLogo className="ml-auto" />
+          <div className="flex gap-x-6">
+            <div>
+              <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
+              <p className="font-mono">01/27</p>
+            </div>
+            <div>
+              <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
+              <div className="flex items-center gap-x-3">
+                <p className="font-mono">123</p>
+                <CopyButton
+                  aria-label="copy cvv"
+                  className="h-4 w-4 p-0"
+                  copyType="card"
+                  value="123"
+                />
+              </div>
+            </div>
+            <MasterCardLogo className="ml-auto" />
+          </div>
         </div>
       </div>
     </UserCardContainer>
