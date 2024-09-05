@@ -13,7 +13,6 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { OPEN_PAYMENTS_HOST } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { TemporaryWMNotice } from '../TemporaryWMNotice'
 
 type CreateWalletAddressDialogProps = Pick<DialogProps, 'onClose'> & {
   accountName: string
@@ -65,7 +64,6 @@ export const CreateWalletAddressDialog = ({
                 >
                   Create Payment Pointer
                 </Dialog.Title>
-                <TemporaryWMNotice />
                 <Form
                   form={createWalletAddressForm}
                   onSubmit={async (data) => {

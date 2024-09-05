@@ -125,7 +125,7 @@ export class WalletAddressService implements IWalletAddressService {
         accountId: args.accountId,
         id: rafikiWalletAddress.id,
         assetCode: account.assetCode,
-        assetScale: this.env.BASE_ASSET_SCALE
+        assetScale: account.assetScale
       })
 
       await this.cache.set(walletAddress.id, walletAddress, {

@@ -246,10 +246,7 @@ export class AccountService implements IAccountService {
       accountId: existingAccount.id,
       paymentId: transactions[transactions.length - 1].id,
       assetCode: existingAccount.assetCode,
-      value: transformBalance(
-        args.amount,
-        this.env.BASE_ASSET_SCALE || asset.scale
-      ),
+      value: transformBalance(args.amount, asset.scale),
       type: 'INCOMING',
       status: 'COMPLETED',
       description: 'Fund account'
@@ -310,8 +307,7 @@ export class AccountService implements IAccountService {
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
       (asset) =>
-        (asset.code === 'USD' && asset.scale === this.env.BASE_ASSET_SCALE) ||
-        undefined
+        asset.code === 'USD' && asset.scale === this.env.BASE_ASSET_SCALE
     )
     if (!asset) {
       return

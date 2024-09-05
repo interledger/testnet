@@ -29,7 +29,7 @@ type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  allWalletAddresses
+  walletAddresses
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const { accountsSnapshot } = useSnapshot(balanceState)
@@ -130,10 +130,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           </h3>
         </div>
         <div className="flex flex-col">
-          {allWalletAddresses.length > 0 ? (
+          {walletAddresses.length > 0 ? (
             <WalletAddressesTable
               account={account}
-              walletAddresses={allWalletAddresses}
+              walletAddresses={walletAddresses}
             />
           ) : (
             <div className="flex items-center justify-center p-4 text-green">
@@ -152,7 +152,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
-  allWalletAddresses: WalletAddressResponse[]
+  walletAddresses: WalletAddressResponse[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -183,7 +183,7 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       account: accountResponse.result,
-      allWalletAddresses: walletAddressesResponse.result
+      walletAddresses: walletAddressesResponse.result
     }
   }
 }
