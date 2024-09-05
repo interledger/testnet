@@ -26,7 +26,7 @@ const UserCardContainer = ({
   return (
     <div
       className={cn(
-        'relative text-white font-sans w-80 h-52 rounded-xl bg-[#0A6CF1] py-4 px-5 overflow-hidden',
+        'relative text-purple-dark font-sans w-80 h-52 rounded-xl bg-white shadow-[rgba(0,0,0,0.16)_0px_10px_36px_0px,rgba(0,0,0,0.06)_0px_0px_0px_1px] py-4 px-5 overflow-hidden',
         className
       )}
       {...props}
@@ -51,14 +51,14 @@ const UserCardFront = ({ name, isFrozen }: UserCardFrontProps) => {
         )}
       >
         <div className="flex justify-between text-sm items-center">
-          <GateHubLogo />
-          <span className="font-sans">debit</span>
+          <GateHubLogo className="opacity-50" />
+          <span className="font-sans opacity-50">debit</span>
         </div>
         <div className="ml-4 mt-5">
           <Chip />
         </div>
         <div className="flex mt-auto justify-between items-center">
-          <span className="uppercase">{name}</span>
+          <span className="uppercase opacity-50">{name}</span>
           <MasterCardLogo />
         </div>
       </div>
@@ -73,7 +73,7 @@ const UserCardBack = () => {
   return (
     <UserCardContainer>
       <div className="flex flex-col h-full">
-        <div className="bg-[#0046A5] -mx-5 mt-1 h-12" />
+        <div className="bg-purple-dark -mx-5 mt-1 h-12" />
         <div className="mt-auto space-y-6">
           <div>
             <p className="leading-3 text-xs font-medium opacity-50">
@@ -83,7 +83,7 @@ const UserCardBack = () => {
               <p className="font-mono">4242 4242 4242 4242</p>
               <CopyButton
                 aria-label="copy card number"
-                className="h-4 w-4 p-0"
+                className="h-4 w-4 p-0 opacity-50"
                 copyType="card"
                 value="4242 4242 4242 4242"
               />
@@ -100,7 +100,7 @@ const UserCardBack = () => {
                 <p className="font-mono">123</p>
                 <CopyButton
                   aria-label="copy cvv"
-                  className="h-4 w-4 p-0"
+                  className="h-4 w-4 p-0 opacity-50"
                   copyType="card"
                   value="123"
                 />
