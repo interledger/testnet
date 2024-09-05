@@ -1,6 +1,6 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { CardButtonMenu } from '@/components/userCards/CardButtonMenu'
+import { CardActions } from '@/components/userCards/UserCardActions'
 import { CardType, UserCard } from '@/components/userCards/UserCard'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useState } from 'react'
@@ -10,7 +10,7 @@ function CardContainer() {
   return (
     <div className="space-y-6 max-w-[329px]">
       <UserCard type={state} name="John Doe" />
-      <CardButtonMenu fn={setState} />
+      <CardActions fn={setState} />
     </div>
   )
 }
