@@ -6,10 +6,6 @@ export interface IWalletAddressResponse {
   url: string
   publicName: string
   accountId: string
-  incomingBalance: bigint
-  outgoingBalance: bigint
-  assetCode?: string | null
-  assetScale?: number | null
 }
 
 export interface WalletAddressResponse extends IWalletAddressResponse {

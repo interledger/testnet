@@ -26,8 +26,8 @@ export interface CreateWalletAddressArgs {
 
 export type GetWalletAddressArgs = {
   walletAddressId: string
-  accountId?: string
-  userId?: string
+  accountId: string
+  userId: string
 }
 
 export type WalletAddressList = {
@@ -123,9 +123,7 @@ export class WalletAddressService implements IWalletAddressService {
         url: rafikiWalletAddress.url,
         publicName: args.publicName,
         accountId: args.accountId,
-        id: rafikiWalletAddress.id,
-        assetCode: account.assetCode,
-        assetScale: account.assetScale
+        id: rafikiWalletAddress.id
       })
 
       await this.cache.set(walletAddress.id, walletAddress, {
@@ -156,31 +154,16 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   async getById(args: GetWalletAddressArgs): Promise<WalletAddress> {
-    const cacheHit = await this.cache.get(args.walletAddressId)
-    if (cacheHit) {
-      //* TODO: reset ttl
-      return cacheHit
-    }
+    await this.accountService.findAccountById(args.accountId, args.userId)
 
-    if (args.userId && args.accountId) {
-      await this.accountService.findAccountById(args.accountId, args.userId)
-    }
-
-    const query = WalletAddress.query()
+    const walletAddress = await WalletAddress.query()
       .findById(args.walletAddressId)
       .where('active', true)
-    if (args.accountId) {
-      query.where('accountId', args.accountId)
-    }
-    const walletAddress = await query
+      .where('accountId', args.accountId)
 
     if (!walletAddress) {
       throw new NotFound()
     }
-
-    await this.cache.set(walletAddress.id, walletAddress, {
-      expiry: 60
-    })
 
     return walletAddress
   }
