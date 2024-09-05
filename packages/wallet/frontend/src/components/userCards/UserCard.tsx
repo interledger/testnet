@@ -114,7 +114,6 @@ const UserCardBack = () => {
   )
 }
 
-// ToDO - check adding cards as css, not as svg or overlay webp
 export const UserCard = ({ type, name }: UserCardProps) => {
   return (
     <>
