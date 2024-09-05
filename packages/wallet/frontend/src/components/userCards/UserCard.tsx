@@ -96,16 +96,14 @@ const UserCardBack = () => {
             </div>
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
-              <div className="flex items-center gap-x-3">
-                <p className="font-mono">123</p>
-                <CopyButton
-                  aria-label="copy cvv"
-                  className="h-4 w-4 p-0 opacity-50"
-                  copyType="card"
-                  value="123"
-                />
-              </div>
+              <p className="font-mono">123</p>
             </div>
+            <CopyButton
+              aria-label="copy cvv"
+              className="mt-2.5 -ml-3 h-4 w-4 p-0 opacity-50"
+              copyType="card"
+              value="123"
+            />
             <MasterCardLogo className="ml-auto" />
           </div>
         </div>
