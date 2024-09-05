@@ -2,22 +2,63 @@ import { CopyButton } from '@/ui/CopyButton'
 import { NormalCard } from '../icons/NormalCard'
 import { DetailsCard } from '../icons/DetailsCard'
 import Image from 'next/image'
-import { CardTypes } from '@/pages/card'
+import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
+import type { ComponentProps } from 'react'
 
-type UserCardProps = {
-  type: CardTypes
+const CARD_TYPE = {
+  normal: 'normal',
+  details: 'details',
+  frozen: 'frozen'
+} as const
+
+export type CardType = keyof typeof CARD_TYPE
+
+interface UserCardProps {
+  type: CardType
+  name: string
+}
+
+export type UserCardContainerProps = ComponentProps<'div'>
+
+const UserCardContainer = ({ children, ...props }: UserCardContainerProps) => {
+  return (
+    <div
+      className="relative flex text-white font-sans flex-col w-80 h-52 rounded-xl bg-[#0A6CF1] py-4 px-5"
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
+
+interface UserCardFrontProps {
+  name: UserCardProps['name']
+}
+
+const UserCardFront = ({ name }: UserCardFrontProps) => {
+  return (
+    <UserCardContainer>
+      <div className="flex justify-between text-sm items-center">
+        <GateHubLogo />
+        <span className="font-sans">debit</span>
+      </div>
+      <div className="ml-4 mt-5">
+        <Chip />
+      </div>
+      <div className="flex mt-auto justify-between items-center">
+        <span className="uppercase">{name}</span>
+        <MasterCardLogo />
+      </div>
+    </UserCardContainer>
+  )
 }
 // ToDO - check adding cards as css, not as svg or overlay webp
 export const UserCard = ({ type }: UserCardProps) => {
+export const UserCard = ({ type, name }: UserCardProps) => {
   return (
     <div className="w-full h-52 items-center flex">
       {type === 'normal' ? (
-        <>
-          <NormalCard className="absolute" />
-          <span className="text-white uppercase relative top-[73px] left-6">
-            Timi Swift
-          </span>
-        </>
+        <UserCardFront name={name} />
       ) : type === 'details' ? (
         <>
           <DetailsCard className="absolute" />
