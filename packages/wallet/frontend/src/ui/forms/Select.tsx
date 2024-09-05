@@ -106,7 +106,7 @@ export const Select = <
           dropdownIndicator: () => 'p-1',
           input: () => 'disabled:text-gray-600',
           menu: () =>
-            'bg-white dark:bg-purple border dark:border-pink-light rounded-md my-1 shadow-md overflow-hidden',
+            'bg-white dark:bg-purple border dark:border-pink-light rounded-md my-1 shadow-md overflow-y-scroll',
           menuList: () => '',
           noOptionsMessage: () => 'text-gray-600 py-2 px-3',
           option: ({ isFocused, isSelected }) =>

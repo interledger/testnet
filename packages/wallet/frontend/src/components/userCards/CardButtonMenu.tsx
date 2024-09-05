@@ -2,6 +2,8 @@ import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { CardTypes } from '@/pages/card'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
 
 export const CardButtonMenu = ({
   fn
@@ -10,6 +12,7 @@ export const CardButtonMenu = ({
 }) => {
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
+  const [openDialog, closeDialog] = useDialog()
 
   // ToDO revisit button layout shift, when clicking on butttons
   return (
@@ -51,7 +54,13 @@ export const CardButtonMenu = ({
           </div>
         </Button>
       ) : (
-        <Button intent="danger" aria-label="terminate">
+        <Button
+          intent="danger"
+          aria-label="terminate"
+          onClick={() => {
+            openDialog(<TerminateCardDialog onClose={closeDialog} />)
+          }}
+        >
           <div className="flex gap-2 justify-center items-center">
             <Trash />
             Terminate
