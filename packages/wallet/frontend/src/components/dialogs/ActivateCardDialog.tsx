@@ -71,7 +71,7 @@ export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
                     }}
                   >
                     <div className="flex justify-center items-center flex-col gap-2">
-                      <UserCard type="normal" />
+                      <UserCard type="normal" name="John Doe" />
                       Proceed with activation only if you have received the
                       card, as it will be fully functional and payment ready.
                     </div>
