@@ -1,13 +1,14 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { Dispatch, SetStateAction, useState } from 'react'
-import { CardTypes } from '@/pages/card'
+import type { CardType } from './UserCard'
 
-export const CardButtonMenu = ({
-  fn
-}: {
-  fn: Dispatch<SetStateAction<CardTypes>>
-}) => {
+interface CardActionsProps {
+  fn: Dispatch<SetStateAction<CardType>>
+}
+
+// TODO: Better naming for the function
+export const CardActions = ({ fn }: CardActionsProps) => {
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
 
