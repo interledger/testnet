@@ -16,16 +16,16 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
-    "@tanstack/react-query": "^5.51.21",
+    "@tanstack/react-query": "^5.54.1",
     "@boutique/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "framer-motion": "^11.3.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.52.2",
+    "react-hook-form": "^7.53.0",
     "react-router-dom": "^6.26.1",
     "remix-params-helper": "^0.5.1",
-    "tailwind-merge": "^2.4.0",
+    "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^1.13.2",
     "zod": "^3.23.8"
@@ -37,9 +37,9 @@
     "@types/react-dom": "18.3.0",
     "@vitejs/plugin-react-swc": "^3.7.0",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.41",
-    "tailwindcss": "^3.4.7",
+    "postcss": "^8.4.44",
+    "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5"
+    "vite": "^5.4.3"
   }
 }

@@ -15,6 +15,8 @@ const envSchema = z.object({
   RAPYD_API: z.string().default('https://sandboxapi.rapyd.net/v1'),
   RAPYD_ACCESS_KEY: z.string().default('RAPYD_ACCESS_KEY'),
   RAPYD_SECRET_KEY: z.string().default('RAPYD_SECRET_KEY'),
+  GATEHUB_ACCESS_KEY: z.string().default('GATEHUB_ACCESS_KEY'),
+  GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   AUTH_GRAPHQL_ENDPOINT: z
     .string()
