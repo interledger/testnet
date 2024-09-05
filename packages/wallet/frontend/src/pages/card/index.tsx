@@ -1,24 +1,16 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { CardButtonMenu } from '@/components/userCards/CardButtonMenu'
-import { UserCard } from '@/components/userCards/UserCard'
+import { CardActions } from '@/components/userCards/UserCardActions'
+import { CardType, UserCard } from '@/components/userCards/UserCard'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useState } from 'react'
 
-const CARD_TYPES = {
-  normal: 'normal',
-  details: 'details',
-  frozen: 'frozen'
-} as const
-
-export type CardTypes = keyof typeof CARD_TYPES
-
 function CardContainer() {
-  const [state, setState] = useState<CardTypes>('normal')
+  const [state, setState] = useState<CardType>('normal')
   return (
     <div className="space-y-6 max-w-[329px]">
-      <UserCard type={state} />
-      <CardButtonMenu fn={setState} isActive={false} />
+      <UserCard type={state} name="John Doe" />
+      <CardActions fn={setState} isActive={false} />
     </div>
   )
 }

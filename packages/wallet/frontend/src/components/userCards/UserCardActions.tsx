@@ -1,16 +1,17 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { Dispatch, SetStateAction, useState } from 'react'
-import { CardTypes } from '@/pages/card'
 import { ActivateCardDialog } from '../dialogs/ActivateCardDialog'
+import type { CardType } from './UserCard'
 import { useDialog } from '@/lib/hooks/useDialog'
 
-type CardButtonMenuProps = {
-  fn: Dispatch<SetStateAction<CardTypes>>
+interface CardActionsProps {
+  fn: Dispatch<SetStateAction<CardType>>
   isActive: boolean
 }
 
-export const CardButtonMenu = ({ fn, isActive }: CardButtonMenuProps) => {
+// TODO: Better naming for the function
+export const CardActions = ({ fn, isActive }: CardActionsProps) => {
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
   const [openDialog, closeDialog] = useDialog()
