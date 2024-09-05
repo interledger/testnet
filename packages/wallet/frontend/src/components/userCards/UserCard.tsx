@@ -1,9 +1,7 @@
-import { CopyButton } from '@/ui/CopyButton'
-import { NormalCard } from '../icons/NormalCard'
-import { DetailsCard } from '../icons/DetailsCard'
 import Image from 'next/image'
-import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import type { ComponentProps } from 'react'
+import { CopyButton } from '@/ui/CopyButton'
+import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 
 const CARD_TYPE = {
   normal: 'normal',
@@ -52,41 +50,60 @@ const UserCardFront = ({ name }: UserCardFrontProps) => {
     </UserCardContainer>
   )
 }
+
+const UserCardBack = () => {
+  return (
+    <UserCardContainer>
+      <div className="bg-[#0046A5] -mx-5 mt-1 h-12" />
+      <div className="mt-auto space-y-6">
+        <div>
+          <p className="leading-3 text-xs font-medium opacity-50">
+            Card Number
+          </p>
+          <div className="flex items-center gap-x-3">
+            <p className="font-mono">4242 4242 4242 4242</p>
+            <CopyButton
+              aria-label="copy card number"
+              className="h-4 w-4 p-0"
+              copyType="card"
+              value="4242 4242 4242 4242"
+            />
+          </div>
+        </div>
+        <div className="flex gap-x-6">
+          <div>
+            <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
+            <p className="font-mono">01/27</p>
+          </div>
+          <div>
+            <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
+            <div className="flex items-center gap-x-3">
+              <p className="font-mono">123</p>
+              <CopyButton
+                aria-label="copy cvv"
+                className="h-4 w-4 p-0"
+                copyType="card"
+                value="123"
+              />
+            </div>
+          </div>
+          <MasterCardLogo className="ml-auto" />
+        </div>
+      </div>
+    </UserCardContainer>
+  )
+}
+
 // ToDO - check adding cards as css, not as svg or overlay webp
-export const UserCard = ({ type }: UserCardProps) => {
 export const UserCard = ({ type, name }: UserCardProps) => {
   return (
-    <div className="w-full h-52 items-center flex">
+    <>
       {type === 'normal' ? (
         <UserCardFront name={name} />
       ) : type === 'details' ? (
-        <>
-          <DetailsCard className="absolute" />
-          <div className="text-white uppercase relative top-[22px] left-4">
-            <span>1234 5678 9012 3456</span>
-            <CopyButton
-              aria-label="copy key id"
-              className="h-5 w-5"
-              copyType="card"
-              value="1234 5678 9012 3456"
-            />
-          </div>
-          <span className="text-white uppercase relative top-[77px] -left-[194px]">
-            09/30
-          </span>
-          <span className="text-white uppercase relative top-[74px] -left-[174px]">
-            999
-            <CopyButton
-              aria-label="copy key id"
-              className="h-5 w-5"
-              copyType="card"
-              value="999"
-            />
-          </span>
-        </>
+        <UserCardBack />
       ) : (
         <>
-          <NormalCard className="absolute" />
           <span className="text-white uppercase relative top-[73px] left-6 opacity-40 min-w-56">
             Timi Swift
           </span>
@@ -99,6 +116,6 @@ export const UserCard = ({ type, name }: UserCardProps) => {
           />
         </>
       )}
-    </div>
+    </>
   )
 }
