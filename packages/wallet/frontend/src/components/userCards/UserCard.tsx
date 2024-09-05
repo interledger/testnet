@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import type { ComponentProps } from 'react'
 import { CopyButton } from '@/ui/CopyButton'
 import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
+import { cn } from '@/utils/helpers'
 
 const CARD_TYPE = {
   normal: 'normal',
@@ -18,10 +18,17 @@ interface UserCardProps {
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
-const UserCardContainer = ({ children, ...props }: UserCardContainerProps) => {
+const UserCardContainer = ({
+  children,
+  className,
+  ...props
+}: UserCardContainerProps) => {
   return (
     <div
-      className="relative flex text-white font-sans flex-col w-80 h-52 rounded-xl bg-[#0A6CF1] py-4 px-5"
+      className={cn(
+        'relative text-white font-sans w-80 h-52 rounded-xl bg-[#0A6CF1] py-4 px-5 overflow-hidden',
+        className
+      )}
       {...props}
     >
       {children}
@@ -31,22 +38,33 @@ const UserCardContainer = ({ children, ...props }: UserCardContainerProps) => {
 
 interface UserCardFrontProps {
   name: UserCardProps['name']
+  isFrozen: boolean
 }
 
-const UserCardFront = ({ name }: UserCardFrontProps) => {
+const UserCardFront = ({ name, isFrozen }: UserCardFrontProps) => {
   return (
     <UserCardContainer>
-      <div className="flex justify-between text-sm items-center">
-        <GateHubLogo />
-        <span className="font-sans">debit</span>
+      <div
+        className={cn(
+          'flex flex-col h-full',
+          isFrozen ? 'select-none pointer-events-none blur' : ''
+        )}
+      >
+        <div className="flex justify-between text-sm items-center">
+          <GateHubLogo />
+          <span className="font-sans">debit</span>
+        </div>
+        <div className="ml-4 mt-5">
+          <Chip />
+        </div>
+        <div className="flex mt-auto justify-between items-center">
+          <span className="uppercase">{name}</span>
+          <MasterCardLogo />
+        </div>
       </div>
-      <div className="ml-4 mt-5">
-        <Chip />
-      </div>
-      <div className="flex mt-auto justify-between items-center">
-        <span className="uppercase">{name}</span>
-        <MasterCardLogo />
-      </div>
+      {isFrozen ? (
+        <div className="absolute inset-0 z-10 bg-[url('/frozen.webp')] bg-cover bg-center opacity-50" />
+      ) : null}
     </UserCardContainer>
   )
 }
@@ -98,24 +116,14 @@ const UserCardBack = () => {
 export const UserCard = ({ type, name }: UserCardProps) => {
   return (
     <>
-      {type === 'normal' ? (
-        <UserCardFront name={name} />
+      {type === 'normal' || type === 'frozen' ? (
+        <UserCardFront
+          name={name}
+          isFrozen={type === 'frozen' ? true : false}
+        />
       ) : type === 'details' ? (
         <UserCardBack />
-      ) : (
-        <>
-          <span className="text-white uppercase relative top-[73px] left-6 opacity-40 min-w-56">
-            Timi Swift
-          </span>
-          <Image
-            className="object-contain -ml-56 opacity-70"
-            src="/frozen.webp"
-            alt="Frozen"
-            width={330}
-            height={120}
-          />
-        </>
-      )}
+      ) : null}
     </>
   )
 }
