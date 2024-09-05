@@ -79,7 +79,7 @@ export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
                     }}
                   >
                     <div className="flex justify-center items-center flex-col gap-2">
-                      <UserCard type="normal" />
+                      <UserCard type="normal" name="John Doe" />
                       You won&apos;t be able to use this card again. Any
                       deposits, such as car rental or hotel reservation deposits
                       will also be canceled.
