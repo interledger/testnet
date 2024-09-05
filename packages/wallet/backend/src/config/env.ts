@@ -34,7 +34,6 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
-  BASE_ASSET_SCALE: z.coerce.number().nonnegative().default(2),
   DEFAULT_WALLET_ACCOUNT: z
     .object({
       email: z.string().default('dev@email.com'),

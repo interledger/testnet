@@ -6,7 +6,7 @@ import { transformBalance } from '@/utils/helpers'
 import { Transaction } from '@/transaction/model'
 import { Amount } from '@/rafiki/service'
 import { Conflict, NotFound } from '@shared/backend'
-import { Env } from '@/config/env'
+import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
 
 type CreateAccountArgs = {
   userId: string
@@ -39,8 +39,7 @@ interface IAccountService {
 export class AccountService implements IAccountService {
   constructor(
     private rapydClient: RapydClient,
-    private rafikiClient: RafikiClient,
-    private env: Env
+    private rafikiClient: RafikiClient
   ) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
@@ -306,8 +305,7 @@ export class AccountService implements IAccountService {
     name = 'USD Account'
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
-      (asset) =>
-        asset.code === 'USD' && asset.scale === this.env.BASE_ASSET_SCALE
+      (asset) => asset.code === 'USD' && asset.scale === DEFAULT_ASSET_SCALE
     )
     if (!asset) {
       return

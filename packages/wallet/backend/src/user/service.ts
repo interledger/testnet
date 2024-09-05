@@ -10,6 +10,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { BadRequest, Conflict } from '@shared/backend'
 import { KratosService } from '@/rafiki/kratos.service'
+import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
 
 interface CreateUserArgs {
   email: string
@@ -131,10 +132,9 @@ export class UserService implements IUserService {
 
     const asset = await this.rafikiClient.getRafikiAsset(
       'USD',
-      this.env.BASE_ASSET_SCALE
+      DEFAULT_ASSET_SCALE
     )
-    if (!asset)
-      await this.rafikiClient.createAsset('USD', this.env.BASE_ASSET_SCALE)
+    if (!asset) await this.rafikiClient.createAsset('USD', DEFAULT_ASSET_SCALE)
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
