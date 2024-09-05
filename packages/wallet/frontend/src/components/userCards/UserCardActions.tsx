@@ -8,9 +8,7 @@ interface CardActionsProps {
 }
 
 // TODO: Better naming for the function
-export const CardActions = ({
-  fn
-}: CardActionsProps) => {
+export const CardActions = ({ fn }: CardActionsProps) => {
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
 
