@@ -1,12 +1,12 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { Dispatch, SetStateAction, useState } from 'react'
-import { CardTypes } from '@/pages/card'
+import type { CardType } from './UserCard'
 
 export const CardButtonMenu = ({
   fn
 }: {
-  fn: Dispatch<SetStateAction<CardTypes>>
+  fn: Dispatch<SetStateAction<CardType>>
 }) => {
   const [isDetailed, setIsDetailed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
