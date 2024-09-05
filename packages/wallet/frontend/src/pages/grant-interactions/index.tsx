@@ -52,8 +52,8 @@ const GrantInteractionPage = ({
   }
 
   return isPendingGrant ? (
-    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
-      <div className="rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
+    <div className="col-span-full m-auto my-28 px-5 text-center md:px-0">
+      <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
           src={imageName}
@@ -100,8 +100,8 @@ const GrantInteractionPage = ({
       </div>
     </div>
   ) : (
-    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
-      <div className="rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
+    <div className="col-span-full m-auto my-28 px-5 text-center md:px-0">
+      <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
           src={imageName}
