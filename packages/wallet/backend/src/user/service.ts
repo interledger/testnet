@@ -73,7 +73,7 @@ export class UserService implements IUserService {
 
     const resetToken = getRandomToken()
     const passwordResetToken = hashToken(resetToken)
-    const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+    const passwordResetExpiresAt = new Date(Date.now() + 8 * 3600 * 1000)
 
     await User.query()
       .findById(user.id)
