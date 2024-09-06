@@ -71,6 +71,7 @@ export const FrozenCardActions = () => {
 const DefaultCardActions = () => {
   const router = useRouter()
   const { showDetails, setShowDetails } = useCardContext()
+
   return (
     <>
       <div className="flex flex-col gap-y-4">
@@ -136,7 +137,7 @@ const DefaultCardActions = () => {
   )
 }
 
-export const CardActions = () => {
+export const UserCardActions = () => {
   const { card } = useCardContext()
 
   return (
