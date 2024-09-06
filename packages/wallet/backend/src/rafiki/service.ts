@@ -8,9 +8,7 @@ import { UserService } from '@/user/service'
 import { SocketService } from '@/socket/service'
 import { NodeCacheInstance } from '@/utils/helpers'
 import { WalletAddressService } from '@/walletAddress/service'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Account } from '@/account/model'
-import { WMTransaction } from '@/webMonetization/transaction/model'
 import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 
@@ -84,8 +82,7 @@ export class RafikiService implements IRafikiService {
     private logger: Logger,
     private rafikiClient: RafikiClient,
     private transactionService: TransactionService,
-    private walletAddressService: WalletAddressService,
-    private wmTransactionService: WMTransactionService
+    private walletAddressService: WalletAddressService
   ) {}
 
   public async onWebHook(wh: WebHook): Promise<void> {
@@ -167,26 +164,19 @@ export class RafikiService implements IRafikiService {
     return amount
   }
 
-  private amountToNumber(amount: Amount): number {
-    return +(Number(amount.value) * 10 ** -amount.assetScale).toFixed(
-      amount.assetScale
-    )
+  private amountToNumber(
+    amount: Amount,
+    toAssetScale: number = amount.assetScale
+  ): number {
+    const factor = 10 ** toAssetScale
+    const scaledValue = Number(amount.value) * 10 ** -amount.assetScale
+    const truncatedValue = Math.floor(scaledValue * factor) / factor
+    return truncatedValue
   }
 
   private async handleIncomingPaymentCompleted(wh: WebHook) {
     const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebHook(wh)
-
-    if (walletAddress.isWM) {
-      await this.rafikiClient.withdrawLiqudity(wh.id)
-
-      await this.wmTransactionService.updateTransaction(
-        { paymentId: wh.data.id },
-        { status: 'COMPLETED', value: amount.value }
-      )
-
-      return
-    }
 
     const receiverWalletId = await this.getRapydWalletId(walletAddress)
 
@@ -246,12 +236,6 @@ export class RafikiService implements IRafikiService {
   private async handleIncomingPaymentCreated(wh: WebHook) {
     const walletAddress = await this.getWalletAddress(wh)
 
-    if (walletAddress.isWM) {
-      await this.wmTransactionService.createIncomingTransaction(wh.data)
-
-      return
-    }
-
     await this.transactionService.createIncomingTransaction(
       wh.data,
       walletAddress
@@ -261,12 +245,6 @@ export class RafikiService implements IRafikiService {
   private async handleOutgoingPaymentCreated(wh: WebHook) {
     const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebHook(wh)
-
-    if (walletAddress.isWM) {
-      await this.rafikiClient.depositLiquidity(wh.id)
-      await this.wmTransactionService.createOutgoingTransaction(wh.data)
-      return
-    }
 
     const rapydWalletId = await this.getRapydWalletId(walletAddress)
 
@@ -303,17 +281,6 @@ export class RafikiService implements IRafikiService {
   private async handleOutgoingPaymentCompleted(wh: WebHook) {
     const walletAddress = await this.getWalletAddress(wh)
     const debitAmount = this.getAmountFromWebHook(wh)
-
-    if (walletAddress.isWM) {
-      await this.rafikiClient.withdrawLiqudity(wh.id)
-
-      await this.wmTransactionService.updateTransaction(
-        { paymentId: wh.data.id },
-        { status: 'COMPLETED', value: debitAmount.value }
-      )
-
-      return
-    }
 
     const source_ewallet = await this.getRapydWalletId(walletAddress)
 
@@ -375,20 +342,6 @@ export class RafikiService implements IRafikiService {
     }
 
     const sentAmount = this.parseAmount(wh.data.sentAmount as AmountJSON)
-
-    if (walletAddress.isWM) {
-      await this.rafikiClient.withdrawLiqudity(wh.id)
-
-      const update: Partial<WMTransaction> = sentAmount.value
-        ? { status: 'COMPLETED', value: sentAmount.value }
-        : { status: 'FAILED', value: 0n }
-      await this.wmTransactionService.updateTransaction(
-        { paymentId: wh.data.id },
-        update
-      )
-
-      return
-    }
 
     const source_ewallet = await this.getRapydWalletId(walletAddress)
 
