@@ -3,18 +3,17 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { ErrorDialog } from './ErrorDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
-import { UserCard } from '../userCards/UserCard'
+import { UserCardFront } from '../userCards/UserCard'
 import { Controller } from 'react-hook-form'
 import { Select, SelectOption } from '@/ui/forms/Select'
-import { terminateCardSchema } from '@/lib/api/card'
+import { cardServiceMock, terminateCardSchema } from '@/lib/api/card'
 
 type TerminateCardDialogProps = Pick<DialogProps, 'onClose'>
 
 export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
-  const [openDialog, closeDialog] = useDialog()
+  const [closeDialog] = useDialog()
   const terminateCardForm = useZodForm({
     schema: terminateCardSchema
   })
@@ -61,25 +60,21 @@ export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
                   <Form
                     form={terminateCardForm}
                     onSubmit={async () => {
-                      const response = { success: true }
+                      const response = await cardServiceMock.terminate()
 
-                      if (!response) {
-                        openDialog(
-                          <ErrorDialog
-                            onClose={closeDialog}
-                            content="Card termination failed. Please try again."
-                          />
+                      if (!response.success) {
+                        console.error(
+                          '[TODO] UPDATE ME - error while terminating card'
                         )
-                        return
                       }
 
                       if (response.success) {
-                        closeDialog()
+                        closeDialog
                       }
                     }}
                   >
                     <div className="flex justify-center items-center flex-col gap-2">
-                      <UserCard type="normal" name="John Doe" />
+                      <UserCardFront />
                       You won&apos;t be able to use this card again. Any
                       deposits, such as car rental or hotel reservation deposits
                       will also be canceled.

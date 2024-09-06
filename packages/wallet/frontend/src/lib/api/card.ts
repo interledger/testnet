@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   getError,
   httpClient,
@@ -13,6 +14,15 @@ export interface IUserCard {
   cvv: number
   isFrozen: boolean
 }
+
+export const terminateCardSchema = z.object({
+  reason: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
 
 type GetDetailsResponse = SuccessResponse<IUserCard>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse

@@ -26,7 +26,7 @@ const UserCardContainer = ({
   )
 }
 
-const UserCardFront = () => {
+export const UserCardFront = () => {
   const { card } = useCardContext()
   return (
     <UserCardContainer>

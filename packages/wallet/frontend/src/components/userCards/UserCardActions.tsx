@@ -4,9 +4,12 @@ import { useCardContext } from './UserCardContext'
 import { cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
 import { Cog } from '../icons/Cog'
+import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
+import { useDialog } from '@/lib/hooks/useDialog'
 
 export const FrozenCardActions = () => {
   const router = useRouter()
+  const [openDialog, closeDialog] = useDialog()
 
   return (
     <>
@@ -47,15 +50,7 @@ export const FrozenCardActions = () => {
             // We will probably have a lot more dialogs for card settings
             // and using dialogs again for showing the response might be a bit
             // cumbersome.
-            const response = await cardServiceMock.terminate()
-
-            if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while terminating card')
-            }
-
-            if (response.success) {
-              router.replace(router.asPath)
-            }
+            openDialog(<TerminateCardDialog onClose={closeDialog} />)
           }}
         >
           <div className="flex gap-2 justify-center items-center">
