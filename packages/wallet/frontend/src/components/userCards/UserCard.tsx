@@ -4,6 +4,7 @@ import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
 import type { IUserCard } from '@/lib/api/card'
 import { useCardContext, UserCardContext } from './UserCardContext'
+import { CardActions } from './UserCardActions'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -110,6 +111,7 @@ export const UserCard = ({ card }: UserCardProps) => {
       {card.isFrozen ? <UserCardFront /> : null}
       {!card.isFrozen && showDetails ? <UserCardBack /> : null}
       {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
+      <CardActions />
     </UserCardContext.Provider>
   )
 }

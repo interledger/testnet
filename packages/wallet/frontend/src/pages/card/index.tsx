@@ -1,9 +1,9 @@
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { TemporaryCardData, UserCard } from '@/components/userCards/UserCard'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { cardServiceMock, IUserCard } from '@/lib/api/card'
+import { UserCard } from '@/components/userCards/UserCard'
 
 type UserCardPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
