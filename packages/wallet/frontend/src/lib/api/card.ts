@@ -10,7 +10,7 @@ export interface IUserCard {
   name: string
   number: string
   expiry: string
-  cvv: number 
+  cvv: number
   isFrozen: boolean
 }
 
