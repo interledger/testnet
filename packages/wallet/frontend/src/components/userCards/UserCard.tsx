@@ -26,7 +26,7 @@ const UserCardContainer = ({
   )
 }
 
-const UserCardFront = () => {
+export const UserCardFront = () => {
   const { card } = useCardContext()
   return (
     <UserCardContainer>
@@ -108,9 +108,12 @@ export const UserCard = ({ card }: UserCardProps) => {
 
   return (
     <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
-      {card.isFrozen ? <UserCardFront /> : null}
-      {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-      {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
+      {!card.isActive ? <UserCardFront /> : null}
+      {card.isActive && card.isFrozen ? <UserCardFront /> : null}
+      {card.isActive && !card.isFrozen && showDetails ? <UserCardBack /> : null}
+      {card.isActive && !card.isFrozen && !showDetails ? (
+        <UserCardFront />
+      ) : null}
       <UserCardActions />
     </UserCardContext.Provider>
   )

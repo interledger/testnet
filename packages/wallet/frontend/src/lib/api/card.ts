@@ -12,10 +12,13 @@ export interface IUserCard {
   expiry: string
   cvv: number
   isFrozen: boolean
+  isActive: boolean
 }
 
 type GetDetailsResponse = SuccessResponse<IUserCard>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
+
+type ActivateCardResult = SuccessResponse<boolean> | ErrorResponse
 
 type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
 
@@ -29,6 +32,7 @@ type ChangePinResult = SuccessResponse | ErrorResponse
 
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
+  activate(): Promise<ActivateCardResult>
   terminate(): Promise<TerminateCardResult>
   freeze(): Promise<FreezeResult>
   unfreeze(): Promise<UnfreezeResult>
@@ -46,6 +50,17 @@ const createCardService = (): UserCardService => ({
           }
         })
         .json<GetDetailsResponse>()
+      return response
+    } catch (error) {
+      return getError(error, '[TODO] UPDATE ME!')
+    }
+  },
+
+  async activate() {
+    try {
+      const response = await httpClient
+        .post('card/activate')
+        .json<SuccessResponse>()
       return response
     } catch (error) {
       return getError(error, '[TODO] UPDATE ME!')
@@ -118,8 +133,17 @@ const mock = (): UserCardService => ({
         number: '4242 4242 4242 4242',
         expiry: '01/27',
         cvv: 321,
-        isFrozen: Math.random() > 0.5 ? true : false
+        isFrozen: Math.random() > 0.5 ? true : false,
+        isActive: false
       }
+    })
+  },
+
+  async activate() {
+    return Promise.resolve({
+      success: true,
+      message: 'Mocked activate',
+      result: true
     })
   },
 

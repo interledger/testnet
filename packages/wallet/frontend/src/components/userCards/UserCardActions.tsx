@@ -4,6 +4,30 @@ import { useCardContext } from './UserCardContext'
 import { cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
 import { Cog } from '../icons/Cog'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { ActivateCardDialog } from '../dialogs/ActivateCardDialog'
+import { cx } from 'class-variance-authority'
+
+export const ActivateCardAction = () => {
+  const [openDialog, closeDialog] = useDialog()
+
+  return (
+    <Button
+      intent="primary"
+      aria-label="activate"
+      onClick={async () => {
+        // Maybe use toats for showcasing the result of the api calls,
+        // specifically for card actions?
+        // We will probably have a lot more dialogs for card settings
+        // and using dialogs again for showing the response might be a bit
+        // cumbersome.
+        openDialog(<ActivateCardDialog onClose={closeDialog} />)
+      }}
+    >
+      Activate Card
+    </Button>
+  )
+}
 
 export const FrozenCardActions = () => {
   const router = useRouter()
@@ -141,8 +165,19 @@ export const UserCardActions = () => {
   const { card } = useCardContext()
 
   return (
-    <div className="grid grid-cols-3 gap-x-3">
-      {card.isFrozen ? <FrozenCardActions /> : <DefaultCardActions />}
+    <div
+      className={cx(
+        'grid',
+        card.isActive ? 'grid-cols-3 gap-x-3' : 'grid-cols-1'
+      )}
+    >
+      {!card.isActive ? (
+        <ActivateCardAction />
+      ) : card.isFrozen ? (
+        <FrozenCardActions />
+      ) : (
+        <DefaultCardActions />
+      )}
     </div>
   )
 }

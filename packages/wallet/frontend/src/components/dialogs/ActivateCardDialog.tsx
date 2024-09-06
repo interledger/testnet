@@ -3,16 +3,16 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { ErrorDialog } from './ErrorDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { fundAccountSchema } from '@wallet/shared'
-import { UserCard } from '../userCards/UserCard'
+import { UserCardFront } from '../userCards/UserCard'
+import { cardServiceMock } from '@/lib/api/card'
 
 type ActivateCardDialogProps = Pick<DialogProps, 'onClose'>
 
 export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
-  const [openDialog, closeDialog] = useDialog()
+  const [closeDialog] = useDialog()
   const activateCardForm = useZodForm({
     schema: fundAccountSchema
   })
@@ -53,25 +53,21 @@ export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
                   <Form
                     form={activateCardForm}
                     onSubmit={async () => {
-                      const response = { success: true }
+                      const response = await cardServiceMock.activate()
 
-                      if (!response) {
-                        openDialog(
-                          <ErrorDialog
-                            onClose={closeDialog}
-                            content="Card activation failed. Please try again."
-                          />
+                      if (!response.success) {
+                        console.error(
+                          '[TODO] UPDATE ME - error while activating card'
                         )
-                        return
                       }
 
                       if (response.success) {
-                        closeDialog()
+                        closeDialog
                       }
                     }}
                   >
                     <div className="flex justify-center items-center flex-col gap-2">
-                      <UserCard type="normal" name="John Doe" />
+                      <UserCardFront />
                       Proceed with activation only if you have received the
                       card, as it will be fully functional and payment ready.
                     </div>
