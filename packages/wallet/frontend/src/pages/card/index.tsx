@@ -14,6 +14,7 @@ function CardContainer() {
     </div>
   )
 }
+
 const UserCardPage: NextPageWithLayout = () => {
   return (
     <>

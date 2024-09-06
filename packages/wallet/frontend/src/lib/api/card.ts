@@ -10,18 +10,18 @@ export interface IUserCard {
   name: string
   number: string
   expiry: string
-  cvv: string
+  cvv: number 
   isFrozen: boolean
 }
 
 type GetDetailsResponse = SuccessResponse<IUserCard>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
-type TerminateCardResult = SuccessResponse | ErrorResponse
+type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
 
-type FreezeResult = SuccessResponse | ErrorResponse
+type FreezeResult = SuccessResponse<boolean> | ErrorResponse
 
-type UnfreezeResult = SuccessResponse | ErrorResponse
+type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
 
 type UpdateSpendingLimitResult = SuccessResponse | ErrorResponse
 
@@ -48,10 +48,7 @@ const createCardService = (): UserCardService => ({
         .json<GetDetailsResponse>()
       return response
     } catch (error) {
-      return getError(
-        error,
-        '[TODO] UPDATE ME!'
-      )
+      return getError(error, '[TODO] UPDATE ME!')
     }
   },
 
@@ -62,10 +59,7 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(
-        error,
-        '[TODO] UPDATE ME!'
-      )
+      return getError(error, '[TODO] UPDATE ME!')
     }
   },
 
@@ -76,10 +70,7 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(
-        error,
-        '[TODO] UPDATE ME!'
-      )
+      return getError(error, '[TODO] UPDATE ME!')
     }
   },
 
@@ -90,10 +81,7 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(
-        error,
-        '[TODO] UPDATE ME!'
-      )
+      return getError(error, '[TODO] UPDATE ME!')
     }
   },
 
@@ -104,10 +92,7 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(
-        error,
-        '[TODO] UPDATE ME!'
-      )
+      return getError(error, '[TODO] UPDATE ME!')
     }
   },
 
@@ -118,13 +103,73 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(
-        error,
-        '[TODO] UPDATE ME!'
-      )
+      return getError(error, '[TODO] UPDATE ME!')
+    }
+  }
+})
+
+const mock = (): UserCardService => ({
+  async getDetails() {
+    return Promise.resolve({
+      success: true,
+      message: 'Mocked getDetails',
+      result: {
+        name: 'John Doe',
+        number: '4242 4242 4242 4242',
+        expiry: '01/27',
+        cvv: 321,
+        isFrozen: Math.random() > 0.5 ? true : false
+      }
+    })
+  },
+
+  async terminate() {
+    return Promise.resolve({
+      success: true,
+      message: 'Mocked terminate',
+      result: true
+    })
+  },
+
+  async freeze() {
+    return Promise.resolve({
+      success: true,
+      message: 'Mocked freeze',
+      result: true
+    })
+  },
+
+  async unfreeze() {
+    return Promise.resolve({
+      success: true,
+      message: 'Mocked unfreeze',
+      result: true
+    })
+  },
+
+  async updateSpendingLimit() {
+    try {
+      const response = await httpClient
+        .post('card/update-spending-limit')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, '[TODO] UPDATE ME!')
     }
   },
+
+  async changePin() {
+    try {
+      const response = await httpClient
+        .post('card/change-pin')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, '[TODO] UPDATE ME!')
+    }
+  }
 })
 
 const cardService = createCardService()
-export { cardService }
+const cardServiceMock = mock()
+export { cardService, cardServiceMock }
