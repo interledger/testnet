@@ -21,7 +21,7 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  card: IUserCard 
+  card: IUserCard
 }> = async (ctx) => {
   const response = await cardServiceMock.getDetails(ctx.req.headers.cookie)
 
