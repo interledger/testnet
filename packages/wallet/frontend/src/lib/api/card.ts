@@ -1,0 +1,130 @@
+import {
+  getError,
+  httpClient,
+  type ErrorResponse,
+  type SuccessResponse
+} from '../httpClient'
+
+// TODO: update interface - can be moved to shared folder as well
+export interface IUserCard {
+  name: string
+  number: string
+  expiry: string
+  cvv: string
+  isFrozen: boolean
+}
+
+type GetDetailsResponse = SuccessResponse<IUserCard>
+type GetDetailsResult = GetDetailsResponse | ErrorResponse
+
+type TerminateCardResult = SuccessResponse | ErrorResponse
+
+type FreezeResult = SuccessResponse | ErrorResponse
+
+type UnfreezeResult = SuccessResponse | ErrorResponse
+
+type UpdateSpendingLimitResult = SuccessResponse | ErrorResponse
+
+type ChangePinResult = SuccessResponse | ErrorResponse
+
+interface UserCardService {
+  getDetails(cookies?: string): Promise<GetDetailsResult>
+  terminate(): Promise<TerminateCardResult>
+  freeze(): Promise<FreezeResult>
+  unfreeze(): Promise<UnfreezeResult>
+  updateSpendingLimit(): Promise<UpdateSpendingLimitResult>
+  changePin(): Promise<ChangePinResult>
+}
+
+const createCardService = (): UserCardService => ({
+  async getDetails(cookies) {
+    try {
+      const response = await httpClient
+        .get(`card`, {
+          headers: {
+            ...(cookies ? { Cookie: cookies } : {})
+          }
+        })
+        .json<GetDetailsResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        '[TODO] UPDATE ME!'
+      )
+    }
+  },
+
+  async terminate() {
+    try {
+      const response = await httpClient
+        .post('card/terminate')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        '[TODO] UPDATE ME!'
+      )
+    }
+  },
+
+  async freeze() {
+    try {
+      const response = await httpClient
+        .post('card/freeze')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        '[TODO] UPDATE ME!'
+      )
+    }
+  },
+
+  async unfreeze() {
+    try {
+      const response = await httpClient
+        .post('card/unfreeze')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        '[TODO] UPDATE ME!'
+      )
+    }
+  },
+
+  async updateSpendingLimit() {
+    try {
+      const response = await httpClient
+        .post('card/update-spending-limit')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        '[TODO] UPDATE ME!'
+      )
+    }
+  },
+
+  async changePin() {
+    try {
+      const response = await httpClient
+        .post('card/change-pin')
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        '[TODO] UPDATE ME!'
+      )
+    }
+  },
+})
+
+const cardService = createCardService()
+export { cardService }
