@@ -1,17 +1,17 @@
 import { CreateWalletAddressDialog } from '@/components/dialogs/CreateWalletAddressDialog'
 import { FundAccountDialog } from '@/components/dialogs/FundAccountDialog'
+import { WithdrawFundsDialog } from '@/components/dialogs/WithdrawFundsDialog'
 import { New } from '@/components/icons/New'
+import { Withdraw } from '@/components/icons/Withdraw'
+import { Request } from '@/components/icons/Request'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { Account, accountService } from '@/lib/api/account'
 import { walletAddressService } from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-import {
-  FormattedAmount,
-  formatAmount,
-  replaceWalletAddressProtocol
-} from '@/utils/helpers'
+import { Link } from '@/ui/Link'
+import { formatAmount, replaceWalletAddressProtocol } from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -21,24 +21,15 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
-import { Tab } from '@headlessui/react'
-import { cx } from 'class-variance-authority'
-import { TemporaryWMNotice } from '@/components/TemporaryWMNotice'
 import { PageHeader } from '@/components/PageHeader'
-import { Request } from '@/components/icons/Request'
-import { ListWalletAddressesResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared'
 import { WalletAddressesTable } from '@/components/WalletAddressesTable'
-import { WithdrawFundsDialog } from '@/components/dialogs/WithdrawFundsDialog'
-import { Withdraw } from '@/components/icons/Withdraw'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const tabs = ['Account', 'Web Monetization']
-
 const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   account,
-  allWalletAddresses,
-  balance
+  walletAddresses
 }) => {
   const [openDialog, closeDialog] = useDialog()
   const { accountsSnapshot } = useSnapshot(balanceState)
@@ -58,8 +49,10 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setStepIndex(stepIndex + 1)
-      setRunOnboarding(true)
+      setTimeout(() => {
+        setStepIndex(stepIndex + 1)
+        setRunOnboarding(true)
+      }, 500)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -67,153 +60,88 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   return (
     <>
       <PageHeader title={account.name} />
-      <Tab.Group>
-        <Tab.List>
-          <div className="mb-8 flex items-center justify-between md:max-w-lg">
-            {tabs.map((tab) => (
-              <Tab
-                key={tab}
-                className="hover:outline hover:outline-1 hover:outline-black focus:outline focus:outline-1 focus:outline-black hover:dark:shadow-glow-button hover:dark:outline-none focus:dark:shadow-glow-button focus:dark:outline-none"
-              >
-                {({ selected }) => (
-                  <div
-                    className={cx(
-                      'border-b-4 px-10 py-2 text-base sm:text-lg sm:leading-5',
-                      selected
-                        ? 'bg-green-light dark:bg-purple-dark'
-                        : 'hover:bg-green-light hover:dark:bg-purple-dark'
-                    )}
-                  >
-                    {tab}
-                  </div>
-                )}
-              </Tab>
-            ))}
-          </div>
-        </Tab.List>
-        <Tab.Panels>
-          <Tab.Panel>
-            <div className="mb-6" id="balance">
-              <h2 className="mb-2 text-xl">Balance</h2>
-              <p className="text-3xl font-bold">{formattedAmount.amount}</p>
+      <div className="mt-6 items-center text-green" id="balance">
+        <h2 className="text-lg font-light md:text-xl">Balance</h2>
+        <div className="text-2xl font-semibold md:text-4xl">
+          {formattedAmount.amount}
+        </div>
+      </div>
+      <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
+        <div className="my-5 flex justify-between space-x-2">
+          <button
+            id="walletAddress"
+            onClick={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
+              }
+              openDialog(
+                <CreateWalletAddressDialog
+                  accountName={account.name}
+                  onClose={closeDialog}
+                />
+              )
+            }}
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
+            <New className="h-9 w-7" />
+            <div className="-space-y-2 text-[15px]">
+              <p className="font-medium text-green-5 group-hover:text-green-6">
+                Add payment{' '}
+              </p>
+              <p className="font-medium text-green-5 group-hover:text-green-6">
+                pointer
+              </p>
             </div>
-            <div className="my-12 flex gap-8 md:max-w-lg">
-              <button
-                id="walletAddress"
-                onClick={() => {
-                  if (isUserFirstTime) {
-                    setRunOnboarding(false)
-                  }
-                  openDialog(
-                    <CreateWalletAddressDialog
-                      accountName={account.name}
-                      onClose={closeDialog}
-                    />
-                  )
-                }}
-                className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-              >
-                <New className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-                <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-                  Add payment pointer
-                </span>
-              </button>
-              <button
-                id="fund"
-                onClick={() => {
-                  if (isUserFirstTime) {
-                    setRunOnboarding(false)
-                  }
-                  openDialog(
-                    <FundAccountDialog
-                      account={account}
-                      onClose={closeDialog}
-                    />
-                  )
-                }}
-                className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-              >
-                <Request className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-                <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-                  Add money
-                </span>
-              </button>
-              <button
-                id="withdraw"
-                onClick={() => {
-                  openDialog(
-                    <WithdrawFundsDialog
-                      account={account}
-                      onClose={closeDialog}
-                    />
-                  )
-                }}
-                className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-              >
-                <Withdraw className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-                <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-                  Withdraw
-                </span>
-              </button>
+          </button>
+          <Link
+            id="fund"
+            onClick={() => {
+              if (isUserFirstTime) {
+                setRunOnboarding(false)
+              }
+              openDialog(
+                <FundAccountDialog account={account} onClose={closeDialog} />
+              )
+            }}
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
+            <Request className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Add money
+            </span>
+          </Link>
+          <Link
+            onClick={() =>
+              openDialog(
+                <WithdrawFundsDialog account={account} onClose={closeDialog} />
+              )
+            }
+            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
+          >
+            <Withdraw className="h-8 w-8" />
+            <span className="font-medium text-green-5 group-hover:text-green-6">
+              Withdraw
+            </span>
+          </Link>
+        </div>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold leading-none text-green">
+            Payment Pointers
+          </h3>
+        </div>
+        <div className="flex flex-col">
+          {walletAddresses.length > 0 ? (
+            <WalletAddressesTable
+              account={account}
+              walletAddresses={walletAddresses}
+            />
+          ) : (
+            <div className="flex items-center justify-center p-4 text-green">
+              <span>No payment pointers found for this account.</span>
             </div>
-            <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
-            {allWalletAddresses.walletAddresses.length > 0 ? (
-              <WalletAddressesTable
-                account={account}
-                walletAddresses={allWalletAddresses.walletAddresses}
-                isWM={false}
-              />
-            ) : (
-              <div className="p-4">
-                No payment pointers found for this account.
-              </div>
-            )}
-          </Tab.Panel>
-          <Tab.Panel>
-            {account.assetCode === 'USD' ? (
-              <>
-                <div className="mb-6">
-                  <h2 className="mb-2 text-xl">Balance</h2>
-                  <p className="text-3xl font-bold">{balance.amount}</p>
-                </div>
-                <div className="my-12 flex gap-8 md:max-w-lg">
-                  <button
-                    onClick={() => {
-                      openDialog(
-                        <CreateWalletAddressDialog
-                          accountName={account.name}
-                          isWebMonetization={true}
-                          onClose={closeDialog}
-                        />
-                      )
-                    }}
-                    className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-                  >
-                    <New className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-                    <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2">
-                      Add WM payment pointer
-                    </span>
-                  </button>
-                </div>
-                <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
-                {allWalletAddresses.wmWalletAddresses.length > 0 ? (
-                  <WalletAddressesTable
-                    account={account}
-                    walletAddresses={allWalletAddresses.wmWalletAddresses}
-                    isWM={true}
-                  />
-                ) : (
-                  <div className="p-4">
-                    No Web Monetization payment pointers found for this account.
-                  </div>
-                )}
-              </>
-            ) : (
-              <TemporaryWMNotice />
-            )}
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+          )}
+        </div>
+      </div>
     </>
   )
 }
@@ -224,8 +152,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   account: Account
-  allWalletAddresses: ListWalletAddressesResponse
-  balance: FormattedAmount
+  walletAddresses: WalletAddressResponse[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -249,26 +176,14 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true
     }
   }
-
-  let balance = 0
-
-  walletAddressesResponse.result.walletAddresses.map((pp) => {
+  walletAddressesResponse.result.map((pp) => {
     pp.url = replaceWalletAddressProtocol(pp.url)
-  })
-  walletAddressesResponse.result.wmWalletAddresses.map((pp) => {
-    pp.url = replaceWalletAddressProtocol(pp.url)
-    balance += Number(pp.incomingBalance)
   })
 
   return {
     props: {
       account: accountResponse.result,
-      allWalletAddresses: walletAddressesResponse.result,
-      balance: formatAmount({
-        value: balance.toString(),
-        assetCode: accountResponse.result.assetCode,
-        assetScale: 9
-      })
+      walletAddresses: walletAddressesResponse.result
     }
   }
 }

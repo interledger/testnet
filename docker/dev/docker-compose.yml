@@ -52,10 +52,6 @@ services:
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL:-false}
       RATE_API_KEY: ${RATE_API_KEY}
-      BASE_ASSET_SCALE: 2
-      MAX_ASSET_SCALE: 9
-      WM_THRESHOLD: 100000000
-      DEBT_THRESHOLD: 5
       REDIS_URL: redis://redis:6379/0
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
     restart: always
