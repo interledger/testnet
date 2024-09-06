@@ -1,20 +1,10 @@
-import type { ComponentProps } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { CopyButton } from '@/ui/CopyButton'
 import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
-
-const CARD_TYPE = {
-  normal: 'normal',
-  details: 'details',
-  frozen: 'frozen'
-} as const
-
-export type CardType = keyof typeof CARD_TYPE
-
-interface UserCardProps {
-  type: CardType
-  name: string
-}
+import type { IUserCard } from '@/lib/api/card'
+import { useCardContext, UserCardContext } from './UserCardContext'
+import { UserCardActions } from './UserCardActions'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -36,18 +26,14 @@ const UserCardContainer = ({
   )
 }
 
-interface UserCardFrontProps {
-  name: UserCardProps['name']
-  isFrozen: boolean
-}
-
-const UserCardFront = ({ name, isFrozen }: UserCardFrontProps) => {
+const UserCardFront = () => {
+  const { card } = useCardContext()
   return (
     <UserCardContainer>
       <div
         className={cn(
           'flex flex-col h-full',
-          isFrozen ? 'select-none pointer-events-none blur' : ''
+          card.isFrozen ? 'select-none pointer-events-none blur' : ''
         )}
       >
         <div className="flex justify-between text-sm items-center">
@@ -58,11 +44,11 @@ const UserCardFront = ({ name, isFrozen }: UserCardFrontProps) => {
           <Chip />
         </div>
         <div className="flex mt-auto justify-between items-center">
-          <span className="uppercase opacity-50">{name}</span>
+          <span className="uppercase opacity-50">{card.name}</span>
           <MasterCardLogo />
         </div>
       </div>
-      {isFrozen ? (
+      {card.isFrozen ? (
         <div className="absolute inset-0 z-10 bg-[url('/frozen.webp')] bg-cover bg-center opacity-50" />
       ) : null}
     </UserCardContainer>
@@ -70,6 +56,8 @@ const UserCardFront = ({ name, isFrozen }: UserCardFrontProps) => {
 }
 
 const UserCardBack = () => {
+  const { card } = useCardContext()
+
   return (
     <UserCardContainer>
       <div className="flex flex-col h-full">
@@ -80,29 +68,29 @@ const UserCardBack = () => {
               Card Number
             </p>
             <div className="flex items-center gap-x-3">
-              <p className="font-mono">4242 4242 4242 4242</p>
+              <p className="font-mono">{card.number}</p>
               <CopyButton
                 aria-label="copy card number"
                 className="h-4 w-4 p-0 opacity-50"
                 copyType="card"
-                value="4242 4242 4242 4242"
+                value={card.number}
               />
             </div>
           </div>
           <div className="flex gap-x-6">
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
-              <p className="font-mono">01/27</p>
+              <p className="font-mono">{card.expiry}</p>
             </div>
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
-              <p className="font-mono">123</p>
+              <p className="font-mono">{card.cvv}</p>
             </div>
             <CopyButton
               aria-label="copy cvv"
               className="mt-2.5 -ml-3 h-4 w-4 p-0 opacity-50"
               copyType="card"
-              value="123"
+              value={card.cvv.toString()}
             />
             <MasterCardLogo className="ml-auto" />
           </div>
@@ -112,17 +100,18 @@ const UserCardBack = () => {
   )
 }
 
-export const UserCard = ({ type, name }: UserCardProps) => {
+interface UserCardProps {
+  card: IUserCard
+}
+export const UserCard = ({ card }: UserCardProps) => {
+  const [showDetails, setShowDetails] = useState(false)
+
   return (
-    <>
-      {type === 'normal' || type === 'frozen' ? (
-        <UserCardFront
-          name={name}
-          isFrozen={type === 'frozen' ? true : false}
-        />
-      ) : type === 'details' ? (
-        <UserCardBack />
-      ) : null}
-    </>
+    <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
+      {card.isFrozen ? <UserCardFront /> : null}
+      {!card.isFrozen && showDetails ? <UserCardBack /> : null}
+      {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
+      <UserCardActions />
+    </UserCardContext.Provider>
   )
 }

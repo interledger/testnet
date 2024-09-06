@@ -15,6 +15,8 @@ const envSchema = z.object({
   RAPYD_API: z.string().default('https://sandboxapi.rapyd.net/v1'),
   RAPYD_ACCESS_KEY: z.string().default('RAPYD_ACCESS_KEY'),
   RAPYD_SECRET_KEY: z.string().default('RAPYD_SECRET_KEY'),
+  GATEHUB_ACCESS_KEY: z.string().default('GATEHUB_ACCESS_KEY'),
+  GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   AUTH_GRAPHQL_ENDPOINT: z
     .string()
@@ -32,10 +34,6 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
-  BASE_ASSET_SCALE: z.coerce.number().nonnegative().default(2),
-  MAX_ASSET_SCALE: z.coerce.number().nonnegative().default(9),
-  WM_THRESHOLD: z.coerce.bigint().nonnegative().default(100_000_000n), // $0.1 in asset scale 9
-  DEBT_THRESHOLD: z.coerce.number().multipleOf(0.01).nonnegative().default(5.0), // $5.00
   DEFAULT_WALLET_ACCOUNT: z
     .object({
       email: z.string().default('dev@email.com'),

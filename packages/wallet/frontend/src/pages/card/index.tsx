@@ -1,28 +1,41 @@
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
-import { CardActions } from '@/components/userCards/UserCardActions'
-import { CardType, UserCard } from '@/components/userCards/UserCard'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { useState } from 'react'
+import { cardServiceMock, IUserCard } from '@/lib/api/card'
+import { UserCard } from '@/components/userCards/UserCard'
 
-function CardContainer() {
-  const [state, setState] = useState<CardType>('normal')
-  return (
-    <div className="space-y-6 max-w-[329px]">
-      <UserCard type={state} name="John Doe" />
-      <CardActions fn={setState} />
-    </div>
-  )
-}
-const UserCardPage: NextPageWithLayout = () => {
+type UserCardPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
+
+const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
   return (
     <>
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Your Card" />
       </div>
-      <CardContainer />
+      <div className="space-y-6 max-w-80 mx-auto md:mx-0">
+        <UserCard card={card} />
+      </div>
     </>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<{
+  card: IUserCard
+}> = async (ctx) => {
+  const response = await cardServiceMock.getDetails(ctx.req.headers.cookie)
+
+  if (!response.success || !response.result) {
+    return {
+      notFound: true
+    }
+  }
+
+  return {
+    props: {
+      card: response.result
+    }
+  }
 }
 
 UserCardPage.getLayout = function (page) {

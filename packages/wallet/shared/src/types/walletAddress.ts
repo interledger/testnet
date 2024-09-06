@@ -6,19 +6,10 @@ export interface IWalletAddressResponse {
   url: string
   publicName: string
   accountId: string
-  incomingBalance: bigint
-  outgoingBalance: bigint
-  assetCode?: string | null
-  assetScale?: number | null
 }
 
 export interface WalletAddressResponse extends IWalletAddressResponse {
   keys: WalletAddressKeyResponse[]
-}
-
-export interface ListWalletAddressesResponse {
-  wmWalletAddresses: Array<WalletAddressResponse>
-  walletAddresses: Array<WalletAddressResponse>
 }
 
 export type WalletAddressOP = AssetOP & {

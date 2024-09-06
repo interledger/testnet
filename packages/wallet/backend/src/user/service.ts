@@ -10,6 +10,7 @@ import { RafikiClient } from '@/rafiki/rafiki-client'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { BadRequest, Conflict } from '@shared/backend'
 import { KratosService } from '@/rafiki/kratos.service'
+import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
 
 interface CreateUserArgs {
   email: string
@@ -72,7 +73,7 @@ export class UserService implements IUserService {
 
     const resetToken = getRandomToken()
     const passwordResetToken = hashToken(resetToken)
-    const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+    const passwordResetExpiresAt = new Date(Date.now() + 8 * 3600 * 1000)
 
     await User.query()
       .findById(user.id)
@@ -129,8 +130,11 @@ export class UserService implements IUserService {
 
     if (existingUser) return
 
-    const asset = await this.rafikiClient.getRafikiAsset('USD', 2)
-    if (!asset) await this.rafikiClient.createAsset('USD', 2)
+    const asset = await this.rafikiClient.getRafikiAsset(
+      'USD',
+      DEFAULT_ASSET_SCALE
+    )
+    if (!asset) await this.rafikiClient.createAsset('USD', DEFAULT_ASSET_SCALE)
     const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
     const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
 
@@ -151,16 +155,14 @@ export class UserService implements IUserService {
         accountId: walletInfo.defaultAccount.id,
         walletAddressName: typedArray[0].toString(16),
         publicName: 'Default Payment Pointer',
-        userId: walletInfo.createdUser.id,
-        isWM: false
+        userId: walletInfo.createdUser.id
       })
 
       const boutiqueWallet = await this.walletAddressService.create({
         accountId: boutiqueInfo.defaultAccount.id,
         walletAddressName: 'boutique',
         publicName: 'Rafiki Boutique',
-        userId: boutiqueInfo.createdUser.id,
-        isWM: false
+        userId: boutiqueInfo.createdUser.id
       })
 
       await this.walletAddressKeyService.registerKey({
