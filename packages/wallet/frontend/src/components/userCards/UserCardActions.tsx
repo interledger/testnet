@@ -35,7 +35,7 @@ export const FrozenCardActions = () => {
             <Snow className="size-6" />
           </div>
         </Button>
-        <p className="text-center text-sm">Unfreeze</p>
+        <p className="text-center -tracking-wide text-sm">Unfreeze</p>
       </div>
       <div className="col-span-2 flex flex-col gap-y-4">
         <Button
@@ -62,7 +62,7 @@ export const FrozenCardActions = () => {
             <Trash className="size-6" />
           </div>
         </Button>
-        <p className="text-center text-sm">Terminate</p>
+        <p className="text-center -tracking-wide text-sm">Terminate</p>
       </div>
     </>
   )
@@ -98,7 +98,7 @@ const DefaultCardActions = () => {
             <Snow className="size-6" />
           </div>
         </Button>
-        <p className="text-center text-sm">Freeze</p>
+        <p className="text-center -tracking-wide text-sm">Freeze</p>
       </div>
       <div className="flex flex-col gap-y-4">
         <Button
@@ -114,7 +114,7 @@ const DefaultCardActions = () => {
             )}
           </div>
         </Button>
-        <p className="text-center text-sm">
+        <p className="text-center -tracking-wide text-sm">
           {showDetails ? 'Hide Details' : 'Details'}
         </p>
       </div>
@@ -130,7 +130,7 @@ const DefaultCardActions = () => {
             <Cog className="size-6" />
           </div>
         </Button>
-        <p className="text-center text-sm">Settings</p>
+        <p className="text-center -tracking-wide text-sm">Settings</p>
       </div>
     </>
   )
