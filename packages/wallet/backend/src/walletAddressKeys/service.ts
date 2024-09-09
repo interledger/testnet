@@ -96,7 +96,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       await WalletAddressKeys.query().insert(key)
     } catch (e) {
       if (e instanceof SyntaxError)
-        throw new BadRequest('The format of uploaded key is not correct')
+        throw new BadRequest('The uploaded key is not in the correct format.')
 
       if (e instanceof UniqueViolationError)
         throw new BadRequest(
