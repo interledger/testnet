@@ -5,16 +5,19 @@ import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
-import { fundAccountSchema } from '@wallet/shared'
 import { UserCardFront } from '../userCards/UserCard'
-import { cardServiceMock } from '@/lib/api/card'
+import { activateCardSchema, cardServiceMock } from '@/lib/api/card'
+import { useToast } from '@/lib/hooks/useToast'
+import { Card } from '../icons/CardButtons'
 
 type ActivateCardDialogProps = Pick<DialogProps, 'onClose'>
 
 export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
-  const [closeDialog] = useDialog()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [openDialog, closeDialog] = useDialog()
+  const { toast } = useToast()
   const activateCardForm = useZodForm({
-    schema: fundAccountSchema
+    schema: activateCardSchema
   })
 
   return (
@@ -42,7 +45,7 @@ export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-2 sm:p-8 shadow-xl dark:bg-purple">
+              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
                 <Dialog.Title
                   as="h3"
                   className="text-center text-2xl font-bold"
@@ -53,20 +56,37 @@ export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
                   <Form
                     form={activateCardForm}
                     onSubmit={async () => {
+                      console.log('Submiyted')
                       const response = await cardServiceMock.activate()
 
                       if (!response.success) {
-                        console.error(
-                          '[TODO] UPDATE ME - error while activating card'
-                        )
+                        closeDialog()
+                        toast({
+                          description: (
+                            <p>
+                              <Card className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+                              Error while activating the card. Please try again.
+                            </p>
+                          ),
+                          variant: 'error'
+                        })
                       }
 
                       if (response.success) {
-                        closeDialog
+                        closeDialog()
+                        toast({
+                          description: (
+                            <p>
+                              <Card className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+                              Card activation was successful.
+                            </p>
+                          ),
+                          variant: 'success'
+                        })
                       }
                     }}
                   >
-                    <div className="flex justify-center items-center flex-col gap-2">
+                    <div className="flex flex-col items-center justify-center gap-2">
                       <UserCardFront />
                       Proceed with activation only if you have received the
                       card, as it will be fully functional and payment ready.

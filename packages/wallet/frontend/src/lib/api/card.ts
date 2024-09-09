@@ -1,9 +1,12 @@
+import { z } from 'zod'
 import {
   getError,
   httpClient,
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
+
+export const activateCardSchema = z.object({})
 
 // TODO: update interface - can be moved to shared folder as well
 export interface IUserCard {
