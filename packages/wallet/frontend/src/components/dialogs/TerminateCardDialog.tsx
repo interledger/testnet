@@ -9,11 +9,15 @@ import { UserCardFront } from '../userCards/UserCard'
 import { Controller } from 'react-hook-form'
 import { Select, SelectOption } from '@/ui/forms/Select'
 import { cardServiceMock, terminateCardSchema } from '@/lib/api/card'
+import { useToast } from '@/lib/hooks/useToast'
+import { Card } from '../icons/CardButtons'
 
 type TerminateCardDialogProps = Pick<DialogProps, 'onClose'>
 
 export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
-  const [closeDialog] = useDialog()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [openDialog, closeDialog] = useDialog()
+  const { toast } = useToast()
   const terminateCardForm = useZodForm({
     schema: terminateCardSchema
   })
@@ -49,7 +53,7 @@ export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 sm:p-8 shadow-xl dark:bg-purple">
+              <Dialog.Panel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
                 <Dialog.Title
                   as="h3"
                   className="text-center text-2xl font-bold"
@@ -63,17 +67,34 @@ export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
                       const response = await cardServiceMock.terminate()
 
                       if (!response.success) {
-                        console.error(
-                          '[TODO] UPDATE ME - error while terminating card'
-                        )
+                        closeDialog()
+                        toast({
+                          description: (
+                            <p>
+                              <Card className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+                              Error while terminating the card. Please try
+                              again.
+                            </p>
+                          ),
+                          variant: 'error'
+                        })
                       }
 
                       if (response.success) {
-                        closeDialog
+                        closeDialog()
+                        toast({
+                          description: (
+                            <p>
+                              <Card className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+                              Card termination was successful.
+                            </p>
+                          ),
+                          variant: 'success'
+                        })
                       }
                     }}
                   >
-                    <div className="flex justify-center items-center flex-col gap-2">
+                    <div className="flex flex-col items-center justify-center gap-2">
                       <UserCardFront />
                       You won&apos;t be able to use this card again. Any
                       deposits, such as car rental or hotel reservation deposits
