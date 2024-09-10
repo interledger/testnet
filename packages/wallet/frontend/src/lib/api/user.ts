@@ -55,7 +55,7 @@ export const signUpSchema = z
       ctx.addIssue({
         code: 'custom',
         message:
-          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters',
         path: ['password']
       })
     }
@@ -153,7 +153,7 @@ export const resetPasswordSchema = z
       ctx.addIssue({
         code: 'custom',
         message:
-          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters',
         path: ['passweord']
       })
     }
@@ -185,7 +185,7 @@ export const changePasswordSchema = z
       ctx.addIssue({
         code: 'custom',
         message:
-          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters',
         path: ['newPassord']
       })
     }
