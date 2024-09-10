@@ -15,8 +15,7 @@ import { Card } from '../icons/CardButtons'
 type TerminateCardDialogProps = Pick<DialogProps, 'onClose'>
 
 export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [openDialog, closeDialog] = useDialog()
+  const [, closeDialog] = useDialog()
   const { toast } = useToast()
   const terminateCardForm = useZodForm({
     schema: terminateCardSchema
