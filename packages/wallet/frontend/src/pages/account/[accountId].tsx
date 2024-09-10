@@ -60,88 +60,75 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
   return (
     <>
       <PageHeader title={account.name} />
-      <div className="mt-6 items-center text-green" id="balance">
-        <h2 className="text-lg font-light md:text-xl">Balance</h2>
-        <div className="text-2xl font-semibold md:text-4xl">
-          {formattedAmount.amount}
-        </div>
+      <div className="mb-6" id="balance">
+        <h2 className="mb-2 text-xl">Balance</h2>
+        <div className="text-3xl font-bold">{formattedAmount.amount}</div>
       </div>
-      <div className="mt-5 flex w-full flex-col space-y-5 md:max-w-md">
-        <div className="my-5 flex justify-between space-x-2">
-          <button
-            id="walletAddress"
-            onClick={() => {
-              if (isUserFirstTime) {
-                setRunOnboarding(false)
-              }
-              openDialog(
-                <CreateWalletAddressDialog
-                  accountName={account.name}
-                  onClose={closeDialog}
-                />
-              )
-            }}
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center -space-y-1 rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <New className="h-9 w-7" />
-            <div className="-space-y-2 text-[15px]">
-              <p className="font-medium text-green-5 group-hover:text-green-6">
-                Add payment{' '}
-              </p>
-              <p className="font-medium text-green-5 group-hover:text-green-6">
-                pointer
-              </p>
-            </div>
-          </button>
-          <Link
-            id="fund"
-            onClick={() => {
-              if (isUserFirstTime) {
-                setRunOnboarding(false)
-              }
-              openDialog(
-                <FundAccountDialog account={account} onClose={closeDialog} />
-              )
-            }}
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Request className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Add money
-            </span>
-          </Link>
-          <Link
-            onClick={() =>
-              openDialog(
-                <WithdrawFundsDialog account={account} onClose={closeDialog} />
-              )
+      <div className="my-12 flex gap-8 md:max-w-lg">
+        <button
+          id="walletAddress"
+          onClick={() => {
+            if (isUserFirstTime) {
+              setRunOnboarding(false)
             }
-            className="group flex aspect-square h-24 w-24 flex-col items-center justify-center rounded-lg border border-green-5 bg-white shadow-md hover:border-green-6"
-          >
-            <Withdraw className="h-8 w-8" />
-            <span className="font-medium text-green-5 group-hover:text-green-6">
-              Withdraw
-            </span>
-          </Link>
-        </div>
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold leading-none text-green">
-            Payment Pointers
-          </h3>
-        </div>
-        <div className="flex flex-col">
-          {walletAddresses.length > 0 ? (
-            <WalletAddressesTable
-              account={account}
-              walletAddresses={walletAddresses}
-            />
-          ) : (
-            <div className="flex items-center justify-center p-4 text-green">
-              <span>No payment pointers found for this account.</span>
-            </div>
-          )}
-        </div>
+            openDialog(
+              <CreateWalletAddressDialog
+                accountName={account.name}
+                onClose={closeDialog}
+              />
+            )
+          }}
+          className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
+        >
+          <New className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+          <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
+            Add payment pointer
+          </span>
+        </button>
+        <button
+          id="fund"
+          onClick={() => {
+            if (isUserFirstTime) {
+              setRunOnboarding(false)
+            }
+            openDialog(
+              <FundAccountDialog account={account} onClose={closeDialog} />
+            )
+          }}
+          className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
+        >
+          <Request className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+          <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
+            Add money
+          </span>
+        </button>
+        <button
+          id="withdraw"
+          onClick={() =>
+            openDialog(
+              <WithdrawFundsDialog account={account} onClose={closeDialog} />
+            )
+          }
+          className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
+        >
+          <Withdraw className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+          <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
+            Withdraw
+          </span>
+        </button>
       </div>
+      <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
+
+      {walletAddresses.length > 0 ? (
+        <WalletAddressesTable
+          account={account}
+          walletAddresses={walletAddresses}
+        />
+      ) : (
+        <div className="p-4">
+          <span>No payment pointers found for this account.</span>
+        </div>
+      )}
     </>
   )
 }
