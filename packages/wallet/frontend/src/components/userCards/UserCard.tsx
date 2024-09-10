@@ -107,11 +107,13 @@ export const UserCard = ({ card }: UserCardProps) => {
   const [showDetails, setShowDetails] = useState(false)
 
   return (
-    <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
-      {card.isFrozen ? <UserCardFront /> : null}
-      {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-      {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
-      <UserCardActions />
-    </UserCardContext.Provider>
+    <div className="space-y-6 max-w-80 mx-auto">
+      <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
+        {card.isFrozen ? <UserCardFront /> : null}
+        {!card.isFrozen && showDetails ? <UserCardBack /> : null}
+        {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
+        <UserCardActions />
+      </UserCardContext.Provider>
+    </div>
   )
 }

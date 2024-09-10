@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { cardServiceMock, IUserCard } from '@/lib/api/card'
 import { UserCard } from '@/components/userCards/UserCard'
+import { UserCardSettings } from '@/components/userCards/UserCardSettings'
 
 type UserCardPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -13,8 +14,9 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Your Card" />
       </div>
-      <div className="space-y-6 max-w-80 mx-auto md:mx-0">
+      <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
         <UserCard card={card} />
+        <UserCardSettings />
       </div>
     </>
   )
