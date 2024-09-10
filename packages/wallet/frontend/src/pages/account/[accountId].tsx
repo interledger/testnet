@@ -10,7 +10,6 @@ import { walletAddressService } from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { Link } from '@/ui/Link'
 import { formatAmount, replaceWalletAddressProtocol } from '@/utils/helpers'
 import type {
   GetServerSideProps,
