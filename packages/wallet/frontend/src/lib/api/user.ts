@@ -45,11 +45,20 @@ const isValidPassword = (password: string): boolean => {
 export const signUpSchema = z
   .object({
     email: z.string().email({ message: 'Email is required' }),
-    password: z.custom(isValidPassword, {
-      message:
-        'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.'
-    }),
+    password: z
+      .string()
+      .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmPassword: z.string()
+  })
+  .superRefine(({ password }, ctx) => {
+    if (!isValidPassword(password)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+        path: ['password']
+      })
+    }
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
@@ -133,12 +142,21 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    password: z.custom(isValidPassword, {
-      message:
-        'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.'
-    }),
+    password: z
+      .string()
+      .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmPassword: z.string(),
     token: z.string()
+  })
+  .superRefine(({ password }, ctx) => {
+    if (!isValidPassword(password)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+        path: ['passweord']
+      })
+    }
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
@@ -157,11 +175,20 @@ export const verifyEmailSchema = z.object({
 export const changePasswordSchema = z
   .object({
     oldPassword: z.string(),
-    newPassword: z.custom(isValidPassword, {
-      message:
-        'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.'
-    }),
+    newPassword: z
+      .string()
+      .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmNewPassword: z.string()
+  })
+  .superRefine(({ newPassword }, ctx) => {
+    if (!isValidPassword(newPassword)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+        path: ['newPassord']
+      })
+    }
   })
   .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
     if (confirmNewPassword !== newPassword) {
