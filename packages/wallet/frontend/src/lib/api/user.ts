@@ -131,7 +131,7 @@ export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(6, { message: 'Password should be at least 6 characters long' }),
+      .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmPassword: z.string(),
     token: z.string()
   })
@@ -143,6 +143,36 @@ export const resetPasswordSchema = z
         path: ['confirmPassword']
       })
     }
+
+    const containsUppercase = (ch: string) => /[A-Z]/.test(ch)
+    const containsLowercase = (ch: string) => /[a-z]/.test(ch)
+    const containsSpecialChar = (ch: string) =>
+      // eslint-disable-next-line no-useless-escape
+      /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(ch)
+    let countOfUpperCase = 0,
+      countOfLowerCase = 0,
+      countOfNumbers = 0,
+      countOfSpecialChar = 0
+    for (let i = 0; i < password.length; i++) {
+      const ch = password.charAt(i)
+      if (!isNaN(+ch)) countOfNumbers++
+      else if (containsUppercase(ch)) countOfUpperCase++
+      else if (containsLowercase(ch)) countOfLowerCase++
+      else if (containsSpecialChar(ch)) countOfSpecialChar++
+    }
+    if (
+      countOfLowerCase < 1 ||
+      countOfUpperCase < 1 ||
+      countOfSpecialChar < 1 ||
+      countOfNumbers < 1
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+        path: ['password']
+      })
+    }
   })
 
 export const verifyEmailSchema = z.object({
@@ -152,8 +182,8 @@ export const verifyEmailSchema = z.object({
 export const changePasswordSchema = z
   .object({
     oldPassword: z.string(),
-    newPassword: z.string().min(6, {
-      message: 'Your new password has to be at least 6 characters long.'
+    newPassword: z.string().min(8, {
+      message: 'Your new password has to be at least 8 characters long.'
     }),
     confirmNewPassword: z.string()
   })
@@ -163,6 +193,36 @@ export const changePasswordSchema = z
         code: 'custom',
         message: 'Passwords must match.',
         path: ['confirmNewPassword']
+      })
+    }
+
+    const containsUppercase = (ch: string) => /[A-Z]/.test(ch)
+    const containsLowercase = (ch: string) => /[a-z]/.test(ch)
+    const containsSpecialChar = (ch: string) =>
+      // eslint-disable-next-line no-useless-escape
+      /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(ch)
+    let countOfUpperCase = 0,
+      countOfLowerCase = 0,
+      countOfNumbers = 0,
+      countOfSpecialChar = 0
+    for (let i = 0; i < newPassword.length; i++) {
+      const ch = newPassword.charAt(i)
+      if (!isNaN(+ch)) countOfNumbers++
+      else if (containsUppercase(ch)) countOfUpperCase++
+      else if (containsLowercase(ch)) countOfLowerCase++
+      else if (containsSpecialChar(ch)) countOfSpecialChar++
+    }
+    if (
+      countOfLowerCase < 1 ||
+      countOfUpperCase < 1 ||
+      countOfSpecialChar < 1 ||
+      countOfNumbers < 1
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters.',
+        path: ['newPassword']
       })
     }
   })
