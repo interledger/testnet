@@ -5,6 +5,7 @@ import { cn } from '@/utils/helpers'
 import type { IUserCard } from '@/lib/api/card'
 import { useCardContext, UserCardContext } from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
+import { UserCardSettings } from './UserCardSettings'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -107,13 +108,16 @@ export const UserCard = ({ card }: UserCardProps) => {
   const [showDetails, setShowDetails] = useState(false)
 
   return (
-    <div className="space-y-6 max-w-80 mx-auto">
-      <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
-        {card.isFrozen ? <UserCardFront /> : null}
-        {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-        {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
-        <UserCardActions />
-      </UserCardContext.Provider>
-    </div>
+    <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
+      <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
+        <div className="space-y-6 max-w-80 mx-auto">
+          {card.isFrozen ? <UserCardFront /> : null}
+          {!card.isFrozen && showDetails ? <UserCardBack /> : null}
+          {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
+          <UserCardActions />
+        </div>
+        <UserCardSettings />
+      </div>
+    </UserCardContext.Provider>
   )
 }

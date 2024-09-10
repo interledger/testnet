@@ -1,20 +1,32 @@
+import { useDialog } from '@/lib/hooks/useDialog'
 import { Limit } from '../icons/Limit'
+import { UserCardSpendingLimitDialog } from './UserCardSpendingLimitDialog'
+import { useCardContext } from './UserCardContext'
+import { UserCardPINDialog } from './UserCardPINDialog'
 
 export const UserCardSettings = () => {
   return (
-    <div>
-      <ul role="list" className="space-y-2">
-        <SpendingLimit />
-        <CardPIN />
-      </ul>
-    </div>
+    <ul role="list" className="space-y-2">
+      <SpendingLimit />
+      <PinSettings />
+    </ul>
   )
 }
 
 const SpendingLimit = () => {
+  const { card } = useCardContext()
+  const [openDialog, closeDialog] = useDialog()
+
   return (
     <li className="shadow-md rounded-md">
-      <button className="block w-full bg-green-light rounded-md p-3">
+      <button
+        onClick={() => {
+          openDialog(
+            <UserCardSpendingLimitDialog card={card} onClose={closeDialog} />
+          )
+        }}
+        className="block w-full bg-green-light rounded-md p-3"
+      >
         <div className="flex min-w-0 gap-x-4">
           <div className="size-12 grid place-items-center bg-green rounded-full">
             <Limit className="text-white size-6" />
@@ -33,10 +45,18 @@ const SpendingLimit = () => {
   )
 }
 
-const CardPIN = () => {
+const PinSettings = () => {
+  const { card } = useCardContext()
+  const [openDialog, closeDialog] = useDialog()
+
   return (
     <li className="shadow-md rounded-md">
-      <button className="block w-full bg-green-light rounded-md p-3">
+      <button
+        onClick={() => {
+          openDialog(<UserCardPINDialog card={card} onClose={closeDialog} />)
+        }}
+        className="block w-full bg-green-light rounded-md p-3"
+      >
         <div className="flex min-w-0 gap-x-4">
           <div className="size-12 grid place-items-center bg-green rounded-full">
             <Limit className="text-white size-6" />
