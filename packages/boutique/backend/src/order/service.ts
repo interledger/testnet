@@ -13,6 +13,7 @@ interface CreateParams {
 
 export interface IOrderService {
   create: (params: CreateParams, trx: TransactionOrKnex) => Promise<Order>
+  delete: (id: string, trx: TransactionOrKnex) => Promise<Order | undefined>
   get: (id: string, userId?: string) => Promise<Order>
   ensurePendingState: (id: string) => Promise<Order>
   list: (userId: string) => Promise<Order[]>
@@ -33,6 +34,13 @@ export class OrderService implements IOrderService {
         ...params
       })
       .returning('*')
+  }
+
+  public async delete(
+    id: string,
+    trx: TransactionOrKnex
+  ): Promise<Order | undefined> {
+    return Order.query(trx).deleteById(id).returning('*').first()
   }
 
   public async get(id: string, userId?: string): Promise<Order> {
