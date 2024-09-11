@@ -32,7 +32,7 @@ export const FrozenCardActions = () => {
             }
           }}
         >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             <Snow className="size-6" />
           </div>
         </Button>
@@ -60,7 +60,7 @@ export const FrozenCardActions = () => {
             }
           }}
         >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-orange">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-orange dark:group-hover:drop-shadow-none">
             <Trash className="size-6" />
           </div>
         </Button>
@@ -98,7 +98,7 @@ const DefaultCardActions = () => {
             }
           }}
         >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             <Snow className="size-6" />
           </div>
         </Button>
@@ -111,7 +111,7 @@ const DefaultCardActions = () => {
           className="group"
           onClick={() => setShowDetails((prev) => !prev)}
         >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             {showDetails ? (
               <EyeCross className="size-6" />
             ) : (
@@ -132,7 +132,7 @@ const DefaultCardActions = () => {
             // TODO: TBD
           }}
         >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             <Cog className="size-6" />
           </div>
         </Button>
