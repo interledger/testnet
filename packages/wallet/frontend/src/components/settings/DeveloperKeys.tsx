@@ -294,7 +294,6 @@ const KeysGroupPanel = ({
 
   return (
     <Transition
-      className="px-2"
       enter="transition-all ease-in-out duration-300"
       enterFrom="transform max-h-0"
       enterTo="transform max-h-screen"
