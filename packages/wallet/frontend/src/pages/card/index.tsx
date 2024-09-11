@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { cardServiceMock, IUserCard } from '@/lib/api/card'
 import { UserCard } from '@/components/userCards/UserCard'
-import { UserCardSettings } from '@/components/userCards/UserCardSettings'
 
 type UserCardPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 

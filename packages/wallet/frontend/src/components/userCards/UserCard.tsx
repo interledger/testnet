@@ -27,10 +27,19 @@ const UserCardContainer = ({
   )
 }
 
-const UserCardFront = () => {
-  const { card } = useCardContext()
+interface UserCardFrontProps extends ComponentProps<'div'> {
+  card: IUserCard
+}
+
+// Even if the UserCard lives inside the context we explicitly pass the card
+// details as a prop, since we have to use this component in dialogs as well.
+export const UserCardFront = ({
+  card,
+  className,
+  ...props
+}: UserCardFrontProps) => {
   return (
-    <UserCardContainer>
+    <UserCardContainer className={className} {...props}>
       <div
         className={cn(
           'flex flex-col h-full',
@@ -111,9 +120,11 @@ export const UserCard = ({ card }: UserCardProps) => {
     <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
       <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
         <div className="space-y-6 max-w-80 mx-auto">
-          {card.isFrozen ? <UserCardFront /> : null}
+          {card.isFrozen ? <UserCardFront card={card} /> : null}
           {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-          {!card.isFrozen && !showDetails ? <UserCardFront /> : null}
+          {!card.isFrozen && !showDetails ? (
+            <UserCardFront card={card} />
+          ) : null}
           <UserCardActions />
         </div>
         <UserCardSettings />

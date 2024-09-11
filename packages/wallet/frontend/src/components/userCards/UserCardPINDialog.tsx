@@ -1,16 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { IUserCard } from '@/lib/api/card'
+import { UserCardFront } from './UserCard'
+import { Button } from '@/ui/Button'
 
 type UserCardPINDialogProos = Pick<DialogProps, 'onClose'> & {
   card: IUserCard
 }
 
-// TODO: Create form after we have the exact API endpoint and after we decide
-// when to send the changes:
-//   - on change (debounced values for the input and checkboxes)
-//   - have a submit button
 export const UserCardPINDialog = ({
   card,
   onClose
@@ -49,7 +47,17 @@ export const UserCardPINDialog = ({
                 >
                   Card PIN
                 </Dialog.Title>
-                Content
+                <div className="flex justify-between space-x-5">
+                  <UserCardFront
+                    card={card}
+                    className="origin-top-left scale-[.3] [margin:0_calc(-20rem*(1-.3))_calc(-13rem*(1-0.3))_0] "
+                  />
+                  <div>
+                    <p className="text-base pt-2">Physical Debit Card</p>
+                    <p className="text-black/50 text-sm">{card.number}</p>
+                  </div>
+                </div>
+                <ChangePinForm />
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -57,4 +65,22 @@ export const UserCardPINDialog = ({
       </Dialog>
     </Transition.Root>
   )
+}
+
+const ChangePinForm = () => {
+  const [showForm, setShowForm] = useState(false)
+
+  if (!showForm) {
+    return (
+      <Button
+        className="w-full"
+        aria-label="show change pin form"
+        onClick={() => setShowForm(true)}
+      >
+        Change PIN
+      </Button>
+    )
+  }
+
+  return <>change pin</>
 }

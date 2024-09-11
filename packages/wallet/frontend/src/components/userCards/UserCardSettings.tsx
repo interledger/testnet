@@ -47,6 +47,7 @@ const SpendingLimit = () => {
 
 const PinSettings = () => {
   const { card } = useCardContext()
+  console.log(card)
   const [openDialog, closeDialog] = useDialog()
 
   return (
