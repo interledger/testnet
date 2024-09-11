@@ -1,9 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
-import { IUserCard } from '@/lib/api/card'
+import { cardServiceMock, changePinSchema, IUserCard } from '@/lib/api/card'
 import { UserCardFront } from './UserCard'
 import { Button } from '@/ui/Button'
+import { useZodForm } from '@/lib/hooks/useZodForm'
+import { Form } from '@/ui/forms/Form'
+import { useRouter } from 'next/router'
+import { getObjectKeys } from '@/utils/helpers'
+import { Input } from '@/ui/forms/Input'
 
 type UserCardPINDialogProos = Pick<DialogProps, 'onClose'> & {
   card: IUserCard
@@ -40,7 +45,7 @@ export const UserCardPINDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
+              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <Dialog.Title
                   as="h3"
                   className="text-center text-2xl font-bold"
@@ -54,7 +59,9 @@ export const UserCardPINDialog = ({
                   />
                   <div>
                     <p className="text-base pt-2">Physical Debit Card</p>
-                    <p className="text-black/50 text-sm">{card.number}</p>
+                    <p className="text-black/50 dark:text-white/50 text-sm">
+                      {card.number}
+                    </p>
                   </div>
                 </div>
                 <ChangePinForm />
@@ -69,6 +76,10 @@ export const UserCardPINDialog = ({
 
 const ChangePinForm = () => {
   const [showForm, setShowForm] = useState(false)
+  const router = useRouter()
+  const form = useZodForm({
+    schema: changePinSchema
+  })
 
   if (!showForm) {
     return (
@@ -81,6 +92,52 @@ const ChangePinForm = () => {
       </Button>
     )
   }
+  return (
+    <Form
+      form={form}
+      onSubmit={async (data) => {
+        const response = await cardServiceMock.changePin(data)
 
-  return <>change pin</>
+        if (response.success) {
+          router.replace(router.asPath)
+        } else {
+          const { errors, message } = response
+          form.setError('root', {
+            message
+          })
+          if (errors) {
+            getObjectKeys(errors).map((field) =>
+              form.setError(field, {
+                message: errors[field]
+              })
+            )
+          }
+        }
+      }}
+    >
+      <Input
+        type="password"
+        inputMode="numeric"
+        maxLength={4}
+        placeholder="Enter PIN"
+        error={form.formState?.errors?.pin?.message}
+        {...form.register('pin')}
+      />
+      <Input
+        type="password"
+        inputMode="numeric"
+        maxLength={4}
+        placeholder="Repeat PIN"
+        error={form.formState?.errors?.confirmPin?.message}
+        {...form.register('confirmPin')}
+      />
+      <Button
+        aria-label="change pin"
+        type="submit"
+        loading={form.formState.isSubmitting}
+      >
+        Confirm PIN change
+      </Button>
+    </Form>
+  )
 }

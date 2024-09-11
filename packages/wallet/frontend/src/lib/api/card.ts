@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   getError,
   httpClient,
@@ -14,6 +15,33 @@ export interface IUserCard {
   isFrozen: boolean
 }
 
+export const changePinSchema = z
+  .object({
+    pin: z.string().length(4),
+    confirmPin: z.string()
+  })
+  .superRefine(({ pin, confirmPin }, ctx) => {
+    const hasOnlyDigits = /^\d+$/.test(pin)
+
+    if (!hasOnlyDigits) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'The PIN should only contain digits.',
+        path: ['pin']
+      })
+
+      return
+    }
+
+    if (pin !== confirmPin) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'PINs do not match.',
+        path: ['pin']
+      })
+    }
+  })
+
 type GetDetailsResponse = SuccessResponse<IUserCard>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
@@ -25,7 +53,14 @@ type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
 
 type UpdateSpendingLimitResult = SuccessResponse | ErrorResponse
 
-type ChangePinResult = SuccessResponse | ErrorResponse
+type ChangePinArgs = z.infer<typeof changePinSchema>
+type ChangePinError = ErrorResponse<ChangePinArgs | undefined>
+type ChangePinResponse = SuccessResponse | ChangePinError
+
+// type RequestArgs = z.infer<typeof requestSchema>
+// type RequestResult = SuccessResponse<{ url: string }>
+// type RequestError = ErrorResponse<RequestArgs | undefined>
+// type RequestResponse = RequestResult | RequestError
 
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
@@ -33,7 +68,7 @@ interface UserCardService {
   freeze(): Promise<FreezeResult>
   unfreeze(): Promise<UnfreezeResult>
   updateSpendingLimit(): Promise<UpdateSpendingLimitResult>
-  changePin(): Promise<ChangePinResult>
+  changePin(args: ChangePinArgs): Promise<ChangePinResponse>
 }
 
 const createCardService = (): UserCardService => ({
@@ -96,14 +131,16 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async changePin() {
+  async changePin(args) {
     try {
       const response = await httpClient
-        .post('card/change-pin')
+        .post('card/change-pin', {
+          json: args
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError<ChangePinArgs>(error, '[TODO] UPDATE ME!')
     }
   }
 })
@@ -158,14 +195,16 @@ const mock = (): UserCardService => ({
     }
   },
 
-  async changePin() {
+  async changePin(args: ChangePinArgs) {
     try {
       const response = await httpClient
-        .post('card/change-pin')
+        .post('card/change-pin', {
+          json: args
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError<ChangePinArgs>(error, '[TODO] UPDATE ME!')
     }
   }
 })
