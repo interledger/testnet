@@ -67,6 +67,16 @@ module.exports = {
           '0 0 0.2rem #fff',
           '0 0 1rem rgb(var(--pink-neon))',
           '0 0 0.4rem rgb(var(--pink-neon))'
+        ],
+        'glow-svg-green': [
+          '0 0 0.2rem #fff',
+          '0 0 0.2rem rgb(var(--green-dark))',
+          '0 0 1rem rgb(var(--green-dark))'
+        ],
+        'glow-svg-orange': [
+          '0 0 0.2rem #fff',
+          '0 0 0.2rem rgb(var(--orange-dark))',
+          '0 0 1rem rgb(var(--orange-dark))'
         ]
       },
       screens: {
