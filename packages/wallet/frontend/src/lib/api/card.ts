@@ -81,11 +81,6 @@ type MonthlySpendingLimitError = ErrorResponse<
 >
 type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 
-// type RequestArgs = z.infer<typeof requestSchema>
-// type RequestResult = SuccessResponse<{ url: string }>
-// type RequestError = ErrorResponse<RequestArgs | undefined>
-// type RequestResponse = RequestResult | RequestError
-
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
   terminate(): Promise<TerminateCardResult>
