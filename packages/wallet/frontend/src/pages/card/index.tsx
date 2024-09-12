@@ -13,9 +13,7 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Your Card" />
       </div>
-      <div className="space-y-6 max-w-80 mx-auto md:mx-0">
-        <UserCard card={card} />
-      </div>
+      <UserCard card={card} />
     </>
   )
 }

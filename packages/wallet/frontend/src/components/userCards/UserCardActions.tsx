@@ -3,7 +3,6 @@ import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { useCardContext } from './UserCardContext'
 import { cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
-import { Cog } from '../icons/Cog'
 
 export const FrozenCardActions = () => {
   const router = useRouter()
@@ -36,7 +35,7 @@ export const FrozenCardActions = () => {
             <Snow className="size-6" />
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">Unfreeze</p>
+        <p className="text-center text-sm">Unfreeze</p>
       </div>
       <div className="col-span-2 flex flex-col gap-y-4">
         <Button
@@ -64,7 +63,7 @@ export const FrozenCardActions = () => {
             <Trash className="size-6" />
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">Terminate</p>
+        <p className="text-center text-sm">Terminate</p>
       </div>
     </>
   )
@@ -102,9 +101,9 @@ const DefaultCardActions = () => {
             <Snow className="size-6" />
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">Freeze</p>
+        <p className="text-center text-sm">Freeze</p>
       </div>
-      <div className="flex flex-col gap-y-4">
+      <div className="col-span-2 flex flex-col gap-y-4">
         <Button
           intent="secondary"
           aria-label={showDetails ? 'hide details' : 'show details'}
@@ -119,24 +118,9 @@ const DefaultCardActions = () => {
             )}
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">
+        <p className="text-center text-sm">
           {showDetails ? 'Hide Details' : 'Details'}
         </p>
-      </div>
-      <div className="flex flex-col gap-y-4">
-        <Button
-          intent="secondary"
-          aria-label="settings"
-          className="group"
-          onClick={() => {
-            // TODO: TBD
-          }}
-        >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
-            <Cog className="size-6" />
-          </div>
-        </Button>
-        <p className="text-center -tracking-wide text-sm">Settings</p>
       </div>
     </>
   )
