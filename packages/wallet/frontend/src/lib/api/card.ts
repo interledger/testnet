@@ -42,6 +42,22 @@ export const changePinSchema = z
     }
   })
 
+export const dailySpendingLimitSchema = z.object({
+  amount: z.coerce
+    .number({
+      invalid_type_error: 'Please enter a valid amount'
+    })
+    .positive()
+})
+
+export const monthlySpendingLimitSchema = z.object({
+  amount: z.coerce
+    .number({
+      invalid_type_error: 'Please enter a valid amount'
+    })
+    .positive()
+})
+
 type GetDetailsResponse = SuccessResponse<IUserCard>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
@@ -51,11 +67,19 @@ type FreezeResult = SuccessResponse<boolean> | ErrorResponse
 
 type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
 
-type UpdateSpendingLimitResult = SuccessResponse | ErrorResponse
-
 type ChangePinArgs = z.infer<typeof changePinSchema>
 type ChangePinError = ErrorResponse<ChangePinArgs | undefined>
-type ChangePinResponse = SuccessResponse | ChangePinError
+type ChangePinResult = SuccessResponse | ChangePinError
+
+type DailySpendingLimitArgs = z.infer<typeof dailySpendingLimitSchema>
+type DailySpendingLimitError = ErrorResponse<DailySpendingLimitArgs | undefined>
+type DailySpendingLimitResult = SuccessResponse | DailySpendingLimitError
+
+type MonthlySpendingLimitArgs = z.infer<typeof monthlySpendingLimitSchema>
+type MonthlySpendingLimitError = ErrorResponse<
+  MonthlySpendingLimitArgs | undefined
+>
+type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 
 // type RequestArgs = z.infer<typeof requestSchema>
 // type RequestResult = SuccessResponse<{ url: string }>
@@ -67,8 +91,13 @@ interface UserCardService {
   terminate(): Promise<TerminateCardResult>
   freeze(): Promise<FreezeResult>
   unfreeze(): Promise<UnfreezeResult>
-  updateSpendingLimit(): Promise<UpdateSpendingLimitResult>
-  changePin(args: ChangePinArgs): Promise<ChangePinResponse>
+  changePin(args: ChangePinArgs): Promise<ChangePinResult>
+  setDailySpendingLimit(
+    args: DailySpendingLimitArgs
+  ): Promise<DailySpendingLimitResult>
+  setMonthlySpendingLimit(
+    args: MonthlySpendingLimitArgs
+  ): Promise<MonthlySpendingLimitResult>
 }
 
 const createCardService = (): UserCardService => ({
@@ -120,17 +149,6 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async updateSpendingLimit() {
-    try {
-      const response = await httpClient
-        .post('card/update-spending-limit')
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
-    }
-  },
-
   async changePin(args) {
     try {
       const response = await httpClient
@@ -142,73 +160,78 @@ const createCardService = (): UserCardService => ({
     } catch (error) {
       return getError<ChangePinArgs>(error, '[TODO] UPDATE ME!')
     }
-  }
-})
-
-const mock = (): UserCardService => ({
-  async getDetails() {
-    return Promise.resolve({
-      success: true,
-      message: 'Mocked getDetails',
-      result: {
-        name: 'John Doe',
-        number: '4242 4242 4242 4242',
-        expiry: '01/27',
-        cvv: 321,
-        isFrozen: Math.random() > 0.5 ? true : false
-      }
-    })
   },
 
-  async terminate() {
-    return Promise.resolve({
-      success: true,
-      message: 'Mocked terminate',
-      result: true
-    })
-  },
-
-  async freeze() {
-    return Promise.resolve({
-      success: true,
-      message: 'Mocked freeze',
-      result: true
-    })
-  },
-
-  async unfreeze() {
-    return Promise.resolve({
-      success: true,
-      message: 'Mocked unfreeze',
-      result: true
-    })
-  },
-
-  async updateSpendingLimit() {
+  async setDailySpendingLimit(args) {
     try {
       const response = await httpClient
-        .post('card/update-spending-limit')
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
-    }
-  },
-
-  async changePin(args: ChangePinArgs) {
-    try {
-      const response = await httpClient
-        .post('card/change-pin', {
+        .post('card/spending-limit/daily', {
           json: args
         })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<ChangePinArgs>(error, '[TODO] UPDATE ME!')
+      return getError<DailySpendingLimitArgs>(error, '[TODO] UPDATE ME!')
+    }
+  },
+
+  async setMonthlySpendingLimit(args) {
+    try {
+      const response = await httpClient
+        .post('card/spending-limit/monthly', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError<MonthlySpendingLimitArgs>(error, '[TODO] UPDATE ME!')
     }
   }
 })
 
+const mock = (service: UserCardService): UserCardService => {
+  return {
+    ...service,
+    async getDetails() {
+      return Promise.resolve({
+        success: true,
+        message: 'Mocked getDetails',
+        result: {
+          name: 'John Doe',
+          number: '4242 4242 4242 4242',
+          expiry: '01/27',
+          cvv: 321,
+          isFrozen: Math.random() > 0.5 ? true : false
+        }
+      })
+    },
+
+    async terminate() {
+      return Promise.resolve({
+        success: true,
+        message: 'Mocked terminate',
+        result: true
+      })
+    },
+
+    async freeze() {
+      return Promise.resolve({
+        success: true,
+        message: 'Mocked freeze',
+        result: true
+      })
+    },
+
+    async unfreeze() {
+      return Promise.resolve({
+        success: true,
+        message: 'Mocked unfreeze',
+        result: true
+      })
+    }
+  }
+}
+
 const cardService = createCardService()
-const cardServiceMock = mock()
+const cardServiceMock = mock(cardService)
 export { cardService, cardServiceMock }
