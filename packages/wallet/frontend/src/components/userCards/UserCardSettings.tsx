@@ -1,8 +1,8 @@
 import { useDialog } from '@/lib/hooks/useDialog'
 import { Limit } from '../icons/Limit'
-import { UserCardSpendingLimitDialog } from './UserCardSpendingLimitDialog'
+import { UserCardSpendingLimitDialog } from '@/components/dialogs/UserCardSpendingLimitDialog'
+import { UserCardPINDialog } from '@/components/dialogs/UserCardPINDialog'
 import { useCardContext } from './UserCardContext'
-import { UserCardPINDialog } from './UserCardPINDialog'
 
 export const UserCardSettings = () => {
   return (
