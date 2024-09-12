@@ -18,7 +18,6 @@ export const UserCardPINDialog = ({
   card,
   onClose
 }: UserCardPINDialogProos) => {
-  console.log(card)
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
