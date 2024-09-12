@@ -14,16 +14,13 @@ export const UserCardSettings = () => {
 }
 
 const SpendingLimit = () => {
-  const { card } = useCardContext()
   const [openDialog, closeDialog] = useDialog()
 
   return (
     <li className="shadow-md rounded-md">
       <button
         onClick={() => {
-          openDialog(
-            <UserCardSpendingLimitDialog card={card} onClose={closeDialog} />
-          )
+          openDialog(<UserCardSpendingLimitDialog onClose={closeDialog} />)
         }}
         className="block w-full bg-green-light dark:bg-purple-bright rounded-md p-3"
       >
