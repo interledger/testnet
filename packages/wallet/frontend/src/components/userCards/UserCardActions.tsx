@@ -122,21 +122,6 @@ const DefaultCardActions = () => {
           {showDetails ? 'Hide Details' : 'Details'}
         </p>
       </div>
-      <div className="flex flex-col gap-y-4">
-        <Button
-          intent="secondary"
-          aria-label="settings"
-          className="group"
-          onClick={() => {
-            // TODO: TBD
-          }}
-        >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
-            <Cog className="size-6" />
-          </div>
-        </Button>
-        <p className="text-center -tracking-wide text-sm">Settings</p>
-      </div>
     </>
   )
 }
