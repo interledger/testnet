@@ -116,6 +116,30 @@ describe('Authentication Service', (): void => {
     })
   })
 
+  describe('ResendVerifyEmail', () => {
+    it('should return undefined if verification successfully sent', async () => {
+      const newUserData = {
+        ...fakeLoginData(),
+        isEmailVerified: false
+      }
+      await createUser(newUserData)
+
+      const userData = {
+        email: newUserData.email
+      }
+
+      await expect(
+        authService.resendVerifyEmail(userData)
+      ).resolves.toBeUndefined()
+    })
+
+    it('should throw an error if the user does not exist', async (): Promise<void> => {
+      await expect(
+        authService.resendVerifyEmail(mockLogInRequest().body)
+      ).rejects.toThrowError(/Invalid account/)
+    })
+  })
+
   it('should return err with wrong credentials', async () => {
     await expect(authService.logout(uuid())).rejects.toThrowError(
       /Invalid credentials/

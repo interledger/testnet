@@ -139,6 +139,9 @@ export const verifyIdentitySchema = z
 export const forgotPasswordSchema = z.object({
   email: z.string().email({ message: 'Email is required' })
 })
+export const resendVerificationEmailSchema = z.object({
+  email: z.string().email({ message: 'Email is required' })
+})
 
 export const resetPasswordSchema = z
   .object({
@@ -220,6 +223,14 @@ type ForgotPasswordArgs = z.infer<typeof forgotPasswordSchema>
 type ForgotPasswordError = ErrorResponse<ForgotPasswordArgs | undefined>
 type ForgotPasswordResponse = SuccessResponse | ForgotPasswordError
 
+type ResendVerificationEmailArgs = z.infer<typeof resendVerificationEmailSchema>
+type ResendVerificationEmailError = ErrorResponse<
+  ResendVerificationEmailArgs | undefined
+>
+type ResendVerificationEmailResponse =
+  | SuccessResponse
+  | ResendVerificationEmailError
+
 type ResetPasswordArgs = z.infer<typeof resetPasswordSchema>
 type ResetPasswordError = ErrorResponse<ResetPasswordArgs | undefined>
 type ResetPasswordResponse = SuccessResponse | ResetPasswordError
@@ -265,6 +276,9 @@ interface UserService {
   getDocuments: (cookies?: string) => Promise<Document[]>
   getCountries: (cookies?: string) => Promise<SelectOption[]>
   changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
+  resendVerifyEmail: (
+    args: ResendVerificationEmailArgs
+  ) => Promise<ResendVerificationEmailResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -376,6 +390,19 @@ const createUserService = (): UserService => ({
         error,
         'We could not verify your email. Please try again.'
       )
+    }
+  },
+
+  async resendVerifyEmail(args) {
+    try {
+      const response = await httpClient
+        .post(`resend-verify-email/`, {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, 'We could not send you the verification email.')
     }
   },
 

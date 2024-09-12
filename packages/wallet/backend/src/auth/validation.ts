@@ -26,3 +26,9 @@ export const logInSchema = z.object({
     password: z.string()
   })
 })
+
+export const resendVerifyEmailSchema = z.object({
+  body: z.object({
+    email: z.string().email()
+  })
+})

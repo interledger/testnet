@@ -18,6 +18,11 @@ interface CreateUserArgs {
   verifyEmailToken: string
 }
 
+interface VerifyEmailArgs {
+  email: string
+  verifyEmailToken: string
+}
+
 interface IUserService {
   create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
@@ -25,6 +30,7 @@ interface IUserService {
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
   validateToken(token: string): Promise<boolean>
+  resetVerifyEmailToken: (args: VerifyEmailArgs) => Promise<void>
 }
 
 export class UserService implements IUserService {
@@ -211,6 +217,19 @@ export class UserService implements IUserService {
     await User.query().findById(user.id).patch({
       isEmailVerified: true,
       verifyEmailToken: null
+    })
+  }
+
+  public async resetVerifyEmailToken(args: VerifyEmailArgs): Promise<void> {
+    const user = await this.getByEmail(args.email)
+
+    if (!user) {
+      throw new BadRequest('Invalid user')
+    }
+
+    await User.query().findById(user.id).patch({
+      isEmailVerified: false,
+      verifyEmailToken: args.verifyEmailToken
     })
   }
 

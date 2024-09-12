@@ -1,7 +1,11 @@
 import { validate } from '@/shared/validate'
 import { NextFunction, Request } from 'express'
 import { AuthService } from './service'
-import { logInSchema, signUpSchema } from './validation'
+import {
+  logInSchema,
+  signUpSchema,
+  resendVerifyEmailSchema
+} from './validation'
 import { UserService } from '@/user/service'
 import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
 
@@ -9,6 +13,7 @@ interface IAuthController {
   signUp: Controller
   logIn: Controller
   verifyEmail: Controller
+  resendVerifyEmail: Controller
 }
 
 export class AuthController implements IAuthController {
@@ -91,6 +96,31 @@ export class AuthController implements IAuthController {
         success: true,
         message: 'Email was verified successfully'
       })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  resendVerifyEmail = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { email }
+      } = await validate(resendVerifyEmailSchema, req)
+
+      await this.authService.resendVerifyEmail({ email })
+
+      res
+        .status(201)
+        .json(
+          toSuccessResponse(
+            undefined,
+            'Verification email has been sent successfully'
+          )
+        )
     } catch (e) {
       next(e)
     }
