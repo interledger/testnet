@@ -42,6 +42,7 @@ import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
+import { GateHubClient } from '@/gatehub/client'
 
 export interface Bindings {
   env: Env

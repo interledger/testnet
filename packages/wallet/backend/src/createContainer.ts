@@ -150,7 +150,7 @@ export async function createContainer(
     walletAddressKeyController: asClass(WalletAddressKeyController).singleton(),
     kratosService: asClassSingletonWithLogger(KratosService, logger),
     gateHubClient: asClass(GateHubClient).singleton(),
-    gateHubClient: asClass(GateHubController).singleton()
+    gateHubController: asClass(GateHubController).singleton()
   })
 
   return container
