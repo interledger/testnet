@@ -18,7 +18,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^3.6.0",
     "disposable-email-domains": "^1.0.62",
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "express-rate-limit": "^7.4.0",
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
