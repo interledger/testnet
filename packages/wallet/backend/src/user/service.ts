@@ -70,9 +70,9 @@ export class UserService implements IUserService {
   public async requestResetPassword(email: string): Promise<void> {
     const user = await this.getByEmail(email)
 
-    if (!user?.isEmailVerified) {
+    if (!user) {
       this.logger.info(
-        `Reset email not sent. User with email ${email} not found (or not verified)`
+        `Reset email not sent. User with email ${email} not found`
       )
       return
     }
@@ -97,7 +97,8 @@ export class UserService implements IUserService {
     await User.query().findById(user.id).patch({
       newPassword: password,
       passwordResetExpiresAt: null,
-      passwordResetToken: null
+      passwordResetToken: null,
+      isEmailVerified: true
     })
   }
 
