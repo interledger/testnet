@@ -133,10 +133,10 @@ describe('Authentication Service', (): void => {
       ).resolves.toBeUndefined()
     })
 
-    it('should throw an error if the user does not exist', async (): Promise<void> => {
+    it('should not throw an error if the user does not exist', async (): Promise<void> => {
       await expect(
         authService.resendVerifyEmail(mockLogInRequest().body)
-      ).rejects.toThrowError(/Invalid account/)
+      ).resolves.toBeUndefined()
     })
   })
 

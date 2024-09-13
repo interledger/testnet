@@ -64,7 +64,10 @@ export class AuthService implements IAuthService {
 
     // TODO: Prevent timing attacks
     if (!user) {
-      throw new Unauthorized('Invalid account')
+      this.logger.info(
+        `Invalid account on resend verify account email: ${email}`
+      )
+      return
     }
     const token = getRandomToken()
     await this.userService.resetVerifyEmailToken({

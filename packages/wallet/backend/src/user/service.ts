@@ -225,7 +225,10 @@ export class UserService implements IUserService {
     const user = await this.getByEmail(args.email)
 
     if (!user) {
-      throw new BadRequest('Invalid user')
+      this.logger.info(
+        `Invalid account on resend verify account email: ${args.email}`
+      )
+      return
     }
 
     await User.query().findById(user.id).patch({
