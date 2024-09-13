@@ -58,7 +58,10 @@ describe('Authentication Service', (): void => {
     })
 
     it('should throw an error if the password is invalid', async (): Promise<void> => {
-      const args = fakeLoginData()
+      const args =  {
+        ...fakeLoginData(),
+        isEmailVerified: true
+      }
       await createUser(args)
 
       await expect(
