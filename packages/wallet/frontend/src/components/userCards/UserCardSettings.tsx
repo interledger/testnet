@@ -1,5 +1,6 @@
 import { useDialog } from '@/lib/hooks/useDialog'
 import { Limit } from '../icons/Limit'
+import { CardKey } from '../icons/Key'
 import { UserCardSpendingLimitDialog } from '@/components/dialogs/UserCardSpendingLimitDialog'
 import { UserCardPINDialog } from '@/components/dialogs/UserCardPINDialog'
 import { useCardContext } from './UserCardContext'
@@ -56,7 +57,7 @@ const PinSettings = () => {
       >
         <div className="flex min-w-0 gap-x-4">
           <div className="size-12 grid place-items-center bg-green dark:bg-purple-dark rounded-full">
-            <Limit className="text-white size-6" />
+            <CardKey className="text-white size-6" />
           </div>
           <div className="min-w-0 flex-auto text-left">
             <p className="font-semibold leading-6 text-gray-900">

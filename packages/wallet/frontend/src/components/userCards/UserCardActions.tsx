@@ -37,7 +37,7 @@ export const FrozenCardActions = () => {
         </Button>
         <p className="text-center text-sm">Unfreeze</p>
       </div>
-      <div className="col-span-2 flex flex-col gap-y-4">
+      <div className="flex flex-col gap-y-4">
         <Button
           intent="danger"
           aria-label="terminate card"
@@ -103,7 +103,7 @@ const DefaultCardActions = () => {
         </Button>
         <p className="text-center text-sm">Freeze</p>
       </div>
-      <div className="col-span-2 flex flex-col gap-y-4">
+      <div className="flex flex-col gap-y-4">
         <Button
           intent="secondary"
           aria-label={showDetails ? 'hide details' : 'show details'}
@@ -130,7 +130,7 @@ export const UserCardActions = () => {
   const { card } = useCardContext()
 
   return (
-    <div className="grid grid-cols-3 gap-x-3">
+    <div className="grid grid-cols-2 gap-x-3">
       {card.isFrozen ? <FrozenCardActions /> : <DefaultCardActions />}
     </div>
   )
