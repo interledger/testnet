@@ -41,6 +41,8 @@ import { GrantService } from '@/grant/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
+import { GateHubController } from '@/gatehub/controller'
+import { GateHubClient } from '@/gatehub/client'
 
 export interface Bindings {
   env: Env
@@ -77,6 +79,8 @@ export interface Bindings {
   grantService: GrantService
   emailService: EmailService
   socketService: SocketService
+  gateHubClient: GateHubClient
+  gateHubController: GateHubController
 }
 
 export class App {
@@ -145,6 +149,7 @@ export class App {
     const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
+    const gateHubController = await this.container.resolve('gateHubController')
 
     app.use(
       cors({
@@ -299,6 +304,9 @@ export class App {
 
     router.get('/rates', rafikiController.getRates)
     router.post('/webhooks', rafikiController.onWebHook)
+
+    // GateHub
+    router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

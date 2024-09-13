@@ -51,6 +51,8 @@ import { asClassSingletonWithLogger, RedisClient } from '@shared/backend'
 import { generateLogger } from '@/config/logger'
 import { GraphQLClient } from 'graphql-request'
 import { KratosService } from './rafiki/kratos.service'
+import { GateHubController } from '@/gatehub/controller'
+import { GateHubClient } from '@/gatehub/client'
 
 export interface Cradle {
   env: Env
@@ -92,6 +94,8 @@ export interface Cradle {
   walletAddressController: WalletAddressController
   walletAddressKeyController: WalletAddressKeyController
   kratosService: KratosService
+  gateHubClient: GateHubClient
+  gateHubController: GateHubController
 }
 
 export async function createContainer(
@@ -144,7 +148,9 @@ export async function createContainer(
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),
     walletAddressKeyController: asClass(WalletAddressKeyController).singleton(),
-    kratosService: asClassSingletonWithLogger(KratosService, logger)
+    kratosService: asClassSingletonWithLogger(KratosService, logger),
+    gateHubClient: asClass(GateHubClient).singleton(),
+    gateHubController: asClass(GateHubController).singleton()
   })
 
   return container
