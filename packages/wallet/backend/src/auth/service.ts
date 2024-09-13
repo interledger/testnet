@@ -88,13 +88,13 @@ export class AuthService implements IAuthService {
       throw new Unauthorized('Invalid credentials.')
     }
 
+    if (!user.isEmailVerified) {
+      throw new NotVerified('Email address is not verified.')
+    }
+
     const isValid = await user.verifyPassword(args.password)
     if (!isValid) {
       throw new Unauthorized('Invalid credentials.')
-    }
-
-    if (!user.isEmailVerified) {
-      throw new NotVerified('Email address is not verified.')
     }
 
     const session = await user.$relatedQuery('sessions').insertGraphAndFetch({

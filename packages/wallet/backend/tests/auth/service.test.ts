@@ -117,7 +117,7 @@ describe('Authentication Service', (): void => {
   })
 
   describe('ResendVerifyEmail', () => {
-    it('should return undefined if verification successfully sent', async () => {
+    it('should return undefined if verification email successfully sent', async () => {
       const newUserData = {
         ...fakeLoginData(),
         isEmailVerified: false
