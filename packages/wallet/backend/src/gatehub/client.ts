@@ -19,10 +19,19 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
+import { IFRAME_TYPE } from '@wallet/shared/src'
+import { BadRequest } from '@shared/backend'
 
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'
+
+  private iframeMappings: Record<IFRAME_TYPE, () => Promise<string>> = {
+    deposit: this.getDepositUrl,
+    withdrawal: this.getWithdrawalUrl,
+    exchange: this.getExchangeUrl,
+    onboarding: this.getOnboardingUrl
+  }
   constructor(
     private env: Env,
     private logger: Logger
@@ -83,6 +92,14 @@ export class GateHubClient {
     )
 
     return `${this.exchangeUrl}/?bearer=${token}`
+  }
+
+  async getIframeUrl(type: IFRAME_TYPE): Promise<string> {
+    if (!this.iframeMappings[type]) {
+      throw new BadRequest('Invalid iframe type')
+    }
+
+    return await this.iframeMappings[type]()
   }
 
   async getIframeAuthorizationToken(
