@@ -8,12 +8,15 @@ import { Play } from '@/components/icons/Play'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { loginSchema, userService } from '@/lib/api/user'
-import { getObjectKeys } from '@/utils/helpers'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
+import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
 import { useTheme } from 'next-themes'
 
 const LoginPage: NextPageWithLayout = () => {
+  const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
   const callBackUrl =
     router.asPath.indexOf('callbackUrl') !== -1
@@ -28,6 +31,29 @@ const LoginPage: NextPageWithLayout = () => {
       ? '/login-mobile-dark.webp'
       : '/login-mobile-light.webp'
 
+  async function resendVerifyEmail() {
+    const { email } = loginForm.getValues()
+    const response = await userService.resendVerifyEmail({ email })
+
+    if (response.success) {
+      openDialog(
+        <SuccessDialog
+          onClose={closeDialog}
+          title="Email sent."
+          content="Please check your inbox. Click on the provided link to validate your email address."
+          redirect={'login'}
+          redirectText="Go to Login"
+        />
+      )
+    } else {
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Email not sent. Please try again."
+        />
+      )
+    }
+  }
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -55,14 +81,22 @@ const LoginPage: NextPageWithLayout = () => {
               const { errors, message } = response
               loginForm.setError('root', { message })
 
-              if (errors) {
-                getObjectKeys(errors).map((field) =>
-                  loginForm.setError(field, { message: errors[field] })
-                )
+              if (errors && errors.email) {
+                loginForm.setError('email', { message: errors.email })
               }
             }
           }}
         >
+          {loginForm.formState.errors.email ? (
+            <Link
+              onClick={() => {
+                resendVerifyEmail()
+              }}
+              className="text-sm font-extralight text-green underline dark:text-green-neon"
+            >
+              Click here to resend verification email
+            </Link>
+          ) : null}
           <Input
             required
             type="email"

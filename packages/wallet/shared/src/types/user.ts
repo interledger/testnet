@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export interface UserResponse {
   email: string
   firstName: string
@@ -10,3 +12,7 @@ export interface UserResponse {
 export type ValidTokenResponse = {
   isValid: boolean
 }
+
+export const emailSchema = z.object({
+  email: z.string().email({ message: 'Email is required' })
+})
