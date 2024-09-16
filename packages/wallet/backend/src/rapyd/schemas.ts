@@ -37,15 +37,6 @@ export const walletSchema = z.object({
   })
 })
 
-export const ratesSchema = z.object({
-  query: z.object({
-    base: z
-      .string()
-      .length(3)
-      .transform((v) => v.toLocaleUpperCase())
-  })
-})
-
 export interface RapydResponse<T> {
   status: Status
   data: T

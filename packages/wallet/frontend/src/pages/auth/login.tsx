@@ -7,13 +7,14 @@ import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
-import { loginSchema, userService } from '@/lib/api/user'
+import { userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
 import { useTheme } from 'next-themes'
+import { loginSchema } from '@wallet/shared'
 
 const LoginPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()

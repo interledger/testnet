@@ -5,7 +5,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
-import { signUpSchema, userService } from '@/lib/api/user'
+import { userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
@@ -13,6 +13,7 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect } from 'react'
 import { cx } from 'class-variance-authority'
 import { useTheme } from 'next-themes'
+import { signUpSchema } from '@wallet/shared'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
