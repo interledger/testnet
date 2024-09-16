@@ -2,25 +2,57 @@ import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { GateHubMessageType, MessageError } from '@/lib/types/windowMessages'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
 
 type KYCPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
+
+type MessageData =
+  | {
+      type: GateHubMessageType.OnboardingCompleted
+      value: 'submitted' | 'resubmitted'
+    }
+  | { type: GateHubMessageType.OnboardingError; value: MessageError }
+  | { type: GateHubMessageType.OnboardingInitialized }
 
 const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
   // const [openDialog, closeDialog] = useDialog()
   // const router = useRouter()
 
   useEffect(() => {
-    const onKYCComplete = (e: MessageEvent) => {
-      // TODO: Handle the received message from iframe
-      // https://docs.gatehub.net/api-documentation/c3OPAp5dM191CDAdwyYS/gatehub-products/gatehub-onboarding#message-events
+    // TODO: Handle the received message from iframe
+    // https://docs.gatehub.net/api-documentation/c3OPAp5dM191CDAdwyYS/gatehub-products/gatehub-onboarding#message-events
+    const onMessage = (e: MessageEvent<MessageData>) => {
       console.log('received message from iframe', { e })
+      switch (e.data.type) {
+        case GateHubMessageType.OnboardingCompleted:
+          console.log(
+            'received message from iframe',
+            GateHubMessageType.OnboardingCompleted,
+            JSON.stringify(e.data, null, 2)
+          )
+          break
+        case GateHubMessageType.OnboardingError:
+          console.log(
+            'received message from iframe',
+            GateHubMessageType.OnboardingError,
+            JSON.stringify(e.data, null, 2)
+          )
+          break
+        case GateHubMessageType.OnboardingInitialized:
+          console.log(
+            'received message from iframe',
+            GateHubMessageType.OnboardingInitialized,
+            JSON.stringify(e.data, null, 2)
+          )
+          break
+      }
     }
-    window.addEventListener('message', onKYCComplete, false)
+    window.addEventListener('message', onMessage, false)
 
     return () => {
-      window.removeEventListener('message', onKYCComplete)
+      window.removeEventListener('message', onMessage)
     }
   }, [])
 
