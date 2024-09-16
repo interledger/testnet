@@ -32,6 +32,7 @@ export const fakeLoginData = () => {
     email: faker.internet.email(),
     password: faker.internet.password({
       length: 20,
+      // eslint-disable-next-line no-useless-escape
       pattern: /[0-9a-zA-Z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
     })
   }
