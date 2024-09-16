@@ -16,6 +16,7 @@ export class GateHubController implements IGateHubController {
     next: NextFunction
   ) => {
     try {
+      const userId = req.session.user.id
       const iframeType: IFRAME_TYPE = req.params.type as IFRAME_TYPE
       const url = this.gateHubClient.getIframeUrl(iframeType)
       res.status(200).json(toSuccessResponse({ url }))

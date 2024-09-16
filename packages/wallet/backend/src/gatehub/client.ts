@@ -30,7 +30,7 @@ export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
-  private iframeMappings: Record<IFRAME_TYPE, () => Promise<string>> = {
+  private iframeMappings: Record<IFRAME_TYPE, (managerUserId: string) => Promise<string>> = {
     deposit: this.getDepositUrl,
     withdrawal: this.getWithdrawalUrl,
     exchange: this.getExchangeUrl,
@@ -62,53 +62,58 @@ export class GateHubClient {
     return `https://onboarding.${this.mainUrl}`
   }
 
-  async getWithdrawalUrl(): Promise<string> {
+  async getWithdrawalUrl(managerUserId: string): Promise<string> {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
-      DEFAULT_APP_SCOPE
+      DEFAULT_APP_SCOPE,
+        managerUserId
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.withdrawal}&bearer=${token}`
   }
 
-  async getDepositUrl(): Promise<string> {
+  async getDepositUrl(managerUserId: string): Promise<string> {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
-      DEFAULT_APP_SCOPE
+      DEFAULT_APP_SCOPE,
+        managerUserId
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.deposit}&bearer=${token}`
   }
 
-  async getOnboardingUrl(): Promise<string> {
+  async getOnboardingUrl(managerUserId: string): Promise<string> {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.onboarding,
-      ONBOARDING_APP_SCOPE
+      ONBOARDING_APP_SCOPE,
+        managerUserId
     )
 
     return `${this.onboardingUrl}/?bearer=${token}`
   }
 
-  async getExchangeUrl(): Promise<string> {
+  async getExchangeUrl(managerUserId: string): Promise<string> {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.exchange,
-      DEFAULT_APP_SCOPE
+      DEFAULT_APP_SCOPE,
+        managerUserId
     )
 
     return `${this.exchangeUrl}/?bearer=${token}`
   }
 
-  async getIframeUrl(type: IFRAME_TYPE): Promise<string> {
+  async getIframeUrl(type: IFRAME_TYPE, managerUserId): Promise<string> {
     if (!this.iframeMappings[type]) {
       throw new BadRequest('Invalid iframe type')
     }
 
-    return await this.iframeMappings[type]()
+    return await this.iframeMappings[type](managerUserId)
   }
 
   async getIframeAuthorizationToken(
     clientId: string,
-    scope: string[]
+    scope: string[],
+    managerUserId: string
   ): Promise<string> {
     const url = `${this.apiUrl}/auth/v1/tokens?${clientId}`
     const body: ITokenRequest = { scope }
@@ -116,7 +121,8 @@ export class GateHubClient {
     const response: ITokenResponse = await this.request<ITokenResponse>(
       'POST',
       url,
-      JSON.stringify(body)
+      JSON.stringify(body),
+        managerUserId
     )
 
     return response.token
