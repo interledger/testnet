@@ -31,7 +31,7 @@ describe('Rafiki Service', () => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      virtualAccountId: 'mocked'
+      gateHubUserId: 'mocked'
     })
 
     const walletAddress = await WalletAddress.query().insert({
