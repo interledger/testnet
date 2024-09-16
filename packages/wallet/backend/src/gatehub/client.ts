@@ -105,7 +105,7 @@ export class GateHubClient {
     return `${this.exchangeUrl}/?bearer=${token}`
   }
 
-  async getIframeUrl(type: IFRAME_TYPE, managerUserId): Promise<string> {
+  async getIframeUrl(type: IFRAME_TYPE, managerUserId: string): Promise<string> {
     if (!this.iframeMappings[type]) {
       throw new BadRequest('Invalid iframe type')
     }
