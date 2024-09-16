@@ -27,10 +27,10 @@ export class GateHubClient {
   private mainUrl = 'sandbox.gatehub.net'
 
   private iframeMappings: Record<IFRAME_TYPE, () => Promise<string>> = {
-    deposit: this.getDepositUrl,
-    withdrawal: this.getWithdrawalUrl,
-    exchange: this.getExchangeUrl,
-    onboarding: this.getOnboardingUrl
+    deposit: this.getDepositUrl.bind(this),
+    withdrawal: this.getWithdrawalUrl.bind(this),
+    exchange: this.getExchangeUrl.bind(this),
+    onboarding: this.getOnboardingUrl.bind(this)
   }
   constructor(
     private env: Env,
@@ -59,7 +59,7 @@ export class GateHubClient {
   }
 
   async getWithdrawalUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE
     )
@@ -68,7 +68,7 @@ export class GateHubClient {
   }
 
   async getDepositUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE
     )
@@ -77,7 +77,7 @@ export class GateHubClient {
   }
 
   async getOnboardingUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.onboarding,
       ONBOARDING_APP_SCOPE
     )
@@ -86,7 +86,7 @@ export class GateHubClient {
   }
 
   async getExchangeUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.exchange,
       DEFAULT_APP_SCOPE
     )
