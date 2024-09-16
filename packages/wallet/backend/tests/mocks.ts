@@ -18,7 +18,7 @@ import {
   paymentDetailsSchema
 } from '@/incomingPayment/validation'
 import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
-import { ratesSchema } from '@/rates/valitation'
+import { ratesSchema } from '@/rates/validation'
 
 export type LogInRequest = z.infer<typeof logInBodySchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>

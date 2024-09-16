@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
 import { RatesService } from '@/rates/service'
-import { ratesSchema } from '@/rates/valitation'
+import { ratesSchema } from '@/rates/validation'
 import { validate } from '@/shared/validate'
 import { RafikiService } from './service'
 import { webhookSchema } from './validation'
