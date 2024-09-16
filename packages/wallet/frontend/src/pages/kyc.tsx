@@ -2,7 +2,10 @@ import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { GateHubMessageType, MessageError } from '@/lib/types/windowMessages'
+import {
+  GateHubMessageType,
+  type GateHubMessageError
+} from '@/lib/types/windowMessages'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
 
@@ -13,7 +16,7 @@ type MessageData =
       type: GateHubMessageType.OnboardingCompleted
       value: 'submitted' | 'resubmitted'
     }
-  | { type: GateHubMessageType.OnboardingError; value: MessageError }
+  | { type: GateHubMessageType.OnboardingError; value: GateHubMessageError }
   | { type: GateHubMessageType.OnboardingInitialized }
 
 const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
