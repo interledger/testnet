@@ -53,6 +53,7 @@ import { GraphQLClient } from 'graphql-request'
 import { KratosService } from './rafiki/kratos.service'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
+import { GateHubService } from '@/gatehub/service'
 
 export interface Cradle {
   env: Env
@@ -96,6 +97,7 @@ export interface Cradle {
   kratosService: KratosService
   gateHubClient: GateHubClient
   gateHubController: GateHubController
+  gateHubService: GateHubService
 }
 
 export async function createContainer(
@@ -150,7 +152,8 @@ export async function createContainer(
     walletAddressKeyController: asClass(WalletAddressKeyController).singleton(),
     kratosService: asClassSingletonWithLogger(KratosService, logger),
     gateHubClient: asClass(GateHubClient).singleton(),
-    gateHubController: asClass(GateHubController).singleton()
+    gateHubController: asClass(GateHubController).singleton(),
+    gateHubService: asClass(GateHubService).singleton()
   })
 
   return container

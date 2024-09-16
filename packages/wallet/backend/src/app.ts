@@ -43,6 +43,7 @@ import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
+import { GateHubService } from '@/gatehub/service'
 
 export interface Bindings {
   env: Env
@@ -81,6 +82,7 @@ export interface Bindings {
   socketService: SocketService
   gateHubClient: GateHubClient
   gateHubController: GateHubController
+  gateHubService: GateHubService
 }
 
 export class App {

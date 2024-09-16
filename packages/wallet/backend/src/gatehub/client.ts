@@ -30,7 +30,10 @@ export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
-  private iframeMappings: Record<IFRAME_TYPE, (managerUserId: string) => Promise<string>> = {
+  private iframeMappings: Record<
+    IFRAME_TYPE,
+    (managerUserId: string) => Promise<string>
+  > = {
     deposit: this.getDepositUrl,
     withdrawal: this.getWithdrawalUrl,
     exchange: this.getExchangeUrl,
@@ -66,7 +69,7 @@ export class GateHubClient {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE,
-        managerUserId
+      managerUserId
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.withdrawal}&bearer=${token}`
@@ -76,7 +79,7 @@ export class GateHubClient {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE,
-        managerUserId
+      managerUserId
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.deposit}&bearer=${token}`
@@ -86,7 +89,7 @@ export class GateHubClient {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.onboarding,
       ONBOARDING_APP_SCOPE,
-        managerUserId
+      managerUserId
     )
 
     return `${this.onboardingUrl}/?bearer=${token}`
@@ -96,7 +99,7 @@ export class GateHubClient {
     const token = this.getIframeAuthorizationToken(
       this.clientIds.exchange,
       DEFAULT_APP_SCOPE,
-        managerUserId
+      managerUserId
     )
 
     return `${this.exchangeUrl}/?bearer=${token}`
@@ -122,7 +125,7 @@ export class GateHubClient {
       'POST',
       url,
       JSON.stringify(body),
-        managerUserId
+      managerUserId
     )
 
     return response.token
