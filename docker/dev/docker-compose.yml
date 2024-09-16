@@ -198,7 +198,7 @@ services:
       - testnet
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.1
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.2
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
