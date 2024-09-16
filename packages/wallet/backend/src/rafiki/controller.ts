@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
 import { RatesService } from '@/rates/service'
+import { ratesSchema } from '@/rates/valitation'
 import { validate } from '@/shared/validate'
 import { RafikiService } from './service'
 import { webhookSchema } from './validation'
-import { ratesSchema, RatesResponse } from '@wallet/shared'
-
+import { RatesResponse } from '@wallet/shared'
 interface IRafikiController {
   getRates: (
     req: Request,
