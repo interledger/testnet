@@ -19,6 +19,11 @@ interface CreateUserArgs {
   verifyEmailToken: string
 }
 
+interface VerifyEmailArgs {
+  email: string
+  verifyEmailToken: string
+}
+
 interface IUserService {
   create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
@@ -26,6 +31,7 @@ interface IUserService {
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
   validateToken(token: string): Promise<boolean>
+  resetVerifyEmailToken: (args: VerifyEmailArgs) => Promise<void>
 }
 
 export class UserService implements IUserService {
@@ -66,9 +72,9 @@ export class UserService implements IUserService {
   public async requestResetPassword(email: string): Promise<void> {
     const user = await this.getByEmail(email)
 
-    if (!user?.isEmailVerified) {
+    if (!user) {
       this.logger.info(
-        `Reset email not sent. User with email ${email} not found (or not verified)`
+        `Reset email not sent. User with email ${email} not found`
       )
       return
     }
@@ -93,7 +99,8 @@ export class UserService implements IUserService {
     await User.query().findById(user.id).patch({
       newPassword: password,
       passwordResetExpiresAt: null,
-      passwordResetToken: null
+      passwordResetToken: null,
+      isEmailVerified: true
     })
   }
 
@@ -216,6 +223,22 @@ export class UserService implements IUserService {
       isEmailVerified: true,
       verifyEmailToken: null,
       gateHubUserId: gateHubUser.id
+    })
+  }
+
+  public async resetVerifyEmailToken(args: VerifyEmailArgs): Promise<void> {
+    const user = await this.getByEmail(args.email)
+
+    if (!user) {
+      this.logger.info(
+        `Invalid account on resend verify account email: ${args.email}`
+      )
+      return
+    }
+
+    await User.query().findById(user.id).patch({
+      isEmailVerified: false,
+      verifyEmailToken: args.verifyEmailToken
     })
   }
 

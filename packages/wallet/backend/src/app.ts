@@ -178,6 +178,7 @@ export class App {
     router.get('/reset-password/:token/validate', userController.checkToken)
     router.post('/reset-password/:token', userController.resetPassword)
     router.post('/verify-email/:token', authController.verifyEmail)
+    router.post('/resend-verify-email', authController.resendVerifyEmail)
     router.patch('/change-password', isAuth, userController.changePassword)
 
     // Me Endpoint
