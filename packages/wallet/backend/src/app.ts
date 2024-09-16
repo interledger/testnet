@@ -95,6 +95,14 @@ export class App {
     const knex = await this.container.resolve('knex')
     const socketService = await this.container.resolve('socketService')
 
+    logger.debug(
+      JSON.stringify(
+        { gh0: env.GATEHUB_ACCESS_KEY, gh1: env.GATEHUB_SECRET_KEY },
+        null,
+        2
+      )
+    )
+
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
     })

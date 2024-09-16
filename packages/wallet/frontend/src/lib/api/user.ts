@@ -7,6 +7,7 @@ import {
 } from '../httpClient'
 import { UserResponse, ValidTokenResponse } from '@wallet/shared'
 import { emailSchema } from '@wallet/shared/src'
+import { IFRAME_TYPE, IframeResponse } from '@wallet/shared'
 
 const isValidPassword = (password: string): boolean => {
   if (typeof password !== 'string') return false
@@ -143,10 +144,6 @@ export const changePasswordSchema = z
     }
   })
 
-const getIframeSrcSchema = z.object({
-  type: z.enum(['onboarding', 'ramp'])
-})
-
 type SignUpArgs = z.infer<typeof signUpSchema>
 type SignUpError = ErrorResponse<SignUpArgs | undefined>
 type SignUpResponse = SuccessResponse | SignUpError
@@ -191,14 +188,8 @@ type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
 type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
 type ChangePasswordResponse = SuccessResponse | ChangePasswordError
 
-type GetGateHubIframeSrcArgs = z.infer<typeof getIframeSrcSchema>
-type GetGateHubIframeSrcResult = SuccessResponse<{ url: string }>
-type GetGateHubIframeSrcError = ErrorResponse<
-  GetGateHubIframeSrcArgs | undefined
->
-type GetGateHubIframeSrcResponse =
-  | GetGateHubIframeSrcResult
-  | GetGateHubIframeSrcError
+type GetGateHubIframeSrcResult = SuccessResponse<IframeResponse>
+type GetGateHubIframeSrcResponse = GetGateHubIframeSrcResult | ErrorResponse
 
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
@@ -215,7 +206,7 @@ interface UserService {
     args: ResendVerificationEmailArgs
   ) => Promise<ResendVerificationEmailResponse>
   getGateHubIframeSrc: (
-    args: GetGateHubIframeSrcArgs,
+    type: IFRAME_TYPE,
     cookies?: string
   ) => Promise<GetGateHubIframeSrcResponse>
 }
@@ -392,10 +383,10 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async getGateHubIframeSrc(args, cookies) {
+  async getGateHubIframeSrc(type, cookies) {
     try {
       const response = await httpClient
-        .get(`gatehub/token/${args.type}`, {
+        .get(`iframe-urls/${type}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -403,7 +394,7 @@ const createUserService = (): UserService => ({
         .json<GetGateHubIframeSrcResult>()
       return response
     } catch (error) {
-      return getError<GetGateHubIframeSrcArgs>(
+      return getError(
         error,
         // TODO: Better error message
         'Something went wrong. Please try again.'

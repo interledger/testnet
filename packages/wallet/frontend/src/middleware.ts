@@ -19,6 +19,7 @@ export async function middleware(req: NextRequest) {
     `${cookieName}=${req.cookies.get(cookieName)?.value}`
   )
 
+  // TODO: Update middleware as well
   // Success TRUE - the user is logged in
   if (response.success) {
     // If the user is logged in and has not completed KYC, redirect to KYC page.
@@ -41,13 +42,13 @@ export async function middleware(req: NextRequest) {
 
     // If KYC is completed and the user tries to navigate to the page, redirect
     // to homepage.
-    if (
-      !response.result?.needsIDProof &&
-      !response.result?.needsWallet &&
-      req.nextUrl.pathname.startsWith('/kyc')
-    ) {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
+    // if (
+    //   !response.result?.needsIDProof &&
+    //   !response.result?.needsWallet &&
+    //   req.nextUrl.pathname.startsWith('/kyc')
+    // ) {
+    //   return NextResponse.redirect(new URL('/', req.url))
+    // }
 
     if (isPublic) {
       return NextResponse.redirect(new URL('/', req.url))
