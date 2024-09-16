@@ -19,7 +19,34 @@ export interface ICreateManagedUserRequest {
   email: string
 }
 
-export interface ICreateManagedUserResponse {}
+export interface ICreateManagedUserResponse {
+  id: string
+  createdAt: string
+  updatedAt: string
+  activatedAt: string
+  email: string
+  secret2fa: boolean
+  type2fa: string
+  activated: boolean
+  role: string
+  meta: Record<string, string>
+  lastPasswordChange: string
+  features: string[]
+  managed: boolean
+  managedBy: string
+}
+
+export interface ICreateWalletRequest {
+  name: string
+  type: number
+}
+
+export interface ICreateWalletResponse {
+  address: string
+}
+export interface IGetWalletResponse {
+  address: string
+}
 
 export interface ICreateTransactionRequest {
   amount: number

@@ -5,13 +5,17 @@ import {
   ICreateManagedUserResponse,
   ICreateTransactionRequest,
   ICreateTransactionResponse,
+  ICreateWalletRequest,
+  ICreateWalletResponse,
   IGetVaultsResponse,
+  IGetWalletResponse,
   ITokenRequest,
   ITokenResponse
 } from '@/gatehub/types'
 import { Env } from '@/config/env'
 import {
   DEFAULT_APP_SCOPE,
+  HOSTED_WALLET_TYPE,
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
@@ -156,6 +160,40 @@ export class GateHubClient {
 
     const response: ICreateManagedUserResponse =
       await this.request<ICreateManagedUserResponse>('POST', url)
+
+    return response
+  }
+
+  async createWallet(
+    userUuid: string,
+    name: string
+  ): Promise<ICreateWalletResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets`
+    const body: ICreateWalletRequest = {
+      name,
+      type: HOSTED_WALLET_TYPE
+    }
+
+    const response: ICreateWalletResponse =
+      await this.request<ICreateWalletResponse>(
+        'POST',
+        url,
+        JSON.stringify(body)
+      )
+
+    return response
+  }
+
+  async getWallet(
+    userUuid: string,
+    walletId: string
+  ): Promise<IGetWalletResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/${walletId}`
+
+    const response: IGetWalletResponse = await this.request<IGetWalletResponse>(
+      'GET',
+      url
+    )
 
     return response
   }

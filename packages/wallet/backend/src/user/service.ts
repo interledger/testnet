@@ -11,6 +11,7 @@ import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { BadRequest, Conflict } from '@shared/backend'
 import { KratosService } from '@/rafiki/kratos.service'
 import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
+import { GateHubClient } from '@/gatehub/client'
 
 interface CreateUserArgs {
   email: string
@@ -35,6 +36,7 @@ export class UserService implements IUserService {
     private walletAddressKeyService: WalletAddressKeyService,
     private rafikiClient: RafikiClient,
     private kratosService: KratosService,
+    private gateHubClient: GateHubClient,
     private logger: Logger,
     private env: Env
   ) {}
@@ -208,9 +210,12 @@ export class UserService implements IUserService {
       throw new BadRequest('Invalid token')
     }
 
+    const gateHubUser = await this.gateHubClient.createManagedUser(user.email)
+
     await User.query().findById(user.id).patch({
       isEmailVerified: true,
-      verifyEmailToken: null
+      verifyEmailToken: null,
+      gateHubUserId: gateHubUser.id
     })
   }
 

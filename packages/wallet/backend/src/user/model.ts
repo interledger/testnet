@@ -20,6 +20,8 @@ export class User extends BaseModel {
   public rapydWalletId?: string
   public rapydContactId?: string
   public kycId?: string
+
+  public gateHubUserId?: string
   public sessions?: Session[]
   public passwordResetToken?: string | null
   public passwordResetExpiresAt?: Date | null

@@ -17,6 +17,8 @@ exports.up = function (knex) {
     table.string('rapydContactId')
     table.string('kycId')
 
+    table.string('gateHubUserId')
+
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()
   })

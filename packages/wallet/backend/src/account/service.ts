@@ -7,6 +7,7 @@ import { Transaction } from '@/transaction/model'
 import { Amount } from '@/rafiki/service'
 import { Conflict, NotFound } from '@shared/backend'
 import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
+import { GateHubClient } from '@/gatehub/client'
 
 type CreateAccountArgs = {
   userId: string
@@ -39,6 +40,7 @@ interface IAccountService {
 export class AccountService implements IAccountService {
   constructor(
     private rapydClient: RapydClient,
+    private gateHubClient: GateHubClient,
     private rafikiClient: RafikiClient
   ) {}
 
@@ -70,23 +72,14 @@ export class AccountService implements IAccountService {
 
     // issue virtual account to wallet
     const user = await User.query().findById(args.userId)
-    if (!user) {
+    if (!user || !user.gateHubUserId) {
       throw new NotFound()
     }
 
-    const result = await this.rapydClient.issueVirtualAccount({
-      country: user.country ?? '',
-      currency: asset.code,
-      ewallet: user.rapydWalletId ?? ''
-    })
-
-    if (result.status?.status !== 'SUCCESS') {
-      throw new Error(
-        `Unable to issue virtal account to ewallet: ${result.status?.message}`
-      )
-    }
-    // save virtual bank account number to database
-    const virtualAccount = result.data
+    const result = await this.gateHubClient.createWallet(
+      user.gateHubUserId,
+      args.name
+    )
 
     const account = await Account.query().insert({
       name: args.name,
@@ -94,27 +87,10 @@ export class AccountService implements IAccountService {
       assetCode: asset.code,
       assetId: args.assetId,
       assetScale: asset.scale,
-      virtualAccountId: virtualAccount.id
-    })
-    await this.rapydClient.simulateBankTransferToWallet({
-      amount: 0,
-      currency: account.assetCode,
-      issued_bank_account: account.virtualAccountId
+      gateHubWalletId: result.address
     })
 
-    if (!user || !user.rapydWalletId) {
-      throw new NotFound()
-    }
-
-    const accountsBalance = await this.rapydClient.getAccountsBalance(
-      user.rapydWalletId
-    )
-
-    account.balance = transformBalance(
-      accountsBalance.data?.find((acc) => acc.currency === account.assetCode)
-        ?.balance ?? 0,
-      asset.scale
-    )
+    account.balance = transformBalance(0, account.assetScale)
 
     return account
   }
@@ -232,7 +208,7 @@ export class AccountService implements IAccountService {
     const result = await this.rapydClient.simulateBankTransferToWallet({
       amount: args.amount,
       currency: existingAccount.assetCode,
-      issued_bank_account: existingAccount.virtualAccountId
+      issued_bank_account: existingAccount.virtualAccountId!
     })
 
     if (result.status?.status !== 'SUCCESS') {

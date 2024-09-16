@@ -18,3 +18,5 @@ export enum PAYMENT_TYPE {
   withdrawal = 'withdrawal',
   deposit = 'deposit'
 }
+
+export const HOSTED_WALLET_TYPE = 0
