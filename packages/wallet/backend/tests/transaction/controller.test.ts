@@ -68,7 +68,7 @@ describe('Transaction Controller', (): void => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      gateHubUserId: 'mocked'
+      gateHubWalletId: 'mocked'
     })
 
     const walletAddress = await WalletAddress.query().insert({

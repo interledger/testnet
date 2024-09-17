@@ -50,7 +50,7 @@ describe('Wallet Address Key Service', () => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      gateHubUserId: 'mocked'
+      gateHubWalletId: 'mocked'
     })
 
     await WalletAddress.query().insert(walletAddress)

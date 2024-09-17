@@ -282,7 +282,7 @@ export const mockedAccount = {
   id: faker.string.uuid(),
   name: faker.string.uuid(),
   balance: faker.number,
-  gateHubUserId: faker.string.uuid(),
+  gateHubWalletId: faker.string.uuid(),
   assetId: mockedListAssets[0].id,
   assetCode: mockedListAssets[0].code,
   assetScale: mockedListAssets[0].scale,

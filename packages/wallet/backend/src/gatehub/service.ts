@@ -12,7 +12,7 @@ export class GateHubService {
       throw new NotFound()
     }
 
-    const url = this.gateHubClient.getIframeUrl(iframeType, user.gateHubUserId)
+    const url = await this.gateHubClient.getIframeUrl(iframeType, user.gateHubUserId)
 
     return url
   }
