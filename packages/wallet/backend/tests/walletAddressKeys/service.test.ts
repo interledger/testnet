@@ -34,7 +34,7 @@ describe('Wallet Address Key Service', () => {
   const prepareRelatedData = async () => {
     const extraUserArgs = {
       isEmailVerified: true,
-      rapydWalletId: 'mocked'
+      gateHubUserId: 'mocked'
     }
 
     const { user } = await loginUser({

@@ -16,9 +16,6 @@ export class User extends BaseModel {
   public firstName?: string
   public address?: string
   public country?: string
-  public rapydReferenceId?: string
-  public rapydWalletId?: string
-  public rapydContactId?: string
   public kycId?: string
 
   public gateHubUserId?: string

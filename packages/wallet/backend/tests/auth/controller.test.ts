@@ -140,7 +140,7 @@ describe('Authentication Controller', (): void => {
       expect(req.session.user).toMatchObject({
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
+        needsWallet: !user.gateHubUserId,
         needsIDProof: !user.kycId
       })
       expect(res.statusCode).toBe(200)
@@ -224,7 +224,7 @@ describe('Authentication Controller', (): void => {
       req.session.user = {
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
+        needsWallet: !user.gateHubUserId,
         needsIDProof: !user.kycId
       }
       await authController.logOut(req, res, next)
@@ -267,7 +267,7 @@ describe('Authentication Controller', (): void => {
       req.session.user = {
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
+        needsWallet: !user.gateHubUserId,
         needsIDProof: !user.kycId
       }
       await authController.logOut(req, res, (err) => {

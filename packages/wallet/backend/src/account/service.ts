@@ -1,6 +1,5 @@
 import { Account } from './model'
 import { User } from '@/user/model'
-import { RapydClient } from '@/rapyd/rapyd-client'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Amount } from '@/rafiki/service'
@@ -28,7 +27,6 @@ interface IAccountService {
 
 export class AccountService implements IAccountService {
   constructor(
-    private rapydClient: RapydClient,
     private gateHubClient: GateHubClient,
     private rafikiClient: RafikiClient
   ) {}
@@ -91,7 +89,7 @@ export class AccountService implements IAccountService {
   ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
-    if (!user || !user.rapydWalletId) {
+    if (!user || !user.gateHubUserId) {
       throw new NotFound()
     }
 
@@ -110,17 +108,8 @@ export class AccountService implements IAccountService {
     const accounts = await query
 
     if (!includeWalletAddress) {
-      const accountsBalance = await this.rapydClient.getAccountsBalance(
-        user.rapydWalletId
-      )
-
       accounts.forEach((acc) => {
-        acc.balance = transformBalance(
-          accountsBalance.data?.find(
-            (rapydAccount) => rapydAccount.currency === acc.assetCode
-          )?.balance ?? 0,
-          acc.assetScale
-        )
+        acc.balance = transformBalance(0, acc.assetScale) // TODO: implement GateHub balance
       })
     }
 
@@ -168,20 +157,14 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  async getAccountBalance(userId: string, assetCode: string): Promise<number> {
+  async getAccountBalance(userId: string, _assetCode: string): Promise<number> {
     const user = await User.query().findById(userId)
 
-    if (!user || !user.rapydWalletId) {
+    if (!user || !user.gateHubUserId) {
       throw new NotFound()
     }
 
-    const accountsBalance = await this.rapydClient.getAccountsBalance(
-      user.rapydWalletId
-    )
-    return (
-      accountsBalance.data?.find((acc) => acc.currency === assetCode)
-        ?.balance ?? 0
-    )
+    return 0 // TODO: implement GateHub balance
   }
 
   public findAccountById = async (

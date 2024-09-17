@@ -29,9 +29,6 @@ import { QuoteService } from './quote/service'
 import { RafikiController } from './rafiki/controller'
 import { RafikiClient } from './rafiki/rafiki-client'
 import { RafikiService } from './rafiki/service'
-import { RapydController } from './rapyd/controller'
-import { RapydClient } from './rapyd/rapyd-client'
-import { RapydService } from './rapyd/service'
 import { RatesService } from './rates/service'
 import type { SessionService } from './session/service'
 import { UserController } from './user/controller'
@@ -50,16 +47,13 @@ export interface Bindings {
   logger: Logger
   knex: Knex
   redisClient: RedisClient
-  rapydClient: RapydClient
   rafikiClient: RafikiClient
   rafikiService: RafikiService
   rafikiController: RafikiController
-  rapydService: RapydService
   ratesService: RatesService
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
-  rapydController: RapydController
   userController: UserController
   authService: AuthService
   authController: AuthController
@@ -146,7 +140,6 @@ export class App {
     )
 
     const quoteController = await this.container.resolve('quoteController')
-    const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
@@ -267,13 +260,6 @@ export class App {
     router.post('/quotes', isAuth, quoteController.create)
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
-    // rapyd routes
-    router.get('/countries', isAuth, rapydController.getCountryNames)
-    router.get('/documents', isAuth, rapydController.getDocumentTypes)
-    router.post('/wallet', isAuth, rapydController.createWallet)
-    router.post('/updateProfile', isAuth, rapydController.updateProfile)
-    router.post('/verify', isAuth, rapydController.verifyIdentity)
-
     // asset
     router.get('/assets', isAuth, assetController.list)
 
@@ -345,10 +331,5 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-  }
-
-  async createDefaultUsers() {
-    const userService = this.container.resolve('userService')
-    await userService.createDefaultAccount()
   }
 }

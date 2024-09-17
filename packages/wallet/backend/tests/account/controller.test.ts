@@ -20,7 +20,6 @@ import { Account } from '@/account/model'
 import { faker } from '@faker-js/faker'
 import { createUser } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
-import { RapydAccountBalance } from '@/rapyd/schemas'
 import { truncateTables } from '@shared/backend/tests'
 import { BaseError } from '@shared/backend'
 
@@ -51,11 +50,10 @@ describe('Account Controller', (): void => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
+      needsWallet: !user.gateHubUserId,
       needsIDProof: !user.kycId
     }
     await User.query().patchAndFetchById(user.id, {
-      rapydWalletId: 'mocked',
       gateHubUserId: 'mocked'
     })
   }
@@ -80,47 +78,12 @@ describe('Account Controller', (): void => {
       rafikiClient: {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
-      },
-      rapydClient: {
-        issueVirtualAccount: () => ({
-          status: {
-            status: 'SUCCESS'
-          },
-          data: {
-            id: 'mocked'
-          }
-        }),
-        simulateBankTransferToWallet: () => ({
-          status: {
-            status: 'SUCCESS'
-          },
-          data: {
-            transactions: [
-              {
-                id: 'mocked'
-              }
-            ]
-          }
-        }),
-        getAccountsBalance: () => ({
-          data: [
-            {
-              currency: mockedAsset.code,
-              balance: 777
-            }
-          ] as Partial<RapydAccountBalance>
-        })
       }
     }
     Reflect.set(
       accountService,
       'rafikiClient',
       accountServiceDepsMocked.rafikiClient
-    )
-    Reflect.set(
-      accountService,
-      'rapydClient',
-      accountServiceDepsMocked.rapydClient
     )
     Reflect.set(accountService, 'gateHubClient', mockGateHubClient)
 
