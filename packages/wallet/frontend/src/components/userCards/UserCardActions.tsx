@@ -1,12 +1,16 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { useCardContext } from './UserCardContext'
-import { cardServiceMock } from '@/lib/api/card'
+import { cardServiceMock, IUserCard } from '@/lib/api/card'
 import { useRouter } from 'next/router'
 import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
 import { useDialog } from '@/lib/hooks/useDialog'
 
-export const FrozenCardActions = () => {
+type FrozenCardActionsProps = {
+  card: IUserCard
+}
+
+export const FrozenCardActions = ({ card }: FrozenCardActionsProps) => {
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
 
@@ -51,7 +55,9 @@ export const FrozenCardActions = () => {
             // We will probably have a lot more dialogs for card settings
             // and using dialogs again for showing the response might be a bit
             // cumbersome.
-            openDialog(<TerminateCardDialog onClose={closeDialog} />)
+            openDialog(
+              <TerminateCardDialog card={card} onClose={closeDialog} />
+            )
           }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-orange dark:group-hover:drop-shadow-none">
@@ -126,7 +132,11 @@ export const UserCardActions = () => {
 
   return (
     <div className="grid grid-cols-2 gap-x-3">
-      {card.isFrozen ? <FrozenCardActions /> : <DefaultCardActions />}
+      {card.isFrozen ? (
+        <FrozenCardActions card={card} />
+      ) : (
+        <DefaultCardActions />
+      )}
     </div>
   )
 }
