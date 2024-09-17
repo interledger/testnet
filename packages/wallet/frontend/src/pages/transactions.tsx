@@ -20,6 +20,12 @@ import { cx } from 'class-variance-authority'
 import { IconButton } from '@/ui/IconButton'
 import { Play } from '@/components/icons/Play'
 import { Label } from '@/ui/forms/Label'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/ui/Tooltip'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -278,12 +284,25 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               transactions.results.map((trx) => (
                 <Table.Row key={trx.id}>
                   <Table.Cell>{trx.accountName}</Table.Cell>
-                  <Table.Cell className="has-tooltip cursor-pointer whitespace-nowrap">
-                    {trx.walletAddressPublicName ?? trx.walletAddressUrl ?? ''}
-                    {
-                      // TODO replace tooltip with Radix UI tooltip
-                      trx.walletAddressUrl
-                    }
+                  <Table.Cell className="whitespace-nowrap">
+                    {trx.walletAddressUrl && trx.walletAddressPublicName ? (
+                      <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {trx.walletAddressPublicName}
+                          </TooltipTrigger>
+                          <TooltipContent
+                            className="max-w-80"
+                            side="top"
+                            onPointerDownOutside={(e) => e.preventDefault()}
+                          >
+                            {trx.walletAddressUrl}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <>{trx.walletAddressUrl ?? ''}</>
+                    )}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
                     {trx.description ? (
