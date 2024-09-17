@@ -1,19 +1,20 @@
 import { faker } from '@faker-js/faker'
-import { logInSchema, signUpSchema } from '@/auth/validation'
+import { logInBodySchema, signUpBodySchema } from '@/auth/validation'
 import z from 'zod'
 import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
-import { ratesSchema, webhookSchema } from '@/rafiki/validation'
+import { webhookSchema } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
 import {
   incomingPaymentSchema,
   paymentDetailsSchema
 } from '@/incomingPayment/validation'
 import { outgoingPaymentSchema } from '@/outgoingPayment/validation'
+import { ratesSchema } from '@/rates/validation'
 
-export type LogInRequest = z.infer<typeof logInSchema>
+export type LogInRequest = z.infer<typeof logInBodySchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>
 export type OnWebHook = z.infer<typeof webhookSchema>
 export type IncomingPaymentCreated = z.infer<typeof incomingPaymentSchema>
@@ -23,7 +24,11 @@ export type GetPaymentDetailsByUrl = z.infer<typeof paymentDetailsSchema>
 export const fakeLoginData = () => {
   return {
     email: faker.internet.email(),
-    password: faker.internet.password()
+    password: faker.internet.password({
+      length: 20,
+      // eslint-disable-next-line no-useless-escape
+      pattern: /[0-9a-zA-Z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
+    })
   }
 }
 
@@ -36,7 +41,7 @@ export const mockLogInRequest = (
   }
 })
 
-type SignUpRequest = z.infer<typeof signUpSchema>
+type SignUpRequest = z.infer<typeof signUpBodySchema>
 export const mockSignUpRequest = (
   overrides?: Partial<SignUpRequest['body']>
 ): SignUpRequest => {

@@ -24,8 +24,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0(eslint@8.57.0)
       eslint-plugin-react:
-        specifier: ^7.35.2
-        version: 7.35.2(eslint@8.57.0)
+        specifier: ^7.36.1
+        version: 7.36.1(eslint@8.57.0)
       eslint-plugin-react-hooks:
         specifier: ^4.6.2
         version: 4.6.2(eslint@8.57.0)
@@ -145,8 +145,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: ^5.55.4
-        version: 5.55.4(react@18.3.1)
+        specifier: ^5.56.2
+        version: 5.56.2(react@18.3.1)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -195,7 +195,7 @@ importers:
         version: 18.3.0
       '@vitejs/plugin-react-swc':
         specifier: ^3.7.0
-        version: 3.7.0(@swc/helpers@0.5.5)(vite@5.4.3(@types/node@20.14.15))
+        version: 3.7.0(@swc/helpers@0.5.5)(vite@5.4.5(@types/node@20.14.15))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.45)
@@ -209,8 +209,8 @@ importers:
         specifier: ^5.6.2
         version: 5.6.2
       vite:
-        specifier: ^5.4.3
-        version: 5.4.3(@types/node@20.14.15)
+        specifier: ^5.4.5
+        version: 5.4.5(@types/node@20.14.15)
 
   packages/boutique/shared:
     dependencies:
@@ -289,8 +289,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       date-fns:
-        specifier: ^3.6.0
-        version: 3.6.0
+        specifier: ^4.0.0
+        version: 4.0.0
       disposable-email-domains:
         specifier: ^1.0.62
         version: 1.0.62
@@ -401,8 +401,8 @@ importers:
   packages/wallet/frontend:
     dependencies:
       '@headlessui/react':
-        specifier: ^2.1.6
-        version: 2.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.1.8
+        version: 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.53.0(react@18.3.1))
@@ -1350,8 +1350,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  '@headlessui/react@2.1.6':
-    resolution: {integrity: sha512-IkaSHxsMdrSdVZn5n3ClfvqQo5umHeqwjeZfbFUTczykeHoMH+3VOP0nn7zVsbebazjPmOsXh3x9gCy6e2PG5Q==}
+  '@headlessui/react@2.1.8':
+    resolution: {integrity: sha512-uajqVkAcVG/wHwG9Fh5PFMcFpf2VxM4vNRNKxRjuK009kePVur8LkuuygHfIE+2uZ7z7GnlTtYsyUe6glPpTLg==}
     engines: {node: '>=10'}
     peerDependencies:
       react: ^18
@@ -2302,11 +2302,11 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20'
 
-  '@tanstack/query-core@5.55.4':
-    resolution: {integrity: sha512-uoRqNnRfzOH4OMIoxj8E2+Us89UIGXfau981qYJWsNMkFS1GXR4UIyzUTVGq4N7SDLHgFPpo6IOazqUV5gkMZA==}
+  '@tanstack/query-core@5.56.2':
+    resolution: {integrity: sha512-gor0RI3/R5rVV3gXfddh1MM+hgl0Z4G7tj6Xxpq6p2I03NGPaJ8dITY9Gz05zYYb/EJq9vPas/T4wn9EaDPd4Q==}
 
-  '@tanstack/react-query@5.55.4':
-    resolution: {integrity: sha512-e3uX5XkLD9oTV66/VsVpkYz3Ds/ps/Yk+V5d89xthAbtNIKKBEm4FdNb9yISFzGEGezUzVO68qmfmiSrtScvsg==}
+  '@tanstack/react-query@5.56.2':
+    resolution: {integrity: sha512-SR0GzHVo6yzhN72pnRhkEFRAHMsUo5ZPzAxfTMvUxFIDVS6W9LYUp6nXW3fcHVdg0ZJl8opSH85jqahvm6DSVg==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -3187,8 +3187,8 @@ packages:
   dataloader@2.2.2:
     resolution: {integrity: sha512-8YnDaaf7N3k/q5HnTJVuzSyLETjoZjVmHc4AeKAzOvKHEFQKcn64OKBfzHYtE9zGjctNM7V9I0MfnUVLpi7M5g==}
 
-  date-fns@3.6.0:
-    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+  date-fns@4.0.0:
+    resolution: {integrity: sha512-6K33+I8fQ5otvHgLIvKK1xmMbLAh0pduyrx7dwMXKiGYeoWhmk6M3Zoak9n7bXHMJQlHq1yqmdGy1QxKddJjUA==}
 
   db-errors@0.2.3:
     resolution: {integrity: sha512-OOgqgDuCavHXjYSJoV2yGhv6SeG8nk42aoCSoyXLZUH7VwFG27rxbavU1z+VrZbZjphw5UkDQwUlD21MwZpUng==}
@@ -3487,8 +3487,8 @@ packages:
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
 
-  eslint-plugin-react@7.35.2:
-    resolution: {integrity: sha512-Rbj2R9zwP2GYNcIak4xoAMV57hrBh3hTaR0k7hVjwCQgryE/pw5px4b13EYjduOI0hfXyZhwBxaGpOTbWSGzKQ==}
+  eslint-plugin-react@7.36.1:
+    resolution: {integrity: sha512-/qwbqNXZoq+VP30s1d4Nc1C5GTxjJQjk4Jzs4Wq2qzxFM7dSmuG2UkIjg2USMLh3A/aVcUNrK7v0J5U1XEGGwA==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
@@ -6194,8 +6194,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vite@5.4.3:
-    resolution: {integrity: sha512-IH+nl64eq9lJjFqU+/yrRnrHPVTlgy42/+IzbOdaFDVlyLgI/wDlf+FCobXLX1cT0X5+7LMyH1mIy2xJdLfo8Q==}
+  vite@5.4.5:
+    resolution: {integrity: sha512-pXqR0qtb2bTwLkev4SE3r4abCNioP3GkjvIDLlzziPpXtHgiJIjuKl+1GN6ESOT3wMjG3JTeARopj2SwYaHTOA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -7544,7 +7544,7 @@ snapshots:
       protobufjs: 7.3.2
       yargs: 17.7.2
 
-  '@headlessui/react@2.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@headlessui/react@2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/react': 0.26.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-aria/focus': 3.18.2(react@18.3.1)
@@ -8527,11 +8527,11 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.11
 
-  '@tanstack/query-core@5.55.4': {}
+  '@tanstack/query-core@5.56.2': {}
 
-  '@tanstack/react-query@5.55.4(react@18.3.1)':
+  '@tanstack/react-query@5.56.2(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.55.4
+      '@tanstack/query-core': 5.56.2
       react: 18.3.1
 
   '@tanstack/react-virtual@3.8.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -8809,10 +8809,10 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-react-swc@3.7.0(@swc/helpers@0.5.5)(vite@5.4.3(@types/node@20.14.15))':
+  '@vitejs/plugin-react-swc@3.7.0(@swc/helpers@0.5.5)(vite@5.4.5(@types/node@20.14.15))':
     dependencies:
       '@swc/core': 1.7.10(@swc/helpers@0.5.5)
-      vite: 5.4.3(@types/node@20.14.15)
+      vite: 5.4.5(@types/node@20.14.15)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -9615,7 +9615,7 @@ snapshots:
 
   dataloader@2.2.2: {}
 
-  date-fns@3.6.0: {}
+  date-fns@4.0.0: {}
 
   db-errors@0.2.3: {}
 
@@ -9956,7 +9956,7 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-react@7.35.2(eslint@8.57.0):
+  eslint-plugin-react@7.36.1(eslint@8.57.0):
     dependencies:
       array-includes: 3.1.8
       array.prototype.findlast: 1.2.5
@@ -13088,7 +13088,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@5.4.3(@types/node@20.14.15):
+  vite@5.4.5(@types/node@20.14.15):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.45
