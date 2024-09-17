@@ -6,13 +6,18 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Form } from '@/ui/forms/Form'
 import { UserCardFront } from '../userCards/UserCard'
-import { activateCardSchema, cardServiceMock } from '@/lib/api/card'
+import { activateCardSchema, cardServiceMock, IUserCard } from '@/lib/api/card'
 import { useToast } from '@/lib/hooks/useToast'
 import { Card } from '../icons/CardButtons'
 
-type ActivateCardDialogProps = Pick<DialogProps, 'onClose'>
+type ActivateCardDialogProps = Pick<DialogProps, 'onClose'> & {
+  card: IUserCard
+}
 
-export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
+export const ActivateCardDialog = ({
+  card,
+  onClose
+}: ActivateCardDialogProps) => {
   const [, closeDialog] = useDialog()
   const { toast } = useToast()
   const activateCardForm = useZodForm({
@@ -86,7 +91,7 @@ export const ActivateCardDialog = ({ onClose }: ActivateCardDialogProps) => {
                     }}
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <UserCardFront />
+                      <UserCardFront card={card} />
                       Proceed with activation only if you have received the
                       card, as it will be fully functional and payment ready.
                     </div>

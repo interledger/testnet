@@ -10,14 +10,14 @@ import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { Input } from '@/ui/forms/Input'
 
-type UserCardPINDialogProos = Pick<DialogProps, 'onClose'> & {
+type UserCardPINDialogProps = Pick<DialogProps, 'onClose'> & {
   card: IUserCard
 }
 
 export const UserCardPINDialog = ({
   card,
   onClose
-}: UserCardPINDialogProos) => {
+}: UserCardPINDialogProps) => {
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
