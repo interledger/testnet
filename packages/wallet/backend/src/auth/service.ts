@@ -6,8 +6,11 @@ import type { UserService } from '@/user/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { EmailService } from '@/email/service'
 import { Logger } from 'winston'
-import { Unauthorized } from '@shared/backend'
+import { Unauthorized, NotVerified } from '@shared/backend'
 
+interface resendVerifyEmailArgs {
+  email: string
+}
 interface AuthorizeArgs {
   email: string
   password: string
@@ -54,21 +57,47 @@ export class AuthService implements IAuthService {
     return user
   }
 
+  public async resendVerifyEmail({
+    email
+  }: resendVerifyEmailArgs): Promise<void> {
+    const user = await this.userService.getByEmail(email)
+
+    // TODO: Prevent timing attacks
+    if (!user) {
+      this.logger.info(
+        `Invalid account on resend verify account email: ${email}`
+      )
+      return
+    }
+    const token = getRandomToken()
+    await this.userService.resetVerifyEmailToken({
+      email,
+      verifyEmailToken: hashToken(token)
+    })
+
+    await this.emailService.sendVerifyEmail(email, token).catch((e) => {
+      this.logger.error(
+        `Error on sending verify email for user ${user.email}`,
+        e
+      )
+    })
+  }
+
   public async authorize(args: AuthorizeArgs): Promise<AuthorizeResult> {
     const user = await this.userService.getByEmail(args.email)
 
     // TODO: Prevent timing attacks
     if (!user) {
-      throw new Unauthorized('Invalid credentials')
+      throw new Unauthorized('Invalid credentials.')
     }
 
     const isValid = await user.verifyPassword(args.password)
     if (!isValid) {
-      throw new Unauthorized('Invalid credentials')
+      throw new Unauthorized('Invalid credentials.')
     }
 
     if (!user.isEmailVerified) {
-      throw new Unauthorized('Email address is not verified')
+      throw new NotVerified('Email address is not verified.')
     }
 
     const session = await user.$relatedQuery('sessions').insertGraphAndFetch({

@@ -19,10 +19,19 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
+import { IFRAME_TYPE } from '@wallet/shared/src'
+import { BadRequest } from '@shared/backend'
 
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'
+
+  private iframeMappings: Record<IFRAME_TYPE, () => Promise<string>> = {
+    deposit: this.getDepositUrl.bind(this),
+    withdrawal: this.getWithdrawalUrl.bind(this),
+    exchange: this.getExchangeUrl.bind(this),
+    onboarding: this.getOnboardingUrl.bind(this)
+  }
   constructor(
     private env: Env,
     private logger: Logger
@@ -50,7 +59,7 @@ export class GateHubClient {
   }
 
   async getWithdrawalUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE
     )
@@ -59,7 +68,7 @@ export class GateHubClient {
   }
 
   async getDepositUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE
     )
@@ -68,7 +77,7 @@ export class GateHubClient {
   }
 
   async getOnboardingUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.onboarding,
       ONBOARDING_APP_SCOPE
     )
@@ -77,12 +86,20 @@ export class GateHubClient {
   }
 
   async getExchangeUrl(): Promise<string> {
-    const token = this.getIframeAuthorizationToken(
+    const token = await this.getIframeAuthorizationToken(
       this.clientIds.exchange,
       DEFAULT_APP_SCOPE
     )
 
     return `${this.exchangeUrl}/?bearer=${token}`
+  }
+
+  async getIframeUrl(type: IFRAME_TYPE): Promise<string> {
+    if (!this.iframeMappings[type]) {
+      throw new BadRequest('Invalid iframe type')
+    }
+
+    return await this.iframeMappings[type]()
   }
 
   async getIframeAuthorizationToken(

@@ -3,7 +3,6 @@ import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { useCardContext } from './UserCardContext'
 import { cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
-import { Cog } from '../icons/Cog'
 import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
 import { useDialog } from '@/lib/hooks/useDialog'
 
@@ -17,6 +16,7 @@ export const FrozenCardActions = () => {
         <Button
           intent="primary"
           aria-label="unfreeze"
+          className="group"
           onClick={async () => {
             // Maybe use toats for showcasing the result of the api calls,
             // specifically for card actions?
@@ -34,16 +34,17 @@ export const FrozenCardActions = () => {
             }
           }}
         >
-          <div className="flex gap-2 justify-center items-center">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             <Snow className="size-6" />
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">Unfreeze</p>
+        <p className="text-center text-sm">Unfreeze</p>
       </div>
-      <div className="col-span-2 flex flex-col gap-y-4">
+      <div className="flex flex-col gap-y-4">
         <Button
           intent="danger"
           aria-label="terminate card"
+          className="group"
           onClick={async () => {
             // Maybe use toats for showcasing the result of the api calls,
             // specifically for card actions?
@@ -53,11 +54,11 @@ export const FrozenCardActions = () => {
             openDialog(<TerminateCardDialog onClose={closeDialog} />)
           }}
         >
-          <div className="flex gap-2 justify-center items-center">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-orange dark:group-hover:drop-shadow-none">
             <Trash className="size-6" />
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">Terminate</p>
+        <p className="text-center text-sm">Terminate</p>
       </div>
     </>
   )
@@ -73,6 +74,7 @@ const DefaultCardActions = () => {
         <Button
           intent="secondary"
           aria-label="freeze"
+          className="group"
           onClick={async () => {
             // Maybe use toats for showcasing the result of the api calls,
             // specifically for card actions?
@@ -90,19 +92,20 @@ const DefaultCardActions = () => {
             }
           }}
         >
-          <div className="flex gap-2 justify-center items-center">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             <Snow className="size-6" />
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">Freeze</p>
+        <p className="text-center text-sm">Freeze</p>
       </div>
       <div className="flex flex-col gap-y-4">
         <Button
           intent="secondary"
           aria-label={showDetails ? 'hide details' : 'show details'}
+          className="group"
           onClick={() => setShowDetails((prev) => !prev)}
         >
-          <div className="flex gap-2 justify-center items-center">
+          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             {showDetails ? (
               <EyeCross className="size-6" />
             ) : (
@@ -110,23 +113,9 @@ const DefaultCardActions = () => {
             )}
           </div>
         </Button>
-        <p className="text-center -tracking-wide text-sm">
+        <p className="text-center text-sm">
           {showDetails ? 'Hide Details' : 'Details'}
         </p>
-      </div>
-      <div className="flex flex-col gap-y-4">
-        <Button
-          intent="secondary"
-          aria-label="settings"
-          onClick={() => {
-            // TODO: TBD
-          }}
-        >
-          <div className="flex gap-2 justify-center items-center">
-            <Cog className="size-6" />
-          </div>
-        </Button>
-        <p className="text-center -tracking-wide text-sm">Settings</p>
       </div>
     </>
   )
@@ -136,7 +125,7 @@ export const UserCardActions = () => {
   const { card } = useCardContext()
 
   return (
-    <div className="grid grid-cols-3 gap-x-3">
+    <div className="grid grid-cols-2 gap-x-3">
       {card.isFrozen ? <FrozenCardActions /> : <DefaultCardActions />}
     </div>
   )
