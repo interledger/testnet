@@ -12,7 +12,7 @@ import {
 import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
-import { mockedListAssets, mockLogInRequest } from '../mocks'
+import { mockedListAssets, mockGateHubClient, mockLogInRequest } from '../mocks'
 import { AccountController } from '@/account/controller'
 import { AccountService } from '@/account/service'
 import { User } from '@/user/model'
@@ -24,7 +24,7 @@ import { RapydAccountBalance } from '@/rapyd/schemas'
 import { truncateTables } from '@shared/backend/tests'
 import { BaseError } from '@shared/backend'
 
-describe('Asset Controller', (): void => {
+describe('Account Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
@@ -54,7 +54,10 @@ describe('Asset Controller', (): void => {
       needsWallet: !user.rapydWalletId,
       needsIDProof: !user.kycId
     }
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+    await User.query().patchAndFetchById(user.id, {
+      rapydWalletId: 'mocked',
+      gateHubUserId: 'mocked'
+    })
   }
   const createMockAccount = async () => {
     req.body = {
@@ -99,14 +102,6 @@ describe('Asset Controller', (): void => {
             ]
           }
         }),
-        withdrawFundsFromAccount: () => ({
-          status: {
-            status: 'SUCCESS'
-          },
-          data: {
-            id: 'mocked'
-          }
-        }),
         getAccountsBalance: () => ({
           data: [
             {
@@ -127,6 +122,7 @@ describe('Asset Controller', (): void => {
       'rapydClient',
       accountServiceDepsMocked.rapydClient
     )
+    Reflect.set(accountService, 'gateHubClient', mockGateHubClient)
 
     Reflect.set(accountController, 'accountService', accountService)
   })
@@ -209,46 +205,6 @@ describe('Asset Controller', (): void => {
       } catch (err) {
         expect((err as BaseError).statusCode).toEqual(404)
       }
-    })
-  })
-
-  describe('fundAccount', (): void => {
-    beforeEach(async (): Promise<void> => {
-      await createMockAccount()
-      await createReqRes()
-    })
-    it("should fund User's Account", async (): Promise<void> => {
-      req.body = {
-        accountId: createdAccount.id,
-        amount: 5.7
-      }
-
-      await accountController.fundAccount(req, res, next)
-      expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toMatchObject({
-        success: true,
-        message: 'Account funded'
-      })
-    })
-  })
-
-  describe('withdrawFunds', (): void => {
-    beforeEach(async (): Promise<void> => {
-      await createMockAccount()
-      await createReqRes()
-    })
-    it("should withdraw from User's Account", async (): Promise<void> => {
-      req.body = {
-        accountId: createdAccount.id,
-        amount: 3
-      }
-
-      await accountController.withdrawFunds(req, res, next)
-      expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toMatchObject({
-        success: true,
-        message: 'Funds withdrawn'
-      })
     })
   })
 })

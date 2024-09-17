@@ -21,6 +21,7 @@ import {
   mockedListAssets,
   mockedRapydFailureService,
   mockedRapydService,
+  mockGateHubClient,
   mockLogInRequest,
   mockRapyd,
   mockVerifyIdentityRequest
@@ -94,7 +95,8 @@ describe('Rapyd Controller', () => {
           mockedListAssets.find((asset) => asset.id === id),
         listAssets: () => mockedListAssets
       },
-      ...mockRapyd
+      ...mockRapyd,
+      gateHubClient: mockGateHubClient
     }
 
     for (const key in accountServiceDepsMocked)

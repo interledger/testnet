@@ -8,7 +8,6 @@ export class Account extends BaseModel {
 
   public name!: string
   public balance!: bigint
-  public virtualAccountId?: string // TODO: delete
   public gateHubWalletId!: string
   public readonly assetId!: string
   public readonly assetCode!: string

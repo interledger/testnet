@@ -10,6 +10,7 @@ import {
   mockCreateAccountReq,
   mockedAmount,
   mockedListAssets,
+  mockGateHubClient,
   mockLogInRequest,
   mockRapyd
 } from '@/tests/mocks'
@@ -53,7 +54,8 @@ describe('Socket Service', () => {
         getAssetById: (id: unknown) =>
           mockedListAssets.find((asset) => asset.id === id)
       },
-      ...mockRapyd
+      ...mockRapyd,
+      gateHubClient: mockGateHubClient
     }
     for (const key in accountServiceDepsMocked)
       Reflect.set(
@@ -92,7 +94,10 @@ describe('Socket Service', () => {
     }
 
     userId = user.id
-    await User.query().patchAndFetchById(userId, { rapydWalletId: 'mocked' })
+    await User.query().patchAndFetchById(userId, {
+      rapydWalletId: 'mocked',
+      gateHubUserId: 'mocked'
+    })
   })
 
   afterAll(async (): Promise<void> => {

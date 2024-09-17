@@ -15,10 +15,16 @@ import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
-import { fakeLoginData, mockLogInRequest, mockSignUpRequest } from '../mocks'
+import {
+  fakeLoginData,
+  mockGateHubClient,
+  mockLogInRequest,
+  mockSignUpRequest
+} from '../mocks'
 import { createUser, errorHandler } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
 import { getRandomToken, hashToken } from '@/utils/helpers'
+import { GateHubClient } from '@/gatehub/client'
 
 describe('Authentication Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -39,6 +45,12 @@ describe('Authentication Controller', (): void => {
     authService = await bindings.resolve('authService')
     authController = await bindings.resolve('authController')
     userService = await bindings.resolve('userService')
+
+    Reflect.set(
+      userService,
+      'gateHubClient',
+      mockGateHubClient as unknown as GateHubClient
+    )
   })
 
   beforeEach(async (): Promise<void> => {

@@ -4,7 +4,7 @@ import { AuthService } from '@/auth/service'
 import { QuoteService } from '@/quote/service'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { mockedListAssets, mockRapyd } from '@/tests/mocks'
+import { mockedListAssets, mockGateHubClient, mockRapyd } from '@/tests/mocks'
 import { AccountService } from '@/account/service'
 import { faker } from '@faker-js/faker'
 import { Account } from '@/account/model'
@@ -59,7 +59,8 @@ describe('Quote Service', () => {
           mockedListAssets.find((asset) => asset.id === id),
         listAssets: () => mockedListAssets
       },
-      ...mockRapyd
+      ...mockRapyd,
+      gateHubClient: mockGateHubClient
     }
     Reflect.set(
       accountService,

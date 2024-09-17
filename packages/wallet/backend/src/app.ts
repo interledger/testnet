@@ -302,8 +302,6 @@ export class App {
       isAuth,
       quoteController.createExchangeQuote
     )
-    router.post('/accounts/fund', isAuth, accountController.fundAccount)
-    router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
     router.get('/rates', rafikiController.getRates)
     router.post('/webhooks', rafikiController.onWebHook)

@@ -529,3 +529,10 @@ export const mockExternalPayment = {
   receivedAmount: { value: '0', assetCode: 'EUR', assetScale: 1 },
   authServer: 'http://rafiki-auth:3006'
 }
+
+export const mockGateHubClient = {
+  createManagedUser: () => faker.string.uuid(),
+  createWallet: () => ({
+    address: faker.string.uuid()
+  })
+}
