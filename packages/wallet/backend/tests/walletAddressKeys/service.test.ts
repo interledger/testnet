@@ -130,7 +130,7 @@ describe('Wallet Address Key Service', () => {
           nickname: faker.lorem.word(),
           base64Key
         })
-      ).rejects.toThrowError('Unexpected end of JSON input')
+      ).rejects.toThrowError('The uploaded key is not in the correct format.')
     })
   })
 
