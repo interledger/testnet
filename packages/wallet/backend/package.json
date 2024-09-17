@@ -16,7 +16,7 @@
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
-    "date-fns": "^3.6.0",
+    "date-fns": "^4.0.0",
     "disposable-email-domains": "^1.0.62",
     "express": "^4.21.0",
     "express-rate-limit": "^7.4.0",
