@@ -54,7 +54,7 @@ export interface ICreateTransactionRequest {
   sending_address: string
   receiving_address: string
   message: string
-  type: 'transfer'
+  type: number
   vault_uuid: string
 }
 

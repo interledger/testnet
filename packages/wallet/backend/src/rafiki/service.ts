@@ -10,6 +10,7 @@ import { Account } from '@/account/model'
 import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
+import { HOSTED_TRANSACTION_TYPE } from '@/gatehub/consts'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -181,7 +182,7 @@ export class RafikiService implements IRafikiService {
       vault_uuid: this.getVaultUuid(amount.assetCode),
       receiving_address: receiverWallet,
       sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: 'transfer',
+      type: HOSTED_TRANSACTION_TYPE,
       message: 'Transfer'
     })
 
@@ -258,7 +259,7 @@ export class RafikiService implements IRafikiService {
       vault_uuid: this.getVaultUuid(debitAmount.assetCode),
       sending_address: sendingWallet,
       receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: 'transfer',
+      type: HOSTED_TRANSACTION_TYPE,
       message: 'Transfer'
     })
 
@@ -320,7 +321,7 @@ export class RafikiService implements IRafikiService {
       vault_uuid: this.getVaultUuid(sentAmount.assetCode),
       sending_address: sendingWallet,
       receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: 'transfer',
+      type: HOSTED_TRANSACTION_TYPE,
       message: 'Transfer'
     })
 
