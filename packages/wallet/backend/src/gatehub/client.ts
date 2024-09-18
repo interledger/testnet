@@ -1,6 +1,9 @@
 import { createHmac } from 'crypto'
 import {
   HTTP_METHODS,
+  IApproveUserToGatewayRequest,
+  IApproveUserToGatewayResponse,
+  IConnectUserToGatewayResponse,
   ICreateManagedUserRequest,
   ICreateManagedUserResponse,
   ICreateTransactionRequest,
@@ -9,8 +12,10 @@ import {
   ICreateWalletResponse,
   IGetVaultsResponse,
   IGetWalletResponse,
+  IRatesResponse,
   ITokenRequest,
-  ITokenResponse
+  ITokenResponse,
+  IWalletBalance
 } from '@/gatehub/types'
 import { Env } from '@/config/env'
 import {
@@ -19,7 +24,8 @@ import {
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
-  SANDBOX_CLIENT_IDS
+  SANDBOX_CLIENT_IDS,
+  SUPPORTED_ASSET_CODES
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
@@ -43,10 +49,14 @@ export class GateHubClient {
     private env: Env,
     private logger: Logger
   ) {
-    if (this.env.NODE_ENV === 'production') {
+    if (this.isSandbox) {
       this.clientIds = PRODUCTION_CLIENT_IDS
       this.mainUrl = 'gatehub.net'
     }
+  }
+
+  get isSandbox() {
+    return this.env.NODE_ENV !== 'production'
   }
 
   get apiUrl() {
@@ -167,11 +177,37 @@ export class GateHubClient {
   async connectUserToGateway(
     userUuid: string,
     gatewayUuid: string
-  ): Promise<ICreateManagedUserResponse> {
+  ): Promise<IConnectUserToGatewayResponse> {
     const url = `${this.apiUrl}/id/v1/users/${userUuid}/hubs/${gatewayUuid}`
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>('POST', url)
+    const response: IConnectUserToGatewayResponse =
+      await this.request<IConnectUserToGatewayResponse>('POST', url)
+
+    if (this.isSandbox) {
+      // Auto approve user to gateway in sandbox environment
+      await this.approveUserToGateway(userUuid, gatewayUuid)
+    }
+
+    return response
+  }
+
+  private async approveUserToGateway(
+    userUuid: string,
+    gatewayUuid: string
+  ): Promise<IApproveUserToGatewayResponse> {
+    const url = `${this.apiUrl}/id/v1/hubs/${gatewayUuid}/users/${userUuid}`
+    const body: IApproveUserToGatewayRequest = {
+      verified: 1,
+      reasons: [],
+      customMessage: false
+    }
+
+    const response: IApproveUserToGatewayResponse =
+      await this.request<IApproveUserToGatewayResponse>(
+        'PUT',
+        url,
+        JSON.stringify(body)
+      )
 
     return response
   }
@@ -210,6 +246,22 @@ export class GateHubClient {
     return response
   }
 
+  async getWalletBalance(
+    userUuid: string,
+    walletId: string
+  ): Promise<IWalletBalance[]> {
+    const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
+
+    const response: IWalletBalance[] = await this.request<IWalletBalance[]>(
+      'GET',
+      url,
+      undefined,
+      userUuid
+    )
+
+    return response
+  }
+
   async createTransaction(
     body: ICreateTransactionRequest
   ): Promise<ICreateTransactionResponse> {
@@ -232,6 +284,25 @@ export class GateHubClient {
       await this.request<ICreateManagedUserResponse>('GET', url)
 
     return response
+  }
+
+  async getRates(base: string): Promise<Record<string, number>> {
+    const url = `${this.apiUrl}/rates/v1/rates/current?counter=${base}&amount=1&useAll=true`
+
+    const response: IRatesResponse = await this.request<IRatesResponse>(
+      'GET',
+      url
+    )
+
+    const flatRates: Record<string, number> = {}
+    for (const code of SUPPORTED_ASSET_CODES) {
+      const rateObj = response[code]
+      if (rateObj && typeof rateObj !== 'string') {
+        flatRates[code] = +rateObj.rate
+      }
+    }
+
+    return flatRates
   }
 
   private async request<T>(

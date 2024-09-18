@@ -61,3 +61,38 @@ export interface ICreateTransactionRequest {
 export interface ICreateTransactionResponse {}
 
 export interface IGetVaultsResponse {}
+
+export interface IRatesResponse {
+  counter: string
+  [key: string]: string | IRate
+}
+
+interface IRate {
+  type: string
+  rate: string | number
+  amount: string
+  change: string
+}
+
+export interface IWalletBalance {
+  available: string
+  pending: string
+  total: string
+  vault: IVault
+}
+
+interface IVault {
+  uuid: string
+  name: string
+  assetCode: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface IConnectUserToGatewayResponse {}
+export interface IApproveUserToGatewayRequest {
+  verified: number
+  reasons: string[]
+  customMessage: boolean
+}
+export interface IApproveUserToGatewayResponse {}
