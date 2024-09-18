@@ -132,7 +132,7 @@ export const UserCard = ({ card }: UserCardProps) => {
           ) : null}
           <UserCardActions />
         </div>
-        <UserCardSettings />
+        {card.isActive ? <UserCardSettings /> : null}
       </div>
     </UserCardContext.Provider>
   )
