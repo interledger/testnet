@@ -22,7 +22,7 @@ interface IAccountService {
     includeWalletKeys?: boolean
   ) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
-  getAccountBalance: (userId: string, assetCode: string) => Promise<number>
+  getAccountBalance: (userId: string, account: Account) => Promise<number>
 }
 
 export class AccountService implements IAccountService {
@@ -77,6 +77,7 @@ export class AccountService implements IAccountService {
       gateHubWalletId: result.address
     })
 
+    // On creation account will have balance 0
     account.balance = transformBalance(0, account.assetScale)
 
     return account
@@ -108,8 +109,9 @@ export class AccountService implements IAccountService {
     const accounts = await query
 
     if (!includeWalletAddress) {
-      accounts.forEach((acc) => {
-        acc.balance = transformBalance(0, acc.assetScale) // TODO: implement GateHub balance
+      accounts.forEach(async (acc) => {
+        const balance = await this.getAccountBalance(userId, acc)
+        acc.balance = transformBalance(balance, acc.assetScale)
       })
     }
 
@@ -130,7 +132,7 @@ export class AccountService implements IAccountService {
     }
 
     account.balance = transformBalance(
-      await this.getAccountBalance(userId, account.assetCode),
+      await this.getAccountBalance(userId, account),
       account.assetScale
     )
 
@@ -150,21 +152,28 @@ export class AccountService implements IAccountService {
     }
 
     account.balance = transformBalance(
-      await this.getAccountBalance(userId, account.assetCode),
+      await this.getAccountBalance(userId, account),
       account.assetScale
     )
 
     return account
   }
 
-  async getAccountBalance(userId: string, _assetCode: string): Promise<number> {
+  async getAccountBalance(userId: string, account: Account): Promise<number> {
     const user = await User.query().findById(userId)
 
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
     }
 
-    return 0 // TODO: implement GateHub balance
+    const balances = await this.gateHubClient.getWalletBalance(
+      account.gateHubWalletId,
+      userId
+    )
+    return Number(
+      balances.find((balance) => balance.vault.assetCode === account.assetCode)
+        ?.total ?? 0
+    )
   }
 
   public findAccountById = async (

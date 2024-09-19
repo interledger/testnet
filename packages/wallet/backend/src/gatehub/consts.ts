@@ -21,3 +21,5 @@ export enum PAYMENT_TYPE {
 
 export const HOSTED_WALLET_TYPE = 0
 export const HOSTED_TRANSACTION_TYPE = 2
+
+export const SUPPORTED_ASSET_CODES = ['USD', 'EUR']
