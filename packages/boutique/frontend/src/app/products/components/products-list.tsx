@@ -42,7 +42,7 @@ export const ProductsList = () => {
         <p>If the issue persists, do not hesitate to contact us.</p>
         <p>Please try again.</p>
         <button
-          className="mt-2 text-lg text-green-6 hover:text-green-3"
+          className="mt-2 text-lg hover:underline dark:hover:no-underline dark:hover:shadow-glow-link"
           onClick={() =>
             queryClient.invalidateQueries({
               queryKey: ['products'],

@@ -52,8 +52,6 @@ export const ProductCTA = () => {
       <Button
         disabled={isPending}
         aria-label="add to cart"
-        className="h-12"
-        size="lg"
         onClick={() => handleClick()}
       >
         Add to cart
@@ -63,8 +61,6 @@ export const ProductCTA = () => {
           disabled={isPending}
           variant="secondary"
           aria-label="add to cart"
-          className="h-12"
-          size="lg"
           onClick={() =>
             mutate({
               accessToken,

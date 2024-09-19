@@ -4,30 +4,36 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-3 disabled:pointer-events-none disabled:opacity-50',
+  [
+    'inline-flex items-center justify-center outline-none border-2 underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button disabled:decoration-none disabled:bg-grey-light disabled:text-grey-dark disabled:cursor-not-allowed disabled:hover:shadow-none dark:disabled:decoration-none dark:disabled:bg-grey-light dark:disabled:text-grey-dark dark:disabled:cursor-not-allowed dark:disabled:hover:shadow-none'
+  ],
   {
     variants: {
       variant: {
-        default:
-          'text-white bg-gradient-to-r from-green-5 to-green-6 hover:bg-gradient-primary-dark',
-        secondary:
-          'text-white bg-gradient-secondary hover:bg-gradient-secondary-dark',
-        success:
-          'border border-green-3 text-green-3 bg-white hover:bg-green-3 hover:text-white',
-        error:
-          'border border-pink text-pink bg-white hover:bg-pink hover:text-white',
-        ghost: ''
+        default: [
+          'border-transparent border-none bg-green-dark dark:bg-pink-neon text-white'
+        ],
+        secondary: [
+          'bg-green-light border-none text-green-dark dark:bg-pink-light dark:text-purple'
+        ],
+        error: [
+          'bg-orange-dark border-none bg-opacity-20 text-orange-dark dark:bg-pink-light dark:text-pink-neon'
+        ],
+        success: [
+          'bg-transparent border-green-dark text-green-dark dark:border-pink-neon dark:text-pink-light'
+        ],
+        ghost: 'border-none'
       },
       size: {
-        default: 'h-9 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-8',
-        icon: 'h-9 w-9'
+        md: 'p-3 rounded-md'
+      },
+      fullWidth: {
+        true: 'w-full'
       }
     },
     defaultVariants: {
       variant: 'default',
-      size: 'default'
+      size: 'md'
     }
   }
 )

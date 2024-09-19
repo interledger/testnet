@@ -27,7 +27,7 @@ export function Component() {
         <p>{error.message}</p>
         <Link
           to="/products"
-          className="mt-2 text-lg text-green-6 hover:text-green-3"
+          className="mt-2 text-lg hover:underline dark:hover:no-underline dark:hover:shadow-glow-link"
         >
           Go back to products page
         </Link>
@@ -39,11 +39,11 @@ export function Component() {
     return (
       <ProductContext.Provider value={{ product: data.result }}>
         <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
-          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-gray-50 lg:w-full">
+          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
             <img
               src={`${IMAGES_URL}${data.result.image}`}
               alt={data.result.name}
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-scale-down object-center"
             />
           </div>
 

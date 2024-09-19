@@ -36,11 +36,11 @@ export function Component() {
   }, [])
 
   if (data) {
-    let color: string = 'text-turqoise'
+    let color: string = 'text-green dark:text-green-neon'
     let text: string = 'One click buy was successfully set up!'
 
     if (result === 'grant_rejected') {
-      color = 'text-pink'
+      color = 'text-orange-dark dark:text-pink-neon'
       text = 'One click buy setup was canceled.'
     }
 
