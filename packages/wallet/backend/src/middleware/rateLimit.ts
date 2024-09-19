@@ -15,12 +15,12 @@ const loginBlockIPLimiterAtrs = {
   attemptsPause: 24 * 60
 }
 const loginIPLimiterAtrs = {
-  key: 'login_fail_ip',
+  key: 'login_ip',
   maxAttempts: 30,
   attemptsPause: 60
 }
 const loginAttemptLimiterAtrs = {
-  key: 'login_fail_email',
+  key: 'login_email',
   maxAttempts: 3,
   attemptsPause: 10
 }
