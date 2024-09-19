@@ -150,7 +150,7 @@ export class App {
     const rafikiController = await this.container.resolve('rafikiController')
     const gateHubController = await this.container.resolve('gateHubController')
     const cardController = await this.container.resolve('cardController')
-    
+
     app.use(
       cors({
         origin: [
@@ -301,7 +301,7 @@ export class App {
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
 
     // Cards
-    app.get('/cards/:cardId', isAuth, cardController.getCardDetails);
+    app.get('/cards/:cardId', isAuth, cardController.getCardDetails)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

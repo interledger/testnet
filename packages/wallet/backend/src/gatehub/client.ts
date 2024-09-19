@@ -297,10 +297,10 @@ export class GateHubClient {
   }
 
   async getCardDetails(cardId: string): Promise<ICardDetailsResponse> {
-    const url = `${this.apiUrl}/cards/${cardId}/card`;
+    const url = `${this.apiUrl}/cards/${cardId}/card`
 
-    const response = await this.request<ICardDetailsResponse>('GET', url);
-    return response;
+    const response = await this.request<ICardDetailsResponse>('GET', url)
+    return response
   }
 
   private async request<T>(
