@@ -36,7 +36,7 @@ const loginAttemptLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
   keyPrefix: loginAttemptLimiterAtrs.key,
   points: loginAttemptLimiterAtrs.maxAttempts,
-  duration: 60 * 60 * 24,
+  duration: 60 * 60 * 1,
   blockDuration: 60 * loginAttemptLimiterAtrs.attemptsPause
 })
 const loginIPLimiter = new RateLimiterRedisHelper({
