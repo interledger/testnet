@@ -36,10 +36,10 @@ export async function middleware(req: NextRequest) {
 
     if (
       response.result?.needsIDProof &&
-      req.nextUrl.pathname !== '/kyc/proof'
+      req.nextUrl.pathname !== '/kyc'
     ) {
       if (nextPage !== 'proof')
-        return NextResponse.redirect(new URL('/kyc/proof', req.url))
+        return NextResponse.redirect(new URL('/kyc', req.url))
     }
 
     // If KYC is completed and the user tries to navigate to the page, redirect

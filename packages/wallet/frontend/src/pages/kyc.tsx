@@ -84,6 +84,7 @@ export const getServerSideProps: GetServerSideProps<{
     ctx.req.headers.cookie
   )
 
+  console.log(response)
   if (!response.success || !response.result) {
     return {
       notFound: true

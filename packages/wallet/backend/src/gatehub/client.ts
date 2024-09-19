@@ -49,14 +49,14 @@ export class GateHubClient {
     private env: Env,
     private logger: Logger
   ) {
-    if (this.isSandbox) {
+    if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
       this.mainUrl = 'gatehub.net'
     }
   }
 
-  get isSandbox() {
-    return this.env.NODE_ENV !== 'production'
+  get isProduction() {
+    return this.env.NODE_ENV === 'production'
   }
 
   get apiUrl() {
@@ -172,6 +172,17 @@ export class GateHubClient {
     return response
   }
 
+  async getUserState(userId: string): Promise<ICreateManagedUserResponse> {
+    const url = `${this.apiUrl}/id/v1/users/${userId}`
+
+    const response = await this.request<ICreateManagedUserResponse>(
+      'GET',
+      url
+    )
+
+    return response
+  }
+
   async connectUserToGateway(
     userUuid: string,
     gatewayUuid: string
@@ -183,7 +194,7 @@ export class GateHubClient {
       url
     )
 
-    if (this.isSandbox) {
+    if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(userUuid, gatewayUuid)
     }
@@ -317,6 +328,11 @@ export class GateHubClient {
         ...(body && { data: body }),
         headers
       })
+
+      this.logger.debug(
+          `Axios ${method} request for ${url} succeeded:\n ${JSON.stringify(res.data, undefined, 2)}`,
+          body ? JSON.parse(body) : {}
+      )
 
       return res.data
     } catch (e) {
