@@ -43,14 +43,14 @@ const loginIPLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
   keyPrefix: loginIPLimiterAtrs.key,
   points: loginIPLimiterAtrs.maxAttempts,
-  duration: 60 * 60 * 24,
+  duration: 60 * 60 * 1,
   blockDuration: 60 * loginIPLimiterAtrs.attemptsPause
 })
 const loginBlockIPLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
   keyPrefix: loginBlockIPLimiterAtrs.key,
   points: loginBlockIPLimiterAtrs.maxAttempts,
-  duration: 60 * 60 * 48,
+  duration: 60 * 60 * 1,
   blockDuration: 60 * loginBlockIPLimiterAtrs.attemptsPause
 })
 const EmailRoutes = ['/resend-verify-email', '/forgot-password']
