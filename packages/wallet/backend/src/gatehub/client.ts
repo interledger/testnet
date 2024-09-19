@@ -134,7 +134,7 @@ export class GateHubClient {
     const url = `${this.apiUrl}/auth/v1/tokens?${clientId}`
     const body: ITokenRequest = { scope }
 
-    const response: ITokenResponse = await this.request<ITokenResponse>(
+    const response = await this.request<ITokenResponse>(
       'POST',
       url,
       JSON.stringify(body),
@@ -150,12 +150,11 @@ export class GateHubClient {
     const url = `${this.apiUrl}/auth/v1/users/managed/email`
     const body: ICreateManagedUserRequest = { email }
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>(
-        'PUT',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateManagedUserResponse>(
+      'PUT',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -164,12 +163,11 @@ export class GateHubClient {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body: ICreateManagedUserRequest = { email }
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>(
-        'POST',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateManagedUserResponse>(
+      'POST',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -180,8 +178,10 @@ export class GateHubClient {
   ): Promise<IConnectUserToGatewayResponse> {
     const url = `${this.apiUrl}/id/v1/users/${userUuid}/hubs/${gatewayUuid}`
 
-    const response: IConnectUserToGatewayResponse =
-      await this.request<IConnectUserToGatewayResponse>('POST', url)
+    const response = await this.request<IConnectUserToGatewayResponse>(
+      'POST',
+      url
+    )
 
     if (this.isSandbox) {
       // Auto approve user to gateway in sandbox environment
@@ -202,12 +202,11 @@ export class GateHubClient {
       customMessage: false
     }
 
-    const response: IApproveUserToGatewayResponse =
-      await this.request<IApproveUserToGatewayResponse>(
-        'PUT',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<IApproveUserToGatewayResponse>(
+      'PUT',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -222,12 +221,11 @@ export class GateHubClient {
       type: HOSTED_WALLET_TYPE
     }
 
-    const response: ICreateWalletResponse =
-      await this.request<ICreateWalletResponse>(
-        'POST',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateWalletResponse>(
+      'POST',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -238,10 +236,7 @@ export class GateHubClient {
   ): Promise<IGetWalletResponse> {
     const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/${walletId}`
 
-    const response: IGetWalletResponse = await this.request<IGetWalletResponse>(
-      'GET',
-      url
-    )
+    const response = await this.request<IGetWalletResponse>('GET', url)
 
     return response
   }
@@ -252,7 +247,7 @@ export class GateHubClient {
   ): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
-    const response: IWalletBalance[] = await this.request<IWalletBalance[]>(
+    const response = await this.request<IWalletBalance[]>(
       'GET',
       url,
       undefined,
@@ -267,12 +262,11 @@ export class GateHubClient {
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>(
-        'POST',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateTransactionResponse>(
+      'POST',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -280,8 +274,7 @@ export class GateHubClient {
   async getVaults(): Promise<IGetVaultsResponse> {
     const url = `${this.apiUrl}/rates/v1/liquidity_provider/vaults`
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>('GET', url)
+    const response = await this.request<IGetVaultsResponse>('GET', url)
 
     return response
   }
@@ -289,10 +282,7 @@ export class GateHubClient {
   async getRates(base: string): Promise<Record<string, number>> {
     const url = `${this.apiUrl}/rates/v1/rates/current?counter=${base}&amount=1&useAll=true`
 
-    const response: IRatesResponse = await this.request<IRatesResponse>(
-      'GET',
-      url
-    )
+    const response = await this.request<IRatesResponse>('GET', url)
 
     const flatRates: Record<string, number> = {}
     for (const code of SUPPORTED_ASSET_CODES) {
