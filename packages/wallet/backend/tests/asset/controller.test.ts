@@ -52,7 +52,7 @@ describe('Asset Controller', (): void => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
+      needsWallet: !user.gateHubUserId,
       needsIDProof: !user.kycId
     }
   })

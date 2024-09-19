@@ -19,7 +19,34 @@ export interface ICreateManagedUserRequest {
   email: string
 }
 
-export interface ICreateManagedUserResponse {}
+export interface ICreateManagedUserResponse {
+  id: string
+  createdAt: string
+  updatedAt: string
+  activatedAt: string
+  email: string
+  secret2fa: boolean
+  type2fa: string
+  activated: boolean
+  role: string
+  meta: Record<string, string>
+  lastPasswordChange: string
+  features: string[]
+  managed: boolean
+  managedBy: string
+}
+
+export interface ICreateWalletRequest {
+  name: string
+  type: number
+}
+
+export interface ICreateWalletResponse {
+  address: string
+}
+export interface IGetWalletResponse {
+  address: string
+}
 
 export interface ICreateTransactionRequest {
   amount: number
@@ -27,10 +54,45 @@ export interface ICreateTransactionRequest {
   sending_address: string
   receiving_address: string
   message: string
-  type: 'transfer'
+  type: number
   vault_uuid: string
 }
 
 export interface ICreateTransactionResponse {}
 
 export interface IGetVaultsResponse {}
+
+export interface IRatesResponse {
+  counter: string
+  [key: string]: string | IRate
+}
+
+interface IRate {
+  type: string
+  rate: string | number
+  amount: string
+  change: string
+}
+
+export interface IWalletBalance {
+  available: string
+  pending: string
+  total: string
+  vault: IVault
+}
+
+interface IVault {
+  uuid: string
+  name: string
+  assetCode: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface IConnectUserToGatewayResponse {}
+export interface IApproveUserToGatewayRequest {
+  verified: number
+  reasons: string[]
+  customMessage: boolean
+}
+export interface IApproveUserToGatewayResponse {}

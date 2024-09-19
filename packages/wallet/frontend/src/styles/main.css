@@ -50,11 +50,3 @@ html.dark *:focus-visible {
 #nprogress .bar {
   @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink-light;
 }
-
-.tooltip {
-  @apply invisible absolute;
-}
-
-.has-tooltip:hover .tooltip {
-  @apply visible z-50;
-}
