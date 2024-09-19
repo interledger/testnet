@@ -50,3 +50,24 @@ html.dark *:focus-visible {
 #nprogress .bar {
   @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink-light;
 }
+
+@font-face {
+  font-family: 'DejaVuSansMono';
+  src:
+    local('DejaVuSansMono'),
+    url(./fonts/DejaVuSansMono.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'DejaVuSansMonoBold';
+  src:
+    local('DejaVuSansMono-Bold'),
+    url(./fonts/DejaVuSansMono-Bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'DejaVuSansMonoOblique';
+  src:
+    local('DejaVuSansMono-Oblique'),
+    url(./fonts/DejaVuSansMono-Oblique.ttf) format('truetype');
+}

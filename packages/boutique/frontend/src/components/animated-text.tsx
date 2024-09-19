@@ -7,7 +7,7 @@ interface AnimatedTextProps {
 export const AnimatedText = ({ text }: AnimatedTextProps) => {
   return (
     <motion.div
-      className="flex overflow-hidden text-center text-xl font-bold tracking-tight sm:text-3xl"
+      className="flex overflow-hidden text-center text-xl font-['DejaVuSansMonoBold'] tracking-tight sm:text-3xl"
       variants={{
         hidden: { opacity: 0 },
         visible: () => ({

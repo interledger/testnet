@@ -37,7 +37,7 @@ export const CartItem = ({ item }: CartItemProps) => {
             <div className="flex justify-between">
               <Link
                 to={`/products/${item.slug}`}
-                className="rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon"
+                className="rounded-md font-['DejaVuSansMonoBold'] text-xl focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon"
               >
                 {item.name}
               </Link>

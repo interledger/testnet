@@ -15,7 +15,7 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
   return (
     <section className="row-start-1 rounded-md border border-green dark:border-pink-neon px-4 py-4 sm:px-6 lg:row-start-auto lg:border-0 lg:px-0 lg:pb-16">
       <div className="mx-auto max-w-lg lg:max-w-none">
-        <h2 className="text-lg">Order summary</h2>
+        <h2 className="text-lg font-['DejaVuSansMonoBold']">Order summary</h2>
         <ul role="list" className="divide-y">
           {summary.items.map((item) => (
             <li key={item.id} className="flex items-start space-x-4 py-6">
@@ -40,7 +40,9 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
         <dl className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
             <dt>Subtotal</dt>
-            <dd className="font-bold">{formatPrice(summary.totalAmount)}</dd>
+            <dd className="font-['DejaVuSansMonoBold']">
+              {formatPrice(summary.totalAmount)}
+            </dd>
           </div>
           <div className="flex items-center justify-between border-t pt-4">
             <dt>Fees</dt>
@@ -50,7 +52,9 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
           </div>
           <div className="flex items-center justify-between border-t pt-4">
             <dt>Estimated order total</dt>
-            <dd className="font-bold">{formatPrice(summary.totalAmount)}</dd>
+            <dd className="font-['DejaVuSansMonoBold']">
+              {formatPrice(summary.totalAmount)}
+            </dd>
           </div>
         </dl>
       </div>

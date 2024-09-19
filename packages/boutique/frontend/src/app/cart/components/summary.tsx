@@ -50,11 +50,11 @@ export const Summary = () => {
   return (
     <div className="mt-16 flex flex-col gap-y-5 lg:col-span-4 lg:mt-0">
       <SummarySection>
-        <h2 className="text-lg font-bold">Summary</h2>
+        <h2 className="text-lg font-['DejaVuSansMonoBold']">Summary</h2>
         <dl className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
             <dt>Subtotal</dt>
-            <dd className="font-bold">{orderSubTotal}</dd>
+            <dd className="font-['DejaVuSansMonoBold']">{orderSubTotal}</dd>
           </div>
           <div className="flex items-center justify-between border-t border-green-dark dark:border-teal-neon pt-4">
             <dt>Fees</dt>
@@ -62,7 +62,7 @@ export const Summary = () => {
           </div>
           <div className="flex items-center justify-between border-t border-green-dark dark:border-teal-neon pt-4">
             <dt>Estimated order total</dt>
-            <dd className="font-bold">{orderSubTotal}</dd>
+            <dd className="font-['DejaVuSansMonoBold']">{orderSubTotal}</dd>
           </div>
         </dl>
         <div className="mt-6 flex">

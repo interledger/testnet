@@ -21,7 +21,9 @@ import { resetCart } from '@/lib/stores/cart-store.ts'
 export const PaymentMethods = () => {
   return (
     <Tabs className="py-4 sm:px-6 lg:px-0">
-      <h2 className="mb-4 block">Select payment method</h2>
+      <h2 className="mb-4 block font-['DejaVuSansMonoBold']">
+        Select payment method
+      </h2>
       <TabsList>
         <TabsTrigger
           value="open-payments"

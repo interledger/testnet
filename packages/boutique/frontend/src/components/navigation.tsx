@@ -79,7 +79,7 @@ export const MainNav = () => {
       >
         <Logo className="h-9 w-40 flex-shrink-0" aria-label="Logo" />
       </Link>
-      <nav className="hidden items-center space-x-6 font-medium md:flex">
+      <nav className="hidden items-center space-x-6 font-['DejaVuSansMonoBold'] md:flex">
         {NAV_LINKS.map(({ to, name }) => (
           <MainNavLink key={to} to={to}>
             {name}

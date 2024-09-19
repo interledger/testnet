@@ -23,7 +23,9 @@ export function Component() {
     return (
       <div className="col-span-4 mt-4 text-center">
         <BirdError className="mx-auto h-20 w-20" />
-        <p className="text-lg font-bold">Something went wrong...</p>
+        <p className="text-lg font-['DejaVuSansMonoBold']">
+          Something went wrong...
+        </p>
         <p>{error.message}</p>
         <Link
           to="/products"
@@ -48,7 +50,7 @@ export function Component() {
           </div>
 
           <div className="col-span-2 mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-3xl font-['DejaVuSansMonoBold'] tracking-tight">
               {data.result.name}
             </h1>
             <div className="mt-3">
