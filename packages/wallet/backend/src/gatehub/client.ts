@@ -31,6 +31,7 @@ import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
+import { ICardDetailsResponse } from '@/card/types'
 
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
@@ -293,6 +294,13 @@ export class GateHubClient {
     }
 
     return flatRates
+  }
+
+  async getCardDetails(cardId: string): Promise<ICardDetailsResponse> {
+    const url = `${this.apiUrl}/cards/${cardId}/card`;
+
+    const response = await this.request<ICardDetailsResponse>('GET', url);
+    return response;
   }
 
   private async request<T>(
