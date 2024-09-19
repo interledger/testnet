@@ -44,10 +44,10 @@ describe('Grant Controller', () => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
+      needsWallet: !user.gateHubUserId,
       needsIDProof: !user.kycId
     }
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+    await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })
   }
 
   const createMockGrantControllerDeps = (isFailure?: boolean) => {

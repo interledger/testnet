@@ -5,13 +5,17 @@ import {
   ICreateManagedUserResponse,
   ICreateTransactionRequest,
   ICreateTransactionResponse,
+  ICreateWalletRequest,
+  ICreateWalletResponse,
   IGetVaultsResponse,
+  IGetWalletResponse,
   ITokenRequest,
   ITokenResponse
 } from '@/gatehub/types'
 import { Env } from '@/config/env'
 import {
   DEFAULT_APP_SCOPE,
+  HOSTED_WALLET_TYPE,
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
@@ -26,7 +30,10 @@ export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
-  private iframeMappings: Record<IFRAME_TYPE, () => Promise<string>> = {
+  private iframeMappings: Record<
+    IFRAME_TYPE,
+    (managedUserId: string) => Promise<string>
+  > = {
     deposit: this.getDepositUrl.bind(this),
     withdrawal: this.getWithdrawalUrl.bind(this),
     exchange: this.getExchangeUrl.bind(this),
@@ -58,53 +65,61 @@ export class GateHubClient {
     return `https://onboarding.${this.mainUrl}`
   }
 
-  async getWithdrawalUrl(): Promise<string> {
+  async getWithdrawalUrl(managedUserId: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
-      DEFAULT_APP_SCOPE
+      DEFAULT_APP_SCOPE,
+      managedUserId
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.withdrawal}&bearer=${token}`
   }
 
-  async getDepositUrl(): Promise<string> {
+  async getDepositUrl(managedUserId: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
-      DEFAULT_APP_SCOPE
+      DEFAULT_APP_SCOPE,
+      managedUserId
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.deposit}&bearer=${token}`
   }
 
-  async getOnboardingUrl(): Promise<string> {
+  async getOnboardingUrl(managedUserId: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.onboarding,
-      ONBOARDING_APP_SCOPE
+      ONBOARDING_APP_SCOPE,
+      managedUserId
     )
 
     return `${this.onboardingUrl}/?bearer=${token}`
   }
 
-  async getExchangeUrl(): Promise<string> {
+  async getExchangeUrl(managedUserId: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.exchange,
-      DEFAULT_APP_SCOPE
+      DEFAULT_APP_SCOPE,
+      managedUserId
     )
 
     return `${this.exchangeUrl}/?bearer=${token}`
   }
 
-  async getIframeUrl(type: IFRAME_TYPE): Promise<string> {
+  async getIframeUrl(
+    type: IFRAME_TYPE,
+    managedUserId: string
+  ): Promise<string> {
     if (!this.iframeMappings[type]) {
       throw new BadRequest('Invalid iframe type')
     }
 
-    return await this.iframeMappings[type]()
+    return await this.iframeMappings[type](managedUserId)
   }
 
   async getIframeAuthorizationToken(
     clientId: string,
-    scope: string[]
+    scope: string[],
+    managedUserId: string
   ): Promise<string> {
     const url = `${this.apiUrl}/auth/v1/tokens?${clientId}`
     const body: ITokenRequest = { scope }
@@ -112,7 +127,8 @@ export class GateHubClient {
     const response: ITokenResponse = await this.request<ITokenResponse>(
       'POST',
       url,
-      JSON.stringify(body)
+      JSON.stringify(body),
+      managedUserId
     )
 
     return response.token
@@ -156,6 +172,40 @@ export class GateHubClient {
 
     const response: ICreateManagedUserResponse =
       await this.request<ICreateManagedUserResponse>('POST', url)
+
+    return response
+  }
+
+  async createWallet(
+    userUuid: string,
+    name: string
+  ): Promise<ICreateWalletResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets`
+    const body: ICreateWalletRequest = {
+      name,
+      type: HOSTED_WALLET_TYPE
+    }
+
+    const response: ICreateWalletResponse =
+      await this.request<ICreateWalletResponse>(
+        'POST',
+        url,
+        JSON.stringify(body)
+      )
+
+    return response
+  }
+
+  async getWallet(
+    userUuid: string,
+    walletId: string
+  ): Promise<IGetWalletResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/${walletId}`
+
+    const response: IGetWalletResponse = await this.request<IGetWalletResponse>(
+      'GET',
+      url
+    )
 
     return response
   }

@@ -52,11 +52,11 @@ describe('Wallet Address Keys Controller', () => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
+      needsWallet: !user.gateHubUserId,
       needsIDProof: !user.kycId
     }
     userId = user.id
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+    await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })
   }
 
   const createMockWalletAddressKeyControllerDeps = () => {
