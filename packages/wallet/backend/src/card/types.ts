@@ -1,4 +1,4 @@
-export interface ICardDetailsResponse {
+export interface IMaskedCardDetailsResponse {
   sourceId: string | null
   nameOnCard: string | null
   productCode: string
@@ -12,4 +12,15 @@ export interface ICardDetailsResponse {
   expiryDate: string
   customerId: string
   customerSourceId: string
+}
+
+export interface ICardDetailsResponse {}
+
+export interface ILinksResponse {
+  token: string | null
+  links: Array<{
+    href: string | null
+    rel: string | null
+    method: string | null
+  }> | null
 }

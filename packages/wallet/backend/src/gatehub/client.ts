@@ -31,7 +31,11 @@ import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
-import { ICardDetailsResponse } from '@/card/types'
+import {
+  ICardDetailsResponse,
+  IMaskedCardDetailsResponse,
+  ILinksResponse
+} from '@/card/types'
 
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
@@ -296,11 +300,45 @@ export class GateHubClient {
     return flatRates
   }
 
-  async getCardDetails(cardId: string): Promise<ICardDetailsResponse> {
+  async getMaskedCardDetails(
+    cardId: string
+  ): Promise<IMaskedCardDetailsResponse> {
     const url = `${this.apiUrl}/cards/${cardId}/card`
 
-    const response = await this.request<ICardDetailsResponse>('GET', url)
+    const response = await this.request<IMaskedCardDetailsResponse>('GET', url)
     return response
+  }
+
+  async getCardDetails(
+    cardId: string,
+    publicKey: string
+  ): Promise<ICardDetailsResponse> {
+    const url = `${this.apiUrl}/token/card-data`
+    const requestBody = {
+      cardId,
+      publicKey
+    }
+
+    const response = await this.request<ILinksResponse>(
+      'POST',
+      url,
+      JSON.stringify(requestBody)
+    )
+
+    const token = response.token
+    if (!token) {
+      throw new Error('Failed to obtain token for card data retrieval')
+    }
+
+    // Will get this from the response
+    const cardDetailsUrl = ''
+    // TODO
+    const cardDetailsResponse = await this.request<ICardDetailsResponse>(
+      'GET',
+      cardDetailsUrl
+    )
+
+    return cardDetailsResponse
   }
 
   private async request<T>(

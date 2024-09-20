@@ -301,7 +301,12 @@ export class App {
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
 
     // Cards
-    router.get('/cards/:cardId', isAuth, cardController.getCardDetails)
+    router.get(
+      '/cards/:cardId/masked-details',
+      isAuth,
+      cardController.getMaskedCardDetails
+    )
+    router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
