@@ -96,3 +96,12 @@ export interface IApproveUserToGatewayRequest {
   customMessage: boolean
 }
 export interface IApproveUserToGatewayResponse {}
+
+export interface IWebhookDate {
+  uuid: string
+  timestamp: string
+  event_type: string
+  user_uuid: string
+  environment: 'sandbox' | 'production'
+  data: Record<string, unknown>
+}

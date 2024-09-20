@@ -12,8 +12,8 @@ exports.up = function (knex) {
     table.string('firstName')
     table.string('address')
     table.string('country')
-    table.string('kycId') // TODO: replace with GateHub kyc check
 
+    table.boolean('kycVerified').defaultTo(false)
     table.string('gateHubUserId')
 
     table.timestamp('createdAt').notNullable()

@@ -68,9 +68,11 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
       <iframe
         src={url}
         sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
-        scrolling="no"
+        scrolling="auto"
         frameBorder="0"
         allow="camera;microphone"
+        width="500"
+        height="500"
       ></iframe>
     </>
   )

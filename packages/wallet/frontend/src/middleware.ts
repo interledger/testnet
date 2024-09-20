@@ -34,10 +34,8 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    if (
-      response.result?.needsIDProof &&
-      req.nextUrl.pathname !== '/kyc'
-    ) {
+    console.log(response.result)
+    if (response.result?.needsIDProof && req.nextUrl.pathname !== '/kyc') {
       if (nextPage !== 'proof')
         return NextResponse.redirect(new URL('/kyc', req.url))
     }

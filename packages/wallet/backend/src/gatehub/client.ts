@@ -131,7 +131,7 @@ export class GateHubClient {
     scope: string[],
     managedUserId: string
   ): Promise<string> {
-    const url = `${this.apiUrl}/auth/v1/tokens?${clientId}`
+    const url = `${this.apiUrl}/auth/v1/tokens?clientId=${clientId}`
     const body: ITokenRequest = { scope }
 
     const response = await this.request<ITokenResponse>(
@@ -175,10 +175,7 @@ export class GateHubClient {
   async getUserState(userId: string): Promise<ICreateManagedUserResponse> {
     const url = `${this.apiUrl}/id/v1/users/${userId}`
 
-    const response = await this.request<ICreateManagedUserResponse>(
-      'GET',
-      url
-    )
+    const response = await this.request<ICreateManagedUserResponse>('GET', url)
 
     return response
   }
@@ -235,7 +232,8 @@ export class GateHubClient {
     const response = await this.request<ICreateWalletResponse>(
       'POST',
       url,
-      JSON.stringify(body)
+      JSON.stringify(body),
+      userUuid
     )
 
     return response
@@ -253,16 +251,16 @@ export class GateHubClient {
   }
 
   async getWalletBalance(
-    userUuid: string,
-    walletId: string
+    walletId: string,
+    _userUuid: string
   ): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
     const response = await this.request<IWalletBalance[]>(
       'GET',
       url,
-      undefined,
-      userUuid
+      undefined
+      //userUuid
     )
 
     return response
@@ -330,8 +328,8 @@ export class GateHubClient {
       })
 
       this.logger.debug(
-          `Axios ${method} request for ${url} succeeded:\n ${JSON.stringify(res.data, undefined, 2)}`,
-          body ? JSON.parse(body) : {}
+        `Axios ${method} request for ${url} succeeded:\n ${JSON.stringify(res.data, undefined, 2)}`,
+        body ? JSON.parse(body) : {}
       )
 
       return res.data

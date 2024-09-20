@@ -24,4 +24,23 @@ export class GateHubController implements IGateHubController {
       next(e)
     }
   }
+
+  public webhook = async (
+    req: Request,
+    res: CustomResponse<IframeResponse>,
+    next: NextFunction
+  ) => {
+    try {
+      // TODO: implement signature check
+      if (!req.body.uuid) {
+        return
+      }
+
+      await this.gateHubService.handleWebhook(req.body)
+
+      res.status(200).json()
+    } catch (e) {
+      next(e)
+    }
+  }
 }

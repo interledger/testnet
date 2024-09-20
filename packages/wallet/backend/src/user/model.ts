@@ -16,7 +16,7 @@ export class User extends BaseModel {
   public firstName?: string
   public address?: string
   public country?: string
-  public kycId?: string
+  public kycVerified!: boolean
 
   public gateHubUserId?: string
   public sessions?: Session[]
