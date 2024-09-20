@@ -1,6 +1,7 @@
 import { useCartStore } from '@/hooks/use-cart-store.ts'
 import { MobileNav, MainNav } from './navigation.tsx'
 import { ShoppingCartPopover } from './shopping-cart-popover.tsx'
+import { ThemeToggle } from './theme-toggle.tsx'
 
 export const Header = () => {
   return (
@@ -11,6 +12,7 @@ export const Header = () => {
           <nav className="flex items-center">
             <ShoppingCartPopover />
             <ShoppingCartTotalItems />
+            <ThemeToggle />
           </nav>
           <MobileNav />
         </div>
