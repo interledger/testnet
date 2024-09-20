@@ -9,7 +9,7 @@ export interface ICardController {
 }
 
 export class CardController implements ICardController {
-  constructor(private cardsService: CardService) {}
+  constructor(private cardService: CardService) {}
 
   public getCardDetails = async (
     req: Request,
@@ -18,7 +18,7 @@ export class CardController implements ICardController {
   ) => {
     try {
       const { cardId } = req.params
-      const cardDetails = await this.cardsService.getCardDetails(cardId)
+      const cardDetails = await this.cardService.getCardDetails(cardId)
       res.status(200).json(toSuccessResponse(cardDetails))
     } catch (error) {
       next(error)
