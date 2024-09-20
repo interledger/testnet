@@ -17,7 +17,7 @@ export interface IUserCard {
 
 export const changePinSchema = z
   .object({
-    pin: z.string().length(4),
+    pin: z.string().length(6),
     confirmPin: z.string()
   })
   .superRefine(({ pin, confirmPin }, ctx) => {

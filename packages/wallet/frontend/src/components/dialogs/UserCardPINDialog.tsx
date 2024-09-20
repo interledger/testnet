@@ -57,7 +57,7 @@ export const UserCardPINDialog = ({
                     className="origin-top-left scale-[.3] [margin:0_calc(-20rem*(1-.3))_calc(-13rem*(1-0.3))_0] "
                   />
                   <div>
-                    <p className="text-base pt-2">Physical Debit Card</p>
+                    <p className="text-base pt-2">Your PIN</p>
                     <p className="text-black/50 dark:text-white/50 text-sm">
                       {card.number}
                     </p>
@@ -117,7 +117,7 @@ const ChangePinForm = () => {
       <Input
         type="password"
         inputMode="numeric"
-        maxLength={4}
+        maxLength={6}
         placeholder="Enter PIN"
         error={form.formState?.errors?.pin?.message}
         {...form.register('pin')}
@@ -125,7 +125,7 @@ const ChangePinForm = () => {
       <Input
         type="password"
         inputMode="numeric"
-        maxLength={4}
+        maxLength={6}
         placeholder="Repeat PIN"
         error={form.formState?.errors?.confirmPin?.message}
         {...form.register('confirmPin')}
