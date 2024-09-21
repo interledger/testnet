@@ -7,6 +7,7 @@ import {
   increaseQuantity,
   removeFromCart
 } from '@/lib/stores/cart-store.ts'
+import { useThemeContext } from '@/lib/theme'
 import { formatPrice } from '@/lib/utils.ts'
 import { createContext, ReactNode, useContext } from 'react'
 import { Link } from 'react-router-dom'
@@ -22,12 +23,13 @@ export const CartItemContext = createContext<CartItemContextValue>(
 )
 
 export const CartItem = ({ item }: CartItemProps) => {
+  const { theme } = useThemeContext()
   return (
     <CartItemContext.Provider value={{ item: item }}>
       <li key={item.id} className="flex py-6 first-of-type:pt-0">
         <div className="flex-shrink-0 rounded-md border border-green dark:border-pink-neon bg-green-light dark:bg-purple-dark">
           <img
-            src={`${IMAGES_URL}${item.image}`}
+            src={`${IMAGES_URL}${theme === 'light' ? item.image : item.imageDark}`}
             alt={item.name}
             className="h-24 w-24 object-scale-down object-center"
           />

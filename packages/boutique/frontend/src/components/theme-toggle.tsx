@@ -1,10 +1,11 @@
-import { CSSProperties, useEffect, useState } from 'react'
+import { useThemeContext } from '@/lib/theme'
+import { CSSProperties, useEffect } from 'react'
 
 export const ThemeToggle: React.FC = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const { theme, setTheme } = useThemeContext()
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'))
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   useEffect(() => {

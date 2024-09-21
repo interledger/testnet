@@ -11,6 +11,7 @@ import {
 import type { Product } from '@/hooks/use-products-query'
 import { IMAGES_URL } from '@/lib/constants.ts'
 import { fetcher } from '@/lib/fetcher.ts'
+import { useThemeContext } from '@/lib/theme'
 import { formatPrice } from '@/lib/utils.ts'
 import { Link } from 'react-router-dom'
 
@@ -19,8 +20,9 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  const { name, price, image, slug } = product
-  const imageUrl = `${IMAGES_URL}${image}`
+  const { name, price, image, imageDark, slug } = product
+  const { theme } = useThemeContext()
+  const imageUrl = `${IMAGES_URL}${theme === 'light' ? image : imageDark}`
   return (
     <Link
       onMouseEnter={async () => {
@@ -60,7 +62,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <CardContent className="p-0">
           <img
             className="absolute right-5 top-1/2 h-42 w-32 -translate-y-1/2 transition-[right]"
-            alt={image}
+            alt={theme === 'light' ? image : imageDark}
             src={imageUrl}
           />
         </CardContent>

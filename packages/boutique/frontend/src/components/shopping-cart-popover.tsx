@@ -11,6 +11,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { Link } from 'react-router-dom'
 import { CartItem } from '@/lib/stores/cart-store.ts'
 import { useState } from 'react'
+import { useThemeContext } from '@/lib/theme.ts'
 
 export const ShoppingCartPopover = () => {
   const [open, setOpen] = useState(false)
@@ -70,10 +71,11 @@ interface ShoppingCartItemProps {
 }
 
 const ShoppingCartItem = ({ item }: ShoppingCartItemProps) => {
+  const { theme } = useThemeContext()
   return (
     <li className="flex items-center dark:text-white py-6 first-of-type:pt-0 focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon">
       <img
-        src={`${IMAGES_URL}${item.image}`}
+        src={`${IMAGES_URL}${theme === 'light' ? item.image : item.imageDark}`}
         alt={item.name}
         className="h-12 w-12 flex-none rounded-md border border-green dark:border-pink-neon bg-green-light dark:bg-purple"
       />

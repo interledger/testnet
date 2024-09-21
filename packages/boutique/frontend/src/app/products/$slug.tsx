@@ -7,6 +7,7 @@ import { createContext } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductCTA } from './components/product-cta.tsx'
 import { ProductShimmer } from './components/product-shimmer.tsx'
+import { useThemeContext } from '@/lib/theme.ts'
 
 interface ProductContextValue {
   product: Product
@@ -18,6 +19,7 @@ export const ProductContext = createContext<ProductContextValue>(
 
 export function Component() {
   const { data, error } = useProductQuery()
+  const { theme } = useThemeContext()
 
   if (error) {
     return (
@@ -43,7 +45,7 @@ export function Component() {
         <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
           <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
             <img
-              src={`${IMAGES_URL}${data.result.image}`}
+              src={`${IMAGES_URL}${theme === 'light' ? data.result.image : data.result.image}`}
               alt={data.result.name}
               className="h-full w-full object-scale-down object-center"
             />
