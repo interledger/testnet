@@ -267,7 +267,7 @@ export class OpenPayments implements IOpenPayments {
       identifier: clientIdentifer,
       limits: {
         debitAmount: amountData,
-        receiveAmount: amountData,
+        receiveAmount: amountData
       },
       finishUrl: `${this.env.FRONTEND_URL}/cart/finish?identifier=${clientIdentifer}`
     })
@@ -409,14 +409,8 @@ export class OpenPayments implements IOpenPayments {
   private async createOutgoingPaymentGrant(
     params: CreateOutgoingPaymentParams
   ): Promise<PendingGrant> {
-    const {
-      nonce,
-      authServer,
-      identifier,
-      walletAddress,
-      limits,
-      finishUrl,
-    } = params
+    const { nonce, authServer, identifier, walletAddress, limits, finishUrl } =
+      params
 
     const finish =
       finishUrl ??
