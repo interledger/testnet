@@ -64,16 +64,14 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
       <h2 className="py-2 text-xl font-semibold text-green dark:text-pink-neon">
         Personal Details
       </h2>
-      {/* TODO: Styling */}
-      <iframe
-        src={url}
-        sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
-        scrolling="auto"
-        frameBorder="0"
-        allow="camera;microphone"
-        width="500"
-        height="500"
-      ></iframe>
+      <div className="w-full h-full">
+        <iframe
+          src={url}
+          className="w-full h-full"
+          sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
+          allow="camera;microphone"
+        ></iframe>
+      </div>
     </>
   )
 }
