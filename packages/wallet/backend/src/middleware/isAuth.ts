@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import { Unauthorized } from '@shared/backend'
 
-const KYCRoutes = ['/iframe-urls/onboarding']
+const KYCRoutes = ['/iframe-urls/onboarding', '/gatehub/add-user-to-gateway']
 
 export const isAuth = async (
   req: Request,
@@ -9,6 +9,7 @@ export const isAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    console.log(req.session)
     if (!req.session.id || !req.session.user) {
       req.session.destroy()
       throw new Unauthorized('Unauthorized')

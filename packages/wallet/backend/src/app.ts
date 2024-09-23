@@ -294,8 +294,12 @@ export class App {
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
-    router.get('/gatehub-webhooks', gateHubController.webhook)
     router.post('/gatehub-webhooks', gateHubController.webhook)
+    router.post(
+      '/gatehub/add-user-to-gateway',
+      isAuth,
+      gateHubController.addUserToGateway
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

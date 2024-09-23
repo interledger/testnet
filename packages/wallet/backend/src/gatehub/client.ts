@@ -10,6 +10,7 @@ import {
   ICreateTransactionResponse,
   ICreateWalletRequest,
   ICreateWalletResponse,
+  IGetUserStateResponse,
   IGetVaultsResponse,
   IGetWalletResponse,
   IRatesResponse,
@@ -172,10 +173,10 @@ export class GateHubClient {
     return response
   }
 
-  async getUserState(userId: string): Promise<ICreateManagedUserResponse> {
+  async getUserState(userId: string): Promise<IGetUserStateResponse> {
     const url = `${this.apiUrl}/id/v1/users/${userId}`
 
-    const response = await this.request<ICreateManagedUserResponse>('GET', url)
+    const response = await this.request<IGetUserStateResponse>('GET', url)
 
     return response
   }
@@ -183,20 +184,24 @@ export class GateHubClient {
   async connectUserToGateway(
     userUuid: string,
     gatewayUuid: string
-  ): Promise<IConnectUserToGatewayResponse> {
+  ): Promise<boolean> {
     const url = `${this.apiUrl}/id/v1/users/${userUuid}/hubs/${gatewayUuid}`
 
-    const response = await this.request<IConnectUserToGatewayResponse>(
+    await this.request<IConnectUserToGatewayResponse>(
       'POST',
-      url
+      url,
+      undefined,
+      userUuid
     )
 
     if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(userUuid, gatewayUuid)
+
+      return true
     }
 
-    return response
+    return false
   }
 
   private async approveUserToGateway(
@@ -335,6 +340,7 @@ export class GateHubClient {
       return res.data
     } catch (e) {
       if (e instanceof AxiosError) {
+        console.log(e)
         this.logger.error(
           `Axios ${method} request for ${url} failed with: ${
             e.message || e.response?.data

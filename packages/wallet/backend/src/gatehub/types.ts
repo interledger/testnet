@@ -36,6 +36,17 @@ export interface ICreateManagedUserResponse {
   managedBy: string
 }
 
+export interface IGetUserStateResponse {
+  profile: {
+    first_name: string
+    last_name: string
+    address_country_code: string
+    address_city: string
+    address_street1: string
+    address_street2: string
+  }
+}
+
 export interface ICreateWalletRequest {
   name: string
   type: number

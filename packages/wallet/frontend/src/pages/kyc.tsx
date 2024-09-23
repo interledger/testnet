@@ -19,14 +19,17 @@ type MessageData =
   | { type: GateHubMessageType.OnboardingError; value: GateHubMessageError }
   | { type: GateHubMessageType.OnboardingInitialized }
 
-const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
+const KYCPage: NextPageWithLayout<KYCPageProps> = ({
+  url,
+  addUserToGatewayUrl
+}) => {
   // const [openDialog, closeDialog] = useDialog()
   // const router = useRouter()
 
   useEffect(() => {
     // TODO: Handle the received message from iframe
     // https://docs.gatehub.net/api-documentation/c3OPAp5dM191CDAdwyYS/gatehub-products/gatehub-onboarding#message-events
-    const onMessage = (e: MessageEvent<MessageData>) => {
+    const onMessage = async (e: MessageEvent<MessageData>) => {
       console.log('received message from iframe', { e })
       switch (e.data.type) {
         case GateHubMessageType.OnboardingCompleted:
@@ -35,6 +38,11 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
             GateHubMessageType.OnboardingCompleted,
             JSON.stringify(e.data, null, 2)
           )
+          await fetch(addUserToGatewayUrl, {
+            method: 'POST',
+            body: JSON.stringify(e.data, null, 2),
+            credentials: 'include'
+          })
           break
         case GateHubMessageType.OnboardingError:
           console.log(
@@ -57,7 +65,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
     return () => {
       window.removeEventListener('message', onMessage)
     }
-  }, [])
+  }, [addUserToGatewayUrl])
 
   return (
     <>
@@ -78,6 +86,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({ url }) => {
 
 export const getServerSideProps: GetServerSideProps<{
   url: string
+  addUserToGatewayUrl: string
 }> = async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
     'onboarding',
@@ -93,7 +102,8 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      url: response.result.url
+      url: response.result.url,
+      addUserToGatewayUrl: `${process.env.NEXT_PUBLIC_BACKEND_URL}/gatehub/add-user-to-gateway`
     }
   }
 }

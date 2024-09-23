@@ -131,13 +131,6 @@ export class UserService implements IUserService {
       verifyEmailToken: null,
       gateHubUserId: gateHubUser.id
     })
-
-    // await this.gateHubClient.getUserState(gateHubUser.id)
-
-    // await this.gateHubClient.connectUserToGateway(
-    //   gateHubUser.id,
-    //   this.env.GATEHUB_GATEWAY_UUID
-    // )
   }
 
   public async resetVerifyEmailToken(args: VerifyEmailArgs): Promise<void> {
