@@ -9,7 +9,6 @@ export const isAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    console.log(req.session)
     if (!req.session.id || !req.session.user) {
       req.session.destroy()
       throw new Unauthorized('Unauthorized')

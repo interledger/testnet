@@ -261,12 +261,7 @@ export class GateHubClient {
   ): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
-    const response = await this.request<IWalletBalance[]>(
-      'GET',
-      url,
-      undefined
-      //userUuid
-    )
+    const response = await this.request<IWalletBalance[]>('GET', url)
 
     return response
   }
@@ -340,7 +335,6 @@ export class GateHubClient {
       return res.data
     } catch (e) {
       if (e instanceof AxiosError) {
-        console.log(e)
         this.logger.error(
           `Axios ${method} request for ${url} failed with: ${
             e.message || e.response?.data
