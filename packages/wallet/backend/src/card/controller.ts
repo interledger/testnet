@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
-import { Controller } from '@shared/backend'
+import { Controller, NotFound } from '@shared/backend'
 import { CardService } from '@/card/service'
 import { toSuccessResponse } from '@shared/backend'
 import { IMaskedCardDetailsResponse } from './types'
+import { WalletAddressService } from '@/walletAddress/service'
 
 export interface ICardController {
   getMaskedCardDetails: Controller<IMaskedCardDetailsResponse>
@@ -10,7 +11,10 @@ export interface ICardController {
 }
 
 export class CardController implements ICardController {
-  constructor(private cardService: CardService) {}
+  constructor(
+    private cardService: CardService,
+    private walletAddressService: WalletAddressService
+  ) {}
 
   public getMaskedCardDetails = async (
     req: Request,
@@ -18,9 +22,21 @@ export class CardController implements ICardController {
     next: NextFunction
   ) => {
     try {
+      const userId = req.session.user.id
       const { cardId } = req.params
-      const cardDetails = await this.cardService.getMaskedCardDetails(cardId)
-      res.status(200).json(toSuccessResponse(cardDetails))
+
+      const walletAddress = await this.walletAddressService.getByCardId(
+        userId,
+        cardId
+      )
+
+      if (!walletAddress) {
+        throw new NotFound('Card not found or not associated with the user.')
+      }
+
+      const maskedCardDetails =
+        await this.cardService.getMaskedCardDetails(cardId)
+      res.status(200).json(toSuccessResponse(maskedCardDetails))
     } catch (error) {
       next(error)
     }
@@ -32,7 +48,18 @@ export class CardController implements ICardController {
     next: NextFunction
   ) => {
     try {
+      const userId = req.session.user.id
       const { cardId, publicKeyBase64 } = req.params
+
+      const walletAddress = await this.walletAddressService.getByCardId(
+        userId,
+        cardId
+      )
+
+      if (!walletAddress) {
+        throw new NotFound('Card not found or not associated with the user.')
+      }
+
       const cardDetails = await this.cardService.getCardDetails(
         cardId,
         publicKeyBase64
