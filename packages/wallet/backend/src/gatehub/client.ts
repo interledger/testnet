@@ -255,10 +255,7 @@ export class GateHubClient {
     return response
   }
 
-  async getWalletBalance(
-    walletId: string,
-    _userUuid: string
-  ): Promise<IWalletBalance[]> {
+  async getWalletBalance(walletId: string): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
     const response = await this.request<IWalletBalance[]>('GET', url)
