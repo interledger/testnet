@@ -146,9 +146,6 @@ interface UserService {
     type: IFRAME_TYPE,
     cookies?: string
   ) => Promise<GetGateHubIframeSrcResponse>
-  addUserToGateway: (
-    cookies?: string
-  ) => Promise<SuccessResponse | ErrorResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -332,25 +329,6 @@ const createUserService = (): UserService => ({
           }
         })
         .json<GetGateHubIframeSrcResult>()
-      return response
-    } catch (error) {
-      return getError(
-        error,
-        // TODO: Better error message
-        'Something went wrong. Please try again.'
-      )
-    }
-  },
-
-  async addUserToGateway(cookies) {
-    try {
-      const response = await httpClient
-        .post('add-to-gateway', {
-          headers: {
-            ...(cookies ? { Cookie: cookies } : {})
-          }
-        })
-        .json<SuccessResponse>()
       return response
     } catch (error) {
       return getError(
