@@ -32,8 +32,8 @@ export class CardController implements ICardController {
     next: NextFunction
   ) => {
     try {
-      const { cardId } = req.params
-      const cardDetails = await this.cardService.getCardDetails(cardId)
+      const { cardId, publicKeyBase64 } = req.params
+      const cardDetails = await this.cardService.getCardDetails(cardId, publicKeyBase64)
       res.status(200).json(toSuccessResponse(cardDetails))
     } catch (error) {
       next(error)

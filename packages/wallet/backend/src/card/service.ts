@@ -10,8 +10,10 @@ export class CardService {
     return this.gateHubClient.getMaskedCardDetails(cardId)
   }
 
-  async getCardDetails(cardId: string): Promise<ICardDetailsResponse> {
-    const pk = '' // TODO
-    return this.gateHubClient.getCardDetails(cardId, pk)
+  async getCardDetails(
+    cardId: string,
+    publicKeyBase64: string
+  ): Promise<ICardDetailsResponse> {
+    return this.gateHubClient.getCardDetails(cardId, publicKeyBase64)
   }
 }

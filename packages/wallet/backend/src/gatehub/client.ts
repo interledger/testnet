@@ -311,12 +311,13 @@ export class GateHubClient {
 
   async getCardDetails(
     cardId: string,
-    publicKey: string
+    publicKeyBase64: string
   ): Promise<ICardDetailsResponse> {
     const url = `${this.apiUrl}/token/card-data`
+
     const requestBody = {
       cardId,
-      publicKey
+      publicKeyBase64
     }
 
     const response = await this.request<ILinksResponse>(
