@@ -1,8 +1,6 @@
 import { SVGProps } from 'react'
 
-type EyeProps = SVGProps<SVGSVGElement> & { loading?: boolean }
-
-export const Eye = ({ loading, ...props }: EyeProps) => {
+export const Eye = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       width="30px"
@@ -11,7 +9,6 @@ export const Eye = ({ loading, ...props }: EyeProps) => {
       fill="none"
       stroke="currentColor"
       xmlns="http://www.w3.org/2000/svg"
-      className={loading ? 'animate-ping' : ''}
       {...props}
     >
       <path
