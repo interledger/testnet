@@ -28,10 +28,8 @@ const envSchema = z.object({
   AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3006'),
   AUTH_IDENTITY_SERVER_SECRET: z.string().default('replace-me'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
-  RAPYD_SETTLEMENT_EWALLET: z.string().default('default_ewallet'),
   RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost'),
   SENDGRID_API_KEY: z.string().default('SG.API_KEY'),
-  RATE_API_KEY: z.string().default('SG.API_KEY'),
   FROM_EMAIL: z.string().default('tech@interledger.org'),
   SEND_EMAIL: z
     .enum(['true', 'false'])

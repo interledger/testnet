@@ -1,6 +1,9 @@
 import { createHmac } from 'crypto'
 import {
   HTTP_METHODS,
+  IApproveUserToGatewayRequest,
+  IApproveUserToGatewayResponse,
+  IConnectUserToGatewayResponse,
   ICreateManagedUserRequest,
   ICreateManagedUserResponse,
   ICreateTransactionRequest,
@@ -9,8 +12,10 @@ import {
   ICreateWalletResponse,
   IGetVaultsResponse,
   IGetWalletResponse,
+  IRatesResponse,
   ITokenRequest,
-  ITokenResponse
+  ITokenResponse,
+  IWalletBalance
 } from '@/gatehub/types'
 import { Env } from '@/config/env'
 import {
@@ -19,7 +24,8 @@ import {
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
-  SANDBOX_CLIENT_IDS
+  SANDBOX_CLIENT_IDS,
+  SUPPORTED_ASSET_CODES
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
@@ -43,10 +49,14 @@ export class GateHubClient {
     private env: Env,
     private logger: Logger
   ) {
-    if (this.env.NODE_ENV === 'production') {
+    if (this.isSandbox) {
       this.clientIds = PRODUCTION_CLIENT_IDS
       this.mainUrl = 'gatehub.net'
     }
+  }
+
+  get isSandbox() {
+    return this.env.NODE_ENV !== 'production'
   }
 
   get apiUrl() {
@@ -124,7 +134,7 @@ export class GateHubClient {
     const url = `${this.apiUrl}/auth/v1/tokens?${clientId}`
     const body: ITokenRequest = { scope }
 
-    const response: ITokenResponse = await this.request<ITokenResponse>(
+    const response = await this.request<ITokenResponse>(
       'POST',
       url,
       JSON.stringify(body),
@@ -140,12 +150,11 @@ export class GateHubClient {
     const url = `${this.apiUrl}/auth/v1/users/managed/email`
     const body: ICreateManagedUserRequest = { email }
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>(
-        'PUT',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateManagedUserResponse>(
+      'PUT',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -154,12 +163,11 @@ export class GateHubClient {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body: ICreateManagedUserRequest = { email }
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>(
-        'POST',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateManagedUserResponse>(
+      'POST',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -167,11 +175,38 @@ export class GateHubClient {
   async connectUserToGateway(
     userUuid: string,
     gatewayUuid: string
-  ): Promise<ICreateManagedUserResponse> {
+  ): Promise<IConnectUserToGatewayResponse> {
     const url = `${this.apiUrl}/id/v1/users/${userUuid}/hubs/${gatewayUuid}`
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>('POST', url)
+    const response = await this.request<IConnectUserToGatewayResponse>(
+      'POST',
+      url
+    )
+
+    if (this.isSandbox) {
+      // Auto approve user to gateway in sandbox environment
+      await this.approveUserToGateway(userUuid, gatewayUuid)
+    }
+
+    return response
+  }
+
+  private async approveUserToGateway(
+    userUuid: string,
+    gatewayUuid: string
+  ): Promise<IApproveUserToGatewayResponse> {
+    const url = `${this.apiUrl}/id/v1/hubs/${gatewayUuid}/users/${userUuid}`
+    const body: IApproveUserToGatewayRequest = {
+      verified: 1,
+      reasons: [],
+      customMessage: false
+    }
+
+    const response = await this.request<IApproveUserToGatewayResponse>(
+      'PUT',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -186,12 +221,11 @@ export class GateHubClient {
       type: HOSTED_WALLET_TYPE
     }
 
-    const response: ICreateWalletResponse =
-      await this.request<ICreateWalletResponse>(
-        'POST',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateWalletResponse>(
+      'POST',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -202,9 +236,22 @@ export class GateHubClient {
   ): Promise<IGetWalletResponse> {
     const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/${walletId}`
 
-    const response: IGetWalletResponse = await this.request<IGetWalletResponse>(
+    const response = await this.request<IGetWalletResponse>('GET', url)
+
+    return response
+  }
+
+  async getWalletBalance(
+    userUuid: string,
+    walletId: string
+  ): Promise<IWalletBalance[]> {
+    const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
+
+    const response = await this.request<IWalletBalance[]>(
       'GET',
-      url
+      url,
+      undefined,
+      userUuid
     )
 
     return response
@@ -215,12 +262,11 @@ export class GateHubClient {
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>(
-        'POST',
-        url,
-        JSON.stringify(body)
-      )
+    const response = await this.request<ICreateTransactionResponse>(
+      'POST',
+      url,
+      JSON.stringify(body)
+    )
 
     return response
   }
@@ -228,10 +274,25 @@ export class GateHubClient {
   async getVaults(): Promise<IGetVaultsResponse> {
     const url = `${this.apiUrl}/rates/v1/liquidity_provider/vaults`
 
-    const response: ICreateManagedUserResponse =
-      await this.request<ICreateManagedUserResponse>('GET', url)
+    const response = await this.request<IGetVaultsResponse>('GET', url)
 
     return response
+  }
+
+  async getRates(base: string): Promise<Record<string, number>> {
+    const url = `${this.apiUrl}/rates/v1/rates/current?counter=${base}&amount=1&useAll=true`
+
+    const response = await this.request<IRatesResponse>('GET', url)
+
+    const flatRates: Record<string, number> = {}
+    for (const code of SUPPORTED_ASSET_CODES) {
+      const rateObj = response[code]
+      if (rateObj && typeof rateObj !== 'string') {
+        flatRates[code] = +rateObj.rate
+      }
+    }
+
+    return flatRates
   }
 
   private async request<T>(

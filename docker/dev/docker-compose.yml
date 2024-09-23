@@ -47,7 +47,6 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL:-false}
-      RATE_API_KEY: ${RATE_API_KEY}
       REDIS_URL: redis://redis:6379/0
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
       GATEHUB_ACCESS_KEY: ${GATEHUB_ACCESS_KEY}
