@@ -45,8 +45,8 @@ export class UserController implements IUserController {
             firstName: user.firstName,
             lastName: user.lastName,
             address: user.address,
-            needsWallet: !user.rapydWalletId,
-            needsIDProof: !user.kycId
+            needsWallet: !user.gateHubUserId,
+            needsIDProof: !user.kycVerified
           },
           'User retrieved successfully'
         )

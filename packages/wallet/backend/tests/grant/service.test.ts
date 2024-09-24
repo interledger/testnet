@@ -97,7 +97,7 @@ describe('Grant Service', () => {
   beforeEach(async (): Promise<void> => {
     const extraUserArgs = {
       isEmailVerified: true,
-      rapydWalletId: 'mocked'
+      gateHubUserId: 'mocked'
     }
 
     const { user } = await loginUser({

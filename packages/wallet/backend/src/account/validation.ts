@@ -7,20 +7,6 @@ export const accountSchema = z.object({
   })
 })
 
-export const fundSchema = z.object({
-  body: z.object({
-    amount: z.coerce
-      .number({
-        invalid_type_error: 'Amount is not valid',
-        required_error: 'Amount is required'
-      })
-      .positive(),
-    accountId: z.string().uuid()
-  })
-})
-
-export const withdrawFundsSchema = fundSchema
-
 export const createExchangeQuoteSchema = z.object({
   body: z.object({
     assetCode: z.string(),

@@ -5,7 +5,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import Image from 'next/image'
-import { forgotPasswordSchema, userService } from '@/lib/api/user'
+import { userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
@@ -13,11 +13,12 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useEffect } from 'react'
 import { useTheme } from 'next-themes'
+import { emailSchema } from '@wallet/shared'
 
 const ForgotPasswordPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const forgotPasswordForm = useZodForm({
-    schema: forgotPasswordSchema
+    schema: emailSchema
   })
   const theme = useTheme()
   const imageName =

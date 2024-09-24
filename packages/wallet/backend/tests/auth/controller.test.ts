@@ -15,10 +15,16 @@ import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import type { UserService } from '@/user/service'
-import { fakeLoginData, mockLogInRequest, mockSignUpRequest } from '../mocks'
+import {
+  fakeLoginData,
+  mockGateHubClient,
+  mockLogInRequest,
+  mockSignUpRequest
+} from '../mocks'
 import { createUser, errorHandler } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
 import { getRandomToken, hashToken } from '@/utils/helpers'
+import { GateHubClient } from '@/gatehub/client'
 
 describe('Authentication Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -39,6 +45,12 @@ describe('Authentication Controller', (): void => {
     authService = await bindings.resolve('authService')
     authController = await bindings.resolve('authController')
     userService = await bindings.resolve('userService')
+
+    Reflect.set(
+      userService,
+      'gateHubClient',
+      mockGateHubClient as unknown as GateHubClient
+    )
   })
 
   beforeEach(async (): Promise<void> => {
@@ -128,8 +140,8 @@ describe('Authentication Controller', (): void => {
       expect(req.session.user).toMatchObject({
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
-        needsIDProof: !user.kycId
+        needsWallet: !user.gateHubUserId,
+        needsIDProof: !user.kycVerified
       })
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
@@ -173,6 +185,32 @@ describe('Authentication Controller', (): void => {
         message: 'Internal Server Error'
       })
     })
+
+    it('should return status 500 on user account is not verified', async (): Promise<void> => {
+      const fakeLogin = fakeLoginData()
+      const newUserData = {
+        ...fakeLogin,
+        isEmailVerified: false
+      }
+      req.body = fakeLogin
+      await createUser(newUserData)
+      const authorizeSpy = jest
+        .spyOn(authService, 'authorize')
+        .mockRejectedValueOnce(new Error('Email address is not verified.'))
+      await applyMiddleware(withSession, req, res)
+      await authController.logIn(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(authorizeSpy).toHaveBeenCalledWith(fakeLogin)
+      expect(authorizeSpy).toHaveBeenCalledTimes(1)
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(500)
+      expect(res._getJSONData()).toMatchObject({
+        success: false,
+        message: 'Internal Server Error'
+      })
+    })
   })
 
   describe('Log out', () => {
@@ -186,8 +224,8 @@ describe('Authentication Controller', (): void => {
       req.session.user = {
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
-        needsIDProof: !user.kycId
+        needsWallet: !user.gateHubUserId,
+        needsIDProof: !user.kycVerified
       }
       await authController.logOut(req, res, next)
 
@@ -229,8 +267,8 @@ describe('Authentication Controller', (): void => {
       req.session.user = {
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
-        needsIDProof: !user.kycId
+        needsWallet: !user.gateHubUserId,
+        needsIDProof: !user.kycVerified
       }
       await authController.logOut(req, res, (err) => {
         next()
@@ -279,6 +317,28 @@ describe('Authentication Controller', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: false,
         message: 'Invalid token'
+      })
+    })
+  })
+  describe('Resend Verify Email', () => {
+    it('should return status 200 if the email has been sent', async (): Promise<void> => {
+      const fakeLogin = fakeLoginData()
+      const newUserData = {
+        ...fakeLogin,
+        isEmailVerified: false
+      }
+      await createUser(newUserData)
+
+      req.body = {
+        email: fakeLogin.email
+      }
+      await authController.resendVerifyEmail(req, res, next)
+
+      expect(next).toHaveBeenCalledTimes(0)
+      expect(res.statusCode).toBe(201)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Verification email has been sent successfully'
       })
     })
   })

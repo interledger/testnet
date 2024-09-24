@@ -56,8 +56,8 @@ describe('User Controller', (): void => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
-      needsIDProof: !user.kycId
+      needsWallet: !user.gateHubUserId,
+      needsIDProof: !user.kycVerified
     }
 
     userInfo = {
