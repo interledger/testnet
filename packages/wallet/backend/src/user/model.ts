@@ -12,13 +12,15 @@ export class User extends BaseModel {
   public verifyEmailToken?: string | null
   public isEmailVerified!: boolean
   private password!: string
+
   public lastName?: string
   public firstName?: string
   public address?: string
   public country?: string
-  public kycId?: string
 
+  public kycVerified!: boolean
   public gateHubUserId?: string
+
   public sessions?: Session[]
   public passwordResetToken?: string | null
   public passwordResetExpiresAt?: Date | null

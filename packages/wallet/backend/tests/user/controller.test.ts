@@ -57,7 +57,7 @@ describe('User Controller', (): void => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycId
+      needsIDProof: !user.kycVerified
     }
 
     userInfo = {

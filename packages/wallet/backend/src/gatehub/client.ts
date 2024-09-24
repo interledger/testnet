@@ -10,6 +10,7 @@ import {
   ICreateTransactionResponse,
   ICreateWalletRequest,
   ICreateWalletResponse,
+  IGetUserStateResponse,
   IGetVaultsResponse,
   IGetWalletResponse,
   IRatesResponse,
@@ -49,14 +50,14 @@ export class GateHubClient {
     private env: Env,
     private logger: Logger
   ) {
-    if (this.isSandbox) {
+    if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
       this.mainUrl = 'gatehub.net'
     }
   }
 
-  get isSandbox() {
-    return this.env.NODE_ENV !== 'production'
+  get isProduction() {
+    return this.env.NODE_ENV === 'production'
   }
 
   get apiUrl() {
@@ -131,7 +132,7 @@ export class GateHubClient {
     scope: string[],
     managedUserId: string
   ): Promise<string> {
-    const url = `${this.apiUrl}/auth/v1/tokens?${clientId}`
+    const url = `${this.apiUrl}/auth/v1/tokens?clientId=${clientId}`
     const body: ITokenRequest = { scope }
 
     const response = await this.request<ITokenResponse>(
@@ -172,23 +173,35 @@ export class GateHubClient {
     return response
   }
 
+  async getUserState(userId: string): Promise<IGetUserStateResponse> {
+    const url = `${this.apiUrl}/id/v1/users/${userId}`
+
+    const response = await this.request<IGetUserStateResponse>('GET', url)
+
+    return response
+  }
+
   async connectUserToGateway(
     userUuid: string,
     gatewayUuid: string
-  ): Promise<IConnectUserToGatewayResponse> {
+  ): Promise<boolean> {
     const url = `${this.apiUrl}/id/v1/users/${userUuid}/hubs/${gatewayUuid}`
 
-    const response = await this.request<IConnectUserToGatewayResponse>(
+    await this.request<IConnectUserToGatewayResponse>(
       'POST',
-      url
+      url,
+      undefined,
+      userUuid
     )
 
-    if (this.isSandbox) {
+    if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(userUuid, gatewayUuid)
+
+      return true
     }
 
-    return response
+    return false
   }
 
   private async approveUserToGateway(
@@ -224,7 +237,8 @@ export class GateHubClient {
     const response = await this.request<ICreateWalletResponse>(
       'POST',
       url,
-      JSON.stringify(body)
+      JSON.stringify(body),
+      userUuid
     )
 
     return response
@@ -241,18 +255,10 @@ export class GateHubClient {
     return response
   }
 
-  async getWalletBalance(
-    userUuid: string,
-    walletId: string
-  ): Promise<IWalletBalance[]> {
+  async getWalletBalance(walletId: string): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
-    const response = await this.request<IWalletBalance[]>(
-      'GET',
-      url,
-      undefined,
-      userUuid
-    )
+    const response = await this.request<IWalletBalance[]>('GET', url)
 
     return response
   }
@@ -317,6 +323,11 @@ export class GateHubClient {
         ...(body && { data: body }),
         headers
       })
+
+      this.logger.debug(
+        `Axios ${method} request for ${url} succeeded:\n ${JSON.stringify(res.data, undefined, 2)}`,
+        body ? JSON.parse(body) : {}
+      )
 
       return res.data
     } catch (e) {

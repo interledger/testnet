@@ -36,6 +36,17 @@ export interface ICreateManagedUserResponse {
   managedBy: string
 }
 
+export interface IGetUserStateResponse {
+  profile: {
+    first_name: string
+    last_name: string
+    address_country_code: string
+    address_city: string
+    address_street1: string
+    address_street2: string
+  }
+}
+
 export interface ICreateWalletRequest {
   name: string
   type: number
@@ -96,3 +107,12 @@ export interface IApproveUserToGatewayRequest {
   customMessage: boolean
 }
 export interface IApproveUserToGatewayResponse {}
+
+export interface IWebhookDate {
+  uuid: string
+  timestamp: string
+  event_type: string
+  user_uuid: string
+  environment: 'sandbox' | 'production'
+  data: Record<string, unknown>
+}
