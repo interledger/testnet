@@ -39,10 +39,6 @@ services:
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
       COOKIE_TTL: 2630000
-      RAPYD_API: https://sandboxapi.rapyd.net/v1
-      RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
-      RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
-      RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
@@ -51,11 +47,14 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL:-false}
-      RATE_API_KEY: ${RATE_API_KEY}
       REDIS_URL: redis://redis:6379/0
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
       GATEHUB_ACCESS_KEY: ${GATEHUB_ACCESS_KEY}
       GATEHUB_SECRET_KEY: ${GATEHUB_SECRET_KEY}
+      GATEHUB_GATEWAY_UUID: ${GATEHUB_GATEWAY_UUID}
+      GATEHUB_VAULT_UUID_EUR: ${GATEHUB_VAULT_UUID_EUR}
+      GATEHUB_VAULT_UUID_USD: ${GATEHUB_VAULT_UUID_USD}
+      GATEHUB_SETTLEMENT_WALLET_ADDRESS: ${GATEHUB_SETTLEMENT_WALLET_ADDRESS}
     restart: always
     networks:
       - testnet
@@ -198,7 +197,7 @@ services:
       - testnet
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.1
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.2
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle

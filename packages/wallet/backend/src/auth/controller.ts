@@ -2,9 +2,9 @@ import { validate } from '@/shared/validate'
 import { NextFunction, Request } from 'express'
 import { AuthService } from './service'
 import {
-  logInSchema,
-  signUpSchema,
-  resendVerifyEmailSchema
+  logInBodySchema,
+  signUpBodySchema,
+  emailBodySchema
 } from './validation'
 import { UserService } from '@/user/service'
 import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
@@ -27,7 +27,7 @@ export class AuthController implements IAuthController {
     try {
       const {
         body: { email, password }
-      } = await validate(signUpSchema, req)
+      } = await validate(signUpBodySchema, req)
 
       await this.authService.signUp({ email, password })
 
@@ -43,7 +43,7 @@ export class AuthController implements IAuthController {
     try {
       const {
         body: { email, password }
-      } = await validate(logInSchema, req)
+      } = await validate(logInBodySchema, req)
 
       const { user, session } = await this.authService.authorize({
         email,
@@ -54,7 +54,7 @@ export class AuthController implements IAuthController {
       req.session.user = {
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
+        needsWallet: !user.gateHubUserId,
         needsIDProof: !user.kycId
       }
 
@@ -109,7 +109,7 @@ export class AuthController implements IAuthController {
     try {
       const {
         body: { email }
-      } = await validate(resendVerifyEmailSchema, req)
+      } = await validate(emailBodySchema, req)
 
       await this.authService.resendVerifyEmail({ email })
 

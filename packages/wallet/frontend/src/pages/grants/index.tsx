@@ -66,7 +66,7 @@ const GrantsPage: NextPageWithLayout = () => {
                           size="md"
                           text={
                             grant.node.finalizationReason === 'REVOKED'
-                              ? 'REJECTED'
+                              ? 'REVOKED'
                               : grant.node.finalizationReason === 'ISSUED'
                                 ? 'APPROVED'
                                 : 'REJECTED'

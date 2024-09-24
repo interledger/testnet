@@ -29,7 +29,7 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
               size="md"
               text={
                 grant.finalizationReason === 'REVOKED'
-                  ? 'REJECTED'
+                  ? 'REVOKED'
                   : grant.finalizationReason === 'ISSUED'
                     ? 'APPROVED'
                     : 'REJECTED'

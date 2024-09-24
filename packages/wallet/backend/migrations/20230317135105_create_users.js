@@ -12,10 +12,9 @@ exports.up = function (knex) {
     table.string('firstName')
     table.string('address')
     table.string('country')
-    table.string('rapydReferenceId')
-    table.string('rapydWalletId')
-    table.string('rapydContactId')
-    table.string('kycId')
+    table.string('kycId') // TODO: replace with GateHub kyc check
+
+    table.string('gateHubUserId')
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()
