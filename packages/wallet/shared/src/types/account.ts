@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// TODO: Remove this when adding GateHub withdraw
 export const fundAccountSchema = z.object({
   accountId: z.string().uuid(),
   amount: z.coerce
