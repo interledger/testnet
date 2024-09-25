@@ -349,12 +349,15 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card data retrieval')
     }
 
-    // TODO
-    // Will get this from the response
-    const cardDetailsUrl = ''
+    // TODO change this to direct call to card managing entity
+    // Will get this from the GateHub proxy for now
+    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/client-device/card-data`
     const cardDetailsResponse = await this.request<ICardDetailsResponse>(
       'GET',
-      cardDetailsUrl
+      cardDetailsUrl,
+      undefined,
+      undefined,
+      token
     )
 
     return cardDetailsResponse
@@ -364,7 +367,8 @@ export class GateHubClient {
     method: HTTP_METHODS,
     url: string,
     body?: string,
-    managedUserUuid?: string
+    managedUserUuid?: string,
+    token?: string
   ): Promise<T> {
     const timestamp = Date.now().toString()
     const headers = this.getRequestHeaders(
@@ -372,7 +376,8 @@ export class GateHubClient {
       method,
       url,
       body ?? '',
-      managedUserUuid
+      managedUserUuid,
+      token
     )
 
     try {
@@ -407,7 +412,8 @@ export class GateHubClient {
     method: HTTP_METHODS,
     url: string,
     body?: string,
-    managedUserUuid?: string
+    managedUserUuid?: string,
+    token?: string
   ) {
     return {
       'Content-Type': 'application/json',
@@ -415,7 +421,10 @@ export class GateHubClient {
       'x-gatehub-timestamp': timestamp,
       'x-gatehub-signature': this.getSignature(timestamp, method, url, body),
       'x-gatehub-card-app-id': this.env.GATEHUB_CARD_APP_ID,
-      ...(managedUserUuid && { 'x-gatehub-managed-user-uuid': managedUserUuid })
+      ...(managedUserUuid && {
+        'x-gatehub-managed-user-uuid': managedUserUuid
+      }),
+      ...(token && { Authorization: token })
     }
   }
 
