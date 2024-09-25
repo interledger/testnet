@@ -4,66 +4,44 @@ import { RateLimiterRedisHelper } from '@/rateLimit/service'
 import { NextFunction, Request, Response } from 'express'
 
 const redisClient = new Redis(env.REDIS_URL)
-const sendEmailLimiterArgs = {
-  key: 'send_email',
-  maxAttempts: 1,
-  attemptsPause: 60
-}
-const loginBlockIPLimiterAtrs = {
-  key: 'login_block_ip',
-  maxAttempts: 500,
-  attemptsPause: 24 * 60
-}
-const loginIPLimiterAtrs = {
-  key: 'login_ip',
-  maxAttempts: 30,
-  attemptsPause: 60
-}
-const loginAttemptLimiterAtrs = {
-  key: 'login_email',
-  maxAttempts: 3,
-  attemptsPause: 10
-}
 
 const sendEmailLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
-  keyPrefix: sendEmailLimiterArgs.key,
-  points: sendEmailLimiterArgs.maxAttempts,
-  duration: 60 * 60 * 24,
-  blockDuration: 60 * sendEmailLimiterArgs.attemptsPause
+  keyPrefix: 'send_email',
+  points: env.SEND_EMAIL_RATE_LIMIT,
+  duration: env.SEND_EMAIL_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS,
+  blockDuration: env.SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS
 })
 const loginAttemptLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
-  keyPrefix: loginAttemptLimiterAtrs.key,
-  points: loginAttemptLimiterAtrs.maxAttempts,
-  duration: 60 * 60 * 1,
-  blockDuration: 60 * loginAttemptLimiterAtrs.attemptsPause
+  keyPrefix: 'login_email',
+  points: env.LOGIN_RATE_LIMIT,
+  duration: env.LOGIN_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS,
+  blockDuration: env.LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS
 })
 const loginIPLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
-  keyPrefix: loginIPLimiterAtrs.key,
-  points: loginIPLimiterAtrs.maxAttempts,
-  duration: 60 * 60 * 1,
-  blockDuration: 60 * loginIPLimiterAtrs.attemptsPause
+  keyPrefix: 'login_ip',
+  points: env.LOGIN_IP_RATE_LIMIT,
+  duration: env.LOGIN_IP_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS,
+  blockDuration: env.LOGIN_IP_RATE_LIMIT_PAUSE_IN_SECONDS
 })
 const loginBlockIPLimiter = new RateLimiterRedisHelper({
   storeClient: redisClient,
-  keyPrefix: loginBlockIPLimiterAtrs.key,
-  points: loginBlockIPLimiterAtrs.maxAttempts,
-  duration: 60 * 60 * 1,
-  blockDuration: 60 * loginBlockIPLimiterAtrs.attemptsPause
+  keyPrefix: 'login_block_ip',
+  points: env.LOGIN_IP_BLOCK_RATE_LIMIT,
+  duration: env.LOGIN_IP_BLOCK_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS,
+  blockDuration: env.LOGIN_IP_BLOCK_RATE_LIMIT_PAUSE_IN_SECONDS
 })
-const EmailRoutes = ['/resend-verify-email', '/forgot-password']
+
 export const rateLimiterEmail = async (
   req: Request,
   _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (EmailRoutes.includes(req.url)) {
-      await sendEmailLimiter.checkAttempts(req.body.email)
-      await sendEmailLimiter.useAttempt(req.body.email)
-    }
+    await sendEmailLimiter.checkAttempts(req.body.email)
+    await sendEmailLimiter.useAttempt(req.body.email)
   } catch (e) {
     next(e)
   }

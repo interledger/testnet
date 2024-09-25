@@ -34,7 +34,25 @@ const envSchema = z.object({
   SEND_EMAIL: z
     .enum(['true', 'false'])
     .default('false')
-    .transform((value) => value === 'true')
+    .transform((value) => value === 'true'),
+  SEND_EMAIL_RATE_LIMIT: z.coerce.number().default(1),
+  SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS: z.coerce.number().default(3600),
+  SEND_EMAIL_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS: z.coerce
+    .number()
+    .default(3600),
+  LOGIN_RATE_LIMIT: z.coerce.number().default(3),
+  LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS: z.coerce.number().default(600),
+  LOGIN_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS: z.coerce.number().default(3600),
+  LOGIN_IP_RATE_LIMIT: z.coerce.number().default(30),
+  LOGIN_IP_RATE_LIMIT_PAUSE_IN_SECONDS: z.coerce.number().default(3600),
+  LOGIN_IP_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS: z.coerce
+    .number()
+    .default(3600),
+  LOGIN_IP_BLOCK_RATE_LIMIT: z.coerce.number().default(500),
+  LOGIN_IP_BLOCK_RATE_LIMIT_PAUSE_IN_SECONDS: z.coerce.number().default(86400),
+  LOGIN_IP_BLOCK_RATE_LIMIT_RESET_INTERVAL_IN_SECONDS: z.coerce
+    .number()
+    .default(86400)
 })
 
 export type Env = z.infer<typeof envSchema>
