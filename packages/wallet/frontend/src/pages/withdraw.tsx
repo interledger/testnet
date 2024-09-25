@@ -24,10 +24,12 @@ const WithdrawPage: NextPageWithLayout<WithdrawPageProps> = ({ url }) => {
   return (
     <>
       <PageHeader title="Withdraw" />
+      {/* TODO: Styling */}
       <iframe
         src={url}
         sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
-        className="w-full h-full md:w-[85%]"
+        scrolling="no"
+        frameBorder="0"
       ></iframe>
     </>
   )
@@ -37,7 +39,7 @@ export const getServerSideProps: GetServerSideProps<{
   url: string
 }> = async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
-    'withdrawal',
+    { type: 'ramp' },
     ctx.req.headers.cookie
   )
 
