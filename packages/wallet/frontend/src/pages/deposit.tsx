@@ -24,12 +24,10 @@ const DepositPage: NextPageWithLayout<DepositPageProps> = ({ url }) => {
   return (
     <>
       <PageHeader title="Deposit" />
-      {/* TODO: Styling */}
       <iframe
         src={url}
         sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
-        scrolling="no"
-        frameBorder="0"
+        className="w-full h-full md:w-[85%]"
       ></iframe>
     </>
   )
@@ -39,7 +37,7 @@ export const getServerSideProps: GetServerSideProps<{
   url: string
 }> = async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
-    { type: 'ramp' },
+    'deposit',
     ctx.req.headers.cookie
   )
 
