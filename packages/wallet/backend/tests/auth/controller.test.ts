@@ -240,7 +240,7 @@ describe('Authentication Controller', (): void => {
       } catch (err) {
         expect((err as BaseError).statusCode).toBe(429)
         expect((err as BaseError).message).toMatch(
-          `Too many attempts. Retry after ${env.LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS/60} minutes`
+          `Too many attempts. Retry after ${env.LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
         )
       }
     })
@@ -401,7 +401,7 @@ describe('Authentication Controller', (): void => {
       } catch (err) {
         expect((err as BaseError).statusCode).toBe(429)
         expect((err as BaseError).message).toMatch(
-          `Too many attempts. Retry after ${env.SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS/60} minutes`
+          `Too many attempts. Retry after ${env.SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
         )
       }
     })
