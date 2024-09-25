@@ -24,12 +24,10 @@ const WithdrawPage: NextPageWithLayout<WithdrawPageProps> = ({ url }) => {
   return (
     <>
       <PageHeader title="Withdraw" />
-      {/* TODO: Styling */}
       <iframe
         src={url}
         sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
-        scrolling="no"
-        frameBorder="0"
+        className="w-full h-full md:w-[85%]"
       ></iframe>
     </>
   )
