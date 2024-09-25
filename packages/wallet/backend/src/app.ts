@@ -299,6 +299,12 @@ export class App {
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
+    router.post('/gatehub-webhooks', gateHubController.webhook)
+    router.post(
+      '/gatehub/add-user-to-gateway',
+      isAuth,
+      gateHubController.addUserToGateway
+    )
 
     // Cards
     router.get(

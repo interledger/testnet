@@ -4,7 +4,6 @@ import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
 import { BadRequest, Conflict } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
-import { Env } from '@/config/env'
 
 interface CreateUserArgs {
   email: string
@@ -31,8 +30,7 @@ export class UserService implements IUserService {
   constructor(
     private emailService: EmailService,
     private gateHubClient: GateHubClient,
-    private logger: Logger,
-    private env: Env
+    private logger: Logger
   ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
@@ -133,11 +131,6 @@ export class UserService implements IUserService {
       verifyEmailToken: null,
       gateHubUserId: gateHubUser.id
     })
-
-    await this.gateHubClient.connectUserToGateway(
-      gateHubUser.id,
-      this.env.GATEHUB_GATEWAY_UUID
-    )
   }
 
   public async resetVerifyEmailToken(args: VerifyEmailArgs): Promise<void> {
