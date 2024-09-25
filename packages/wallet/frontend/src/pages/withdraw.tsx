@@ -39,7 +39,7 @@ export const getServerSideProps: GetServerSideProps<{
   url: string
 }> = async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
-    { type: 'ramp' },
+    'withdrawal',
     ctx.req.headers.cookie
   )
 
