@@ -43,7 +43,7 @@ Please read the [contribution guidelines](.github/contributing.md) before submit
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [NVM](https://github.com/nvm-sh/nvm)
-- [Rapyd](https://www.rapyd.net) account in Sandbox mode
+- [GateHub](https://sandbox.gatehub.net) account in Sandbox mode
 
 ### Environment Setup
 
@@ -86,21 +86,14 @@ cp ./docker/dev/.env.example ./docker/dev/.env
 ```
 
 Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
-The `RAPYD_ACCESS_KEY` and `RAPYD_SECRET_KEY` variables values can be found in your Rapyd Sandbox account (you need to create an account at [rapyd.net](https://www.rapyd.net)), under the Developers menu item. The `RAPYD_SETTLEMENT_EWALLET` variable value can be found in your Rapyd Sandbox account details.
+The `GATEHUB` related environment variables are necessary in order to complete Sandbox KYC, and add play money to your account. In order to have the correct variables, create a `GateHub` Sandbox account. Optionally you could send an email to `timea@interledger.foundation` and request these variables.
 
 To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
 
 Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
 Currencies can be added in the `admin` environment. For example `assetCode` is `EUR`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
 
-To have everything ready for `DEV` environment, we already set up some default values for Interledger Test Wallet, this way developers are ready to login without validation, and test e-commerce application without any additional setup:
-
-- a `USD` asset set by default in the `admin` environment
-- a user with email address `dev@email.com` and password `123456`, with a `USD` account, payment pointer and test money
-- a user with email address `boutique@email.com` and password `123456`, with a `USD` account and a payment pointer `boutique`, which is used as a receiver payment pointer at the e-commerce application
-- developer keys for the `boutique` payment pointer, these values will be copied to `.env` file from `.env.example`, as mentioned above
-
-If you would like to set up e-commerce application manually for another payment pointer, you will need to create a USD payment pointer, then generate public and private key for the payment pointer in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the payment pointer key id and `PAYMENT_POINTER` to the created payment pointer address.
+If you would like to set up e-commerce application, you will need to create a USD payment pointer, then generate public and private key for the payment pointer in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the payment pointer key id and `PAYMENT_POINTER` to the created payment pointer address.
 
 ### Local Playground
 

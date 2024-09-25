@@ -30,7 +30,7 @@ describe('Incoming Payment Service', () => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      virtualAccountId: 'mocked'
+      gateHubWalletId: 'mocked'
     })
 
     const walletAddress = await WalletAddress.query().insert({
@@ -103,7 +103,7 @@ describe('Incoming Payment Service', () => {
   beforeEach(async (): Promise<void> => {
     const extraUserArgs = {
       isEmailVerified: true,
-      rapydWalletId: 'mocked'
+      gateHubUserId: 'mocked'
     }
 
     const { user } = await loginUser({

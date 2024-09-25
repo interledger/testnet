@@ -29,35 +29,31 @@ import { QuoteService } from './quote/service'
 import { RafikiController } from './rafiki/controller'
 import { RafikiClient } from './rafiki/rafiki-client'
 import { RafikiService } from './rafiki/service'
-import { RapydController } from './rapyd/controller'
-import { RapydClient } from './rapyd/rapyd-client'
-import { RapydService } from './rapyd/service'
 import { RatesService } from './rates/service'
 import type { SessionService } from './session/service'
 import { UserController } from './user/controller'
 import type { UserService } from './user/service'
 import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
+import { GateHubController } from '@/gatehub/controller'
+import { GateHubClient } from '@/gatehub/client'
+import { GateHubService } from '@/gatehub/service'
 
 export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
   redisClient: RedisClient
-  rapydClient: RapydClient
   rafikiClient: RafikiClient
   rafikiService: RafikiService
   rafikiController: RafikiController
-  rapydService: RapydService
   ratesService: RatesService
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
-  rapydController: RapydController
   userController: UserController
   authService: AuthService
   authController: AuthController
@@ -78,7 +74,9 @@ export interface Bindings {
   grantService: GrantService
   emailService: EmailService
   socketService: SocketService
-  wmTransactionService: WMTransactionService
+  gateHubClient: GateHubClient
+  gateHubController: GateHubController
+  gateHubService: GateHubService
 }
 
 export class App {
@@ -142,11 +140,11 @@ export class App {
     )
 
     const quoteController = await this.container.resolve('quoteController')
-    const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
+    const gateHubController = await this.container.resolve('gateHubController')
 
     app.use(
       cors({
@@ -173,6 +171,7 @@ export class App {
     router.get('/reset-password/:token/validate', userController.checkToken)
     router.post('/reset-password/:token', userController.resetPassword)
     router.post('/verify-email/:token', authController.verifyEmail)
+    router.post('/resend-verify-email', authController.resendVerifyEmail)
     router.patch('/change-password', isAuth, userController.changePassword)
 
     // Me Endpoint
@@ -261,13 +260,6 @@ export class App {
     router.post('/quotes', isAuth, quoteController.create)
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
-    // rapyd routes
-    router.get('/countries', isAuth, rapydController.getCountryNames)
-    router.get('/documents', isAuth, rapydController.getDocumentTypes)
-    router.post('/wallet', isAuth, rapydController.createWallet)
-    router.post('/updateProfile', isAuth, rapydController.updateProfile)
-    router.post('/verify', isAuth, rapydController.verifyIdentity)
-
     // asset
     router.get('/assets', isAuth, assetController.list)
 
@@ -296,11 +288,18 @@ export class App {
       isAuth,
       quoteController.createExchangeQuote
     )
-    router.post('/accounts/fund', isAuth, accountController.fundAccount)
-    router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
 
     router.get('/rates', rafikiController.getRates)
     router.post('/webhooks', rafikiController.onWebHook)
+
+    // GateHub
+    router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
+    router.post('/gatehub-webhooks', gateHubController.webhook)
+    router.post(
+      '/gatehub/add-user-to-gateway',
+      isAuth,
+      gateHubController.addUserToGateway
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
@@ -336,37 +335,7 @@ export class App {
       })
   }
 
-  private async processWMWalletAddresses() {
-    const logger = await this.container.resolve('logger')
-    const walletAddressService = await this.container.resolve(
-      'walletAddressService'
-    )
-
-    return walletAddressService
-      .processWMWalletAddresses()
-      .catch((e) => {
-        logger.error(e)
-        return false
-      })
-      .then((trx) => {
-        if (trx) {
-          process.nextTick(() => this.processWMWalletAddresses())
-        } else {
-          setTimeout(
-            () => this.processWMWalletAddresses(),
-            1000 * 60 * 5
-          ).unref()
-        }
-      })
-  }
-
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-    process.nextTick(() => this.processWMWalletAddresses())
-  }
-
-  async createDefaultUsers() {
-    const userService = this.container.resolve('userService')
-    await userService.createDefaultAccount()
   }
 }

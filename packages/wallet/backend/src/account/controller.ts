@@ -1,7 +1,7 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
 import { AccountService } from './service'
-import { accountSchema, fundSchema, withdrawFundsSchema } from './validation'
+import { accountSchema } from './validation'
 import { Account } from '@/account/model'
 import { Controller, toSuccessResponse } from '@shared/backend'
 
@@ -9,8 +9,6 @@ interface IAccountController {
   createAccount: Controller<Account>
   listAccounts: Controller<Account[]>
   getAccountById: Controller<Account>
-  fundAccount: Controller
-  withdrawFunds: Controller
 }
 
 export class AccountController implements IAccountController {
@@ -83,50 +81,6 @@ export class AccountController implements IAccountController {
       )
 
       res.status(200).json(toSuccessResponse(getAccountsResult))
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  fundAccount = async (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => {
-    try {
-      const {
-        body: { amount, accountId }
-      } = await validate(fundSchema, req)
-
-      const userId = req.session.user.id
-
-      await this.accountService.fundAccount({ userId, amount, accountId })
-
-      res.status(200).json(toSuccessResponse(undefined, 'Account funded'))
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  withdrawFunds = async (
-    req: Request,
-    res: CustomResponse,
-    next: NextFunction
-  ) => {
-    try {
-      const {
-        body: { amount, accountId }
-      } = await validate(withdrawFundsSchema, req)
-
-      const userId = req.session.user.id
-
-      await this.accountService.withdrawFunds({
-        userId,
-        amount,
-        accountId
-      })
-
-      res.status(200).json(toSuccessResponse(undefined, 'Funds withdrawn'))
     } catch (e) {
       next(e)
     }

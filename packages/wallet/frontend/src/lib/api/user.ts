@@ -5,47 +5,39 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { UserResponse, ValidTokenResponse } from '@wallet/shared'
-
-export const signUpSchema = z
-  .object({
-    email: z.string().email({ message: 'Email is required' }),
-    password: z
-      .string()
-      .min(6, { message: 'Password should be at least 6 characters long' }),
-    confirmPassword: z.string()
-  })
-  .superRefine(({ confirmPassword, password }, ctx) => {
-    if (confirmPassword !== password) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Passwords must match',
-        path: ['confirmPassword']
-      })
-    }
-  })
-
-export const loginSchema = z.object({
-  email: z.string().email({ message: 'Email is required' }),
-  password: z.string().min(1, { message: 'Password is required' })
-})
+import {
+  UserResponse,
+  ValidTokenResponse,
+  emailSchema,
+  isValidPassword,
+  signUpSchema,
+  loginSchema,
+  IFRAME_TYPE,
+  IframeResponse
+} from '@wallet/shared'
 
 export const profileSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' })
 })
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().email({ message: 'Email is required' })
-})
-
 export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(6, { message: 'Password should be at least 6 characters long' }),
+      .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmPassword: z.string(),
     token: z.string()
+  })
+  .superRefine(({ password }, ctx) => {
+    if (!isValidPassword(password)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters',
+        path: ['passweord']
+      })
+    }
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
@@ -64,10 +56,20 @@ export const verifyEmailSchema = z.object({
 export const changePasswordSchema = z
   .object({
     oldPassword: z.string(),
-    newPassword: z.string().min(6, {
-      message: 'Your new password has to be at least 6 characters long.'
-    }),
+    newPassword: z
+      .string()
+      .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmNewPassword: z.string()
+  })
+  .superRefine(({ newPassword }, ctx) => {
+    if (!isValidPassword(newPassword)) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Password must contain at least one number and one special character and have a mixture of uppercase and lowercase letters',
+        path: ['newPassord']
+      })
+    }
   })
   .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
     if (confirmNewPassword !== newPassword) {
@@ -79,10 +81,6 @@ export const changePasswordSchema = z
     }
   })
 
-const getIframeSrcSchema = z.object({
-  type: z.enum(['onboarding', 'ramp'])
-})
-
 type SignUpArgs = z.infer<typeof signUpSchema>
 type SignUpError = ErrorResponse<SignUpArgs | undefined>
 type SignUpResponse = SuccessResponse | SignUpError
@@ -93,9 +91,17 @@ type LoginResponse = SuccessResponse | LoginError
 
 type LogoutResponse = SuccessResponse | ErrorResponse
 
-type ForgotPasswordArgs = z.infer<typeof forgotPasswordSchema>
+type ForgotPasswordArgs = z.infer<typeof emailSchema>
 type ForgotPasswordError = ErrorResponse<ForgotPasswordArgs | undefined>
 type ForgotPasswordResponse = SuccessResponse | ForgotPasswordError
+
+type ResendVerificationEmailArgs = z.infer<typeof emailSchema>
+type ResendVerificationEmailError = ErrorResponse<
+  ResendVerificationEmailArgs | undefined
+>
+type ResendVerificationEmailResponse =
+  | SuccessResponse
+  | ResendVerificationEmailError
 
 type ResetPasswordArgs = z.infer<typeof resetPasswordSchema>
 type ResetPasswordError = ErrorResponse<ResetPasswordArgs | undefined>
@@ -119,14 +125,8 @@ type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
 type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
 type ChangePasswordResponse = SuccessResponse | ChangePasswordError
 
-type GetGateHubIframeSrcArgs = z.infer<typeof getIframeSrcSchema>
-type GetGateHubIframeSrcResult = SuccessResponse<{ url: string }>
-type GetGateHubIframeSrcError = ErrorResponse<
-  GetGateHubIframeSrcArgs | undefined
->
-type GetGateHubIframeSrcResponse =
-  | GetGateHubIframeSrcResult
-  | GetGateHubIframeSrcError
+type GetGateHubIframeSrcResult = SuccessResponse<IframeResponse>
+type GetGateHubIframeSrcResponse = GetGateHubIframeSrcResult | ErrorResponse
 
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
@@ -139,8 +139,11 @@ interface UserService {
   me: (cookies?: string) => Promise<MeResponse>
   updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
   changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
+  resendVerifyEmail: (
+    args: ResendVerificationEmailArgs
+  ) => Promise<ResendVerificationEmailResponse>
   getGateHubIframeSrc: (
-    args: GetGateHubIframeSrcArgs,
+    type: IFRAME_TYPE,
     cookies?: string
   ) => Promise<GetGateHubIframeSrcResponse>
 }
@@ -257,6 +260,19 @@ const createUserService = (): UserService => ({
     }
   },
 
+  async resendVerifyEmail(args) {
+    try {
+      const response = await httpClient
+        .post(`resend-verify-email`, {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, 'We could not send you the verification email.')
+    }
+  },
+
   async me(cookies) {
     try {
       const response = await httpClient
@@ -304,10 +320,10 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async getGateHubIframeSrc(args, cookies) {
+  async getGateHubIframeSrc(type, cookies) {
     try {
       const response = await httpClient
-        .get(`gatehub/token/${args.type}`, {
+        .get(`iframe-urls/${type}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -315,7 +331,7 @@ const createUserService = (): UserService => ({
         .json<GetGateHubIframeSrcResult>()
       return response
     } catch (error) {
-      return getError<GetGateHubIframeSrcArgs>(
+      return getError(
         error,
         // TODO: Better error message
         'Something went wrong. Please try again.'

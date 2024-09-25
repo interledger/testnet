@@ -15,3 +15,38 @@ export const Key = (props: SVGProps<SVGSVGElement>) => {
     </svg>
   )
 }
+
+export const CardKey = (props: SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <g clipPath="url(#clip0_9_1590)">
+        <path
+          d="M9.41809 17.3731V15.9591H11.1861L12.6871 14.4581L14.7591 15.3381C15.5101 15.6571 16.3791 15.4881 16.9551 14.9111L19.8981 11.9681C20.4751 11.3911 20.6431 10.5221 20.3251 9.77205L18.8231 6.23605C18.6211 5.75905 18.2411 5.38005 17.7641 5.17705L14.2281 3.67505C13.4771 3.35605 12.6091 3.52505 12.0321 4.10205L9.08909 7.04505C8.51309 7.62105 8.34409 8.49005 8.66309 9.24105L9.52009 11.2601L3.49609 17.2841V20.4661H6.67809L8.00409 19.1401V17.3721L9.41809 17.3731Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14.3759 8.89404C14.1369 8.89504 13.9429 9.08904 13.9439 9.32804C13.9439 9.56704 14.1389 9.76104 14.3779 9.76004C14.6169 9.76004 14.8109 9.56604 14.8109 9.32704C14.8109 9.08804 14.6169 8.89404 14.3779 8.89404"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_9_1590">
+          <rect width="24" height="24" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  )
+}

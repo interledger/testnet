@@ -16,7 +16,7 @@ export interface IPaymentService {
 
 export class PaymentService implements IPaymentService {
   private readonly TRESHOLD_MS: number = 5000
-  private readonly MAX_ATTEMPTS: number = 5
+  private readonly MAX_ATTEMPTS: number = 24
 
   constructor(
     private logger: Logger,

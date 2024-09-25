@@ -41,6 +41,11 @@ export const getForgotPasswordEmailTemplate = (url: string): string => {
                 </tr>
                 <tr>
                   <td>
+                    <p style="font-size:12px;line-height:24px;margin:10px 0 0px 0;color:#000">Password reset link will expire in 8 hours.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
                     <p style="font-size:12px;line-height:24px;margin:16px 0 2px 0;color:#000">If you didn&#x27;t request this email, there&#x27;s nothing to worry about, you can safely ignore it.</p>
                   </td>
                 </tr>

@@ -5,15 +5,22 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
+import { Eye } from '@/components/icons/Eye'
+import { SlashEye } from '@/components/icons/SlashEye'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
-import { loginSchema, userService } from '@/lib/api/user'
-import { getObjectKeys } from '@/utils/helpers'
+import { userService } from '@/lib/api/user'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
+import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
+import { loginSchema } from '@wallet/shared'
 
 const LoginPage: NextPageWithLayout = () => {
+  const [openDialog, closeDialog] = useDialog()
+  const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
   const router = useRouter()
   const callBackUrl =
     router.asPath.indexOf('callbackUrl') !== -1
@@ -28,6 +35,32 @@ const LoginPage: NextPageWithLayout = () => {
       ? '/login-mobile-dark.webp'
       : '/login-mobile-light.webp'
 
+  async function resendVerifyEmail() {
+    const { email } = loginForm.getValues()
+    const response = await userService.resendVerifyEmail({ email })
+
+    if (response.success) {
+      openDialog(
+        <SuccessDialog
+          onClose={closeDialog}
+          title="Email sent."
+          content="Please check your inbox. Click on the provided link to validate your email address."
+          redirect={'login'}
+          redirectText="Go to Login"
+        />
+      )
+    } else {
+      openDialog(
+        <ErrorDialog
+          onClose={closeDialog}
+          content="Email not sent. Please try again."
+        />
+      )
+    }
+  }
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!isPasswordVisible)
+  }
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -55,14 +88,22 @@ const LoginPage: NextPageWithLayout = () => {
               const { errors, message } = response
               loginForm.setError('root', { message })
 
-              if (errors) {
-                getObjectKeys(errors).map((field) =>
-                  loginForm.setError(field, { message: errors[field] })
-                )
+              if (errors && errors.email) {
+                loginForm.setError('email', { message: errors.email })
               }
             }
           }}
         >
+          {loginForm.formState.errors.email ? (
+            <Link
+              onClick={() => {
+                resendVerifyEmail()
+              }}
+              className="text-sm font-extralight text-green underline dark:text-green-neon"
+            >
+              Click here to resend verification email
+            </Link>
+          ) : null}
           <Input
             required
             type="email"
@@ -70,13 +111,21 @@ const LoginPage: NextPageWithLayout = () => {
             error={loginForm.formState.errors.email?.message}
             label="E-mail"
           />
-          <Input
-            required
-            type="password"
-            {...loginForm.register('password')}
-            error={loginForm.formState.errors.password?.message}
-            label="Password"
-          />
+          <div className="relative">
+            <Input
+              required
+              type={isPasswordVisible ? 'text' : 'password'}
+              {...loginForm.register('password')}
+              error={loginForm.formState.errors.password?.message}
+              label="Password"
+            />
+            <span
+              onClick={togglePasswordVisibility}
+              className="absolute right-2.5 top-1/2 cursor-pointer"
+            >
+              {isPasswordVisible ? <SlashEye /> : <Eye />}
+            </span>
+          </div>
           <Link
             href="forgot"
             className="text-sm font-extralight text-green underline dark:text-green-neon"

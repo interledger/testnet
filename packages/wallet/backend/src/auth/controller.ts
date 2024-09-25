@@ -1,7 +1,11 @@
 import { validate } from '@/shared/validate'
 import { NextFunction, Request } from 'express'
 import { AuthService } from './service'
-import { logInSchema, signUpSchema } from './validation'
+import {
+  logInBodySchema,
+  signUpBodySchema,
+  emailBodySchema
+} from './validation'
 import { UserService } from '@/user/service'
 import { Controller, toSuccessResponse, Unauthorized } from '@shared/backend'
 
@@ -9,6 +13,7 @@ interface IAuthController {
   signUp: Controller
   logIn: Controller
   verifyEmail: Controller
+  resendVerifyEmail: Controller
 }
 
 export class AuthController implements IAuthController {
@@ -22,7 +27,7 @@ export class AuthController implements IAuthController {
     try {
       const {
         body: { email, password }
-      } = await validate(signUpSchema, req)
+      } = await validate(signUpBodySchema, req)
 
       await this.authService.signUp({ email, password })
 
@@ -38,7 +43,7 @@ export class AuthController implements IAuthController {
     try {
       const {
         body: { email, password }
-      } = await validate(logInSchema, req)
+      } = await validate(logInBodySchema, req)
 
       const { user, session } = await this.authService.authorize({
         email,
@@ -49,8 +54,8 @@ export class AuthController implements IAuthController {
       req.session.user = {
         id: user.id,
         email: user.email,
-        needsWallet: !user.rapydWalletId,
-        needsIDProof: !user.kycId
+        needsWallet: !user.gateHubUserId,
+        needsIDProof: !user.kycVerified
       }
 
       await req.session.save()
@@ -91,6 +96,31 @@ export class AuthController implements IAuthController {
         success: true,
         message: 'Email was verified successfully'
       })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  resendVerifyEmail = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { email }
+      } = await validate(emailBodySchema, req)
+
+      await this.authService.resendVerifyEmail({ email })
+
+      res
+        .status(201)
+        .json(
+          toSuccessResponse(
+            undefined,
+            'Verification email has been sent successfully'
+          )
+        )
     } catch (e) {
       next(e)
     }

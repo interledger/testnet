@@ -5,6 +5,8 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import Image from 'next/image'
+import { Eye } from '@/components/icons/Eye'
+import { SlashEye } from '@/components/icons/SlashEye'
 import { resetPasswordSchema, userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -14,6 +16,7 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
 import { useTheme } from 'next-themes'
+import { useState } from 'react'
 
 type ResetPasswordPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -24,6 +27,9 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
   isValid
 }) => {
   const [openDialog, closeDialog] = useDialog()
+  const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
+  const [isConfirmPasswordVisible, setConfirmPasswordVisible] =
+    useState<boolean>(false)
   const resetPasswordForm = useZodForm({
     schema: resetPasswordSchema,
     defaultValues: {
@@ -35,7 +41,12 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
     theme.theme === 'dark'
       ? '/bird-envelope-dark.webp'
       : '/bird-envelope-light.webp'
-
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!isPasswordVisible)
+  }
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPasswordVisible(!isConfirmPasswordVisible)
+  }
   return (
     <>
       <HeaderLogo header="Reset Password" />
@@ -74,22 +85,38 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 }
               }}
             >
-              <Input
-                required
-                type="password"
-                {...resetPasswordForm.register('password')}
-                error={resetPasswordForm.formState.errors.password?.message}
-                label="Password"
-              />
-              <Input
-                required
-                type="password"
-                {...resetPasswordForm.register('confirmPassword')}
-                error={
-                  resetPasswordForm.formState.errors.confirmPassword?.message
-                }
-                label="Confirm password"
-              />
+              <div className="relative">
+                <Input
+                  required
+                  type={isPasswordVisible ? 'text' : 'password'}
+                  {...resetPasswordForm.register('password')}
+                  error={resetPasswordForm.formState.errors.password?.message}
+                  label="Password"
+                />
+                <span
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                >
+                  {isPasswordVisible ? <SlashEye /> : <Eye />}
+                </span>
+              </div>
+              <div className="relative">
+                <Input
+                  required
+                  type={isConfirmPasswordVisible ? 'text' : 'password'}
+                  {...resetPasswordForm.register('confirmPassword')}
+                  error={
+                    resetPasswordForm.formState.errors.confirmPassword?.message
+                  }
+                  label="Confirm password"
+                />
+                <span
+                  onClick={toggleConfirmPasswordVisibility}
+                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                >
+                  {isConfirmPasswordVisible ? <SlashEye /> : <Eye />}
+                </span>
+              </div>
               <Input
                 required
                 type="hidden"
