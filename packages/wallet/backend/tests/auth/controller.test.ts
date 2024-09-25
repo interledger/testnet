@@ -14,6 +14,7 @@ import type { AuthController } from '@/auth/controller'
 import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
+import { getRedisClient } from '@/config/redis'
 import { rateLimiterLogin, rateLimiterEmail } from '@/middleware/rateLimit'
 import type { UserService } from '@/user/service'
 import {
@@ -63,6 +64,8 @@ describe('Authentication Controller', (): void => {
   afterAll(async (): Promise<void> => {
     await appContainer.stop()
     await knex.destroy()
+    const redisClient = getRedisClient(env)
+    redisClient?.disconnect()
   })
 
   afterEach(async (): Promise<void> => {
