@@ -34,8 +34,12 @@ import { IFRAME_TYPE } from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
-  IMaskedCardDetailsResponse,
-  ILinksResponse
+  ILinksResponse,
+  ICardResponse,
+  ICreateCustomerRequest,
+  ICreateCustomerResponse,
+  ICardProductResponse,
+  ICardDetailsRequest
 } from '@/card/types'
 
 export class GateHubClient {
@@ -306,25 +310,33 @@ export class GateHubClient {
     return flatRates
   }
 
-  async getMaskedCardDetails(
-    cardId: string
-  ): Promise<IMaskedCardDetailsResponse> {
-    const url = `${this.apiUrl}/cards/${cardId}/card`
-
-    const response = await this.request<IMaskedCardDetailsResponse>('GET', url)
+  // This should be called before creating customers to get the product codes for the card and account
+  async fetchCardApplicationProducts(): Promise<ICardProductResponse[]> {
+    const path = `/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
+    const response = await this.request<ICardProductResponse[]>('GET', path)
     return response
   }
 
+  async createCustomer(
+    request: ICreateCustomerRequest
+  ): Promise<ICreateCustomerResponse> {
+    const url = `${this.apiUrl}/v1/customers`
+    return this.request<ICreateCustomerResponse>(
+      'POST',
+      url,
+      JSON.stringify(request)
+    )
+  }
+
+  async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
+    const url = `/v1/customers/${customerId}/cards`
+    return this.request<ICardResponse[]>('GET', url)
+  }
+
   async getCardDetails(
-    cardId: string,
-    publicKeyBase64: string
+    requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const url = `${this.apiUrl}/token/card-data`
-
-    const requestBody = {
-      cardId,
-      publicKeyBase64
-    }
 
     const response = await this.request<ILinksResponse>(
       'POST',
@@ -337,9 +349,9 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card data retrieval')
     }
 
+    // TODO
     // Will get this from the response
     const cardDetailsUrl = ''
-    // TODO
     const cardDetailsResponse = await this.request<ICardDetailsResponse>(
       'GET',
       cardDetailsUrl
@@ -402,6 +414,7 @@ export class GateHubClient {
       'x-gatehub-app-id': this.env.GATEHUB_ACCESS_KEY,
       'x-gatehub-timestamp': timestamp,
       'x-gatehub-signature': this.getSignature(timestamp, method, url, body),
+      'x-gatehub-card-app-id': this.env.GATEHUB_CARD_APP_ID,
       ...(managedUserUuid && { 'x-gatehub-managed-user-uuid': managedUserUuid })
     }
   }

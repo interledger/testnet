@@ -1,19 +1,20 @@
 import { GateHubClient } from '../gatehub/client'
-import { ICardDetailsResponse, IMaskedCardDetailsResponse } from './types'
+import {
+  ICardDetailsRequest,
+  ICardDetailsResponse,
+  ICardResponse
+} from './types'
 
 export class CardService {
   constructor(private gateHubClient: GateHubClient) {}
 
-  async getMaskedCardDetails(
-    cardId: string
-  ): Promise<IMaskedCardDetailsResponse> {
-    return this.gateHubClient.getMaskedCardDetails(cardId)
+  async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
+    return this.gateHubClient.getCardsByCustomer(customerId)
   }
 
   async getCardDetails(
-    cardId: string,
-    publicKeyBase64: string
+    requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
-    return this.gateHubClient.getCardDetails(cardId, publicKeyBase64)
+    return this.gateHubClient.getCardDetails(requestBody)
   }
 }

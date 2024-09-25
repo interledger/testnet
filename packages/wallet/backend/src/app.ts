@@ -307,11 +307,7 @@ export class App {
     )
 
     // Cards
-    router.get(
-      '/cards/:cardId/masked-details',
-      isAuth,
-      cardController.getMaskedCardDetails
-    )
+    router.get('/:customerId/cards', isAuth, cardController.getCardsByCustomer)
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
 
     // Return an error for invalid routes

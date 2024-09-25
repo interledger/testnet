@@ -5,8 +5,8 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { CardController } from '@/card/controller'
-import { NotFound } from '@shared/backend'
-import { IMaskedCardDetailsResponse, ICardDetailsResponse } from '@/card/types'
+import { BadRequest } from '@shared/backend'
+import { ICardDetailsResponse, ICardResponse } from '@/card/types'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { createApp, TestApp } from '@/tests/app'
@@ -33,7 +33,7 @@ describe('CardController', () => {
   let userId: string
 
   const mockCardService = {
-    getMaskedCardDetails: jest.fn(),
+    getCardsByCustomer: jest.fn(),
     getCardDetails: jest.fn()
   }
 
@@ -55,7 +55,7 @@ describe('CardController', () => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycId
+      needsIDProof: !user.kycVerified
     }
 
     req.params.cardId = 'test-card-id'
@@ -94,77 +94,76 @@ describe('CardController', () => {
     await knex.destroy()
   })
 
-  it('should get masked card details successfully', async () => {
+  it('should get cards by customer successfully', async () => {
     const next = jest.fn()
 
-    const mockedWalletAddress = {
-      id: 'wallet-address-id',
-      cardId: 'test-card-id'
-    }
-    const mockedMaskedCardDetails: IMaskedCardDetailsResponse = {
-      sourceId: null,
-      nameOnCard: 'John Doe',
-      productCode: 'PROD123',
-      id: 'card-id',
-      accountId: 'account-id',
-      accountSourceId: 'account-source-id',
-      maskedPan: '**** **** **** 1234',
-      status: 'Active',
-      statusReasonCode: null,
-      lockLevel: null,
-      expiryDate: '12/25',
-      customerId: 'customer-id',
-      customerSourceId: 'customer-source-id'
-    }
+    const mockedCards: ICardResponse[] = [
+      {
+        sourceId: '3dc96e41-279d-4355-921a-e1946e90e1ff',
+        nameOnCard: 'Jane Doe',
+        id: 'test-card-id',
+        accountId: '469E3666F8914020B6B2604F7D4A10F6',
+        accountSourceId: 'c44e6bc8-d0ef-491e-b374-6d09b6fa6332',
+        maskedPan: '528700******9830',
+        status: 'Active',
+        statusReasonCode: null,
+        lockLevel: null,
+        expiryDate: '0929',
+        customerId: 'customer-id',
+        customerSourceId: 'a5aba6c7-b8ad-4cfe-98d5-497366a4ee2c',
+        productCode: 'VMDTKPREB'
+      }
+    ]
 
-    mockWalletAddressService.getByCardId.mockResolvedValue(mockedWalletAddress)
-    mockCardService.getMaskedCardDetails.mockResolvedValue(
-      mockedMaskedCardDetails
-    )
+    mockCardService.getCardsByCustomer.mockResolvedValue(mockedCards)
 
-    await cardController.getMaskedCardDetails(req, res, next)
+    req.params.customerId = 'customer-id'
 
-    expect(mockWalletAddressService.getByCardId).toHaveBeenCalledWith(
-      userId,
-      'test-card-id'
-    )
-    expect(mockCardService.getMaskedCardDetails).toHaveBeenCalledWith(
-      'test-card-id'
+    await cardController.getCardsByCustomer(req, res, next)
+
+    expect(mockCardService.getCardsByCustomer).toHaveBeenCalledWith(
+      'customer-id'
     )
     expect(res.statusCode).toBe(200)
     expect(res._getJSONData()).toEqual({
       success: true,
       message: 'SUCCESS',
-      result: mockedMaskedCardDetails
+      result: mockedCards
     })
   })
 
-  it('should return 404 if card is not associated with user', async () => {
+  it('should return 400 if customerId is missing', async () => {
     const next = jest.fn()
 
-    mockWalletAddressService.getByCardId.mockResolvedValue(null)
+    delete req.params.customerId
 
-    await cardController.getMaskedCardDetails(req, res, next)
+    await cardController.getCardsByCustomer(req, res, (err) => {
+      next(err)
+      res.status(err.statusCode).json({
+        success: false,
+        message: err.message
+      })
+    })
 
-    expect(mockWalletAddressService.getByCardId).toHaveBeenCalledWith(
-      userId,
-      'test-card-id'
-    )
-    expect(next).toHaveBeenCalledWith(
-      new NotFound('Card not found or not associated with the user.')
-    )
+    expect(next).toHaveBeenCalled()
+    const error = next.mock.calls[0][0]
+    expect(error).toBeInstanceOf(BadRequest)
+    expect(error.message).toBe('Invalid input')
+    expect(res.statusCode).toBe(400)
   })
 
   it('should get card details successfully', async () => {
-    req.params.publicKeyBase64 = 'test-public-key'
-
     const next = jest.fn()
+
+    req.body = { publicKeyBase64: 'test-public-key' }
 
     const mockedWalletAddress = {
       id: 'wallet-address-id',
       cardId: 'test-card-id'
     }
-    const mockedCardDetails: ICardDetailsResponse = {}
+    const mockedCardDetails: ICardDetailsResponse = {
+      cipher: 'encrypted-card-data'
+    }
 
     mockWalletAddressService.getByCardId.mockResolvedValue(mockedWalletAddress)
     mockCardService.getCardDetails.mockResolvedValue(mockedCardDetails)
@@ -175,10 +174,10 @@ describe('CardController', () => {
       userId,
       'test-card-id'
     )
-    expect(mockCardService.getCardDetails).toHaveBeenCalledWith(
-      'test-card-id',
-      'test-public-key'
-    )
+    expect(mockCardService.getCardDetails).toHaveBeenCalledWith({
+      cardId: 'test-card-id',
+      publicKeyBase64: 'test-public-key'
+    })
     expect(res.statusCode).toBe(200)
     expect(res._getJSONData()).toEqual({
       success: true,
@@ -187,21 +186,44 @@ describe('CardController', () => {
     })
   })
 
-  it('should return 404 if card is not associated with user', async () => {
-    req.params.publicKeyBase64 = 'test-public-key'
-
+  it('should return 400 if cardId is missing', async () => {
     const next = jest.fn()
 
-    mockWalletAddressService.getByCardId.mockResolvedValue(null)
+    delete req.params.cardId
 
-    await cardController.getCardDetails(req, res, next)
+    await cardController.getCardsByCustomer(req, res, (err) => {
+      next(err)
+      res.status(err.statusCode).json({
+        success: false,
+        message: err.message
+      })
+    })
 
-    expect(mockWalletAddressService.getByCardId).toHaveBeenCalledWith(
-      userId,
-      'test-card-id'
-    )
-    expect(next).toHaveBeenCalledWith(
-      new NotFound('Card not found or not associated with the user.')
-    )
+    expect(next).toHaveBeenCalled()
+    const error = next.mock.calls[0][0]
+    expect(error).toBeInstanceOf(BadRequest)
+    expect(error.message).toBe('Invalid input')
+    expect(res.statusCode).toBe(400)
+  })
+
+  it('should return 400 if publicKeyBase64 is missing', async () => {
+    const next = jest.fn()
+
+    req.params.cardId = 'test-card-id'
+    req.body = {}
+
+    await cardController.getCardDetails(req, res, (err) => {
+      next(err)
+      res.status(err.statusCode).json({
+        success: false,
+        message: err.message
+      })
+    })
+
+    expect(next).toHaveBeenCalled()
+    const error = next.mock.calls[0][0]
+    expect(error).toBeInstanceOf(BadRequest)
+    expect(error.message).toBe('Invalid input')
+    expect(res.statusCode).toBe(400)
   })
 })
