@@ -433,7 +433,6 @@ export class GateHubClient {
       'x-gatehub-app-id': this.env.GATEHUB_ACCESS_KEY,
       'x-gatehub-timestamp': timestamp,
       'x-gatehub-signature': this.getSignature(timestamp, method, url, body),
-      'x-gatehub-card-app-id': this.env.GATEHUB_CARD_APP_ID,
       ...(headersOptions?.managedUserUuid && {
         'x-gatehub-managed-user-uuid': headersOptions.managedUserUuid
       }),
