@@ -5,7 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-import { createAccountSchema, withdrawFundsSchema } from '@wallet/shared'
+import { createAccountSchema } from '@wallet/shared'
 import { WalletAddressResponse } from '@wallet/shared/src'
 
 export type Account = {
@@ -29,10 +29,6 @@ type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
 type CreateAccountResponse = CreateAccountResult | CreateAccountError
 
-type WithdrawFundsArgs = z.infer<typeof withdrawFundsSchema>
-type WithdrawFundsError = ErrorResponse<WithdrawFundsArgs | undefined>
-type WithdrawFundsResponse = SuccessResponse | WithdrawFundsError
-
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (
@@ -40,7 +36,6 @@ interface AccountService {
     include?: ('walletAddresses' | 'walletAddressKeys')[]
   ) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
-  withdraw: (args: WithdrawFundsArgs) => Promise<WithdrawFundsResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -95,22 +90,6 @@ const createAccountService = (): AccountService => ({
       return getError<CreateAccountArgs>(
         error,
         'We were not able to create your account. Please try again.'
-      )
-    }
-  },
-
-  async withdraw(args) {
-    try {
-      const response = await httpClient
-        .post('accounts/withdraw', {
-          json: args
-        })
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError<WithdrawFundsArgs>(
-        error,
-        'We were not able to withdraw the funds. Please try again.'
       )
     }
   }
