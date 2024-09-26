@@ -1,21 +1,11 @@
-import Redis from 'ioredis'
 import {
   RateLimiterRes,
   RateLimiterRedis,
   IRateLimiterRedisOptions
 } from 'rate-limiter-flexible'
 
-import type { Env } from '@/config/env'
 import { TooManyRequests } from '@shared/backend'
 
-interface getLimiterlArgs {
-  key: string
-  maxWrongAttempts: number
-  wrongAttemptsPause: number
-}
-interface IRateLimitService {
-  buildLimiter(args: getLimiterlArgs): Promise<RateLimiterRedis>
-}
 interface IRateLimiterRedisHelper {
   checkAttempts(inputKey: string): Promise<void>
   useAttempt(inputKey: string): Promise<void>
@@ -64,26 +54,5 @@ export class RateLimiterRedisHelper
         console.log(`Error consuming limiter attempt`, err)
       }
     }
-  }
-}
-export class RateLimitService implements IRateLimitService {
-  private redisClient: Redis
-  constructor(private env: Env) {
-    const redis_url = this.env.REDIS_URL
-    this.redisClient = new Redis(redis_url)
-  }
-
-  public async buildLimiter({
-    key,
-    maxWrongAttempts,
-    wrongAttemptsPause
-  }: getLimiterlArgs) {
-    return new RateLimiterRedisHelper({
-      storeClient: this.redisClient,
-      keyPrefix: key,
-      points: maxWrongAttempts,
-      duration: 60 * 60 * 24,
-      blockDuration: 60 * wrongAttemptsPause
-    })
   }
 }
