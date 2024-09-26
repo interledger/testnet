@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { Controller, NotFound } from '@shared/backend'
+import { Controller } from '@shared/backend'
 import { CardService } from '@/card/service'
 import { toSuccessResponse } from '@shared/backend'
 import {
@@ -7,7 +7,6 @@ import {
   ICardDetailsResponse,
   ICardResponse
 } from './types'
-import { WalletAddressService } from '@/walletAddress/service'
 import { validate } from '@/shared/validate'
 import { getCardsByCustomerSchema, getCardDetailsSchema } from './validation'
 
@@ -17,10 +16,7 @@ export interface ICardController {
 }
 
 export class CardController implements ICardController {
-  constructor(
-    private cardService: CardService,
-    private walletAddressService: WalletAddressService
-  ) {}
+  constructor(private cardService: CardService) {}
 
   public getCardsByCustomer = async (
     req: Request,
@@ -49,17 +45,11 @@ export class CardController implements ICardController {
       const { cardId } = params
       const { publicKeyBase64 } = body
 
-      const walletAddress = await this.walletAddressService.getByCardId(
-        userId,
-        cardId
-      )
-
-      if (!walletAddress) {
-        throw new NotFound('Card not found or not associated with the user.')
-      }
-
       const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
-      const cardDetails = await this.cardService.getCardDetails(requestBody)
+      const cardDetails = await this.cardService.getCardDetails(
+        userId,
+        requestBody
+      )
       res.status(200).json(toSuccessResponse(cardDetails))
     } catch (error) {
       next(error)

@@ -48,7 +48,7 @@ export class GateHubClient {
 
   private iframeMappings: Record<
     IFRAME_TYPE,
-    (managedUserId: string) => Promise<string>
+    (managedUserUuid: string) => Promise<string>
   > = {
     deposit: this.getDepositUrl.bind(this),
     withdrawal: this.getWithdrawalUrl.bind(this),
@@ -85,41 +85,41 @@ export class GateHubClient {
     return `https://onboarding.${this.mainUrl}`
   }
 
-  async getWithdrawalUrl(managedUserId: string): Promise<string> {
+  async getWithdrawalUrl(managedUserUuid: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE,
-      managedUserId
+      managedUserUuid
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.withdrawal}&bearer=${token}`
   }
 
-  async getDepositUrl(managedUserId: string): Promise<string> {
+  async getDepositUrl(managedUserUuid: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.onOffRamp,
       DEFAULT_APP_SCOPE,
-      managedUserId
+      managedUserUuid
     )
 
     return `${this.rampUrl}/?paymentType=${PAYMENT_TYPE.deposit}&bearer=${token}`
   }
 
-  async getOnboardingUrl(managedUserId: string): Promise<string> {
+  async getOnboardingUrl(managedUserUuid: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.onboarding,
       ONBOARDING_APP_SCOPE,
-      managedUserId
+      managedUserUuid
     )
 
     return `${this.onboardingUrl}/?bearer=${token}`
   }
 
-  async getExchangeUrl(managedUserId: string): Promise<string> {
+  async getExchangeUrl(managedUserUuid: string): Promise<string> {
     const token = await this.getIframeAuthorizationToken(
       this.clientIds.exchange,
       DEFAULT_APP_SCOPE,
-      managedUserId
+      managedUserUuid
     )
 
     return `${this.exchangeUrl}/?bearer=${token}`
@@ -127,19 +127,19 @@ export class GateHubClient {
 
   async getIframeUrl(
     type: IFRAME_TYPE,
-    managedUserId: string
+    managedUserUuid: string
   ): Promise<string> {
     if (!this.iframeMappings[type]) {
       throw new BadRequest('Invalid iframe type')
     }
 
-    return await this.iframeMappings[type](managedUserId)
+    return await this.iframeMappings[type](managedUserUuid)
   }
 
   async getIframeAuthorizationToken(
     clientId: string,
     scope: string[],
-    managedUserId: string
+    managedUserUuid: string
   ): Promise<string> {
     const url = `${this.apiUrl}/auth/v1/tokens?clientId=${clientId}`
     const body: ITokenRequest = { scope }
@@ -148,7 +148,9 @@ export class GateHubClient {
       'POST',
       url,
       JSON.stringify(body),
-      managedUserId
+      {
+        managedUserUuid
+      }
     )
 
     return response.token
@@ -191,21 +193,18 @@ export class GateHubClient {
   }
 
   async connectUserToGateway(
-    userUuid: string,
+    managedUserUuid: string,
     gatewayUuid: string
   ): Promise<boolean> {
-    const url = `${this.apiUrl}/id/v1/users/${userUuid}/hubs/${gatewayUuid}`
+    const url = `${this.apiUrl}/id/v1/users/${managedUserUuid}/hubs/${gatewayUuid}`
 
-    await this.request<IConnectUserToGatewayResponse>(
-      'POST',
-      url,
-      undefined,
-      userUuid
-    )
+    await this.request<IConnectUserToGatewayResponse>('POST', url, undefined, {
+      managedUserUuid
+    })
 
     if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
-      await this.approveUserToGateway(userUuid, gatewayUuid)
+      await this.approveUserToGateway(managedUserUuid, gatewayUuid)
 
       return true
     }
@@ -234,10 +233,10 @@ export class GateHubClient {
   }
 
   async createWallet(
-    userUuid: string,
+    managedUserUuid: string,
     name: string
   ): Promise<ICreateWalletResponse> {
-    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets`
+    const url = `${this.apiUrl}/core/v1/users/${managedUserUuid}/wallets`
     const body: ICreateWalletRequest = {
       name,
       type: HOSTED_WALLET_TYPE
@@ -247,7 +246,9 @@ export class GateHubClient {
       'POST',
       url,
       JSON.stringify(body),
-      userUuid
+      {
+        managedUserUuid
+      }
     )
 
     return response
@@ -312,24 +313,27 @@ export class GateHubClient {
 
   // This should be called before creating customers to get the product codes for the card and account
   async fetchCardApplicationProducts(): Promise<ICardProductResponse[]> {
-    const path = `/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
-    const response = await this.request<ICardProductResponse[]>('GET', path)
+    const url = `${this.apiUrl}/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
+    const response = await this.request<ICardProductResponse[]>('GET', url)
     return response
   }
 
   async createCustomer(
-    request: ICreateCustomerRequest
+    requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
     const url = `${this.apiUrl}/v1/customers`
     return this.request<ICreateCustomerResponse>(
       'POST',
       url,
-      JSON.stringify(request)
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
     )
   }
 
   async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
-    const url = `/v1/customers/${customerId}/cards`
+    const url = `${this.apiUrl}/v1/customers/${customerId}/cards`
     return this.request<ICardResponse[]>('GET', url)
   }
 
@@ -341,7 +345,10 @@ export class GateHubClient {
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
-      JSON.stringify(requestBody)
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
     )
 
     const token = response.token
@@ -356,8 +363,9 @@ export class GateHubClient {
       'GET',
       cardDetailsUrl,
       undefined,
-      undefined,
-      token
+      {
+        token
+      }
     )
 
     return cardDetailsResponse
@@ -367,8 +375,11 @@ export class GateHubClient {
     method: HTTP_METHODS,
     url: string,
     body?: string,
-    managedUserUuid?: string,
-    token?: string
+    headersOptions?: {
+      managedUserUuid?: string
+      token?: string
+      cardAppId?: string
+    }
   ): Promise<T> {
     const timestamp = Date.now().toString()
     const headers = this.getRequestHeaders(
@@ -376,8 +387,7 @@ export class GateHubClient {
       method,
       url,
       body ?? '',
-      managedUserUuid,
-      token
+      headersOptions
     )
 
     try {
@@ -412,8 +422,11 @@ export class GateHubClient {
     method: HTTP_METHODS,
     url: string,
     body?: string,
-    managedUserUuid?: string,
-    token?: string
+    headersOptions?: {
+      managedUserUuid?: string
+      token?: string
+      cardAppId?: string
+    }
   ) {
     return {
       'Content-Type': 'application/json',
@@ -421,10 +434,15 @@ export class GateHubClient {
       'x-gatehub-timestamp': timestamp,
       'x-gatehub-signature': this.getSignature(timestamp, method, url, body),
       'x-gatehub-card-app-id': this.env.GATEHUB_CARD_APP_ID,
-      ...(managedUserUuid && {
-        'x-gatehub-managed-user-uuid': managedUserUuid
+      ...(headersOptions?.managedUserUuid && {
+        'x-gatehub-managed-user-uuid': headersOptions.managedUserUuid
       }),
-      ...(token && { Authorization: token })
+      ...(headersOptions?.cardAppId && {
+        'x-gatehub-card-app-id': headersOptions.cardAppId
+      }),
+      ...(headersOptions?.token && {
+        Authorization: `Bearer ${headersOptions.token}`
+      })
     }
   }
 

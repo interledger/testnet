@@ -37,10 +37,6 @@ describe('CardController', () => {
     getCardDetails: jest.fn()
   }
 
-  const mockWalletAddressService = {
-    getByCardId: jest.fn()
-  }
-
   const args = mockLogInRequest().body
 
   const createReqRes = async () => {
@@ -74,11 +70,6 @@ describe('CardController', () => {
 
   beforeEach(async (): Promise<void> => {
     Reflect.set(cardController, 'cardService', mockCardService)
-    Reflect.set(
-      cardController,
-      'walletAddressService',
-      mockWalletAddressService
-    )
 
     await createUser({ ...args, isEmailVerified: true })
     await createReqRes()
@@ -157,24 +148,15 @@ describe('CardController', () => {
 
     req.body = { publicKeyBase64: 'test-public-key' }
 
-    const mockedWalletAddress = {
-      id: 'wallet-address-id',
-      cardId: 'test-card-id'
-    }
     const mockedCardDetails: ICardDetailsResponse = {
       cipher: 'encrypted-card-data'
     }
 
-    mockWalletAddressService.getByCardId.mockResolvedValue(mockedWalletAddress)
     mockCardService.getCardDetails.mockResolvedValue(mockedCardDetails)
 
     await cardController.getCardDetails(req, res, next)
 
-    expect(mockWalletAddressService.getByCardId).toHaveBeenCalledWith(
-      userId,
-      'test-card-id'
-    )
-    expect(mockCardService.getCardDetails).toHaveBeenCalledWith({
+    expect(mockCardService.getCardDetails).toHaveBeenCalledWith(userId, {
       cardId: 'test-card-id',
       publicKeyBase64: 'test-public-key'
     })
