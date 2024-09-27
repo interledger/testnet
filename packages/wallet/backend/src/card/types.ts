@@ -94,3 +94,19 @@ export interface ICardProductResponse {
   name: string
   cost: string
 }
+
+export type LockReasonCode =
+  | 'ClientRequestedLock'
+  | 'LostCard'
+  | 'StolenCard'
+  | 'IssuerRequestGeneral'
+  | 'IssuerRequestFraud'
+  | 'IssuerRequestLegal'
+
+export interface ICardLockRequest {
+  note: string
+}
+
+export interface ICardUnlockRequest {
+  note: string
+}

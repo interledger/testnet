@@ -5,14 +5,23 @@ import { toSuccessResponse } from '@shared/backend'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
-  ICardResponse
+  ICardLockRequest,
+  ICardResponse,
+  ICardUnlockRequest
 } from './types'
 import { validate } from '@/shared/validate'
-import { getCardsByCustomerSchema, getCardDetailsSchema } from './validation'
+import {
+  getCardsByCustomerSchema,
+  getCardDetailsSchema,
+  lockCardSchema,
+  unlockCardSchema
+} from './validation'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
   getCardDetails: Controller<ICardResponse>
+  lockCard: Controller<ICardResponse>
+  unlockCard: Controller<ICardResponse>
 }
 
 export class CardController implements ICardController {
@@ -51,6 +60,43 @@ export class CardController implements ICardController {
         requestBody
       )
       res.status(200).json(toSuccessResponse(cardDetails))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public lockCard = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { params, query, body } = await validate(lockCardSchema, req)
+      const { cardId } = params
+      const { reasonCode } = query
+      const requestBody: ICardLockRequest = body
+
+      const result = await this.cardService.lockCard(
+        cardId,
+        reasonCode,
+        requestBody
+      )
+
+      res.status(200).json(toSuccessResponse(result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public unlockCard = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { params, body } = await validate(unlockCardSchema, req)
+      const { cardId } = params
+      const requestBody: ICardUnlockRequest = body
+
+      const result = await this.cardService.unlockCard(cardId, requestBody)
+
+      res.status(200).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }
