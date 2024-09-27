@@ -55,6 +55,7 @@ services:
       GATEHUB_VAULT_UUID_EUR: ${GATEHUB_VAULT_UUID_EUR}
       GATEHUB_VAULT_UUID_USD: ${GATEHUB_VAULT_UUID_USD}
       GATEHUB_SETTLEMENT_WALLET_ADDRESS: ${GATEHUB_SETTLEMENT_WALLET_ADDRESS}
+      GATEHUB_CARD_APP_ID: ${GATEHUB_CARD_APP_ID}
     restart: always
     networks:
       - testnet
@@ -178,6 +179,7 @@ services:
       KRATOS_CONTAINER_PUBLIC_URL: 'http://kratos:4433'
       KRATOS_BROWSER_PUBLIC_URL: 'http://localhost:4433'
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
+      AUTH_ENABLED: false
     <<: *logging
 
   kratos:

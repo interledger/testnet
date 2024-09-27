@@ -51,6 +51,8 @@ import { KratosService } from './rafiki/kratos.service'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
+import { CardController } from './card/controller'
+import { CardService } from './card/service'
 
 export interface Cradle {
   env: Env
@@ -92,6 +94,8 @@ export interface Cradle {
   gateHubClient: GateHubClient
   gateHubController: GateHubController
   gateHubService: GateHubService
+  cardService: CardService
+  cardController: CardController
 }
 
 export async function createContainer(
@@ -129,6 +133,7 @@ export async function createContainer(
     quoteService: asClass(QuoteService).singleton(),
     grantService: asClass(GrantService).singleton(),
     socketService: asClassSingletonWithLogger(SocketService, logger),
+    cardService: asClass(CardService).singleton(),
     userController: asClass(UserController).singleton(),
     authController: asClass(AuthController).singleton(),
     assetController: asClass(AssetController).singleton(),
@@ -144,7 +149,8 @@ export async function createContainer(
     kratosService: asClassSingletonWithLogger(KratosService, logger),
     gateHubClient: asClass(GateHubClient).singleton(),
     gateHubController: asClass(GateHubController).singleton(),
-    gateHubService: asClass(GateHubService).singleton()
+    gateHubService: asClass(GateHubService).singleton(),
+    cardController: asClass(CardController).singleton()
   })
 
   return container

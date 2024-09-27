@@ -41,6 +41,8 @@ import { initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
+import { CardController } from './card/controller'
+import { CardService } from './card/service'
 
 export interface Bindings {
   env: Env
@@ -77,6 +79,8 @@ export interface Bindings {
   gateHubClient: GateHubClient
   gateHubController: GateHubController
   gateHubService: GateHubService
+  cardService: CardService
+  cardController: CardController
 }
 
 export class App {
@@ -145,6 +149,7 @@ export class App {
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
     const gateHubController = await this.container.resolve('gateHubController')
+    const cardController = await this.container.resolve('cardController')
 
     app.use(
       cors({
@@ -300,6 +305,14 @@ export class App {
       isAuth,
       gateHubController.addUserToGateway
     )
+
+    // Cards
+    router.get(
+      '/customers/:customerId/cards',
+      isAuth,
+      cardController.getCardsByCustomer
+    )
+    router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
