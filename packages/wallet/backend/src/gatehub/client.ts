@@ -274,14 +274,18 @@ export class GateHubClient {
   }
 
   async createTransaction(
-    body: ICreateTransactionRequest
+    body: ICreateTransactionRequest,
+    managedUserUuid?: string
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
 
     const response = await this.request<ICreateTransactionResponse>(
       'POST',
       url,
-      JSON.stringify(body)
+      JSON.stringify(body),
+      {
+        managedUserUuid
+      }
     )
 
     return response
