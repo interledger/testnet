@@ -371,6 +371,40 @@ export class GateHubClient {
     return cardDetailsResponse
   }
 
+  async getPin(
+    requestBody: ICardDetailsRequest
+  ): Promise<ICardDetailsResponse> {
+    const url = `${this.apiUrl}/token/pin`
+
+    const response = await this.request<ILinksResponse>(
+      'POST',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    const token = response.token
+    if (!token) {
+      throw new Error('Failed to obtain token for card pin retrieval')
+    }
+
+    // TODO change this to direct call to card managing entity
+    // Will get this from the GateHub proxy for now
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinResponse = await this.request<ICardDetailsResponse>(
+      'GET',
+      cardPinUrl,
+      undefined,
+      {
+        token
+      }
+    )
+
+    return cardPinResponse
+  }
+
   private async request<T>(
     method: HTTP_METHODS,
     url: string,
