@@ -8,7 +8,11 @@ import {
   ICardResponse
 } from './types'
 import { validate } from '@/shared/validate'
-import { getCardsByCustomerSchema, getCardDetailsSchema } from './validation'
+import {
+  getCardsByCustomerSchema,
+  getCardDetailsSchema,
+  changePinSchema
+} from './validation'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
@@ -42,9 +46,9 @@ export class CardController implements ICardController {
   ) => {
     try {
       const userId = req.session.user.id
-      const { params, body } = await validate(getCardDetailsSchema, req)
+      const { params, query } = await validate(getCardDetailsSchema, req)
       const { cardId } = params
-      const { publicKeyBase64 } = body
+      const { publicKeyBase64 } = query
 
       const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
       const cardDetails = await this.cardService.getCardDetails(
@@ -60,13 +64,31 @@ export class CardController implements ICardController {
   public getPin = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.session.user.id
-      const { params, body } = await validate(getCardDetailsSchema, req)
+      const { params, query } = await validate(getCardDetailsSchema, req)
       const { cardId } = params
-      const { publicKeyBase64 } = body
+      const { publicKeyBase64 } = query
 
       const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
       const cardPin = await this.cardService.getPin(userId, requestBody)
       res.status(200).json(toSuccessResponse(cardPin))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public changePin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, body } = await validate(changePinSchema, req)
+      const { cardId } = params
+      const { cypher } = body
+
+      const result = await this.cardService.changePin(userId, cardId, cypher)
+      res.status(200).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }

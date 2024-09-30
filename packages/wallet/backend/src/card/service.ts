@@ -37,6 +37,16 @@ export class CardService {
     return this.gateHubClient.getPin(requestBody)
   }
 
+  async changePin(
+    userId: string,
+    cardId: string,
+    cypher: string
+  ): Promise<void> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    await this.gateHubClient.changePin(cardId, cypher)
+  }
+
   private async ensureWalletAddressExists(
     userId: string,
     cardId: string
