@@ -313,8 +313,8 @@ export class App {
       cardController.getCardsByCustomer
     )
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
-    router.get('/cards/:cardId/lock', isAuth, cardController.lock)
-    router.get('/cards/:cardId/unlock', isAuth, cardController.unlock)
+    router.put('/cards/:cardId/lock', isAuth, cardController.lock)
+    router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
