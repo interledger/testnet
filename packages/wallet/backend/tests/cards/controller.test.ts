@@ -35,8 +35,8 @@ describe('CardController', () => {
   const mockCardService = {
     getCardsByCustomer: jest.fn(),
     getCardDetails: jest.fn(),
-    lockCard: jest.fn(),
-    unlockCard: jest.fn()
+    lock: jest.fn(),
+    unlock: jest.fn()
   }
 
   const args = mockLogInRequest().body
@@ -215,7 +215,7 @@ describe('CardController', () => {
     })
   })
 
-  describe('lockCard', () => {
+  describe('lock', () => {
     it('should return 400 if reasonCode is missing', async () => {
       const next = jest.fn()
 
@@ -223,7 +223,7 @@ describe('CardController', () => {
       req.body = { note: 'Lost my card' }
       delete req.query.reasonCode
 
-      await cardController.lockCard(req, res, (err) => {
+      await cardController.lock(req, res, (err) => {
         next(err)
         res.status(err.statusCode).json({
           success: false,
@@ -246,7 +246,7 @@ describe('CardController', () => {
       req.query.reasonCode = 'InvalidCode'
       req.body = { note: 'Lost my card' }
 
-      await cardController.lockCard(req, res, (err) => {
+      await cardController.lock(req, res, (err) => {
         next(err)
         res.status(err.statusCode).json({
           success: false,
@@ -269,7 +269,7 @@ describe('CardController', () => {
       req.query.reasonCode = 'LostCard'
       req.body = {}
 
-      await cardController.lockCard(req, res, (err) => {
+      await cardController.lock(req, res, (err) => {
         next(err)
         res.status(err.statusCode).json({
           success: false,
@@ -286,7 +286,7 @@ describe('CardController', () => {
     })
   })
 
-  describe('unlockCard', () => {
+  describe('unlock', () => {
     it('should unlock the card successfully', async () => {
       const next = jest.fn()
 
@@ -294,11 +294,11 @@ describe('CardController', () => {
       req.body = { note: 'Found my card' }
 
       const mockResult = { status: 'unlocked' }
-      mockCardService.unlockCard.mockResolvedValue(mockResult)
+      mockCardService.unlock.mockResolvedValue(mockResult)
 
-      await cardController.unlockCard(req, res, next)
+      await cardController.unlock(req, res, next)
 
-      expect(mockCardService.unlockCard).toHaveBeenCalledWith('test-card-id', {
+      expect(mockCardService.unlock).toHaveBeenCalledWith('test-card-id', {
         note: 'Found my card'
       })
 
@@ -316,7 +316,7 @@ describe('CardController', () => {
       req.params.cardId = 'test-card-id'
       req.body = {}
 
-      await cardController.unlockCard(req, res, (err) => {
+      await cardController.unlock(req, res, (err) => {
         next(err)
         res.status(err.statusCode).json({
           success: false,

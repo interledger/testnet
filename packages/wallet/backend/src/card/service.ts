@@ -5,9 +5,9 @@ import {
   ICardDetailsResponse,
   ICardLockRequest,
   ICardResponse,
-  ICardUnlockRequest,
-  LockReasonCode
+  ICardUnlockRequest
 } from './types'
+import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 
 export class CardService {
@@ -37,7 +37,7 @@ export class CardService {
     return this.gateHubClient.getCardDetails(requestBody)
   }
 
-  async lockCard(
+  async lock(
     cardId: string,
     reasonCode: LockReasonCode,
     requestBody: ICardLockRequest
@@ -45,7 +45,7 @@ export class CardService {
     return this.gateHubClient.lockCard(cardId, reasonCode, requestBody)
   }
 
-  async unlockCard(
+  async unlock(
     cardId: string,
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {

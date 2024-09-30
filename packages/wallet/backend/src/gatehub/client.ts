@@ -30,7 +30,7 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
-import { IFRAME_TYPE } from '@wallet/shared/src'
+import { IFRAME_TYPE, LockReasonCode } from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
@@ -40,7 +40,6 @@ import {
   ICreateCustomerResponse,
   ICardProductResponse,
   ICardDetailsRequest,
-  LockReasonCode,
   ICardLockRequest,
   ICardUnlockRequest
 } from '@/card/types'

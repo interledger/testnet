@@ -20,8 +20,8 @@ import {
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
   getCardDetails: Controller<ICardResponse>
-  lockCard: Controller<ICardResponse>
-  unlockCard: Controller<ICardResponse>
+  lock: Controller<ICardResponse>
+  unlock: Controller<ICardResponse>
 }
 
 export class CardController implements ICardController {
@@ -65,14 +65,14 @@ export class CardController implements ICardController {
     }
   }
 
-  public lockCard = async (req: Request, res: Response, next: NextFunction) => {
+  public lock = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { params, query, body } = await validate(lockCardSchema, req)
       const { cardId } = params
       const { reasonCode } = query
       const requestBody: ICardLockRequest = body
 
-      const result = await this.cardService.lockCard(
+      const result = await this.cardService.lock(
         cardId,
         reasonCode,
         requestBody
@@ -84,17 +84,13 @@ export class CardController implements ICardController {
     }
   }
 
-  public unlockCard = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public unlock = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { params, body } = await validate(unlockCardSchema, req)
       const { cardId } = params
       const requestBody: ICardUnlockRequest = body
 
-      const result = await this.cardService.unlockCard(cardId, requestBody)
+      const result = await this.cardService.unlock(cardId, requestBody)
 
       res.status(200).json(toSuccessResponse(result))
     } catch (error) {
