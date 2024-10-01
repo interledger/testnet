@@ -96,8 +96,8 @@ interface IVault {
   uuid: string
   name: string
   asset_code: string
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }
 
 export interface IConnectUserToGatewayResponse {}
