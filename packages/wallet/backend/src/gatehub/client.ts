@@ -374,6 +374,29 @@ export class GateHubClient {
     return cardDetailsResponse
   }
 
+  async getCardTransactions(
+    cardId: string,
+    pageSize?: number,
+    pageNumber?: number
+  ): Promise<IGetTransactionsResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/transactions`
+
+    const queryParams: string[] = []
+
+    if (pageSize !== undefined)
+      queryParams.push(`pageSize=${encodeURIComponent(pageSize.toString())}`)
+    if (pageNumber !== undefined)
+      queryParams.push(
+        `pageNumber=${encodeURIComponent(pageNumber.toString())}`
+      )
+
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`
+    }
+
+    return this.request<IGetTransactionsResponse>('GET', url)
+  }
+
   async lockCard(
     cardId: string,
     reasonCode: LockReasonCode,
@@ -406,29 +429,6 @@ export class GateHubClient {
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
-  }
-
-  async getCardTransactions(
-    cardId: string,
-    pageSize?: number,
-    pageNumber?: number
-  ): Promise<IGetTransactionsResponse> {
-    let url = `${this.apiUrl}/v1/cards/${cardId}/transactions`
-
-    const queryParams: string[] = []
-
-    if (pageSize !== undefined)
-      queryParams.push(`pageSize=${encodeURIComponent(pageSize.toString())}`)
-    if (pageNumber !== undefined)
-      queryParams.push(
-        `pageNumber=${encodeURIComponent(pageNumber.toString())}`
-      )
-
-    if (queryParams.length > 0) {
-      url += `?${queryParams.join('&')}`
-    }
-
-    return this.request<IGetTransactionsResponse>('GET', url)
   }
 
   private async request<T>(

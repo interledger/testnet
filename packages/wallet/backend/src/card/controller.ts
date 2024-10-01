@@ -8,15 +8,15 @@ import {
   ICardLockRequest,
   ICardResponse,
   ICardUnlockRequest,
-  IGetTransactionsResponse,
-  getCardTransactionsSchema
+  IGetTransactionsResponse
 } from './types'
 import { validate } from '@/shared/validate'
 import {
   getCardsByCustomerSchema,
   getCardDetailsSchema,
   lockCardSchema,
-  unlockCardSchema
+  unlockCardSchema,
+  getCardTransactionsSchema
 } from './validation'
 
 export interface ICardController {
@@ -68,6 +68,30 @@ export class CardController implements ICardController {
     }
   }
 
+  public getCardTransactions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, query } = await validate(getCardTransactionsSchema, req)
+      const { cardId } = params
+      const { pageSize, pageNumber } = query
+
+      const transactions = await this.cardService.getCardTransactions(
+        userId,
+        cardId,
+        pageSize,
+        pageNumber
+      )
+
+      res.status(200).json(toSuccessResponse(transactions))
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public lock = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { params, query, body } = await validate(lockCardSchema, req)
@@ -96,30 +120,6 @@ export class CardController implements ICardController {
       const result = await this.cardService.unlock(cardId, requestBody)
 
       res.status(200).json(toSuccessResponse(result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  public getCardTransactions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = req.session.user.id
-      const { params, query } = await validate(getCardTransactionsSchema, req)
-      const { cardId } = params
-      const { pageSize, pageNumber } = query
-
-      const transactions = await this.cardService.getCardTransactions(
-        userId,
-        cardId,
-        pageSize,
-        pageNumber
-      )
-
-      res.status(200).json(toSuccessResponse(transactions))
     } catch (error) {
       next(error)
     }

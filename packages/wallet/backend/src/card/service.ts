@@ -42,21 +42,6 @@ export class CardService {
     return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
   }
 
-  private async ensureWalletAddressExists(
-    userId: string,
-    cardId: string
-  ): Promise<void> {
-    const walletAddress = await this.walletAddressService.getByCardId(
-      userId,
-      cardId
-    )
-    if (!walletAddress) {
-      throw new NotFound('Card not found or not associated with the user.')
-    }
-
-    return this.gateHubClient.getCardDetails(requestBody)
-  }
-
   async lock(
     cardId: string,
     reasonCode: LockReasonCode,
@@ -70,5 +55,18 @@ export class CardService {
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {
     return this.gateHubClient.unlockCard(cardId, requestBody)
+  }
+
+  private async ensureWalletAddressExists(
+    userId: string,
+    cardId: string
+  ): Promise<void> {
+    const walletAddress = await this.walletAddressService.getByCardId(
+      userId,
+      cardId
+    )
+    if (!walletAddress) {
+      throw new NotFound('Card not found or not associated with the user.')
+    }
   }
 }
