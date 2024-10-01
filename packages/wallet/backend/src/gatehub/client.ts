@@ -41,6 +41,7 @@ import {
   ICardProductResponse,
   ICardDetailsRequest
 } from '@/card/types'
+import { BlockReasonCode } from '@wallet/shared/src'
 
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
@@ -369,6 +370,17 @@ export class GateHubClient {
     )
 
     return cardDetailsResponse
+  }
+
+  async permanentlyBlockCard(
+    cardId: string,
+    reasonCode: BlockReasonCode
+  ): Promise<ICardResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/block`
+
+    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
+
+    return this.request<ICardResponse>('PUT', url)
   }
 
   private async request<T>(

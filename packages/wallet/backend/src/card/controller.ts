@@ -8,7 +8,11 @@ import {
   ICardResponse
 } from './types'
 import { validate } from '@/shared/validate'
-import { getCardsByCustomerSchema, getCardDetailsSchema } from './validation'
+import {
+  getCardsByCustomerSchema,
+  getCardDetailsSchema,
+  permanentlyBlockCardSchema
+} from './validation'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
@@ -51,6 +55,28 @@ export class CardController implements ICardController {
         requestBody
       )
       res.status(200).json(toSuccessResponse(cardDetails))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public permanentlyBlockCard = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, query } = await validate(permanentlyBlockCardSchema, req)
+      const { cardId } = params
+      const { reasonCode } = query
+
+      const result = await this.cardService.permanentlyBlockCard(
+        userId,
+        cardId,
+        reasonCode
+      )
+      res.status(200).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }

@@ -6,6 +6,7 @@ import {
   ICardResponse
 } from './types'
 import { NotFound } from '@shared/backend'
+import { BlockReasonCode } from '@wallet/shared/src'
 
 export class CardService {
   constructor(
@@ -32,5 +33,21 @@ export class CardService {
     }
 
     return this.gateHubClient.getCardDetails(requestBody)
+  }
+
+  async permanentlyBlockCard(
+    userId: string,
+    cardId: string,
+    reasonCode: BlockReasonCode
+  ): Promise<ICardResponse> {
+    const walletAddress = await this.walletAddressService.getByCardId(
+      userId,
+      cardId
+    )
+    if (!walletAddress) {
+      throw new NotFound('Card not found or not associated with the user.')
+    }
+
+    return this.gateHubClient.permanentlyBlockCard(cardId, reasonCode)
   }
 }
