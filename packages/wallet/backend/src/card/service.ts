@@ -3,6 +3,8 @@ import { GateHubClient } from '../gatehub/client'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
+  ICardLimitRequest,
+  ICardLimitResponse,
   ICardLockRequest,
   ICardResponse,
   ICardUnlockRequest
@@ -37,6 +39,25 @@ export class CardService {
     return this.gateHubClient.getCardDetails(requestBody)
   }
 
+  async getCardLimits(
+    userId: string,
+    cardId: string
+  ): Promise<ICardLimitResponse[]> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getCardLimits(cardId)
+  }
+
+  async createOrOverrideCardLimits(
+    userId: string,
+    cardId: string,
+    requestBody: ICardLimitRequest[]
+  ): Promise<ICardLimitResponse[]> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.createOrOverrideCardLimits(cardId, requestBody)
+  }
+
   async lock(
     cardId: string,
     reasonCode: LockReasonCode,
@@ -50,5 +71,18 @@ export class CardService {
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {
     return this.gateHubClient.unlockCard(cardId, requestBody)
+  }
+
+  private async ensureWalletAddressExists(
+    userId: string,
+    cardId: string
+  ): Promise<void> {
+    const walletAddress = await this.walletAddressService.getByCardId(
+      userId,
+      cardId
+    )
+    if (!walletAddress) {
+      throw new NotFound('Card not found or not associated with the user.')
+    }
   }
 }

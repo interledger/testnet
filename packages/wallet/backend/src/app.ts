@@ -315,7 +315,12 @@ export class App {
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.put('/cards/:cardId/lock', isAuth, cardController.lock)
     router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
-
+    router.get('/cards/:cardId/limits', isAuth, cardController.getCardLimits)
+    router.post(
+      '/cards/:cardId/limits',
+      isAuth,
+      cardController.createOrOverrideCardLimits
+    )
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
       const e = Error(`Requested path ${req.path} was not found`)

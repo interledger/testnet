@@ -41,7 +41,9 @@ import {
   ICardProductResponse,
   ICardDetailsRequest,
   ICardLockRequest,
-  ICardUnlockRequest
+  ICardUnlockRequest,
+  ICardLimitResponse,
+  ICardLimitRequest
 } from '@/card/types'
 
 export class GateHubClient {
@@ -371,6 +373,30 @@ export class GateHubClient {
     )
 
     return cardDetailsResponse
+  }
+
+  async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>('GET', url, undefined, {
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  async createOrOverrideCardLimits(
+    cardId: string,
+    requestBody: ICardLimitRequest[]
+  ): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>(
+      'POST',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
   }
 
   async lockCard(

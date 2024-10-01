@@ -5,6 +5,8 @@ import { toSuccessResponse } from '@shared/backend'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
+  ICardLimitRequest,
+  ICardLimitResponse,
   ICardLockRequest,
   ICardResponse,
   ICardUnlockRequest
@@ -14,12 +16,16 @@ import {
   getCardsByCustomerSchema,
   getCardDetailsSchema,
   lockCardSchema,
-  unlockCardSchema
+  unlockCardSchema,
+  getCardLimitsSchema,
+  createOrOverrideCardLimitsSchema
 } from './validation'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
   getCardDetails: Controller<ICardResponse>
+  getCardLimits: Controller<ICardLimitResponse[]>
+  createOrOverrideCardLimits: Controller<ICardLimitResponse[]>
   lock: Controller<ICardResponse>
   unlock: Controller<ICardResponse>
 }
@@ -60,6 +66,49 @@ export class CardController implements ICardController {
         requestBody
       )
       res.status(200).json(toSuccessResponse(cardDetails))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getCardLimits = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params } = await validate(getCardLimitsSchema, req)
+      const { cardId } = params
+
+      const limits = await this.cardService.getCardLimits(userId, cardId)
+      res.status(200).json(toSuccessResponse(limits))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public createOrOverrideCardLimits = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, body } = await validate(
+        createOrOverrideCardLimitsSchema,
+        req
+      )
+      const { cardId } = params
+      const requestBody: ICardLimitRequest[] = body
+
+      const result = await this.cardService.createOrOverrideCardLimits(
+        userId,
+        cardId,
+        requestBody
+      )
+
+      res.status(201).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }
