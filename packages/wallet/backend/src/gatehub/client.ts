@@ -30,7 +30,7 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
-import { IFRAME_TYPE } from '@wallet/shared/src'
+import { IFRAME_TYPE, LockReasonCode } from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
@@ -40,6 +40,8 @@ import {
   ICreateCustomerResponse,
   ICardProductResponse,
   ICardDetailsRequest,
+  ICardLockRequest,
+  ICardUnlockRequest,
   IGetTransactionsResponse
 } from '@/card/types'
 
@@ -370,6 +372,40 @@ export class GateHubClient {
     )
 
     return cardDetailsResponse
+  }
+
+  async lockCard(
+    cardId: string,
+    reasonCode: LockReasonCode,
+    requestBody: ICardLockRequest
+  ): Promise<ICardResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/lock`
+    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
+
+    return this.request<ICardResponse>(
+      'PUT',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+  }
+
+  async unlockCard(
+    cardId: string,
+    requestBody: ICardUnlockRequest
+  ): Promise<ICardResponse> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/unlock`
+
+    return this.request<ICardResponse>(
+      'PUT',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
   }
 
   async getCardTransactions(

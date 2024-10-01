@@ -95,6 +95,14 @@ export interface ICardProductResponse {
   cost: string
 }
 
+export interface ICardLockRequest {
+  note: string
+}
+
+export interface ICardUnlockRequest {
+  note: string
+}
+
 // Response for fetching card transactions
 export interface ITransaction {
   id: number
