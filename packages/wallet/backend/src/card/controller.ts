@@ -23,6 +23,7 @@ export interface ICardController {
   getCardDetails: Controller<ICardResponse>
   lock: Controller<ICardResponse>
   unlock: Controller<ICardResponse>
+  permanentlyBlockCard: Controller<ICardResponse>
 }
 
 export class CardController implements ICardController {

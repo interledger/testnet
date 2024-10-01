@@ -16,4 +16,4 @@ export type BlockReasonCode =
   | 'CardDamagedOrNotWorking'
   | 'UserRequest'
   | 'IssuerRequestCustomerDeceased'
-  | 'ProductDoesNotRenew';
+  | 'ProductDoesNotRenew'
