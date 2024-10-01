@@ -3,8 +3,11 @@ import { GateHubClient } from '../gatehub/client'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
-  ICardResponse
+  ICardLockRequest,
+  ICardResponse,
+  ICardUnlockRequest
 } from './types'
+import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 import { BlockReasonCode } from '@wallet/shared/src'
 
@@ -33,6 +36,21 @@ export class CardService {
     }
 
     return this.gateHubClient.getCardDetails(requestBody)
+  }
+
+  async lock(
+    cardId: string,
+    reasonCode: LockReasonCode,
+    requestBody: ICardLockRequest
+  ): Promise<ICardResponse> {
+    return this.gateHubClient.lockCard(cardId, reasonCode, requestBody)
+  }
+
+  async unlock(
+    cardId: string,
+    requestBody: ICardUnlockRequest
+  ): Promise<ICardResponse> {
+    return this.gateHubClient.unlockCard(cardId, requestBody)
   }
 
   async permanentlyBlockCard(
