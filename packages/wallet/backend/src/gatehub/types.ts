@@ -95,9 +95,9 @@ export interface IWalletBalance {
 interface IVault {
   uuid: string
   name: string
-  assetCode: string
-  createdAt: string
-  updatedAt: string
+  asset_code: string
+  created_at: string
+  updated_at: string
 }
 
 export interface IConnectUserToGatewayResponse {}
