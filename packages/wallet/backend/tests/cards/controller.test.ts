@@ -448,7 +448,7 @@ describe('CardController', () => {
         'test-card-id',
         'test-cypher'
       )
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(201)
       expect(res._getJSONData()).toEqual({
         success: true,
         message: 'SUCCESS',

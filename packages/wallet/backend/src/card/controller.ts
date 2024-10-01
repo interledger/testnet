@@ -128,7 +128,7 @@ export class CardController implements ICardController {
       const { cypher } = body
 
       const result = await this.cardService.changePin(userId, cardId, cypher)
-      res.status(200).json(toSuccessResponse(result))
+      res.status(201).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }
