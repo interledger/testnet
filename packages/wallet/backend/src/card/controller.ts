@@ -24,6 +24,7 @@ export interface ICardController {
   lock: Controller<ICardResponse>
   unlock: Controller<ICardResponse>
   getPin: Controller<ICardResponse>
+  changePin: Controller<void>
 }
 
 export class CardController implements ICardController {
