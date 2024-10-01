@@ -41,7 +41,7 @@ export const createOrOverrideCardLimitsSchema = z.object({
         .number()
         .positive()
         .transform((val) => val.toString()),
-      currency: z.string().length(4),
+      currency: z.string().length(3),
       isDisabled: z.boolean().optional().default(false)
     })
   )

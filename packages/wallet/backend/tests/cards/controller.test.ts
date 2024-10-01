@@ -6,7 +6,12 @@ import {
 } from 'node-mocks-http'
 import { CardController } from '@/card/controller'
 import { BadRequest } from '@shared/backend'
-import { ICardDetailsResponse, ICardResponse } from '@/card/types'
+import {
+  ICardDetailsResponse,
+  ICardLimitRequest,
+  ICardLimitResponse,
+  ICardResponse
+} from '@/card/types'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { createApp, TestApp } from '@/tests/app'
@@ -35,6 +40,8 @@ describe('CardController', () => {
   const mockCardService = {
     getCardsByCustomer: jest.fn(),
     getCardDetails: jest.fn(),
+    getCardLimits: jest.fn(),
+    createOrOverrideCardLimits: jest.fn(),
     lock: jest.fn(),
     unlock: jest.fn()
   }
@@ -200,6 +207,186 @@ describe('CardController', () => {
       req.body = {}
 
       await cardController.getCardDetails(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('getCardLimits', () => {
+    it('should get card limits successfully', async () => {
+      const next = jest.fn()
+      const mockedLimits: ICardLimitResponse[] = [
+        {
+          type: 'dailyOverall',
+          limit: 1000,
+          currency: 'USD',
+          isDisabled: false
+        },
+        {
+          type: 'perTransaction',
+          limit: 500,
+          currency: 'USD',
+          isDisabled: false
+        }
+      ]
+
+      mockCardService.getCardLimits.mockResolvedValue(mockedLimits)
+
+      req.params.cardId = 'test-card-id'
+
+      await cardController.getCardLimits(req, res, next)
+
+      expect(mockCardService.getCardLimits).toHaveBeenCalledWith(
+        userId,
+        'test-card-id'
+      )
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: mockedLimits
+      })
+    })
+
+    it('should return 400 if cardId is missing', async () => {
+      const next = jest.fn()
+
+      delete req.params.cardId
+
+      await cardController.getCardLimits(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('createOrOverrideCardLimits', () => {
+    it('should create or override card limits successfully', async () => {
+      const next = jest.fn()
+      const requestBody: ICardLimitRequest[] = [
+        {
+          type: 'dailyOverall',
+          limit: '2000',
+          currency: 'USD',
+          isDisabled: false
+        },
+        {
+          type: 'perTransaction',
+          limit: '1000',
+          currency: 'USD',
+          isDisabled: false
+        }
+      ]
+
+      const mockedLimits: ICardLimitResponse[] = [
+        {
+          type: 'dailyOverall',
+          limit: 2000,
+          currency: 'USD',
+          isDisabled: false
+        },
+        {
+          type: 'perTransaction',
+          limit: 1000,
+          currency: 'USD',
+          isDisabled: false
+        }
+      ]
+
+      mockCardService.createOrOverrideCardLimits.mockResolvedValue(mockedLimits)
+
+      req.params.cardId = 'test-card-id'
+      req.body = [
+        {
+          type: 'dailyOverall',
+          limit: 2000,
+          currency: 'USD',
+          isDisabled: false
+        },
+        {
+          type: 'perTransaction',
+          limit: 1000,
+          currency: 'USD',
+          isDisabled: false
+        }
+      ]
+
+      await cardController.createOrOverrideCardLimits(req, res, next)
+
+      expect(mockCardService.createOrOverrideCardLimits).toHaveBeenCalledWith(
+        userId,
+        'test-card-id',
+        requestBody
+      )
+      expect(res.statusCode).toBe(201)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: mockedLimits
+      })
+    })
+
+    it('should return 400 if cardId is missing', async () => {
+      const next = jest.fn()
+
+      delete req.params.cardId
+      req.body = [
+        {
+          type: 'dailyOverall',
+          limit: 2000,
+          currency: 'USD',
+          isDisabled: false
+        }
+      ]
+
+      await cardController.createOrOverrideCardLimits(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('should return 400 if request body is invalid', async () => {
+      const next = jest.fn()
+
+      req.params.cardId = 'test-card-id'
+      req.body = [
+        {
+          type: 'invalidType',
+          limit: -1000,
+          currency: 'US',
+          isDisabled: 'false'
+        }
+      ]
+
+      await cardController.createOrOverrideCardLimits(req, res, (err) => {
         next(err)
         res.status(err.statusCode).json({
           success: false,
