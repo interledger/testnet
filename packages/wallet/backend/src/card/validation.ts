@@ -10,7 +10,7 @@ export const getCardDetailsSchema = z.object({
   params: z.object({
     cardId: z.string()
   }),
-  body: z.object({
+  query: z.object({
     publicKeyBase64: z.string()
   })
 })
@@ -40,5 +40,14 @@ export const unlockCardSchema = z.object({
   }),
   body: z.object({
     note: z.string()
+  })
+})
+
+export const changePinSchema = z.object({
+  params: z.object({
+    cardId: z.string()
+  }),
+  body: z.object({
+    cypher: z.string()
   })
 })

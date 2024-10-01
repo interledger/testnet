@@ -315,6 +315,8 @@ export class App {
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.put('/cards/:cardId/lock', isAuth, cardController.lock)
     router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
+    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
+    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
