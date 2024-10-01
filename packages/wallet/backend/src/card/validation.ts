@@ -15,6 +15,34 @@ export const getCardDetailsSchema = z.object({
   })
 })
 
+export const lockCardSchema = z.object({
+  params: z.object({
+    cardId: z.string()
+  }),
+  query: z.object({
+    reasonCode: z.enum([
+      'ClientRequestedLock',
+      'LostCard',
+      'StolenCard',
+      'IssuerRequestGeneral',
+      'IssuerRequestFraud',
+      'IssuerRequestLegal'
+    ])
+  }),
+  body: z.object({
+    note: z.string()
+  })
+})
+
+export const unlockCardSchema = z.object({
+  params: z.object({
+    cardId: z.string()
+  }),
+  body: z.object({
+    note: z.string()
+  })
+})
+
 export const changePinSchema = z.object({
   params: z.object({
     cardId: z.string()

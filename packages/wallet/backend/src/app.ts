@@ -313,6 +313,8 @@ export class App {
       cardController.getCardsByCustomer
     )
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.put('/cards/:cardId/lock', isAuth, cardController.lock)
+    router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
     router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
     router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
 
