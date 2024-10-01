@@ -109,7 +109,6 @@ export interface ITransaction {
   transactionId: string
   ghResponseCode: string
   cardScheme: number
-  cardToken: string
   type: number
   createdAt: string
   txStatus: string
