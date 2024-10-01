@@ -5,14 +5,20 @@ import { toSuccessResponse } from '@shared/backend'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
-  ICardResponse
+  ICardResponse,
+  IGetTransactionsResponse
 } from './types'
 import { validate } from '@/shared/validate'
-import { getCardsByCustomerSchema, getCardDetailsSchema } from './validation'
+import {
+  getCardsByCustomerSchema,
+  getCardDetailsSchema,
+  getCardTransactionsSchema
+} from './validation'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
   getCardDetails: Controller<ICardResponse>
+  getCardTransactions: Controller<IGetTransactionsResponse>
 }
 
 export class CardController implements ICardController {
@@ -51,6 +57,30 @@ export class CardController implements ICardController {
         requestBody
       )
       res.status(200).json(toSuccessResponse(cardDetails))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getCardTransactions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, query } = await validate(getCardTransactionsSchema, req)
+      const { cardId } = params
+      const { pageSize, pageNumber } = query
+
+      const transactions = await this.cardService.getCardTransactions(
+        userId,
+        cardId,
+        pageSize,
+        pageNumber
+      )
+
+      res.status(200).json(toSuccessResponse(transactions))
     } catch (error) {
       next(error)
     }

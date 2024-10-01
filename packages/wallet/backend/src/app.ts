@@ -313,6 +313,11 @@ export class App {
       cardController.getCardsByCustomer
     )
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.get(
+      '/cards/:cardId/transactions',
+      isAuth,
+      cardController.getCardTransactions
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

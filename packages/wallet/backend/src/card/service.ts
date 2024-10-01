@@ -3,7 +3,8 @@ import { GateHubClient } from '../gatehub/client'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
-  ICardResponse
+  ICardResponse,
+  IGetTransactionsResponse
 } from './types'
 import { NotFound } from '@shared/backend'
 
@@ -22,7 +23,26 @@ export class CardService {
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
+    await this.ensureWalletAddressExists(userId, cardId)
 
+    return this.gateHubClient.getCardDetails(requestBody)
+  }
+
+  async getCardTransactions(
+    userId: string,
+    cardId: string,
+    pageSize?: number,
+    pageNumber?: number
+  ): Promise<IGetTransactionsResponse> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
+  }
+
+  private async ensureWalletAddressExists(
+    userId: string,
+    cardId: string
+  ): Promise<void> {
     const walletAddress = await this.walletAddressService.getByCardId(
       userId,
       cardId
@@ -30,7 +50,5 @@ export class CardService {
     if (!walletAddress) {
       throw new NotFound('Card not found or not associated with the user.')
     }
-
-    return this.gateHubClient.getCardDetails(requestBody)
   }
 }
