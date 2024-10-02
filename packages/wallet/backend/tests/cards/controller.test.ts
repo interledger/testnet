@@ -338,6 +338,7 @@ describe('CardController', () => {
       await cardController.lock(req, res, next)
 
       expect(mockCardService.lock).toHaveBeenCalledWith(
+        userId,
         'test-card-id',
         'LostCard',
         {
@@ -435,9 +436,13 @@ describe('CardController', () => {
 
       await cardController.unlock(req, res, next)
 
-      expect(mockCardService.unlock).toHaveBeenCalledWith('test-card-id', {
-        note: 'Found my card'
-      })
+      expect(mockCardService.unlock).toHaveBeenCalledWith(
+        userId,
+        'test-card-id',
+        {
+          note: 'Found my card'
+        }
+      )
 
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toEqual({
