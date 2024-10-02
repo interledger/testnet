@@ -511,6 +511,141 @@ describe('CardController', () => {
     })
   })
 
+  describe('getPin', () => {
+    it('should get pin successfully', async () => {
+      const next = jest.fn()
+
+      req.query = { publicKeyBase64: 'test-public-key' }
+
+      const mockedCardDetails: ICardDetailsResponse = {
+        cipher: 'encrypted-card-pin'
+      }
+
+      mockCardService.getPin.mockResolvedValue(mockedCardDetails)
+
+      await cardController.getPin(req, res, next)
+
+      expect(mockCardService.getPin).toHaveBeenCalledWith(userId, {
+        cardId: 'test-card-id',
+        publicKeyBase64: 'test-public-key'
+      })
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: mockedCardDetails
+      })
+    })
+
+    it('should return 400 if cardId is missing', async () => {
+      const next = jest.fn()
+
+      delete req.params.cardId
+
+      await cardController.getPin(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('should return 400 if publicKeyBase64 is missing', async () => {
+      const next = jest.fn()
+
+      req.params.cardId = 'test-card-id'
+      req.query = {}
+
+      await cardController.getPin(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('changePin', () => {
+    it('should change pin successfully', async () => {
+      const next = jest.fn()
+      req.params.cardId = 'test-card-id'
+      req.body = {
+        cypher: 'test-cypher'
+      }
+
+      mockCardService.changePin.mockResolvedValue({})
+
+      await cardController.changePin(req, res, next)
+
+      expect(mockCardService.changePin).toHaveBeenCalledWith(
+        userId,
+        'test-card-id',
+        'test-cypher'
+      )
+      expect(res.statusCode).toBe(201)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: {}
+      })
+    })
+
+    it('should return 400 if cardId is missing', async () => {
+      const next = jest.fn()
+
+      delete req.params.cardId
+
+      await cardController.changePin(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('should return 400 if cypher is missing', async () => {
+      const next = jest.fn()
+
+      req.params.cardId = 'test-card-id'
+      req.body = {}
+
+      await cardController.changePin(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
   describe('lock', () => {
     it('should lock card successfully', async () => {
       const next = jest.fn()
@@ -659,141 +794,6 @@ describe('CardController', () => {
         success: false,
         message: 'Invalid input'
       })
-    })
-  })
-
-  describe('getPin', () => {
-    it('should get pin successfully', async () => {
-      const next = jest.fn()
-
-      req.query = { publicKeyBase64: 'test-public-key' }
-
-      const mockedCardDetails: ICardDetailsResponse = {
-        cipher: 'encrypted-card-pin'
-      }
-
-      mockCardService.getPin.mockResolvedValue(mockedCardDetails)
-
-      await cardController.getPin(req, res, next)
-
-      expect(mockCardService.getPin).toHaveBeenCalledWith(userId, {
-        cardId: 'test-card-id',
-        publicKeyBase64: 'test-public-key'
-      })
-      expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toEqual({
-        success: true,
-        message: 'SUCCESS',
-        result: mockedCardDetails
-      })
-    })
-
-    it('should return 400 if cardId is missing', async () => {
-      const next = jest.fn()
-
-      delete req.params.cardId
-
-      await cardController.getPin(req, res, (err) => {
-        next(err)
-        res.status(err.statusCode).json({
-          success: false,
-          message: err.message
-        })
-      })
-
-      expect(next).toHaveBeenCalled()
-      const error = next.mock.calls[0][0]
-      expect(error).toBeInstanceOf(BadRequest)
-      expect(error.message).toBe('Invalid input')
-      expect(res.statusCode).toBe(400)
-    })
-
-    it('should return 400 if publicKeyBase64 is missing', async () => {
-      const next = jest.fn()
-
-      req.params.cardId = 'test-card-id'
-      req.query = {}
-
-      await cardController.getPin(req, res, (err) => {
-        next(err)
-        res.status(err.statusCode).json({
-          success: false,
-          message: err.message
-        })
-      })
-
-      expect(next).toHaveBeenCalled()
-      const error = next.mock.calls[0][0]
-      expect(error).toBeInstanceOf(BadRequest)
-      expect(error.message).toBe('Invalid input')
-      expect(res.statusCode).toBe(400)
-    })
-  })
-
-  describe('changePin', () => {
-    it('should change pin successfully', async () => {
-      const next = jest.fn()
-      req.params.cardId = 'test-card-id'
-      req.body = {
-        cypher: 'test-cypher'
-      }
-
-      mockCardService.changePin.mockResolvedValue({})
-
-      await cardController.changePin(req, res, next)
-
-      expect(mockCardService.changePin).toHaveBeenCalledWith(
-        userId,
-        'test-card-id',
-        'test-cypher'
-      )
-      expect(res.statusCode).toBe(201)
-      expect(res._getJSONData()).toEqual({
-        success: true,
-        message: 'SUCCESS',
-        result: {}
-      })
-    })
-
-    it('should return 400 if cardId is missing', async () => {
-      const next = jest.fn()
-
-      delete req.params.cardId
-
-      await cardController.changePin(req, res, (err) => {
-        next(err)
-        res.status(err.statusCode).json({
-          success: false,
-          message: err.message
-        })
-      })
-
-      expect(next).toHaveBeenCalled()
-      const error = next.mock.calls[0][0]
-      expect(error).toBeInstanceOf(BadRequest)
-      expect(error.message).toBe('Invalid input')
-      expect(res.statusCode).toBe(400)
-    })
-
-    it('should return 400 if cypher is missing', async () => {
-      const next = jest.fn()
-
-      req.params.cardId = 'test-card-id'
-      req.body = {}
-
-      await cardController.changePin(req, res, (err) => {
-        next(err)
-        res.status(err.statusCode).json({
-          success: false,
-          message: err.message
-        })
-      })
-
-      expect(next).toHaveBeenCalled()
-      const error = next.mock.calls[0][0]
-      expect(error).toBeInstanceOf(BadRequest)
-      expect(error.message).toBe('Invalid input')
-      expect(res.statusCode).toBe(400)
     })
   })
 

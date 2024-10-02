@@ -407,6 +407,30 @@ export class GateHubClient {
     return this.request<IGetTransactionsResponse>('GET', url)
   }
 
+  async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>('GET', url, undefined, {
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  async createOrOverrideCardLimits(
+    cardId: string,
+    requestBody: ICardLimitRequest[]
+  ): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>(
+      'POST',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+  }
+
   async getPin(
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
@@ -467,30 +491,6 @@ export class GateHubClient {
       JSON.stringify({ cypher: cypher }),
       {
         token
-      }
-    )
-  }
-
-  async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
-    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
-
-    return this.request<ICardLimitResponse[]>('GET', url, undefined, {
-      cardAppId: this.env.GATEHUB_CARD_APP_ID
-    })
-  }
-
-  async createOrOverrideCardLimits(
-    cardId: string,
-    requestBody: ICardLimitRequest[]
-  ): Promise<ICardLimitResponse[]> {
-    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
-
-    return this.request<ICardLimitResponse[]>(
-      'POST',
-      url,
-      JSON.stringify(requestBody),
-      {
-        cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
   }

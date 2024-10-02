@@ -34,6 +34,17 @@ export class CardService {
     return this.gateHubClient.getCardDetails(requestBody)
   }
 
+  async getCardTransactions(
+    userId: string,
+    cardId: string,
+    pageSize?: number,
+    pageNumber?: number
+  ): Promise<IGetTransactionsResponse> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
+  }
+
   async getCardLimits(
     userId: string,
     cardId: string
@@ -51,17 +62,6 @@ export class CardService {
     await this.ensureWalletAddressExists(userId, cardId)
 
     return this.gateHubClient.createOrOverrideCardLimits(cardId, requestBody)
-  }
-
-  async getCardTransactions(
-    userId: string,
-    cardId: string,
-    pageSize?: number,
-    pageNumber?: number
-  ): Promise<IGetTransactionsResponse> {
-    await this.ensureWalletAddressExists(userId, cardId)
-
-    return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
   }
 
   async getPin(
@@ -113,19 +113,6 @@ export class CardService {
     await this.ensureWalletAddressExists(userId, cardId)
 
     return this.gateHubClient.permanentlyBlockCard(cardId, reasonCode)
-  }
-
-  private async ensureWalletAddressExists(
-    userId: string,
-    cardId: string
-  ): Promise<void> {
-    const walletAddress = await this.walletAddressService.getByCardId(
-      userId,
-      cardId
-    )
-    if (!walletAddress) {
-      throw new NotFound('Card not found or not associated with the user.')
-    }
   }
 
   private async ensureWalletAddressExists(
