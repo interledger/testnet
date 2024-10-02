@@ -320,7 +320,19 @@ export class App {
       '/cards/:cardId/limits',
       isAuth,
       cardController.createOrOverrideCardLimits
+    )    router.get(
+      '/cards/:cardId/transactions',
+      isAuth,
+      cardController.getCardTransactions
     )
+    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
+    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
+    router.put(
+      '/cards/:cardId/block',
+      isAuth,
+      cardController.permanentlyBlockCard
+    )
+
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
       const e = Error(`Requested path ${req.path} was not found`)

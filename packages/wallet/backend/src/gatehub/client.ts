@@ -30,7 +30,11 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
-import { IFRAME_TYPE, LockReasonCode } from '@wallet/shared/src'
+import {
+  IFRAME_TYPE,
+  LockReasonCode,
+  IGetTransactionsResponse
+} from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
@@ -45,6 +49,7 @@ import {
   ICardLimitResponse,
   ICardLimitRequest
 } from '@/card/types'
+import { BlockReasonCode } from '@wallet/shared/src'
 
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
@@ -278,14 +283,18 @@ export class GateHubClient {
   }
 
   async createTransaction(
-    body: ICreateTransactionRequest
+    body: ICreateTransactionRequest,
+    managedUserUuid?: string
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
 
     const response = await this.request<ICreateTransactionResponse>(
       'POST',
       url,
-      JSON.stringify(body)
+      JSON.stringify(body),
+      {
+        managedUserUuid
+      }
     )
 
     return response
@@ -375,6 +384,93 @@ export class GateHubClient {
     return cardDetailsResponse
   }
 
+  async getCardTransactions(
+    cardId: string,
+    pageSize?: number,
+    pageNumber?: number
+  ): Promise<IGetTransactionsResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/transactions`
+
+    const queryParams: string[] = []
+
+    if (pageSize !== undefined)
+      queryParams.push(`pageSize=${encodeURIComponent(pageSize.toString())}`)
+    if (pageNumber !== undefined)
+      queryParams.push(
+        `pageNumber=${encodeURIComponent(pageNumber.toString())}`
+      )
+
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`
+    }
+
+    return this.request<IGetTransactionsResponse>('GET', url)
+  }
+
+  async getPin(
+    requestBody: ICardDetailsRequest
+  ): Promise<ICardDetailsResponse> {
+    const url = `${this.apiUrl}/token/pin`
+
+    const response = await this.request<ILinksResponse>(
+      'POST',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    const token = response.token
+    if (!token) {
+      throw new Error('Failed to obtain token for card pin retrieval')
+    }
+
+    // TODO change this to direct call to card managing entity
+    // Will get this from the GateHub proxy for now
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinResponse = await this.request<ICardDetailsResponse>(
+      'GET',
+      cardPinUrl,
+      undefined,
+      {
+        token
+      }
+    )
+
+    return cardPinResponse
+  }
+
+  async changePin(cardId: string, cypher: string): Promise<void> {
+    const url = `${this.apiUrl}/token/pin-change`
+
+    const response = await this.request<ILinksResponse>(
+      'POST',
+      url,
+      JSON.stringify({ cardId: cardId }),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    const token = response.token
+    if (!token) {
+      throw new Error('Failed to obtain token for card pin retrieval')
+    }
+
+    // TODO change this to direct call to card managing entity
+    // Will get this from the GateHub proxy for now
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    await this.request<void>(
+      'POST',
+      cardPinUrl,
+      JSON.stringify({ cypher: cypher }),
+      {
+        token
+      }
+    )
+  }
+
   async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
     const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
 
@@ -431,6 +527,17 @@ export class GateHubClient {
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+  }
+
+  async permanentlyBlockCard(
+    cardId: string,
+    reasonCode: BlockReasonCode
+  ): Promise<ICardResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/block`
+
+    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
+
+    return this.request<ICardResponse>('PUT', url)
   }
 
   private async request<T>(
