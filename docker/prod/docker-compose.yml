@@ -119,7 +119,7 @@ services:
     <<: *logging
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.19
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -128,6 +128,7 @@ services:
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT}
       AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL}
       COOKIE_KEY: ${RAFIKI_AUTH_COOKIE_KEY}
+      INTERACTION_COOKIE_SAME_SITE: ${RAFIKI_AUTH_INTERACTION_COOKIE_SAME_SITE}
       IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
       IDENTITY_SERVER_URL: ${RAFIKI_AUTH_IDENTITY_SERVER_DOMAIN}
       AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_DOMAIN}
@@ -145,7 +146,7 @@ services:
     <<: *logging
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.19
     container_name: rafiki-backend
     depends_on:
       - postgres
@@ -215,7 +216,7 @@ services:
     <<: *logging
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.19
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
