@@ -5,9 +5,9 @@ import {
   ICardDetailsResponse,
   ICardLockRequest,
   ICardResponse,
-  ICardUnlockRequest,
-  IGetTransactionsResponse
+  ICardUnlockRequest
 } from './types'
+import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 

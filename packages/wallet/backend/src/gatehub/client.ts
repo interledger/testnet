@@ -30,7 +30,11 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
-import { IFRAME_TYPE, LockReasonCode } from '@wallet/shared/src'
+import {
+  IFRAME_TYPE,
+  LockReasonCode,
+  IGetTransactionsResponse
+} from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
@@ -41,10 +45,8 @@ import {
   ICardProductResponse,
   ICardDetailsRequest,
   ICardLockRequest,
-  ICardUnlockRequest,
-  IGetTransactionsResponse
+  ICardUnlockRequest
 } from '@/card/types'
-
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'

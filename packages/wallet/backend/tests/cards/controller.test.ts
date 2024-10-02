@@ -6,11 +6,8 @@ import {
 } from 'node-mocks-http'
 import { CardController } from '@/card/controller'
 import { BadRequest } from '@shared/backend'
-import {
-  ICardDetailsResponse,
-  ICardResponse,
-  IGetTransactionsResponse
-} from '@/card/types'
+import { ICardDetailsResponse, ICardResponse } from '@/card/types'
+import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { createApp, TestApp } from '@/tests/app'

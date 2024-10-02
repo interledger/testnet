@@ -7,9 +7,9 @@ import {
   ICardDetailsResponse,
   ICardLockRequest,
   ICardResponse,
-  ICardUnlockRequest,
-  IGetTransactionsResponse
+  ICardUnlockRequest
 } from './types'
+import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { validate } from '@/shared/validate'
 import {
   getCardsByCustomerSchema,
@@ -23,11 +23,11 @@ import {
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
   getCardDetails: Controller<ICardResponse>
-  lock: Controller<ICardResponse>
-  unlock: Controller<ICardResponse>
   getCardTransactions: Controller<IGetTransactionsResponse>
   getPin: Controller<ICardResponse>
   changePin: Controller<void>
+  lock: Controller<ICardResponse>
+  unlock: Controller<ICardResponse>
 }
 
 export class CardController implements ICardController {
@@ -95,39 +95,6 @@ export class CardController implements ICardController {
     }
   }
 
-  public lock = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { params, query, body } = await validate(lockCardSchema, req)
-      const { cardId } = params
-      const { reasonCode } = query
-      const requestBody: ICardLockRequest = body
-
-      const result = await this.cardService.lock(
-        cardId,
-        reasonCode,
-        requestBody
-      )
-
-      res.status(200).json(toSuccessResponse(result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  public unlock = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { params, body } = await validate(unlockCardSchema, req)
-      const { cardId } = params
-      const requestBody: ICardUnlockRequest = body
-
-      const result = await this.cardService.unlock(cardId, requestBody)
-
-      res.status(200).json(toSuccessResponse(result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   public getPin = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.session.user.id
@@ -156,6 +123,39 @@ export class CardController implements ICardController {
 
       const result = await this.cardService.changePin(userId, cardId, cypher)
       res.status(201).json(toSuccessResponse(result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public lock = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { params, query, body } = await validate(lockCardSchema, req)
+      const { cardId } = params
+      const { reasonCode } = query
+      const requestBody: ICardLockRequest = body
+
+      const result = await this.cardService.lock(
+        cardId,
+        reasonCode,
+        requestBody
+      )
+
+      res.status(200).json(toSuccessResponse(result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public unlock = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { params, body } = await validate(unlockCardSchema, req)
+      const { cardId } = params
+      const requestBody: ICardUnlockRequest = body
+
+      const result = await this.cardService.unlock(cardId, requestBody)
+
+      res.status(200).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }
