@@ -7,6 +7,7 @@ import {
   ICardResponse,
   ICardUnlockRequest
 } from './types'
+import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 import { BlockReasonCode } from '@wallet/shared/src'
@@ -26,16 +27,40 @@ export class CardService {
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
-
-    const walletAddress = await this.walletAddressService.getByCardId(
-      userId,
-      cardId
-    )
-    if (!walletAddress) {
-      throw new NotFound('Card not found or not associated with the user.')
-    }
+    await this.ensureWalletAddressExists(userId, cardId)
 
     return this.gateHubClient.getCardDetails(requestBody)
+  }
+
+  async getCardTransactions(
+    userId: string,
+    cardId: string,
+    pageSize?: number,
+    pageNumber?: number
+  ): Promise<IGetTransactionsResponse> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
+  }
+
+  async getPin(
+    userId: string,
+    requestBody: ICardDetailsRequest
+  ): Promise<ICardDetailsResponse> {
+    const { cardId } = requestBody
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getPin(requestBody)
+  }
+
+  async changePin(
+    userId: string,
+    cardId: string,
+    cypher: string
+  ): Promise<void> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    await this.gateHubClient.changePin(cardId, cypher)
   }
 
   async lock(
@@ -58,6 +83,15 @@ export class CardService {
     cardId: string,
     reasonCode: BlockReasonCode
   ): Promise<ICardResponse> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.permanentlyBlockCard(cardId, reasonCode)
+  }
+
+  private async ensureWalletAddressExists(
+    userId: string,
+    cardId: string
+  ): Promise<void> {
     const walletAddress = await this.walletAddressService.getByCardId(
       userId,
       cardId
@@ -65,7 +99,5 @@ export class CardService {
     if (!walletAddress) {
       throw new NotFound('Card not found or not associated with the user.')
     }
-
-    return this.gateHubClient.permanentlyBlockCard(cardId, reasonCode)
   }
 }
