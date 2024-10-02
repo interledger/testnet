@@ -27,6 +27,7 @@ export class CardService {
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
     await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureWalletAddressExists(userId, cardId)
 
     return this.gateHubClient.getCardDetails(requestBody)
   }
@@ -40,6 +41,26 @@ export class CardService {
     await this.ensureWalletAddressExists(userId, cardId)
 
     return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
+  }
+
+  async getPin(
+    userId: string,
+    requestBody: ICardDetailsRequest
+  ): Promise<ICardDetailsResponse> {
+    const { cardId } = requestBody
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getPin(requestBody)
+  }
+
+  async changePin(
+    userId: string,
+    cardId: string,
+    cypher: string
+  ): Promise<void> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    await this.gateHubClient.changePin(cardId, cypher)
   }
 
   async lock(

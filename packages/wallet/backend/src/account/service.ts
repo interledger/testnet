@@ -109,10 +109,12 @@ export class AccountService implements IAccountService {
     const accounts = await query
 
     if (!includeWalletAddress) {
-      accounts.forEach(async (acc) => {
-        const balance = await this.getAccountBalance(acc)
-        acc.balance = transformBalance(balance, acc.assetScale)
-      })
+      await Promise.all(
+        accounts.map(async (acc) => {
+          const balance = await this.getAccountBalance(acc)
+          acc.balance = transformBalance(balance, acc.assetScale)
+        })
+      )
     }
 
     return accounts
@@ -164,7 +166,7 @@ export class AccountService implements IAccountService {
       account.gateHubWalletId
     )
     return Number(
-      balances.find((balance) => balance.vault.assetCode === account.assetCode)
+      balances.find((balance) => balance.vault.asset_code === account.assetCode)
         ?.total ?? 0
     )
   }

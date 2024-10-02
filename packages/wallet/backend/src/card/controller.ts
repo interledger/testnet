@@ -16,7 +16,8 @@ import {
   getCardDetailsSchema,
   lockCardSchema,
   unlockCardSchema,
-  getCardTransactionsSchema
+  getCardTransactionsSchema,
+  changePinSchema
 } from './validation'
 
 export interface ICardController {
@@ -25,6 +26,8 @@ export interface ICardController {
   lock: Controller<ICardResponse>
   unlock: Controller<ICardResponse>
   getCardTransactions: Controller<IGetTransactionsResponse>
+  getPin: Controller<ICardResponse>
+  changePin: Controller<void>
 }
 
 export class CardController implements ICardController {
@@ -53,9 +56,9 @@ export class CardController implements ICardController {
   ) => {
     try {
       const userId = req.session.user.id
-      const { params, body } = await validate(getCardDetailsSchema, req)
+      const { params, query } = await validate(getCardDetailsSchema, req)
       const { cardId } = params
-      const { publicKeyBase64 } = body
+      const { publicKeyBase64 } = query
 
       const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
       const cardDetails = await this.cardService.getCardDetails(
@@ -120,6 +123,39 @@ export class CardController implements ICardController {
       const result = await this.cardService.unlock(cardId, requestBody)
 
       res.status(200).json(toSuccessResponse(result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getPin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.session.user.id
+      const { params, query } = await validate(getCardDetailsSchema, req)
+      const { cardId } = params
+      const { publicKeyBase64 } = query
+
+      const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
+      const cardPin = await this.cardService.getPin(userId, requestBody)
+      res.status(200).json(toSuccessResponse(cardPin))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public changePin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, body } = await validate(changePinSchema, req)
+      const { cardId } = params
+      const { cypher } = body
+
+      const result = await this.cardService.changePin(userId, cardId, cypher)
+      res.status(201).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }

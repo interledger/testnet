@@ -320,6 +320,8 @@ export class App {
       isAuth,
       cardController.getCardTransactions
     )
+    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
+    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
