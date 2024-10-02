@@ -405,40 +405,6 @@ export class GateHubClient {
     return this.request<IGetTransactionsResponse>('GET', url)
   }
 
-  async lockCard(
-    cardId: string,
-    reasonCode: LockReasonCode,
-    requestBody: ICardLockRequest
-  ): Promise<ICardResponse> {
-    let url = `${this.apiUrl}/v1/cards/${cardId}/lock`
-    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
-
-    return this.request<ICardResponse>(
-      'PUT',
-      url,
-      JSON.stringify(requestBody),
-      {
-        cardAppId: this.env.GATEHUB_CARD_APP_ID
-      }
-    )
-  }
-
-  async unlockCard(
-    cardId: string,
-    requestBody: ICardUnlockRequest
-  ): Promise<ICardResponse> {
-    const url = `${this.apiUrl}/v1/cards/${cardId}/unlock`
-
-    return this.request<ICardResponse>(
-      'PUT',
-      url,
-      JSON.stringify(requestBody),
-      {
-        cardAppId: this.env.GATEHUB_CARD_APP_ID
-      }
-    )
-  }
-
   async getPin(
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
@@ -499,6 +465,40 @@ export class GateHubClient {
       JSON.stringify({ cypher: cypher }),
       {
         token
+      }
+    )
+  }
+
+  async lockCard(
+    cardId: string,
+    reasonCode: LockReasonCode,
+    requestBody: ICardLockRequest
+  ): Promise<ICardResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/lock`
+    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
+
+    return this.request<ICardResponse>(
+      'PUT',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+  }
+
+  async unlockCard(
+    cardId: string,
+    requestBody: ICardUnlockRequest
+  ): Promise<ICardResponse> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/unlock`
+
+    return this.request<ICardResponse>(
+      'PUT',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
   }
