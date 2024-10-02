@@ -345,6 +345,5 @@ export const mockGateHubClient = {
     address: faker.string.uuid()
   }),
   connectUserToGateway: () => {},
-  getWalletBalance: () => [],
-  getIframeUrl: () => 'URL'
+  getWalletBalance: () => []
 }
