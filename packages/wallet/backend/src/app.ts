@@ -322,6 +322,11 @@ export class App {
     )
     router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
     router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
+    router.put(
+      '/cards/:cardId/block',
+      isAuth,
+      cardController.permanentlyBlockCard
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

@@ -6,6 +6,18 @@ export type LockReasonCode =
   | 'IssuerRequestFraud'
   | 'IssuerRequestLegal'
 
+export type BlockReasonCode =
+  | 'LostCard'
+  | 'StolenCard'
+  | 'IssuerRequestGeneral'
+  | 'IssuerRequestFraud'
+  | 'IssuerRequestLegal'
+  | 'IssuerRequestIncorrectOpening'
+  | 'CardDamagedOrNotWorking'
+  | 'UserRequest'
+  | 'IssuerRequestCustomerDeceased'
+  | 'ProductDoesNotRenew'
+
 // Response for fetching card transactions
 export interface ITransaction {
   id: number

@@ -40,7 +40,8 @@ describe('CardController', () => {
     lock: jest.fn(),
     unlock: jest.fn(),
     getPin: jest.fn(),
-    changePin: jest.fn()
+    changePin: jest.fn(),
+    permanentlyBlockCard: jest.fn()
   }
 
   const args = mockLogInRequest().body
@@ -337,6 +338,7 @@ describe('CardController', () => {
       await cardController.lock(req, res, next)
 
       expect(mockCardService.lock).toHaveBeenCalledWith(
+        userId,
         'test-card-id',
         'LostCard',
         {
@@ -434,9 +436,13 @@ describe('CardController', () => {
 
       await cardController.unlock(req, res, next)
 
-      expect(mockCardService.unlock).toHaveBeenCalledWith('test-card-id', {
-        note: 'Found my card'
-      })
+      expect(mockCardService.unlock).toHaveBeenCalledWith(
+        userId,
+        'test-card-id',
+        {
+          note: 'Found my card'
+        }
+      )
 
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toEqual({
@@ -601,6 +607,55 @@ describe('CardController', () => {
       expect(error).toBeInstanceOf(BadRequest)
       expect(error.message).toBe('Invalid input')
       expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('permanentlyBlockCard', () => {
+    it('should get block card successfully', async () => {
+      const next = jest.fn()
+
+      mockCardService.permanentlyBlockCard.mockResolvedValue({})
+
+      req.params = { cardId: 'test-card-id' }
+      req.query = { reasonCode: 'StolenCard' }
+
+      await cardController.permanentlyBlockCard(req, res, next)
+
+      expect(mockCardService.permanentlyBlockCard).toHaveBeenCalledWith(
+        userId,
+        'test-card-id',
+        'StolenCard'
+      )
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: {}
+      })
+    })
+    it('should return 400 if reasonCode is invalid', async () => {
+      const next = jest.fn()
+
+      req.params = { cardId: 'test-card-id' }
+      req.query = { reasonCode: 'InvalidCode' }
+
+      await cardController.permanentlyBlockCard(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+      expect(res._getJSONData()).toEqual({
+        success: false,
+        message: 'Invalid input'
+      })
     })
   })
 })
