@@ -7,6 +7,7 @@ import {
 import { CardController } from '@/card/controller'
 import { BadRequest } from '@shared/backend'
 import { ICardDetailsResponse, ICardResponse } from '@/card/types'
+import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
 import { createApp, TestApp } from '@/tests/app'
@@ -35,6 +36,7 @@ describe('CardController', () => {
   const mockCardService = {
     getCardsByCustomer: jest.fn(),
     getCardDetails: jest.fn(),
+    getCardTransactions: jest.fn(),
     lock: jest.fn(),
     unlock: jest.fn(),
     getPin: jest.fn(),
@@ -214,6 +216,110 @@ describe('CardController', () => {
       expect(error).toBeInstanceOf(BadRequest)
       expect(error.message).toBe('Invalid input')
       expect(res.statusCode).toBe(400)
+    })
+  })
+
+  describe('getCardTransactions', () => {
+    it('should get card transactions successfully', async () => {
+      const next = jest.fn()
+
+      const mockedTransactions: IGetTransactionsResponse = {
+        data: [
+          {
+            id: 1,
+            transactionId: '78b34171-0a7c-4185-9fd5-7c5f366ed50b',
+            ghResponseCode: 'TRXNS',
+            cardScheme: 3,
+            type: 1,
+            createdAt: '2024-02-01T00:00:00.000Z',
+            txStatus: 'PROCESSING',
+            vaultId: 1,
+            cardId: 1,
+            refTransactionId: '',
+            responseCode: null,
+            transactionAmount: '1.1',
+            transactionCurrency: 'EUR',
+            billingAmount: '1.1',
+            billingCurrency: 'EUR',
+            terminalId: null,
+            wallet: 123,
+            transactionDateTime: '2024-02-01T00:00:00.000Z',
+            processDateTime: null
+          },
+          {
+            id: 2,
+            transactionId: '545b34171-0a7c-4185-9fd5-7c5f366e4566',
+            ghResponseCode: 'TRXNS',
+            cardScheme: 3,
+            type: 1,
+            createdAt: '2024-02-01T00:00:00.000Z',
+            txStatus: 'PROCESSING',
+            vaultId: 1,
+            cardId: 1,
+            refTransactionId: '',
+            responseCode: null,
+            transactionAmount: '1.1',
+            transactionCurrency: 'EUR',
+            billingAmount: '1.1',
+            billingCurrency: 'EUR',
+            terminalId: null,
+            wallet: 123,
+            transactionDateTime: '2024-02-01T00:00:00.000Z',
+            processDateTime: null
+          }
+        ],
+        pagination: {
+          pageNumber: 1,
+          pageSize: 10,
+          totalRecords: 2,
+          totalPages: 1
+        }
+      }
+
+      mockCardService.getCardTransactions.mockResolvedValue(mockedTransactions)
+
+      req.params = { cardId: 'test-card-id' }
+      req.query = { pageSize: '10', pageNumber: '1' }
+
+      await cardController.getCardTransactions(req, res, next)
+
+      expect(mockCardService.getCardTransactions).toHaveBeenCalledWith(
+        userId,
+        'test-card-id',
+        10,
+        1
+      )
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: mockedTransactions
+      })
+    })
+    it('should return 400 if page size is invalid', async () => {
+      const next = jest.fn()
+
+      req.params = { cardId: 'test-card-id' }
+      // Invalid pageSize
+      req.query = { pageSize: '-1', pageNumber: '1' }
+
+      await cardController.getCardTransactions(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+      expect(res._getJSONData()).toEqual({
+        success: false,
+        message: 'Invalid input'
+      })
     })
   })
 

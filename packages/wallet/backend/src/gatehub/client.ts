@@ -30,7 +30,11 @@ import {
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
-import { IFRAME_TYPE, LockReasonCode } from '@wallet/shared/src'
+import {
+  IFRAME_TYPE,
+  LockReasonCode,
+  IGetTransactionsResponse
+} from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
@@ -43,7 +47,6 @@ import {
   ICardLockRequest,
   ICardUnlockRequest
 } from '@/card/types'
-
 export class GateHubClient {
   private clientIds = SANDBOX_CLIENT_IDS
   private mainUrl = 'sandbox.gatehub.net'
@@ -375,6 +378,29 @@ export class GateHubClient {
     )
 
     return cardDetailsResponse
+  }
+
+  async getCardTransactions(
+    cardId: string,
+    pageSize?: number,
+    pageNumber?: number
+  ): Promise<IGetTransactionsResponse> {
+    let url = `${this.apiUrl}/v1/cards/${cardId}/transactions`
+
+    const queryParams: string[] = []
+
+    if (pageSize !== undefined)
+      queryParams.push(`pageSize=${encodeURIComponent(pageSize.toString())}`)
+    if (pageNumber !== undefined)
+      queryParams.push(
+        `pageNumber=${encodeURIComponent(pageNumber.toString())}`
+      )
+
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`
+    }
+
+    return this.request<IGetTransactionsResponse>('GET', url)
   }
 
   async lockCard(

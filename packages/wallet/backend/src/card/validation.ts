@@ -43,6 +43,16 @@ export const unlockCardSchema = z.object({
   })
 })
 
+export const getCardTransactionsSchema = z.object({
+  params: z.object({
+    cardId: z.string()
+  }),
+  query: z.object({
+    pageSize: z.coerce.number().int().positive().optional(),
+    pageNumber: z.coerce.number().int().nonnegative().optional()
+  })
+})
+
 export const changePinSchema = z.object({
   params: z.object({
     cardId: z.string()
