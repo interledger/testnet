@@ -132,12 +132,14 @@ export class CardController implements ICardController {
 
   public lock = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const userId = req.session.user.id
       const { params, query, body } = await validate(lockCardSchema, req)
       const { cardId } = params
       const { reasonCode } = query
       const requestBody: ICardLockRequest = body
 
       const result = await this.cardService.lock(
+        userId,
         cardId,
         reasonCode,
         requestBody
@@ -151,11 +153,12 @@ export class CardController implements ICardController {
 
   public unlock = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const userId = req.session.user.id
       const { params, body } = await validate(unlockCardSchema, req)
       const { cardId } = params
       const requestBody: ICardUnlockRequest = body
 
-      const result = await this.cardService.unlock(cardId, requestBody)
+      const result = await this.cardService.unlock(userId, cardId, requestBody)
 
       res.status(200).json(toSuccessResponse(result))
     } catch (error) {

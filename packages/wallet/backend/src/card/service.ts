@@ -64,17 +64,23 @@ export class CardService {
   }
 
   async lock(
+    userId: string,
     cardId: string,
     reasonCode: LockReasonCode,
     requestBody: ICardLockRequest
   ): Promise<ICardResponse> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
     return this.gateHubClient.lockCard(cardId, reasonCode, requestBody)
   }
 
   async unlock(
+    userId: string,
     cardId: string,
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
     return this.gateHubClient.unlockCard(cardId, requestBody)
   }
 
