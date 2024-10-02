@@ -7,18 +7,11 @@ import type { AuthService } from '@/auth/service'
 import { mockGateHubClient } from '../mocks'
 import { faker } from '@faker-js/faker'
 import { AwilixContainer } from 'awilix'
-// import { faker } from '@faker-js/faker'
-// import { uuid } from '@/tests/utils'
 import { GateHubService } from '@/gatehub/service'
 import { loginUser } from '../utils'
 import { User } from '@/user/model'
 import { IWebhookDate } from '@/gatehub/types'
 
-// const mockGateHubClient = {
-//   getIframeUrl: jest.fn(),
-//   handleWebhook: jest.fn(),
-//   addUserToGateway: jest.fn()
-// }
 
 describe('GateHub Service', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -46,9 +39,7 @@ describe('GateHub Service', (): void => {
     await knex.destroy()
   })
   beforeEach(async (): Promise<void> => {
-    // Reflect.set(gateHubController, 'gateHubService', mockGateHubService)
     Reflect.set(gateHubService, 'gateHubClient', mockGateHubClient)
-    //Reflect.set(gateHubService, 'gateHubClient', mockGateHub.gateHubClient)
 
     const extraUserArgs = {
       isEmailVerified: true,
@@ -61,24 +52,7 @@ describe('GateHub Service', (): void => {
     })
 
     user = resp.user
-    //await createReqRes()
   })
-  // const createReqRes = async () => {
-  //   res = createResponse()
-  //   req = createRequest()
-
-  //   await applyMiddleware(withSession, req, res)
-  //   const { user, session } = await authService.authorize(args)
-  //   req.session.id = session.id
-  //   req.session.user = {
-  //     id: user.id,
-  //     email: user.email,
-  //     needsWallet: !user.gateHubUserId,
-  //     needsIDProof: !user.kycVerified
-  //   }
-
-  //   await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })
-  // }
 
   describe('Get Iframe Url', () => {
     it('should return Iframe Url ', async () => {

@@ -18,7 +18,6 @@ import { GateHubController } from '@/gatehub/controller'
 import { truncateTables } from '@shared/backend/tests'
 import { AwilixContainer } from 'awilix'
 import { Knex } from 'knex'
-//import { NotFound } from '@shared/backend/'
 
 describe('GateHub Controller', () => {
   let bindings: AwilixContainer<Cradle>
@@ -28,7 +27,6 @@ describe('GateHub Controller', () => {
   let res: MockResponse<Response>
   let authService: AuthService
   let gateHubController: GateHubController
-  //let userId: string
 
   const mockGateHubService = {
     getIframeUrl: jest.fn(),
