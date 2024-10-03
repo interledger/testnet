@@ -1,12 +1,7 @@
 import { Knex } from 'knex'
 import { createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import {
-  ICreateCustomerRequest,
-  ICreateCustomerResponse,
-  ICitizen
-} from '@/card/types'
-import { GateHubService } from './gatehub/service'
+import { ICreateCustomerRequest, ICreateCustomerResponse } from '@/card/types'
 import { GateHubClient } from './gatehub/client'
 
 interface UserData {
