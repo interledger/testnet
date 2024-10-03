@@ -162,9 +162,19 @@ export class AccountService implements IAccountService {
   }
 
   async getAccountBalance(account: Account): Promise<number> {
+    const user = await User.query()
+      .findById(account.userId)
+      .select('gateHubUserId')
+
+    if (!user || !user.gateHubUserId) {
+      throw new NotFound()
+    }
+
     const balances = await this.gateHubClient.getWalletBalance(
-      account.gateHubWalletId
+      account.gateHubWalletId,
+      user.gateHubUserId
     )
+
     return Number(
       balances.find((balance) => balance.vault.asset_code === account.assetCode)
         ?.total ?? 0
