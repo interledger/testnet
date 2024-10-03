@@ -1,5 +1,6 @@
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
+import { envRateLimit } from '@/config/rateLimit'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@shared/backend/tests'
@@ -39,6 +40,7 @@ describe('Authentication Controller', (): void => {
   let req: MockRequest<Request>
   let res: MockResponse<Response>
 
+  const rateLimit = envRateLimit()
   const next = jest.fn()
 
   beforeAll(async (): Promise<void> => {
@@ -217,6 +219,9 @@ describe('Authentication Controller', (): void => {
       })
     })
     it('should return status 429 (rate limit) if the user login rate limit is reached', async (): Promise<void> => {
+      if (!rateLimit.RATE_LIMIT) {
+        return
+      }
       const fakeLogin = fakeLoginData()
       const newUserData = {
         ...fakeLogin,
@@ -226,7 +231,7 @@ describe('Authentication Controller', (): void => {
       req.body = { ...fakeLogin, password: 'invalid' }
 
       let failedLoginResp: MockResponse<Response>
-      for (let i = 0; i < env.LOGIN_RATE_LIMIT; i++) {
+      for (let i = 0; i < rateLimit.LOGIN_RATE_LIMIT; i++) {
         failedLoginResp = createResponse()
         await applyMiddleware(rateLimiterLogin, req, failedLoginResp)
         await authController.logIn(req, failedLoginResp, (err) => {
@@ -243,7 +248,7 @@ describe('Authentication Controller', (): void => {
       } catch (err) {
         expect((err as BaseError).statusCode).toBe(429)
         expect((err as BaseError).message).toMatch(
-          `Too many attempts. Retry after ${env.LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
+          `Too many attempts. Retry after ${rateLimit.LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
         )
       }
     })
@@ -379,6 +384,9 @@ describe('Authentication Controller', (): void => {
     })
 
     it('should return 429 (rate limit) if the endpoint to resend verify email is called twice ', async () => {
+      if (!rateLimit.RATE_LIMIT) {
+        return
+      }
       const fakeLogin = fakeLoginData()
       const newUserData = {
         ...fakeLogin,
@@ -404,7 +412,7 @@ describe('Authentication Controller', (): void => {
       } catch (err) {
         expect((err as BaseError).statusCode).toBe(429)
         expect((err as BaseError).message).toMatch(
-          `Too many attempts. Retry after ${env.SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
+          `Too many attempts. Retry after ${rateLimit.SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
         )
       }
     })
