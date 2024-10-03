@@ -294,6 +294,15 @@ export class App {
       quoteController.createExchangeQuote
     )
 
+    // Fund account is possible only in sandbox
+    if (env.GATEHUB_ENV === 'sandbox') {
+      router.post(
+        '/accounts/:accountId/fund',
+        isAuth,
+        accountController.fundAccount
+      )
+    }
+
     router.get('/rates', rafikiController.getRates)
     router.post('/webhooks', rafikiController.onWebHook)
 

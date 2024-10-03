@@ -6,6 +6,8 @@ import { Amount } from '@/rafiki/service'
 import { Conflict, NotFound } from '@shared/backend'
 import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
 import { GateHubClient } from '@/gatehub/client'
+import { v4 as uuid } from 'uuid'
+import { MANUAL_NETWORK, TransactionTypeEnum } from '@/gatehub/consts'
 
 type CreateAccountArgs = {
   userId: string
@@ -23,6 +25,11 @@ interface IAccountService {
   ) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
   getAccountBalance: (account: Account) => Promise<number>
+  fundAccount: (
+    userId: string,
+    accountId: string,
+    amount: number
+  ) => Promise<void>
 }
 
 export class AccountService implements IAccountService {
@@ -145,13 +152,7 @@ export class AccountService implements IAccountService {
     userId: string,
     accountId: string
   ): Promise<Account> {
-    const account = await Account.query()
-      .findById(accountId)
-      .where('userId', userId)
-
-    if (!account) {
-      throw new NotFound()
-    }
+    const account = await this.findAccountById(accountId, userId)
 
     account.balance = transformBalance(
       await this.getAccountBalance(account),
@@ -213,5 +214,18 @@ export class AccountService implements IAccountService {
     })
 
     return account
+  }
+
+  async fundAccount(userId: string, accountId: string, amount: number) {
+    const account = await this.findAccountById(accountId, userId)
+
+    await this.gateHubClient.createTransaction({
+      amount,
+      network: MANUAL_NETWORK,
+      uid: uuid(),
+      receiving_address: account.gateHubWalletId,
+      vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
+      type: TransactionTypeEnum.DEPOSIT
+    })
   }
 }
