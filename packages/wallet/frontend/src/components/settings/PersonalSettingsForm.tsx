@@ -15,6 +15,7 @@ type PersonalSettingsFormProps = {
   user: UserResponse
 }
 
+// TODO: Can these details be updated by the user when switching to GateHub?
 export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
   const [isReadOnly, setIsReadOnly] = useState(true)
   const { isChangePassword, setIsChangePassword } = usePasswordContext()

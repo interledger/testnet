@@ -20,6 +20,7 @@ const envSchema = z.object({
   GATEHUB_SETTLEMENT_WALLET_ADDRESS: z
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),
+  GATEHUB_CARD_APP_ID: z.string().default('GATEHUB_CARD_APP_ID'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   AUTH_GRAPHQL_ENDPOINT: z
     .string()

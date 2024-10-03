@@ -28,7 +28,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <Menu />
       {(isUserFirstTime || isDevKeysOnboarding) && <Onboarding />}
 
-      <main className="mt-[84px] min-w-0 px-8 py-7 md:mt-0 md:px-16 md:py-12 md:[grid-column:2/3]">
+      <main className="mt-[84px] min-w-0 px-8 py-7 md:mt-0 md:px-16 md:py-12 md:[grid-column:2/3] h-full">
         {children}
         <Toaster />
         <Bubbles className="pointer-events-none fixed inset-y-0 right-0 hidden h-full lg:block" />

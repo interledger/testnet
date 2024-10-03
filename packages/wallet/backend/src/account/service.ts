@@ -22,7 +22,7 @@ interface IAccountService {
     includeWalletKeys?: boolean
   ) => Promise<Account[]>
   getAccountById: (userId: string, accountId: string) => Promise<Account>
-  getAccountBalance: (userId: string, account: Account) => Promise<number>
+  getAccountBalance: (account: Account) => Promise<number>
 }
 
 export class AccountService implements IAccountService {
@@ -109,10 +109,12 @@ export class AccountService implements IAccountService {
     const accounts = await query
 
     if (!includeWalletAddress) {
-      accounts.forEach(async (acc) => {
-        const balance = await this.getAccountBalance(userId, acc)
-        acc.balance = transformBalance(balance, acc.assetScale)
-      })
+      await Promise.all(
+        accounts.map(async (acc) => {
+          const balance = await this.getAccountBalance(acc)
+          acc.balance = transformBalance(balance, acc.assetScale)
+        })
+      )
     }
 
     return accounts
@@ -132,7 +134,7 @@ export class AccountService implements IAccountService {
     }
 
     account.balance = transformBalance(
-      await this.getAccountBalance(userId, account),
+      await this.getAccountBalance(account),
       account.assetScale
     )
 
@@ -152,26 +154,19 @@ export class AccountService implements IAccountService {
     }
 
     account.balance = transformBalance(
-      await this.getAccountBalance(userId, account),
+      await this.getAccountBalance(account),
       account.assetScale
     )
 
     return account
   }
 
-  async getAccountBalance(userId: string, account: Account): Promise<number> {
-    const user = await User.query().findById(userId)
-
-    if (!user || !user.gateHubUserId) {
-      throw new NotFound()
-    }
-
+  async getAccountBalance(account: Account): Promise<number> {
     const balances = await this.gateHubClient.getWalletBalance(
-      account.gateHubWalletId,
-      userId
+      account.gateHubWalletId
     )
     return Number(
-      balances.find((balance) => balance.vault.assetCode === account.assetCode)
+      balances.find((balance) => balance.vault.asset_code === account.assetCode)
         ?.total ?? 0
     )
   }
