@@ -15,6 +15,38 @@ export const getCardDetailsSchema = z.object({
   })
 })
 
+export const getCardLimitsSchema = z.object({
+  params: z.object({
+    cardId: z.string()
+  })
+})
+
+export const createOrOverrideCardLimitsSchema = z.object({
+  params: z.object({
+    cardId: z.string()
+  }),
+  body: z.array(
+    z.object({
+      type: z.enum([
+        'perTransaction',
+        'dailyOverall',
+        'weeklyOverall',
+        'monthlyOverall',
+        'dailyAtm',
+        'dailyEcomm',
+        'monthlyOpenScheme',
+        'nonEUPayments'
+      ]),
+      limit: z
+        .number()
+        .positive()
+        .transform((val) => val.toString()),
+      currency: z.string().length(3),
+      isDisabled: z.boolean().optional().default(false)
+    })
+  )
+})
+
 export const lockCardSchema = z.object({
   params: z.object({
     cardId: z.string()
