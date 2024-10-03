@@ -332,7 +332,7 @@ export class GateHubClient {
   async createCustomer(
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
-    const url = `${this.apiUrl}/v1/customers`
+    const url = `${this.apiUrl}/v1/customers/managed`
     return this.request<ICreateCustomerResponse>(
       'POST',
       url,
