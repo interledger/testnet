@@ -42,7 +42,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "only-allow": "^1.2.1",
     "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.6",
+    "prettier-plugin-tailwindcss": "^0.6.8",
     "typescript": "^5.6.2"
   },
   "engines": {

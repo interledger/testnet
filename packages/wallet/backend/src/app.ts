@@ -313,6 +313,20 @@ export class App {
       cardController.getCardsByCustomer
     )
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.put('/cards/:cardId/lock', isAuth, cardController.lock)
+    router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
+    router.get(
+      '/cards/:cardId/transactions',
+      isAuth,
+      cardController.getCardTransactions
+    )
+    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
+    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
+    router.put(
+      '/cards/:cardId/block',
+      isAuth,
+      cardController.permanentlyBlockCard
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
