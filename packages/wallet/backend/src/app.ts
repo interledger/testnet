@@ -43,6 +43,7 @@ import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
+import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 
 export interface Bindings {
   env: Env
@@ -299,7 +300,11 @@ export class App {
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
-    router.post('/gatehub-webhooks', gateHubController.webhook)
+    router.post(
+      '/gatehub-webhooks',
+      isGateHubSignedWebhook,
+      gateHubController.webhook
+    )
     router.post(
       '/gatehub/add-user-to-gateway',
       isAuth,
