@@ -308,6 +308,8 @@ export class App {
 
     // Cards
     router.get(
+      // TODO: There is now way to send the customerId from frontend. This should
+      // be tied to the session or retrieved from the database.
       '/customers/:customerId/cards',
       isAuth,
       cardController.getCardsByCustomer
