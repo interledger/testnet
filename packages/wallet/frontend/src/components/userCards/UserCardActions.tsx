@@ -3,6 +3,26 @@ import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { useCardContext } from './UserCardContext'
 import { cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
+import { useKeysContext } from '@/lib/context/keys'
+
+async function generateRsaKeyPair() {
+  const keyPair = await window.crypto.subtle.generateKey(
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      modulusLength: 4096,
+      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+      hash: { name: 'SHA-256' }
+    },
+    true,
+    ['sign', 'verify']
+  )
+
+  const exported = await crypto.subtle.exportKey('spki', keyPair.publicKey)
+  const buf = new Uint8Array(exported)
+  const b64Key = String.fromCharCode.apply(null, Array.from<number>(buf))
+
+  return { privateKey: keyPair.privateKey, publicKey: b64Key }
+}
 
 export const FrozenCardActions = () => {
   const router = useRouter()
@@ -72,6 +92,7 @@ export const FrozenCardActions = () => {
 const DefaultCardActions = () => {
   const router = useRouter()
   const { showDetails, setShowDetails } = useCardContext()
+  const { keys, setKeys } = useKeysContext()
 
   return (
     <>
@@ -108,7 +129,17 @@ const DefaultCardActions = () => {
           intent="secondary"
           aria-label={showDetails ? 'hide details' : 'show details'}
           className="group"
-          onClick={() => setShowDetails((prev) => !prev)}
+          onClick={async () => {
+            let k = keys
+            if (!k) {
+              k = await generateRsaKeyPair()
+              setKeys(k)
+            }
+            // TODO: Call endpoint to retrieve encrypted card data
+            // If everything succeds, we need to pass the decrypted cypher to the
+            // card back component.
+            setShowDetails((prev) => !prev)
+          }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             {showDetails ? (
