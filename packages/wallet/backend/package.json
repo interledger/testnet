@@ -19,7 +19,7 @@
     "date-fns": "^4.1.0",
     "disposable-email-domains": "^1.0.62",
     "express": "^4.21.0",
-    "express-rate-limit": "^7.4.0",
+    "express-rate-limit": "^7.4.1",
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
     "hash-wasm": "^4.11.0",
