@@ -39,6 +39,8 @@ export class RafikiController implements IRafikiController {
 
   onWebHook = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log(req.header)
+      console.log(req.headers)
       const wh = await validate(webhookSchema, req)
 
       await this.rafikiService.onWebHook(wh.body)

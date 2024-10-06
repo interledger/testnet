@@ -318,6 +318,9 @@ importers:
       iron-session:
         specifier: ^8.0.3
         version: 8.0.3
+      json-canonicalize:
+        specifier: ^1.0.6
+        version: 1.0.6
       knex:
         specifier: ^3.1.0
         version: 3.1.0(pg@8.13.0)
@@ -4413,6 +4416,9 @@ packages:
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
+
+  json-canonicalize@1.0.6:
+    resolution: {integrity: sha512-kP2iYpOS5SZHYhIaR1t9oG80d4uTY3jPoaBj+nimy3njtJk8+sRsVatN8pyJRDRtk9Su3+6XqA2U8k0dByJBUQ==}
 
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -11227,6 +11233,8 @@ snapshots:
       bignumber.js: 9.1.2
 
   json-buffer@3.0.1: {}
+
+  json-canonicalize@1.0.6: {}
 
   json-parse-even-better-errors@2.3.1: {}
 
