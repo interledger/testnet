@@ -6,14 +6,25 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useRouter } from 'next/router'
-import { getCurrencySymbol, getObjectKeys } from '@/utils/helpers'
-import { depositSchema } from '@wallet/shared/src'
+import { getCurrencySymbol } from '@/utils/helpers'
 import { accountService } from '@/lib/api/account'
+import { z } from 'zod'
+import { useToast } from '@/lib/hooks/useToast'
+import { MoneyBird } from '../icons/MoneyBird'
 
 type DepositDialogProps = Pick<DialogProps, 'onClose'> & {
   accountId: string
   assetCode: string
 }
+export const depositSchema = z.object({
+  accountId: z.string(),
+  amount: z.coerce
+    .number({
+      invalid_type_error: 'Amount is not valid',
+      required_error: 'Amount is required'
+    })
+    .positive()
+})
 
 export const DepositDialog = ({
   onClose,
@@ -24,6 +35,7 @@ export const DepositDialog = ({
   const depositForm = useZodForm({
     schema: depositSchema
   })
+  const { toast } = useToast()
 
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
@@ -66,19 +78,29 @@ export const DepositDialog = ({
                     if (response.success) {
                       router.replace(router.asPath)
                       onClose()
+                      toast({
+                        description: (
+                          <p>
+                            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+                            Deposit success
+                          </p>
+                        ),
+                        variant: 'success'
+                      })
                     } else {
-                      const { errors, message } = response
+                      const { message } = response
                       depositForm.setError('root', {
                         message
                       })
-
-                      if (errors) {
-                        getObjectKeys(errors).map((field) =>
-                          depositForm.setError(field, {
-                            message: errors[field]
-                          })
-                        )
-                      }
+                      toast({
+                        description: (
+                          <p>
+                            <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
+                            Error while depositing account
+                          </p>
+                        ),
+                        variant: 'error'
+                      })
                     }
                   }}
                 >

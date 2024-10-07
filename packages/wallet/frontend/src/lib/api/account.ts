@@ -6,7 +6,8 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import { createAccountSchema } from '@wallet/shared'
-import { depositSchema, WalletAddressResponse } from '@wallet/shared/src'
+import { WalletAddressResponse } from '@wallet/shared/src'
+import { depositSchema } from '@/components/dialogs/DepositDialog'
 
 export type Account = {
   id: string

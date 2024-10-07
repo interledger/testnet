@@ -27,8 +27,3 @@ export const exchangeAssetSchema = z.object({
     label: z.string().min(1)
   })
 })
-
-export const depositSchema = z.object({
-  accountId: z.string(),
-  amount: z.number()
-})

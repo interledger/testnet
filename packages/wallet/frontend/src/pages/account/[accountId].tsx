@@ -56,6 +56,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const isSandbox = true // ToDO read from env variable?
   return (
     <>
       <PageHeader title={account.name} />
@@ -86,16 +87,20 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </button>
         <Link
           id="fund"
-          // href={'/deposit'}
-          onClick={() => {
-            openDialog(
-              <DepositDialog
-                accountId={account.id}
-                assetCode={account.assetCode}
-                onClose={closeDialog}
-              />
-            )
-          }}
+          href={isSandbox ? undefined : '/deposit'}
+          onClick={
+            isSandbox
+              ? () => {
+                  openDialog(
+                    <DepositDialog
+                      accountId={account.id}
+                      assetCode={account.assetCode}
+                      onClose={closeDialog}
+                    />
+                  )
+                }
+              : undefined
+          }
           className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
         >
           <Request className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
