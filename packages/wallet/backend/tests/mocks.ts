@@ -5,7 +5,7 @@ import { PartialModelObject } from 'objection'
 import { Transaction } from '../src/transaction/model'
 import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
-import { webhookSchema } from '@/rafiki/validation'
+import { webhookBodySchema, WebhookType } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
 import {
   incomingPaymentSchema,
@@ -16,7 +16,7 @@ import { ratesSchema } from '@/rates/validation'
 
 export type LogInRequest = z.infer<typeof logInBodySchema>
 export type GetRatesRequest = z.infer<typeof ratesSchema>
-export type OnWebHook = z.infer<typeof webhookSchema>
+export type OnWebHook = z.infer<typeof webhookBodySchema>
 export type IncomingPaymentCreated = z.infer<typeof incomingPaymentSchema>
 export type IncomingPaymentRequest = z.infer<typeof incomingPaymentSchema>
 export type GetPaymentDetailsByUrl = z.infer<typeof paymentDetailsSchema>
@@ -234,6 +234,37 @@ export const mockRatesService = {
   })
 }
 
+const mockOutgoingPaymentData = {
+  id: 'mockedId',
+  walletAddressId: faker.string.uuid(),
+  client: faker.string.uuid(),
+  state: faker.string.uuid(),
+  receiver: faker.string.uuid(),
+  debitAmount: {
+    value: 0,
+    assetCode: 'USD',
+    assetScale: 1
+  },
+  receiveAmount: {
+    value: 0,
+    assetCode: 'USD',
+    assetScale: 1
+  },
+  sentAmount: {
+    value: 0,
+    assetCode: 'USD',
+    assetScale: 1
+  },
+  stateAttempts: 0,
+  createdAt: faker.string.uuid(),
+  updatedAt: faker.string.uuid(),
+  balance: '0',
+  metadata: {
+    description: 'Free Money!'
+  },
+  peerId: faker.string.uuid()
+}
+
 export const mockOnWebhookRequest = (
   overrides?: Partial<OnWebHook>
 ): OnWebHook => {
@@ -241,7 +272,22 @@ export const mockOnWebhookRequest = (
     body: {
       id: faker.string.alpha(10),
       type: EventType.IncomingPaymentCreated,
-      data: {}
+      data: {
+        id: faker.string.alpha(10),
+        walletAddressId: uuid(),
+        createdAt: faker.string.uuid(),
+        expiresAt: faker.string.uuid(),
+        receivedAmount: {
+          value: 0,
+          assetCode: 'USD',
+          assetScale: 1
+        },
+        completed: false,
+        updatedAt: faker.string.uuid(),
+        metadata: {
+          description: 'Free Money!'
+        }
+      }
     },
     ...overrides
   }
@@ -251,17 +297,56 @@ export const mockRafikiService = {
   onWebHook: () => {}
 }
 
-export function mockOutgoingPaymenteCreatedEvent(
+export function mockOutgoingPaymentCreatedEvent(
   wh: Partial<WebHook>
-): WebHook {
+): WebhookType {
   return {
     id: 'mockedId',
     type: wh.type || EventType.OutgoingPaymentCreated,
+    data: wh.data || mockOutgoingPaymentData
+  }
+}
+
+export function mockOutgoingPaymentCompletedEvent(
+  wh: Partial<WebHook>
+): WebhookType {
+  return {
+    id: 'mockedId',
+    type: wh.type || EventType.OutgoingPaymentCompleted,
+    data: wh.data || mockOutgoingPaymentData
+  }
+}
+
+export function mockOutgoingPaymentFailedEvent(
+  wh: Partial<WebHook>
+): WebhookType {
+  return {
+    id: 'mockedId',
+    type: wh.type || EventType.OutgoingPaymentFailed,
+    data: wh.data || mockOutgoingPaymentData
+  }
+}
+
+export function mockIncomingPaymentCreatedEvent(
+  wh: Partial<WebHook>
+): WebhookType {
+  return {
+    id: 'mockedId',
+    type: wh.type || EventType.IncomingPaymentCreated,
     data: wh.data || {
-      debitAmount: {
-        value: 0.0,
+      id: 'mockedId',
+      walletAddressId: faker.string.uuid(),
+      createdAt: faker.string.uuid(),
+      expiresAt: faker.string.uuid(),
+      receivedAmount: {
+        value: 0,
         assetCode: 'USD',
         assetScale: 1
+      },
+      completed: false,
+      updatedAt: faker.string.uuid(),
+      metadata: {
+        description: 'Free Money!'
       }
     }
   }

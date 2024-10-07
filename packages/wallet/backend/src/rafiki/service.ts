@@ -11,6 +11,14 @@ import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
 import { HOSTED_TRANSACTION_TYPE } from '@/gatehub/consts'
+import {
+  WebhookType,
+  incomingPaymentWebhookSchema,
+  incomingPaymentCompletedWebhookSchema,
+  outgoingPaymentWebhookSchema,
+  walletAddressWebhookSchema,
+  validateInput
+} from './validation'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -45,6 +53,72 @@ export enum PaymentType {
   FixedSend = 'FixedSend',
   FixedDelivery = 'FixedDelivery'
 }
+export interface IIncomingPayment {
+  id: string
+  walletAddressId: string
+  createdAt: string
+  expiresAt: string
+  receivedAmount: Amount
+  completed: boolean
+  updatedAt: string
+  metadata: {
+    description: string
+  }
+}
+export interface IIncomingPaymentCompleted {
+  id: string
+  walletAddressId: string
+  createdAt: string
+  expiresAt: string
+  incomingAmount: Amount
+  receivedAmount: Amount
+  completed: boolean
+  updatedAt: string
+  metadata: {
+    description: string
+  }
+}
+export interface IOutgoingPayment {
+  id: string
+  walletAddressId: string
+  client: string
+  state: string
+  receiver: string
+  debitAmount: Amount
+  receiveAmount: Amount
+  sentAmount: Amount
+  stateAttempts: Amount
+  createdAt: string
+  expiresAt: string
+  balance: string
+  metadata: {
+    description: string
+  }
+  peerId: string
+}
+export interface IWalletAddress {
+  walletAddressUrl: string
+}
+
+export interface IncomingPaymentWebhook extends WebHook {
+  type:
+    | EventType.IncomingPaymentCreated
+    | EventType.IncomingPaymentCompleted
+    | EventType.IncomingPaymentExpired
+  data: IIncomingPayment | IIncomingPaymentCompleted
+}
+
+export interface OutgoingPaymentWebhook extends WebHook {
+  type:
+    | EventType.OutgoingPaymentCreated
+    | EventType.OutgoingPaymentCompleted
+    | EventType.OutgoingPaymentFailed
+  data: IOutgoingPayment
+}
+export interface WalletAddressWebhook extends WebHook {
+  type: EventType.WalletAddressNotFound
+  data: IWalletAddress
+}
 
 export type Quote = {
   id: string
@@ -69,8 +143,11 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
+const isValidEventType = (value: string): value is EventType => {
+  return Object.values(EventType).includes(value as EventType)
+}
 interface IRafikiService {
-  onWebHook: (wh: WebHook) => Promise<void>
+  onWebHook: (wh: WebhookType) => Promise<void>
 }
 
 export class RafikiService implements IRafikiService {
@@ -84,12 +161,19 @@ export class RafikiService implements IRafikiService {
     private walletAddressService: WalletAddressService
   ) {}
 
-  public async onWebHook(wh: WebHook): Promise<void> {
+  public async onWebHook(wh: WebhookType): Promise<void> {
     this.logger.info(
       `received webhook of type : ${wh.type} for : ${
-        wh.type === EventType.WalletAddressNotFound ? '' : `${wh.data.id}}`
+        wh.type === EventType.WalletAddressNotFound ? '' : `${wh.id}}`
       }`
     )
+    if (!isValidEventType(wh.type)) {
+      throw new BadRequest(`unknown event type, ${wh.type}`)
+    }
+    const isValid = await this.isValidInput(wh)
+    if (!isValid) {
+      throw new BadRequest(`Invalid Input for ${wh.type}`)
+    }
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -112,9 +196,33 @@ export class RafikiService implements IRafikiService {
       case EventType.WalletAddressNotFound:
         this.logger.warn(`${EventType.WalletAddressNotFound} received`)
         break
-      default:
-        throw new BadRequest(`unknown event type, ${wh.type}`)
     }
+  }
+
+  private async isValidInput(wh: WebhookType) {
+    let validInput = false
+
+    switch (wh.type) {
+      case EventType.OutgoingPaymentCreated:
+      case EventType.OutgoingPaymentCompleted:
+      case EventType.OutgoingPaymentFailed:
+        validInput = await validateInput(outgoingPaymentWebhookSchema, wh)
+        break
+      case EventType.IncomingPaymentCompleted:
+        validInput = await validateInput(
+          incomingPaymentCompletedWebhookSchema,
+          wh
+        )
+        break
+      case EventType.IncomingPaymentCreated:
+      case EventType.IncomingPaymentExpired:
+        validInput = await validateInput(incomingPaymentWebhookSchema, wh)
+        break
+      case EventType.WalletAddressNotFound:
+        validInput = await validateInput(walletAddressWebhookSchema, wh)
+        break
+    }
+    return validInput
   }
 
   private parseAmount(amount: AmountJSON): Amount {
@@ -126,7 +234,8 @@ export class RafikiService implements IRafikiService {
     if (
       [
         EventType.OutgoingPaymentCreated,
-        EventType.OutgoingPaymentCompleted
+        EventType.OutgoingPaymentCompleted,
+        EventType.OutgoingPaymentFailed
       ].includes(wh.type)
     ) {
       amount = this.parseAmount(wh.data.debitAmount as AmountJSON)
