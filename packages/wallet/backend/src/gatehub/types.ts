@@ -47,6 +47,7 @@ export interface IGetUserStateResponse {
     address_street1: string
     address_street2: string
   }
+  meta: Record<string, string>
 }
 
 export interface ICreateWalletRequest {
