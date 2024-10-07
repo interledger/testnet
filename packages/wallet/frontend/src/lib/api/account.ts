@@ -6,7 +6,7 @@ import {
   type SuccessResponse
 } from '../httpClient'
 import { createAccountSchema } from '@wallet/shared'
-import { WalletAddressResponse } from '@wallet/shared/src'
+import { depositSchema, WalletAddressResponse } from '@wallet/shared/src'
 
 export type Account = {
   id: string
@@ -29,6 +29,11 @@ type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
 type CreateAccountResponse = CreateAccountResult | CreateAccountError
 
+type DepositArgs = z.infer<typeof depositSchema>
+type DepositResult = SuccessResponse
+type DepositError = ErrorResponse<DepositArgs | undefined>
+type DepositResponse = DepositResult | DepositError
+
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
   list: (
@@ -36,6 +41,7 @@ interface AccountService {
     include?: ('walletAddresses' | 'walletAddressKeys')[]
   ) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
+  deposit: (args: DepositArgs) => Promise<DepositResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -90,6 +96,24 @@ const createAccountService = (): AccountService => ({
       return getError<CreateAccountArgs>(
         error,
         'We were not able to create your account. Please try again.'
+      )
+    }
+  },
+
+  async deposit(args) {
+    try {
+      const response = await httpClient
+        .post(`accounts/${args.accountId}/fund`, {
+          json: {
+            amount: args.amount
+          }
+        })
+        .json<DepositResult>()
+      return response
+    } catch (error) {
+      return getError<DepositArgs>(
+        error,
+        'We were not able to fund your account. Please try again.'
       )
     }
   }
