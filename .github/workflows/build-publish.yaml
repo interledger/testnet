@@ -17,13 +17,12 @@ jobs:
     strategy:
       matrix:
         package:
-          - name: 'wallet:backend'
-          - name: 'wallet:frontend'
-          - name: 'boutique:backend'
-          - name: 'boutique:frontend'
-            env_var: false
-          - name: 'boutique:frontend'
-            env_var: true
+        [
+          'wallet:backend',
+          'wallet:frontend',
+          'boutique:backend',
+          'boutique:frontend'
+        ]
 
     steps:
       - name: Checkout code
@@ -40,8 +39,6 @@ jobs:
         run: |
           pnpm ${{ matrix.package.name }} install --frozen-lockfile
       - name: Run build
-        env:
-          VITE_API_BASE_URL: ${{ matrix.package.name == 'boutique:frontend' && matrix.package.env_var && 'https://api-boutique.jopacc.openpayments.directory' || '' }}
         run: |
           pnpm ${{ matrix.package.name }} build
 
@@ -62,11 +59,11 @@ jobs:
           - name: rafiki-boutique-frontend
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
-            env_var: false
+            api_base_url: 'https://api.rafiki.boutique'
           - name: rafiki-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
-            env_var: true
+            api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
           - name: rafiki-boutique-backend
             identifier: 'boutique:backend'
             path: packages/boutique/backend
@@ -90,7 +87,7 @@ jobs:
           push: true
           file: ${{ matrix.package.path }}/Dockerfile.prod
           build-args: |
-            ${{ matrix.package.identifier == 'boutique:frontend' && matrix.package.env_var && 'VITE_API_BASE_URL=https://api-boutique.jopacc.openpayments.directory' || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && 'VITE_API_BASE_URL=' + matrix.package.api_base_url }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
 
   generate-release:
