@@ -235,7 +235,7 @@ services:
     <<: *logging
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.7
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.8
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
