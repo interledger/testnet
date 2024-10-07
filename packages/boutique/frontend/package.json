@@ -25,7 +25,7 @@
     "react-hook-form": "^7.53.0",
     "react-router-dom": "^6.26.2",
     "remix-params-helper": "^0.5.1",
-    "tailwind-merge": "^2.5.2",
+    "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^2.0.0",
     "zod": "^3.23.8"
