@@ -23,7 +23,6 @@ jobs:
             'boutique:backend',
             'boutique:frontend'
           ]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,13 +33,13 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - name: Install dependencies for ${{ matrix.package.name }}
+      - name: Install dependencies for ${{ matrix.package }}
         shell: bash
         run: |
-          pnpm ${{ matrix.package.name }} install --frozen-lockfile
+          pnpm ${{ matrix.package }} install --frozen-lockfile
       - name: Run build
         run: |
-          pnpm ${{ matrix.package.name }} build
+          pnpm ${{ matrix.package }} build
 
   publish:
     runs-on: ubuntu-latest
