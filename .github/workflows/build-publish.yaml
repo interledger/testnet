@@ -3,12 +3,12 @@ name: Build & Publish
 on:
   pull_request:
     branches:
-      - '**'
+      - "**"
   push:
     branches:
       - main
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   build:
@@ -17,12 +17,14 @@ jobs:
     strategy:
       matrix:
         package:
-          [
-            'wallet:backend',
-            'wallet:frontend',
-            'boutique:backend',
-            'boutique:frontend'
-          ]
+          - name: "wallet:backend"
+          - name: "wallet:frontend"
+          - name: "boutique:backend"
+          - name: "boutique:frontend"
+            env_var: false
+          - name: "boutique:frontend"
+            env_var: true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,13 +33,15 @@ jobs:
           version: v9.1.4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
       - name: Install dependencies for ${{ matrix.package }}
         shell: bash
         run: |
           pnpm ${{ matrix.package }} install --frozen-lockfile
       - name: Run build
+        env:
+          VITE_API_BASE_URL: ${{ matrix.package.name == 'boutique:frontend' && matrix.package.env_var && 'https://api-boutique.jopacc.openpayments.directory' || '' }}
         run: |
           pnpm ${{ matrix.package }} build
 
@@ -50,16 +54,21 @@ jobs:
       matrix:
         package:
           - name: rafiki-money-backend
-            identifier: 'wallet:backend'
+            identifier: "wallet:backend"
             path: packages/wallet/backend
           - name: rafiki-money-frontend
-            identifier: 'wallet:frontend'
+            identifier: "wallet:frontend"
             path: packages/wallet/frontend
           - name: rafiki-boutique-frontend
-            identifier: 'boutique:frontend'
+            identifier: "boutique:frontend"
             path: packages/boutique/frontend
+            env_var: false
+          - name: rafiki-boutique-frontend-jopacc
+            identifier: "boutique:frontend"
+            path: packages/boutique/frontend
+            env_var: true
           - name: rafiki-boutique-backend
-            identifier: 'boutique:backend'
+            identifier: "boutique:backend"
             path: packages/boutique/backend
     steps:
       - name: Checkout code
@@ -80,6 +89,8 @@ jobs:
           context: ./
           push: true
           file: ${{ matrix.package.path }}/Dockerfile.prod
+          build-args: |
+            ${{ matrix.package.identifier == 'boutique:frontend' && matrix.package.env_var && 'VITE_API_BASE_URL=https://api-boutique.jopacc.openpayments.directory' || '' }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
 
   generate-release:
@@ -112,5 +123,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: main
-          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
+          commit_message: "docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]"
           file_pattern: CHANGELOG.md
