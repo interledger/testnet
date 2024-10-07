@@ -57,8 +57,8 @@ importers:
         specifier: workspace:*
         version: link:../../shared/backend
       awilix:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^11.0.4
+        version: 11.0.4
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -228,8 +228,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(winston@3.14.2)
       awilix:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^11.0.4
+        version: 11.0.4
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -277,8 +277,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
       awilix:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^11.0.4
+        version: 11.0.4
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -2747,8 +2747,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  awilix@11.0.0:
-    resolution: {integrity: sha512-lnEm2TZu1OUWO1twi/3JrjSYu3RYjiOMiMQgfpwXj6uG4NSDtPSAWwTvqbpV7B8iWsXiC8GoMBKg1YsrUxPJhg==}
+  awilix@11.0.4:
+    resolution: {integrity: sha512-0Gxb8TMNS1MQ6KHuCpjN52CaKB7qNwnFzWhtGqWEVT0zyM4LBMFDoVP8XOpoav22H1LKToE3FODyjWgWNLV+fA==}
     engines: {node: '>=16.3.0'}
 
   axios@1.7.7:
@@ -9088,7 +9088,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  awilix@11.0.0:
+  awilix@11.0.4:
     dependencies:
       camel-case: 4.1.2
       fast-glob: 3.3.2
