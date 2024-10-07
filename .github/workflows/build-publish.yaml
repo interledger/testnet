@@ -88,8 +88,7 @@ jobs:
           push: true
           file: ${{ matrix.package.path }}/Dockerfile.prod
           build-args: |
-            ${{ matrix.package.identifier == 'boutique:frontend' && 'VITE_API_BASE_URL=' + matrix.package.api_base_url }}
-            ${{ matrix.package.identifier == 'boutique:frontend' && 'VITE_CURRENCY=' + matrix.package.currency }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_API_BASE_URL={0}\nVITE_CURRENCY={1}', matrix.package.api_base_url, matrix.package.currency) }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
 
   generate-release:
