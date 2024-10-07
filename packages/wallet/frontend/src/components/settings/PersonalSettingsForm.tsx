@@ -1,10 +1,5 @@
 import { Button } from '@/ui/Button'
-
-import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
-import { useEffect } from 'react'
-import { profileSchema } from '@/lib/api/user'
-
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { usePasswordContext } from '@/lib/context/password'
 import { UserResponse } from '@wallet/shared'
