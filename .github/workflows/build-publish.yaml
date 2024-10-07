@@ -35,15 +35,15 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - name: Install dependencies for ${{ matrix.package }}
+      - name: Install dependencies for ${{ matrix.package.name }}
         shell: bash
         run: |
-          pnpm ${{ matrix.package }} install --frozen-lockfile
+          pnpm ${{ matrix.package.name }} install --frozen-lockfile
       - name: Run build
         env:
           VITE_API_BASE_URL: ${{ matrix.package.name == 'boutique:frontend' && matrix.package.env_var && 'https://api-boutique.jopacc.openpayments.directory' || '' }}
         run: |
-          pnpm ${{ matrix.package }} build
+          pnpm ${{ matrix.package.name }} build
 
   publish:
     runs-on: ubuntu-latest
