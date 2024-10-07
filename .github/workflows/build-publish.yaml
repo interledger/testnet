@@ -59,10 +59,12 @@ jobs:
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
             api_base_url: 'https://api.rafiki.boutique'
+            currency: 'USD'
           - name: rafiki-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
             api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
+            currency: 'JOD'
           - name: rafiki-boutique-backend
             identifier: 'boutique:backend'
             path: packages/boutique/backend
@@ -87,6 +89,7 @@ jobs:
           file: ${{ matrix.package.path }}/Dockerfile.prod
           build-args: |
             ${{ matrix.package.identifier == 'boutique:frontend' && 'VITE_API_BASE_URL=' + matrix.package.api_base_url }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && 'VITE_CURRENCY=' + matrix.package.currency }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
 
   generate-release:
