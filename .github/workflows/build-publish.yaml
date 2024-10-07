@@ -17,12 +17,12 @@ jobs:
     strategy:
       matrix:
         package:
-        [
-          'wallet:backend',
-          'wallet:frontend',
-          'boutique:backend',
-          'boutique:frontend'
-        ]
+          [
+            'wallet:backend',
+            'wallet:frontend',
+            'boutique:backend',
+            'boutique:frontend'
+          ]
 
     steps:
       - name: Checkout code
