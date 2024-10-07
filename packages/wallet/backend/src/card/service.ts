@@ -3,6 +3,8 @@ import { GateHubClient } from '../gatehub/client'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
+  ICardLimitRequest,
+  ICardLimitResponse,
   ICardLockRequest,
   ICardResponse,
   ICardUnlockRequest
@@ -41,6 +43,25 @@ export class CardService {
     await this.ensureWalletAddressExists(userId, cardId)
 
     return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
+  }
+
+  async getCardLimits(
+    userId: string,
+    cardId: string
+  ): Promise<ICardLimitResponse[]> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.getCardLimits(cardId)
+  }
+
+  async createOrOverrideCardLimits(
+    userId: string,
+    cardId: string,
+    requestBody: ICardLimitRequest[]
+  ): Promise<ICardLimitResponse[]> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    return this.gateHubClient.createOrOverrideCardLimits(cardId, requestBody)
   }
 
   async getPin(

@@ -44,6 +44,7 @@ services:
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
       AUTH_DOMAIN: http://rafiki-auth:3009
       AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
+      RAFIKI_WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL:-false}
@@ -149,6 +150,7 @@ services:
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
+      SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       ENABLE_AUTO_PEERING: true
       AUTO_PEERING_SERVER_PORT: 3005
@@ -183,7 +185,7 @@ services:
     <<: *logging
 
   kratos:
-    image: 'oryd/kratos:v1.2.0'
+    image: 'oryd/kratos:v1.3.0'
     privileged: true
     depends_on:
       - postgres
@@ -199,7 +201,7 @@ services:
       - testnet
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.3
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.7
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
