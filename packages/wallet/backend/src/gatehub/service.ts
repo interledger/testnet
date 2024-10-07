@@ -107,11 +107,11 @@ export class GateHubService {
     })
 
     // Should only return one element in the array
-    const cardProducts = this.gateHubClient.fetchCardApplicationProducts()
-    if ((await cardProducts).length === 0) {
+    const cardProducts = await this.gateHubClient.fetchCardApplicationProducts()
+    if (cardProducts.length === 0) {
       throw new Error('Failed to fetch product code')
     }
-    const productCode = (await cardProducts).map((product) => product.code)
+    const productCode = cardProducts.map((product) => product.code)
 
     await this.gateHubClient.createCustomer({
       walletAddress: account.gateHubWalletId,
