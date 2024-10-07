@@ -101,7 +101,7 @@ const SignUpPage: NextPageWithLayout = () => {
             />
             <span
               onClick={togglePasswordVisibility}
-              className="absolute right-2.5 top-1/2 cursor-pointer"
+              className="absolute right-2.5 top-9 cursor-pointer"
             >
               {isPasswordVisible ? <SlashEye /> : <Eye />}
             </span>
@@ -116,7 +116,7 @@ const SignUpPage: NextPageWithLayout = () => {
             />
             <span
               onClick={toggleRepeatPasswordVisibility}
-              className="absolute right-2.5 top-1/2 cursor-pointer"
+              className="absolute right-2.5 top-9 cursor-pointer"
             >
               {isRepeatPasswordVisible ? <SlashEye /> : <Eye />}
             </span>
