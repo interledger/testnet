@@ -14,7 +14,7 @@
     "@wallet/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "ky": "^1.7.2",
-    "next": "14.2.10",
+    "next": "14.2.15",
     "next-themes": "^0.3.0",
     "nprogress": "^0.2.0",
     "react": "18.3.1",
@@ -30,8 +30,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^13.4.12",
-    "@next/eslint-plugin-next": "^13.4.12",
+    "@next/bundle-analyzer": "^13.5.7",
+    "@next/eslint-plugin-next": "^13.5.7",
     "@tailwindcss/forms": "^0.5.9",
     "@types/node": "^20.12.11",
     "@types/nprogress": "^0.2.3",
