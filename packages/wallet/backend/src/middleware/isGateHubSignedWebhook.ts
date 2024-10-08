@@ -6,10 +6,16 @@ import { createHmac } from 'crypto'
 const TOLERANCE_MILLISECONDS = 5000
 export const isGateHubSignedWebhook = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.body.timestamp) {
+      // Respond with 200 on initial setup call
+      res.status(200).json()
+      return
+    }
+
     const body = JSON.stringify(req.body)
     const key = Buffer.from(env.GATEHUB_WEBHOOK_SECRET, 'hex')
     const messageBuffer = Buffer.from(body, 'utf-8')
@@ -23,7 +29,8 @@ export const isGateHubSignedWebhook = async (
 
     // Check the difference of the received and current timestamp based on your tolerance
     const timestampIsValid = timeDiffMilliseconds < TOLERANCE_MILLISECONDS
-    const signatureIsValid = requestSignature === req.header.signature
+    const signatureIsValid =
+      requestSignature === req.headers['x-gh-webhook-signature']
 
     const isSignatureValid = timestampIsValid && signatureIsValid
 

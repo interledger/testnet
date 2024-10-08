@@ -52,8 +52,8 @@ export class GateHubController implements IGateHubController {
     next: NextFunction
   ) => {
     try {
-      // TODO: implement signature check
       if (!req.body.uuid) {
+        res.status(200).json()
         return
       }
 
