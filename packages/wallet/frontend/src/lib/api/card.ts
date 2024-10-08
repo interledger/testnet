@@ -76,8 +76,8 @@ type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
   terminate(): Promise<TerminateCardResult>
-  freeze(): Promise<FreezeResult>
-  unfreeze(): Promise<UnfreezeResult>
+  freeze(cardId: string): Promise<FreezeResult>
+  unfreeze(cardId: string): Promise<UnfreezeResult>
   changePin(args: ChangePinArgs): Promise<ChangePinResult>
   setDailySpendingLimit(
     args: DailySpendingLimitArgs
@@ -114,25 +114,31 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async freeze() {
+  async freeze(cardId) {
     try {
       const response = await httpClient
-        .post('card/freeze')
+        .put(`cards/${cardId}/lock`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(
+        error,
+        'An error occured while freezing the card. Please try again.'
+      )
     }
   },
 
-  async unfreeze() {
+  async unfreeze(cardId) {
     try {
       const response = await httpClient
-        .post('card/unfreeze')
+        .put(`cards/${cardId}/unlock`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(
+        error,
+        'An error occured while unfreezing the card. Please try again.'
+      )
     }
   },
 
