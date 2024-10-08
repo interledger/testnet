@@ -8,18 +8,15 @@ import { Form } from '@/ui/forms/Form'
 import { UserCardFront } from '../userCards/UserCard'
 import { Controller } from 'react-hook-form'
 import { Select, SelectOption } from '@/ui/forms/Select'
-import { cardServiceMock, IUserCard, terminateCardSchema } from '@/lib/api/card'
+import { cardService, terminateCardSchema } from '@/lib/api/card'
 import { useToast } from '@/lib/hooks/useToast'
 import { Card } from '../icons/CardButtons'
+import { useCardContext } from '../userCards/UserCardContext'
 
-type TerminateCardDialogProps = Pick<DialogProps, 'onClose'> & {
-  card: IUserCard
-}
+type TerminateCardDialogProps = Pick<DialogProps, 'onClose'>
 
-export const TerminateCardDialog = ({
-  card,
-  onClose
-}: TerminateCardDialogProps) => {
+export const TerminateCardDialog = ({ onClose }: TerminateCardDialogProps) => {
+  const { card } = useCardContext()
   const [, closeDialog] = useDialog()
   const { toast } = useToast()
   const terminateCardForm = useZodForm({
@@ -68,7 +65,7 @@ export const TerminateCardDialog = ({
                   <Form
                     form={terminateCardForm}
                     onSubmit={async () => {
-                      const response = await cardServiceMock.terminate()
+                      const response = await cardService.terminate(card.id)
 
                       if (!response.success) {
                         closeDialog()
@@ -99,7 +96,10 @@ export const TerminateCardDialog = ({
                     }}
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <UserCardFront card={card} />
+                      <UserCardFront
+                        nameOnCard={card.nameOnCard}
+                        isBlocked={card.status === 'Blocked'}
+                      />
                       You won&apos;t be able to use this card again. Any
                       deposits, such as car rental or hotel reservation deposits
                       will also be canceled.

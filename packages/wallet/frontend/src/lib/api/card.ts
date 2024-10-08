@@ -50,6 +50,15 @@ export const monthlySpendingLimitSchema = z.object({
     .positive()
 })
 
+export const terminateCardSchema = z.object({
+  reason: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
+
 type GetDetailsResponse = SuccessResponse<ICardResponse>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
@@ -75,7 +84,7 @@ type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
-  terminate(): Promise<TerminateCardResult>
+  terminate(cardId: string): Promise<TerminateCardResult>
   freeze(cardId: string): Promise<FreezeResult>
   unfreeze(cardId: string): Promise<UnfreezeResult>
   changePin(args: ChangePinArgs): Promise<ChangePinResult>
@@ -103,14 +112,17 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async terminate() {
+  async terminate(cardId) {
     try {
       const response = await httpClient
-        .post('card/terminate')
+        .put(`card/${cardId}/block`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(
+        error,
+        'An error occured while terminating the card. Please try again.'
+      )
     }
   },
 

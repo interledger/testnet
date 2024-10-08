@@ -1,12 +1,15 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { useCardContext } from './UserCardContext'
-import { cardService, cardServiceMock } from '@/lib/api/card'
+import { cardService } from '@/lib/api/card'
 import { useRouter } from 'next/router'
 import { useToast } from '@/lib/hooks/useToast'
+import { useDialog } from '@/lib/hooks/useDialog'
+import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
 
 export const FrozenCardActions = () => {
   const router = useRouter()
+  const [openDialog, closeDialog] = useDialog()
   const { card } = useCardContext()
   const { toast } = useToast()
 
@@ -53,15 +56,7 @@ export const FrozenCardActions = () => {
           aria-label="terminate card"
           className="group"
           onClick={async () => {
-            const response = await cardServiceMock.terminate()
-
-            if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while terminating card')
-            }
-
-            if (response.success) {
-              router.replace(router.asPath)
-            }
+            openDialog(<TerminateCardDialog onClose={closeDialog} />)
           }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-orange dark:group-hover:drop-shadow-none">
