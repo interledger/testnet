@@ -10,6 +10,7 @@ import {
   ICreateTransactionResponse,
   ICreateWalletRequest,
   ICreateWalletResponse,
+  IFundAccountRequest,
   IGetUserStateResponse,
   IGetVaultsResponse,
   IGetWalletResponse,
@@ -75,7 +76,7 @@ export class GateHubClient {
   }
 
   get isProduction() {
-    return this.env.NODE_ENV === 'production'
+    return this.env.GATEHUB_ENV === 'production'
   }
 
   get apiUrl() {
@@ -288,7 +289,7 @@ export class GateHubClient {
   }
 
   async createTransaction(
-    body: ICreateTransactionRequest,
+    body: ICreateTransactionRequest | IFundAccountRequest,
     managedUserUuid?: string
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
@@ -634,5 +635,16 @@ export class GateHubClient {
     return createHmac('sha256', this.env.GATEHUB_SECRET_KEY)
       .update(toSign)
       .digest('hex')
+  }
+
+  getVaultUuid(assetCode: string): string {
+    switch (assetCode) {
+      case 'USD':
+        return this.env.GATEHUB_VAULT_UUID_USD
+      case 'EUR':
+        return this.env.GATEHUB_VAULT_UUID_EUR
+      default:
+        throw new BadRequest(`Unsupported asset code ${assetCode}`)
+    }
   }
 }
