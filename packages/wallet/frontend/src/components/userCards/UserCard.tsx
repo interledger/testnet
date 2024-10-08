@@ -3,7 +3,12 @@ import { CopyButton } from '@/ui/CopyButton'
 import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
 import type { IUserCard } from '@/lib/api/card'
-import { useCardContext, UserCardContext } from './UserCardContext'
+import {
+  ICardData,
+  KeysProvider,
+  useCardContext,
+  UserCardContext
+} from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
 import { UserCardSettings } from './UserCardSettings'
 
@@ -115,20 +120,25 @@ interface UserCardProps {
 }
 export const UserCard = ({ card }: UserCardProps) => {
   const [showDetails, setShowDetails] = useState(false)
+  const [cardData, setCardData] = useState<ICardData | null>(null)
 
   return (
-    <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
-      <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
-        <div className="space-y-6 max-w-80 mx-auto">
-          {card.isFrozen ? <UserCardFront card={card} /> : null}
-          {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-          {!card.isFrozen && !showDetails ? (
-            <UserCardFront card={card} />
-          ) : null}
-          <UserCardActions />
+    <UserCardContext.Provider
+      value={{ card, showDetails, setShowDetails, cardData, setCardData }}
+    >
+      <KeysProvider>
+        <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
+          <div className="space-y-6 max-w-80 mx-auto">
+            {card.isFrozen ? <UserCardFront card={card} /> : null}
+            {!card.isFrozen && showDetails ? <UserCardBack /> : null}
+            {!card.isFrozen && !showDetails ? (
+              <UserCardFront card={card} />
+            ) : null}
+            <UserCardActions />
+          </div>
+          <UserCardSettings />
         </div>
-        <UserCardSettings />
-      </div>
+      </KeysProvider>
     </UserCardContext.Provider>
   )
 }

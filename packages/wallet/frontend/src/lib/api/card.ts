@@ -81,8 +81,18 @@ type MonthlySpendingLimitError = ErrorResponse<
 >
 type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 
+const getCardDataSchema = z.object({
+  publicKeyBase64: z.string()
+})
+
+type GetCardDataArgs = z.infer<typeof getCardDataSchema>
+type GetCardDataError = ErrorResponse<GetCardDataArgs | undefined>
+type GetCardDataResponse = SuccessResponse<{ cypher: string }>
+type GetCardDataResult = GetCardDataResponse | GetCardDataError
+
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
+  getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
   terminate(): Promise<TerminateCardResult>
   freeze(): Promise<FreezeResult>
   unfreeze(): Promise<UnfreezeResult>
@@ -108,6 +118,19 @@ const createCardService = (): UserCardService => ({
       return response
     } catch (error) {
       return getError(error, '[TODO] UPDATE ME!')
+    }
+  },
+
+  async getCardData(cardId, args) {
+    try {
+      const response = await httpClient
+        .get(`cards/${cardId}/details`, {
+          json: args
+        })
+        .json<GetCardDataResponse>()
+      return response
+    } catch (error) {
+      return getError<GetCardDataArgs>(error, 'Could not retrieve card details')
     }
   },
 

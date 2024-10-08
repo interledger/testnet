@@ -1,28 +1,8 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
-import { useCardContext } from './UserCardContext'
-import { cardServiceMock } from '@/lib/api/card'
+import { useCardContext, useKeysContext } from './UserCardContext'
+import { cardService, cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
-import { useKeysContext } from '@/lib/context/keys'
-
-async function generateRsaKeyPair() {
-  const keyPair = await window.crypto.subtle.generateKey(
-    {
-      name: 'RSASSA-PKCS1-v1_5',
-      modulusLength: 4096,
-      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-      hash: { name: 'SHA-256' }
-    },
-    true,
-    ['sign', 'verify']
-  )
-
-  const exported = await crypto.subtle.exportKey('spki', keyPair.publicKey)
-  const buf = new Uint8Array(exported)
-  const b64Key = String.fromCharCode.apply(null, Array.from<number>(buf))
-
-  return { privateKey: keyPair.privateKey, publicKey: b64Key }
-}
 
 export const FrozenCardActions = () => {
   const router = useRouter()
@@ -91,8 +71,8 @@ export const FrozenCardActions = () => {
 
 const DefaultCardActions = () => {
   const router = useRouter()
-  const { showDetails, setShowDetails } = useCardContext()
-  const { keys, setKeys } = useKeysContext()
+  const { card, showDetails, setShowDetails } = useCardContext()
+  const { keys } = useKeysContext()
 
   return (
     <>
@@ -130,14 +110,21 @@ const DefaultCardActions = () => {
           aria-label={showDetails ? 'hide details' : 'show details'}
           className="group"
           onClick={async () => {
-            let k = keys
-            if (!k) {
-              k = await generateRsaKeyPair()
-              setKeys(k)
+            if (!keys) {
+              // TODO: Toast
+              throw new Error('Public key not loaded')
             }
-            // TODO: Call endpoint to retrieve encrypted card data
-            // If everything succeds, we need to pass the decrypted cypher to the
-            // card back component.
+            const response = await cardService.getCardData(card.name, {
+              publicKeyBase64: keys?.publicKey
+            })
+
+            if (!response.success || !response.result) {
+              // TODO: Toast
+              throw new Error(response.message)
+            }
+
+            // TODO: Decrypt data (is it base64?)
+
             setShowDetails((prev) => !prev)
           }}
         >
