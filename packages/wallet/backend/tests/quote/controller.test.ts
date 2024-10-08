@@ -43,10 +43,10 @@ describe('Quote Controller', () => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
-      needsIDProof: !user.kycId
+      needsWallet: !user.gateHubUserId,
+      needsIDProof: !user.kycVerified
     }
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+    await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })
   }
 
   const createMockQuoteControllerDeps = (isFailure?: boolean) => {

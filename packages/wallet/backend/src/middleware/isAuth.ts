@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import { Unauthorized } from '@shared/backend'
 
-const KYCRoutes = ['/wallet', '/verify', '/countries', '/documents']
+const KYCRoutes = ['/iframe-urls/onboarding', '/gatehub/add-user-to-gateway']
 
 export const isAuth = async (
   req: Request,

@@ -12,10 +12,9 @@ exports.up = function (knex) {
     table.string('firstName')
     table.string('address')
     table.string('country')
-    table.string('rapydReferenceId')
-    table.string('rapydWalletId')
-    table.string('rapydContactId')
-    table.string('kycId')
+
+    table.boolean('kycVerified').defaultTo(false)
+    table.string('gateHubUserId')
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

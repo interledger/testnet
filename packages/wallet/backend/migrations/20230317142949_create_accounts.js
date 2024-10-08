@@ -15,7 +15,7 @@ exports.up = function (knex) {
     table.integer('assetScale').notNullable()
     table.bigint('balance').notNullable().defaultTo(0n)
 
-    table.string('virtualAccountId').notNullable() // Rapyd Virtual Account ID - used to fund the account
+    table.string('gateHubWalletId').notNullable()
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()

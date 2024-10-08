@@ -29,9 +29,6 @@ import { QuoteService } from './quote/service'
 import { RafikiController } from './rafiki/controller'
 import { RafikiClient } from './rafiki/rafiki-client'
 import { RafikiService } from './rafiki/service'
-import { RapydController } from './rapyd/controller'
-import { RapydClient } from './rapyd/rapyd-client'
-import { RapydService } from './rapyd/service'
 import { RatesService } from './rates/service'
 import type { SessionService } from './session/service'
 import { UserController } from './user/controller'
@@ -43,22 +40,23 @@ import { Cradle } from '@/createContainer'
 import { initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
+import { GateHubService } from '@/gatehub/service'
+import { CardController } from './card/controller'
+import { CardService } from './card/service'
+import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 
 export interface Bindings {
   env: Env
   logger: Logger
   knex: Knex
   redisClient: RedisClient
-  rapydClient: RapydClient
   rafikiClient: RafikiClient
   rafikiService: RafikiService
   rafikiController: RafikiController
-  rapydService: RapydService
   ratesService: RatesService
   sessionService: SessionService
   userService: UserService
   accountService: AccountService
-  rapydController: RapydController
   userController: UserController
   authService: AuthService
   authController: AuthController
@@ -81,6 +79,9 @@ export interface Bindings {
   socketService: SocketService
   gateHubClient: GateHubClient
   gateHubController: GateHubController
+  gateHubService: GateHubService
+  cardService: CardService
+  cardController: CardController
 }
 
 export class App {
@@ -144,12 +145,12 @@ export class App {
     )
 
     const quoteController = await this.container.resolve('quoteController')
-    const rapydController = await this.container.resolve('rapydController')
     const assetController = await this.container.resolve('assetController')
     const grantController = await this.container.resolve('grantController')
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
     const gateHubController = await this.container.resolve('gateHubController')
+    const cardController = await this.container.resolve('cardController')
 
     app.use(
       cors({
@@ -265,13 +266,6 @@ export class App {
     router.post('/quotes', isAuth, quoteController.create)
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
-    // rapyd routes
-    router.get('/countries', isAuth, rapydController.getCountryNames)
-    router.get('/documents', isAuth, rapydController.getDocumentTypes)
-    router.post('/wallet', isAuth, rapydController.createWallet)
-    router.post('/updateProfile', isAuth, rapydController.updateProfile)
-    router.post('/verify', isAuth, rapydController.verifyIdentity)
-
     // asset
     router.get('/assets', isAuth, assetController.list)
 
@@ -300,14 +294,55 @@ export class App {
       isAuth,
       quoteController.createExchangeQuote
     )
-    router.post('/accounts/fund', isAuth, accountController.fundAccount)
-    router.post('/accounts/withdraw', isAuth, accountController.withdrawFunds)
+
+    // Fund account is possible only in sandbox
+    if (env.GATEHUB_ENV === 'sandbox') {
+      router.post(
+        '/accounts/:accountId/fund',
+        isAuth,
+        accountController.fundAccount
+      )
+    }
 
     router.get('/rates', rafikiController.getRates)
-    router.post('/webhooks', rafikiController.onWebHook)
+    router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
+    router.post('/gatehub-webhooks', gateHubController.webhook)
+    router.post(
+      '/gatehub/add-user-to-gateway',
+      isAuth,
+      gateHubController.addUserToGateway
+    )
+
+    // Cards
+    router.get(
+      '/customers/:customerId/cards',
+      isAuth,
+      cardController.getCardsByCustomer
+    )
+    router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.get(
+      '/cards/:cardId/transactions',
+      isAuth,
+      cardController.getCardTransactions
+    )
+    router.get('/cards/:cardId/limits', isAuth, cardController.getCardLimits)
+    router.post(
+      '/cards/:cardId/limits',
+      isAuth,
+      cardController.createOrOverrideCardLimits
+    )
+    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
+    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
+    router.put('/cards/:cardId/lock', isAuth, cardController.lock)
+    router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
+    router.put(
+      '/cards/:cardId/block',
+      isAuth,
+      cardController.permanentlyBlockCard
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
@@ -345,10 +380,5 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-  }
-
-  async createDefaultUsers() {
-    const userService = this.container.resolve('userService')
-    await userService.createDefaultAccount()
   }
 }

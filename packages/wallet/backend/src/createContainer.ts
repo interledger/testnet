@@ -18,9 +18,6 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { RafikiController } from '@/rafiki/controller'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { RafikiService } from '@/rafiki/service'
-import { RapydController } from '@/rapyd/controller'
-import { RapydClient } from '@/rapyd/rapyd-client'
-import { RapydService } from '@/rapyd/service'
 import { SessionService } from '@/session/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
@@ -53,6 +50,9 @@ import { GraphQLClient } from 'graphql-request'
 import { KratosService } from './rafiki/kratos.service'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
+import { GateHubService } from '@/gatehub/service'
+import { CardController } from './card/controller'
+import { CardService } from './card/service'
 
 export interface Cradle {
   env: Env
@@ -64,8 +64,6 @@ export interface Cradle {
   authService: AuthService
   backendGraphQLClient: GraphQLClient
   authGraphQLClient: GraphQLClient
-  rapydClient: RapydClient
-  rapydService: RapydService
   rafikiClient: RafikiClient
   rafikiAuthService: RafikiAuthService
   accountService: AccountService
@@ -84,7 +82,6 @@ export interface Cradle {
   authController: AuthController
   assetController: AssetController
   accountController: AccountController
-  rapydController: RapydController
   transactionController: TransactionController
   incomingPaymentController: IncomingPaymentController
   outgoingPaymentController: OutgoingPaymentController
@@ -96,6 +93,9 @@ export interface Cradle {
   kratosService: KratosService
   gateHubClient: GateHubClient
   gateHubController: GateHubController
+  gateHubService: GateHubService
+  cardService: CardService
+  cardController: CardController
 }
 
 export async function createContainer(
@@ -116,8 +116,6 @@ export async function createContainer(
     authService: asClassSingletonWithLogger(AuthService, logger),
     backendGraphQLClient: asFunction(createBackendGraphQLClient).singleton(),
     authGraphQLClient: asFunction(createAuthGraphQLClient).singleton(),
-    rapydClient: asClassSingletonWithLogger(RapydClient, logger),
-    rapydService: asClass(RapydService).singleton(),
     rafikiClient: asClass(RafikiClient).singleton(),
     rafikiAuthService: asClass(RafikiAuthService).singleton(),
     accountService: asClass(AccountService).singleton(),
@@ -135,11 +133,11 @@ export async function createContainer(
     quoteService: asClass(QuoteService).singleton(),
     grantService: asClass(GrantService).singleton(),
     socketService: asClassSingletonWithLogger(SocketService, logger),
+    cardService: asClass(CardService).singleton(),
     userController: asClass(UserController).singleton(),
     authController: asClass(AuthController).singleton(),
     assetController: asClass(AssetController).singleton(),
     accountController: asClass(AccountController).singleton(),
-    rapydController: asClass(RapydController).singleton(),
     transactionController: asClass(TransactionController).singleton(),
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),
     outgoingPaymentController: asClass(OutgoingPaymentController).singleton(),
@@ -150,7 +148,9 @@ export async function createContainer(
     walletAddressKeyController: asClass(WalletAddressKeyController).singleton(),
     kratosService: asClassSingletonWithLogger(KratosService, logger),
     gateHubClient: asClass(GateHubClient).singleton(),
-    gateHubController: asClass(GateHubController).singleton()
+    gateHubController: asClass(GateHubController).singleton(),
+    gateHubService: asClass(GateHubService).singleton(),
+    cardController: asClass(CardController).singleton()
   })
 
   return container

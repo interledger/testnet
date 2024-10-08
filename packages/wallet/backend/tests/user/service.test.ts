@@ -7,6 +7,8 @@ import { faker } from '@faker-js/faker'
 import type { UserService } from '@/user/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { AwilixContainer } from 'awilix'
+import { GateHubClient } from '@/gatehub/client'
+import { mockGateHubClient } from '@/tests/mocks'
 
 describe('User Service', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -30,6 +32,13 @@ describe('User Service', (): void => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     userService = await bindings.resolve('userService')
+
+    // Mock GateHubClient required methods in UserService
+    Reflect.set(
+      userService,
+      'gateHubClient',
+      mockGateHubClient as unknown as GateHubClient
+    )
   })
 
   afterAll(async (): Promise<void> => {

@@ -1,7 +1,6 @@
-import axios from 'axios'
 import NodeCache from 'node-cache'
-import { Env } from '@/config/env'
 import { RatesResponse } from '@wallet/shared'
+import { GateHubClient } from '@/gatehub/client'
 
 export interface IRatesService {
   getRates: (base: string) => Promise<RatesResponse>
@@ -10,8 +9,8 @@ export interface IRatesService {
 export class RatesService implements IRatesService {
   cache: NodeCache
 
-  constructor(private env: Env) {
-    this.cache = new NodeCache({ stdTTL: 60 * 60 * 12 })
+  constructor(private gateHubClient: GateHubClient) {
+    this.cache = new NodeCache({ stdTTL: 60 })
   }
 
   public async getRates(base: string): Promise<RatesResponse> {
@@ -22,23 +21,12 @@ export class RatesService implements IRatesService {
       }
     }
 
-    const result = await this.getApiRates(base)
+    const result = await this.gateHubClient.getRates(base)
     this.cache.set(base, result)
 
     return {
       base,
       rates: result ? result : {}
     }
-  }
-
-  private async getApiRates(base: string): Promise<Record<string, number>> {
-    const response = await axios.get(
-      'https://api.freecurrencyapi.com/v1/latest',
-      {
-        params: { apikey: this.env.RATE_API_KEY, base_currency: base }
-      }
-    )
-
-    return response.data.data
   }
 }

@@ -19,7 +19,6 @@ async function bootstrap() {
     await start(app)
 
     await app.processResources()
-    if (env.NODE_ENV === 'development') await app.createDefaultUsers()
   } catch (e) {
     console.log('Error on starting the app')
     console.log(e)

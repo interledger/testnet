@@ -79,10 +79,12 @@ export class QuoteService implements IQuoteService {
       existingWalletAddress.accountId,
       params.userId
     )
-    const balance = await this.accountService.getAccountBalance(
+
+    const account = await this.accountService.getAccountById(
       params.userId,
-      assetCode
+      existingWalletAddress.accountId
     )
+    const balance = account.balance
 
     if (Number(balance) < params.amount) {
       throw new BadRequest('Not enough funds in account')

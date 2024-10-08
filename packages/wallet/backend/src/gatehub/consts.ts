@@ -18,3 +18,13 @@ export enum PAYMENT_TYPE {
   withdrawal = 'withdrawal',
   deposit = 'deposit'
 }
+
+export const HOSTED_WALLET_TYPE = 0
+export const MANUAL_NETWORK = 8
+
+export enum TransactionTypeEnum {
+  HOSTED = 2,
+  DEPOSIT = 1
+}
+
+export const SUPPORTED_ASSET_CODES = ['USD', 'EUR']
