@@ -9,8 +9,7 @@ import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
   ICardLimitRequest,
-  ICardLimitResponse,
-  ICardResponse
+  ICardLimitResponse
 } from '@/card/types'
 import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { AwilixContainer } from 'awilix'
@@ -27,6 +26,7 @@ import { truncateTables } from '@shared/backend/tests'
 import { mockLogInRequest } from '../mocks'
 import { createUser } from '../helpers'
 import { User } from '@/user/model'
+import { ICardResponse } from '@wallet/shared'
 
 describe('CardController', () => {
   let bindings: AwilixContainer<Cradle>
