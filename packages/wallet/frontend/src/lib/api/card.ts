@@ -5,15 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-
-// TODO: update interface - can be moved to shared folder as well
-export interface IUserCard {
-  name: string
-  number: string
-  expiry: string
-  cvv: number
-  isFrozen: boolean
-}
+import { ICardResponse } from '@wallet/shared'
 
 export const changePinSchema = z
   .object({
@@ -58,16 +50,7 @@ export const monthlySpendingLimitSchema = z.object({
     .positive()
 })
 
-export const terminateCardSchema = z.object({
-  reason: z
-    .object({
-      value: z.string().uuid(),
-      label: z.string().min(1)
-    })
-    .nullable()
-})
-
-type GetDetailsResponse = SuccessResponse<IUserCard>
+type GetDetailsResponse = SuccessResponse<ICardResponse>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
 type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
@@ -93,8 +76,8 @@ type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
   terminate(): Promise<TerminateCardResult>
-  freeze(): Promise<FreezeResult>
-  unfreeze(): Promise<UnfreezeResult>
+  freeze(cardId: string): Promise<FreezeResult>
+  unfreeze(cardId: string): Promise<UnfreezeResult>
   changePin(args: ChangePinArgs): Promise<ChangePinResult>
   setDailySpendingLimit(
     args: DailySpendingLimitArgs
@@ -108,7 +91,7 @@ const createCardService = (): UserCardService => ({
   async getDetails(cookies) {
     try {
       const response = await httpClient
-        .get(`card`, {
+        .get(`customer/card`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -131,25 +114,31 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async freeze() {
+  async freeze(cardId) {
     try {
       const response = await httpClient
-        .post('card/freeze')
+        .put(`cards/${cardId}/lock`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(
+        error,
+        'An error occured while freezing the card. Please try again.'
+      )
     }
   },
 
-  async unfreeze() {
+  async unfreeze(cardId) {
     try {
       const response = await httpClient
-        .post('card/unfreeze')
+        .put(`cards/${cardId}/unlock`)
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(
+        error,
+        'An error occured while unfreezing the card. Please try again.'
+      )
     }
   },
 
@@ -196,6 +185,7 @@ const createCardService = (): UserCardService => ({
 const mock = (service: UserCardService): UserCardService => {
   return {
     ...service,
+    // @ts-expect-error: we know - will be removed
     async getDetails() {
       return Promise.resolve({
         success: true,

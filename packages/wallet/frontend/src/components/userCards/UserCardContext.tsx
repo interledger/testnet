@@ -1,4 +1,4 @@
-import { IUserCard } from '@/lib/api/card'
+import { ICardResponse } from '@wallet/shared'
 import {
   createContext,
   useContext,
@@ -9,7 +9,7 @@ import {
 interface UserCardContextValue {
   showDetails: boolean
   setShowDetails: Dispatch<SetStateAction<boolean>>
-  card: IUserCard
+  card: ICardResponse
 }
 
 export const UserCardContext = createContext({} as UserCardContextValue)

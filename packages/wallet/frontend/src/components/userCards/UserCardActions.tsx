@@ -1,18 +1,14 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
 import { useCardContext } from './UserCardContext'
-import { cardServiceMock, IUserCard } from '@/lib/api/card'
+import { cardService, cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
-import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
-import { useDialog } from '@/lib/hooks/useDialog'
+import { useToast } from '@/lib/hooks/useToast'
 
-type FrozenCardActionsProps = {
-  card: IUserCard
-}
-
-export const FrozenCardActions = ({ card }: FrozenCardActionsProps) => {
+export const FrozenCardActions = () => {
   const router = useRouter()
-  const [openDialog, closeDialog] = useDialog()
+  const { card } = useCardContext()
+  const { toast } = useToast()
 
   return (
     <>
@@ -22,19 +18,26 @@ export const FrozenCardActions = ({ card }: FrozenCardActionsProps) => {
           aria-label="unfreeze"
           className="group"
           onClick={async () => {
-            // Maybe use toats for showcasing the result of the api calls,
-            // specifically for card actions?
-            // We will probably have a lot more dialogs for card settings
-            // and using dialogs again for showing the response might be a bit
-            // cumbersome.
-            const response = await cardServiceMock.unfreeze()
+            const response = await cardService.unfreeze(card.id)
 
             if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while unfreezing card')
+              toast({
+                description: (
+                  <p>
+                    An error occured while unfreezing the card. Please try
+                    again.
+                  </p>
+                ),
+                variant: 'error'
+              })
             }
 
             if (response.success) {
               router.replace(router.asPath)
+              toast({
+                description: <p>Card is no longer frozen.</p>,
+                variant: 'success'
+              })
             }
           }}
         >
@@ -50,14 +53,15 @@ export const FrozenCardActions = ({ card }: FrozenCardActionsProps) => {
           aria-label="terminate card"
           className="group"
           onClick={async () => {
-            // Maybe use toats for showcasing the result of the api calls,
-            // specifically for card actions?
-            // We will probably have a lot more dialogs for card settings
-            // and using dialogs again for showing the response might be a bit
-            // cumbersome.
-            openDialog(
-              <TerminateCardDialog card={card} onClose={closeDialog} />
-            )
+            const response = await cardServiceMock.terminate()
+
+            if (!response.success) {
+              console.error('[TODO] UPDATE ME - error while terminating card')
+            }
+
+            if (response.success) {
+              router.replace(router.asPath)
+            }
           }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-orange dark:group-hover:drop-shadow-none">
@@ -72,7 +76,8 @@ export const FrozenCardActions = ({ card }: FrozenCardActionsProps) => {
 
 const DefaultCardActions = () => {
   const router = useRouter()
-  const { showDetails, setShowDetails } = useCardContext()
+  const { card, showDetails, setShowDetails } = useCardContext()
+  const { toast } = useToast()
 
   return (
     <>
@@ -82,19 +87,25 @@ const DefaultCardActions = () => {
           aria-label="freeze"
           className="group"
           onClick={async () => {
-            // Maybe use toats for showcasing the result of the api calls,
-            // specifically for card actions?
-            // We will probably have a lot more dialogs for card settings
-            // and using dialogs again for showing the response might be a bit
-            // cumbersome.
-            const response = await cardServiceMock.freeze()
+            const response = await cardService.freeze(card.id)
 
             if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while freezing card')
+              toast({
+                description: (
+                  <p>
+                    An error occured while freezing the card. Please try again.
+                  </p>
+                ),
+                variant: 'error'
+              })
             }
 
             if (response.success) {
               router.replace(router.asPath)
+              toast({
+                description: <p>Card is frozen.</p>,
+                variant: 'success'
+              })
             }
           }}
         >
@@ -132,8 +143,8 @@ export const UserCardActions = () => {
 
   return (
     <div className="grid grid-cols-2 gap-x-3">
-      {card.isFrozen ? (
-        <FrozenCardActions card={card} />
+      {card.status === 'TemporaryBlocked' ? (
+        <FrozenCardActions />
       ) : (
         <DefaultCardActions />
       )}

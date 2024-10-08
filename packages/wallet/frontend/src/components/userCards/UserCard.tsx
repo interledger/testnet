@@ -1,11 +1,11 @@
-import { useState, type ComponentProps } from 'react'
+import { useMemo, useState, type ComponentProps } from 'react'
 import { CopyButton } from '@/ui/CopyButton'
 import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
-import type { IUserCard } from '@/lib/api/card'
-import { useCardContext, UserCardContext } from './UserCardContext'
+import { UserCardContext } from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
 import { UserCardSettings } from './UserCardSettings'
+import type { ICardResponse } from '@wallet/shared'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -28,13 +28,15 @@ const UserCardContainer = ({
 }
 
 interface UserCardFrontProps extends ComponentProps<'div'> {
-  card: IUserCard
+  nameOnCard: ICardResponse['nameOnCard']
+  isBlocked: boolean
 }
 
 // Even if the UserCard lives inside the context we explicitly pass the card
 // details as a prop, since we have to use this component in dialogs as well.
 export const UserCardFront = ({
-  card,
+  nameOnCard,
+  isBlocked,
   className,
   ...props
 }: UserCardFrontProps) => {
@@ -43,7 +45,7 @@ export const UserCardFront = ({
       <div
         className={cn(
           'flex flex-col h-full',
-          card.isFrozen ? 'select-none pointer-events-none blur' : ''
+          isBlocked ? 'select-none pointer-events-none blur' : ''
         )}
       >
         <div className="flex justify-between text-sm items-center">
@@ -54,11 +56,11 @@ export const UserCardFront = ({
           <Chip />
         </div>
         <div className="flex mt-auto justify-between items-center">
-          <span className="uppercase opacity-50">{card.name}</span>
+          <span className="uppercase opacity-50">{nameOnCard}</span>
           <MasterCardLogo />
         </div>
       </div>
-      {card.isFrozen ? (
+      {isBlocked ? (
         <div className="absolute inset-0 z-10 bg-[url('/frozen.webp')] bg-cover bg-center opacity-50" />
       ) : null}
     </UserCardContainer>
@@ -66,8 +68,6 @@ export const UserCardFront = ({
 }
 
 const UserCardBack = () => {
-  const { card } = useCardContext()
-
   return (
     <UserCardContainer>
       <div className="flex flex-col h-full">
@@ -78,29 +78,29 @@ const UserCardBack = () => {
               Card Number
             </p>
             <div className="flex items-center gap-x-3">
-              <p className="font-mono">{card.number}</p>
+              <p className="font-mono">TBD: After fetching sensitive data</p>
               <CopyButton
                 aria-label="copy card number"
                 className="h-4 w-4 p-0 opacity-50"
                 copyType="card"
-                value={card.number}
+                value={'0000000000000000'}
               />
             </div>
           </div>
           <div className="flex gap-x-6">
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
-              <p className="font-mono">{card.expiry}</p>
+              <p className="font-mono">{'00/00'}</p>
             </div>
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
-              <p className="font-mono">{card.cvv}</p>
+              <p className="font-mono">{'CVC'}</p>
             </div>
             <CopyButton
               aria-label="copy cvv"
               className="mt-2.5 -ml-3 h-4 w-4 p-0 opacity-50"
               copyType="card"
-              value={card.cvv.toString()}
+              value={'CVC'}
             />
             <MasterCardLogo className="ml-auto" />
           </div>
@@ -111,19 +111,27 @@ const UserCardBack = () => {
 }
 
 interface UserCardProps {
-  card: IUserCard
+  card: ICardResponse
 }
 export const UserCard = ({ card }: UserCardProps) => {
   const [showDetails, setShowDetails] = useState(false)
+
+  // Q: When the user freezes the card is it going to have the status `Blocked`
+  // or `TemporaryBlocked`
+  //
+  // Q; When the user receives the card, what status will it have?
+  const isBlocked = useMemo(() => card.status === 'Blocked', [card])
 
   return (
     <UserCardContext.Provider value={{ card, showDetails, setShowDetails }}>
       <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
         <div className="space-y-6 max-w-80 mx-auto">
-          {card.isFrozen ? <UserCardFront card={card} /> : null}
-          {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-          {!card.isFrozen && !showDetails ? (
-            <UserCardFront card={card} />
+          {isBlocked ? (
+            <UserCardFront nameOnCard={card.nameOnCard} isBlocked={isBlocked} />
+          ) : null}
+          {!isBlocked && showDetails ? <UserCardBack /> : null}
+          {!isBlocked && !showDetails ? (
+            <UserCardFront nameOnCard={card.nameOnCard} isBlocked={isBlocked} />
           ) : null}
           <UserCardActions />
         </div>

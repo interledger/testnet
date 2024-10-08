@@ -2,8 +2,9 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { cardServiceMock, IUserCard } from '@/lib/api/card'
+import { cardService } from '@/lib/api/card'
 import { UserCard } from '@/components/userCards/UserCard'
+import type { ICardResponse } from '@wallet/shared'
 
 type UserCardPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -19,9 +20,9 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  card: IUserCard
+  card: ICardResponse
 }> = async (ctx) => {
-  const response = await cardServiceMock.getDetails(ctx.req.headers.cookie)
+  const response = await cardService.getDetails(ctx.req.headers.cookie)
 
   if (!response.success || !response.result) {
     return {

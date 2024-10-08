@@ -54,22 +54,6 @@ export interface ICreateCustomerResponse {
   cardId: string
 }
 
-export interface ICardResponse {
-  sourceId: string
-  nameOnCard: string
-  productCode: string
-  id: string
-  accountId: string
-  accountSourceId: string
-  maskedPan: string
-  status: string
-  statusReasonCode: string | null
-  lockLevel: string | null
-  expiryDate: string
-  customerId: string
-  customerSourceId: string
-}
-
 export interface ICardProductLimit {
   type: CardLimitType
   currency: string
