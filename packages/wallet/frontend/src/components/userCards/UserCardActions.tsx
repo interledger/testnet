@@ -131,7 +131,11 @@ export const UserCardActions = () => {
 
   return (
     <div className="grid grid-cols-2 gap-x-3">
-      {card.isFrozen ? <FrozenCardActions /> : <DefaultCardActions />}
+      {card.status === 'TemporaryBlocked' ? (
+        <FrozenCardActions />
+      ) : (
+        <DefaultCardActions />
+      )}
     </div>
   )
 }

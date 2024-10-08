@@ -2,7 +2,7 @@ import { useMemo, useState, type ComponentProps } from 'react'
 import { CopyButton } from '@/ui/CopyButton'
 import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
-import { useCardContext, UserCardContext } from './UserCardContext'
+import { UserCardContext } from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
 import { UserCardSettings } from './UserCardSettings'
 import type { ICardResponse } from '@wallet/shared'
@@ -68,8 +68,6 @@ export const UserCardFront = ({
 }
 
 const UserCardBack = () => {
-  const { card } = useCardContext()
-
   return (
     <UserCardContainer>
       <div className="flex flex-col h-full">
@@ -80,29 +78,29 @@ const UserCardBack = () => {
               Card Number
             </p>
             <div className="flex items-center gap-x-3">
-              <p className="font-mono">{card.number}</p>
+              <p className="font-mono">TBD: After fetching sensitive data</p>
               <CopyButton
                 aria-label="copy card number"
                 className="h-4 w-4 p-0 opacity-50"
                 copyType="card"
-                value={card.number}
+                value={'0000000000000000'}
               />
             </div>
           </div>
           <div className="flex gap-x-6">
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
-              <p className="font-mono">{card.expiry}</p>
+              <p className="font-mono">{'00/00'}</p>
             </div>
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
-              <p className="font-mono">{card.cvv}</p>
+              <p className="font-mono">{'CVC'}</p>
             </div>
             <CopyButton
               aria-label="copy cvv"
               className="mt-2.5 -ml-3 h-4 w-4 p-0 opacity-50"
               copyType="card"
-              value={card.cvv.toString()}
+              value={'CVC'}
             />
             <MasterCardLogo className="ml-auto" />
           </div>
