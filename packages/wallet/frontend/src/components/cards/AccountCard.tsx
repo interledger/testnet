@@ -28,28 +28,37 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
 
   return (
     <Link
+      id={idOnboarding}
       href={`account/${account.id}`}
-      className={`rounded-lg shadow-sm transition-transform hover:scale-105 hover:shadow-md [&:nth-child(4n+1)]:bg-gradient-primary [&:nth-child(4n+2)]:bg-gradient-violet [&:nth-child(4n+3)]:bg-gradient-pink [&:nth-child(4n+4)]:bg-gradient-orange`}
+      // prettier-ignore
+      className={`text-right ease-in-out transition-[box-shadow,transform,] duration-200 aspect-[5/3] rounded-lg flex flex-col p-3 border-2
+          hover:scale-105 focus:scale-105
+          hover:dark:shadow-glow-link focus:dark:shadow-glow-link
+          [&:nth-child(4n+2)]:border-green-dark [&:nth-child(4n+3)]:border-pink-dark [&:nth-child(4n+4)]:border-orange-dark [&:nth-child(4n+5)]:border-purple-bright 
+          dark:[&:nth-child(4n+2)]:border-pink-neon dark:[&:nth-child(4n+3)]:border-teal-neon dark:[&:nth-child(4n+4)]:border-yellow-neon dark:[&:nth-child(4n+5)]:border-green-neon
+          dark:[&:nth-child(4n+2)]:[--tw-shadow:0_0_.2rem_rgb(var(--white)),_0_0_.2rem_rgb(var(--white)),_0_0_1rem_rgb(var(--pink-neon)),_0_0_.4rem_rgb(var(--pink-neon)),_inset_0_0_.6rem_rgb(var(--pink-neon))]
+          dark:[&:nth-child(4n+3)]:[--tw-shadow:0_0_.2rem_rgb(var(--white)),_0_0_.2rem_rgb(var(--white)),_0_0_1rem_rgb(var(--teal-neon)),_0_0_.4rem_rgb(var(--teal-neon)),_inset_0_0_.6rem_rgb(var(--teal-neon))]
+          dark:[&:nth-child(4n+4)]:[--tw-shadow:0_0_.2rem_rgb(var(--white)),_0_0_.2rem_rgb(var(--white)),_0_0_1rem_rgb(var(--yellow-neon)),_0_0_.4rem_rgb(var(--yellow-neon)),_inset_0_0_.6rem_rgb(var(--yellow-neon))]
+          dark:[&:nth-child(4n+5)]:[--tw-shadow:0_0_.2rem_rgb(var(--white)),_0_0_.2rem_rgb(var(--white)),_0_0_1rem_rgb(var(--green-neon)),_0_0_.4rem_rgb(var(--green-neon)),_inset_0_0_.6rem_rgb(var(--green-neon))]
+          hover:dark:[&:nth-child(4n+2)]:border-white hover:dark:[&:nth-child(4n+3)]:border-white hover:dark:[&:nth-child(4n+4)]:border-white hover:dark:[&:nth-child(4n+5)]:border-white
+          focus:dark:[&:nth-child(4n+2)]:border-white focus:dark:[&:nth-child(4n+3)]:border-white focus:dark:[&:nth-child(4n+4)]:border-white focus:dark:[&:nth-child(4n+5)]:border-white
+          [&:nth-child(4n+2)]:[--accent:rgb(var(--green-dark))] [&:nth-child(4n+3)]:[--accent:rgb(var(--pink-dark))] [&:nth-child(4n+4)]:[--accent:rgb(var(--orange-dark))] [&:nth-child(4n+5)]:[--accent:rgb(var(--purple-bright))]
+          dark:[&:nth-child(4n+2)]:[--accent:rgb(var(--pink-light))] dark:[&:nth-child(4n+3)]:[--accent:rgb(var(--teal-light))] dark:[&:nth-child(4n+4)]:[--accent:rgb(var(--yellow-light))] dark:[&:nth-child(4n+5)]:[--accent:rgb(var(--green-bright))]`}
       onClick={() => {
         if (isUserFirstTime) {
           setRunOnboarding(false)
         }
       }}
     >
-      <div className="flex aspect-square flex-1 flex-col p-2" id={idOnboarding}>
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-white text-xl font-semibold mix-blend-screen">
-          {formattedAmount.symbol}
-        </span>
-        <div className="mt-auto text-white">
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap font-light">
-            {account.name}
-          </p>
-
-          <p className="text-2xl font-semibold tracking-tighter">
-            {formattedAmount.amount}
-          </p>
-        </div>
-      </div>
+      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-xl text-white dark:text-purple">
+        {formattedAmount.symbol}
+      </span>
+      <span className="mt-auto hidden overflow-hidden text-ellipsis whitespace-nowrap leading-4 text-[--accent] sm:block">
+        {account.name}
+      </span>
+      <span className="text-md mt-auto font-semibold -tracking-wider text-[--accent] sm:text-2xl">
+        {formattedAmount.amount}
+      </span>
     </Link>
   )
 }

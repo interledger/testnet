@@ -3,50 +3,29 @@ import { cva, cx, type VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
 
 import { ButtonOrLink, type ButtonOrLinkProps } from './ButtonOrLink'
-
-/**
- * CVA helps us define variants for our components.
- *
- * For this button component, we created two variants: `intent` and `size`.
- *
- * The `VariantProps` helper is going to extract the variants types so we can
- * safely type our button.
- *
- * Usage:
- *  - <Button intent='primary' size='md'>My Button</Button>
- *
- * We can define `defaultVariants` for the component. In our case, if there is
- * no `intent` or `size` passed in, they will use the default variants specified
- * in `defaultVariants` object (in our case `intent -> primary` and `size => md`).
- *
- * Example:
- *  - <Button>My Button</Button>
- */
-
 const buttonStyles = cva(
-  ['inline-flex items-center justify-center hover:shadow-md outline-none'],
+  [
+    'inline-flex items-center justify-center outline-none border-2 underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button disabled:decoration-none disabled:bg-grey-light disabled:text-grey-dark disabled:cursor-not-allowed disabled:hover:shadow-none dark:disabled:decoration-none dark:disabled:bg-grey-light dark:disabled:text-grey-dark dark:disabled:cursor-not-allowed dark:disabled:hover:shadow-none'
+  ],
   {
     variants: {
       intent: {
         primary: [
-          'text-white bg-gradient-to-r from-green-5 to-green-6 hover:bg-gradient-primary-dark'
+          'border-transparent border-none bg-green-dark dark:bg-pink-neon text-white'
         ],
-        secondary: [
-          'text-white bg-gradient-secondary hover:bg-gradient-secondary-dark'
-        ],
-        success: ['text-green-3 bg-white hover:bg-white-1'],
-        error: ['text-pink bg-white hover:bg-white-1'],
         outline: [
-          'bg-transparent text-orange border border-orange hover:text-white hover:bg-orange'
+          'bg-transparent border-green-dark text-green-dark dark:border-pink-neon dark:text-pink-light'
         ],
-        outlineGreen: [
-          'bg-transparent text-green-3 border border-green-3 hover:text-white hover:bg-green-3'
+        transparent: ['bg-transaprent border-transparent'],
+        secondary: [
+          'bg-green-light border-none text-green-dark dark:bg-pink-light dark:text-purple'
+        ],
+        danger: [
+          'bg-orange-dark border-none bg-opacity-20 text-orange-dark dark:bg-pink-light dark:text-pink-neon'
         ]
       },
       size: {
-        xs: 'px-1 rounded-md font-small',
-        sm: 'px-2 py-1 rounded-md font-medium',
-        md: 'px-3 py-2 rounded-md font-medium'
+        md: 'p-3 rounded-md'
       },
       fullWidth: {
         true: 'w-full'

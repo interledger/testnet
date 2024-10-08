@@ -13,7 +13,7 @@ export const Label = ({ hint, htmlFor, children, ...props }: LabelProps) => {
     <div className="flex justify-between">
       <label
         htmlFor={htmlFor}
-        className="text-md block font-medium leading-6 text-green-3"
+        className="text-md block font-medium leading-6"
         {...props}
       >
         {children}

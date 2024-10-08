@@ -46,7 +46,7 @@ describe('Wallet Address', () => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      virtualAccountId: 'mocked'
+      gateHubWalletId: 'mocked'
     })
 
     const walletAddress = await WalletAddress.query().insert({
@@ -73,11 +73,11 @@ describe('Wallet Address', () => {
     req.session.user = {
       id: user.id,
       email: user.email,
-      needsWallet: !user.rapydWalletId,
-      needsIDProof: !user.kycId
+      needsWallet: !user.gateHubUserId,
+      needsIDProof: !user.kycVerified
     }
     userId = user.id
-    await User.query().patchAndFetchById(user.id, { rapydWalletId: 'mocked' })
+    await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })
   }
 
   const createMockWalletAddressControllerDeps = (isFailure?: boolean) => {
@@ -135,8 +135,7 @@ describe('Wallet Address', () => {
       }
       req.body = {
         walletAddressName: faker.lorem.slug(),
-        publicName: faker.lorem.words({ min: 2, max: 2 }),
-        isWM: false
+        publicName: faker.lorem.words({ min: 2, max: 2 })
       }
       await walletAddressController.create(req, res, next)
       expect(res.statusCode).toBe(200)
@@ -156,8 +155,7 @@ describe('Wallet Address', () => {
       }
       req.body = {
         walletAddressName: faker.lorem.slug(),
-        publicName: faker.lorem.words({ min: 2, max: 2 }),
-        isWM: false
+        publicName: faker.lorem.words({ min: 2, max: 2 })
       }
       await walletAddressController.create(req, res, (err) => {
         next()

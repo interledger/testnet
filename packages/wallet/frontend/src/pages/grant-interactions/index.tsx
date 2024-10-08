@@ -11,6 +11,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
+import { useTheme } from 'next-themes'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -27,6 +28,9 @@ const GrantInteractionPage = ({
   const router = useRouter()
   const access = grant.access.find((el) => el.type === 'outgoing-payment')
   const isPendingGrant = grant.state === 'PENDING'
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark' ? '/grants-dark.webp' : '/grants-light.webp'
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
@@ -48,11 +52,11 @@ const GrantInteractionPage = ({
   }
 
   return isPendingGrant ? (
-    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
-      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+    <div className="col-span-full m-auto my-28 px-5 text-center md:px-0">
+      <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
-          src="/grants.webp"
+          src={imageName}
           alt="Grants"
           quality={100}
           width={500}
@@ -84,7 +88,7 @@ const GrantInteractionPage = ({
             Accept
           </Button>
           <Button
-            intent="secondary"
+            intent="outline"
             aria-label="decline"
             onClick={() => {
               finalizeGrantRequest('reject')
@@ -96,17 +100,17 @@ const GrantInteractionPage = ({
       </div>
     </div>
   ) : (
-    <div className="flex h-full flex-col items-center justify-center px-5 text-center md:px-0">
-      <div className="rounded-xl border-2 border-turqoise px-5 py-10 shadow-lg">
+    <div className="col-span-full m-auto my-28 px-5 text-center md:px-0">
+      <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
         <Image
           className="mx-auto object-cover"
-          src="/grants.webp"
+          src={imageName}
           alt="Grants"
           quality={100}
           width={500}
           height={150}
         />
-        <div className="mt-20 text-xl text-green">
+        <div className="mt-20 text-xl">
           The request from <span className="font-semibold">{client}</span> to
           make a payment on your behalf for the amount of
           {access?.limits?.debitAmount?.formattedAmount}, was previously

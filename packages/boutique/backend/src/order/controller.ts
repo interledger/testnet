@@ -222,10 +222,11 @@ export class OrderController implements IOrderController {
     res: TypedResponse<CreateResponse>,
     next: NextFunction
   ) => {
+    let order: Order
     try {
       const args = await validate(instantBuySchema, req.body)
 
-      const order = await Order.transaction(async (trx) => {
+      order = await Order.transaction(async (trx) => {
         const newOrder = await this.orderService.create(
           { orderItems: args.products },
           trx
@@ -241,11 +242,14 @@ export class OrderController implements IOrderController {
         })
       )
     } catch (err) {
-      if (err instanceof OpenPaymentsClientError && err.status === 401)
+      if (err instanceof OpenPaymentsClientError && err.status === 401) {
         next(
           new Unauthorized('Instant-buy is not valid please initiate it again')
         )
-      else next(err)
+        await Order.transaction(async (trx) => {
+          return await this.orderService.delete(order!.id, trx)
+        })
+      } else next(err)
     }
   }
 }

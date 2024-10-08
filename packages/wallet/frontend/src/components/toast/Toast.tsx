@@ -32,8 +32,10 @@ export const toastVariants = cva(
     variants: {
       variant: {
         default: 'bg-white text-green focus:ring-green',
-        success: 'bg-white border-green-3 text-green-3 focus:ring-green-3',
-        error: 'border-pink bg-pink text-white focus:ring-pink'
+        success:
+          'bg-white border-green text-green focus:ring-green dark:bg-purple dark:border-green-neon dark:focus:ring-green-neon dark:text-green-neon',
+        error:
+          'bg-white dark:bg-purple-dark border-pink-dark focus:ring-pink-dark text-pink-dark dark:border-pink-neon dark:focus:ring-pink-neon dark:text-pink-neon'
       }
     },
     defaultVariants: {
@@ -64,7 +66,7 @@ export const ToastAction = forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-green-3 disabled:pointer-events-none disabled:opacity-50',
+      'focus:ring-green inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm transition-colors focus:outline-none focus:ring-2 disabled:pointer-events-none disabled:opacity-50',
       className
     )}
     {...props}
@@ -79,7 +81,7 @@ export const ToastClose = forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      'absolute right-2 top-2 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-green-3',
+      'focus:ring-green absolute right-2 top-2 rounded-md p-1 focus:outline-none focus:ring-2',
       className
     )}
     {...props}

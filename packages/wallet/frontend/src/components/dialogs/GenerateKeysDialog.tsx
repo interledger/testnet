@@ -35,10 +35,8 @@ export const GenerateKeysDialog = ({
 
   useEffect(() => {
     if (isDevKeysOnboarding) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 100)
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -78,23 +76,23 @@ export const GenerateKeysDialog = ({
                   The private key has been automatically downloaded to your
                   machine.
                 </p>
-                <textarea
-                  readOnly
-                  disabled
-                  rows={5}
-                  className="block w-full resize-none border-0 bg-transparent py-1.5 text-sm text-white disabled:bg-black/10"
-                  value={privateKey}
-                />
-                <CopyButton
-                  ctaText="COPY PRIVATE KEY"
-                  aria-label="copy private key"
-                  value={privateKey}
-                />
-                <CopyButton
-                  ctaText="COPY BASE64 ENCODED PRIVATE KEY"
-                  aria-label="copy base64 encoded private key"
-                  value={btoa(privateKey.trim())}
-                />
+                <pre className="whitespace-pre-wrap rounded-md bg-green-light p-2 text-left text-sm dark:bg-purple-dark">
+                  <code className="break-all">{privateKey}</code>
+                </pre>
+                <div className="space-y-2">
+                  <CopyButton
+                    ctaText="Copy private key"
+                    aria-label="copy private key"
+                    value={privateKey}
+                    fullWidth
+                  />
+                  <CopyButton
+                    ctaText="Copy base64 encoded private key"
+                    aria-label="copy base64 encoded private key"
+                    value={btoa(privateKey.trim())}
+                    fullWidth
+                  />
+                </div>
               </div>
             </div>
           }
@@ -126,7 +124,7 @@ export const GenerateKeysDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
         </Transition.Child>
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
@@ -139,10 +137,10 @@ export const GenerateKeysDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <Dialog.Title
                   as="h3"
-                  className="text-center text-2xl font-medium text-green-6"
+                  className="text-center text-2xl font-medium"
                 >
                   Generate public & private key
                 </Dialog.Title>
@@ -167,20 +165,20 @@ export const GenerateKeysDialog = ({
                         }
                       }}
                     />
-                    <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
-                      <Button
-                        aria-label="upload"
-                        type="submit"
-                        loading={generateKeysForm.formState.isSubmitting}
-                      >
-                        Generate keys
-                      </Button>
+                    <div className="mt-5 flex justify-between">
                       <Button
                         intent="outline"
                         aria-label="close dialog"
                         onClick={() => onClose()}
                       >
                         Cancel
+                      </Button>
+                      <Button
+                        aria-label="upload"
+                        type="submit"
+                        loading={generateKeysForm.formState.isSubmitting}
+                      >
+                        Generate keys
                       </Button>
                     </div>
                   </Form>

@@ -31,7 +31,7 @@ describe('Rafiki Service', () => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      virtualAccountId: 'mocked'
+      gateHubWalletId: 'mocked'
     })
 
     const walletAddress = await WalletAddress.query().insert({
@@ -55,16 +55,12 @@ describe('Rafiki Service', () => {
         createOutgoingTransaction: jest.fn()
       },
       socketService: {},
-      rapydClient: {
-        holdLiquidity: jest.fn()
-      },
       transactionService: {
         createOutgoingTransaction: jest.fn()
       },
       walletAddressService: {
         findByIdWithoutValidation: () => walletAddress || mockWalletAddress
       },
-      wmTransactionService: {},
       env: bindings.resolve('env'),
       logger: bindings.resolve('logger')
     }
@@ -89,7 +85,7 @@ describe('Rafiki Service', () => {
   beforeEach(async (): Promise<void> => {
     const extraUserArgs = {
       isEmailVerified: true,
-      rapydWalletId: 'mocked'
+      gateHubUserId: 'mocked'
     }
 
     const { user } = await loginUser({

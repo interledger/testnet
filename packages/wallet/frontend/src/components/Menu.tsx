@@ -1,83 +1,134 @@
 import { userService } from '@/lib/api/user'
-import { MenuBubbles } from '@/ui/Bubbles'
 import { Link } from '@/ui/Link'
 import { Logo } from '@/ui/Logo'
-import { Dialog, Disclosure, Transition } from '@headlessui/react'
-import { cx } from 'class-variance-authority'
+import { Dialog, Transition } from '@headlessui/react'
 import { useRouter } from 'next/router'
-import { Fragment, type SVGProps, useState } from 'react'
-import { Banknotes } from './icons/Banknotes'
+import {
+  Fragment,
+  type SVGProps,
+  ComponentPropsWithRef,
+  ReactNode
+} from 'react'
 import { Bars } from './icons/Bars'
-import { Chevron } from './icons/Chevron'
 import { Cog } from './icons/Cog'
 import { Grant } from './icons/Grant'
 import { Home } from './icons/Home'
 import { Logout } from './icons/Logout'
 import { X } from './icons/X'
 import { Transactions } from './icons/Transactions'
+import { Send } from './icons/Send'
+import { Request } from './icons/Request'
+import { cn } from '@/utils/helpers'
+import { useOnboardingContext } from '@/lib/context/onboarding'
+import { useMenuContext } from '@/lib/context/menu'
+import { Card } from './icons/CardButtons'
 
 type MenuItemProps = {
   name: string
   href: string
+  id: string
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
-  childrens?: {
-    name: string
-    href: string
-  }[]
 }
 
 const menuItems: MenuItemProps[] = [
   {
-    name: 'Home',
+    name: 'Accounts',
     href: '/',
+    id: 'home',
     Icon: Home
   },
   {
-    name: 'Transfer',
-    href: '/transfer',
-    Icon: Banknotes,
-    childrens: [
-      {
-        name: 'Send',
-        href: '/transfer/send'
-      },
-      {
-        name: 'Request',
-        href: '/transfer/request'
-      }
-    ]
+    name: 'Send',
+    href: '/send',
+    id: 'send',
+    Icon: Send
+  },
+  {
+    name: 'Request',
+    href: '/request',
+    id: 'request',
+    Icon: Request
   },
   {
     name: 'Transactions',
     href: '/transactions',
+    id: 'transactions',
     Icon: Transactions
   },
   {
     name: 'Grants',
     href: '/grants',
+    id: 'grants',
     Icon: Grant
+  },
+  {
+    name: 'Card',
+    href: '/card',
+    id: 'card',
+    Icon: Card
   },
   {
     name: 'Settings',
     href: '/settings',
-    Icon: Cog,
-    childrens: [
-      {
-        name: 'Account',
-        href: '/settings'
-      },
-      {
-        name: 'Developer Keys',
-        href: '/settings/developer-keys'
-      }
-    ]
+    id: 'settings',
+    Icon: Cog
   }
 ]
 
-export const Menu = () => {
+interface NavLinkProps extends ComponentPropsWithRef<'a'> {
+  currentPath: string
+  id: string
+  children: ReactNode
+  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
+}
+
+const NavLink = ({
+  href,
+  currentPath,
+  className,
+  children,
+  id,
+  Icon
+}: NavLinkProps) => {
+  const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
+  const { setSidebarIsOpen } = useMenuContext()
+
+  return (
+    <Link
+      href={href}
+      id={id}
+      onClick={() => {
+        setSidebarIsOpen(false)
+        if (
+          (id.indexOf('send') !== -1 || id.indexOf('request') !== -1) &&
+          isUserFirstTime
+        ) {
+          setRunOnboarding(false)
+        }
+      }}
+      className={cn(
+        'group flex items-center gap-x-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link',
+        currentPath === href ? 'bg-green-light dark:bg-purple-dark' : null,
+        className
+      )}
+    >
+      <Icon
+        className={cn(
+          'h-6 w-6',
+          currentPath === href
+            ? 'dark:drop-shadow-glow-svg'
+            : 'dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg'
+        )}
+      />
+      <span className="origin-[center_left] transition-transform duration-200 ease-in-out group-hover:scale-110 group-focus:scale-110">
+        {children}
+      </span>
+    </Link>
+  )
+}
+
+const LogoutButton = () => {
   const router = useRouter()
-  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
-  const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
 
   const handleLogout = async () => {
     const res = await userService.logout()
@@ -87,29 +138,54 @@ export const Menu = () => {
   }
 
   return (
+    <button
+      aria-label="logout"
+      onClick={handleLogout}
+      className="group mt-auto flex items-center gap-x-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
+    >
+      <Logout className="h-6 w-6 dark:group-hover:drop-shadow-glow-svg dark:group-focus:drop-shadow-glow-svg" />
+      <span className="origin-[center_left] transition-transform duration-200 ease-in-out group-hover:scale-110 group-focus:scale-110">
+        Logout
+      </span>
+    </button>
+  )
+}
+
+export const Menu = () => {
+  const router = useRouter()
+  const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
+  const { sidebarIsOpen, setSidebarIsOpen } = useMenuContext()
+  const { isUserFirstTime, stepIndex, setRunOnboarding } =
+    useOnboardingContext()
+
+  return (
     <>
-      {/* Mobile Menu */}
-      <Transition.Root show={sidebarIsOpen} as={Fragment}>
+      <Transition.Root
+        show={sidebarIsOpen}
+        as={Fragment}
+        afterEnter={() => {
+          if (isUserFirstTime && stepIndex === 8) {
+            setRunOnboarding(true)
+          }
+        }}
+      >
         <Dialog
           as="div"
           className="relative z-20 md:hidden"
           onClose={setSidebarIsOpen}
         >
-          {/* Backdrop */}
           <Transition.Child
             as={Fragment}
             enter="transition-opacity duration-500"
             enterFrom="opacity-0"
-            enterTo="opacity-90"
+            enterTo="opacity-100"
             leave="transition-opacity duration-500"
-            leaveFrom="opacity-90"
+            leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gradient-overlay" />
+            <div className="fixed inset-0 bg-green-modal/30 dark:bg-[#000000]/75" />
           </Transition.Child>
-          {/* Backdrop - END */}
-          {/* Menu */}
-          <div className="fixed inset-y-0 right-0 flex max-w-full">
+          <div className="fixed inset-y-0 right-0 flex">
             <Transition.Child
               as={Fragment}
               enter="transform transition duration-500"
@@ -119,169 +195,73 @@ export const Menu = () => {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="relative flex w-64 flex-col overflow-hidden rounded-l-3xl bg-white pb-4 pl-4 pt-5">
+              <Dialog.Panel className="relative flex flex-col bg-white p-6 dark:bg-purple">
                 <button
-                  className="ml-auto mr-4 inline-block"
+                  className="mb-4 block cursor-pointer self-end border-none px-1"
                   type="button"
                   onClick={() => setSidebarIsOpen(false)}
                 >
-                  <X strokeWidth={3} className="h-8 w-8" />
+                  <X className="h-5 w-5" />
                 </button>
-                <div className="overflow-y-auto">
-                  <nav className="space-y-5 pl-8 pr-5">
-                    {menuItems.map(({ name, href, Icon, childrens }) =>
-                      childrens ? (
-                        <Disclosure as="div" key={name} className="space-y-1">
-                          {({ open }) => (
-                            <>
-                              <Disclosure.Button className="flex w-full items-center justify-between text-xl text-green outline-none">
-                                <div className="flex space-x-4">
-                                  <Icon className="h-8 w-8 text-green-3" />
-                                  <span className="flex-1">{name}</span>
-                                </div>
-                                <Chevron
-                                  className="h-6 w-6 transition-transform duration-100"
-                                  direction={open ? 'down' : 'left'}
-                                />
-                              </Disclosure.Button>
-                              <Disclosure.Panel className="space-y-1">
-                                {childrens.map((children) => (
-                                  <Disclosure.Button
-                                    key={children.name}
-                                    as={Link}
-                                    href={children.href}
-                                    onClick={() => setSidebarIsOpen(false)}
-                                    className="flex items-center space-x-4 pl-12 text-lg font-light text-green"
-                                  >
-                                    {children.name}
-                                  </Disclosure.Button>
-                                ))}
-                              </Disclosure.Panel>
-                            </>
-                          )}
-                        </Disclosure>
-                      ) : (
-                        <Link
-                          key={name}
-                          href={href}
-                          onClick={() => setSidebarIsOpen(false)}
-                          className="flex items-center space-x-4 text-xl text-green"
-                        >
-                          <Icon className="h-8 w-8 text-green-3" />
-                          <span>{name}</span>
-                        </Link>
-                      )
-                    )}
-                  </nav>
-                </div>
-                <div className="mt-auto space-y-5 pl-8 pr-5">
-                  <button
-                    onClick={handleLogout}
-                    aria-label="logout"
-                    className="flex items-center space-x-4 text-lg text-green"
-                  >
-                    <Logout className="h-8 w-8 text-green-3" />
-                    <span>Logout</span>
-                  </button>
-                  <MenuBubbles className="inset-x-0 hidden w-full h-sm:block" />
-                </div>
+                <nav className="space-y-4">
+                  {menuItems.map(({ name, href, id, Icon }) => (
+                    <NavLink
+                      currentPath={pathname}
+                      key={name}
+                      href={href}
+                      Icon={Icon}
+                      id={`mobile_${id}`}
+                    >
+                      {name}
+                    </NavLink>
+                  ))}
+                </nav>
+                <LogoutButton />
               </Dialog.Panel>
             </Transition.Child>
           </div>
-          {/* Menu - END */}
         </Dialog>
       </Transition.Root>
-      {/* Mobile Menu - END */}
-      {/* Desktop Menu */}
-      <nav className="fixed inset-x-0 z-10 flex h-20 flex-col bg-white shadow-md md:inset-y-0 md:h-auto md:w-60 md:shadow-none">
-        <div className="flex min-h-0 flex-1 items-center px-6 py-10 md:flex-col md:items-start md:overflow-y-auto md:bg-gradient-primary">
-          <Link href="/">
-            <div className="flex items-center font-semibold text-green">
-              <Logo className="h-10 w-10 flex-shrink-0 md:h-16 md:w-16" />
-              <div className="pl-2">
-                <div className="text-lg md:text-2xl">Interledger</div>
-                <div className="text-sm md:text-lg">test wallet</div>
-              </div>
-            </div>
+
+      <header className="fixed inset-x-0 top-0 block h-[84px] border-b-2 border-dotted bg-white px-6 dark:bg-purple md:hidden">
+        <nav className="flex items-center justify-between">
+          <Link className="" href="/">
+            <Logo className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
           </Link>
-          <div className="mt-14 hidden w-full flex-1 space-y-8 md:block">
-            {menuItems.map(({ name, href, Icon, childrens }) =>
-              childrens ? (
-                <Disclosure as="div" key={name} className="space-y-1">
-                  {({ open }) => (
-                    <>
-                      <Disclosure.Button className="flex w-full items-center justify-between text-lg font-semibold outline-none">
-                        <div
-                          className={cx(
-                            pathname === href
-                              ? 'text-white'
-                              : 'text-green hover:text-white',
-                            'flex items-center space-x-4'
-                          )}
-                        >
-                          <Icon className="h-6 w-6" />
-                          <span className="flex-1">{name}</span>
-                        </div>
+          <button
+            className="p-1"
+            aria-label="open menu"
+            onClick={() => setSidebarIsOpen(true)}
+          >
+            <Bars className="h-7 w-7 stroke-black dark:stroke-white" />
+          </button>
+        </nav>
+      </header>
 
-                        <Chevron
-                          className="h-6 w-6 transition-transform duration-100"
-                          direction={open ? 'down' : 'left'}
-                        />
-                      </Disclosure.Button>
-                      <Disclosure.Panel className="space-y-1">
-                        {childrens.map((children) => (
-                          <Disclosure.Button
-                            key={children.name}
-                            as={Link}
-                            href={children.href}
-                            className="flex items-center space-x-4 pl-10 hover:text-white"
-                          >
-                            {children.name}
-                          </Disclosure.Button>
-                        ))}
-                      </Disclosure.Panel>
-                    </>
-                  )}
-                </Disclosure>
-              ) : (
-                <Link
-                  key={name}
-                  href={href}
-                  className={cx(
-                    pathname === href
-                      ? 'text-white'
-                      : 'text-green hover:text-white',
-                    'flex items-center space-x-4 text-lg font-semibold'
-                  )}
-                >
-                  <Icon className="h-6 w-6" />
-                  <span>{name}</span>
-                </Link>
-              )
-            )}
+      <aside className="relative hidden w-max md:block">
+        <nav className="sticky top-0 flex h-screen flex-col p-6">
+          <Link
+            className="group mb-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
+            href="/"
+          >
+            <Logo className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
+          </Link>
+          <div className="w-full space-y-4">
+            {menuItems.map(({ name, href, id, Icon }) => (
+              <NavLink
+                currentPath={pathname}
+                key={name}
+                href={href}
+                Icon={Icon}
+                id={id}
+              >
+                {name}
+              </NavLink>
+            ))}
           </div>
-          <div className="hidden md:block">
-            <button
-              onClick={handleLogout}
-              aria-label="logout"
-              className="flex items-center space-x-4 text-lg font-semibold text-green hover:text-white"
-            >
-              <Logout className="h-6 w-6" />
-              <span>Logout</span>
-            </button>
-          </div>
-
-          <div className="ml-auto flex md:hidden">
-            <button
-              aria-label="open menu"
-              onClick={() => setSidebarIsOpen(true)}
-            >
-              <Bars strokeWidth={2.5} className="h-10 w-10" />
-            </button>
-          </div>
-        </div>
-      </nav>
-      {/* Desktop Menu - END*/}
+          <LogoutButton />
+        </nav>
+      </aside>
     </>
   )
 }

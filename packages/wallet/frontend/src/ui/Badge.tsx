@@ -1,24 +1,34 @@
 import { cva, cx, type VariantProps } from 'class-variance-authority'
 
 const badgeStyles = cva(
-  ['inline-flex items-center justify-center rounded-md text-sm'],
+  ['inline-flex items-center justify-center rounded-md text-sm border'],
   {
     variants: {
       intent: {
-        primary: ['bg-gradient-to-r from-green-5 to-green-6 text-white'],
-        green: ['bg-green-4 text-green-3'],
-        orange: ['bg-orange-1 text-orange-2'],
-        pink: ['bg-pink-1 text-pink-2'],
-        violet: ['bg-violet-1 text-violet-2']
+        green: [
+          'border-green-dark text-green-dark dark:border-teal-neon dark:text-teal-neon'
+        ],
+        orange: [
+          'border-orange-dark text-orange-dark dark:border-yellow-neon dark:text-yellow-neon'
+        ],
+        pink: [
+          'border-pink-dark text-pink-dark dark:border-pink-light dark:text-pink-light'
+        ],
+        violet: [
+          'border-purple-light text-pink-light dark:border-pink-neon dark:text-pink-neon'
+        ],
+        info: [
+          'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
+        ]
       },
       size: {
-        fixed: ['w-10'],
+        fixed: ['px-1 py-0.5'],
         md: ['px-2 py-0.5 text-xs font-semibold uppercase'],
         lg: ['px-2.5 py-0.5 text-sm font-semibold uppercase']
       }
     },
     defaultVariants: {
-      intent: 'primary'
+      intent: 'green'
     }
   }
 )
@@ -55,6 +65,6 @@ export const getStatusBadgeIntent = (
     case 'REVOKED':
       return 'violet'
     default:
-      return 'primary'
+      return 'green'
   }
 }

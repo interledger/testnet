@@ -1,9 +1,8 @@
 import { z } from 'zod'
+import { emailSchema } from '@wallet/shared'
 
 export const forgotPasswordSchema = z.object({
-  body: z.object({
-    email: z.string().email({ message: 'Email is required' })
-  })
+  body: emailSchema
 })
 
 export const resetPasswordSchema = z.object({

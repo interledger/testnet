@@ -39,25 +39,24 @@ services:
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
       COOKIE_TTL: 2630000
-      RAPYD_API: https://sandboxapi.rapyd.net/v1
-      RAPYD_ACCESS_KEY: ${RAPYD_ACCESS_KEY}
-      RAPYD_SETTLEMENT_EWALLET: ${RAPYD_SETTLEMENT_EWALLET}
-      RAPYD_SECRET_KEY: ${RAPYD_SECRET_KEY}
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
       AUTH_DOMAIN: http://rafiki-auth:3009
       AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
+      RAFIKI_WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL}
       SEND_EMAIL: ${SEND_EMAIL:-false}
-      RATE_API_KEY: ${RATE_API_KEY}
-      BASE_ASSET_SCALE: 2
-      MAX_ASSET_SCALE: 9
-      WM_THRESHOLD: 100000000
-      DEBT_THRESHOLD: 5
       REDIS_URL: redis://redis:6379/0
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
+      GATEHUB_ACCESS_KEY: ${GATEHUB_ACCESS_KEY}
+      GATEHUB_SECRET_KEY: ${GATEHUB_SECRET_KEY}
+      GATEHUB_GATEWAY_UUID: ${GATEHUB_GATEWAY_UUID}
+      GATEHUB_VAULT_UUID_EUR: ${GATEHUB_VAULT_UUID_EUR}
+      GATEHUB_VAULT_UUID_USD: ${GATEHUB_VAULT_UUID_USD}
+      GATEHUB_SETTLEMENT_WALLET_ADDRESS: ${GATEHUB_SETTLEMENT_WALLET_ADDRESS}
+      GATEHUB_CARD_APP_ID: ${GATEHUB_CARD_APP_ID}
     restart: always
     networks:
       - testnet
@@ -152,6 +151,7 @@ services:
       # Testnet urls - not implemented
       WEBHOOK_URL: http://wallet-backend:3003/webhooks
       WEBHOOK_TIMEOUT: 60000
+      SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
       ENABLE_AUTO_PEERING: true
       AUTO_PEERING_SERVER_PORT: 3005
@@ -182,10 +182,11 @@ services:
       KRATOS_CONTAINER_PUBLIC_URL: 'http://kratos:4433'
       KRATOS_BROWSER_PUBLIC_URL: 'http://localhost:4433'
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
+      AUTH_ENABLED: false
     <<: *logging
 
   kratos:
-    image: 'oryd/kratos:v1.2.0'
+    image: 'oryd/kratos:v1.3.0'
     privileged: true
     depends_on:
       - postgres
@@ -201,7 +202,7 @@ services:
       - testnet
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.15.4
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.7
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle

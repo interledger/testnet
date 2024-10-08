@@ -6,6 +6,7 @@ import { WalletAddressKeys } from './model'
 import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { BadRequest, NotFound } from '@shared/backend'
+import { UniqueViolationError } from 'objection'
 
 export type KeyResponse = {
   privateKey: string
@@ -63,46 +64,47 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     base64Key,
     nickname
   }: UploadKeyArgs): Promise<void> {
-    const walletAddress = await this.walletAddressService.getById({
-      userId,
-      accountId,
-      walletAddressId
-    })
-
-    const jwk = validateJwk(
-      JSON.parse(new Buffer(base64Key, 'base64').toString())
-    )
-    const publicKey = createPublicKey({ key: jwk, format: 'jwk' })
-    const publicKeyPEM = publicKey
-      .export({ type: 'spki', format: 'pem' })
-      .toString()
-
-    const isUploaded = await WalletAddress.query()
-      .where({
-        id: jwk.kid.toString()
+    try {
+      const walletAddress = await this.walletAddressService.getById({
+        userId,
+        accountId,
+        walletAddressId
       })
-      .first()
 
-    if (isUploaded)
-      throw new BadRequest(
-        'Same key already uploaded. Please upload a unique one.'
+      const jwk = validateJwk(
+        JSON.parse(new Buffer(base64Key, 'base64').toString())
       )
+      const publicKey = createPublicKey({ key: jwk, format: 'jwk' })
+      const publicKeyPEM = publicKey
+        .export({ type: 'spki', format: 'pem' })
+        .toString()
 
-    const walletAddressKey =
-      await this.rafikiClient.createRafikiWalletAddressKey(
-        jwk,
-        walletAddress.id
-      )
+      const walletAddressKey =
+        await this.rafikiClient.createRafikiWalletAddressKey(
+          jwk,
+          walletAddress.id
+        )
 
-    const key = {
-      id: jwk.kid,
-      nickname,
-      rafikiId: walletAddressKey.id,
-      publicKey: publicKeyPEM,
-      walletAddressId
+      const key = {
+        id: jwk.kid,
+        nickname,
+        rafikiId: walletAddressKey.id,
+        publicKey: publicKeyPEM,
+        walletAddressId
+      }
+
+      await WalletAddressKeys.query().insert(key)
+    } catch (e) {
+      if (e instanceof SyntaxError)
+        throw new BadRequest('The uploaded key is not in the correct format.')
+
+      if (e instanceof UniqueViolationError)
+        throw new BadRequest(
+          'Same key already uploaded. Please upload a unique one.'
+        )
+
+      throw e
     }
-
-    await WalletAddressKeys.query().insert(key)
   }
 
   async registerKey({

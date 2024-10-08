@@ -12,11 +12,6 @@ exports.up = async function (knex) {
       table.dropForeign(['paymentPointerId'])
       table.renameColumn('paymentPointerId', 'walletAddressId')
       table.foreign('walletAddressId').references('walletAddresses.id')
-    }),
-    knex.schema.alterTable('wmTransactions', function (table) {
-      table.dropForeign(['paymentPointerId'])
-      table.renameColumn('paymentPointerId', 'walletAddressId')
-      table.foreign('walletAddressId').references('walletAddresses.id')
     })
   ])
 }
@@ -32,11 +27,6 @@ exports.down = async function (knex) {
       'ALTER INDEX "walletAddresses_pkey" RENAME TO "paymentPointers_pkey"'
     ),
     knex.schema.alterTable('transactions', function (table) {
-      table.dropForeign(['walletAddressId'])
-      table.renameColumn('walletAddressId', 'paymentPointerId')
-      table.foreign('paymentPointerId').references('paymentPointers.id')
-    }),
-    knex.schema.alterTable('wmTransactions', function (table) {
       table.dropForeign(['walletAddressId'])
       table.renameColumn('walletAddressId', 'paymentPointerId')
       table.foreign('paymentPointerId').references('paymentPointers.id')

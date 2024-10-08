@@ -21,12 +21,18 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
 import { GrantResponse } from '@wallet/shared'
+import { useTheme } from 'next-themes'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
 
   const handleRevokeConfirmation = async (id: string) => {
     const response = await grantsService.delete(id)
@@ -54,7 +60,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
         {(grant.finalizationReason === 'ISSUED' ||
           grant.state !== 'FINALIZED') && (
           <Button
-            intent="secondary"
+            intent="outline"
             aria-label="revoke"
             onClick={() => {
               openDialog(
@@ -73,7 +79,7 @@ const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
       </div>
       <Image
         className="mt-20 object-cover"
-        src="/grants.webp"
+        src={imageName}
         alt="Grants"
         quality={100}
         width={500}

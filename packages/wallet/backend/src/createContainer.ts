@@ -18,9 +18,6 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { RafikiController } from '@/rafiki/controller'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { RafikiService } from '@/rafiki/service'
-import { RapydController } from '@/rapyd/controller'
-import { RapydClient } from '@/rapyd/rapyd-client'
-import { RapydService } from '@/rapyd/service'
 import { SessionService } from '@/session/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
@@ -30,7 +27,6 @@ import { type Knex } from 'knex'
 import { SocketService } from './socket/service'
 import { GrantService } from './grant/service'
 import { RatesService } from './rates/service'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
 import { Logger } from 'winston'
 import {
   asClass,
@@ -52,6 +48,11 @@ import { asClassSingletonWithLogger, RedisClient } from '@shared/backend'
 import { generateLogger } from '@/config/logger'
 import { GraphQLClient } from 'graphql-request'
 import { KratosService } from './rafiki/kratos.service'
+import { GateHubController } from '@/gatehub/controller'
+import { GateHubClient } from '@/gatehub/client'
+import { GateHubService } from '@/gatehub/service'
+import { CardController } from './card/controller'
+import { CardService } from './card/service'
 
 export interface Cradle {
   env: Env
@@ -63,14 +64,11 @@ export interface Cradle {
   authService: AuthService
   backendGraphQLClient: GraphQLClient
   authGraphQLClient: GraphQLClient
-  rapydClient: RapydClient
-  rapydService: RapydService
   rafikiClient: RafikiClient
   rafikiAuthService: RafikiAuthService
   accountService: AccountService
   ratesService: RatesService
   redisClient: RedisClient
-  wmTransactionService: WMTransactionService
   walletAddressService: WalletAddressService
   walletAddressKeyService: WalletAddressKeyService
   transactionService: TransactionService
@@ -84,7 +82,6 @@ export interface Cradle {
   authController: AuthController
   assetController: AssetController
   accountController: AccountController
-  rapydController: RapydController
   transactionController: TransactionController
   incomingPaymentController: IncomingPaymentController
   outgoingPaymentController: OutgoingPaymentController
@@ -94,6 +91,11 @@ export interface Cradle {
   walletAddressController: WalletAddressController
   walletAddressKeyController: WalletAddressKeyController
   kratosService: KratosService
+  gateHubClient: GateHubClient
+  gateHubController: GateHubController
+  gateHubService: GateHubService
+  cardService: CardService
+  cardController: CardController
 }
 
 export async function createContainer(
@@ -114,17 +116,11 @@ export async function createContainer(
     authService: asClassSingletonWithLogger(AuthService, logger),
     backendGraphQLClient: asFunction(createBackendGraphQLClient).singleton(),
     authGraphQLClient: asFunction(createAuthGraphQLClient).singleton(),
-    rapydClient: asClassSingletonWithLogger(RapydClient, logger),
-    rapydService: asClass(RapydService).singleton(),
     rafikiClient: asClass(RafikiClient).singleton(),
     rafikiAuthService: asClass(RafikiAuthService).singleton(),
     accountService: asClass(AccountService).singleton(),
     ratesService: asClass(RatesService).singleton(),
     redisClient: asFunction(createRedis).singleton(),
-    wmTransactionService: asClassSingletonWithLogger(
-      WMTransactionService,
-      logger
-    ),
     transactionService: asClassSingletonWithLogger(TransactionService, logger),
     walletAddressService: asClassSingletonWithLogger(
       WalletAddressService,
@@ -137,11 +133,11 @@ export async function createContainer(
     quoteService: asClass(QuoteService).singleton(),
     grantService: asClass(GrantService).singleton(),
     socketService: asClassSingletonWithLogger(SocketService, logger),
+    cardService: asClass(CardService).singleton(),
     userController: asClass(UserController).singleton(),
     authController: asClass(AuthController).singleton(),
     assetController: asClass(AssetController).singleton(),
     accountController: asClass(AccountController).singleton(),
-    rapydController: asClass(RapydController).singleton(),
     transactionController: asClass(TransactionController).singleton(),
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),
     outgoingPaymentController: asClass(OutgoingPaymentController).singleton(),
@@ -150,7 +146,11 @@ export async function createContainer(
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),
     walletAddressKeyController: asClass(WalletAddressKeyController).singleton(),
-    kratosService: asClassSingletonWithLogger(KratosService, logger)
+    kratosService: asClassSingletonWithLogger(KratosService, logger),
+    gateHubClient: asClass(GateHubClient).singleton(),
+    gateHubController: asClass(GateHubController).singleton(),
+    gateHubService: asClass(GateHubService).singleton(),
+    cardController: asClass(CardController).singleton()
   })
 
   return container

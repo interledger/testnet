@@ -40,10 +40,13 @@ interface CreateOutgoingPaymentParams {
   authServer: string
   identifier: string
   walletAddress: string
-  debitAmount: Amount
-  receiveAmount: Amount
   nonce: string
   finishUrl?: string
+  limits: {
+    debitAmount: Amount
+    receiveAmount: Amount
+    receiver?: string
+  }
 }
 
 interface CreateIncomingPaymentParams {
@@ -127,9 +130,11 @@ export class OpenPayments implements IOpenPayments {
       identifier: order.id,
       walletAddress: customerWalletAddress.id,
       authServer: customerWalletAddress.authServer,
-
-      debitAmount: quote.debitAmount,
-      receiveAmount: quote.receiveAmount,
+      limits: {
+        debitAmount: quote.debitAmount,
+        receiveAmount: quote.receiveAmount,
+        receiver: incomingPayment.id
+      },
       nonce: clientNonce
     })
 
@@ -260,8 +265,10 @@ export class OpenPayments implements IOpenPayments {
       walletAddress: walletAddress.id,
       authServer: walletAddress.authServer,
       identifier: clientIdentifer,
-      debitAmount: amountData,
-      receiveAmount: amountData,
+      limits: {
+        debitAmount: amountData,
+        receiveAmount: amountData
+      },
       finishUrl: `${this.env.FRONTEND_URL}/cart/finish?identifier=${clientIdentifer}`
     })
 
@@ -402,15 +409,8 @@ export class OpenPayments implements IOpenPayments {
   private async createOutgoingPaymentGrant(
     params: CreateOutgoingPaymentParams
   ): Promise<PendingGrant> {
-    const {
-      nonce,
-      authServer,
-      identifier,
-      walletAddress,
-      debitAmount,
-      receiveAmount,
-      finishUrl
-    } = params
+    const { nonce, authServer, identifier, walletAddress, limits, finishUrl } =
+      params
 
     const finish =
       finishUrl ??
@@ -426,10 +426,7 @@ export class OpenPayments implements IOpenPayments {
                 type: 'outgoing-payment',
                 actions: ['create', 'read', 'list'],
                 identifier: walletAddress,
-                limits: {
-                  debitAmount,
-                  receiveAmount
-                }
+                limits
               }
             ]
           },

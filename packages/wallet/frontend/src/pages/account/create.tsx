@@ -19,6 +19,7 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { createAccountSchema } from '@wallet/shared'
+import { BASE_ASSET_SCALE } from '@/utils/constants'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
@@ -38,14 +39,11 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
 
   useEffect(() => {
     if (isUserFirstTime) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 300)
+      setStepIndex(stepIndex + 1)
     }
     createAccountForm.setFocus('name')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createAccountForm])
+  }, [])
 
   return (
     <>
@@ -138,7 +136,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const assets = response.result
-    ?.filter((asset) => asset.scale <= 2)
+    ?.filter((asset) => asset.scale <= BASE_ASSET_SCALE)
     ?.map((asset) => ({
       value: asset.id,
       label: asset.code

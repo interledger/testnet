@@ -34,7 +34,7 @@ describe('Wallet Address Key Service', () => {
   const prepareRelatedData = async () => {
     const extraUserArgs = {
       isEmailVerified: true,
-      rapydWalletId: 'mocked'
+      gateHubUserId: 'mocked'
     }
 
     const { user } = await loginUser({
@@ -50,7 +50,7 @@ describe('Wallet Address Key Service', () => {
       assetCode: mockedListAssets[0].code,
       assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
-      virtualAccountId: 'mocked'
+      gateHubWalletId: 'mocked'
     })
 
     await WalletAddress.query().insert(walletAddress)
@@ -130,7 +130,7 @@ describe('Wallet Address Key Service', () => {
           nickname: faker.lorem.word(),
           base64Key
         })
-      ).rejects.toThrowError('Unexpected end of JSON input')
+      ).rejects.toThrowError('The uploaded key is not in the correct format.')
     })
   })
 

@@ -6,20 +6,9 @@ import axios from 'axios'
 import { getRandomValues } from 'crypto'
 import { Cache, RedisClient } from '@shared/backend'
 import { WalletAddress } from './model'
-import { WMTransactionService } from '@/webMonetization/transaction/service'
-import { PartialModelObject, TransactionOrKnex, raw } from 'objection'
-import { RapydClient } from '@/rapyd/rapyd-client'
-import { TransactionType } from '@/transaction/model'
-import { Logger } from 'winston'
 import { TransactionService } from '@/transaction/service'
-import { BadRequest, Conflict, NotFound } from '@shared/backend'
+import { Conflict, NotFound } from '@shared/backend'
 import { WalletAddressOP } from '@wallet/shared'
-
-interface HandleBalanceParams {
-  type: TransactionType
-  balance: bigint
-  walletAddress: WalletAddress
-}
 
 export interface UpdateWalletAddressArgs {
   userId: string
@@ -33,13 +22,12 @@ export interface CreateWalletAddressArgs {
   accountId: string
   walletAddressName: string
   publicName: string
-  isWM: boolean
 }
 
 export type GetWalletAddressArgs = {
   walletAddressId: string
-  accountId?: string
-  userId?: string
+  accountId: string
+  userId: string
 }
 
 export type WalletAddressList = {
@@ -50,7 +38,7 @@ export type WalletAddressList = {
 interface IWalletAddressService {
   create: (params: CreateWalletAddressArgs) => Promise<WalletAddress>
   update: (args: UpdateWalletAddressArgs) => Promise<void>
-  list: (userId: string, accountId: string) => Promise<WalletAddressList>
+  list: (userId: string, accountId: string) => Promise<WalletAddress[]>
   getById: (args: GetWalletAddressArgs) => Promise<WalletAddress>
   softDelete: (userId: string, id: string) => Promise<void>
 }
@@ -76,8 +64,7 @@ export const createWalletAddressIfFalsy = async ({
     userId,
     accountId,
     walletAddressName: getRandomValues(new Uint32Array(1))[0].toString(16),
-    publicName,
-    isWM: false
+    publicName
   })
 
   return newWalletAddress
@@ -90,12 +77,9 @@ export class WalletAddressService implements IWalletAddressService {
     private rafikiClient: RafikiClient,
     private env: Env,
     redisClient: RedisClient,
-    private wmTransactionService: WMTransactionService,
-    private transactionService: TransactionService,
-    private rapydClient: RapydClient,
-    private logger: Logger
+    private transactionService: TransactionService
   ) {
-    this.cache = new Cache<WalletAddress>(redisClient, 'WMWalletAddresses')
+    this.cache = new Cache<WalletAddress>(redisClient, 'WalletAddresses')
   }
 
   async create(args: CreateWalletAddressArgs): Promise<WalletAddress> {
@@ -127,26 +111,7 @@ export class WalletAddressService implements IWalletAddressService {
         )
       }
     } else {
-      let webMonetizationAsset
-      if (args.isWM) {
-        // @TEMPORARY: Enable WM only for USD
-        if (account.assetCode !== 'USD') {
-          throw new BadRequest(
-            'Web Monetization is enabled exclusively for USD.'
-          )
-        }
-
-        webMonetizationAsset = await this.rafikiClient.getRafikiAsset(
-          'USD',
-          this.env.MAX_ASSET_SCALE
-        )
-
-        if (!webMonetizationAsset) {
-          throw new NotFound('Web monetization asset not found.')
-        }
-      }
-
-      const assetId = webMonetizationAsset?.id || account.assetId
+      const assetId = account.assetId
       const rafikiWalletAddress =
         await this.rafikiClient.createRafikiWalletAddress(
           args.publicName,
@@ -158,49 +123,30 @@ export class WalletAddressService implements IWalletAddressService {
         url: rafikiWalletAddress.url,
         publicName: args.publicName,
         accountId: args.accountId,
-        id: rafikiWalletAddress.id,
-        isWM: args.isWM,
-        assetCode: webMonetizationAsset?.code,
-        assetScale: webMonetizationAsset?.scale
+        id: rafikiWalletAddress.id
       })
 
-      args.isWM &&
-        (await this.cache.set(walletAddress.id, walletAddress, {
-          expiry: 60
-        }))
+      await this.cache.set(walletAddress.id, walletAddress, {
+        expiry: 60
+      })
     }
 
     return walletAddress
   }
 
-  async list(userId: string, accountId: string): Promise<WalletAddressList> {
+  async list(userId: string, accountId: string): Promise<WalletAddress[]> {
     const account = await this.accountService.findAccountById(accountId, userId)
 
     const walletAddressesResult = await WalletAddress.query()
       .where('accountId', account.id)
       .where('active', true)
 
-    const result = walletAddressesResult.reduce(
-      (acc, pp) => {
-        if (pp.isWM) {
-          acc.wmWalletAddresses.push(pp)
-        } else {
-          acc.walletAddresses.push(pp)
-        }
-        return acc
-      },
-      {
-        wmWalletAddresses: [] as WalletAddress[],
-        walletAddresses: [] as WalletAddress[]
-      }
-    )
-
-    return result
+    return walletAddressesResult
   }
 
   async listAll(userId: string): Promise<WalletAddress[]> {
     return WalletAddress.query()
-      .where({ isWM: false, active: true })
+      .where({ active: true })
       .joinRelated('account')
       .where({
         'account.userId': userId
@@ -208,33 +154,29 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   async getById(args: GetWalletAddressArgs): Promise<WalletAddress> {
-    //* Cache only contains WalletAddresses with isWM = true
-    const cacheHit = await this.cache.get(args.walletAddressId)
-    if (cacheHit) {
-      //* TODO: reset ttl
-      return cacheHit
-    }
+    await this.accountService.findAccountById(args.accountId, args.userId)
 
-    if (args.userId && args.accountId) {
-      await this.accountService.findAccountById(args.accountId, args.userId)
-    }
-
-    const query = WalletAddress.query()
+    const walletAddress = await WalletAddress.query()
       .findById(args.walletAddressId)
       .where('active', true)
-    if (args.accountId) {
-      query.where('accountId', args.accountId)
-    }
-    const walletAddress = await query
+      .where('accountId', args.accountId)
 
     if (!walletAddress) {
       throw new NotFound()
     }
 
-    if (walletAddress.isWM) {
-      await this.cache.set(walletAddress.id, walletAddress, {
-        expiry: 60
-      })
+    return walletAddress
+  }
+
+  async getByCardId(userId: string, cardId: string): Promise<WalletAddress> {
+    const walletAddress = await WalletAddress.query()
+      .join('accounts', 'walletAddresses.accountId', 'accounts.id')
+      .where('walletAddresses.cardId', cardId)
+      .andWhere('accounts.userId', userId)
+      .first()
+
+    if (!walletAddress) {
+      throw new NotFound()
     }
 
     return walletAddress
@@ -303,6 +245,16 @@ export class WalletAddressService implements IWalletAddressService {
           publicName
         })
       ])
+
+      await this.cache.delete(walletAddressId)
+      const updatedWalletAddress = await walletAddress
+        .$query(trx)
+        .findById(walletAddressId)
+      updatedWalletAddress &&
+        (await this.cache.set(walletAddressId, updatedWalletAddress, {
+          expiry: 60
+        }))
+
       await trx.commit()
     } catch (e) {
       await trx.rollback()
@@ -324,7 +276,6 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   async findByIdWithoutValidation(id: string) {
-    //* Cache only contains WalletAddresses with isWM = true
     const cacheHit = await this.cache.get(id)
     if (cacheHit) {
       //* TODO: reset ttl
@@ -339,169 +290,10 @@ export class WalletAddressService implements IWalletAddressService {
       throw new NotFound()
     }
 
-    if (walletAddress.isWM) {
-      await this.cache.set(walletAddress.id, walletAddress, {
-        expiry: 60
-      })
-    }
-
-    return walletAddress
-  }
-
-  private async handleBalance(
-    { type, balance, walletAddress }: HandleBalanceParams,
-    trx: TransactionOrKnex
-  ): Promise<void> {
-    if (!walletAddress.assetCode || !walletAddress.assetScale) {
-      throw new Error(
-        `Missing asset information for payment pointer "${walletAddress.url} (ID: ${walletAddress.id})"`
-      )
-    }
-    const amount = Number(
-      (
-        Number(balance * this.env.WM_THRESHOLD) *
-        10 ** -walletAddress.assetScale
-      ).toPrecision(2)
-    )
-
-    if (!walletAddress.account.user.rapydWalletId) {
-      throw new Error(
-        `Missing Rapyd wallet ID for user "${walletAddress.account.user.id}"`
-      )
-    }
-
-    let destination = walletAddress.account.user.rapydWalletId
-    let source = this.env.RAPYD_SETTLEMENT_EWALLET
-
-    if (type === 'OUTGOING') {
-      destination = this.env.RAPYD_SETTLEMENT_EWALLET
-      source = walletAddress.account.user.rapydWalletId
-    }
-
-    const transfer = await this.rapydClient.transferLiquidity({
-      amount,
-      currency: walletAddress.assetCode,
-      destination_ewallet: destination,
-      source_ewallet: source
+    await this.cache.set(walletAddress.id, walletAddress, {
+      expiry: 60
     })
 
-    if (transfer.status?.status !== 'SUCCESS') {
-      if (type === 'OUTGOING') {
-        await walletAddress.$relatedQuery('account', trx).patch({
-          debt: raw('?? + ?', ['debt', amount])
-        })
-        return
-      }
-
-      throw new Error(
-        `Unable to transfer from ${source} into ${destination} error message: ${
-          transfer.status?.message || 'unknown'
-        }`
-      )
-    }
-
-    const updatedField: keyof Pick<
-      PartialModelObject<WalletAddress>,
-      'incomingBalance' | 'outgoingBalance'
-    > = type === 'OUTGOING' ? 'outgoingBalance' : 'incomingBalance'
-    const updatePart: PartialModelObject<WalletAddress> = {
-      [updatedField]: raw('?? - ?', [
-        updatedField,
-        this.env.WM_THRESHOLD * balance
-      ])
-    }
-
-    await Promise.all([
-      walletAddress.$relatedQuery('transactions', trx).insert({
-        accountId: walletAddress.accountId,
-        paymentId: transfer.data.id,
-        assetCode: walletAddress.assetCode!,
-        value: BigInt(amount * 10 ** this.env.BASE_ASSET_SCALE),
-        type,
-        status: 'COMPLETED',
-        description: 'Web Monetization'
-      }),
-      walletAddress.$query(trx).update(updatePart)
-    ])
-
-    this.logger.info(
-      `Proccesed WM transactions for payment pointer ${walletAddress.url}. Type: ${type} | Amount: ${amount}`
-    )
-  }
-
-  async processWMWalletAddresses(): Promise<void> {
-    const trx = await WalletAddress.startTransaction()
-
-    try {
-      const walletAddresses = await WalletAddress.query(trx)
-        .where({
-          isWM: true,
-          active: true
-        })
-        .withGraphFetched('account.user')
-
-      for (const walletAddress of walletAddresses) {
-        if (!walletAddress.assetCode || !walletAddress.assetScale) {
-          throw new Error('Asset code or scale is missing')
-        }
-
-        const [incoming, outgoing] = await Promise.all([
-          this.wmTransactionService.sumByWalletAddressId(
-            walletAddress.id,
-            'INCOMING',
-            trx
-          ),
-          this.wmTransactionService.sumByWalletAddressId(
-            walletAddress.id,
-            'OUTGOING',
-            trx
-          )
-        ])
-
-        const tmpWalletAddress = await walletAddress
-          .$query(trx)
-          .updateAndFetchById(walletAddress.id, {
-            incomingBalance: raw('?? + ?', ['incomingBalance', incoming.sum]),
-            outgoingBalance: raw('?? + ?', ['outgoingBalance', outgoing.sum])
-          })
-
-        await this.wmTransactionService.deleteByTransactionIds(
-          incoming.ids.concat(outgoing.ids),
-          trx
-        )
-
-        const incomingBalance =
-          tmpWalletAddress.incomingBalance / this.env.WM_THRESHOLD
-        const outgoingBalance =
-          tmpWalletAddress.outgoingBalance / this.env.WM_THRESHOLD
-
-        if (incomingBalance > 0n) {
-          await this.handleBalance(
-            {
-              balance: incomingBalance,
-              walletAddress,
-              type: 'INCOMING'
-            },
-            trx
-          )
-        }
-
-        if (outgoingBalance > 0n) {
-          await this.handleBalance(
-            {
-              balance: outgoingBalance,
-              walletAddress,
-              type: 'OUTGOING'
-            },
-            trx
-          )
-        }
-      }
-      await trx.commit()
-    } catch (e) {
-      this.logger.error(e)
-      await trx.rollback()
-      throw new Error('Error while processing WM payment pointers.')
-    }
+    return walletAddress
   }
 }

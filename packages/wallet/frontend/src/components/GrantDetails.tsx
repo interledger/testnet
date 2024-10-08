@@ -4,8 +4,8 @@ type GrantDetailsProps = { grant: GrantResponse }
 
 export const GrantDetails = ({ grant }: GrantDetailsProps) => {
   return (
-    <div className="flex flex-col text-green sm:my-10">
-      <div className="text-xl text-turqoise">
+    <div className="flex flex-col sm:my-10">
+      <div className="text-xl">
         <span className="font-semibold">Client: </span>
         <span className="font-light">{grant.client}</span>
       </div>
@@ -29,7 +29,7 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
               size="md"
               text={
                 grant.finalizationReason === 'REVOKED'
-                  ? 'REJECTED'
+                  ? 'REVOKED'
                   : grant.finalizationReason === 'ISSUED'
                     ? 'APPROVED'
                     : 'REJECTED'
@@ -38,13 +38,13 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
           </>
         ) : null}
       </div>
-      <div className="border-b border-b-green-5 py-2 text-lg font-semibold">
+      <div className="border-b border-b-green dark:border-b-pink-neon py-2 text-lg font-semibold">
         Access - Permissions:
       </div>
       {grant.access.map((accessDetails, index) => (
         <div
           key={`${grant.id}-${index}`}
-          className="border-b border-b-green-5 py-2"
+          className="border-b border-b-green dark:border-b-pink-neon py-2"
         >
           <div>
             <span>Access type: </span>
@@ -58,14 +58,14 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
           ) : null}
           <div className="flex flex-row items-center">
             <span>Access action: </span>
-            <div className="mx-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
+            <div className="mx-2 h-1.5 w-1.5 rounded-full bg-pink-dark ring-1 ring-pink-dark dark:ring-teal-neon dark:bg-teal-neon" />
             {accessDetails.actions.map((permission, index) => (
               <div
                 key={`${accessDetails.id}-${index}`}
                 className="flex items-center"
               >
                 <span className="text-sm">{permission.toUpperCase()}</span>
-                <div className="mx-2 h-1.5 w-1.5 rounded-full bg-green-4 ring-1 ring-green-3" />
+                <div className="mx-2 h-1.5 w-1.5 rounded-full bg-pink-dark ring-1 ring-pink-dark dark:ring-teal-neon dark:bg-teal-neon" />
               </div>
             ))}
           </div>

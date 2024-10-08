@@ -8,7 +8,7 @@ export function cn(...inputs: CxOptions) {
 export function formatPrice(price: number): string {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: import.meta.env.VITE_CURRENCY || 'USD',
     maximumFractionDigits: 2,
     minimumFractionDigits: 2
   })

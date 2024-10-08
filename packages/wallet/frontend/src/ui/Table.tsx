@@ -9,10 +9,7 @@ type TableProps = ComponentProps<'table'> & {
 export const Table = ({ children, className, ...props }: TableProps) => {
   return (
     <div className="overflow-x-auto">
-      <table
-        className={cx(className, 'min-w-full table-fixed text-green')}
-        {...props}
-      >
+      <table className={cx(className, 'border-collapse')} {...props}>
         {children}
       </table>
     </div>
@@ -46,7 +43,7 @@ const THead = ({
           <th
             key={col}
             className={cx(
-              'border-b border-green-7 p-4 text-left font-light md:px-3',
+              'border-b border-green dark:border-pink-neon p-4 text-left font-bold',
               sort?.find((item) => item.header === col) !== undefined &&
                 'cursor-pointer'
             )}
@@ -61,7 +58,7 @@ const THead = ({
               {col}
               {sort?.find((item) => item.header === col) !== undefined ? (
                 <Chevron
-                  className="ml-1 mt-1 h-4 w-4 text-green-7 transition-transform duration-300"
+                  className="ml-1 mt-1 h-4 w-4 text-green dark:text-pink-neon transition-transform duration-300"
                   direction={sort
                     .find((item) => item.header === col)
                     ?.getDirection()}
@@ -89,7 +86,13 @@ type TRowProps = ComponentProps<'tr'> & {
 
 const TRow = ({ children, className, ...props }: TRowProps) => {
   return (
-    <tr className={cx(className, 'hover:bg-white-1')} {...props}>
+    <tr
+      className={cx(
+        className,
+        'hover:bg-green-light dark:hover:bg-purple-dark'
+      )}
+      {...props}
+    >
       {children}
     </tr>
   )
@@ -101,7 +104,7 @@ type TCellProps = ComponentProps<'td'> & {
 
 const TCell = ({ children, className, ...props }: TCellProps) => {
   return (
-    <td className={cx(className, 'p-4 md:px-3')} {...props}>
+    <td className={cx(className, 'p-4')} {...props}>
       {children}
     </td>
   )

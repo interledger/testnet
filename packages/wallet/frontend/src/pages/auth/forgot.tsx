@@ -5,19 +5,27 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import Image from 'next/image'
-import { forgotPasswordSchema, userService } from '@/lib/api/user'
+import { userService } from '@/lib/api/user'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
+import { emailSchema } from '@wallet/shared'
 
 const ForgotPasswordPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const forgotPasswordForm = useZodForm({
-    schema: forgotPasswordSchema
+    schema: emailSchema
   })
+  const theme = useTheme()
+  const imageName =
+    theme.theme === 'dark'
+      ? '/bird-envelope-dark.webp'
+      : '/bird-envelope-light.webp'
+
   useEffect(() => {
     forgotPasswordForm.setFocus('email')
   }, [forgotPasswordForm])
@@ -25,7 +33,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Forgot Password" />
-      <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green">
+      <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
         You are not alone. We have all been here at some point.
       </h2>
       <div className="w-2/3">
@@ -63,7 +71,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
             error={forgotPasswordForm.formState.errors.email?.message}
             label="E-mail"
           />
-          <div className="flex justify-evenly py-5">
+          <div className="flex flex-col justify-between gap-1 py-5 md:flex-row md:text-sm md:justify-between">
             <Button
               aria-label="Forgot Password"
               type="submit"
@@ -71,7 +79,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
             >
               Get reset password link
             </Button>
-            <Button intent="secondary" aria-label="cancel" href="login">
+            <Button intent="outline" aria-label="cancel" href="login">
               Cancel
             </Button>
           </div>
@@ -79,13 +87,13 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
-        src="/welcome-mobile.webp"
+        src={imageName}
         alt="Forgot password"
         quality={100}
         width={400}
         height={200}
       />
-      <p className="mt-auto font-extralight text-green">
+      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
         Remembered your credentials?{' '}
         <Link href="login" className="font-medium underline">
           Login

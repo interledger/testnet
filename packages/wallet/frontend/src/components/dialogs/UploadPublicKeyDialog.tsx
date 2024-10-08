@@ -38,10 +38,8 @@ export const UploadPublicKeyDialog = ({
 
   useEffect(() => {
     if (isDevKeysOnboarding) {
-      setTimeout(() => {
-        setStepIndex(stepIndex + 1)
-        setRunOnboarding(true)
-      }, 100)
+      setStepIndex(stepIndex + 1)
+      setRunOnboarding(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -58,7 +56,7 @@ export const UploadPublicKeyDialog = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gradient-backdrop transition-opacity" />
+          <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
         </Transition.Child>
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
@@ -71,10 +69,10 @@ export const UploadPublicKeyDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl">
+              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <Dialog.Title
                   as="h3"
-                  className="text-center text-2xl font-medium text-green-6"
+                  className="text-center text-2xl font-medium"
                 >
                   Add a public key
                 </Dialog.Title>
@@ -102,6 +100,11 @@ export const UploadPublicKeyDialog = ({
                       if (response.success) {
                         router.replace(router.asPath)
                         closeDialog()
+
+                        if (isDevKeysOnboarding) {
+                          setStepIndex(stepIndex + 1)
+                          setRunOnboarding(true)
+                        }
                       } else {
                         const { errors, message } = response
                         if (errors) {
@@ -138,20 +141,26 @@ export const UploadPublicKeyDialog = ({
                       error={uploadKeysForm.formState?.errors?.jwk?.message}
                       {...uploadKeysForm.register('jwk')}
                     />
-                    <div className="mt-5 flex flex-col justify-between space-y-3 sm:flex-row-reverse sm:space-y-0">
+                    <div className="mt-5 flex justify-between">
+                      <Button
+                        intent="outline"
+                        aria-label="close dialog"
+                        onClick={() => {
+                          onClose()
+                          if (isDevKeysOnboarding) {
+                            setStepIndex(stepIndex + 1)
+                            setRunOnboarding(true)
+                          }
+                        }}
+                      >
+                        Cancel
+                      </Button>
                       <Button
                         aria-label="upload"
                         type="submit"
                         loading={uploadKeysForm.formState.isSubmitting}
                       >
                         Upload key
-                      </Button>
-                      <Button
-                        intent="outline"
-                        aria-label="close dialog"
-                        onClick={() => onClose()}
-                      >
-                        Cancel
                       </Button>
                     </div>
                   </Form>

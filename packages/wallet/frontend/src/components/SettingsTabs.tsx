@@ -32,30 +32,23 @@ export const SettingsTabs = () => {
               className={cx(
                 'group relative py-2.5 text-center text-lg font-medium leading-5 sm:px-10',
                 pathname === tab.href
-                  ? 'text-green'
-                  : 'text-green-3 hover:text-green'
+                  ? 'bg-green-light dark:bg-purple-dark hover:outline hover:outline-1 hover:outline-black hover:dark:outline-none hover:dark:shadow-glow-button focus:outline focus:outline-1 focus:outline-black focus:dark:outline-none focus:dark:shadow-glow-button'
+                  : 'hover:bg-green-light hover:dark:bg-purple-dark hover:outline hover:outline-1 hover:outline-black hover:dark:outline-none hover:dark:shadow-glow-button '
               )}
             >
               <>
                 {tab.name}
-                <div
-                  className={cx(
-                    'absolute inset-x-0 bottom-0 h-1 rounded-full',
-                    pathname === tab.href
-                      ? 'bg-green'
-                      : 'bg-gradient-primary group-hover:bg-gradient-to-r group-hover:from-green group-hover:to-green'
-                  )}
-                />
+                <div className="absolute inset-x-0 bottom-0 h-1 rounded-full bg-black dark:bg-white" />
               </>
             </Link>
             {pathname === tab.href && tab.name === 'Developer Keys' ? (
               <IconButton
                 aria-label="info-dev-keys"
-                className="ml-2 text-green-3 hover:text-green"
+                className="ml-2 text-green hover:text-black dark:text-pink-neon dark:hover:drop-shadow-glow-svg dark:hover:text-pink-light"
                 id="devKeysInfo"
                 onClick={() => {
                   setIsDevKeysOnboarding(true)
-                  setStepIndex(24)
+                  setStepIndex(26)
                   setRunOnboarding(true)
                 }}
               >

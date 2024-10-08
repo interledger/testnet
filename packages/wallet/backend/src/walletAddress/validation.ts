@@ -44,8 +44,7 @@ export const walletAddressSchema = z.object({
     publicName: z
       .string()
       .trim()
-      .min(3, { message: 'Public name must be at least 3 characters long' }),
-    isWM: z.boolean()
+      .min(3, { message: 'Public name must be at least 3 characters long' })
   })
 })
 

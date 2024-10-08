@@ -1,53 +1,46 @@
-import { cx } from 'class-variance-authority'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { ReactNode } from 'react'
 
 const IMAGES = {
-  Park: 'park.webp',
-  Login: 'login-welcome.webp',
-  Register: 'register.webp',
-  Group: 'group.webp'
+  ParkLight: 'park-light.webp',
+  ParkDark: 'park-dark.webp',
+  LoginLight: 'login-light.webp',
+  LoginDark: 'login-dark.webp',
+  RegisterLight: 'register-light.webp',
+  RegisterDark: 'register-dark.webp',
+  PeopleLight: 'people-light.webp',
+  PeopleDark: 'people-dark.webp'
 } as const
 
 type Image = keyof typeof IMAGES
 
 type AuthLayoutProps = {
-  image: Image
-  background?: string
+  image: string
   children: ReactNode
 }
 
-const AuthLayout = ({ image, background, children }: AuthLayoutProps) => {
-  const imageSrc = `/${IMAGES[image]}`
+const AuthLayout = ({ image, children }: AuthLayoutProps) => {
+  const theme = useTheme()
+  const imageName = theme.theme === 'dark' ? `${image}Dark` : `${image}Light`
+  const imageSrc = `/${IMAGES[imageName as Image]}`
   return (
     <>
-      <div className="h-full">
-        <div className="flex min-h-full">
-          <div
-            className={cx(
-              'relative hidden w-0 flex-1 md:block',
-              background === 'green' ? 'bg-green-4' : 'bg-blue-1'
-            )}
-          >
-            <Image
-              fill
-              className="object-cover"
-              src={imageSrc}
-              alt={image}
-              quality={100}
-              priority={true}
-              loading="eager"
-            />
-          </div>
-          <div
-            className={cx(
-              'min-h-full flex-1 py-10',
-              background === 'green' ? 'bg-green-4' : 'bg-blue-1'
-            )}
-          >
-            <div className="mx-auto flex min-h-full w-full flex-col items-center sm:px-6 lg:px-20 xl:px-24">
-              {children}
-            </div>
+      <div className="flex min-h-full w-screen">
+        <div className="relative hidden w-0 flex-1 md:block">
+          <Image
+            fill
+            className="object-right md:object-cover lg:object-fill"
+            src={imageSrc}
+            alt={image}
+            quality={100}
+            priority={true}
+            loading="eager"
+          />
+        </div>
+        <div className="min-h-full flex-1">
+          <div className="mx-auto flex h-screen w-full flex-col items-center px-2">
+            {children}
           </div>
         </div>
       </div>

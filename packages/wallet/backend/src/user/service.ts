@@ -2,18 +2,17 @@ import { User } from './model'
 import { EmailService } from '@/email/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
-import { Env } from '@/config/env'
-import { AccountService } from '@/account/service'
-import { WalletAddressService } from '@/walletAddress/service'
-import { getRandomValues } from 'crypto'
-import { RafikiClient } from '@/rafiki/rafiki-client'
-import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { BadRequest, Conflict } from '@shared/backend'
-import { KratosService } from '@/rafiki/kratos.service'
+import { GateHubClient } from '@/gatehub/client'
 
 interface CreateUserArgs {
   email: string
   password: string
+  verifyEmailToken: string
+}
+
+interface VerifyEmailArgs {
+  email: string
   verifyEmailToken: string
 }
 
@@ -24,18 +23,14 @@ interface IUserService {
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
   validateToken(token: string): Promise<boolean>
+  resetVerifyEmailToken: (args: VerifyEmailArgs) => Promise<void>
 }
 
 export class UserService implements IUserService {
   constructor(
     private emailService: EmailService,
-    private accountService: AccountService,
-    private walletAddressService: WalletAddressService,
-    private walletAddressKeyService: WalletAddressKeyService,
-    private rafikiClient: RafikiClient,
-    private kratosService: KratosService,
-    private logger: Logger,
-    private env: Env
+    private gateHubClient: GateHubClient,
+    private logger: Logger
   ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
@@ -56,23 +51,19 @@ export class UserService implements IUserService {
     return User.query().findById(id)
   }
 
-  public async getByWalletId(walletId: string): Promise<User | undefined> {
-    return User.query().findOne({ rapydWalletId: walletId })
-  }
-
   public async requestResetPassword(email: string): Promise<void> {
     const user = await this.getByEmail(email)
 
-    if (!user?.isEmailVerified) {
+    if (!user) {
       this.logger.info(
-        `Reset email not sent. User with email ${email} not found (or not verified)`
+        `Reset email not sent. User with email ${email} not found`
       )
       return
     }
 
     const resetToken = getRandomToken()
     const passwordResetToken = hashToken(resetToken)
-    const passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+    const passwordResetExpiresAt = new Date(Date.now() + 8 * 3600 * 1000)
 
     await User.query()
       .findById(user.id)
@@ -90,7 +81,8 @@ export class UserService implements IUserService {
     await User.query().findById(user.id).patch({
       newPassword: password,
       passwordResetExpiresAt: null,
-      passwordResetToken: null
+      passwordResetToken: null,
+      isEmailVerified: true
     })
   }
 
@@ -122,80 +114,6 @@ export class UserService implements IUserService {
 
     return !!user
   }
-  public async createDefaultAccount() {
-    const existingUser = await this.getByEmail(
-      this.env.DEFAULT_WALLET_ACCOUNT.email
-    )
-
-    if (existingUser) return
-
-    const asset = await this.rafikiClient.getRafikiAsset('USD', 2)
-    if (!asset) await this.rafikiClient.createAsset('USD', 2)
-    const defaultWalletUser = this.env.DEFAULT_WALLET_ACCOUNT
-    const defaultBoutiqueUser = this.env.DEFAULT_BOUTIQUE_ACCOUNT
-
-    const walletInfo = await this.createDefaultUser(
-      defaultWalletUser,
-      'USD Account'
-    )
-    const boutiqueInfo = await this.createDefaultUser(
-      defaultBoutiqueUser,
-      'Boutique'
-    )
-
-    if (walletInfo.defaultAccount && boutiqueInfo.defaultAccount) {
-      const typedArray = new Uint32Array(1)
-      getRandomValues(typedArray)
-
-      await this.walletAddressService.create({
-        accountId: walletInfo.defaultAccount.id,
-        walletAddressName: typedArray[0].toString(16),
-        publicName: 'Default Payment Pointer',
-        userId: walletInfo.createdUser.id,
-        isWM: false
-      })
-
-      const boutiqueWallet = await this.walletAddressService.create({
-        accountId: boutiqueInfo.defaultAccount.id,
-        walletAddressName: 'boutique',
-        publicName: 'Rafiki Boutique',
-        userId: boutiqueInfo.createdUser.id,
-        isWM: false
-      })
-
-      await this.walletAddressKeyService.registerKey({
-        userId: boutiqueInfo.createdUser.id,
-        accountId: boutiqueInfo.defaultAccount.id,
-        walletAddressId: boutiqueWallet.id,
-        nickname: 'Testnet managed',
-        keyPair: {
-          publicKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.public_key,
-          privateKeyPEM: this.env.DEFAULT_BOUTIQUE_KEYS.private_key,
-          keyId: this.env.DEFAULT_BOUTIQUE_KEYS.key_id
-        }
-      })
-    }
-
-    await this.kratosService.run(this.env.DEFAULT_WALLET_ACCOUNT.email)
-    this.logger.info('Default users have been successfully created')
-  }
-
-  private async createDefaultUser(
-    defaultBoutiqueUser: Record<string, unknown>,
-    name: string
-  ) {
-    const args = {
-      ...defaultBoutiqueUser,
-      isEmailVerified: true
-    }
-    const createdUser = await User.query().insertAndFetch(args)
-
-    const defaultAccount = await this.accountService.createDefaultAccount(
-      createdUser.id,
-      name
-    )
-    return { createdUser, defaultAccount }
-  }
 
   public async verifyEmail(token: string): Promise<void> {
     const verifyEmailToken = hashToken(token)
@@ -206,9 +124,28 @@ export class UserService implements IUserService {
       throw new BadRequest('Invalid token')
     }
 
+    const gateHubUser = await this.gateHubClient.createManagedUser(user.email)
+
     await User.query().findById(user.id).patch({
       isEmailVerified: true,
-      verifyEmailToken: null
+      verifyEmailToken: null,
+      gateHubUserId: gateHubUser.id
+    })
+  }
+
+  public async resetVerifyEmailToken(args: VerifyEmailArgs): Promise<void> {
+    const user = await this.getByEmail(args.email)
+
+    if (!user) {
+      this.logger.info(
+        `Invalid account on resend verify account email: ${args.email}`
+      )
+      return
+    }
+
+    await User.query().findById(user.id).patch({
+      isEmailVerified: false,
+      verifyEmailToken: args.verifyEmailToken
     })
   }
 

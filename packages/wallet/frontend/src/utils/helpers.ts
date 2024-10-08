@@ -2,6 +2,7 @@ import { cx, CxOptions } from 'class-variance-authority'
 import { twMerge } from 'tailwind-merge'
 import { AssetOP } from '@wallet/shared'
 import { QuoteResponse } from '@wallet/shared'
+import { BASE_ASSET_SCALE } from './constants'
 
 /**
  * `getObjectKeys` should be used only when we have additional knowledge.
@@ -35,18 +36,24 @@ export const getCurrencySymbol = (assetCode: string): string => {
 
 type FormatAmountArgs = AssetOP & {
   value: string
+  displayScale?: number
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
-  const { value, assetCode, assetScale } = args
+  const { value, displayScale = BASE_ASSET_SCALE, assetCode, assetScale } = args
+
+  const scaledValue = Number(`${value}e-${assetScale}`)
+  const flooredValue =
+    Math.floor(scaledValue * 10 ** displayScale) / 10 ** displayScale
+
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: assetCode,
-    maximumFractionDigits: assetScale,
-    minimumFractionDigits: assetScale
+    maximumFractionDigits: displayScale,
+    minimumFractionDigits: displayScale
   })
 
-  const amount = formatter.format(Number(`${value}e-${assetScale}`))
+  const amount = formatter.format(flooredValue)
   const symbol = getCurrencySymbol(assetCode)
 
   return {
