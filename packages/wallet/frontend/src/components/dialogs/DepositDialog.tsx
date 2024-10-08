@@ -7,8 +7,7 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useRouter } from 'next/router'
 import { getCurrencySymbol } from '@/utils/helpers'
-import { accountService } from '@/lib/api/account'
-import { z } from 'zod'
+import { accountService, depositSchema } from '@/lib/api/account'
 import { useToast } from '@/lib/hooks/useToast'
 import { MoneyBird } from '../icons/MoneyBird'
 
@@ -16,15 +15,6 @@ type DepositDialogProps = Pick<DialogProps, 'onClose'> & {
   accountId: string
   assetCode: string
 }
-export const depositSchema = z.object({
-  accountId: z.string(),
-  amount: z.coerce
-    .number({
-      invalid_type_error: 'Amount is not valid',
-      required_error: 'Amount is required'
-    })
-    .positive()
-})
 
 export const DepositDialog = ({
   onClose,

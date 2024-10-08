@@ -7,7 +7,16 @@ import {
 } from '../httpClient'
 import { createAccountSchema } from '@wallet/shared'
 import { WalletAddressResponse } from '@wallet/shared/src'
-import { depositSchema } from '@/components/dialogs/DepositDialog'
+
+export const depositSchema = z.object({
+  accountId: z.string(),
+  amount: z.coerce
+    .number({
+      invalid_type_error: 'Amount is not valid',
+      required_error: 'Amount is required'
+    })
+    .positive()
+})
 
 export type Account = {
   id: string
