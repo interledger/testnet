@@ -178,6 +178,13 @@ export class GateHubClient {
     return response
   }
 
+  async updateMetaForManagedUser(meta: Record<string, string>): Promise<void> {
+    const url = `${this.apiUrl}/auth/v1/users/managed`
+    const body = { meta }
+
+    return await this.request<void>('PUT', url, JSON.stringify(body))
+  }
+
   async createManagedUser(email: string): Promise<ICreateManagedUserResponse> {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body: ICreateManagedUserRequest = { email }
@@ -266,6 +273,16 @@ export class GateHubClient {
     walletId: string
   ): Promise<IGetWalletResponse> {
     const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/${walletId}`
+
+    const response = await this.request<IGetWalletResponse>('GET', url)
+
+    return response
+  }
+
+  async getWalletForUser(
+    userUuid: string
+  ): Promise<IGetWalletResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/`
 
     const response = await this.request<IGetWalletResponse>('GET', url)
 

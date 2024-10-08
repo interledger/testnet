@@ -24,6 +24,7 @@ export interface ICreateCustomerRequest {
       productCode: string
     }
   }
+  nameOnCard: string,
   citizen: {
     name: string
     surname: string
