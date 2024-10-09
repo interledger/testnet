@@ -60,6 +60,9 @@ export const DepositDialog = ({
                 >
                   Deposit to Account
                 </Dialog.Title>
+                <p className="text-xs text-center">
+                  A small fee will be applied when making a deposit.
+                </p>
                 <Form
                   form={depositForm}
                   onSubmit={async (data) => {
