@@ -137,7 +137,6 @@ interface UserService {
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
   verifyEmail: (args: VerifyEmailArgs) => Promise<VerifyEmailResponse>
   me: (cookies?: string) => Promise<MeResponse>
-  updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
   changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
   resendVerifyEmail: (
     args: ResendVerificationEmailArgs
@@ -288,21 +287,6 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async updateProfile(args) {
-    try {
-      const response = await httpClient
-        .post('updateProfile', {
-          json: args
-        })
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError<ProfileArgs>(
-        error,
-        'Something went wrong while updating your profile. Please try again.'
-      )
-    }
-  },
 
   async changePassword(args) {
     try {
