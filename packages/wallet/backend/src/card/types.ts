@@ -20,11 +20,12 @@ export interface ICreateCustomerRequest {
   walletAddress: string
   account: {
     productCode: string
+    currency: 'EUR'
     card: {
       productCode: string
     }
   }
-  nameOnCard: string,
+  nameOnCard: string
   citizen: {
     name: string
     surname: string
@@ -122,16 +123,19 @@ export interface IAccount {
 }
 
 export interface ICreateCustomerResponse {
-  sourceId?: string | null
-  taxNumber?: string | null
-  code: string
-  type: 'Citizen' | 'LegalEntity'
-  citizen?: ICitizen | null
-  legalEntity?: ILegalEntity | null
-  id?: string | null
-  addresses?: IAddress[] | null
-  communications?: ICommunication[] | null
-  accounts?: IAccount[] | null
+  walletAddress: string
+  customers: {
+    sourceId?: string | null
+    taxNumber?: string | null
+    code: string
+    type: 'Citizen' | 'LegalEntity'
+    citizen?: ICitizen | null
+    legalEntity?: ILegalEntity | null
+    id?: string | null
+    addresses?: IAddress[] | null
+    communications?: ICommunication[] | null
+    accounts?: IAccount[] | null
+  }
 }
 
 export interface ICardResponse {

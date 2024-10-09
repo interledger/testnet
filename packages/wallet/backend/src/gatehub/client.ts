@@ -12,6 +12,7 @@ import {
   ICreateWalletResponse,
   IGetUserStateResponse,
   IGetVaultsResponse,
+  IGetWalletForUserResponse,
   IGetWalletResponse,
   IRatesResponse,
   ITokenRequest,
@@ -178,11 +179,20 @@ export class GateHubClient {
     return response
   }
 
-  async updateMetaForManagedUser(meta: Record<string, string>): Promise<void> {
+  /**
+   * The meta was createad as `meta.meta.[property]`
+   * We should be aware of this when the user signs up (for production)
+   */
+  async updateMetaForManagedUser(
+    userUuid: string,
+    meta: Record<string, string>
+  ): Promise<void> {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body = { meta }
 
-    return await this.request<void>('PUT', url, JSON.stringify(body))
+    return await this.request<void>('PUT', url, JSON.stringify(body), {
+      managedUserUuid: userUuid
+    })
   }
 
   async createManagedUser(email: string): Promise<ICreateManagedUserResponse> {
@@ -279,12 +289,23 @@ export class GateHubClient {
     return response
   }
 
-  async getWalletForUser(
-    userUuid: string
-  ): Promise<IGetWalletResponse> {
-    const url = `${this.apiUrl}/core/v1/users/${userUuid}/wallets/`
+  /**
+   * Retrieves the user with its corresponding wallets.
+   *
+   * !!! The `meta` object is not present here - not the same output as
+   * ICreateManagedUserResponse !!!
+   */
+  async getWalletForUser(userUuid: string): Promise<IGetWalletForUserResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}`
 
-    const response = await this.request<IGetWalletResponse>('GET', url)
+    const response = await this.request<IGetWalletForUserResponse>(
+      'GET',
+      url,
+      undefined,
+      {
+        managedUserUuid: userUuid
+      }
+    )
 
     return response
   }
@@ -347,17 +368,31 @@ export class GateHubClient {
   }
 
   async createCustomer(
+    userUuid: string,
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
-    const url = `${this.apiUrl}/v1/customers/managed`
-    return this.request<ICreateCustomerResponse>(
+    const url = `${this.apiUrl}/cards/v1/customers/managed`
+    const response = await this.request<ICreateCustomerResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid: userUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+    return response
+  }
+
+  /**
+   * @deprecated Only used when ordering cards.
+   */
+  async orderPlasticForCard(userUuid: string, cardId: string): Promise<void> {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/plastic`
+    await this.request('POST', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
   }
 
   async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {

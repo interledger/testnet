@@ -1,11 +1,6 @@
-import { Knex } from 'knex'
 import { createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { ICreateCustomerRequest, ICreateCustomerResponse } from '@/card/types'
-import { GateHubClient } from './gatehub/client'
-import fs from 'fs'
-import path from 'path'
-import csv from 'csv-parser'
+import { ICreateCustomerRequest } from '@/card/types'
 
 interface UserData {
   email: string
@@ -14,82 +9,95 @@ interface UserData {
   ppNumber: string
 }
 
-async function readUsersData(): Promise<UserData[]> {
-  const usersData: UserData[] = []
-  const csvFilePath = path.resolve(__dirname, 'users.csv')
+const entries = `John;Doe;john@doe.com:8888;
+Alice;Smith;alice@smith.com;9999`
 
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(csvFilePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        usersData.push({
-          email: row.email,
-          firstName: row.firstName,
-          lastName: row.lastName,
-          ppNumber: row.ppNumber
-        })
-      })
-      .on('end', () => {
-        console.log('CSV file successfully processed')
-        resolve(usersData)
-      })
-      .on('error', (error) => {
-        reject(error)
-      })
-  })
+function processEntries() {
+  const users: Array<UserData> = []
+  const lines = entries.split('\n')
+  for (const line of lines) {
+    const [firstName, lastName, email, ppNumber] = line.split(';')
+    users.push({
+      email,
+      firstName,
+      lastName,
+      ppNumber
+    })
+  }
+
+  return users
 }
 
 async function cardManagement() {
   const container = await createContainer(env)
-  const knex = container.resolve<Knex>('knex')
-  const gateHubClient = container.resolve<GateHubClient>('gateHubClient')
+  const logger = container.resolve('logger')
+  const knex = container.resolve('knex')
+  const gateHubClient = container.resolve('gateHubClient')
   const accountProductCode = env.GATEHUB_ACCOUNT_PRODUCT_CODE
   const cardProductCode = env.GATEHUB_CARD_PRODUCT_CODE
-  const nameOnCardPrefix = env.NAME_ON_CARD_PREFIX
+  const nameOnCardPrefix = env.GATEHUB_NAME_ON_CARD_PREFIX
+  const GATEWAY_UUID = env.GATEHUB_GATEWAY_UUID
 
   try {
-    const usersData = await readUsersData()
+    const usersData = processEntries()
 
     for (const userData of usersData) {
-      const { email, ppNumber, firstName, lastName } = userData
+      const { email, firstName, lastName, ppNumber } = userData
 
       const managedUser = await gateHubClient.createManagedUser(email)
 
-      console.log(`Created managed user for ${email}: ${managedUser.id}`)
+      logger.info(`Created managed user for ${email}: ${managedUser.id}`)
 
-      const wallet = await gateHubClient.getWalletForUser(
-        managedUser.id
+      await gateHubClient.connectUserToGateway(managedUser.id, GATEWAY_UUID)
+
+      logger.info(
+        `Connected user ${managedUser.id} - ${managedUser.email} to gateway`
       )
+
+      const user = await gateHubClient.getWalletForUser(managedUser.id)
+      const walletAddress = user.wallets[0].address
+      const nameOnCard = nameOnCardPrefix + ppNumber
+
+      logger.info(`Retrieved user ${managedUser.id} wallet - ${walletAddress}`)
 
       // Create customer using product codes as env vars
       const createCustomerRequestBody: ICreateCustomerRequest = {
-        walletAddress: wallet.address,
+        walletAddress,
         account: {
           productCode: accountProductCode,
+          currency: 'EUR',
           card: {
             productCode: cardProductCode
           }
         },
-        nameOnCard: nameOnCardPrefix + ppNumber,
+        nameOnCard,
         citizen: {
           name: firstName,
           surname: lastName
         }
       }
 
-      const customer: ICreateCustomerResponse =
-        await gateHubClient.createCustomer(createCustomerRequestBody)
-
-      console.log(`Created customer for ${email}: ${customer.id}`)
-
-      const pp = nameOnCardPrefix + ppNumber
-      await gateHubClient.updateMetaForManagedUser(
+      const customer = await gateHubClient.createCustomer(
         managedUser.id,
-        pp.split(' ')[1].toLowerCase
+        createCustomerRequestBody
       )
+
+      logger.info(`Created customer for ${email}: ${customer.customers.id}`)
+
+      await gateHubClient.updateMetaForManagedUser(managedUser.id, {
+        paymentPointer: nameOnCard.split(' ')[1].toLowerCase(),
+        customerId: customer.customers.id!
+      })
+
+      logger.info(`Updated meta object for user ${email}`)
+
+      const accounts = customer.customers.accounts![0]
+      const card = accounts.cards![0]
+
+      await gateHubClient.orderPlasticForCard(managedUser.id, card.id)
     }
-  } catch (error: any) {
-    console.log(`An error occurred: ${error.message}`)
+  } catch (error: unknown) {
+    console.log(`An error occurred: ${(error as Error).message}`)
   } finally {
     await knex.destroy()
     await container.dispose()
