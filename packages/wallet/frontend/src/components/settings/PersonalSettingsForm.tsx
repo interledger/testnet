@@ -17,7 +17,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
       <div className="mb-5">
         <h3 className="text-2xl text-green dark:text-teal-neon">Details</h3>
       </div>
-      <div className="mb-4 mt-6">
+      <div className="mb-4">
         <Input
           label="First name"
           placeholder="First name"
@@ -25,7 +25,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
           value={user.firstName}
         />
       </div>
-      <div className="mb-4 mt-6">
+      <div className="mb-4">
         <Input
           label="Last name"
           placeholder="Last name"
@@ -33,7 +33,23 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
           value={user.lastName}
         />
       </div>
-
+      <div className="mb-4">
+        <Input
+          label="Address"
+          placeholder="Address"
+          disabled
+          value={user.address}
+        />
+      </div>
+      <div className="mb-4">
+        <Input
+          type="email"
+          label="Email"
+          disabled
+          placeholder="Address"
+          value={user.email}
+        />
+      </div>
       <div className="mt-4 flex justify-between">
         {!isChangePassword ? (
           <Button
@@ -53,25 +69,7 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
           </Button>
         )}
       </div>
-
       {isChangePassword && <ChangePasswordForm />}
-      <div className="mb-4 mt-6">
-        <Input
-          label="Address"
-          placeholder="Address"
-          disabled
-          value={user.address}
-        />
-      </div>
-      <div>
-        <Input
-          type="email"
-          label="Email"
-          disabled
-          placeholder="Address"
-          value={user.email}
-        />
-      </div>
     </>
   )
 }

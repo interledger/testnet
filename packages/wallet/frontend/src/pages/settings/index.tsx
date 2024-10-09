@@ -23,7 +23,7 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
       : '/bird-envelope-light.webp'
   return (
     <>
-      <PageHeader title="Account Settings" message="Edit your details" />
+      <PageHeader title="Account Settings" />
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />
