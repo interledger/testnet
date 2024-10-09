@@ -287,7 +287,6 @@ const createUserService = (): UserService => ({
     }
   },
 
-
   async changePassword(args) {
     try {
       const response = await httpClient
