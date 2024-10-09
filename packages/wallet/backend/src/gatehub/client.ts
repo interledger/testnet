@@ -188,6 +188,8 @@ export class GateHubClient {
     meta: Record<string, string>
   ): Promise<void> {
     const url = `${this.apiUrl}/auth/v1/users/managed`
+    // This is the reason why the `meta` was created as `meta.meta`.
+    // Keeping this as is for consistency
     const body = { meta }
 
     return await this.request<void>('PUT', url, JSON.stringify(body), {

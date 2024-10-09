@@ -29,7 +29,12 @@ export interface ICreateManagedUserResponse {
   type2fa: string
   activated: boolean
   role: string
-  meta: Record<string, string>
+  meta: {
+    meta: {
+      paymentPointer: string
+      customerId: string
+    }
+  } & Record<string, string>
   lastPasswordChange: string
   features: string[]
   managed: boolean
