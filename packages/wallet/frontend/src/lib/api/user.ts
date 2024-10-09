@@ -117,10 +117,6 @@ type VerifyEmailResponse = SuccessResponse | VerifyEmailError
 type MeResult = SuccessResponse<UserResponse>
 type MeResponse = MeResult | ErrorResponse
 
-type ProfileArgs = z.infer<typeof profileSchema>
-type ProfileError = ErrorResponse<ProfileArgs | undefined>
-type ProfileResponse = SuccessResponse | ProfileError
-
 type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
 type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
 type ChangePasswordResponse = SuccessResponse | ChangePasswordError
