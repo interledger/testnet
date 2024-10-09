@@ -89,10 +89,7 @@ export default [
           destructuredArrayIgnorePattern: '^_'
         }
       ],
-      'no-redeclare': [
-        'error',
-        { builtinGlobals: false }
-      ]
+      'no-redeclare': ['error', { builtinGlobals: false }]
     }
   }
 ]
