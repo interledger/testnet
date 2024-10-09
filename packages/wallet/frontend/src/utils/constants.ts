@@ -1,4 +1,7 @@
 export const OPEN_PAYMENTS_HOST = process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+export const THEME = process.env.NEXT_PUBLIC_THEME
+export const CARDS_ENABLED =
+  process.env.NEXT_PUBLIC_CARDS_ENABLED === 'true' ? true : false
 
 /**
  * Default text for Toggle Switch

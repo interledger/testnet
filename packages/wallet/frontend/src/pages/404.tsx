@@ -1,13 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 const NotFoundPage = () => {
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/login-mobile-dark.webp'
-      : '/login-mobile-light.webp'
+    THEME === 'dark' ? '/login-mobile-dark.webp' : '/login-mobile-light.webp'
 
   return (
     <div className="bg-green-light dark:bg-purple flex h-full w-screen flex-col items-center justify-center text-center text-2xl font-semibold">

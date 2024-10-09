@@ -15,8 +15,8 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect, useState } from 'react'
-import { useTheme } from 'next-themes'
 import { loginSchema } from '@wallet/shared'
+import { THEME } from '@/utils/constants'
 
 const LoginPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
@@ -29,11 +29,8 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/login-mobile-dark.webp'
-      : '/login-mobile-light.webp'
+    THEME === 'dark' ? '/login-mobile-dark.webp' : '/login-mobile-light.webp'
 
   async function resendVerifyEmail() {
     const { email } = loginForm.getValues()

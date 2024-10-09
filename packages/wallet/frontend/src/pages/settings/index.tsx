@@ -5,9 +5,9 @@ import { SettingsTabs } from '@/components/SettingsTabs'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { UserResponse } from '@wallet/shared'
+import { THEME } from '@/utils/constants'
 
 type AccountSettingsProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -16,11 +16,8 @@ type AccountSettingsProps = InferGetServerSidePropsType<
 const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
   user
 }) => {
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
   return (
     <>
       <PageHeader title="Personal Settings" message="Edit your details" />

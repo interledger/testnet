@@ -1,4 +1,4 @@
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 import Image from 'next/image'
 import { ReactNode } from 'react'
 
@@ -21,8 +21,7 @@ type AuthLayoutProps = {
 }
 
 const AuthLayout = ({ image, children }: AuthLayoutProps) => {
-  const theme = useTheme()
-  const imageName = theme.theme === 'dark' ? `${image}Dark` : `${image}Light`
+  const imageName = THEME === 'dark' ? `${image}Dark` : `${image}Light`
   const imageSrc = `/${IMAGES[imageName as Image]}`
   return (
     <>
