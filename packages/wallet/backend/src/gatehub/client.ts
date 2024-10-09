@@ -10,6 +10,7 @@ import {
   ICreateTransactionResponse,
   ICreateWalletRequest,
   ICreateWalletResponse,
+  IFundAccountRequest,
   IGetUserStateResponse,
   IGetVaultsResponse,
   IGetWalletForUserResponse,
@@ -46,7 +47,9 @@ import {
   ICardProductResponse,
   ICardDetailsRequest,
   ICardLockRequest,
-  ICardUnlockRequest
+  ICardUnlockRequest,
+  ICardLimitResponse,
+  ICardLimitRequest
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
 
@@ -74,7 +77,7 @@ export class GateHubClient {
   }
 
   get isProduction() {
-    return this.env.NODE_ENV === 'production'
+    return this.env.GATEHUB_ENV === 'production'
   }
 
   get apiUrl() {
@@ -291,37 +294,21 @@ export class GateHubClient {
     return response
   }
 
-  /**
-   * Retrieves the user with its corresponding wallets.
-   *
-   * !!! The `meta` object is not present here - not the same output as
-   * ICreateManagedUserResponse !!!
-   */
-  async getWalletForUser(userUuid: string): Promise<IGetWalletForUserResponse> {
-    const url = `${this.apiUrl}/core/v1/users/${userUuid}`
-
-    const response = await this.request<IGetWalletForUserResponse>(
-      'GET',
-      url,
-      undefined,
-      {
-        managedUserUuid: userUuid
-      }
-    )
-
-    return response
-  }
-
-  async getWalletBalance(walletId: string): Promise<IWalletBalance[]> {
+  async getWalletBalance(
+    walletId: string,
+    managedUserUuid: string
+  ): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
-    const response = await this.request<IWalletBalance[]>('GET', url)
+    const response = await this.request<IWalletBalance[]>('GET', url, '', {
+      managedUserUuid
+    })
 
     return response
   }
 
   async createTransaction(
-    body: ICreateTransactionRequest,
+    body: ICreateTransactionRequest | IFundAccountRequest,
     managedUserUuid?: string
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
@@ -457,6 +444,30 @@ export class GateHubClient {
     }
 
     return this.request<IGetTransactionsResponse>('GET', url)
+  }
+
+  async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>('GET', url, undefined, {
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  async createOrOverrideCardLimits(
+    cardId: string,
+    requestBody: ICardLimitRequest[]
+  ): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>(
+      'POST',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
   }
 
   async getPin(
@@ -657,5 +668,16 @@ export class GateHubClient {
     return createHmac('sha256', this.env.GATEHUB_SECRET_KEY)
       .update(toSign)
       .digest('hex')
+  }
+
+  getVaultUuid(assetCode: string): string {
+    switch (assetCode) {
+      case 'USD':
+        return this.env.GATEHUB_VAULT_UUID_USD
+      case 'EUR':
+        return this.env.GATEHUB_VAULT_UUID_EUR
+      default:
+        throw new BadRequest(`Unsupported asset code ${assetCode}`)
+    }
   }
 }

@@ -5,6 +5,8 @@ import { toSuccessResponse } from '@shared/backend'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
+  ICardLimitRequest,
+  ICardLimitResponse,
   ICardLockRequest,
   ICardResponse,
   ICardUnlockRequest
@@ -16,6 +18,8 @@ import {
   getCardDetailsSchema,
   lockCardSchema,
   unlockCardSchema,
+  getCardLimitsSchema,
+  createOrOverrideCardLimitsSchema,
   getCardTransactionsSchema,
   changePinSchema,
   permanentlyBlockCardSchema
@@ -24,6 +28,8 @@ import {
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
   getCardDetails: Controller<ICardResponse>
+  getCardLimits: Controller<ICardLimitResponse[]>
+  createOrOverrideCardLimits: Controller<ICardLimitResponse[]>
   getCardTransactions: Controller<IGetTransactionsResponse>
   getPin: Controller<ICardResponse>
   changePin: Controller<void>
@@ -92,6 +98,49 @@ export class CardController implements ICardController {
       )
 
       res.status(200).json(toSuccessResponse(transactions))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getCardLimits = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params } = await validate(getCardLimitsSchema, req)
+      const { cardId } = params
+
+      const limits = await this.cardService.getCardLimits(userId, cardId)
+      res.status(200).json(toSuccessResponse(limits))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public createOrOverrideCardLimits = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params, body } = await validate(
+        createOrOverrideCardLimitsSchema,
+        req
+      )
+      const { cardId } = params
+      const requestBody: ICardLimitRequest[] = body
+
+      const result = await this.cardService.createOrOverrideCardLimits(
+        userId,
+        cardId,
+        requestBody
+      )
+
+      res.status(201).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
     }

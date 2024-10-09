@@ -7,7 +7,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@headlessui/react": "^2.1.8",
+    "@headlessui/react": "^2.1.9",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/react-tooltip": "^1.1.2",
@@ -24,7 +24,7 @@
     "react-select": "^5.8.1",
     "sharp": "^0.33.5",
     "socket.io-client": "^4.8.0",
-    "tailwind-merge": "^2.5.2",
+    "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^2.0.0",
     "zod": "^3.23.8"
@@ -35,7 +35,7 @@
     "@tailwindcss/forms": "^0.5.9",
     "@types/node": "^20.12.11",
     "@types/nprogress": "^0.2.3",
-    "@types/react": "18.3.10",
+    "@types/react": "18.3.11",
     "@types/react-dom": "18.3.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",

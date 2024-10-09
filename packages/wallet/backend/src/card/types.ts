@@ -1,3 +1,5 @@
+import { CardLimitType } from '@wallet/shared/src'
+
 export interface ICardDetailsRequest {
   cardId: string
   publicKeyBase64: string
@@ -154,16 +156,6 @@ export interface ICardResponse {
   customerSourceId: string
 }
 
-export type CardLimitType =
-  | 'perTransaction'
-  | 'dailyOverall'
-  | 'weeklyOverall'
-  | 'monthlyOverall'
-  | 'dailyAtm'
-  | 'dailyEcomm'
-  | 'monthlyOpenScheme'
-  | 'nonEUPayments'
-
 export interface ICardProductLimit {
   type: CardLimitType
   currency: string
@@ -187,4 +179,18 @@ export interface ICardLockRequest {
 
 export interface ICardUnlockRequest {
   note: string
+}
+
+export interface ICardLimitRequest {
+  type: CardLimitType
+  limit: string
+  currency: string
+  isDisabled: boolean
+}
+
+export interface ICardLimitResponse {
+  type: CardLimitType
+  limit: number
+  currency: string
+  isDisabled: boolean
 }

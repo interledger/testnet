@@ -1,3 +1,5 @@
+import { TransactionTypeEnum } from '@/gatehub/consts'
+
 export type HTTP_METHODS = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
 export interface IClientIds {
@@ -75,7 +77,15 @@ export interface ICreateTransactionRequest {
   sending_address: string
   receiving_address: string
   message: string
-  type: number
+  type: TransactionTypeEnum.HOSTED
+  vault_uuid: string
+}
+export interface IFundAccountRequest {
+  uid: string
+  amount: number
+  network: number
+  receiving_address: string
+  type: TransactionTypeEnum.DEPOSIT
   vault_uuid: string
 }
 

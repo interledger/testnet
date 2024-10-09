@@ -18,6 +18,16 @@ export type BlockReasonCode =
   | 'IssuerRequestCustomerDeceased'
   | 'ProductDoesNotRenew'
 
+export type CardLimitType =
+  | 'perTransaction'
+  | 'dailyOverall'
+  | 'weeklyOverall'
+  | 'monthlyOverall'
+  | 'dailyAtm'
+  | 'dailyEcomm'
+  | 'monthlyOpenScheme'
+  | 'nonEUPayments'
+
 // Response for fetching card transactions
 export interface ITransaction {
   id: number
