@@ -7,7 +7,6 @@ import {
 } from '@tanstack/react-query'
 import { z } from 'zod'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FetcherOptions {
   endpoint: string
   method?: string

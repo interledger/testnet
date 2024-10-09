@@ -323,7 +323,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     {trx.type === 'INCOMING' ? '+' : '-'}
                     {
                       formatAmount({
-                        value: String(trx.value) ?? 0,
+                        value: String(trx.value) || '0',
                         assetCode: trx.assetCode,
                         assetScale: trx.assetScale
                       }).amount

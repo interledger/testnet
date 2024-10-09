@@ -13,7 +13,7 @@ const IMAGES = {
   PeopleDark: 'people-dark.webp'
 } as const
 
-type Image = keyof typeof IMAGES
+type ImageKey = keyof typeof IMAGES
 
 type AuthLayoutProps = {
   image: string
@@ -23,7 +23,7 @@ type AuthLayoutProps = {
 const AuthLayout = ({ image, children }: AuthLayoutProps) => {
   const theme = useTheme()
   const imageName = theme.theme === 'dark' ? `${image}Dark` : `${image}Light`
-  const imageSrc = `/${IMAGES[imageName as Image]}`
+  const imageSrc = `/${IMAGES[imageName as ImageKey]}`
   return (
     <>
       <div className="flex min-h-full w-screen">
