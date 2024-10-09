@@ -30,8 +30,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^13.4.12",
-    "@next/eslint-plugin-next": "^13.4.12",
+    "@next/bundle-analyzer": "^14.2.15",
+    "@next/eslint-plugin-next": "^14.2.15",
     "@tailwindcss/forms": "^0.5.9",
     "@types/node": "^20.12.11",
     "@types/nprogress": "^0.2.3",
