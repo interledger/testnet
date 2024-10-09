@@ -294,6 +294,26 @@ export class GateHubClient {
     return response
   }
 
+  /**
+   * Retrieves the user with its corresponding wallets.
+   *
+   * !!! The `meta` object is not present here - not the same output as
+   * ICreateManagedUserResponse !!!
+   */
+  async getWalletForUser(userUuid: string): Promise<IGetWalletForUserResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}`
+
+    const response = await this.request<IGetWalletForUserResponse>(
+      'GET',
+      url,
+      undefined,
+      {
+        managedUserUuid: userUuid
+      }
+    )
+    return response
+  }
+
   async getWalletBalance(
     walletId: string,
     managedUserUuid: string
