@@ -52,6 +52,7 @@ services:
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
       GATEHUB_ACCESS_KEY: ${GATEHUB_ACCESS_KEY}
       GATEHUB_SECRET_KEY: ${GATEHUB_SECRET_KEY}
+      GATEHUB_WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET}
       GATEHUB_GATEWAY_UUID: ${GATEHUB_GATEWAY_UUID}
       GATEHUB_VAULT_UUID_EUR: ${GATEHUB_VAULT_UUID_EUR}
       GATEHUB_VAULT_UUID_USD: ${GATEHUB_VAULT_UUID_USD}
@@ -90,7 +91,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.19
     restart: always
     networks:
       - testnet
@@ -107,6 +108,7 @@ services:
       IDENTITY_SERVER_URL: http://localhost:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
+      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-none}
       WAIT_SECONDS: 1
       REDIS_URL: redis://redis:6379/0
     depends_on:
@@ -115,7 +117,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.19
     restart: always
     privileged: true
     volumes:
@@ -164,7 +166,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.19
     depends_on:
       - rafiki-backend
     restart: always
