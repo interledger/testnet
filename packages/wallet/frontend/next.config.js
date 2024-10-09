@@ -23,7 +23,7 @@ const nextConfig = {
       process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST || '$rafiki-backend/',
     NEXT_PUBLIC_AUTH_HOST:
       process.env.NEXT_PUBLIC_AUTH_HOST || 'http://localhost:3006',
-    NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
+    NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'dark',
     NEXT_PUBLIC_CARDS_ENABLED
   }
 }
