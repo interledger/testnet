@@ -6,7 +6,10 @@ import { IGetUserStateResponse, IWebhookDate } from '@/gatehub/types'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
-import { WalletAddressService, createWalletAddressIfFalsy } from '@/walletAddress/service'
+import {
+  WalletAddressService,
+  createWalletAddressIfFalsy
+} from '@/walletAddress/service'
 import { ICreateCustomerRequest } from '@/card/types'
 
 export class GateHubService {
@@ -42,7 +45,9 @@ export class GateHubService {
     }
   }
 
-  async addUserToGateway(userId: string) {
+  async addUserToGateway(
+    userId: string
+  ): Promise<{ isUserApproved: boolean; customerId?: string }> {
     const user = await User.query().findById(userId)
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
@@ -74,18 +79,26 @@ export class GateHubService {
 
     await User.query().findById(user.id).patch(userDetails)
 
-    if (this.env.GATEHUB_ENV !== 'production') {
-      await this.setupNonProdUser(user.id, user.gateHubUserId, userState)
+    let customerId
+    if (
+      this.env.NODE_ENV === 'development' &&
+      this.env.GATEHUB_ENV !== 'production'
+    ) {
+      customerId = await this.setupSandboxCustomer(
+        user.id,
+        user.gateHubUserId,
+        userState
+      )
     }
 
-    return isUserApproved
+    return { isUserApproved, customerId }
   }
 
-  private async setupNonProdUser(
+  private async setupSandboxCustomer(
     userId: string,
     managedUserId: string,
     userState: IGetUserStateResponse
-  ) {
+  ): Promise<string> {
     if (!this.accountService || !this.walletAddressService) {
       throw new Error(
         'AccountService and WalletAddressService must be provided in sandbox environment.'
@@ -114,29 +127,31 @@ export class GateHubService {
         currency: 'EUR',
         card: {
           productCode: this.env.GATEHUB_CARD_PRODUCT_CODE
-        },
+        }
       },
-      // TODO change this after merging script branch to main
-      nameOnCard: 'INTERLEDGER',
+      nameOnCard: this.env.GATEHUB_NAME_ON_CARD,
       citizen: {
         name: userState.profile.first_name,
         surname: userState.profile.last_name
       }
     }
 
-    const customer = await this.gateHubClient.createCustomer(managedUserId, requestBody)
+    const customer = await this.gateHubClient.createCustomer(
+      managedUserId,
+      requestBody
+    )
     const customerId = customer.customers.id!
 
-    const userDetails: Partial<User> = {
+    await User.query().findById(userId).patch({
       customerId
-    }
-    await User.query().findById(userId).patch(userDetails)
+    })
 
     await this.gateHubClient.updateMetaForManagedUser(managedUserId, {
       paymentPointer: paymentPointer.url,
       customerId
     })
-    
+
+    return customerId
   }
 
   private async markUserAsVerified(uuid: string): Promise<void> {
