@@ -93,7 +93,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 />
                 <span
                   onClick={togglePasswordVisibility}
-                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                  className="absolute right-2.5 top-9 cursor-pointer"
                 >
                   {isPasswordVisible ? <SlashEye /> : <Eye />}
                 </span>
@@ -110,7 +110,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 />
                 <span
                   onClick={toggleConfirmPasswordVisibility}
-                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                  className="absolute right-2.5 top-9 cursor-pointer"
                 >
                   {isConfirmPasswordVisible ? <SlashEye /> : <Eye />}
                 </span>

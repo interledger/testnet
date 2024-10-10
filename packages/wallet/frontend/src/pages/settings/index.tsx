@@ -20,7 +20,7 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
     THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
   return (
     <>
-      <PageHeader title="Personal Settings" message="Edit your details" />
+      <PageHeader title="Account Settings" />
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
         <PersonalSettingsForm user={user} />

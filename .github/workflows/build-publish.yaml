@@ -61,12 +61,12 @@ jobs:
             open_payments_url: https://ilp.interledger-test.dev/
             auth_host: https://auth.interledger-test.dev
             gatehub_env: staging
-            theme: dark 
+            theme: dark
           - name: test-wallet-frontend-cards
             identifier: 'wallet:frontend'
             path: packages/wallet/frontend
             port: 4003
-            cookie_name: interledgercards.cookie 
+            cookie_name: interledgercards.cookie
             backend_url: https://api.interledger.cards
             open_payments_url: https://ilp.dev/
             auth_host: https://auth.interledger.cards
@@ -105,8 +105,8 @@ jobs:
           push: true
           file: ${{ matrix.package.path }}/Dockerfile.prod
           build-args: |
-            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_API_BASE_URL={0}', matrix.package.api_base_url) }}
-            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_CURRENCY={0}', matrix.package.currency) }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_API_BASE_URL={0}', matrix.package.api_base_url) || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_CURRENCY={0}', matrix.package.currency) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('PORT={0}', matrix.package.port) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('COOKIE_NAME={0}', matrix.package.cookie_name) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_BACKEND_URL={0}', matrix.package.backend_url) || '' }}
@@ -115,8 +115,6 @@ jobs:
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
-
-
 
   generate-release:
     runs-on: ubuntu-latest
