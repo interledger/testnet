@@ -8,7 +8,6 @@ import {
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
-  ICardResponse,
   ICardUnlockRequest
 } from './types'
 import { IGetTransactionsResponse } from '@wallet/shared/src'
@@ -24,6 +23,7 @@ import {
   changePinSchema,
   permanentlyBlockCardSchema
 } from './validation'
+import { ICardResponse } from '@wallet/shared'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
