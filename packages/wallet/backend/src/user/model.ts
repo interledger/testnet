@@ -20,6 +20,7 @@ export class User extends BaseModel {
 
   public kycVerified!: boolean
   public gateHubUserId?: string
+  public customerId?: string
 
   public sessions?: Session[]
   public passwordResetToken?: string | null
