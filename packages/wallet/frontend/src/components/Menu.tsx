@@ -22,7 +22,7 @@ import { cn } from '@/utils/helpers'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useMenuContext } from '@/lib/context/menu'
 import { Card } from './icons/CardButtons'
-import { CARDS_ENABLED } from '@/utils/constants'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type MenuItemProps = {
   name: string
@@ -70,7 +70,7 @@ export const menuItems: MenuItemProps[] = [
   }
 ]
 
-if (CARDS_ENABLED) {
+if (FEATURES_ENABLED) {
   const lastItem = menuItems.pop() as MenuItemProps
   menuItems.push({
     name: 'Card',
