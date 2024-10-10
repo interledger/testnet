@@ -13,6 +13,7 @@ import {
   IFundAccountRequest,
   IGetUserStateResponse,
   IGetVaultsResponse,
+  IGetWalletForUserResponse,
   IGetWalletResponse,
   IRatesResponse,
   ITokenRequest,
@@ -48,7 +49,9 @@ import {
   ICardLockRequest,
   ICardUnlockRequest,
   ICardLimitResponse,
-  ICardLimitRequest
+  ICardLimitRequest,
+  ICreateCardRequest,
+  CloseCardReason
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
 
@@ -181,6 +184,10 @@ export class GateHubClient {
     return response
   }
 
+  /**
+   * The meta was createad as `meta.meta.[property]`
+   * We should be aware of this when the user signs up (for production)
+   */
   async updateMetaForManagedUser(
     userUuid: string,
     meta: Record<string, string>
@@ -289,6 +296,26 @@ export class GateHubClient {
     return response
   }
 
+  /**
+   * Retrieves the user with its corresponding wallets.
+   *
+   * !!! The `meta` object is not present here - not the same output as
+   * ICreateManagedUserResponse !!!
+   */
+  async getWalletForUser(userUuid: string): Promise<IGetWalletForUserResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}`
+
+    const response = await this.request<IGetWalletForUserResponse>(
+      'GET',
+      url,
+      undefined,
+      {
+        managedUserUuid: userUuid
+      }
+    )
+    return response
+  }
+
   async getWalletBalance(
     walletId: string,
     managedUserUuid: string
@@ -356,7 +383,7 @@ export class GateHubClient {
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
     const url = `${this.apiUrl}/cards/v1/customers/managed`
-    return this.request<ICreateCustomerResponse>(
+    const response = await this.request<ICreateCustomerResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
@@ -365,6 +392,19 @@ export class GateHubClient {
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+
+    return response
+  }
+
+  /**
+   * @deprecated Only used when ordering cards.
+   */
+  async orderPlasticForCard(userUuid: string, cardId: string): Promise<void> {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/plastic`
+    await this.request('POST', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
   }
 
   async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
@@ -560,6 +600,38 @@ export class GateHubClient {
     url += `?reasonCode=${encodeURIComponent(reasonCode)}`
 
     return this.request<ICardResponse>('PUT', url)
+  }
+
+  async closeCard(userUuid: string, cardId: string, reason: CloseCardReason) {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/card?reasonCode=${reason}`
+
+    await this.request('DELETE', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  /**
+   * @deprecated
+   */
+  async createCard(
+    userUuid: string,
+    accountId: string,
+    payload: ICreateCardRequest
+  ) {
+    const url = `${this.apiUrl}/cards/v1/cards/${accountId}/card`
+
+    const response = await this.request<ICardResponse>(
+      'POST',
+      url,
+      JSON.stringify(payload),
+      {
+        managedUserUuid: userUuid,
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    return response
   }
 
   private async request<T>(

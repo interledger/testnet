@@ -15,6 +15,7 @@ const envSchema = z.object({
   GATEHUB_ENV: z.enum(['production', 'sandbox']).default('sandbox'),
   GATEHUB_ACCESS_KEY: z.string().default('GATEHUB_ACCESS_KEY'),
   GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
+  GATEHUB_WEBHOOK_SECRET: z.string().default('GATEHUB_WEBHOOK_SECRET'),
   GATEHUB_GATEWAY_UUID: z.string().default('GATEHUB_GATEWAY_UUID'),
   GATEHUB_VAULT_UUID_EUR: z.string().default('GATEHUB_VAULT_UUID_EUR'),
   GATEHUB_VAULT_UUID_USD: z.string().default('GATEHUB_VAULT_UUID_USD'),
@@ -22,9 +23,15 @@ const envSchema = z.object({
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),
   GATEHUB_CARD_APP_ID: z.string().default('GATEHUB_CARD_APP_ID'),
-  GATEHUB_ACCOUNT_PRODUCT_CODE: z.string().default('GATEHUB_ACCOUNT_PRODUCT_CODE'),
+  GATEHUB_ACCOUNT_PRODUCT_CODE: z
+    .string()
+    .default('GATEHUB_ACCOUNT_PRODUCT_CODE'),
   GATEHUB_CARD_PRODUCT_CODE: z.string().default('GATEHUB_CARD_PRODUCT_CODE'),
-  GATEHUB_NAME_ON_CARD_PREFIX: z.string().default('GATEHUB_NAME_ON_CARD_PREFIX'),
+  GATEHUB_NAME_ON_CARD: z
+    .string()
+    .regex(/^[a-zA-Z0-9]*$/, 'Only alphanumeric characters are allowed')
+    .default('INTERLEDGER'),
+  GATEHUB_CARD_PP_PREFIX: z.string().default('GATEHUB_GATEHUB_CARD_PP_PREFIX'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   AUTH_GRAPHQL_ENDPOINT: z
     .string()

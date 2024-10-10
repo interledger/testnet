@@ -94,7 +94,7 @@ export const ChangePasswordForm = () => {
           />
           <span
             onClick={toggleCurrentPasswordVisibility}
-            className="absolute right-2.5 top-1/2 cursor-pointer"
+            className="absolute right-2.5 top-9 cursor-pointer"
           >
             {isCurrentPasswordVisible ? <SlashEye /> : <Eye />}
           </span>
@@ -109,7 +109,7 @@ export const ChangePasswordForm = () => {
           />
           <span
             onClick={toggleNewPasswordVisibility}
-            className="absolute right-2.5 top-1/2 cursor-pointer"
+            className="absolute right-2.5 top-9 cursor-pointer"
           >
             {isNewPasswordVisible ? <SlashEye /> : <Eye />}
           </span>
@@ -126,7 +126,7 @@ export const ChangePasswordForm = () => {
           />
           <span
             onClick={toggleConfirmNewPasswordVisibility}
-            className="absolute right-2.5 top-1/2 cursor-pointer"
+            className="absolute right-2.5 top-9 cursor-pointer"
           >
             {isConfirmNewPasswordVisible ? <SlashEye /> : <Eye />}
           </span>

@@ -63,6 +63,11 @@ export interface ICreateWalletRequest {
 export interface ICreateWalletResponse {
   address: string
 }
+
+export interface IGetWalletForUserResponse {
+  wallets: ICreateWalletResponse[]
+}
+
 export interface IGetWalletResponse {
   address: string
 }

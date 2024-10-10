@@ -1,5 +1,7 @@
 import { CardLimitType } from '@wallet/shared/src'
 
+export type GateHubCardCurrency = 'EUR'
+
 export interface ICardDetailsRequest {
   cardId: string
   publicKeyBase64: string
@@ -22,7 +24,7 @@ export interface ICreateCustomerRequest {
   walletAddress: string
   account: {
     productCode: string
-    currency: 'EUR'
+    currency: GateHubCardCurrency
     card: {
       productCode: string
     }
@@ -193,4 +195,23 @@ export interface ICardLimitResponse {
   limit: number
   currency: string
   isDisabled: boolean
+}
+
+export type CloseCardReason =
+  | 'IssuerRequestGeneral'
+  | 'IssuerRequestFraud'
+  | 'IssuerRequestLegal'
+  | 'IssuerRequestIncorrectOpening'
+  | 'UserRequest'
+  | 'IssuerRequestCustomerDeceased'
+
+export interface ICreateCardRequest {
+  nameOnCard: string
+  deliveryAddressId: string
+  walletAddress: string
+  currency: GateHubCardCurrency
+  productCode: string
+  card: {
+    productCode: string
+  }
 }

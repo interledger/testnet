@@ -33,11 +33,7 @@ export async function fetcher<JSON = any>(
   const json = await response.json()
   if (!response.ok) {
     const error = json as ErrorResponse
-    throw new APIError(
-      error.message,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      error.errors as unknown as Errors
-    )
+    throw new APIError(error.message, error.errors as unknown as Errors)
   }
 
   return json

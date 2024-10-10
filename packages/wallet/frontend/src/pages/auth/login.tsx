@@ -121,7 +121,7 @@ const LoginPage: NextPageWithLayout = () => {
             />
             <span
               onClick={togglePasswordVisibility}
-              className="absolute right-2.5 top-1/2 cursor-pointer"
+              className="absolute right-2.5 top-9 cursor-pointer"
             >
               {isPasswordVisible ? <SlashEye /> : <Eye />}
             </span>

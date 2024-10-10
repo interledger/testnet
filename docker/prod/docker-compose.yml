@@ -64,6 +64,7 @@ services:
       GATEHUB_ENV: ${WALLET_BACKEND_GATEHUB_ENV}
       GATEHUB_ACCESS_KEY: ${WALLET_BACKEND_GATEHUB_ACCESS_KEY}
       GATEHUB_SECRET_KEY: ${WALLET_BACKEND_GATEHUB_SECRET_KEY}
+      GATEHUB_WEBHOOK_SECRET: ${WALLET_BACKEND_GATEHUB_WEBHOOK_SECRET}
       GATEHUB_GATEWAY_UUID: ${WALLET_BACKEND_GATEHUB_GATEWAY_UUID}
       GATEHUB_VAULT_UUID_EUR: ${WALLET_BACKEND_GATEHUB_VAULT_UUID_EUR}
       GATEHUB_VAULT_UUID_USD: ${WALLET_BACKEND_GATEHUB_VAULT_UUID_USD}
@@ -71,7 +72,8 @@ services:
       GATEHUB_CARD_APP_ID: ${WALLET_BACKEND_GATEHUB_CARD_APP_ID}
       GATEHUB_ACCOUNT_PRODUCT_CODE: ${WALLET_BACKEND_GATEHUB_ACCOUNT_PRODUCT_CODE}
       GATEHUB_CARD_PRODUCT_CODE: ${WALLET_BACKEND_GATEHUB_CARD_PRODUCT_CODE}
-      GATEHUB_NAME_ON_CARD_PREFIX: ${WALLET_BACKEND_GATEHUB_NAME_ON_CARD_PREFIX}
+      GATEHUB_NAME_ON_CARD: ${WALLET_BACKEND_GATEHUB_NAME_ON_CARD}
+      GATEHUB_CARD_PP_PREFIX: ${WALLET_BACKEND_GATEHUB_CARD_PP_PREFIX}
     networks:
       - testnet
     ports:
@@ -121,7 +123,7 @@ services:
     <<: *logging
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.19
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
@@ -130,6 +132,7 @@ services:
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT}
       AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL}
       COOKIE_KEY: ${RAFIKI_AUTH_COOKIE_KEY}
+      INTERACTION_COOKIE_SAME_SITE: ${RAFIKI_AUTH_INTERACTION_COOKIE_SAME_SITE}
       IDENTITY_SERVER_SECRET: ${RAFIKI_AUTH_IDENTITY_SERVER_SECRET}
       IDENTITY_SERVER_URL: ${RAFIKI_AUTH_IDENTITY_SERVER_DOMAIN}
       AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_DOMAIN}
@@ -147,7 +150,7 @@ services:
     <<: *logging
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.19
     container_name: rafiki-backend
     depends_on:
       - postgres
@@ -218,7 +221,7 @@ services:
     <<: *logging
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.17
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.19
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
@@ -238,7 +241,7 @@ services:
     <<: *logging
 
   tigerbeetle:
-    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.7
+    image: ghcr.io/tigerbeetle/tigerbeetle:0.16.8
     privileged: true
     volumes:
       - tigerbeetle-data:/var/lib/tigerbeetle
