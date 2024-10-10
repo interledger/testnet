@@ -4,6 +4,7 @@ import { getRandomToken, hashToken } from '@/utils/helpers'
 import { Logger } from 'winston'
 import { BadRequest, Conflict } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
+import { Env } from '@/config/env'
 
 interface CreateUserArgs {
   email: string
@@ -30,7 +31,8 @@ export class UserService implements IUserService {
   constructor(
     private emailService: EmailService,
     private gateHubClient: GateHubClient,
-    private logger: Logger
+    private logger: Logger,
+    private env: Env
   ) {}
 
   public async create(args: CreateUserArgs): Promise<User> {
@@ -124,12 +126,25 @@ export class UserService implements IUserService {
       throw new BadRequest('Invalid token')
     }
 
-    const gateHubUser = await this.gateHubClient.createManagedUser(user.email)
+    let gateHubUser
+    if (this.env.GATEHUB_ENV === 'production') {
+      const existingManagedUsers = await this.gateHubClient.getManagedUsers()
+      gateHubUser = existingManagedUsers.find(
+        (gateHubUser) => gateHubUser.email === user.email
+      )
+
+      if (!gateHubUser) {
+        throw new Error('Email not allowed for sign up')
+      }
+    } else {
+      gateHubUser = await this.gateHubClient.createManagedUser(user.email)
+    }
 
     await User.query().findById(user.id).patch({
       isEmailVerified: true,
       verifyEmailToken: null,
-      gateHubUserId: gateHubUser.id
+      gateHubUserId: gateHubUser.id,
+      customerId: gateHubUser.meta.meta.customerId
     })
   }
 

@@ -184,6 +184,17 @@ export class GateHubClient {
     return response
   }
 
+  async getManagedUsers(): Promise<ICreateManagedUserResponse[]> {
+    const url = `${this.apiUrl}/auth/v1/users/organization/${this.env.GATEHUB_ORG_ID}`
+
+    const response = await this.request<ICreateManagedUserResponse[]>(
+      'GET',
+      url
+    )
+
+    return response
+  }
+
   /**
    * The meta was createad as `meta.meta.[property]`
    * We should be aware of this when the user signs up (for production)
@@ -371,7 +382,9 @@ export class GateHubClient {
     return flatRates
   }
 
-  // This should be called before creating customers to get the product codes for the card and account
+  /**
+   * @deprecated Only used before creating customers to get the product codes for the card and account.
+   */
   async fetchCardApplicationProducts(): Promise<ICardProductResponse[]> {
     const url = `${this.apiUrl}/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
     const response = await this.request<ICardProductResponse[]>('GET', url)
