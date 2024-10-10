@@ -74,7 +74,8 @@ describe('Wallet Address', () => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycVerified
+      needsIDProof: !user.kycVerified,
+      customerId: user.customerId
     }
     userId = user.id
     await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })

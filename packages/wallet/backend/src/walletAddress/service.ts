@@ -50,7 +50,7 @@ export const createWalletAddressIfFalsy = async ({
   publicName,
   walletAddressService
 }: {
-  walletAddress: WalletAddress
+  walletAddress?: WalletAddress
   userId: string
   accountId: string
   publicName: string

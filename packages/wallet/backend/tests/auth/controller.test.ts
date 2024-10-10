@@ -141,7 +141,8 @@ describe('Authentication Controller', (): void => {
         id: user.id,
         email: user.email,
         needsWallet: !user.gateHubUserId,
-        needsIDProof: !user.kycVerified
+        needsIDProof: !user.kycVerified,
+        customerId: user.customerId
       })
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
@@ -225,7 +226,8 @@ describe('Authentication Controller', (): void => {
         id: user.id,
         email: user.email,
         needsWallet: !user.gateHubUserId,
-        needsIDProof: !user.kycVerified
+        needsIDProof: !user.kycVerified,
+        customerId: user.customerId
       }
       await authController.logOut(req, res, next)
 
@@ -268,7 +270,8 @@ describe('Authentication Controller', (): void => {
         id: user.id,
         email: user.email,
         needsWallet: !user.gateHubUserId,
-        needsIDProof: !user.kycVerified
+        needsIDProof: !user.kycVerified,
+        customerId: user.customerId
       }
       await authController.logOut(req, res, (err) => {
         next()

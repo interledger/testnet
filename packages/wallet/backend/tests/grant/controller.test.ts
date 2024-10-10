@@ -45,7 +45,8 @@ describe('Grant Controller', () => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycVerified
+      needsIDProof: !user.kycVerified,
+      customerId: user.customerId
     }
     await User.query().patchAndFetchById(user.id, { gateHubUserId: 'mocked' })
   }
