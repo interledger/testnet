@@ -30,7 +30,7 @@ const envSchema = z.object({
   GATEHUB_NAME_ON_CARD: z
     .string()
     .regex(/^[a-zA-Z0-9]*$/, 'Only alphanumeric characters are allowed')
-    .default('GATEHUB_NAME_ON_CARD'),
+    .default('INTERLEDGER'),
   GATEHUB_CARD_PP_PREFIX: z.string().default('GATEHUB_GATEHUB_CARD_PP_PREFIX'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   AUTH_GRAPHQL_ENDPOINT: z
