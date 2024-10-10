@@ -1,7 +1,7 @@
 import { useCartStore } from '@/hooks/use-cart-store.ts'
 import { MobileNav, MainNav } from './navigation.tsx'
 import { ShoppingCartPopover } from './shopping-cart-popover.tsx'
-import { ThemeToggle } from './theme-toggle.tsx'
+// import { ThemeToggle } from './theme-toggle.tsx'
 
 export const Header = () => {
   return (
@@ -12,7 +12,8 @@ export const Header = () => {
           <nav className="flex items-center">
             <ShoppingCartPopover />
             <ShoppingCartTotalItems />
-            <ThemeToggle />
+            {/* we are deploying to test environment, so the dark theme will be visible for the users, the same as test wallet staging environment*/}
+            {/* <ThemeToggle /> */}
           </nav>
           <MobileNav />
         </div>
