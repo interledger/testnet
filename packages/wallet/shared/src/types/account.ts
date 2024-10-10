@@ -1,16 +1,5 @@
 import { z } from 'zod'
 
-export const fundAccountSchema = z.object({
-  accountId: z.string().uuid(),
-  amount: z.coerce
-    .number({
-      invalid_type_error: 'Please enter a valid amount'
-    })
-    .positive({ message: 'Please enter an amount' })
-})
-
-export const withdrawFundsSchema = fundAccountSchema
-
 export const createAccountSchema = z.object({
   name: z
     .string()

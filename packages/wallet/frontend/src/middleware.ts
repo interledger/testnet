@@ -10,6 +10,9 @@ const isPublicPath = (path: string) => {
 
 const publicPaths = ['/auth*']
 
+// TODO: Update middleware for the new KYC
+// We might want to showcase the users that the identity verification is in
+// progress and probably do not let them perform any action (sending money, etc).
 export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const nextPage = req.nextUrl.searchParams.get('next')
@@ -31,12 +34,10 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    if (
-      response.result?.needsIDProof &&
-      req.nextUrl.pathname !== '/kyc/proof'
-    ) {
+    console.log(response.result)
+    if (response.result?.needsIDProof && req.nextUrl.pathname !== '/kyc') {
       if (nextPage !== 'proof')
-        return NextResponse.redirect(new URL('/kyc/proof', req.url))
+        return NextResponse.redirect(new URL('/kyc', req.url))
     }
 
     // If KYC is completed and the user tries to navigate to the page, redirect

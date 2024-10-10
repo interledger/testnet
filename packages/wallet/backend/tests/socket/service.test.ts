@@ -88,7 +88,7 @@ describe('Socket Service', () => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycId
+      needsIDProof: !user.kycVerified
     }
 
     userId = user.id

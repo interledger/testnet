@@ -5,23 +5,34 @@ import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Link } from '@/ui/Link'
 import { Play } from '@/components/icons/Play'
+import { Eye } from '@/components/icons/Eye'
+import { SlashEye } from '@/components/icons/SlashEye'
 import { userService } from '@/lib/api/user'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { cx } from 'class-variance-authority'
 import { useTheme } from 'next-themes'
 import { signUpSchema } from '@wallet/shared'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
+  const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
+  const [isRepeatPasswordVisible, setRepeatPasswordVisible] =
+    useState<boolean>(false)
   const theme = useTheme()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
   })
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!isPasswordVisible)
+  }
+  const toggleRepeatPasswordVisibility = () => {
+    setRepeatPasswordVisible(!isRepeatPasswordVisible)
+  }
   useEffect(() => {
     signUpForm.setFocus('email')
   }, [signUpForm])
@@ -80,20 +91,36 @@ const SignUpPage: NextPageWithLayout = () => {
             error={signUpForm.formState.errors.email?.message}
             label="E-mail"
           />
-          <Input
-            required
-            type="password"
-            {...signUpForm.register('password')}
-            error={signUpForm.formState.errors.password?.message}
-            label="Password"
-          />
-          <Input
-            required
-            type="password"
-            {...signUpForm.register('confirmPassword')}
-            error={signUpForm.formState.errors.confirmPassword?.message}
-            label="Confirm password"
-          />
+          <div className="relative">
+            <Input
+              required
+              type={isPasswordVisible ? 'text' : 'password'}
+              {...signUpForm.register('password')}
+              error={signUpForm.formState.errors.password?.message}
+              label="Password"
+            />
+            <span
+              onClick={togglePasswordVisibility}
+              className="absolute right-2.5 top-9 cursor-pointer"
+            >
+              {isPasswordVisible ? <SlashEye /> : <Eye />}
+            </span>
+          </div>
+          <div className="relative">
+            <Input
+              required
+              type={isRepeatPasswordVisible ? 'text' : 'password'}
+              {...signUpForm.register('confirmPassword')}
+              error={signUpForm.formState.errors.confirmPassword?.message}
+              label="Confirm password"
+            />
+            <span
+              onClick={toggleRepeatPasswordVisibility}
+              className="absolute right-2.5 top-9 cursor-pointer"
+            >
+              {isRepeatPasswordVisible ? <SlashEye /> : <Eye />}
+            </span>
+          </div>
           <button
             aria-label="login"
             type="submit"

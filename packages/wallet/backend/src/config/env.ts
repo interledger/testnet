@@ -12,14 +12,17 @@ const envSchema = z.object({
     .string()
     .default('testnet.cookie.password.super.secret.ilp'), // min. 32 chars
   COOKIE_TTL: z.coerce.number().default(2630000), // 1 month
+  GATEHUB_ENV: z.enum(['production', 'sandbox']).default('sandbox'),
   GATEHUB_ACCESS_KEY: z.string().default('GATEHUB_ACCESS_KEY'),
   GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
+  GATEHUB_WEBHOOK_SECRET: z.string().default('GATEHUB_WEBHOOK_SECRET'),
   GATEHUB_GATEWAY_UUID: z.string().default('GATEHUB_GATEWAY_UUID'),
   GATEHUB_VAULT_UUID_EUR: z.string().default('GATEHUB_VAULT_UUID_EUR'),
   GATEHUB_VAULT_UUID_USD: z.string().default('GATEHUB_VAULT_UUID_USD'),
   GATEHUB_SETTLEMENT_WALLET_ADDRESS: z
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),
+  GATEHUB_CARD_APP_ID: z.string().default('GATEHUB_CARD_APP_ID'),
   GRAPHQL_ENDPOINT: z.string().url().default('http://localhost:3011/graphql'),
   AUTH_GRAPHQL_ENDPOINT: z
     .string()
@@ -27,11 +30,10 @@ const envSchema = z.object({
     .default('http://rafiki-auth:3008/graphql'),
   AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3006'),
   AUTH_IDENTITY_SERVER_SECRET: z.string().default('replace-me'),
+  RAFIKI_WEBHOOK_SIGNATURE_SECRET: z.string().default('replace-me'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
-  RAPYD_SETTLEMENT_EWALLET: z.string().default('default_ewallet'),
   RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost'),
   SENDGRID_API_KEY: z.string().default('SG.API_KEY'),
-  RATE_API_KEY: z.string().default('SG.API_KEY'),
   FROM_EMAIL: z.string().default('tech@interledger.org'),
   SEND_EMAIL: z
     .enum(['true', 'false'])

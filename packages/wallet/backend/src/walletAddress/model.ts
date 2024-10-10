@@ -12,6 +12,7 @@ export class WalletAddress extends BaseModel implements IWalletAddressResponse {
   readonly id!: string
   readonly url!: string
   readonly accountId!: string
+  cardId?: string
   active!: boolean
   account!: Account
   transactions!: Array<Transaction>

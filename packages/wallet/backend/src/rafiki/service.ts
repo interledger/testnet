@@ -10,7 +10,7 @@ import { Account } from '@/account/model'
 import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
-import { HOSTED_TRANSACTION_TYPE } from '@/gatehub/consts'
+import { TransactionTypeEnum } from '@/gatehub/consts'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -179,10 +179,10 @@ export class RafikiService implements IRafikiService {
 
     await this.gateHubClient.createTransaction({
       amount: this.amountToNumber(amount),
-      vault_uuid: this.getVaultUuid(amount.assetCode),
+      vault_uuid: this.gateHubClient.getVaultUuid(amount.assetCode),
       receiving_address: receiverWallet,
       sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: HOSTED_TRANSACTION_TYPE,
+      type: TransactionTypeEnum.HOSTED,
       message: 'Transfer'
     })
 
@@ -247,21 +247,27 @@ export class RafikiService implements IRafikiService {
     const walletAddress = await this.getWalletAddress(wh)
     const debitAmount = this.getAmountFromWebHook(wh)
 
-    const { gateHubWalletId: sendingWallet, userId } =
-      await this.getGateHubWalletAddress(walletAddress)
+    const {
+      gateHubWalletId: sendingWallet,
+      userId,
+      gateHubUserId
+    } = await this.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(debitAmount, wh.type)) {
       return
     }
 
-    await this.gateHubClient.createTransaction({
-      amount: this.amountToNumber(debitAmount),
-      vault_uuid: this.getVaultUuid(debitAmount.assetCode),
-      sending_address: sendingWallet,
-      receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: HOSTED_TRANSACTION_TYPE,
-      message: 'Transfer'
-    })
+    await this.gateHubClient.createTransaction(
+      {
+        amount: this.amountToNumber(debitAmount),
+        vault_uuid: this.gateHubClient.getVaultUuid(debitAmount.assetCode),
+        sending_address: sendingWallet,
+        receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
+        type: TransactionTypeEnum.HOSTED,
+        message: 'Transfer'
+      },
+      gateHubUserId
+    )
 
     if (wh.data.balance !== '0') {
       await this.rafikiClient.withdrawLiqudity(wh.id)
@@ -318,10 +324,10 @@ export class RafikiService implements IRafikiService {
 
     await this.gateHubClient.createTransaction({
       amount: this.amountToNumber(sentAmount),
-      vault_uuid: this.getVaultUuid(sentAmount.assetCode),
+      vault_uuid: this.gateHubClient.getVaultUuid(sentAmount.assetCode),
       sending_address: sendingWallet,
       receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: HOSTED_TRANSACTION_TYPE,
+      type: TransactionTypeEnum.HOSTED,
       message: 'Transfer'
     })
 
@@ -353,21 +359,12 @@ export class RafikiService implements IRafikiService {
     return await this.walletAddressService.findByIdWithoutValidation(id)
   }
 
-  private getVaultUuid(assetCode: string): string {
-    switch (assetCode) {
-      case 'USD':
-        return this.env.GATEHUB_VAULT_UUID_USD
-      case 'EUR':
-        return this.env.GATEHUB_VAULT_UUID_EUR
-      default:
-        throw new BadRequest(`Unsupported asset code ${assetCode}`)
-    }
-  }
-
   private async getGateHubWalletAddress(walletAddress: WalletAddress) {
-    const account = await Account.query().findById(walletAddress.accountId)
+    const account = await Account.query()
+      .findById(walletAddress.accountId)
+      .withGraphFetched('user')
 
-    if (!account || !account.gateHubWalletId) {
+    if (!account?.gateHubWalletId || !account.user?.gateHubUserId) {
       throw new BadRequest(
         'No account associated to the provided payment pointer'
       )
@@ -375,7 +372,8 @@ export class RafikiService implements IRafikiService {
 
     return {
       userId: account.userId,
-      gateHubWalletId: account.gateHubWalletId
+      gateHubWalletId: account.gateHubWalletId,
+      gateHubUserId: account.user.gateHubUserId
     }
   }
 }

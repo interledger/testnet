@@ -51,7 +51,7 @@ describe('Account Controller', (): void => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycId
+      needsIDProof: !user.kycVerified
     }
     await User.query().patchAndFetchById(user.id, {
       gateHubUserId: 'mocked'

@@ -41,6 +41,10 @@ import { initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
+import { CardController } from './card/controller'
+import { CardService } from './card/service'
+import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
+import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 
 export interface Bindings {
   env: Env
@@ -77,6 +81,8 @@ export interface Bindings {
   gateHubClient: GateHubClient
   gateHubController: GateHubController
   gateHubService: GateHubService
+  cardService: CardService
+  cardController: CardController
 }
 
 export class App {
@@ -145,6 +151,7 @@ export class App {
     const accountController = await this.container.resolve('accountController')
     const rafikiController = await this.container.resolve('rafikiController')
     const gateHubController = await this.container.resolve('gateHubController')
+    const cardController = await this.container.resolve('cardController')
 
     app.use(
       cors({
@@ -289,11 +296,58 @@ export class App {
       quoteController.createExchangeQuote
     )
 
+    // Fund account is possible only in sandbox
+    if (env.GATEHUB_ENV === 'sandbox') {
+      router.post(
+        '/accounts/:accountId/fund',
+        isAuth,
+        accountController.fundAccount
+      )
+    }
+
     router.get('/rates', rafikiController.getRates)
-    router.post('/webhooks', rafikiController.onWebHook)
+    router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
+    router.post(
+      '/gatehub-webhooks',
+      isGateHubSignedWebhook,
+      gateHubController.webhook
+    )
+    router.post(
+      '/gatehub/add-user-to-gateway',
+      isAuth,
+      gateHubController.addUserToGateway
+    )
+
+    // Cards
+    router.get(
+      '/customers/:customerId/cards',
+      isAuth,
+      cardController.getCardsByCustomer
+    )
+    router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.get(
+      '/cards/:cardId/transactions',
+      isAuth,
+      cardController.getCardTransactions
+    )
+    router.get('/cards/:cardId/limits', isAuth, cardController.getCardLimits)
+    router.post(
+      '/cards/:cardId/limits',
+      isAuth,
+      cardController.createOrOverrideCardLimits
+    )
+    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
+    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
+    router.put('/cards/:cardId/lock', isAuth, cardController.lock)
+    router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
+    router.put(
+      '/cards/:cardId/block',
+      isAuth,
+      cardController.permanentlyBlockCard
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
