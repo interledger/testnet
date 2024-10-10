@@ -23,6 +23,7 @@ import { WalletAddressResponse } from '@wallet/shared'
 import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 import { Link } from '@/ui/Link'
 import { DepositDialog } from '@/components/dialogs/DepositDialog'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -56,7 +57,6 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const isSandbox = true // ToDO read from env variable?
   return (
     <>
       <PageHeader title={account.name} />
@@ -87,10 +87,11 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </button>
         <Link
           id="fund"
-          href={isSandbox ? undefined : '/deposit'}
+          href={FEATURES_ENABLED ? '/deposit' : undefined}
           onClick={
-            isSandbox
-              ? () => {
+            FEATURES_ENABLED
+              ? undefined
+              : () => {
                   openDialog(
                     <DepositDialog
                       accountId={account.id}
@@ -99,7 +100,6 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
                     />
                   )
                 }
-              : undefined
           }
           className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
         >

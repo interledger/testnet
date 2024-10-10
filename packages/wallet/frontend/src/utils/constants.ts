@@ -1,4 +1,5 @@
 export const OPEN_PAYMENTS_HOST = process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+export const FEATURES_ENABLED = process.env.NEXT_PUBLIC_FEATURES_ENABLED
 
 /**
  * Default text for Toggle Switch
