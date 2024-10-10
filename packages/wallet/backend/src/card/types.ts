@@ -1,5 +1,8 @@
 import { CardLimitType } from '@wallet/shared/src'
 
+export type GateHubCardCurrency = 'EUR'
+export type GateHubNameOnCard = 'INTERLEDGER'
+
 export interface ICardDetailsRequest {
   cardId: string
   publicKeyBase64: string
@@ -22,12 +25,12 @@ export interface ICreateCustomerRequest {
   walletAddress: string
   account: {
     productCode: string
-    currency: 'EUR'
+    currency: GateHubCardCurrency
     card: {
       productCode: string
     }
   }
-  nameOnCard: string
+  nameOnCard: GateHubNameOnCard
   citizen: {
     name: string
     surname: string
@@ -193,4 +196,23 @@ export interface ICardLimitResponse {
   limit: number
   currency: string
   isDisabled: boolean
+}
+
+export type CloseCardReason =
+  | 'IssuerRequestGeneral'
+  | 'IssuerRequestFraud'
+  | 'IssuerRequestLegal'
+  | 'IssuerRequestIncorrectOpening'
+  | 'UserRequest'
+  | 'IssuerRequestCustomerDeceased'
+
+export interface ICreateCardRequest {
+  nameOnCard: GateHubNameOnCard
+  deliveryAddressId: string
+  walletAddress: string
+  currency: GateHubCardCurrency
+  productCode: string
+  card: {
+    productCode: string
+  }
 }

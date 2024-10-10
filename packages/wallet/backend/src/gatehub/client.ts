@@ -49,7 +49,9 @@ import {
   ICardLockRequest,
   ICardUnlockRequest,
   ICardLimitResponse,
-  ICardLimitRequest
+  ICardLimitRequest,
+  ICreateCardRequest,
+  CloseCardReason
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
 
@@ -597,6 +599,38 @@ export class GateHubClient {
     url += `?reasonCode=${encodeURIComponent(reasonCode)}`
 
     return this.request<ICardResponse>('PUT', url)
+  }
+
+  async closeCard(userUuid: string, cardId: string, reason: CloseCardReason) {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/card?reasonCode=${reason}`
+
+    await this.request('DELETE', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  /**
+   * @deprecated
+   */
+  async createCard(
+    userUuid: string,
+    accountId: string,
+    payload: ICreateCardRequest
+  ) {
+    const url = `${this.apiUrl}/cards/v1/cards/${accountId}/card`
+
+    const response = await this.request<ICardResponse>(
+      'POST',
+      url,
+      JSON.stringify(payload),
+      {
+        managedUserUuid: userUuid,
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    return response
   }
 
   private async request<T>(

@@ -9,7 +9,7 @@ interface UserData {
   ppNumber: string
 }
 
-const entries = `John;Doe;john@doe.com:8888
+const entries = `John;Doe;john@doe.com;8888
 Alice;Smith;alice@smith.com;9999`
 
 function processEntries() {
@@ -70,7 +70,7 @@ async function cardManagement() {
             productCode: cardProductCode
           }
         },
-        nameOnCard,
+        nameOnCard: 'INTERLEDGER',
         citizen: {
           name: firstName,
           surname: lastName
