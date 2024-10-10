@@ -14,15 +14,14 @@ import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect, useState } from 'react'
 import { cx } from 'class-variance-authority'
-import { useTheme } from 'next-themes'
 import { signUpSchema } from '@wallet/shared'
+import { THEME } from '@/utils/constants'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
   const [isRepeatPasswordVisible, setRepeatPasswordVisible] =
     useState<boolean>(false)
-  const theme = useTheme()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
@@ -136,7 +135,7 @@ const SignUpPage: NextPageWithLayout = () => {
       <div
         className={cx(
           'absolute bottom-0 h-[200px] w-full bg-contain bg-center bg-no-repeat md:hidden',
-          theme.theme === 'dark'
+          THEME === 'dark'
             ? "bg-[url('../../public/leafs-dark.svg')]"
             : "bg-[url('../../public/leafs-light.svg')]"
         )}

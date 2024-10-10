@@ -5,7 +5,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { PaperPlaneDark, PaperPlaneLight } from '../icons/PaperPlane'
 import { QuoteResponse } from '@wallet/shared'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 type QuoteDialogProps = {
   onClose: () => void
@@ -22,7 +22,6 @@ export const QuoteDialog = ({
   type,
   receiverName
 }: QuoteDialogProps) => {
-  const theme = useTheme()
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
   const receiveAmount = formatAmount({
@@ -67,7 +66,7 @@ export const QuoteDialog = ({
             >
               <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <div className="flex flex-col text-center">
-                  {theme.theme === 'dark' ? (
+                  {THEME === 'dark' ? (
                     <PaperPlaneDark
                       strokeWidth={2}
                       className="mx-auto h-16 w-16"

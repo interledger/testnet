@@ -29,7 +29,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
 import { useOnboardingContext } from '@/lib/context/onboarding'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -59,11 +59,8 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
     schema: requestSchema,
     mode: 'onSubmit'
   })
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   const balanceSnapshot = useMemo(() => {
     if (!selectedAccount) return ''

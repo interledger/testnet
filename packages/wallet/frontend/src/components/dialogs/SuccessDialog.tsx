@@ -4,9 +4,9 @@ import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { CopyButton } from '@/ui/CopyButton'
 import { cx } from 'class-variance-authority'
-import { useTheme } from 'next-themes'
 import { BirdSuccessDark, BirdSuccessLight } from '../icons/Bird'
 import { useOnboardingContext } from '@/lib/context/onboarding'
+import { THEME } from '@/utils/constants'
 
 type SuccessDialogProps = DialogProps & {
   onSuccess?: () => void
@@ -40,7 +40,6 @@ export const SuccessDialog = ({
     delete successButtonProps.href
   }
 
-  const theme = useTheme()
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
 
   return (
@@ -77,7 +76,7 @@ export const SuccessDialog = ({
                 )}
               >
                 <div>
-                  {theme.theme === 'dark' ? (
+                  {THEME === 'dark' ? (
                     <BirdSuccessDark className="mx-auto h-20 w-20" />
                   ) : (
                     <BirdSuccessLight className="mx-auto h-20 w-20" />

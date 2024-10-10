@@ -4,15 +4,12 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { Divider } from '@/ui/Divider'
 import { Link } from '@/ui/Link'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 import Image from 'next/image'
 
 const WelcomePage: NextPageWithLayout = () => {
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   return (
     <>

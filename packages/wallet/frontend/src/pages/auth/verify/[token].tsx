@@ -7,7 +7,7 @@ import { Button } from '@/ui/Button'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
 import { userService } from '@/lib/api/user'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 type VerifyEmailPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -17,11 +17,8 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
   verified,
   message
 }) => {
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   return (
     <>

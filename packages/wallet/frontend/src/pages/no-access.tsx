@@ -1,11 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 const NoAccessPage = () => {
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark' ? '/bird-error-dark.webp' : '/bird-error-light.webp'
+    THEME === 'dark' ? '/bird-error-dark.webp' : '/bird-error-light.webp'
 
   return (
     <div className="bg-green-light dark:bg-purple flex h-full w-screen flex-col items-center justify-center text-center text-2xl font-semibold">

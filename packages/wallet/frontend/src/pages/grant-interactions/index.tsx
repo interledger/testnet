@@ -11,7 +11,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -28,9 +28,8 @@ const GrantInteractionPage = ({
   const router = useRouter()
   const access = grant.access.find((el) => el.type === 'outgoing-payment')
   const isPendingGrant = grant.state === 'PENDING'
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark' ? '/grants-dark.webp' : '/grants-light.webp'
+    THEME === 'dark' ? '/grants-dark.webp' : '/grants-light.webp'
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
