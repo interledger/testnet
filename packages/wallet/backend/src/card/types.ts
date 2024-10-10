@@ -206,7 +206,7 @@ export type CloseCardReason =
   | 'IssuerRequestCustomerDeceased'
 
 export interface ICreateCardRequest {
-  nameOnCard: GateHubNameOnCard
+  nameOnCard: string
   deliveryAddressId: string
   walletAddress: string
   currency: GateHubCardCurrency
