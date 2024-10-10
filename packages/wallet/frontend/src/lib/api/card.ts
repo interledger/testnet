@@ -5,15 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-
-// TODO: update interface - can be moved to shared folder as well
-export interface IUserCard {
-  name: string
-  number: string
-  expiry: string
-  cvv: number
-  isFrozen: boolean
-}
+import { ICardResponse } from '@wallet/shared'
 
 export const changePinSchema = z
   .object({
@@ -58,7 +50,7 @@ export const monthlySpendingLimitSchema = z.object({
     .positive()
 })
 
-type GetDetailsResponse = SuccessResponse<IUserCard>
+type GetDetailsResponse = SuccessResponse<ICardResponse>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
 type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
@@ -99,7 +91,7 @@ const createCardService = (): UserCardService => ({
   async getDetails(cookies) {
     try {
       const response = await httpClient
-        .get(`card`, {
+        .get(`customer/card`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -187,6 +179,7 @@ const createCardService = (): UserCardService => ({
 const mock = (service: UserCardService): UserCardService => {
   return {
     ...service,
+    // @ts-expect-error: we know - will be removed
     async getDetails() {
       return Promise.resolve({
         success: true,
