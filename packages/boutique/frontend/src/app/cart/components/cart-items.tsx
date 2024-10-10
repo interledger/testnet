@@ -11,7 +11,7 @@ export const CartItems = () => {
         <h1 className="text-lg">No items in cart.</h1>
         <Link
           to="/products"
-          className="mt-2 rounded-sm text-lg text-green-6 hover:text-green-3 focus:outline-none focus:ring-2 focus:ring-green-3"
+          className="mt-2 rounded-sm text-lg text-green hover:underline dark:text-pink-neon dark:hover:no-underline dark:hover:shadow-glow-link focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon"
         >
           Go back to products page
         </Link>
@@ -21,7 +21,7 @@ export const CartItems = () => {
 
   return (
     <section className="lg:col-span-8">
-      <ul role="list" className="divide-y divide-green-3">
+      <ul role="list" className="divide-y">
         {items.map((item) => (
           <CartItem key={item.id} item={item} />
         ))}

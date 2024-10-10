@@ -37,12 +37,14 @@ export const ProductsList = () => {
     return (
       <div className="col-span-4 mt-4 text-center">
         <BirdError className="mx-auto h-20 w-20" />
-        <p className="text-lg font-bold">Something went wrong...</p>
+        <p className="text-lg font-['DejaVuSansMonoBold']">
+          Something went wrong...
+        </p>
         <p>We are working on fixing this problem.</p>
         <p>If the issue persists, do not hesitate to contact us.</p>
         <p>Please try again.</p>
         <button
-          className="mt-2 text-lg text-green-6 hover:text-green-3"
+          className="mt-2 text-lg hover:underline dark:hover:no-underline dark:hover:shadow-glow-link"
           onClick={() =>
             queryClient.invalidateQueries({
               queryKey: ['products'],

@@ -7,6 +7,7 @@ export const mockProduct = (overrides?: Partial<Product>) => ({
   slug: `product-${randomUUID()}`,
   description: 'Product description',
   image: 'Image',
+  imageDark: 'ImageDark',
   price: 10.0,
   ...overrides
 })

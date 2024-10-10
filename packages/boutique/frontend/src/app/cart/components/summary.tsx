@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 
 const SummarySection = ({ children }: { children: ReactNode }) => {
   return (
-    <section className="rounded-lg bg-green-1 px-4 py-6 sm:p-6 lg:p-8">
+    <section className="rounded-lg bg-green-light dark:bg-purple-dark px-4 py-6 sm:p-6 lg:p-8">
       {children}
     </section>
   )
@@ -50,19 +50,19 @@ export const Summary = () => {
   return (
     <div className="mt-16 flex flex-col gap-y-5 lg:col-span-4 lg:mt-0">
       <SummarySection>
-        <h2 className="text-lg font-bold">Summary</h2>
+        <h2 className="text-lg font-['DejaVuSansMonoBold']">Summary</h2>
         <dl className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
             <dt>Subtotal</dt>
-            <dd className="font-bold">{orderSubTotal}</dd>
+            <dd className="font-['DejaVuSansMonoBold']">{orderSubTotal}</dd>
           </div>
-          <div className="flex items-center justify-between border-t border-green pt-4">
+          <div className="flex items-center justify-between border-t border-green-dark dark:border-teal-neon pt-4">
             <dt>Fees</dt>
             <dd className="text-sm">Fees will be calculated at checkout</dd>
           </div>
-          <div className="flex items-center justify-between border-t border-green pt-4">
+          <div className="flex items-center justify-between border-t border-green-dark dark:border-teal-neon pt-4">
             <dt>Estimated order total</dt>
-            <dd className="font-bold">{orderSubTotal}</dd>
+            <dd className="font-['DejaVuSansMonoBold']">{orderSubTotal}</dd>
           </div>
         </dl>
         <div className="mt-6 flex">

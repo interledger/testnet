@@ -1,16 +1,73 @@
-@import url('https://fonts.googleapis.com/css2?family=Rubik&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  input[type='number']::-webkit-outer-spin-button,
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number'] {
-    margin: 0;
-    appearance: textfield;
-    -moz-appearance: textfield !important;
-    -webkit-appearance: none;
+  :root {
+    --white: 255 255 255;
+    --black: 34 34 34;
+
+    --grey-light: 178 178 178;
+    --grey-dark: 85 85 85;
+
+    --purple: 71 12 110;
+    --purple-dark: 42 15 73;
+    --purple-bright: 126 26 192;
+
+    --pink-neon: 218 53 186;
+    --pink-light: 255 194 243;
+    --pink-dark: 192 17 160;
+
+    --teal-neon: 8 255 255;
+    --teal-light: 146 255 255;
+
+    --green: 2 187 62;
+    --green-dark: 14 123 49;
+    --green-neon: 0 255 157;
+    --green-bright: 148 255 214;
+    --green-light: 238 254 229;
+    --green-modal: 19 135 55;
+
+    --yellow-neon: 255 234 0;
+    --yellow-light: 255 248 172;
+
+    --orange-dark: 193 57 0;
   }
+}
+
+html.dark *:focus-visible {
+  outline: none;
+}
+
+#__next {
+  @apply relative h-full md:grid md:grid-cols-[max-content_1fr];
+}
+
+#nprogress {
+  @apply pointer-events-none;
+}
+
+#nprogress .bar {
+  @apply fixed right-0 top-0 z-[1000] h-1.5 w-full bg-pink-light;
+}
+
+@font-face {
+  font-family: 'DejaVuSansMono';
+  src:
+    local('DejaVuSansMono'),
+    url(./fonts/DejaVuSansMono.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'DejaVuSansMonoBold';
+  src:
+    local('DejaVuSansMono-Bold'),
+    url(./fonts/DejaVuSansMono-Bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'DejaVuSansMonoOblique';
+  src:
+    local('DejaVuSansMono-Oblique'),
+    url(./fonts/DejaVuSansMono-Oblique.ttf) format('truetype');
 }

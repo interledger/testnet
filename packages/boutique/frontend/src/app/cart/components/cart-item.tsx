@@ -7,6 +7,7 @@ import {
   increaseQuantity,
   removeFromCart
 } from '@/lib/stores/cart-store.ts'
+import { useThemeContext } from '@/lib/theme'
 import { formatPrice } from '@/lib/utils.ts'
 import { createContext, ReactNode, useContext } from 'react'
 import { Link } from 'react-router-dom'
@@ -22,14 +23,15 @@ export const CartItemContext = createContext<CartItemContextValue>(
 )
 
 export const CartItem = ({ item }: CartItemProps) => {
+  const { theme } = useThemeContext()
   return (
     <CartItemContext.Provider value={{ item: item }}>
       <li key={item.id} className="flex py-6 first-of-type:pt-0">
-        <div className="flex-shrink-0 rounded-md border border-green-3 bg-green-1">
+        <div className="flex-shrink-0 rounded-md border border-green dark:border-pink-neon bg-green-light dark:bg-purple-dark">
           <img
-            src={`${IMAGES_URL}${item.image}`}
+            src={`${IMAGES_URL}${theme === 'light' ? item.image : item.imageDark}`}
             alt={item.name}
-            className="h-24 w-24 object-cover object-center"
+            className="h-24 w-24 object-scale-down object-center"
           />
         </div>
         <div className="flex flex-1 items-start justify-between">
@@ -37,7 +39,7 @@ export const CartItem = ({ item }: CartItemProps) => {
             <div className="flex justify-between">
               <Link
                 to={`/products/${item.slug}`}
-                className="rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-green-3"
+                className="rounded-md font-['DejaVuSansMonoBold'] text-xl focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon"
               >
                 {item.name}
               </Link>
@@ -72,7 +74,7 @@ const QuantityButton = ({
     <Button
       onClick={() => action()}
       variant="ghost"
-      className="h-9 w-9 rounded-[calc(.375rem-0.175rem)] bg-green-5 p-2 text-white hover:bg-green-6 focus:ring-2 focus:ring-green-3"
+      className="h-9 w-9 rounded-[calc(.375rem-0.175rem)] bg-green-light dark:bg-purple-dark p-2 focus:ring-2 focus:ring-green dark:focus:ring-green-neon"
       {...props}
     >
       {children}
@@ -85,7 +87,7 @@ const ItemQuantity = () => {
 
   return (
     <div className="flex flex-col gap-y-2">
-      <div className="w-28 rounded-md border-2 border-green-4 p-0.5 md:w-32">
+      <div className="w-28 rounded-md border-2 border-green-light dark:border-pink-neon p-0.5 md:w-32">
         <div className="flex items-center space-x-0.5">
           <QuantityButton
             aria-label="decrease quantity"
@@ -98,7 +100,7 @@ const ItemQuantity = () => {
             tabIndex={-1}
             value={item.quantity}
             name="quantity"
-            className="w-full border-none p-0 text-center focus:outline-none"
+            className="w-full border-none p-0 text-center focus:outline-none dark:bg-purple"
           />
           <QuantityButton
             aria-label="increase quantity"

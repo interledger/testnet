@@ -31,7 +31,7 @@ export const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-white text-green focus:ring-green',
+        default: 'border bg-white text-green focus:ring-green',
         success:
           'bg-white border-green text-green focus:ring-green dark:bg-purple dark:border-green-neon dark:focus:ring-green-neon dark:text-green-neon',
         error:

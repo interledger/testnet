@@ -11,6 +11,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './query-client.ts'
 import { Toaster } from '@/components/ui/toaster.tsx'
 import { cartRoutes } from './cart/routes.tsx'
+import { ThemeProvider } from '@/components/theme-provider.tsx'
 import { checkoutRoutes } from './checkout/routes.tsx'
 
 const Index = () => {
@@ -49,9 +50,11 @@ const router = createBrowserRouter(routes)
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <Toaster />
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }

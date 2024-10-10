@@ -10,6 +10,7 @@ exports.up = function (knex) {
     table.string('description').notNullable()
     table.float('price', 10, 2).notNullable().defaultTo(0.0)
     table.text('image').notNullable()
+    table.text('imageDark').notNullable()
 
     table.timestamp('createdAt').notNullable()
     table.timestamp('updatedAt').notNullable()
