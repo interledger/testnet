@@ -35,7 +35,8 @@ async function cardManagement() {
   const gateHubClient = container.resolve('gateHubClient')
   const accountProductCode = env.GATEHUB_ACCOUNT_PRODUCT_CODE
   const cardProductCode = env.GATEHUB_CARD_PRODUCT_CODE
-  const nameOnCardPrefix = env.GATEHUB_NAME_ON_CARD_PREFIX
+  const nameOnCard = env.GATEHUB_NAME_ON_CARD
+  const ppPrefix = env.GATEHUB_CARD_PP_PREFIX
   const GATEWAY_UUID = env.GATEHUB_GATEWAY_UUID
 
   try {
@@ -56,7 +57,6 @@ async function cardManagement() {
 
       const user = await gateHubClient.getWalletForUser(managedUser.id)
       const walletAddress = user.wallets[0].address
-      const nameOnCard = nameOnCardPrefix + ppNumber
 
       logger.info(`Retrieved user ${managedUser.id} wallet - ${walletAddress}`)
 
@@ -70,7 +70,7 @@ async function cardManagement() {
             productCode: cardProductCode
           }
         },
-        nameOnCard: 'INTERLEDGER',
+        nameOnCard,
         citizen: {
           name: firstName,
           surname: lastName
@@ -84,8 +84,9 @@ async function cardManagement() {
 
       logger.info(`Created customer for ${email}: ${customer.customers.id}`)
 
+      const pp = ppPrefix + ppNumber
       await gateHubClient.updateMetaForManagedUser(managedUser.id, {
-        paymentPointer: nameOnCard.split(' ')[1].toLowerCase(),
+        paymentPointer: pp.toLowerCase(),
         customerId: customer.customers.id!
       })
 

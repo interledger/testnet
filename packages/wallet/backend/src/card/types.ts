@@ -1,7 +1,6 @@
 import { CardLimitType } from '@wallet/shared/src'
 
 export type GateHubCardCurrency = 'EUR'
-export type GateHubNameOnCard = 'INTERLEDGER'
 
 export interface ICardDetailsRequest {
   cardId: string
@@ -30,7 +29,7 @@ export interface ICreateCustomerRequest {
       productCode: string
     }
   }
-  nameOnCard: GateHubNameOnCard
+  nameOnCard: string
   citizen: {
     name: string
     surname: string
