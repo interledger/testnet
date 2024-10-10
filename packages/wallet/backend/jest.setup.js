@@ -19,7 +19,7 @@ module.exports = async () => {
     .withExposedPorts(REDIS_PORT)
     .start()
 
-  process.env.REDIS_URL = `redis://redis:${REDIS_PORT}/0`
+  process.env.REDIS_URL = `redis://localhost:${redisContainer.getMappedPort(REDIS_PORT)}/0`
 
   process.env.DATABASE_URL = `postgresql://postgres:${POSTGRES_PASSWORD}@localhost:${container.getMappedPort(
     POSTGRES_PORT
