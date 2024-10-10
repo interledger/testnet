@@ -181,6 +181,20 @@ export class GateHubClient {
     return response
   }
 
+  async updateMetaForManagedUser(
+    userUuid: string,
+    meta: Record<string, string>
+  ): Promise<void> {
+    const url = `${this.apiUrl}/auth/v1/users/managed`
+    // This is the reason why the `meta` was created as `meta.meta`.
+    // Keeping this as is for consistency
+    const body = { meta }
+
+    return await this.request<void>('PUT', url, JSON.stringify(body), {
+      managedUserUuid: userUuid
+    })
+  }
+
   async createManagedUser(email: string): Promise<ICreateManagedUserResponse> {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body: ICreateManagedUserRequest = { email }
@@ -338,14 +352,16 @@ export class GateHubClient {
   }
 
   async createCustomer(
+    managedUserUuid: string,
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
-    const url = `${this.apiUrl}/v1/customers`
+    const url = `${this.apiUrl}/cards/v1/customers/managed`
     return this.request<ICreateCustomerResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )

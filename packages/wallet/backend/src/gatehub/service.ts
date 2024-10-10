@@ -6,7 +6,8 @@ import { IGetUserStateResponse, IWebhookDate } from '@/gatehub/types'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
-import { WalletAddressService } from '@/walletAddress/service'
+import { WalletAddressService, createWalletAddressIfFalsy } from '@/walletAddress/service'
+import { ICreateCustomerRequest } from '@/card/types'
 
 export class GateHubService {
   constructor(
@@ -74,7 +75,7 @@ export class GateHubService {
     await User.query().findById(user.id).patch(userDetails)
 
     if (this.env.GATEHUB_ENV !== 'production') {
-      await this.setupNonProdUser(user.id, userState)
+      await this.setupNonProdUser(user.id, user.gateHubUserId, userState)
     }
 
     return isUserApproved
@@ -82,6 +83,7 @@ export class GateHubService {
 
   private async setupNonProdUser(
     userId: string,
+    managedUserId: string,
     userState: IGetUserStateResponse
   ) {
     if (!this.accountService || !this.walletAddressService) {
@@ -98,35 +100,43 @@ export class GateHubService {
       throw new Error('Failed to create account for managed user')
     }
 
-    const walletAddressName: string = userState.meta['paymentPointer']
-    await this.walletAddressService.create({
+    const paymentPointer = await createWalletAddressIfFalsy({
       userId,
-      accountId: account.userId,
-      walletAddressName,
-      publicName: walletAddressName
+      accountId: account.id,
+      publicName: 'Cards Sandbox Payment Pointer',
+      walletAddressService: this.walletAddressService
     })
 
-    // Should only return one element in the array
-    const cardProducts = await this.gateHubClient.fetchCardApplicationProducts()
-    if (cardProducts.length === 0) {
-      throw new Error('Failed to fetch product code')
-    }
-    const productCode = cardProducts.map((product) => product.code)
-
-    await this.gateHubClient.createCustomer({
+    const requestBody: ICreateCustomerRequest = {
       walletAddress: account.gateHubWalletId,
       account: {
-        productCode: productCode[0],
+        productCode: this.env.GATEHUB_ACCOUNT_PRODUCT_CODE,
+        currency: 'EUR',
         card: {
-          productCode: productCode[0],
-          nameOnCard: `INTERLEDGER $ILP.DEV/${walletAddressName}`
-        }
+          productCode: this.env.GATEHUB_CARD_PRODUCT_CODE
+        },
       },
+      // TODO change this after merging script branch to main
+      nameOnCard: 'INTERLEDGER',
       citizen: {
         name: userState.profile.first_name,
         surname: userState.profile.last_name
       }
+    }
+
+    const customer = await this.gateHubClient.createCustomer(managedUserId, requestBody)
+    const customerId = customer.customers.id!
+
+    const userDetails: Partial<User> = {
+      customerId
+    }
+    await User.query().findById(userId).patch(userDetails)
+
+    await this.gateHubClient.updateMetaForManagedUser(managedUserId, {
+      paymentPointer: paymentPointer.url,
+      customerId
     })
+    
   }
 
   private async markUserAsVerified(uuid: string): Promise<void> {
