@@ -6,7 +6,7 @@ let NEXT_PUBLIC_FEATURES_ENABLED = 'true'
 
 if (
   process.env.NODE_ENV === 'production' &&
-  process.env.GATEHUB_ENV === 'staging'
+  process.env.GATEHUB_ENV === 'sandbox'
 ) {
   NEXT_PUBLIC_FEATURES_ENABLED = 'false'
 }

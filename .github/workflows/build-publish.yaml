@@ -60,7 +60,7 @@ jobs:
             backend_url: https://api.wallet.interledger-test.dev
             open_payments_url: https://ilp.interledger-test.dev/
             auth_host: https://auth.interledger-test.dev
-            gatehub_env: staging
+            gatehub_env: sandbox
             theme: dark
           - name: test-wallet-frontend-cards
             identifier: 'wallet:frontend'
