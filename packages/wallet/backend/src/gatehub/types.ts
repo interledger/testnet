@@ -31,7 +31,12 @@ export interface ICreateManagedUserResponse {
   type2fa: string
   activated: boolean
   role: string
-  meta: Record<string, string>
+  meta: {
+    meta: {
+      paymentPointer: string
+      customerId: string
+    }
+  } & Record<string, string>
   lastPasswordChange: string
   features: string[]
   managed: boolean
@@ -57,6 +62,11 @@ export interface ICreateWalletRequest {
 export interface ICreateWalletResponse {
   address: string
 }
+
+export interface IGetWalletForUserResponse {
+  wallets: ICreateWalletResponse[]
+}
+
 export interface IGetWalletResponse {
   address: string
 }

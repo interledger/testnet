@@ -16,11 +16,6 @@ import {
   IframeResponse
 } from '@wallet/shared'
 
-export const profileSchema = z.object({
-  firstName: z.string().min(1, { message: 'First name is required' }),
-  lastName: z.string().min(1, { message: 'Last name is required' })
-})
-
 export const resetPasswordSchema = z
   .object({
     password: z
@@ -117,10 +112,6 @@ type VerifyEmailResponse = SuccessResponse | VerifyEmailError
 type MeResult = SuccessResponse<UserResponse>
 type MeResponse = MeResult | ErrorResponse
 
-type ProfileArgs = z.infer<typeof profileSchema>
-type ProfileError = ErrorResponse<ProfileArgs | undefined>
-type ProfileResponse = SuccessResponse | ProfileError
-
 type ChangePasswordArgs = z.infer<typeof changePasswordSchema>
 type ChangePasswordError = ErrorResponse<ChangePasswordArgs | undefined>
 type ChangePasswordResponse = SuccessResponse | ChangePasswordError
@@ -137,7 +128,6 @@ interface UserService {
   checkToken: (token: string, cookies?: string) => Promise<CheckTokenResponse>
   verifyEmail: (args: VerifyEmailArgs) => Promise<VerifyEmailResponse>
   me: (cookies?: string) => Promise<MeResponse>
-  updateProfile: (args: ProfileArgs) => Promise<ProfileResponse>
   changePassword: (args: ChangePasswordArgs) => Promise<ChangePasswordResponse>
   resendVerifyEmail: (
     args: ResendVerificationEmailArgs
@@ -285,22 +275,6 @@ const createUserService = (): UserService => ({
       return response
     } catch (error) {
       return getError(error, 'Unable to retrive user information.')
-    }
-  },
-
-  async updateProfile(args) {
-    try {
-      const response = await httpClient
-        .post('updateProfile', {
-          json: args
-        })
-        .json<SuccessResponse>()
-      return response
-    } catch (error) {
-      return getError<ProfileArgs>(
-        error,
-        'Something went wrong while updating your profile. Please try again.'
-      )
     }
   },
 

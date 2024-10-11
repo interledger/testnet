@@ -3,7 +3,6 @@ import { SVGProps } from 'react'
 import ReactJoyride, { CallBackProps, STATUS, Step } from 'react-joyride'
 import { useOnboardingContext } from '../../lib/context/onboarding'
 import { OnboardingTooltip } from './OnboardingTooltip'
-import { useTheme } from 'next-themes'
 import { Wave } from '../icons/Wave'
 import { New } from '../icons/New'
 import { Person } from '../icons/Person'
@@ -20,6 +19,7 @@ import { HomeRooftop } from '../icons/HomeRooftop'
 import { Key } from '../icons/Key'
 import { createPortal } from 'react-dom'
 import { useMenuContext } from '@/lib/context/menu'
+import { THEME } from '@/utils/constants'
 
 type StepWithIcon = Step & {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -360,7 +360,6 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
 
 const Onboarding = () => {
   const router = useRouter()
-  const theme = useTheme()
 
   const {
     runOnboarding,
@@ -450,7 +449,7 @@ const Onboarding = () => {
       run={runOnboarding}
       styles={{
         options: {
-          arrowColor: theme.theme === 'dark' ? '#470c6e' : '#ffffff'
+          arrowColor: THEME === 'dark' ? '#470c6e' : '#ffffff'
         }
       }}
     />,

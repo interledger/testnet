@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import { DialogDispatch, DialogState } from '../types/dialog'
 
-type DialogContext = {
+type DialogContextType = {
   state: DialogState
   dispatch: DialogDispatch
 }
@@ -11,7 +11,7 @@ export const dialogInitialState = {
   dialog: null
 } satisfies DialogState
 
-export const DialogContext = createContext<DialogContext>({
+export const DialogContext = createContext<DialogContextType>({
   state: dialogInitialState,
   dispatch: () => void 0
 })
