@@ -22,6 +22,7 @@ import { cn } from '@/utils/helpers'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useMenuContext } from '@/lib/context/menu'
 import { Card } from './icons/CardButtons'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type MenuItemProps = {
   name: string
@@ -30,7 +31,7 @@ type MenuItemProps = {
   Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element
 }
 
-const menuItems: MenuItemProps[] = [
+export const menuItems: MenuItemProps[] = [
   {
     name: 'Accounts',
     href: '/',
@@ -62,18 +63,23 @@ const menuItems: MenuItemProps[] = [
     Icon: Grant
   },
   {
-    name: 'Card',
-    href: '/card',
-    id: 'card',
-    Icon: Card
-  },
-  {
     name: 'Settings',
     href: '/settings',
     id: 'settings',
     Icon: Cog
   }
 ]
+
+if (FEATURES_ENABLED) {
+  const lastItem = menuItems.pop() as MenuItemProps
+  menuItems.push({
+    name: 'Card',
+    href: '/card',
+    id: 'card',
+    Icon: Card
+  })
+  menuItems.push(lastItem)
+}
 
 interface NavLinkProps extends ComponentPropsWithRef<'a'> {
   currentPath: string
