@@ -6,6 +6,7 @@ import {
   GateHubMessageType,
   type GateHubMessageError
 } from '@/lib/types/windowMessages'
+import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
 
@@ -23,14 +24,12 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
   url,
   addUserToGatewayUrl
 }) => {
-  // const [openDialog, closeDialog] = useDialog()
-  // const router = useRouter()
+  const router = useRouter()
 
   useEffect(() => {
     // TODO: Handle the received message from iframe
     // https://docs.gatehub.net/api-documentation/c3OPAp5dM191CDAdwyYS/gatehub-products/gatehub-onboarding#message-events
     const onMessage = async (e: MessageEvent<MessageData>) => {
-      console.log('received message from iframe', { e })
       switch (e.data.type) {
         case GateHubMessageType.OnboardingCompleted:
           console.log(
@@ -43,20 +42,10 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
             body: JSON.stringify(e.data, null, 2),
             credentials: 'include'
           })
+          router.replace('/')
           break
         case GateHubMessageType.OnboardingError:
-          console.log(
-            'received message from iframe',
-            GateHubMessageType.OnboardingError,
-            JSON.stringify(e.data, null, 2)
-          )
-          break
         case GateHubMessageType.OnboardingInitialized:
-          console.log(
-            'received message from iframe',
-            GateHubMessageType.OnboardingInitialized,
-            JSON.stringify(e.data, null, 2)
-          )
           break
       }
     }
@@ -65,7 +54,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
     return () => {
       window.removeEventListener('message', onMessage)
     }
-  }, [addUserToGatewayUrl])
+  }, [addUserToGatewayUrl, router])
 
   return (
     <>
