@@ -10,12 +10,8 @@ const isPublicPath = (path: string) => {
 
 const publicPaths = ['/auth*']
 
-// TODO: Update middleware for the new KYC
-// We might want to showcase the users that the identity verification is in
-// progress and probably do not let them perform any action (sending money, etc).
 export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
-  const nextPage = req.nextUrl.searchParams.get('next')
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
   const response = await userService.me(
@@ -23,28 +19,20 @@ export async function middleware(req: NextRequest) {
   )
 
   // Success TRUE - the user is logged in
-  if (response.success) {
-    // If the user is logged in and has not completed KYC, redirect to KYC page.
+  if (response.success && response.result) {
+    // If user KYC is not approved, redirect back to the KYC page.
     if (
-      response.result?.needsWallet &&
-      req.nextUrl.pathname !== '/kyc/personal'
+      response.result.needsIDProof === true &&
+      req.nextUrl.pathname !== '/kyc'
     ) {
-      const url = new URL('/kyc/personal', req.url)
-      url.searchParams.append('next', 'proof')
+      const url = new URL('/kyc', req.url)
       return NextResponse.redirect(url)
-    }
-
-    console.log(response.result)
-    if (response.result?.needsIDProof && req.nextUrl.pathname !== '/kyc') {
-      if (nextPage !== 'proof')
-        return NextResponse.redirect(new URL('/kyc', req.url))
     }
 
     // If KYC is completed and the user tries to navigate to the page, redirect
     // to homepage.
     if (
-      !response.result?.needsIDProof &&
-      !response.result?.needsWallet &&
+      response.result.needsIDProof === false &&
       req.nextUrl.pathname.startsWith('/kyc')
     ) {
       return NextResponse.redirect(new URL('/', req.url))
