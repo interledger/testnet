@@ -22,6 +22,8 @@ import { PageHeader } from '@/components/PageHeader'
 import { WalletAddressResponse } from '@wallet/shared'
 import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 import { Link } from '@/ui/Link'
+import { DepositDialog } from '@/components/dialogs/DepositDialog'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -85,7 +87,20 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         </button>
         <Link
           id="fund"
-          href="/deposit"
+          href={FEATURES_ENABLED ? '/deposit' : undefined}
+          onClick={
+            FEATURES_ENABLED
+              ? undefined
+              : () => {
+                  openDialog(
+                    <DepositDialog
+                      accountId={account.id}
+                      assetCode={account.assetCode}
+                      onClose={closeDialog}
+                    />
+                  )
+                }
+          }
           className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
         >
           <Request className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
@@ -93,16 +108,18 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
             Deposit
           </span>
         </Link>
-        <Link
-          id="withdraw"
-          href="/withdraw"
-          className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-        >
-          <Withdraw className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-          <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-            Withdraw
-          </span>
-        </Link>
+        {FEATURES_ENABLED ? (
+          <Link
+            id="withdraw"
+            href="/withdraw"
+            className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
+          >
+            <Withdraw className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+            <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
+              Withdraw
+            </span>
+          </Link>
+        ) : null}
       </div>
       <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
 
