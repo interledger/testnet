@@ -61,7 +61,7 @@ export const getForgotPasswordEmailTemplate = (url: string): string => {
                         <tr style="width:100%">
                           <td style="width:100%;text-align:center;">
                             <a href="https://interledger.org" target="_blank">
-                              <img alt="Interledger Foundation" src="https://raw.githubusercontent.com/interledger/testnet/60ca629046f50e3ed47406fa2cb20c6abd34be2f/packages/wallet/backend/src/emailTemplates/images/InterledgerFoundation.png" width="202" height="56" style="outline:none;border:none;text-decoration:none;"/>
+                              <img alt="Interledger Foundation" src="https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerFoundation.png" width="202" height="56" style="outline:none;border:none;text-decoration:none;"/>
                             </a>
                           </td>
                         </tr>
