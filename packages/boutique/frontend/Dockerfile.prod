@@ -21,7 +21,7 @@ FROM base AS builder
 
 WORKDIR /testnet
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json .eslintrc.js ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json eslint.config.mjs ./
 COPY packages/boutique/frontend /testnet/packages/boutique/frontend
 COPY packages/boutique/shared ./packages/boutique/shared
 
