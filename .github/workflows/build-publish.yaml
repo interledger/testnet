@@ -76,12 +76,14 @@ jobs:
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
             api_base_url: 'https://api-boutique.interledger-test.dev'
+            theme: light
             currency: 'USD'
           - name: test-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
             api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
             currency: 'JOD'
+            theme: light
           - name: test-boutique-backend
             identifier: 'boutique:backend'
             path: packages/boutique/backend
