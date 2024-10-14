@@ -34,7 +34,7 @@ export const ShoppingCartPopover = () => {
             <Button
               aria-label="Close menu"
               variant="ghost"
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 text-green dark:text-white"
             >
               <X className="w-4 h-4" />
               <span className="sr-only">Close menu</span>
@@ -46,7 +46,9 @@ export const ShoppingCartPopover = () => {
               className="max-h-60 gap-y-6 divide-y overflow-scroll focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               {items.length === 0 ? (
-                <p className="text-center">No items in cart.</p>
+                <p className="text-center text-green dark:text-white">
+                  No items in cart.
+                </p>
               ) : null}
               {items.map((item) => (
                 <ShoppingCartItem key={item.id} item={item} />
