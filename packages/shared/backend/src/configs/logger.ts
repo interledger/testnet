@@ -1,5 +1,4 @@
 import { createLogger, format, LoggerOptions, transports } from 'winston'
-import { LoggingWinston } from '@google-cloud/logging-winston'
 
 export const initLogger = (nodeEnv?: string) => {
   nodeEnv = nodeEnv || 'development'
@@ -8,11 +7,6 @@ export const initLogger = (nodeEnv?: string) => {
       level: nodeEnv === 'development' ? 'debug' : 'info'
     })
   ]
-
-  if (nodeEnv === 'production') {
-    const loggingWinston = new LoggingWinston()
-    loggerTransports.push(loggingWinston)
-  }
 
   return createLogger({
     silent: nodeEnv === 'test',

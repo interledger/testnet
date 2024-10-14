@@ -21,7 +21,6 @@
     "ioredis": "^5.4.1"
   },
   "dependencies": {
-    "@google-cloud/logging-winston": "^6.0.0",
     "awilix": "^11.0.4",
     "express": "^4.21.0",
     "objection": "^3.1.5",
