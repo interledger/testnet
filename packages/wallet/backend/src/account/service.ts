@@ -70,10 +70,17 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const result = await this.gateHubClient.createWallet(
-      user.gateHubUserId,
-      args.name
-    )
+    const result = await this.gateHubClient.getWalletForUser(user.gateHubUserId)
+    // The user should not have more than one wallet address anyway
+    // Only on production GateHub wallet address would already exist
+    let gateHubWalletId = result.wallets[0].address
+    if (!gateHubWalletId) {
+      const result = await this.gateHubClient.createWallet(
+        user.gateHubUserId,
+        args.name
+      )
+      gateHubWalletId = result.address
+    }
 
     const account = await Account.query().insert({
       name: args.name,
@@ -81,7 +88,7 @@ export class AccountService implements IAccountService {
       assetCode: asset.code,
       assetId: args.assetId,
       assetScale: asset.scale,
-      gateHubWalletId: result.address
+      gateHubWalletId
     })
 
     // On creation account will have balance 0
