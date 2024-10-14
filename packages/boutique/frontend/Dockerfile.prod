@@ -32,10 +32,12 @@ COPY --from=base /testnet/packages/boutique/shared/node_modules ./packages/bouti
 ARG PORT
 ARG VITE_API_BASE_URL
 ARG VITE_CURRENCY
+ARG VITE_THEME
 
 ENV NODE_ENV=production
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_CURRENCY=$VITE_CURRENCY
+ENV VITE_THEME=$VITE_THEME
 
 RUN pnpm boutique:frontend build
 
