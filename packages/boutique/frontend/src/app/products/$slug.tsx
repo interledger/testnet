@@ -45,7 +45,7 @@ export function Component() {
         <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
           <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
             <img
-              src={`${IMAGES_URL}${theme === 'light' ? data.result.image : data.result.image}`}
+              src={`${IMAGES_URL}${theme === 'light' ? data.result.image : data.result.imageDark}`}
               alt={data.result.name}
               className="h-full w-full object-scale-down object-center"
             />
