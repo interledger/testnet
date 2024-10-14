@@ -89,8 +89,10 @@ services:
       context: ../..
       dockerfile: ./packages/boutique/frontend/Dockerfile.prod
       args:
-        VITE_API_BASE_URL: ${BOUTIQUE_FRONTEND_API_BASE_URL}
         PORT: ${BOUTIQUE_FRONTEND_API_BASE_URL}
+        VITE_API_BASE_URL: ${BOUTIQUE_FRONTEND_API_BASE_URL}
+        VITE_CURRENCY: ${BOUTIQUE_FRONTEND_CURRENCY}
+        VITE_THEME: ${BOUTIQUE_FRONTEND_THEME}
     depends_on:
       - postgres
     environment:

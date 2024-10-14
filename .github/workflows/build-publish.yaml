@@ -77,11 +77,13 @@ jobs:
             path: packages/boutique/frontend
             api_base_url: 'https://api-boutique.interledger-test.dev'
             currency: 'USD'
+            theme: dark
           - name: test-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
             api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
             currency: 'JOD'
+            theme: light
           - name: test-boutique-backend
             identifier: 'boutique:backend'
             path: packages/boutique/backend
@@ -107,6 +109,7 @@ jobs:
           build-args: |
             ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_API_BASE_URL={0}', matrix.package.api_base_url) || '' }}
             ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_CURRENCY={0}', matrix.package.currency) || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_THEME={0}', matrix.package.theme) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('PORT={0}', matrix.package.port) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('COOKIE_NAME={0}', matrix.package.cookie_name) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_BACKEND_URL={0}', matrix.package.backend_url) || '' }}
