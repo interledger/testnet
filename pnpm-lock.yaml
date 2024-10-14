@@ -236,9 +236,6 @@ importers:
 
   packages/shared/backend:
     dependencies:
-      '@google-cloud/logging-winston':
-        specifier: ^6.0.0
-        version: 6.0.0(winston@3.15.0)
       awilix:
         specifier: ^11.0.4
         version: 11.0.4
