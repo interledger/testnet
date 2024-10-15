@@ -34,6 +34,7 @@ services:
       - redis
     volumes:
       - ../../packages/wallet/backend:/home/testnet/packages/wallet/backend
+      - ../../packages/wallet/shared:/home/testnet/packages/wallet/shared
     environment:
       NODE_ENV: development
       PORT: 3003
