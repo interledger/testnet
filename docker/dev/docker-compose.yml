@@ -32,6 +32,8 @@ services:
       - postgres
       - rafiki-backend
       - redis
+    volumes:
+      - ../../packages/wallet/backend:/home/testnet/packages/wallet/backend
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -39,6 +41,7 @@ services:
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
       COOKIE_TTL: 2630000
+      CHOKIDAR_USEPOLLING: "true"
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
