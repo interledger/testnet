@@ -107,7 +107,8 @@ export class GateHubService {
 
     const account = await this.accountService.createDefaultAccount(
       userId,
-      'EUR Account'
+      'EUR Account',
+      true
     )
     if (!account) {
       throw new Error('Failed to create account for managed user')

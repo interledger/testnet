@@ -13,6 +13,7 @@ type CreateAccountArgs = {
   userId: string
   name: string
   assetId: string
+  isDefaultCardsAccount?: boolean
 }
 
 interface IAccountService {
@@ -70,11 +71,13 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const result = await this.gateHubClient.getWalletForUser(user.gateHubUserId)
-    // The user should not have more than one wallet address anyway
-    // Only on production GateHub wallet address would already exist
-    let gateHubWalletId = result.wallets[0].address
-    if (!gateHubWalletId) {
+    let gateHubWalletId
+    if (args.isDefaultCardsAccount) {
+      const result = await this.gateHubClient.getWalletForUser(
+        user.gateHubUserId
+      )
+      gateHubWalletId = result.wallets[0].address
+    } else {
       const result = await this.gateHubClient.createWallet(
         user.gateHubUserId,
         args.name
@@ -206,7 +209,8 @@ export class AccountService implements IAccountService {
 
   public async createDefaultAccount(
     userId: string,
-    name = 'USD Account'
+    name = 'USD Account',
+    isDefaultCardsAccount = false
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
       (asset) => asset.code === 'EUR' && asset.scale === DEFAULT_ASSET_SCALE
@@ -217,7 +221,8 @@ export class AccountService implements IAccountService {
     const account = await this.createAccount({
       name,
       userId,
-      assetId: asset.id
+      assetId: asset.id,
+      isDefaultCardsAccount
     })
 
     return account
