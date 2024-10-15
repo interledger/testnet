@@ -29,8 +29,9 @@ import {
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
+  PRODUCTION_VAULT_IDS,
   SANDBOX_CLIENT_IDS,
-  SUPPORTED_ASSET_CODES
+  SANDBOX_VAULT_IDS
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
@@ -58,7 +59,9 @@ import {
 import { BlockReasonCode } from '@wallet/shared/src'
 
 export class GateHubClient {
+  private supportedAssetCodes: string[]
   private clientIds = SANDBOX_CLIENT_IDS
+  private vaultIds = SANDBOX_VAULT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
   private iframeMappings: Record<
@@ -76,8 +79,11 @@ export class GateHubClient {
   ) {
     if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
+      this.vaultIds = PRODUCTION_VAULT_IDS
       this.mainUrl = 'gatehub.net'
     }
+
+    this.supportedAssetCodes = Object.keys(this.vaultIds)
   }
 
   get isProduction() {
@@ -383,7 +389,7 @@ export class GateHubClient {
     const response = await this.request<IRatesResponse>('GET', url)
 
     const flatRates: Record<string, number> = {}
-    for (const code of SUPPORTED_ASSET_CODES) {
+    for (const code of this.supportedAssetCodes) {
       const rateObj = response[code]
       if (rateObj && typeof rateObj !== 'string') {
         flatRates[code] = +rateObj.rate
@@ -747,13 +753,12 @@ export class GateHubClient {
   }
 
   getVaultUuid(assetCode: string): string {
-    switch (assetCode) {
-      case 'USD':
-        return this.env.GATEHUB_VAULT_UUID_USD
-      case 'EUR':
-        return this.env.GATEHUB_VAULT_UUID_EUR
-      default:
-        throw new BadRequest(`Unsupported asset code ${assetCode}`)
+    const vaultId: string | undefined = this.vaultIds[assetCode]
+
+    if (!vaultId) {
+      throw new BadRequest(`Unsupported asset code ${assetCode}`)
     }
+
+    return vaultId
   }
 }
