@@ -4,7 +4,7 @@
     "start": "node -r tsconfig-paths/register dist/index.js",
     "build:deps": "pnpm --filter @shared/backend build && pnpm --filter @wallet/shared build",
     "build": "pnpm build:deps && tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "dev": "nodemon --watch ./src --watch ../shared --ext ts,json --delay 1 --exec \"pnpm run build && node ./dist/index.js\"",
+    "dev": "nodemon --watch ./src --watch ../shared/src --ext ts,json --delay 1 --exec \"pnpm run build && node ./dist/index.js\"",
     "test": "jest --passWithNoTests --maxWorkers=75%",
     "generate": "graphql-codegen --config codegen.yml"
   },
