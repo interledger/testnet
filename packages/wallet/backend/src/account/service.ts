@@ -174,6 +174,24 @@ export class AccountService implements IAccountService {
     return account
   }
 
+  async getAccountByCardId(userId: string, cardId: string): Promise<Account> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('cardId', cardId)
+      .first()
+
+    if (!account) {
+      throw new NotFound()
+    }
+
+    account.balance = transformBalance(
+      await this.getAccountBalance(account),
+      account.assetScale
+    )
+
+    return account
+  }
+
   async getAccountBalance(account: Account): Promise<number> {
     const user = await User.query()
       .findById(account.userId)
