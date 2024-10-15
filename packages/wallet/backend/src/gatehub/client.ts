@@ -460,7 +460,7 @@ export class GateHubClient {
 
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/client-device/card-data`
+    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/clientDevice/cardData`
     const cardDetailsResponse = await this.request<ICardDetailsResponse>(
       'GET',
       cardDetailsUrl,
@@ -541,7 +541,7 @@ export class GateHubClient {
 
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
     const cardPinResponse = await this.request<ICardDetailsResponse>(
       'GET',
       cardPinUrl,
@@ -554,7 +554,7 @@ export class GateHubClient {
     return cardPinResponse
   }
 
-  async changePin(cardId: string, cypher: string): Promise<void> {
+  async getTokenForPinChange(cardId: string): Promise<string> {
     const url = `${this.apiUrl}/token/pin-change`
 
     const response = await this.request<ILinksResponse>(
@@ -571,9 +571,13 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card pin retrieval')
     }
 
+    return token
+  }
+
+  async changePin(token: string, cypher: string): Promise<void> {
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
     await this.request<void>(
       'POST',
       cardPinUrl,
