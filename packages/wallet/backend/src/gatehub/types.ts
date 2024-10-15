@@ -128,6 +128,12 @@ export interface IApproveUserToGatewayRequest {
 }
 export interface IApproveUserToGatewayResponse {}
 
+export interface IOverrideUserRiskLevelRequest {
+  risk_level: string
+  reason: string
+}
+export interface IOverrideUserRiskLevelResponse {}
+
 export interface IWebhookDate {
   uuid: string
   timestamp: string

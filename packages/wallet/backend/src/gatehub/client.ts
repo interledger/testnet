@@ -15,6 +15,8 @@ import {
   IGetVaultsResponse,
   IGetWalletForUserResponse,
   IGetWalletResponse,
+  IOverrideUserRiskLevelRequest,
+  IOverrideUserRiskLevelResponse,
   IRatesResponse,
   ITokenRequest,
   ITokenResponse,
@@ -236,6 +238,7 @@ export class GateHubClient {
     if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(managedUserUuid, gatewayUuid)
+      await this.overrideRiskLevel(managedUserUuid, gatewayUuid)
 
       return true
     }
@@ -256,6 +259,25 @@ export class GateHubClient {
 
     const response = await this.request<IApproveUserToGatewayResponse>(
       'PUT',
+      url,
+      JSON.stringify(body)
+    )
+
+    return response
+  }
+
+  private async overrideRiskLevel(
+    userUuid: string,
+    gatewayUuid: string
+  ): Promise<IApproveUserToGatewayResponse> {
+    const url = `${this.apiUrl}/id/v1/hubs/${gatewayUuid}/users/${userUuid}/overrideRiskLevel`
+    const body: IOverrideUserRiskLevelRequest = {
+      risk_level: 'VERY_LOW',
+      reason: 'Risk level change'
+    }
+
+    const response = await this.request<IOverrideUserRiskLevelResponse>(
+      'POST',
       url,
       JSON.stringify(body)
     )
