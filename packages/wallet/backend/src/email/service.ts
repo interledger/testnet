@@ -51,7 +51,7 @@ export class EmailService implements IEmailService {
     if (this.env.SEND_EMAIL) {
       return this.send({
         to,
-        subject: '[Rafiki.Money] Reset your password',
+        subject: '[Test.Wallet] Reset your password',
         html: getForgotPasswordEmailTemplate(url)
       })
     }
@@ -65,7 +65,7 @@ export class EmailService implements IEmailService {
     if (this.env.SEND_EMAIL) {
       return this.send({
         to,
-        subject: '[Rafiki.Money] Verify your account',
+        subject: '[Test.Wallet] Verify your account',
         html: getVerifyEmailTemplate(url)
       })
     }
