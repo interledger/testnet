@@ -29,4 +29,4 @@ RUN pnpm wallet:backend build
 # Expose debugger port
 EXPOSE 9229
 
-CMD ["node", "--inspect=0.0.0.0:9229", "./packages/wallet/backend/dist/index.js"]
+CMD ["pnpm", "wallet:backend", "dev"]
