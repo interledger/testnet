@@ -9,6 +9,7 @@ export interface Product {
   description: string
   price: number
   image: string
+  imageDark: string
 }
 
 export function useProductsQuery(): UseQueryResult<

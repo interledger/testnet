@@ -17,8 +17,6 @@ const envSchema = z.object({
   GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
   GATEHUB_WEBHOOK_SECRET: z.string().default('GATEHUB_WEBHOOK_SECRET'),
   GATEHUB_GATEWAY_UUID: z.string().default('GATEHUB_GATEWAY_UUID'),
-  GATEHUB_VAULT_UUID_EUR: z.string().default('GATEHUB_VAULT_UUID_EUR'),
-  GATEHUB_VAULT_UUID_USD: z.string().default('GATEHUB_VAULT_UUID_USD'),
   GATEHUB_SETTLEMENT_WALLET_ADDRESS: z
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),

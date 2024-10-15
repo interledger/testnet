@@ -2,14 +2,12 @@ import { Button } from '@/ui/Button'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
-import { useTheme } from 'next-themes'
 import { BirdErrorDark, BirdErrorLight } from '../icons/Bird'
+import { THEME } from '@/utils/constants'
 
 type ErrorDialogProps = DialogProps
 
 export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
-  const theme = useTheme()
-
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -39,7 +37,7 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
               <Dialog.Panel className="relative w-full max-w-xs space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <div>
                   {' '}
-                  {theme.theme === 'dark' ? (
+                  {THEME === 'dark' ? (
                     <BirdErrorDark className="mx-auto h-20 w-20" />
                   ) : (
                     <BirdErrorLight className="mx-auto h-20 w-20" />

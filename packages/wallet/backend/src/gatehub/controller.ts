@@ -33,13 +33,18 @@ export class GateHubController implements IGateHubController {
   ) => {
     try {
       const userId = req.session.user.id
-      const approved = await this.gateHubService.addUserToGateway(userId)
+      const { isUserApproved, customerId } =
+        await this.gateHubService.addUserToGateway(userId)
 
-      if (approved) {
+      if (isUserApproved) {
         req.session.user.needsIDProof = false
-        await req.session.save()
       }
 
+      if (customerId) {
+        req.session.user.customerId = customerId
+      }
+
+      await req.session.save()
       res.status(200).json(toSuccessResponse())
     } catch (e) {
       next(e)

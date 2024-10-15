@@ -10,7 +10,7 @@ export const getForgotPasswordEmailTemplate = (url: string): string => {
             <table style="margin-top:32px;text-align:center;" align="center" border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
               <tbody>
                 <tr>
-                  <td><a href="https://rafiki.money" target="_blank"><img alt="Interledger Test Wallet" src="https://raw.githubusercontent.com/interledger/testnet/1387-test-wallet-new-design-authkyc-pages/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png" width="250" height="80" style="outline:none;border:none;text-decoration:none" /></a></td>
+                  <td><a href="https://wallet.interledger-test.dev" target="_blank"><img alt="Interledger Test Wallet" src="https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png" width="250" height="80" style="outline:none;border:none;text-decoration:none" /></a></td>
                 </tr>
               </tbody>
             </table>
@@ -19,7 +19,7 @@ export const getForgotPasswordEmailTemplate = (url: string): string => {
               <tbody>
               <tr>
                   <td>
-                    <img alt="Test Wallet Password" src="https://raw.githubusercontent.com/interledger/testnet/1387-test-wallet-new-design-authkyc-pages/packages/wallet/backend/src/email/templates/images/EnvelopeBird.png" width="120" height="96" style="outline:none;border:none;text-decoration:none" />
+                    <img alt="Test Wallet Password" src="https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/EnvelopeBird.png" width="120" height="96" style="outline:none;border:none;text-decoration:none" />
                   </td>
               </tr>
               <tr>
@@ -61,7 +61,7 @@ export const getForgotPasswordEmailTemplate = (url: string): string => {
                         <tr style="width:100%">
                           <td style="width:100%;text-align:center;">
                             <a href="https://interledger.org" target="_blank">
-                              <img alt="Interledger Foundation" src="https://raw.githubusercontent.com/interledger/testnet/60ca629046f50e3ed47406fa2cb20c6abd34be2f/packages/wallet/backend/src/emailTemplates/images/InterledgerFoundation.png" width="202" height="56" style="outline:none;border:none;text-decoration:none;"/>
+                              <img alt="Interledger Foundation" src="https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerFoundation.png" width="202" height="56" style="outline:none;border:none;text-decoration:none;"/>
                             </a>
                           </td>
                         </tr>

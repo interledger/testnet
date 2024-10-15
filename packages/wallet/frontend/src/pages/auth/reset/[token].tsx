@@ -15,8 +15,8 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
-import { useTheme } from 'next-themes'
 import { useState } from 'react'
+import { THEME } from '@/utils/constants'
 
 type ResetPasswordPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -36,11 +36,9 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       token: token
     }
   })
-  const theme = useTheme()
+
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
   const togglePasswordVisibility = () => {
     setPasswordVisible(!isPasswordVisible)
   }
