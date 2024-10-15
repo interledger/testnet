@@ -82,7 +82,7 @@ export class GateHubService {
     let customerId
     if (
       this.env.NODE_ENV === 'development' &&
-      this.env.GATEHUB_ENV !== 'production'
+      this.env.GATEHUB_ENV === 'sandbox'
     ) {
       customerId = await this.setupSandboxCustomer(
         user.id,
