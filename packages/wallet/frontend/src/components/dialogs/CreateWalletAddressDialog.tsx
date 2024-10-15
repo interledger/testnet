@@ -1,5 +1,11 @@
 import { Button } from '@/ui/Button'
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild
+} from '@headlessui/react'
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
@@ -32,9 +38,9 @@ export const CreateWalletAddressDialog = ({
   const accountId = router.query.accountId as string
 
   return (
-    <Transition.Root show={true} as={Fragment} appear={true}>
+    <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -44,11 +50,11 @@ export const CreateWalletAddressDialog = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4"
@@ -57,13 +63,10 @@ export const CreateWalletAddressDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
-                <Dialog.Title
-                  as="h3"
-                  className="text-center text-2xl font-bold"
-                >
+              <DialogPanel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
+                <DialogTitle as="h3" className="text-center text-2xl font-bold">
                   Create Payment Pointer
-                </Dialog.Title>
+                </DialogTitle>
                 <Form
                   form={createWalletAddressForm}
                   onSubmit={async (data) => {
@@ -140,11 +143,11 @@ export const CreateWalletAddressDialog = ({
                     </Button>
                   </div>
                 </Form>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   )
 }
