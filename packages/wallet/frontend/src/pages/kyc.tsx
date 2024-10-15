@@ -6,6 +6,7 @@ import {
   GateHubMessageType,
   type GateHubMessageError
 } from '@/lib/types/windowMessages'
+import { FEATURES_ENABLED } from '@/utils/constants'
 import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
@@ -61,6 +62,11 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
       <h2 className="py-2 text-xl font-semibold text-green dark:text-pink-neon">
         Personal Details
       </h2>
+      {FEATURES_ENABLED ? null : (
+        <h2>
+          The e-mail and phone number must be accurate data in the Sandbox.
+        </h2>
+      )}
       <div className="w-full h-full">
         <iframe
           src={url}
