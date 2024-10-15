@@ -568,7 +568,7 @@ export class GateHubClient {
 
     const token = response.token
     if (!token) {
-      throw new Error('Failed to obtain token for card pin retrieval')
+      throw new Error('Failed to obtain token for card pin change')
     }
 
     return token
