@@ -41,7 +41,7 @@ services:
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
       COOKIE_TTL: 2630000
-      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_USEPOLLING: 'true'
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
@@ -77,6 +77,9 @@ services:
     build:
       context: ../..
       dockerfile: ./packages/boutique/backend/Dockerfile.dev
+    volumes:
+      - ../../packages/boutique/backend:/home/testnet/packages/boutique/backend
+      - ../../packages/boutique/shared:/home/testnet/packages/boutique/shared
     depends_on:
       - postgres
     environment:

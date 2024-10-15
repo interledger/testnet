@@ -23,7 +23,4 @@ ADD . ./
 # Install packages from virtual store
 RUN pnpm install -r --offline
 
-# Build backend
-RUN pnpm boutique:backend build
-
-CMD ["node", "./packages/boutique/backend/dist/index.js"]
+CMD ["pnpm", "boutique:backend", "dev"]
