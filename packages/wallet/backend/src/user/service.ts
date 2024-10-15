@@ -127,7 +127,10 @@ export class UserService implements IUserService {
     }
 
     let gateHubUser
-    if (this.env.GATEHUB_ENV === 'production') {
+    if (
+      this.env.NODE_ENV === 'production' &&
+      this.env.GATEHUB_ENV === 'production'
+    ) {
       const existingManagedUsers = await this.gateHubClient.getManagedUsers()
       gateHubUser = existingManagedUsers.find(
         (gateHubUser) => gateHubUser.email === user.email
@@ -143,8 +146,7 @@ export class UserService implements IUserService {
     await User.query().findById(user.id).patch({
       isEmailVerified: true,
       verifyEmailToken: null,
-      gateHubUserId: gateHubUser.id,
-      customerId: gateHubUser.meta.meta.customerId
+      gateHubUserId: gateHubUser.id
     })
   }
 

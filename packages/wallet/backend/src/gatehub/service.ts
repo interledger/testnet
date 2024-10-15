@@ -89,6 +89,11 @@ export class GateHubService {
         user.gateHubUserId,
         userState
       )
+    } else if (
+      this.env.NODE_ENV === 'production' &&
+      this.env.GATEHUB_ENV === 'production'
+    ) {
+      customerId = await this.setupProdCustomer(user.id, user.email)
     }
 
     return { isUserApproved, customerId }
@@ -149,6 +154,49 @@ export class GateHubService {
 
     await this.gateHubClient.updateMetaForManagedUser(managedUserId, {
       paymentPointer: paymentPointer.url,
+      customerId
+    })
+
+    return customerId
+  }
+
+  private async setupProdCustomer(
+    userId: string,
+    userEmail: string
+  ): Promise<string> {
+    if (!this.accountService || !this.walletAddressService) {
+      throw new Error(
+        'AccountService and WalletAddressService must be provided in sandbox environment.'
+      )
+    }
+
+    const existingManagedUsers = await this.gateHubClient.getManagedUsers()
+    // Managed user will always be found here since this check is also performed on sign up
+    const gateHubUser = existingManagedUsers.find(
+      (gateHubUser) => gateHubUser.email === userEmail
+    )
+
+    const account = await this.accountService.createDefaultAccount(
+      userId,
+      'EUR Account',
+      true
+    )
+    if (!account) {
+      throw new Error('Failed to create account for managed user')
+    }
+
+    const ppName =
+      gateHubUser!.meta.meta.paymentPointer.split('$ilp.dev/')[1] || ''
+    await this.walletAddressService.create({
+      userId,
+      accountId: account.id,
+      walletAddressName: ppName,
+      publicName: ppName
+    })
+
+    const customerId = gateHubUser!.meta.meta.customerId
+
+    await User.query().findById(userId).patch({
       customerId
     })
 

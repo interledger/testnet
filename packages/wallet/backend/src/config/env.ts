@@ -20,6 +20,7 @@ const envSchema = z.object({
   GATEHUB_SETTLEMENT_WALLET_ADDRESS: z
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),
+  GATEHUB_ORG_ID: z.string().default('GATEHUB_ORG_ID'),
   GATEHUB_CARD_APP_ID: z.string().default('GATEHUB_CARD_APP_ID'),
   GATEHUB_ACCOUNT_PRODUCT_CODE: z
     .string()

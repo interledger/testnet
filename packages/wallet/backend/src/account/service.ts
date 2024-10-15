@@ -71,6 +71,8 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
+    // If user has a card then it already has a GateHub wallet
+    // Therefore, we just need to fetch the wallet and create an associated account for it
     let gateHubWalletId
     if (args.isDefaultCardsAccount) {
       const result = await this.gateHubClient.getWalletForUser(
