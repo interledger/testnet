@@ -21,18 +21,15 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
 import { GrantResponse } from '@wallet/shared'
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const GrantPage: NextPageWithLayout<GrantPageProps> = ({ grant }) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   const handleRevokeConfirmation = async (id: string) => {
     const response = await grantsService.delete(id)

@@ -28,9 +28,9 @@ export const MainNavLink = (props: MainNavLinkProps) => {
       className={({ isActive }) =>
         cn(
           isActive
-            ? 'text-green'
-            : 'text-green-3 transition-colors hover:text-green',
-          'rounded-sm focus:outline-none focus:ring-2 focus:ring-green-3'
+            ? 'underline dark:shadow-glow-link dark:no-underline'
+            : 'transition-colors hover:underline dark:hover:no-underline dark:hover:shadow-glow-link',
+          'rounded-sm focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon'
         )
       }
     />
@@ -54,10 +54,7 @@ const MobileNavLink = ({
       onClick={() => {
         onOpenChange(false)
       }}
-      className={cn(
-        'text-green-3 transition-colors hover:text-green',
-        className
-      )}
+      className={cn('transition-colors hover:underline', className)}
       {...props}
     >
       {children}
@@ -78,12 +75,11 @@ export const MainNav = () => {
     <div className="flex">
       <Link
         to="/"
-        className="mr-6 flex items-center space-x-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-3"
+        className="mr-6 flex items-center space-x-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green dark:focus:ring-green-neon"
       >
-        <Logo className="h-9 w-9 flex-shrink-0" aria-label="Logo" />
-        <span className="inline-block font-bold">Boutique</span>
+        <Logo className="h-9 w-40 flex-shrink-0" aria-label="Logo" />
       </Link>
-      <nav className="hidden items-center space-x-6 font-medium md:flex">
+      <nav className="hidden items-center space-x-6 font-['DejaVuSansMonoBold'] md:flex">
         {NAV_LINKS.map(({ to, name }) => (
           <MainNavLink key={to} to={to}>
             {name}
@@ -102,7 +98,7 @@ export const MobileNav = () => {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="ml-4 px-0 text-green-3 hover:bg-transparent hover:text-green focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+          className="ml-4 border-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
           aria-label="open menu"
         >
           <Bars3 strokeWidth={3} className="h-6 w-6" aria-label="bars menu" />
