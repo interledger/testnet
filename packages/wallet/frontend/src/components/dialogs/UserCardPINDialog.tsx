@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
-import { cardServiceMock, changePinSchema, IUserCard } from '@/lib/api/card'
+import { cardServiceMock, changePinSchema } from '@/lib/api/card'
 import { UserCardFront } from '@/components/userCards/UserCard'
 import { Button } from '@/ui/Button'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -9,9 +9,10 @@ import { Form } from '@/ui/forms/Form'
 import { useRouter } from 'next/router'
 import { getObjectKeys } from '@/utils/helpers'
 import { Input } from '@/ui/forms/Input'
+import { ICardResponse } from '@wallet/shared'
 
 type UserCardPINDialogProos = Pick<DialogProps, 'onClose'> & {
-  card: IUserCard
+  card: ICardResponse
 }
 
 export const UserCardPINDialog = ({
@@ -53,13 +54,14 @@ export const UserCardPINDialog = ({
                 </Dialog.Title>
                 <div className="flex justify-between space-x-5">
                   <UserCardFront
-                    card={card}
+                    nameOnCard={card.nameOnCard}
+                    isBlocked={false}
                     className="origin-top-left scale-[.3] [margin:0_calc(-20rem*(1-.3))_calc(-13rem*(1-0.3))_0] "
                   />
                   <div>
                     <p className="text-base pt-2">Physical Debit Card</p>
                     <p className="text-black/50 dark:text-white/50 text-sm">
-                      {card.number}
+                      {card.maskedPan}
                     </p>
                   </div>
                 </div>

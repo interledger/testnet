@@ -41,10 +41,10 @@ import {
   IGetTransactionsResponse
 } from '@wallet/shared/src'
 import { BadRequest } from '@shared/backend'
+import type { ICardResponse } from '@wallet/shared'
 import {
   ICardDetailsResponse,
   ILinksResponse,
-  ICardResponse,
   ICreateCustomerRequest,
   ICreateCustomerResponse,
   ICardProductResponse,

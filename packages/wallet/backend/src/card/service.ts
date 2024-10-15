@@ -6,13 +6,13 @@ import {
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
-  ICardResponse,
   ICardUnlockRequest
 } from './types'
 import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 import { BlockReasonCode } from '@wallet/shared/src'
+import { ICardResponse } from '@wallet/shared'
 
 export class CardService {
   constructor(
