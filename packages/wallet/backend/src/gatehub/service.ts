@@ -11,6 +11,7 @@ import {
   createWalletAddressIfFalsy
 } from '@/walletAddress/service'
 import { ICreateCustomerRequest } from '@/card/types'
+import { Account } from '@/account/model'
 
 export class GateHubService {
   constructor(
@@ -114,7 +115,7 @@ export class GateHubService {
       throw new Error('Failed to create account for managed user')
     }
 
-    const paymentPointer = await createWalletAddressIfFalsy({
+    await createWalletAddressIfFalsy({
       userId,
       accountId: account.id,
       publicName: 'Cards Sandbox Payment Pointer',
@@ -142,14 +143,14 @@ export class GateHubService {
       requestBody
     )
     const customerId = customer.customers.id!
+    const cardId = customer.customers.accounts![0].cards![0].id
 
     await User.query().findById(userId).patch({
       customerId
     })
 
-    await this.gateHubClient.updateMetaForManagedUser(managedUserId, {
-      paymentPointer: paymentPointer.url,
-      customerId
+    await Account.query().findById(account.id).patch({
+      cardId
     })
 
     return customerId

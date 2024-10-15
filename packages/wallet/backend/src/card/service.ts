@@ -1,4 +1,3 @@
-import { WalletAddressService } from '@/walletAddress/service'
 import { GateHubClient } from '../gatehub/client'
 import {
   ICardDetailsRequest,
@@ -13,11 +12,12 @@ import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 import { BlockReasonCode } from '@wallet/shared/src'
+import { AccountService } from '@/account/service'
 
 export class CardService {
   constructor(
     private gateHubClient: GateHubClient,
-    private walletAddressService: WalletAddressService
+    private accountService: AccountService
   ) {}
 
   async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
@@ -29,7 +29,7 @@ export class CardService {
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.getCardDetails(requestBody)
   }
@@ -40,7 +40,7 @@ export class CardService {
     pageSize?: number,
     pageNumber?: number
   ): Promise<IGetTransactionsResponse> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
   }
@@ -49,7 +49,7 @@ export class CardService {
     userId: string,
     cardId: string
   ): Promise<ICardLimitResponse[]> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.getCardLimits(cardId)
   }
@@ -59,7 +59,7 @@ export class CardService {
     cardId: string,
     requestBody: ICardLimitRequest[]
   ): Promise<ICardLimitResponse[]> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.createOrOverrideCardLimits(cardId, requestBody)
   }
@@ -69,7 +69,7 @@ export class CardService {
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.getPin(requestBody)
   }
@@ -79,7 +79,7 @@ export class CardService {
     cardId: string,
     cypher: string
   ): Promise<void> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     await this.gateHubClient.changePin(cardId, cypher)
   }
@@ -90,7 +90,7 @@ export class CardService {
     reasonCode: LockReasonCode,
     requestBody: ICardLockRequest
   ): Promise<ICardResponse> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.lockCard(cardId, reasonCode, requestBody)
   }
@@ -100,7 +100,7 @@ export class CardService {
     cardId: string,
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.unlockCard(cardId, requestBody)
   }
@@ -110,20 +110,17 @@ export class CardService {
     cardId: string,
     reasonCode: BlockReasonCode
   ): Promise<ICardResponse> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     return this.gateHubClient.permanentlyBlockCard(cardId, reasonCode)
   }
 
-  private async ensureWalletAddressExists(
+  private async ensureAccountExists(
     userId: string,
     cardId: string
   ): Promise<void> {
-    const walletAddress = await this.walletAddressService.getByCardId(
-      userId,
-      cardId
-    )
-    if (!walletAddress) {
+    const account = await this.accountService.getAccountByCardId(userId, cardId)
+    if (!account) {
       throw new NotFound('Card not found or not associated with the user.')
     }
   }

@@ -168,20 +168,6 @@ export class WalletAddressService implements IWalletAddressService {
     return walletAddress
   }
 
-  async getByCardId(userId: string, cardId: string): Promise<WalletAddress> {
-    const walletAddress = await WalletAddress.query()
-      .join('accounts', 'walletAddresses.accountId', 'accounts.id')
-      .where('walletAddresses.cardId', cardId)
-      .andWhere('accounts.userId', userId)
-      .first()
-
-    if (!walletAddress) {
-      throw new NotFound()
-    }
-
-    return walletAddress
-  }
-
   async listIdentifiersByUserId(userId: string): Promise<string[]> {
     const accounts = await Account.query()
       .where('userId', userId)
