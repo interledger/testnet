@@ -58,7 +58,7 @@ jobs:
             port: 4003
             cookie_name: testnet.cookie
             backend_url: https://api.wallet.interledger-test.dev
-            open_payments_url: https://ilp.interledger-test.dev/
+            open_payments_host: $ilp.interledger-test.dev/
             auth_host: https://auth.interledger-test.dev
             gatehub_env: sandbox
             theme: dark
@@ -68,7 +68,7 @@ jobs:
             port: 4003
             cookie_name: interledgercards.cookie
             backend_url: https://api.interledger.cards
-            open_payments_url: https://ilp.dev/
+            open_payments_host: $ilp.dev/
             auth_host: https://auth.interledger.cards
             gatehub_env: production
             theme: light
@@ -113,7 +113,7 @@ jobs:
             ${{ matrix.package.identifier == 'wallet:frontend' && format('PORT={0}', matrix.package.port) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('COOKIE_NAME={0}', matrix.package.cookie_name) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_BACKEND_URL={0}', matrix.package.backend_url) || '' }}
-            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_OPEN_PAYMENTS_HOST={0}', matrix.package.open_payments_url) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_OPEN_PAYMENTS_HOST={0}', matrix.package.open_payments_host) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
