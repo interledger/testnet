@@ -392,7 +392,7 @@ export class GateHubClient {
     for (const code of this.supportedAssetCodes) {
       const rateObj = response[code]
       if (rateObj && typeof rateObj !== 'string') {
-        flatRates[code] = +rateObj.rate
+        flatRates[code] = 1 / +rateObj.rate
       }
     }
 
