@@ -87,6 +87,7 @@ export interface IFundAccountRequest {
   receiving_address: string
   type: TransactionTypeEnum.DEPOSIT
   vault_uuid: string
+  absolute_fee?: number
 }
 
 export interface ICreateTransactionResponse {}
