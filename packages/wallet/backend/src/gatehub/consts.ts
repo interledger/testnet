@@ -30,8 +30,8 @@ export enum TransactionTypeEnum {
 export const SANDBOX_VAULT_IDS: Record<string, string> = {
   USD: '450d2156-132a-4d3f-88c5-74822547658d',
   EUR: 'a09a0a2c-1a3a-44c5-a1b9-603a6eea9341',
-  GBP: '8dd6345f-a021-4eda-9047-a5fc8887973a',
-  ZAR: 'd3a74151-b855-4e6d-86c5-e916bd9dcdf1'
+  GBP: '992b932d-7e9e-44b0-90ea-b82a530b6784',
+  ZAR: 'f1c412ce-5e2b-4737-9121-b7c11d6c3f93'
 }
 export const PRODUCTION_VAULT_IDS: Record<string, string> = {
   USD: '5e1ff913-96d4-45ab-b7a3-04197a59fe06',
