@@ -16,7 +16,7 @@
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "dev": "pnpm localenv:start && concurrently -n 'WALLET,BOUTIQUE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm boutique:frontend dev'",
+    "dev": "pnpm localenv:start && concurrently -n \"WALLET,BOUTIQUE\" -c blue.bold,red.bold \"pnpm wallet:frontend dev\" \"pnpm boutique:frontend dev\"",
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint --max-warnings=0 .",
     "lint:fix": "eslint --max-warnings=0 --fix .",
