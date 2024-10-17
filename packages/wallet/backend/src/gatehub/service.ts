@@ -94,7 +94,11 @@ export class GateHubService {
       this.env.NODE_ENV === 'production' &&
       this.env.GATEHUB_ENV === 'production'
     ) {
-      customerId = await this.setupProdCustomer(user.id, user.email)
+      customerId = await this.setupProdCustomer(
+        user.id,
+        user.email,
+        `${userState.profile.first_name} ${userState.profile.last_name}`
+      )
     }
 
     return { isUserApproved, customerId }
@@ -163,7 +167,8 @@ export class GateHubService {
 
   private async setupProdCustomer(
     userId: string,
-    userEmail: string
+    userEmail: string,
+    walletAddressPublicName: string
   ): Promise<string> {
     if (!this.accountService || !this.walletAddressService) {
       throw new Error(
@@ -192,7 +197,7 @@ export class GateHubService {
       userId,
       accountId: account.id,
       walletAddressName: ppName,
-      publicName: ppName
+      publicName: walletAddressPublicName
     })
 
     const customerId = gateHubUser!.meta.meta.customerId
