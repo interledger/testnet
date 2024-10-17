@@ -257,7 +257,8 @@ export class AccountService implements IAccountService {
       uid: uuid(),
       receiving_address: account.gateHubWalletId,
       vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
-      type: TransactionTypeEnum.DEPOSIT
+      type: TransactionTypeEnum.DEPOSIT,
+      absolute_fee: 0
     })
   }
 }
