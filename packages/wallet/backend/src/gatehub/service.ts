@@ -2,15 +2,24 @@ import { GateHubClient } from '@/gatehub/client'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
 import { NotFound } from '@shared/backend'
-import { IWebhookDate } from '@/gatehub/types'
+import { IGetUserStateResponse, IWebhookDate } from '@/gatehub/types'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
+import { AccountService } from '@/account/service'
+import {
+  WalletAddressService,
+  createWalletAddressIfFalsy
+} from '@/walletAddress/service'
+import { ICreateCustomerRequest } from '@/card/types'
+import { Account } from '@/account/model'
 
 export class GateHubService {
   constructor(
     private gateHubClient: GateHubClient,
     private logger: Logger,
-    private env: Env
+    private env: Env,
+    private accountService?: AccountService,
+    private walletAddressService?: WalletAddressService
   ) {}
 
   async getIframeUrl(iframeType: IFRAME_TYPE, userId: string): Promise<string> {
@@ -37,7 +46,9 @@ export class GateHubService {
     }
   }
 
-  async addUserToGateway(userId: string) {
+  async addUserToGateway(
+    userId: string
+  ): Promise<{ isUserApproved: boolean; customerId?: string }> {
     const user = await User.query().findById(userId)
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
@@ -69,7 +80,80 @@ export class GateHubService {
 
     await User.query().findById(user.id).patch(userDetails)
 
-    return isUserApproved
+    let customerId
+    if (
+      this.env.NODE_ENV === 'development' &&
+      this.env.GATEHUB_ENV === 'sandbox'
+    ) {
+      customerId = await this.setupSandboxCustomer(
+        user.id,
+        user.gateHubUserId,
+        userState
+      )
+    }
+
+    return { isUserApproved, customerId }
+  }
+
+  private async setupSandboxCustomer(
+    userId: string,
+    managedUserId: string,
+    userState: IGetUserStateResponse
+  ): Promise<string> {
+    if (!this.accountService || !this.walletAddressService) {
+      throw new Error(
+        'AccountService and WalletAddressService must be provided in sandbox environment.'
+      )
+    }
+
+    const account = await this.accountService.createDefaultAccount(
+      userId,
+      'EUR Account',
+      true
+    )
+    if (!account) {
+      throw new Error('Failed to create account for managed user')
+    }
+
+    await createWalletAddressIfFalsy({
+      userId,
+      accountId: account.id,
+      publicName: 'Cards Sandbox Payment Pointer',
+      walletAddressService: this.walletAddressService
+    })
+
+    const requestBody: ICreateCustomerRequest = {
+      walletAddress: account.gateHubWalletId,
+      account: {
+        productCode: this.env.GATEHUB_ACCOUNT_PRODUCT_CODE,
+        currency: 'EUR',
+        card: {
+          productCode: this.env.GATEHUB_CARD_PRODUCT_CODE
+        }
+      },
+      nameOnCard: this.env.GATEHUB_NAME_ON_CARD,
+      citizen: {
+        name: userState.profile.first_name,
+        surname: userState.profile.last_name
+      }
+    }
+
+    const customer = await this.gateHubClient.createCustomer(
+      managedUserId,
+      requestBody
+    )
+    const customerId = customer.customers.id!
+    const cardId = customer.customers.accounts![0].cards![0].id
+
+    await User.query().findById(userId).patch({
+      customerId
+    })
+
+    await Account.query().findById(account.id).patch({
+      cardId
+    })
+
+    return customerId
   }
 
   private async markUserAsVerified(uuid: string): Promise<void> {
