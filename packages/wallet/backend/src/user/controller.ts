@@ -38,6 +38,11 @@ export class UserController implements IUserController {
         throw new Unauthorized('Unauthorized')
       }
 
+      if (req.session.user.needsIDProof && user.kycVerified) {
+        req.session.user.needsIDProof = false
+        await req.session.save()
+      }
+
       res.json(
         toSuccessResponse(
           {
