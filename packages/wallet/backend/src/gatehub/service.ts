@@ -18,8 +18,8 @@ export class GateHubService {
     private gateHubClient: GateHubClient,
     private logger: Logger,
     private env: Env,
-    private accountService?: AccountService,
-    private walletAddressService?: WalletAddressService
+    private accountService: AccountService,
+    private walletAddressService: WalletAddressService
   ) {}
 
   async getIframeUrl(iframeType: IFRAME_TYPE, userId: string): Promise<string> {
@@ -99,9 +99,28 @@ export class GateHubService {
         user.email,
         `${userState.profile.first_name} ${userState.profile.last_name}`
       )
+    } else {
+      // We don't support cards on staging so we only create a default account
+      await this.createDefaultAccountForManagedUser(userId, false)
     }
 
     return { isUserApproved, customerId }
+  }
+
+  private async createDefaultAccountForManagedUser(
+    userId: string,
+    isDefaultCardsAccount?: boolean
+  ): Promise<Account> {
+    const account = await this.accountService.createDefaultAccount(
+      userId,
+      'EUR Account',
+      isDefaultCardsAccount
+    )
+    if (!account) {
+      throw new Error('Failed to create account for managed user')
+    }
+
+    return account
   }
 
   private async setupSandboxCustomer(
@@ -115,14 +134,7 @@ export class GateHubService {
       )
     }
 
-    const account = await this.accountService.createDefaultAccount(
-      userId,
-      'EUR Account',
-      true
-    )
-    if (!account) {
-      throw new Error('Failed to create account for managed user')
-    }
+    const account = await this.createDefaultAccountForManagedUser(userId, true)
 
     await createWalletAddressIfFalsy({
       userId,
@@ -182,14 +194,7 @@ export class GateHubService {
       (gateHubUser) => gateHubUser.email === userEmail
     )
 
-    const account = await this.accountService.createDefaultAccount(
-      userId,
-      'EUR Account',
-      true
-    )
-    if (!account) {
-      throw new Error('Failed to create account for managed user')
-    }
+    const account = await this.createDefaultAccountForManagedUser(userId, true)
 
     const ppName =
       gateHubUser!.meta.meta.paymentPointer.split('$ilp.dev/')[1] || ''
