@@ -100,7 +100,6 @@ services:
     ports:
       - '3006:3006'
       - '3008:3008'
-      - '3009:3009'
     environment:
       AUTH_PORT: 3006
       INTROSPECTION_PORT: 3007
