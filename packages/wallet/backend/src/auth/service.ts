@@ -42,13 +42,18 @@ export class AuthService implements IAuthService {
     const domain = email.split('@')[1]
     await this.emailService.verifyDomain(domain)
 
-    const existingManagedUsers = await this.gateHubClient.getManagedUsers()
-    const gateHubUser = existingManagedUsers.find(
-      (user) => user.email === email
-    )
+    if (
+      this.env.NODE_ENV === 'production' &&
+      this.env.GATEHUB_ENV === 'production'
+    ) {
+      const existingManagedUsers = await this.gateHubClient.getManagedUsers()
+      const gateHubUser = existingManagedUsers.find(
+        (user) => user.email === email
+      )
 
-    if (!gateHubUser) {
-      throw new Error('You are not allowed to sign up.')
+      if (!gateHubUser) {
+        throw new Error('You are not allowed to sign up.')
+      }
     }
 
     const token = getRandomToken()
