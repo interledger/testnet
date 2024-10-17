@@ -407,7 +407,7 @@ export class GateHubClient {
   }
 
   async createCustomer(
-    userUuid: string,
+    managedUserUuid: string,
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
     const url = `${this.apiUrl}/cards/v1/customers/managed`
@@ -416,10 +416,11 @@ export class GateHubClient {
       url,
       JSON.stringify(requestBody),
       {
-        managedUserUuid: userUuid,
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+
     return response
   }
 

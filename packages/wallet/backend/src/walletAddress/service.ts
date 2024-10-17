@@ -50,7 +50,7 @@ export const createWalletAddressIfFalsy = async ({
   publicName,
   walletAddressService
 }: {
-  walletAddress: WalletAddress
+  walletAddress?: WalletAddress
   userId: string
   accountId: string
   publicName: string
@@ -160,20 +160,6 @@ export class WalletAddressService implements IWalletAddressService {
       .findById(args.walletAddressId)
       .where('active', true)
       .where('accountId', args.accountId)
-
-    if (!walletAddress) {
-      throw new NotFound()
-    }
-
-    return walletAddress
-  }
-
-  async getByCardId(userId: string, cardId: string): Promise<WalletAddress> {
-    const walletAddress = await WalletAddress.query()
-      .join('accounts', 'walletAddresses.accountId', 'accounts.id')
-      .where('walletAddresses.cardId', cardId)
-      .andWhere('accounts.userId', userId)
-      .first()
 
     if (!walletAddress) {
       throw new NotFound()

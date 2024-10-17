@@ -149,7 +149,18 @@ export async function createContainer(
     kratosService: asClassSingletonWithLogger(KratosService, logger),
     gateHubClient: asClass(GateHubClient).singleton(),
     gateHubController: asClass(GateHubController).singleton(),
-    gateHubService: asClass(GateHubService).singleton(),
+    gateHubService: asClass(GateHubService)
+      .inject(() => ({
+        accountService:
+          env.GATEHUB_ENV === 'production'
+            ? undefined
+            : container.resolve('accountService'),
+        walletAddressService:
+          env.GATEHUB_ENV === 'production'
+            ? undefined
+            : container.resolve('walletAddressService')
+      }))
+      .singleton(),
     cardController: asClass(CardController).singleton()
   })
 

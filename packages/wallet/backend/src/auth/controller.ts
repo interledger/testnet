@@ -55,7 +55,8 @@ export class AuthController implements IAuthController {
         id: user.id,
         email: user.email,
         needsWallet: !user.gateHubUserId,
-        needsIDProof: !user.kycVerified
+        needsIDProof: !user.kycVerified,
+        customerId: user.customerId
       }
 
       await req.session.save()
