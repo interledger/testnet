@@ -357,6 +357,12 @@ export class App {
       isAuth,
       cardController.getPin
     )
+    router.get(
+      '/cards/:cardId/change-pin',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.getTokenForPinChange
+    )
     router.post(
       '/cards/:cardId/change-pin',
       this.ensureGateHubProductionEnv,

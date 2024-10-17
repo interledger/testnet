@@ -47,6 +47,7 @@ describe('CardController', () => {
     lock: jest.fn(),
     unlock: jest.fn(),
     getPin: jest.fn(),
+    getTokenForPinChange: jest.fn(),
     changePin: jest.fn(),
     permanentlyBlockCard: jest.fn()
   }
@@ -580,11 +581,54 @@ describe('CardController', () => {
     })
   })
 
+  describe('getTokenForPinChange', () => {
+    it('should get token successfully', async () => {
+      const next = jest.fn()
+      req.params.cardId = 'test-card-id'
+
+      mockCardService.getTokenForPinChange.mockResolvedValue('token-base64')
+
+      await cardController.getTokenForPinChange(req, res, next)
+
+      expect(mockCardService.getTokenForPinChange).toHaveBeenCalledWith(
+        userId,
+        'test-card-id'
+      )
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toEqual({
+        success: true,
+        message: 'SUCCESS',
+        result: 'token-base64'
+      })
+    })
+
+    it('should return 400 if cardId is missing', async () => {
+      const next = jest.fn()
+
+      delete req.params.cardId
+
+      await cardController.getTokenForPinChange(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+  })
+
   describe('changePin', () => {
     it('should change pin successfully', async () => {
       const next = jest.fn()
       req.params.cardId = 'test-card-id'
       req.body = {
+        token: 'token-base64',
         cypher: 'test-cypher'
       }
 
@@ -595,6 +639,7 @@ describe('CardController', () => {
       expect(mockCardService.changePin).toHaveBeenCalledWith(
         userId,
         'test-card-id',
+        'token-base64',
         'test-cypher'
       )
       expect(res.statusCode).toBe(201)
@@ -625,11 +670,36 @@ describe('CardController', () => {
       expect(res.statusCode).toBe(400)
     })
 
+    it('should return 400 if token is missing', async () => {
+      const next = jest.fn()
+
+      req.params.cardId = 'test-card-id'
+      req.body = {
+        cypher: 'test-cypher'
+      }
+
+      await cardController.changePin(req, res, (err) => {
+        next(err)
+        res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        })
+      })
+
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(BadRequest)
+      expect(error.message).toBe('Invalid input')
+      expect(res.statusCode).toBe(400)
+    })
+
     it('should return 400 if cypher is missing', async () => {
       const next = jest.fn()
 
       req.params.cardId = 'test-card-id'
-      req.body = {}
+      req.body = {
+        token: 'token-base64'
+      }
 
       await cardController.changePin(req, res, (err) => {
         next(err)

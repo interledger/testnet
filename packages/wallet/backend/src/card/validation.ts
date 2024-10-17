@@ -85,11 +85,18 @@ export const getCardTransactionsSchema = z.object({
   })
 })
 
+export const getTokenForPinChange = z.object({
+  params: z.object({
+    cardId: z.string()
+  })
+})
+
 export const changePinSchema = z.object({
   params: z.object({
     cardId: z.string()
   }),
   body: z.object({
+    token: z.string(),
     cypher: z.string()
   })
 })

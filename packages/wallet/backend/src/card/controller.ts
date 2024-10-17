@@ -22,7 +22,8 @@ import {
   createOrOverrideCardLimitsSchema,
   getCardTransactionsSchema,
   changePinSchema,
-  permanentlyBlockCardSchema
+  permanentlyBlockCardSchema,
+  getTokenForPinChange
 } from './validation'
 
 export interface ICardController {
@@ -161,6 +162,23 @@ export class CardController implements ICardController {
     }
   }
 
+  public getTokenForPinChange = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const { params } = await validate(getTokenForPinChange, req)
+      const { cardId } = params
+
+      const token = await this.cardService.getTokenForPinChange(userId, cardId)
+      res.status(200).json(toSuccessResponse(token))
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public changePin = async (
     req: Request,
     res: Response,
@@ -170,9 +188,14 @@ export class CardController implements ICardController {
       const userId = req.session.user.id
       const { params, body } = await validate(changePinSchema, req)
       const { cardId } = params
-      const { cypher } = body
+      const { token, cypher } = body
 
-      const result = await this.cardService.changePin(userId, cardId, cypher)
+      const result = await this.cardService.changePin(
+        userId,
+        cardId,
+        token,
+        cypher
+      )
       res.status(201).json(toSuccessResponse(result))
     } catch (error) {
       next(error)
