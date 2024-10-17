@@ -32,6 +32,9 @@ services:
       - postgres
       - rafiki-backend
       - redis
+    volumes:
+      - ../../packages/wallet/backend:/home/testnet/packages/wallet/backend
+      - ../../packages/wallet/shared:/home/testnet/packages/wallet/shared
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -75,6 +78,9 @@ services:
     build:
       context: ../..
       dockerfile: ./packages/boutique/backend/Dockerfile.dev
+    volumes:
+      - ../../packages/boutique/backend:/home/testnet/packages/boutique/backend
+      - ../../packages/boutique/shared:/home/testnet/packages/boutique/shared
     depends_on:
       - postgres
     environment:
