@@ -2,24 +2,23 @@ import { GateHubClient } from '@/gatehub/client'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
 import { NotFound } from '@shared/backend'
-import { IGetUserStateResponse, IWebhookDate } from '@/gatehub/types'
+import { IWebhookDate } from '@/gatehub/types'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
-import {
-  WalletAddressService,
-  createWalletAddressIfFalsy
-} from '@/walletAddress/service'
+import { WalletAddressService } from '@/walletAddress/service'
 import { ICreateCustomerRequest } from '@/card/types'
 import { Account } from '@/account/model'
+import { WalletAddress } from '@/walletAddress/model'
+import { getRandomValues } from 'crypto'
 
 export class GateHubService {
   constructor(
     private gateHubClient: GateHubClient,
     private logger: Logger,
     private env: Env,
-    private accountService?: AccountService,
-    private walletAddressService?: WalletAddressService
+    private accountService: AccountService,
+    private walletAddressService: WalletAddressService
   ) {}
 
   async getIframeUrl(iframeType: IFRAME_TYPE, userId: string): Promise<string> {
@@ -88,7 +87,8 @@ export class GateHubService {
       customerId = await this.setupSandboxCustomer(
         user.id,
         user.gateHubUserId,
-        userState
+        userState.profile.first_name,
+        userState.profile.last_name
       )
     } else if (
       this.env.NODE_ENV === 'production' &&
@@ -99,37 +99,53 @@ export class GateHubService {
         user.email,
         `${userState.profile.first_name} ${userState.profile.last_name}`
       )
+    } else {
+      // We don't support cards on staging so we only create a default account and WA
+      await this.createDefaultAccountAndWAForManagedUser(userId)
     }
 
     return { isUserApproved, customerId }
   }
 
-  private async setupSandboxCustomer(
+  private async createDefaultAccountAndWAForManagedUser(
     userId: string,
-    managedUserId: string,
-    userState: IGetUserStateResponse
-  ): Promise<string> {
-    if (!this.accountService || !this.walletAddressService) {
-      throw new Error(
-        'AccountService and WalletAddressService must be provided in sandbox environment.'
-      )
-    }
-
+    isDefaultCardsAccount?: boolean,
+    walletAddressName?: string,
+    walletAddressPublicName?: string
+  ): Promise<{ account: Account; walletAddress: WalletAddress }> {
     const account = await this.accountService.createDefaultAccount(
       userId,
       'EUR Account',
-      true
+      isDefaultCardsAccount
     )
     if (!account) {
       throw new Error('Failed to create account for managed user')
     }
 
-    await createWalletAddressIfFalsy({
+    const walletAddress = await this.walletAddressService.create({
       userId,
       accountId: account.id,
-      publicName: 'Cards Sandbox Payment Pointer',
-      walletAddressService: this.walletAddressService
+      walletAddressName:
+        walletAddressName ||
+        getRandomValues(new Uint32Array(1))[0].toString(16),
+      publicName:
+        walletAddressPublicName ||
+        getRandomValues(new Uint32Array(1))[0].toString(16)
     })
+
+    return { account, walletAddress }
+  }
+
+  private async setupSandboxCustomer(
+    userId: string,
+    managedUserId: string,
+    firstName: string,
+    lastName: string
+  ): Promise<string> {
+    const { account } = await this.createDefaultAccountAndWAForManagedUser(
+      userId,
+      true
+    )
 
     const requestBody: ICreateCustomerRequest = {
       walletAddress: account.gateHubWalletId,
@@ -142,8 +158,8 @@ export class GateHubService {
       },
       nameOnCard: this.env.GATEHUB_NAME_ON_CARD,
       citizen: {
-        name: userState.profile.first_name,
-        surname: userState.profile.last_name
+        name: firstName,
+        surname: lastName
       }
     }
 
@@ -170,35 +186,20 @@ export class GateHubService {
     userEmail: string,
     walletAddressPublicName: string
   ): Promise<string> {
-    if (!this.accountService || !this.walletAddressService) {
-      throw new Error(
-        'AccountService and WalletAddressService must be provided in sandbox environment.'
-      )
-    }
-
     const existingManagedUsers = await this.gateHubClient.getManagedUsers()
     // Managed user will always be found here since this check is also performed on sign up
     const gateHubUser = existingManagedUsers.find(
       (gateHubUser) => gateHubUser.email === userEmail
     )
 
-    const account = await this.accountService.createDefaultAccount(
-      userId,
-      'EUR Account',
-      true
-    )
-    if (!account) {
-      throw new Error('Failed to create account for managed user')
-    }
-
-    const ppName =
+    const walletAddressName =
       gateHubUser!.meta.meta.paymentPointer.split('$ilp.dev/')[1] || ''
-    await this.walletAddressService.create({
+    await this.createDefaultAccountAndWAForManagedUser(
       userId,
-      accountId: account.id,
-      walletAddressName: ppName,
-      publicName: walletAddressPublicName
-    })
+      true,
+      walletAddressName,
+      walletAddressPublicName
+    )
 
     const customerId = gateHubUser!.meta.meta.customerId
 
