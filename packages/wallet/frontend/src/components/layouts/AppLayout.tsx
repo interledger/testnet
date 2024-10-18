@@ -18,7 +18,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   useEffect(() => {
     setIsUserFirstTime(
-      window.localStorage.getItem('isUserFirstTimeOnTestnet') === 'true'
+      false
+      // ToDo back to the drawing board for the Onboarding, because all of the changes with GateHub, disable for now
+      // window.localStorage.getItem('isUserFirstTimeOnTestnet') === 'true'
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

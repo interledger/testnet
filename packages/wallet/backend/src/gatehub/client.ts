@@ -10,9 +10,13 @@ import {
   ICreateTransactionResponse,
   ICreateWalletRequest,
   ICreateWalletResponse,
+  IFundAccountRequest,
   IGetUserStateResponse,
   IGetVaultsResponse,
+  IGetWalletForUserResponse,
   IGetWalletResponse,
+  IOverrideUserRiskLevelRequest,
+  IOverrideUserRiskLevelResponse,
   IRatesResponse,
   ITokenRequest,
   ITokenResponse,
@@ -25,8 +29,9 @@ import {
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
+  PRODUCTION_VAULT_IDS,
   SANDBOX_CLIENT_IDS,
-  SUPPORTED_ASSET_CODES
+  SANDBOX_VAULT_IDS
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
@@ -47,12 +52,16 @@ import {
   ICardLockRequest,
   ICardUnlockRequest,
   ICardLimitResponse,
-  ICardLimitRequest
+  ICardLimitRequest,
+  ICreateCardRequest,
+  CloseCardReason
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
 
 export class GateHubClient {
+  private supportedAssetCodes: string[]
   private clientIds = SANDBOX_CLIENT_IDS
+  private vaultIds = SANDBOX_VAULT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
   private iframeMappings: Record<
@@ -70,12 +79,15 @@ export class GateHubClient {
   ) {
     if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
+      this.vaultIds = PRODUCTION_VAULT_IDS
       this.mainUrl = 'gatehub.net'
     }
+
+    this.supportedAssetCodes = Object.keys(this.vaultIds)
   }
 
   get isProduction() {
-    return this.env.NODE_ENV === 'production'
+    return this.env.GATEHUB_ENV === 'production'
   }
 
   get apiUrl() {
@@ -180,6 +192,35 @@ export class GateHubClient {
     return response
   }
 
+  async getManagedUsers(): Promise<ICreateManagedUserResponse[]> {
+    const url = `${this.apiUrl}/auth/v1/users/organization/${this.env.GATEHUB_ORG_ID}`
+
+    const response = await this.request<ICreateManagedUserResponse[]>(
+      'GET',
+      url
+    )
+
+    return response
+  }
+
+  /**
+   * The meta was createad as `meta.meta.[property]`
+   * We should be aware of this when the user signs up (for production)
+   */
+  async updateMetaForManagedUser(
+    userUuid: string,
+    meta: Record<string, string>
+  ): Promise<void> {
+    const url = `${this.apiUrl}/auth/v1/users/managed`
+    // This is the reason why the `meta` was created as `meta.meta`.
+    // Keeping this as is for consistency
+    const body = { meta }
+
+    return await this.request<void>('PUT', url, JSON.stringify(body), {
+      managedUserUuid: userUuid
+    })
+  }
+
   async createManagedUser(email: string): Promise<ICreateManagedUserResponse> {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body: ICreateManagedUserRequest = { email }
@@ -214,6 +255,7 @@ export class GateHubClient {
     if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(managedUserUuid, gatewayUuid)
+      await this.overrideRiskLevel(managedUserUuid, gatewayUuid)
 
       return true
     }
@@ -234,6 +276,25 @@ export class GateHubClient {
 
     const response = await this.request<IApproveUserToGatewayResponse>(
       'PUT',
+      url,
+      JSON.stringify(body)
+    )
+
+    return response
+  }
+
+  private async overrideRiskLevel(
+    userUuid: string,
+    gatewayUuid: string
+  ): Promise<IApproveUserToGatewayResponse> {
+    const url = `${this.apiUrl}/id/v1/hubs/${gatewayUuid}/users/${userUuid}/overrideRiskLevel`
+    const body: IOverrideUserRiskLevelRequest = {
+      risk_level: 'VERY_LOW',
+      reason: 'Risk level change'
+    }
+
+    const response = await this.request<IOverrideUserRiskLevelResponse>(
+      'POST',
       url,
       JSON.stringify(body)
     )
@@ -274,6 +335,26 @@ export class GateHubClient {
     return response
   }
 
+  /**
+   * Retrieves the user with its corresponding wallets.
+   *
+   * !!! The `meta` object is not present here - not the same output as
+   * ICreateManagedUserResponse !!!
+   */
+  async getWalletForUser(userUuid: string): Promise<IGetWalletForUserResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}`
+
+    const response = await this.request<IGetWalletForUserResponse>(
+      'GET',
+      url,
+      undefined,
+      {
+        managedUserUuid: userUuid
+      }
+    )
+    return response
+  }
+
   async getWalletBalance(
     walletId: string,
     managedUserUuid: string
@@ -288,7 +369,7 @@ export class GateHubClient {
   }
 
   async createTransaction(
-    body: ICreateTransactionRequest,
+    body: ICreateTransactionRequest | IFundAccountRequest,
     managedUserUuid?: string
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
@@ -319,17 +400,19 @@ export class GateHubClient {
     const response = await this.request<IRatesResponse>('GET', url)
 
     const flatRates: Record<string, number> = {}
-    for (const code of SUPPORTED_ASSET_CODES) {
+    for (const code of this.supportedAssetCodes) {
       const rateObj = response[code]
       if (rateObj && typeof rateObj !== 'string') {
-        flatRates[code] = +rateObj.rate
+        flatRates[code] = 1 / +rateObj.rate
       }
     }
 
     return flatRates
   }
 
-  // This should be called before creating customers to get the product codes for the card and account
+  /**
+   * @deprecated Only used before creating customers to get the product codes for the card and account.
+   */
   async fetchCardApplicationProducts(): Promise<ICardProductResponse[]> {
     const url = `${this.apiUrl}/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
     const response = await this.request<ICardProductResponse[]>('GET', url)
@@ -337,17 +420,32 @@ export class GateHubClient {
   }
 
   async createCustomer(
+    managedUserUuid: string,
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
-    const url = `${this.apiUrl}/v1/customers`
-    return this.request<ICreateCustomerResponse>(
+    const url = `${this.apiUrl}/cards/v1/customers/managed`
+    const response = await this.request<ICreateCustomerResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+
+    return response
+  }
+
+  /**
+   * @deprecated Only used when ordering cards.
+   */
+  async orderPlasticForCard(userUuid: string, cardId: string): Promise<void> {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/plastic`
+    await this.request('POST', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
   }
 
   async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
@@ -545,6 +643,38 @@ export class GateHubClient {
     return this.request<ICardResponse>('PUT', url)
   }
 
+  async closeCard(userUuid: string, cardId: string, reason: CloseCardReason) {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/card?reasonCode=${reason}`
+
+    await this.request('DELETE', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  /**
+   * @deprecated
+   */
+  async createCard(
+    userUuid: string,
+    accountId: string,
+    payload: ICreateCardRequest
+  ) {
+    const url = `${this.apiUrl}/cards/v1/cards/${accountId}/card`
+
+    const response = await this.request<ICardResponse>(
+      'POST',
+      url,
+      JSON.stringify(payload),
+      {
+        managedUserUuid: userUuid,
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    return response
+  }
+
   private async request<T>(
     method: HTTP_METHODS,
     url: string,
@@ -634,5 +764,15 @@ export class GateHubClient {
     return createHmac('sha256', this.env.GATEHUB_SECRET_KEY)
       .update(toSign)
       .digest('hex')
+  }
+
+  getVaultUuid(assetCode: string): string {
+    const vaultId: string | undefined = this.vaultIds[assetCode]
+
+    if (!vaultId) {
+      throw new BadRequest(`Unsupported asset code ${assetCode}`)
+    }
+
+    return vaultId
   }
 }

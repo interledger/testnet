@@ -54,7 +54,8 @@ describe('Transaction Controller', (): void => {
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycVerified
+      needsIDProof: !user.kycVerified,
+      customerId: user.customerId
     }
 
     userId = user.id

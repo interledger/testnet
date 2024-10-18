@@ -27,7 +27,8 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import {
   INTERLEDGER_WALLET_ADDRESS,
   PAYMENT_RECEIVE,
-  PAYMENT_SEND
+  PAYMENT_SEND,
+  THEME
 } from '@/utils/constants'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { QuoteDialog } from '@/components/dialogs/QuoteDialog'
@@ -35,7 +36,6 @@ import { assetService, ExchangeRates } from '@/lib/api/asset'
 import { ExchangeRate } from '@/components/ExchangeRate'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
-import { useTheme } from 'next-themes'
 import { AssetOP } from '@wallet/shared'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
@@ -58,11 +58,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [incomingPaymentAmount, setIncomingPaymentAmount] = useState(0)
   const [readOnlyNotes, setReadOnlyNotes] = useState(false)
   const { accountsSnapshot } = useSnapshot(balanceState)
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   const balanceSnapshot = useMemo(() => {
     if (!selectedAccount) return ''

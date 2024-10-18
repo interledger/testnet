@@ -10,6 +10,7 @@ declare global {
     email: string
     needsWallet: boolean
     needsIDProof: boolean
+    customerId?: string
   }
 
   interface IronSessionData {

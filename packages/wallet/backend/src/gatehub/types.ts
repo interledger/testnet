@@ -1,3 +1,5 @@
+import { TransactionTypeEnum } from '@/gatehub/consts'
+
 export type HTTP_METHODS = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
 export interface IClientIds {
@@ -29,7 +31,12 @@ export interface ICreateManagedUserResponse {
   type2fa: string
   activated: boolean
   role: string
-  meta: Record<string, string>
+  meta: {
+    meta: {
+      paymentPointer: string
+      customerId: string
+    }
+  } & Record<string, string>
   lastPasswordChange: string
   features: string[]
   managed: boolean
@@ -55,6 +62,11 @@ export interface ICreateWalletRequest {
 export interface ICreateWalletResponse {
   address: string
 }
+
+export interface IGetWalletForUserResponse {
+  wallets: ICreateWalletResponse[]
+}
+
 export interface IGetWalletResponse {
   address: string
 }
@@ -65,8 +77,17 @@ export interface ICreateTransactionRequest {
   sending_address: string
   receiving_address: string
   message: string
-  type: number
+  type: TransactionTypeEnum.HOSTED
   vault_uuid: string
+}
+export interface IFundAccountRequest {
+  uid: string
+  amount: number
+  network: number
+  receiving_address: string
+  type: TransactionTypeEnum.DEPOSIT
+  vault_uuid: string
+  absolute_fee?: number
 }
 
 export interface ICreateTransactionResponse {}
@@ -107,6 +128,12 @@ export interface IApproveUserToGatewayRequest {
   customMessage: boolean
 }
 export interface IApproveUserToGatewayResponse {}
+
+export interface IOverrideUserRiskLevelRequest {
+  risk_level: string
+  reason: string
+}
+export interface IOverrideUserRiskLevelResponse {}
 
 export interface IWebhookDate {
   uuid: string

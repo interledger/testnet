@@ -179,7 +179,7 @@ export class OpenPayments implements IOpenPayments {
             walletAddress: order.payments.walletAddress,
             quoteId: order.payments.quoteId,
             metadata: {
-              description: 'Purchase at Rafiki Boutique',
+              description: 'Purchase at Test Boutique',
               orderRef: order.id,
               type: 'regular'
             }
@@ -384,7 +384,7 @@ export class OpenPayments implements IOpenPayments {
           walletAddress: payment.walletAddress,
           quoteId: payment.quoteId,
           metadata: {
-            description: 'Purchase at Rafiki Boutique',
+            description: 'Purchase at Test Boutique',
             orderRef: order.id,
             type: 'instant'
           }
@@ -514,7 +514,7 @@ export class OpenPayments implements IOpenPayments {
           },
           metadata: {
             orderId: order.id,
-            description: 'Purchase at Rafiki Boutique'
+            description: 'Purchase at Test Boutique'
           }
         }
       )

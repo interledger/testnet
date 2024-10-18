@@ -10,7 +10,12 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
 import cors from 'cors'
-import express, { Router, type Express, type Request } from 'express'
+import express, {
+  NextFunction,
+  Router,
+  type Express,
+  type Request
+} from 'express'
 import helmet from 'helmet'
 import { Server } from 'http'
 import type { Knex } from 'knex'
@@ -37,12 +42,14 @@ import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
-import { initErrorHandler, RedisClient } from '@shared/backend'
+import { Forbidden, initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
+import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
+import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 
 export interface Bindings {
   env: Env
@@ -90,10 +97,10 @@ export class App {
 
   public async startServer(): Promise<void> {
     const express = await this.init()
-    const env = await this.container.resolve('env')
-    const logger = await this.container.resolve('logger')
-    const knex = await this.container.resolve('knex')
-    const socketService = await this.container.resolve('socketService')
+    const env = this.container.resolve('env')
+    const logger = this.container.resolve('logger')
+    const knex = this.container.resolve('knex')
+    const socketService = this.container.resolve('socketService')
 
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
@@ -123,33 +130,33 @@ export class App {
     const app = express()
     const router = Router()
 
-    const env = await this.container.resolve('env')
-    const logger = await this.container.resolve('logger')
-    const authController = await this.container.resolve('authController')
-    const userController = await this.container.resolve('userController')
-    const walletAddressController = await this.container.resolve(
+    const env = this.container.resolve('env')
+    const logger = this.container.resolve('logger')
+    const authController = this.container.resolve('authController')
+    const userController = this.container.resolve('userController')
+    const walletAddressController = this.container.resolve(
       'walletAddressController'
     )
-    const walletAddressKeyController = await this.container.resolve(
+    const walletAddressKeyController = this.container.resolve(
       'walletAddressKeyController'
     )
-    const transactionController = await this.container.resolve(
+    const transactionController = this.container.resolve(
       'transactionController'
     )
-    const incomingPaymentController = await this.container.resolve(
+    const incomingPaymentController = this.container.resolve(
       'incomingPaymentController'
     )
-    const outgoingPaymentController = await this.container.resolve(
+    const outgoingPaymentController = this.container.resolve(
       'outgoingPaymentController'
     )
 
-    const quoteController = await this.container.resolve('quoteController')
-    const assetController = await this.container.resolve('assetController')
-    const grantController = await this.container.resolve('grantController')
-    const accountController = await this.container.resolve('accountController')
-    const rafikiController = await this.container.resolve('rafikiController')
-    const gateHubController = await this.container.resolve('gateHubController')
-    const cardController = await this.container.resolve('cardController')
+    const quoteController = this.container.resolve('quoteController')
+    const assetController = this.container.resolve('assetController')
+    const grantController = this.container.resolve('grantController')
+    const accountController = this.container.resolve('accountController')
+    const rafikiController = this.container.resolve('rafikiController')
+    const gateHubController = this.container.resolve('gateHubController')
+    const cardController = this.container.resolve('cardController')
 
     app.use(
       cors({
@@ -294,12 +301,25 @@ export class App {
       quoteController.createExchangeQuote
     )
 
+    // Fund account is possible only in sandbox
+    if (env.GATEHUB_ENV === 'sandbox') {
+      router.post(
+        '/accounts/:accountId/fund',
+        isAuth,
+        accountController.fundAccount
+      )
+    }
+
     router.get('/rates', rafikiController.getRates)
-    router.post('/webhooks', rafikiController.onWebHook)
+    router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
-    router.post('/gatehub-webhooks', gateHubController.webhook)
+    router.post(
+      '/gatehub-webhooks',
+      isGateHubSignedWebhook,
+      gateHubController.webhook
+    )
     router.post(
       '/gatehub/add-user-to-gateway',
       isAuth,
@@ -315,21 +335,49 @@ export class App {
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.get(
       '/cards/:cardId/transactions',
+      this.ensureGateHubProductionEnv,
       isAuth,
       cardController.getCardTransactions
     )
-    router.get('/cards/:cardId/limits', isAuth, cardController.getCardLimits)
+    router.get(
+      '/cards/:cardId/limits',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.getCardLimits
+    )
     router.post(
       '/cards/:cardId/limits',
+      this.ensureGateHubProductionEnv,
       isAuth,
       cardController.createOrOverrideCardLimits
     )
-    router.get('/cards/:cardId/pin', isAuth, cardController.getPin)
-    router.post('/cards/:cardId/change-pin', isAuth, cardController.changePin)
-    router.put('/cards/:cardId/lock', isAuth, cardController.lock)
-    router.put('/cards/:cardId/unlock', isAuth, cardController.unlock)
+    router.get(
+      '/cards/:cardId/pin',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.getPin
+    )
+    router.post(
+      '/cards/:cardId/change-pin',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.changePin
+    )
+    router.put(
+      '/cards/:cardId/lock',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.lock
+    )
+    router.put(
+      '/cards/:cardId/unlock',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.unlock
+    )
     router.put(
       '/cards/:cardId/block',
+      this.ensureGateHubProductionEnv,
       isAuth,
       cardController.permanentlyBlockCard
     )
@@ -354,8 +402,7 @@ export class App {
   }
 
   private async processPendingTransactions() {
-    const transactionService =
-      await this.container.resolve('transactionService')
+    const transactionService = this.container.resolve('transactionService')
     return transactionService
       .processPendingIncomingPayments()
       .catch(() => false)
@@ -370,5 +417,22 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
+  }
+
+  ensureGateHubProductionEnv = async (
+    _req: Request,
+    _res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const env = this.container.resolve('env')
+      if (env.NODE_ENV === 'production' && env.GATEHUB_ENV === 'sandbox') {
+        throw new Forbidden('You cannot access this resource')
+      }
+    } catch (e) {
+      next(e)
+    }
+
+    next()
   }
 }

@@ -10,11 +10,6 @@ import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
-import dynamic from 'next/dynamic'
-
-const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), {
-  ssr: false
-})
 
 const font = localFont({
   src: [
@@ -79,7 +74,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         description: (
           <p>
             <MoneyBird className="mr-2 inline-flex h-8 w-8 items-center justify-center" />
-            Rafiki Boutique one click buy withdrew{' '}
+            Test Boutique one click buy withdrew{' '}
             {
               formatAmount({
                 value: amount.value,
@@ -148,7 +143,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
       <AppProvider>
         <Progress />
-        <ThemeToggle />
         {getLayout(<Component {...pageProps} />)}
       </AppProvider>
     </>

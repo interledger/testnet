@@ -20,6 +20,20 @@ export enum PAYMENT_TYPE {
 }
 
 export const HOSTED_WALLET_TYPE = 0
-export const HOSTED_TRANSACTION_TYPE = 2
+export const MANUAL_NETWORK = 8
 
-export const SUPPORTED_ASSET_CODES = ['USD', 'EUR']
+export enum TransactionTypeEnum {
+  HOSTED = 2,
+  DEPOSIT = 1
+}
+
+export const SANDBOX_VAULT_IDS: Record<string, string> = {
+  USD: '450d2156-132a-4d3f-88c5-74822547658d',
+  EUR: 'a09a0a2c-1a3a-44c5-a1b9-603a6eea9341',
+  GBP: '992b932d-7e9e-44b0-90ea-b82a530b6784',
+  ZAR: 'f1c412ce-5e2b-4737-9121-b7c11d6c3f93'
+}
+export const PRODUCTION_VAULT_IDS: Record<string, string> = {
+  USD: '5e1ff913-96d4-45ab-b7a3-04197a59fe06',
+  EUR: '546ac540-4362-49cb-b639-afc5d4280d03'
+}
