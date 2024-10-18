@@ -75,7 +75,7 @@ export class CardService {
   }
 
   async getTokenForPinChange(userId: string, cardId: string): Promise<string> {
-    await this.ensureWalletAddressExists(userId, cardId)
+    await this.ensureAccountExists(userId, cardId)
 
     const token = await this.gateHubClient.getTokenForPinChange(cardId)
 
