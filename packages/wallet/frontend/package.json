@@ -1,7 +1,7 @@
 {
   "name": "@wallet/frontend",
   "scripts": {
-    "dev": "PORT=4003 next dev",
+    "dev": "next dev -p 4003",
     "build:deps": "pnpm --filter @wallet/shared build",
     "build": "pnpm build:deps && next build",
     "start": "next start"
