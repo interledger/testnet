@@ -1,7 +1,7 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
-import { useCardContext } from './UserCardContext'
-import { cardServiceMock } from '@/lib/api/card'
+import { useCardContext, useKeysContext } from './UserCardContext'
+import { cardService, cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
 
 export const FrozenCardActions = () => {
@@ -71,7 +71,8 @@ export const FrozenCardActions = () => {
 
 const DefaultCardActions = () => {
   const router = useRouter()
-  const { showDetails, setShowDetails } = useCardContext()
+  const { card, showDetails, setShowDetails } = useCardContext()
+  const { keys } = useKeysContext()
 
   return (
     <>
@@ -108,7 +109,24 @@ const DefaultCardActions = () => {
           intent="secondary"
           aria-label={showDetails ? 'hide details' : 'show details'}
           className="group"
-          onClick={() => setShowDetails((prev) => !prev)}
+          onClick={async () => {
+            if (!keys) {
+              // TODO: Toast
+              throw new Error('Public key not loaded')
+            }
+            const response = await cardService.getCardData(card.name, {
+              publicKeyBase64: keys?.publicKey
+            })
+
+            if (!response.success || !response.result) {
+              // TODO: Toast
+              throw new Error(response.message)
+            }
+
+            // TODO: Decrypt data (is it base64?)
+
+            setShowDetails((prev) => !prev)
+          }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
             {showDetails ? (
