@@ -74,14 +74,23 @@ export class CardService {
     return this.gateHubClient.getPin(requestBody)
   }
 
+  async getTokenForPinChange(userId: string, cardId: string): Promise<string> {
+    await this.ensureWalletAddressExists(userId, cardId)
+
+    const token = await this.gateHubClient.getTokenForPinChange(cardId)
+
+    return token
+  }
+
   async changePin(
     userId: string,
     cardId: string,
+    token: string,
     cypher: string
   ): Promise<void> {
     await this.ensureAccountExists(userId, cardId)
 
-    await this.gateHubClient.changePin(cardId, cypher)
+    await this.gateHubClient.changePin(token, cypher)
   }
 
   async lock(
