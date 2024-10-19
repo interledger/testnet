@@ -46,7 +46,7 @@ export class GateHubService {
         // if user is already verified (for manual verify cases)
         // we skip the approveUserToGateway and overrideRiskLevel in addUserToGateway
         // but still execute the function in order to store gatehub userState
-        if (user?.kycVerified) {
+        if (user && !user.kycVerified && !user.firstName && !user.lastName) {
           await this.addUserToGateway(gateHubUserId, true)
         }
 
