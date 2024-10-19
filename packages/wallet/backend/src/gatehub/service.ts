@@ -40,22 +40,43 @@ export class GateHubService {
     // TODO: handle other webhook types
     switch (data.event_type) {
       case 'id.verification.accepted':
-        await this.markUserAsVerified(data.user_uuid)
+        const { user_uuid: gateHubUserId } = data
+
+        const user = await User.query().findOne({ gateHubUserId })
+
+        // if user is already verified (for manual verify cases)
+        // we skip the approveUserToGateway and overrideRiskLevel in addUserToGateway
+        // but still execute the function in order to store gatehub userState
+        if (user?.kycVerified) {
+          await this.addUserToGateway(gateHubUserId, true)
+        }
+
+        const userId = await this.markUserAsVerified(gateHubUserId)
+        this.logger.info(
+          `USER ${userId} with gatehub id ${gateHubUserId} VERIFIED`
+        )
         break
     }
   }
 
   async addUserToGateway(
-    userId: string
-  ): Promise<{ isUserApproved: boolean; customerId?: string }> {
+    userId: string,
+    isApproved = false
+  ): Promise<{ isApproved: boolean; customerId?: string }> {
     const user = await User.query().findById(userId)
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
     }
 
-    const isUserApproved = await this.gateHubClient.connectUserToGateway(
-      user.gateHubUserId,
-      this.env.GATEHUB_GATEWAY_UUID
+    if (!isApproved) {
+      isApproved = await this.gateHubClient.connectUserToGateway(
+        user.gateHubUserId,
+        this.env.GATEHUB_GATEWAY_UUID
+      )
+    }
+
+    this.logger.info(
+      `User ${user.id} with gatehub id ${user.gateHubUserId} CONNECTED TO GATEWAY`
     )
 
     const userState = await this.gateHubClient.getUserState(user.gateHubUserId)
@@ -73,7 +94,7 @@ export class GateHubService {
         .join(', ')
     }
 
-    if (isUserApproved) {
+    if (isApproved) {
       userDetails.kycVerified = true
     }
 
@@ -104,7 +125,7 @@ export class GateHubService {
       await this.createDefaultAccountAndWAForManagedUser(userId)
     }
 
-    return { isUserApproved, customerId }
+    return { isApproved, customerId }
   }
 
   private async createDefaultAccountAndWAForManagedUser(
@@ -210,7 +231,7 @@ export class GateHubService {
     return customerId
   }
 
-  private async markUserAsVerified(uuid: string): Promise<void> {
+  private async markUserAsVerified(uuid: string): Promise<string> {
     const user = await User.query().findOne({ gateHubUserId: uuid })
 
     if (!user) {
@@ -220,5 +241,6 @@ export class GateHubService {
     await User.query().findById(user.id).patch({
       kycVerified: true
     })
+    return user.id
   }
 }
