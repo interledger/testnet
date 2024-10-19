@@ -12,7 +12,7 @@ RUN corepack enable
 RUN corepack prepare pnpm@9.1.4 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
-COPY pnpm-lock.yaml .nvmrc .npmrc ./
+COPY pnpm-lock.yaml .nvmrc .npmrc wallet-entrypoint.sh ./
 
 # Fetch packages from lockfile (https://pnpm.io/cli/fetch#usage-scenario)
 RUN pnpm fetch
@@ -27,6 +27,13 @@ RUN pnpm install -r --offline
 RUN pnpm wallet:backend build
 
 # Expose debugger port
-EXPOSE 9229
+EXPOSE ${DEBUG_PORT}
 
-CMD ["pnpm", "wallet:backend", "dev"]
+ARG DEV_MODE
+
+# Set it as an environment variable
+ENV DEV_MODE=${DEV_MODE}
+
+RUN chmod +x /home/testnet/wallet-entrypoint.sh
+
+ENTRYPOINT ["/home/testnet/wallet-entrypoint.sh"]

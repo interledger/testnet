@@ -27,6 +27,8 @@ services:
     container_name: wallet-backend
     build:
       context: ../..
+      args:
+        DEV_MODE: ${DEV_MODE}
       dockerfile: ./packages/wallet/backend/Dockerfile.dev
     depends_on:
       - postgres
@@ -38,6 +40,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3003
+      DEBUG_PORT: 9229
       DATABASE_URL: postgres://wallet_backend:wallet_backend@postgres/wallet_backend
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
@@ -76,6 +79,8 @@ services:
     container_name: boutique-backend
     build:
       context: ../..
+      args:
+        DEV_MODE: ${DEV_MODE}
       dockerfile: ./packages/boutique/backend/Dockerfile.dev
     volumes:
       - ../../packages/boutique/backend:/home/testnet/packages/boutique/backend
@@ -85,6 +90,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3004
+      DEBUG_PORT: 9230
       DATABASE_URL: postgres://boutique_backend:boutique_backend@postgres/boutique_backend
       PRIVATE_KEY: ${PRIVATE_KEY}
       KEY_ID: ${KEY_ID}
@@ -94,6 +100,7 @@ services:
       - testnet
     ports:
       - '3004:3004'
+      - '9230:9230' # Map debugger port to local machine's port 9230
     <<: *logging
 
   # Rafiki

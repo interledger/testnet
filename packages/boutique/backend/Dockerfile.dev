@@ -12,7 +12,7 @@ RUN corepack enable
 RUN corepack prepare pnpm@9.1.4 --activate
 
 # Copy lockfile, NVM and NPM configuration to the working directory
-COPY pnpm-lock.yaml .nvmrc .npmrc ./
+COPY pnpm-lock.yaml .nvmrc .npmrc boutique-entrypoint.sh ./
 
 # Fetch packages from lockfile (https://pnpm.io/cli/fetch#usage-scenario)
 RUN pnpm fetch
@@ -23,4 +23,16 @@ ADD . ./
 # Install packages from virtual store
 RUN pnpm install -r --offline
 
-CMD ["pnpm", "boutique:backend", "dev"]
+RUN pnpm boutique:backend build
+
+# Expose debugger port regardlless of DEV_MODE
+EXPOSE ${DEBUG_PORT}
+
+ARG DEV_MODE
+
+# Set it as an environment variable
+ENV DEV_MODE=${DEV_MODE}
+
+RUN chmod +x /home/testnet/boutique-entrypoint.sh
+
+ENTRYPOINT ["/home/testnet/boutique-entrypoint.sh"]

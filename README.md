@@ -100,7 +100,15 @@ If you would like to set up e-commerce application, you will need to create a US
 Navigate to the project's root directory and execute:
 
 ```sh
-pnpm dev
+pnpm dev #this will start the project in hot reload mode for backend containers. Frontend containers have hot reload functionality enabled on all dev commads
+```
+other options to start the local env are:
+```sh
+pnpm dev:debug #backend containers will not have hot reload feture enabled but will expose and have node `--inspect` option set with wallet container debug port set to 9229 and boutique port set to 9230. Once the containers are running, you can connect your debugger (e.g., Chrome DevTools, VS Code)
+```
+and:
+```sh
+pnpm dev:lite #backend containers will build and run the builds, no debug and no hot reload for these containers
 ```
 
 Upon executing the above command, the following will be available
