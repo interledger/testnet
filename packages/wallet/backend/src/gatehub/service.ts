@@ -47,7 +47,7 @@ export class GateHubService {
         // we skip the approveUserToGateway and overrideRiskLevel in addUserToGateway
         // but still execute the function in order to store gatehub userState
         if (user && !user.kycVerified && !user.lastName) {
-          await this.addUserToGateway(gateHubUserId, true)
+          await this.addUserToGateway(user.id, true)
         }
 
         await this.markUserAsVerified(gateHubUserId)
