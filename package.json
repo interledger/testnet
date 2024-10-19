@@ -19,7 +19,6 @@
     "dev": "pnpm localenv:start && concurrently -n 'WALLET,BOUTIQUE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm boutique:frontend dev'",
     "dev:debug": "pnpm localenv:start:debug && concurrently -n 'WALLET,BOUTIQUE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm boutique:frontend dev'",
     "dev:lite": "pnpm localenv:start:lite && concurrently -n 'WALLET,BOUTIQUE' -c blue.bold,red.bold 'pnpm wallet:frontend dev' 'pnpm boutique:frontend dev'",
-
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint --max-warnings=0 .",
     "lint:fix": "eslint --max-warnings=0 --fix .",
