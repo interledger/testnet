@@ -52,7 +52,7 @@ export class GateHubService {
         }
 
         await this.markUserAsVerified(gateHubUserId)
-      
+
         break
     }
   }
@@ -240,8 +240,6 @@ export class GateHubService {
       kycVerified: true
     })
 
-    this.logger.info(
-      `USER ${user.id} with gatehub id ${uuid} VERIFIED`
-    )
+    this.logger.info(`USER ${user.id} with gatehub id ${uuid} VERIFIED`)
   }
 }
