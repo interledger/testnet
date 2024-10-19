@@ -40,8 +40,8 @@ export class GateHubService {
     // TODO: handle other webhook types
     switch (data.event_type) {
       case 'id.verification.accepted':
-        const { user_uuid: gateHubUserId } = data
-
+        
+        const gateHubUserId = data.user_uuid
         const user = await User.query().findOne({ gateHubUserId })
 
         // if user is already verified (for manual verify cases)
