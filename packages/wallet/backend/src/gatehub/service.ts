@@ -39,7 +39,7 @@ export class GateHubService {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
     // TODO: handle other webhook types
     switch (data.event_type) {
-      case 'id.verification.accepted':
+      case 'id.verification.accepted': {
         const gateHubUserId = data.user_uuid
         const user = await User.query().findOne({ gateHubUserId })
 
@@ -53,6 +53,7 @@ export class GateHubService {
         await this.markUserAsVerified(gateHubUserId)
 
         break
+      }
     }
   }
 
