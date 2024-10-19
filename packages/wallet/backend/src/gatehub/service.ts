@@ -51,10 +51,8 @@ export class GateHubService {
           await this.addUserToGateway(gateHubUserId, true)
         }
 
-        const userId = await this.markUserAsVerified(gateHubUserId)
-        this.logger.info(
-          `USER ${userId} with gatehub id ${gateHubUserId} VERIFIED`
-        )
+        await this.markUserAsVerified(gateHubUserId)
+      
         break
     }
   }
@@ -231,7 +229,7 @@ export class GateHubService {
     return customerId
   }
 
-  private async markUserAsVerified(uuid: string): Promise<string> {
+  private async markUserAsVerified(uuid: string): Promise<void> {
     const user = await User.query().findOne({ gateHubUserId: uuid })
 
     if (!user) {
@@ -241,6 +239,9 @@ export class GateHubService {
     await User.query().findById(user.id).patch({
       kycVerified: true
     })
-    return user.id
+
+    this.logger.info(
+      `USER ${user.id} with gatehub id ${uuid} VERIFIED`
+    )
   }
 }
