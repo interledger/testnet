@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { Controller } from '@shared/backend'
+import { Controller, InternalServerError } from '@shared/backend'
 import { CardService } from '@/card/service'
 import { toSuccessResponse } from '@shared/backend'
 import {
@@ -8,13 +8,11 @@ import {
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
-  ICardResponse,
   ICardUnlockRequest
 } from './types'
-import { IGetTransactionsResponse } from '@wallet/shared/src'
+import { ICardResponse, IGetTransactionsResponse } from '@wallet/shared'
 import { validate } from '@/shared/validate'
 import {
-  getCardsByCustomerSchema,
   getCardDetailsSchema,
   lockCardSchema,
   unlockCardSchema,
@@ -24,6 +22,7 @@ import {
   changePinSchema,
   permanentlyBlockCardSchema
 } from './validation'
+import { Logger } from 'winston'
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
@@ -39,7 +38,10 @@ export interface ICardController {
 }
 
 export class CardController implements ICardController {
-  constructor(private cardService: CardService) {}
+  constructor(
+    private cardService: CardService,
+    private logger: Logger
+  ) {}
 
   public getCardsByCustomer = async (
     req: Request,
@@ -47,10 +49,19 @@ export class CardController implements ICardController {
     next: NextFunction
   ) => {
     try {
-      const { params } = await validate(getCardsByCustomerSchema, req)
-      const { customerId } = params
+      const customerId = req.session.user.customerId
 
-      const cards = await this.cardService.getCardsByCustomer(customerId)
+      if (!customerId) {
+        this.logger.error(
+          `Customer id was not found on session object for user ${req.session.user.id}`
+        )
+        throw new InternalServerError()
+      }
+
+      const cards = await this.cardService.getCardsByCustomer(
+        req.session.user.id,
+        customerId
+      )
       res.status(200).json(toSuccessResponse(cards))
     } catch (error) {
       next(error)
@@ -68,7 +79,10 @@ export class CardController implements ICardController {
       const { cardId } = params
       const { publicKeyBase64 } = query
 
-      const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
+      const requestBody: ICardDetailsRequest = {
+        cardId,
+        publicKey: publicKeyBase64
+      }
       const cardDetails = await this.cardService.getCardDetails(
         userId,
         requestBody
@@ -153,7 +167,10 @@ export class CardController implements ICardController {
       const { cardId } = params
       const { publicKeyBase64 } = query
 
-      const requestBody: ICardDetailsRequest = { cardId, publicKeyBase64 }
+      const requestBody: ICardDetailsRequest = {
+        cardId,
+        publicKey: publicKeyBase64
+      }
       const cardPin = await this.cardService.getPin(userId, requestBody)
       res.status(200).json(toSuccessResponse(cardPin))
     } catch (error) {

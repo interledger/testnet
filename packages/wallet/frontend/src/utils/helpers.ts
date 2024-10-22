@@ -139,3 +139,8 @@ export const replaceWalletAddressProtocol = (
       ? paymentPointer.replace('http://', '$')
       : paymentPointer
 }
+
+export function ab2str(buf: ArrayBuffer) {
+  //@ts-expect-error: We know
+  return String.fromCharCode.apply(null, new Uint8Array(buf))
+}

@@ -1,11 +1,5 @@
 import { z } from 'zod'
 
-export const getCardsByCustomerSchema = z.object({
-  params: z.object({
-    customerId: z.string()
-  })
-})
-
 export const getCardDetailsSchema = z.object({
   params: z.object({
     cardId: z.string()
@@ -62,7 +56,7 @@ export const lockCardSchema = z.object({
     ])
   }),
   body: z.object({
-    note: z.string()
+    note: z.string().nullable()
   })
 })
 

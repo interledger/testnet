@@ -44,7 +44,6 @@ import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
   ILinksResponse,
-  ICardResponse,
   ICreateCustomerRequest,
   ICreateCustomerResponse,
   ICardProductResponse,
@@ -57,6 +56,7 @@ import {
   CloseCardReason
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
+import { ICardResponse } from '@wallet/shared'
 
 export class GateHubClient {
   private supportedAssetCodes: string[]
@@ -448,21 +448,30 @@ export class GateHubClient {
     })
   }
 
-  async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
-    const url = `${this.apiUrl}/v1/customers/${customerId}/cards`
-    return this.request<ICardResponse[]>('GET', url)
+  async getCardsByCustomer(
+    customerId: string,
+    managedUserUuid: string
+  ): Promise<ICardResponse[]> {
+    const url = `${this.apiUrl}/cards/v1/customers/${customerId}/cards`
+
+    return this.request<ICardResponse[]>('GET', url, undefined, {
+      managedUserUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
   }
 
   async getCardDetails(
+    managedUserUuid: string,
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
-    const url = `${this.apiUrl}/token/card-data`
+    const url = `${this.apiUrl}/cards/v1/token/card-data`
 
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -472,19 +481,24 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card data retrieval')
     }
 
-    // TODO change this to direct call to card managing entity
-    // Will get this from the GateHub proxy for now
-    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/client-device/card-data`
+    // const resp = await fetch(
+    //   'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData',
+    //   { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
+    // )
+    const cardDetailsUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/cardData`
     const cardDetailsResponse = await this.request<ICardDetailsResponse>(
       'GET',
       cardDetailsUrl,
       undefined,
       {
+        managedUserUuid,
         token
       }
     )
-
     return cardDetailsResponse
+    // const res = await resp.json()
+    //
+    // return res
   }
 
   async getCardTransactions(
@@ -587,7 +601,7 @@ export class GateHubClient {
 
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/pin`
     await this.request<void>(
       'POST',
       cardPinUrl,
@@ -600,17 +614,18 @@ export class GateHubClient {
 
   async lockCard(
     cardId: string,
+    managedUserUuid: string,
     reasonCode: LockReasonCode,
     requestBody: ICardLockRequest
   ): Promise<ICardResponse> {
-    let url = `${this.apiUrl}/v1/cards/${cardId}/lock`
-    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/lock?reasonCode=${encodeURIComponent(reasonCode)}`
 
     return this.request<ICardResponse>(
       'PUT',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -618,15 +633,17 @@ export class GateHubClient {
 
   async unlockCard(
     cardId: string,
+    managedUserUuid: string,
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {
-    const url = `${this.apiUrl}/v1/cards/${cardId}/unlock`
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/unlock`
 
     return this.request<ICardResponse>(
       'PUT',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )

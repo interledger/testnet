@@ -327,11 +327,7 @@ export class App {
     )
 
     // Cards
-    router.get(
-      '/customers/:customerId/cards',
-      isAuth,
-      cardController.getCardsByCustomer
-    )
+    router.get('/customers/cards', isAuth, cardController.getCardsByCustomer)
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.get(
       '/cards/:cardId/transactions',

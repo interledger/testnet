@@ -5,15 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-
-// TODO: update interface - can be moved to shared folder as well
-export interface IUserCard {
-  name: string
-  number: string
-  expiry: string
-  cvv: number
-  isFrozen: boolean
-}
+import { ICardResponse } from '@wallet/shared'
 
 export const changePinSchema = z
   .object({
@@ -58,12 +50,14 @@ export const monthlySpendingLimitSchema = z.object({
     .positive()
 })
 
-type GetDetailsResponse = SuccessResponse<IUserCard>
+const FREEZE_REASON = 'ClientRequestedLock'
+
+type GetDetailsResponse = SuccessResponse<ICardResponse[]>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
 type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
 
-type FreezeResult = SuccessResponse<boolean> | ErrorResponse
+type FreezeResult = SuccessResponse | ErrorResponse
 
 type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
 
@@ -94,9 +88,9 @@ interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
   getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
   terminate(): Promise<TerminateCardResult>
-  freeze(): Promise<FreezeResult>
-  unfreeze(): Promise<UnfreezeResult>
-  changePin(args: ChangePinArgs): Promise<ChangePinResult>
+  freeze(cardId: string): Promise<FreezeResult>
+  unfreeze(cardId: string): Promise<UnfreezeResult>
+  changePin(cardId: string, args: ChangePinArgs): Promise<ChangePinResult>
   setDailySpendingLimit(
     args: DailySpendingLimitArgs
   ): Promise<DailySpendingLimitResult>
@@ -109,7 +103,7 @@ const createCardService = (): UserCardService => ({
   async getDetails(cookies) {
     try {
       const response = await httpClient
-        .get(`card`, {
+        .get(`customers/cards`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -124,9 +118,9 @@ const createCardService = (): UserCardService => ({
   async getCardData(cardId, args) {
     try {
       const response = await httpClient
-        .get(`cards/${cardId}/details`, {
-          json: args
-        })
+        .get(
+          `cards/${cardId}/details?publicKeyBase64=${encodeURIComponent(args.publicKeyBase64)}`
+        )
         .json<GetCardDataResponse>()
       return response
     } catch (error) {
@@ -145,21 +139,25 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async freeze() {
+  async freeze(cardId) {
     try {
       const response = await httpClient
-        .post('card/freeze')
+        .put(`cards/${cardId}/lock?reasonCode=${FREEZE_REASON}`, {
+          json: { note: 'User request' }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(error, 'Could not freeze card. Please try again!')
     }
   },
 
-  async unfreeze() {
+  async unfreeze(cardId: string) {
     try {
       const response = await httpClient
-        .post('card/unfreeze')
+        .put(`cards/${cardId}/unlock`, {
+          json: { note: 'User request' }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
@@ -210,32 +208,11 @@ const createCardService = (): UserCardService => ({
 const mock = (service: UserCardService): UserCardService => {
   return {
     ...service,
-    async getDetails() {
-      return Promise.resolve({
-        success: true,
-        message: 'Mocked getDetails',
-        result: {
-          name: 'John Doe',
-          number: '4242 4242 4242 4242',
-          expiry: '01/27',
-          cvv: 321,
-          isFrozen: Math.random() > 0.5 ? true : false
-        }
-      })
-    },
 
     async terminate() {
       return Promise.resolve({
         success: true,
         message: 'Mocked terminate',
-        result: true
-      })
-    },
-
-    async freeze() {
-      return Promise.resolve({
-        success: true,
-        message: 'Mocked freeze',
         result: true
       })
     },

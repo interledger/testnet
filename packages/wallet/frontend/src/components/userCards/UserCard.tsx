@@ -1,16 +1,17 @@
-import { useState, type ComponentProps } from 'react'
+import { useMemo, useState, type ComponentProps } from 'react'
 import { CopyButton } from '@/ui/CopyButton'
 import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
-import type { IUserCard } from '@/lib/api/card'
 import {
   ICardData,
+  isLockedCard,
   KeysProvider,
   useCardContext,
   UserCardContext
 } from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
 import { UserCardSettings } from './UserCardSettings'
+import { ICardResponse } from '@wallet/shared'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -33,13 +34,15 @@ const UserCardContainer = ({
 }
 
 interface UserCardFrontProps extends ComponentProps<'div'> {
-  card: IUserCard
+  nameOnCard: ICardResponse['nameOnCard']
+  isBlocked: boolean
 }
 
 // Even if the UserCard lives inside the context we explicitly pass the card
 // details as a prop, since we have to use this component in dialogs as well.
 export const UserCardFront = ({
-  card,
+  nameOnCard,
+  isBlocked,
   className,
   ...props
 }: UserCardFrontProps) => {
@@ -48,7 +51,7 @@ export const UserCardFront = ({
       <div
         className={cn(
           'flex flex-col h-full',
-          card.isFrozen ? 'select-none pointer-events-none blur' : ''
+          isBlocked ? 'select-none pointer-events-none blur' : ''
         )}
       >
         <div className="flex justify-between text-sm items-center">
@@ -59,11 +62,11 @@ export const UserCardFront = ({
           <Chip />
         </div>
         <div className="flex mt-auto justify-between items-center">
-          <span className="uppercase opacity-50">{card.name}</span>
+          <span className="uppercase opacity-50">{nameOnCard}</span>
           <MasterCardLogo />
         </div>
       </div>
-      {card.isFrozen ? (
+      {isBlocked ? (
         <div className="absolute inset-0 z-10 bg-[url('/frozen.webp')] bg-cover bg-center opacity-50" />
       ) : null}
     </UserCardContainer>
@@ -71,7 +74,11 @@ export const UserCardFront = ({
 }
 
 const UserCardBack = () => {
-  const { card } = useCardContext()
+  const { cardData } = useCardContext()
+
+  if (!cardData) {
+    return null
+  }
 
   return (
     <UserCardContainer>
@@ -83,29 +90,29 @@ const UserCardBack = () => {
               Card Number
             </p>
             <div className="flex items-center gap-x-3">
-              <p className="font-mono">{card.number}</p>
+              <p className="font-mono">{cardData.Pan}</p>
               <CopyButton
                 aria-label="copy card number"
                 className="h-4 w-4 p-0 opacity-50"
                 copyType="card"
-                value={card.number}
+                value={cardData.Pan}
               />
             </div>
           </div>
           <div className="flex gap-x-6">
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
-              <p className="font-mono">{card.expiry}</p>
+              <p className="font-mono">{`${cardData.ExpiryDate.substring(0, 2)}/${cardData.ExpiryDate.substring(2, 4)}`}</p>
             </div>
             <div>
               <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
-              <p className="font-mono">{card.cvv}</p>
+              <p className="font-mono">{cardData.Cvc2}</p>
             </div>
             <CopyButton
               aria-label="copy cvv"
               className="mt-2.5 -ml-3 h-4 w-4 p-0 opacity-50"
               copyType="card"
-              value={card.cvv.toString()}
+              value={cardData.Cvc2}
             />
             <MasterCardLogo className="ml-auto" />
           </div>
@@ -116,11 +123,14 @@ const UserCardBack = () => {
 }
 
 interface UserCardProps {
-  card: IUserCard
+  card: ICardResponse
 }
+
 export const UserCard = ({ card }: UserCardProps) => {
   const [showDetails, setShowDetails] = useState(false)
   const [cardData, setCardData] = useState<ICardData | null>(null)
+
+  const isBlocked = useMemo(() => isLockedCard(card), [card])
 
   return (
     <UserCardContext.Provider
@@ -129,10 +139,18 @@ export const UserCard = ({ card }: UserCardProps) => {
       <KeysProvider>
         <div className="grid grid-cols-1 md:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
           <div className="space-y-6 max-w-80 mx-auto">
-            {card.isFrozen ? <UserCardFront card={card} /> : null}
-            {!card.isFrozen && showDetails ? <UserCardBack /> : null}
-            {!card.isFrozen && !showDetails ? (
-              <UserCardFront card={card} />
+            {isBlocked ? (
+              <UserCardFront
+                nameOnCard={card.nameOnCard}
+                isBlocked={isBlocked}
+              />
+            ) : null}
+            {!isBlocked && showDetails ? <UserCardBack /> : null}
+            {!isBlocked && !showDetails ? (
+              <UserCardFront
+                nameOnCard={card.nameOnCard}
+                isBlocked={isBlocked}
+              />
             ) : null}
             <UserCardActions />
           </div>

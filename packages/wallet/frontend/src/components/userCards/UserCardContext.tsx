@@ -1,4 +1,5 @@
-import { IUserCard } from '@/lib/api/card'
+import { ab2str } from '@/utils/helpers'
+import { ICardResponse } from '@wallet/shared'
 import { useRouter } from 'next/router'
 import {
   createContext,
@@ -19,7 +20,7 @@ export interface ICardData {
 interface UserCardContextValue {
   showDetails: boolean
   setShowDetails: Dispatch<SetStateAction<boolean>>
-  card: IUserCard
+  card: ICardResponse
   cardData: ICardData | null
   setCardData: Dispatch<SetStateAction<UserCardContextValue['cardData']>>
 }
@@ -39,9 +40,8 @@ export const useCardContext = () => {
 }
 
 export interface Keys {
-  /** Base64 encoded key */
   publicKey: string
-  privateKey: CryptoKey
+  privateKey: string
 }
 
 type KeysContextProps = {
@@ -75,24 +75,34 @@ export const KeysProvider = ({ children }: KeysProviderProps) => {
       const keyPair = await crypto.subtle.generateKey(
         {
           name: 'RSA-OAEP',
-          modulusLength: 4096,
-          publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+          modulusLength: 2048,
+          publicExponent: new Uint8Array([1, 0, 1]),
           hash: { name: 'SHA-256' }
         },
         true,
         ['encrypt', 'decrypt']
       )
 
-      const exported = await crypto.subtle.exportKey('spki', keyPair.publicKey)
-      const buf = new Uint8Array(exported)
-      const str = String.fromCharCode.apply(null, Array.from<number>(buf))
-      const publicKeyBase64 = btoa(str)
+      const exportedPrivateKey = await crypto.subtle.exportKey(
+        'pkcs8',
+        keyPair.privateKey
+      )
+      const privateKey = `-----BEGIN PRIVATE KEY-----\n${btoa(ab2str(exportedPrivateKey))}\n-----END PRIVATE KEY-----`
 
-      setKeys({ publicKey: publicKeyBase64, privateKey: keyPair.privateKey })
+      const exportedPublicKey = await crypto.subtle.exportKey(
+        'spki',
+        keyPair.publicKey
+      )
+      const publicKey = btoa(ab2str(exportedPublicKey))
+
+      setKeys({
+        publicKey,
+        privateKey
+      })
     }
 
     if (!keys) {
-      generateKeyPair()
+      void generateKeyPair()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -109,4 +119,8 @@ export const KeysProvider = ({ children }: KeysProviderProps) => {
       {children}
     </KeysContext.Provider>
   )
+}
+
+export function isLockedCard(card: ICardResponse): boolean {
+  return card.lockLevel === 'Client'
 }

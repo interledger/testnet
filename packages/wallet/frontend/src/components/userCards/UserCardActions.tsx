@@ -1,11 +1,20 @@
 import { Button } from '@/ui/Button'
 import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
-import { useCardContext, useKeysContext } from './UserCardContext'
+import {
+  ICardData,
+  isLockedCard,
+  useCardContext,
+  useKeysContext
+} from './UserCardContext'
 import { cardService, cardServiceMock } from '@/lib/api/card'
 import { useRouter } from 'next/router'
+import { useToast } from '@/lib/hooks/useToast'
+import NodeRSA from 'node-rsa'
 
 export const FrozenCardActions = () => {
   const router = useRouter()
+  const { card } = useCardContext()
+  const { toast } = useToast()
 
   return (
     <>
@@ -15,18 +24,22 @@ export const FrozenCardActions = () => {
           aria-label="unfreeze"
           className="group"
           onClick={async () => {
-            // Maybe use toats for showcasing the result of the api calls,
-            // specifically for card actions?
-            // We will probably have a lot more dialogs for card settings
-            // and using dialogs again for showing the response might be a bit
-            // cumbersome.
-            const response = await cardServiceMock.unfreeze()
+            const response = await cardService.unfreeze(card.id)
 
             if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while unfreezing card')
+              toast({
+                description: 'Could not unfreeze card. Please try again',
+                variant: 'error'
+              })
+              console.error(response.message)
+              return
             }
 
             if (response.success) {
+              toast({
+                description: 'Card was successfully unfrozen.',
+                variant: 'success'
+              })
               router.replace(router.asPath)
             }
           }}
@@ -43,15 +56,10 @@ export const FrozenCardActions = () => {
           aria-label="terminate card"
           className="group"
           onClick={async () => {
-            // Maybe use toats for showcasing the result of the api calls,
-            // specifically for card actions?
-            // We will probably have a lot more dialogs for card settings
-            // and using dialogs again for showing the response might be a bit
-            // cumbersome.
             const response = await cardServiceMock.terminate()
 
             if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while terminating card')
+              throw new Error('CHANGE ME')
             }
 
             if (response.success) {
@@ -71,8 +79,15 @@ export const FrozenCardActions = () => {
 
 const DefaultCardActions = () => {
   const router = useRouter()
-  const { card, showDetails, setShowDetails } = useCardContext()
+  const {
+    card,
+    showDetails,
+    setOptimisticFreeze,
+    setShowDetails,
+    setCardData
+  } = useCardContext()
   const { keys } = useKeysContext()
+  const { toast } = useToast()
 
   return (
     <>
@@ -82,18 +97,25 @@ const DefaultCardActions = () => {
           aria-label="freeze"
           className="group"
           onClick={async () => {
-            // Maybe use toats for showcasing the result of the api calls,
-            // specifically for card actions?
-            // We will probably have a lot more dialogs for card settings
-            // and using dialogs again for showing the response might be a bit
-            // cumbersome.
-            const response = await cardServiceMock.freeze()
+            setOptimisticFreeze(true)
+            const response = await cardService.freeze(card.id)
 
             if (!response.success) {
-              console.error('[TODO] UPDATE ME - error while freezing card')
+              toast({
+                description: 'Could not freeze card. Please try again',
+                variant: 'error'
+              })
+              console.error(response.message)
+              return
             }
 
             if (response.success) {
+              toast({
+                description: 'Card was successfully frozen.',
+                variant: 'success'
+              })
+              setCardData(null)
+              setShowDetails(false)
               router.replace(router.asPath)
             }
           }}
@@ -110,22 +132,50 @@ const DefaultCardActions = () => {
           aria-label={showDetails ? 'hide details' : 'show details'}
           className="group"
           onClick={async () => {
-            if (!keys) {
-              // TODO: Toast
-              throw new Error('Public key not loaded')
+            if (showDetails) {
+              setShowDetails(false)
+              setCardData(null)
+              return
             }
-            const response = await cardService.getCardData(card.name, {
-              publicKeyBase64: keys?.publicKey
+            if (!keys) {
+              await router.replace(router.pathname)
+              return
+            }
+
+            const response = await cardService.getCardData(card.id, {
+              publicKeyBase64: keys.publicKey
             })
 
-            if (!response.success || !response.result) {
-              // TODO: Toast
-              throw new Error(response.message)
+            if (!response.success) {
+              toast({
+                description: 'Could not fetch card details. Please try again',
+                variant: 'error'
+              })
+              return
             }
 
-            // TODO: Decrypt data (is it base64?)
+            if (!response.result) {
+              toast({
+                description: 'Could not fetch card details. Please try again',
+                variant: 'error'
+              })
+              return
+            }
 
-            setShowDetails((prev) => !prev)
+            // TODO: Move this to SubtleCrypto
+            const privateKey = new NodeRSA(keys.privateKey)
+            privateKey.setOptions({
+              encryptionScheme: 'pkcs1',
+              environment: 'browser'
+            })
+
+            const decryptedRequestData = privateKey
+              .decrypt(response.result.cypher)
+              .toString('utf8')
+
+            setCardData(JSON.parse(decryptedRequestData) as ICardData)
+
+            setShowDetails(true)
           }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
@@ -147,9 +197,12 @@ const DefaultCardActions = () => {
 export const UserCardActions = () => {
   const { card } = useCardContext()
 
+  const isLocked = isLockedCard(card)
+
   return (
     <div className="grid grid-cols-2 gap-x-3">
-      {card.isFrozen ? <FrozenCardActions /> : <DefaultCardActions />}
+      {isLocked ? <FrozenCardActions /> : <DefaultCardActions />}
+      <Button aria-label="set pin">Set PIN</Button>
     </div>
   )
 }
