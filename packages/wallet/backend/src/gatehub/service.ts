@@ -39,6 +39,12 @@ export class GateHubService {
 
   async handleWebhook(data: IWebhookDate) {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
+
+    if (data.event_type === 'core.deposit.completed') {
+      // skip deposit webhooks processing
+      return
+    }
+
     const gateHubUserId = data.user_uuid
     const user = await User.query().findOne({ gateHubUserId })
     if (!user) {
