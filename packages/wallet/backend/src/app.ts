@@ -49,7 +49,7 @@ import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
 import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
-// import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
+import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 
 export interface Bindings {
   env: Env
@@ -317,7 +317,7 @@ export class App {
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
     router.post(
       '/gatehub-webhooks',
-      // isGateHubSignedWebhook,
+      isGateHubSignedWebhook(env, logger),
       gateHubController.webhook
     )
     router.post(
