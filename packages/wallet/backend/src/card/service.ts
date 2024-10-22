@@ -2,6 +2,7 @@ import { GateHubClient } from '../gatehub/client'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
+  ICardDetailsWithPinStatusResponse,
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
@@ -13,6 +14,7 @@ import { LockReasonCode } from '@wallet/shared/src'
 import { NotFound } from '@shared/backend'
 import { BlockReasonCode } from '@wallet/shared/src'
 import { AccountService } from '@/account/service'
+import { User } from '@/user/model'
 
 export class CardService {
   constructor(
@@ -27,11 +29,17 @@ export class CardService {
   async getCardDetails(
     userId: string,
     requestBody: ICardDetailsRequest
-  ): Promise<ICardDetailsResponse> {
+  ): Promise<ICardDetailsWithPinStatusResponse> {
+    const user = await User.query().findById(userId)
     const { cardId } = requestBody
     await this.ensureAccountExists(userId, cardId)
 
-    return this.gateHubClient.getCardDetails(requestBody)
+    const cardDetails = await this.gateHubClient.getCardDetails(requestBody)
+
+    return {
+      ...cardDetails,
+      isPinSet: user.isPinSet
+    }
   }
 
   async getCardTransactions(
@@ -91,6 +99,8 @@ export class CardService {
     await this.ensureAccountExists(userId, cardId)
 
     await this.gateHubClient.changePin(token, cypher)
+
+    await User.query().findById(userId).patch({ isPinSet: true })
   }
 
   async lock(

@@ -5,6 +5,7 @@ import { toSuccessResponse } from '@shared/backend'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
+  ICardDetailsWithPinStatusResponse,
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
@@ -28,7 +29,7 @@ import {
 
 export interface ICardController {
   getCardsByCustomer: Controller<ICardDetailsResponse[]>
-  getCardDetails: Controller<ICardResponse>
+  getCardDetails: Controller<ICardDetailsWithPinStatusResponse>
   getCardLimits: Controller<ICardLimitResponse[]>
   createOrOverrideCardLimits: Controller<ICardLimitResponse[]>
   getCardTransactions: Controller<IGetTransactionsResponse>

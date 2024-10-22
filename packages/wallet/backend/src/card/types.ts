@@ -10,6 +10,10 @@ export interface ICardDetailsRequest {
 export interface ICardDetailsResponse {
   cipher: string | null
 }
+export interface ICardDetailsWithPinStatusResponse {
+  cipher: string | null
+  isPinSet: boolean
+}
 
 export interface ILinksResponse {
   token: string | null
