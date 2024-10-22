@@ -21,7 +21,7 @@ export class User extends BaseModel {
   public kycVerified!: boolean
   public gateHubUserId?: string
   public customerId?: string
-  public isPinSet: boolean
+  public isPinSet!: boolean
 
   public sessions?: Session[]
   public passwordResetToken?: string | null
