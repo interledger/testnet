@@ -15,6 +15,8 @@ import {
   IGetVaultsResponse,
   IGetWalletForUserResponse,
   IGetWalletResponse,
+  IOverrideUserRiskLevelRequest,
+  IOverrideUserRiskLevelResponse,
   IRatesResponse,
   ITokenRequest,
   ITokenResponse,
@@ -27,8 +29,9 @@ import {
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
+  PRODUCTION_VAULT_IDS,
   SANDBOX_CLIENT_IDS,
-  SUPPORTED_ASSET_CODES
+  SANDBOX_VAULT_IDS
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
@@ -56,7 +59,9 @@ import {
 import { BlockReasonCode } from '@wallet/shared/src'
 
 export class GateHubClient {
+  private supportedAssetCodes: string[]
   private clientIds = SANDBOX_CLIENT_IDS
+  private vaultIds = SANDBOX_VAULT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
   private iframeMappings: Record<
@@ -74,8 +79,11 @@ export class GateHubClient {
   ) {
     if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
+      this.vaultIds = PRODUCTION_VAULT_IDS
       this.mainUrl = 'gatehub.net'
     }
+
+    this.supportedAssetCodes = Object.keys(this.vaultIds)
   }
 
   get isProduction() {
@@ -184,6 +192,17 @@ export class GateHubClient {
     return response
   }
 
+  async getManagedUsers(): Promise<ICreateManagedUserResponse[]> {
+    const url = `${this.apiUrl}/auth/v1/users/organization/${this.env.GATEHUB_ORG_ID}`
+
+    const response = await this.request<ICreateManagedUserResponse[]>(
+      'GET',
+      url
+    )
+
+    return response
+  }
+
   /**
    * The meta was createad as `meta.meta.[property]`
    * We should be aware of this when the user signs up (for production)
@@ -236,6 +255,7 @@ export class GateHubClient {
     if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(managedUserUuid, gatewayUuid)
+      await this.overrideRiskLevel(managedUserUuid, gatewayUuid)
 
       return true
     }
@@ -256,6 +276,25 @@ export class GateHubClient {
 
     const response = await this.request<IApproveUserToGatewayResponse>(
       'PUT',
+      url,
+      JSON.stringify(body)
+    )
+
+    return response
+  }
+
+  private async overrideRiskLevel(
+    userUuid: string,
+    gatewayUuid: string
+  ): Promise<IApproveUserToGatewayResponse> {
+    const url = `${this.apiUrl}/id/v1/hubs/${gatewayUuid}/users/${userUuid}/overrideRiskLevel`
+    const body: IOverrideUserRiskLevelRequest = {
+      risk_level: 'VERY_LOW',
+      reason: 'Risk level change'
+    }
+
+    const response = await this.request<IOverrideUserRiskLevelResponse>(
+      'POST',
       url,
       JSON.stringify(body)
     )
@@ -361,17 +400,19 @@ export class GateHubClient {
     const response = await this.request<IRatesResponse>('GET', url)
 
     const flatRates: Record<string, number> = {}
-    for (const code of SUPPORTED_ASSET_CODES) {
+    for (const code of this.supportedAssetCodes) {
       const rateObj = response[code]
       if (rateObj && typeof rateObj !== 'string') {
-        flatRates[code] = +rateObj.rate
+        flatRates[code] = 1 / +rateObj.rate
       }
     }
 
     return flatRates
   }
 
-  // This should be called before creating customers to get the product codes for the card and account
+  /**
+   * @deprecated Only used before creating customers to get the product codes for the card and account.
+   */
   async fetchCardApplicationProducts(): Promise<ICardProductResponse[]> {
     const url = `${this.apiUrl}/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
     const response = await this.request<ICardProductResponse[]>('GET', url)
@@ -379,7 +420,7 @@ export class GateHubClient {
   }
 
   async createCustomer(
-    userUuid: string,
+    managedUserUuid: string,
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
     const url = `${this.apiUrl}/cards/v1/customers/managed`
@@ -388,10 +429,11 @@ export class GateHubClient {
       url,
       JSON.stringify(requestBody),
       {
-        managedUserUuid: userUuid,
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+
     return response
   }
 
@@ -432,7 +474,7 @@ export class GateHubClient {
 
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/client-device/card-data`
+    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/clientDevice/cardData`
     const cardDetailsResponse = await this.request<ICardDetailsResponse>(
       'GET',
       cardDetailsUrl,
@@ -513,7 +555,7 @@ export class GateHubClient {
 
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
     const cardPinResponse = await this.request<ICardDetailsResponse>(
       'GET',
       cardPinUrl,
@@ -526,7 +568,7 @@ export class GateHubClient {
     return cardPinResponse
   }
 
-  async changePin(cardId: string, cypher: string): Promise<void> {
+  async getTokenForPinChange(cardId: string): Promise<string> {
     const url = `${this.apiUrl}/token/pin-change`
 
     const response = await this.request<ILinksResponse>(
@@ -540,12 +582,16 @@ export class GateHubClient {
 
     const token = response.token
     if (!token) {
-      throw new Error('Failed to obtain token for card pin retrieval')
+      throw new Error('Failed to obtain token for card pin change')
     }
 
+    return token
+  }
+
+  async changePin(token: string, cypher: string): Promise<void> {
     // TODO change this to direct call to card managing entity
     // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
+    const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
     await this.request<void>(
       'POST',
       cardPinUrl,
@@ -725,13 +771,12 @@ export class GateHubClient {
   }
 
   getVaultUuid(assetCode: string): string {
-    switch (assetCode) {
-      case 'USD':
-        return this.env.GATEHUB_VAULT_UUID_USD
-      case 'EUR':
-        return this.env.GATEHUB_VAULT_UUID_EUR
-      default:
-        throw new BadRequest(`Unsupported asset code ${assetCode}`)
+    const vaultId: string | undefined = this.vaultIds[assetCode]
+
+    if (!vaultId) {
+      throw new BadRequest(`Unsupported asset code ${assetCode}`)
     }
+
+    return vaultId
   }
 }

@@ -87,6 +87,7 @@ export interface IFundAccountRequest {
   receiving_address: string
   type: TransactionTypeEnum.DEPOSIT
   vault_uuid: string
+  absolute_fee?: number
 }
 
 export interface ICreateTransactionResponse {}
@@ -127,6 +128,12 @@ export interface IApproveUserToGatewayRequest {
   customMessage: boolean
 }
 export interface IApproveUserToGatewayResponse {}
+
+export interface IOverrideUserRiskLevelRequest {
+  risk_level: string
+  reason: string
+}
+export interface IOverrideUserRiskLevelResponse {}
 
 export interface IWebhookDate {
   uuid: string

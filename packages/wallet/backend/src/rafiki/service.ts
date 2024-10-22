@@ -281,7 +281,7 @@ export class RafikiService implements IRafikiService {
     const isExchange = NodeCacheInstance.get(wh.data.id)
     if (userId && !isExchange) {
       const messageType =
-        wh.data.metadata.type === 'instant'
+        wh.data.metadata?.type === 'instant'
           ? MessageType.MONEY_SENT_SHOP
           : MessageType.MONEY_SENT
       await this.socketService.emitMoneySentByUserId(

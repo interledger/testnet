@@ -17,11 +17,10 @@ const envSchema = z.object({
   GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
   GATEHUB_WEBHOOK_SECRET: z.string().default('GATEHUB_WEBHOOK_SECRET'),
   GATEHUB_GATEWAY_UUID: z.string().default('GATEHUB_GATEWAY_UUID'),
-  GATEHUB_VAULT_UUID_EUR: z.string().default('GATEHUB_VAULT_UUID_EUR'),
-  GATEHUB_VAULT_UUID_USD: z.string().default('GATEHUB_VAULT_UUID_USD'),
   GATEHUB_SETTLEMENT_WALLET_ADDRESS: z
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),
+  GATEHUB_ORG_ID: z.string().default('GATEHUB_ORG_ID'),
   GATEHUB_CARD_APP_ID: z.string().default('GATEHUB_CARD_APP_ID'),
   GATEHUB_ACCOUNT_PRODUCT_CODE: z
     .string()
@@ -37,7 +36,7 @@ const envSchema = z.object({
     .string()
     .url()
     .default('http://rafiki-auth:3008/graphql'),
-  AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3006'),
+  AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3009'),
   AUTH_IDENTITY_SERVER_SECRET: z.string().default('replace-me'),
   RAFIKI_WEBHOOK_SIGNATURE_SECRET: z.string().default('replace-me'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),

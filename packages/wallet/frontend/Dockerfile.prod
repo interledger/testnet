@@ -23,7 +23,7 @@ WORKDIR /testnet
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json .eslintrc.js ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc tsconfig.base.json eslint.config.mjs ./
 COPY packages/wallet/frontend /testnet/packages/wallet/frontend
 COPY packages/wallet/shared ./packages/wallet/shared
 

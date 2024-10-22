@@ -1,12 +1,6 @@
 import { Button } from '@/ui/Button'
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  Transition,
-  TransitionChild
-} from '@headlessui/react'
-import { Fragment } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { Fragment, useEffect } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -32,6 +26,11 @@ export const DepositDialog = ({
     schema: depositSchema
   })
   const { toast } = useToast()
+
+  useEffect(() => {
+    depositForm.setFocus('amount')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Transition show={true} as={Fragment} appear={true}>
@@ -111,7 +110,6 @@ export const DepositDialog = ({
                     addOn={getCurrencySymbol(assetCode)}
                     error={depositForm.formState?.errors?.amount?.message}
                     {...depositForm.register('amount')}
-                    autoFocus
                   />
                   <div className="mt-5 flex justify-between">
                     <Button

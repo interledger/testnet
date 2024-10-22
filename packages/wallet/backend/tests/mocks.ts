@@ -345,5 +345,12 @@ export const mockGateHubClient = {
     address: faker.string.uuid()
   }),
   connectUserToGateway: () => {},
+  getWalletForUser: () => ({
+    wallets: [
+      {
+        address: faker.string.uuid()
+      }
+    ]
+  }),
   getWalletBalance: () => []
 }
