@@ -31,6 +31,10 @@ export class CardService {
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsWithPinStatusResponse> {
     const user = await User.query().findById(userId)
+    if (!user) {
+      throw new NotFound()
+    }
+
     const { cardId } = requestBody
     await this.ensureAccountExists(userId, cardId)
 
