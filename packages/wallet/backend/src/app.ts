@@ -317,7 +317,7 @@ export class App {
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
     router.post(
       '/gatehub-webhooks',
-      isGateHubSignedWebhook,
+      isGateHubSignedWebhook(env, logger),
       gateHubController.webhook
     )
     router.post(
@@ -352,6 +352,12 @@ export class App {
       this.ensureGateHubProductionEnv,
       isAuth,
       cardController.getPin
+    )
+    router.get(
+      '/cards/:cardId/change-pin',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.getTokenForPinChange
     )
     router.post(
       '/cards/:cardId/change-pin',
