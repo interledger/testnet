@@ -1,5 +1,5 @@
 import { Button } from '@/ui/Button'
-import { Dialog, Transition } from '@headlessui/react'
+import { Dialog, DialogPanel, DialogTitle, Transition ,TransitionChild} from '@headlessui/react'
 import { Fragment, useEffect } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
