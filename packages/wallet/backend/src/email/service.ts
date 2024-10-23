@@ -7,6 +7,8 @@ import dns from 'dns'
 import domains from 'disposable-email-domains'
 import { BadRequest } from '@shared/backend'
 import { getRejectEmailTemplate } from '@/email/templates/rejectEmail'
+import { getActionRequiredEmailTemplate } from './templates/actionRequiredEmail'
+import { getKYCVerificationEmailTemplate } from './templates/kycVerifiedEmail'
 
 interface EmailArgs {
   to: string
@@ -23,6 +25,9 @@ interface IEmailService {
 export class EmailService implements IEmailService {
   private readonly baseUrl: string
   private readonly from: MailDataRequired['from']
+  private imageSrc: string =
+    'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
+  private subjectPrefix: string = 'Test.Wallet'
 
   constructor(
     private env: Env,
@@ -40,6 +45,12 @@ export class EmailService implements IEmailService {
       email: this.env.FROM_EMAIL,
       name: 'Tech Interledger'
     }
+
+    if (this.env.GATEHUB_ENV === 'production') {
+      this.imageSrc =
+        'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
+      this.subjectPrefix = 'Interledger Wallet'
+    }
   }
 
   private async send(email: EmailArgs): Promise<void> {
@@ -52,8 +63,8 @@ export class EmailService implements IEmailService {
     if (this.env.SEND_EMAIL) {
       return this.send({
         to,
-        subject: '[Test.Wallet] Reset your password',
-        html: getForgotPasswordEmailTemplate(url)
+        subject: `[${this.subjectPrefix}] Reset your password`,
+        html: getForgotPasswordEmailTemplate(url, this.imageSrc)
       })
     }
 
@@ -66,8 +77,8 @@ export class EmailService implements IEmailService {
     if (this.env.SEND_EMAIL) {
       return this.send({
         to,
-        subject: '[Test.Wallet] Verify your account',
-        html: getVerifyEmailTemplate(url)
+        subject: `[${this.subjectPrefix}] Verify your account`,
+        html: getVerifyEmailTemplate(url, this.imageSrc)
       })
     }
 
@@ -78,8 +89,8 @@ export class EmailService implements IEmailService {
     if (this.env.SEND_EMAIL) {
       return this.send({
         to,
-        subject: '[Test.Wallet] Account rejected',
-        html: getRejectEmailTemplate(textHtml)
+        subject: `[${this.subjectPrefix}] Account rejected`,
+        html: getRejectEmailTemplate(textHtml, this.imageSrc)
       })
     }
 
@@ -90,14 +101,27 @@ export class EmailService implements IEmailService {
     if (this.env.SEND_EMAIL) {
       return this.send({
         to,
-        subject: '[Test.Wallet] Action required',
-        html: getRejectEmailTemplate(textHtml)
+        subject: `[${this.subjectPrefix}] Action required`,
+        html: getActionRequiredEmailTemplate(textHtml, this.imageSrc)
       })
     }
 
     this.logger.info(
       `Send email is disabled. Action required email was not sent`
     )
+  }
+
+  async sendKYCVerifiedEmail(to: string): Promise<void> {
+    if (this.env.SEND_EMAIL) {
+      const loginUrl = `${this.baseUrl}/auth/login`
+      return this.send({
+        to,
+        subject: `[${this.subjectPrefix}] You are verified`,
+        html: getKYCVerificationEmailTemplate(loginUrl, this.imageSrc)
+      })
+    }
+
+    this.logger.info(`Send email is disabled. KYC verified email was not sent`)
   }
 
   public async verifyDomain(domain: string): Promise<void> {

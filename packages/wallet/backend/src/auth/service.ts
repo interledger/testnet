@@ -6,7 +6,7 @@ import type { UserService } from '@/user/service'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { EmailService } from '@/email/service'
 import { Logger } from 'winston'
-import { Unauthorized, NotVerified } from '@shared/backend'
+import { Unauthorized, NotVerified, BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
 
 interface resendVerifyEmailArgs {
@@ -17,7 +17,9 @@ interface AuthorizeArgs {
   password: string
 }
 
-interface SignUpArgs extends AuthorizeArgs {}
+interface SignUpArgs extends AuthorizeArgs {
+  acceptedCardTerms?: boolean
+}
 
 interface AuthorizeResult {
   user: User
@@ -38,7 +40,11 @@ export class AuthService implements IAuthService {
     private env: Env
   ) {}
 
-  async signUp({ email, password }: SignUpArgs): Promise<User> {
+  async signUp({
+    email,
+    password,
+    acceptedCardTerms
+  }: SignUpArgs): Promise<User> {
     const domain = email.split('@')[1]
     await this.emailService.verifyDomain(domain)
 
@@ -54,13 +60,20 @@ export class AuthService implements IAuthService {
       if (!gateHubUser) {
         throw new Error('You are not allowed to sign up.')
       }
+
+      if (!acceptedCardTerms) {
+        throw new BadRequest(
+          'Additional terms and condition should be accepted'
+        )
+      }
     }
 
     const token = getRandomToken()
     const user = await this.userService.create({
       email,
       password,
-      verifyEmailToken: hashToken(token)
+      verifyEmailToken: hashToken(token),
+      acceptedCardTerms
     })
 
     await this.emailService.sendVerifyEmail(email, token).catch((e) => {
