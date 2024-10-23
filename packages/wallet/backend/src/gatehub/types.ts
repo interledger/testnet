@@ -141,5 +141,7 @@ export interface IWebhookDate {
   event_type: string
   user_uuid: string
   environment: 'sandbox' | 'production'
-  data: Record<string, unknown>
+  data: {
+    message?: string
+  }
 }
