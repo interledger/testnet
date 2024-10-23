@@ -263,9 +263,11 @@ export class GateHubService {
     )
 
     const customerId = gateHubUser!.meta.meta.customerId
+    const cardWalletAddress = gateHubUser!.meta.meta.paymentPointer
 
     await User.query().findById(userId).patch({
-      customerId
+      customerId,
+      cardWalletAddress
     })
 
     return customerId
