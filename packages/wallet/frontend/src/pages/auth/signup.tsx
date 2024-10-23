@@ -47,7 +47,7 @@ const SignUpPage: NextPageWithLayout = () => {
         <Form
           form={signUpForm}
           onSubmit={async (data) => {
-            if (FEATURES_ENABLED && !data.userAgreement) {
+            if (FEATURES_ENABLED && !data.acceptedCardTerms) {
               const message =
                 'You must agree to the Terms and Conditions before continuing registration'
               signUpForm.setError('root', { message })
