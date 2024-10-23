@@ -19,6 +19,8 @@ export class User extends BaseModel {
   public country?: string
 
   public kycVerified!: boolean
+  public isRejected!: boolean
+  public isDocumentUpdateRequired!: boolean
   public gateHubUserId?: string
   public customerId?: string
   public isPinSet!: boolean

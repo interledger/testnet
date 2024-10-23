@@ -11,6 +11,7 @@ import { ICreateCustomerRequest } from '@/card/types'
 import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
 import { getRandomValues } from 'crypto'
+import { EmailService } from '@/email/service'
 
 export class GateHubService {
   constructor(
@@ -18,7 +19,8 @@ export class GateHubService {
     private logger: Logger,
     private env: Env,
     private accountService: AccountService,
-    private walletAddressService: WalletAddressService
+    private walletAddressService: WalletAddressService,
+    private emailService: EmailService
   ) {}
 
   async getIframeUrl(iframeType: IFRAME_TYPE, userId: string): Promise<string> {
@@ -37,16 +39,25 @@ export class GateHubService {
 
   async handleWebhook(data: IWebhookDate) {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
-    // TODO: handle other webhook types
+
+    if (data.event_type === 'core.deposit.completed') {
+      // skip deposit webhooks processing
+      return
+    }
+
+    const gateHubUserId = data.user_uuid
+    const user = await User.query().findOne({ gateHubUserId })
+    if (!user) {
+      this.logger.error(`User not found ${gateHubUserId}`)
+      throw new NotFound('User not found')
+    }
+
     switch (data.event_type) {
       case 'id.verification.accepted': {
-        const gateHubUserId = data.user_uuid
-        const user = await User.query().findOne({ gateHubUserId })
-
         // if user is already verified (for manual verify cases)
         // we skip the approveUserToGateway and overrideRiskLevel in addUserToGateway
         // but still execute the function in order to store gatehub userState
-        if (user && !user.kycVerified && !user.lastName) {
+        if (!user.kycVerified && !user.lastName) {
           await this.addUserToGateway(user.id, true)
         }
 
@@ -54,7 +65,38 @@ export class GateHubService {
 
         break
       }
+      case 'id.verification.action_required':
+        await this.updateUserFlag(gateHubUserId, { kycVerified: false })
+        if (data.data.message) {
+          await this.emailService.sendActionRequiredEmail(
+            user.email,
+            data.data.message
+          )
+        }
+        break
+      case 'id.verification.rejected':
+        await this.updateUserFlag(gateHubUserId, { isRejected: true })
+        if (data.data.message) {
+          await this.emailService.sendUserRejectedEmail(
+            user.email,
+            data.data.message
+          )
+        }
+        break
+      case 'id.document_notice.expired':
+      case 'id.document_notice.warning':
+        this.logger.info(
+          `Document notice received for GateHub user ${gateHubUserId}`
+        )
+        await this.updateUserFlag(gateHubUserId, {
+          isDocumentUpdateRequired: true
+        })
+        break
     }
+  }
+
+  private async updateUserFlag(gateHubUserId: string, changes: Partial<User>) {
+    await User.query().findOne({ gateHubUserId }).patch(changes)
   }
 
   async addUserToGateway(

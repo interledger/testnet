@@ -6,6 +6,7 @@ import { getVerifyEmailTemplate } from '@/email/templates/verifyEmail'
 import dns from 'dns'
 import domains from 'disposable-email-domains'
 import { BadRequest } from '@shared/backend'
+import { getRejectEmailTemplate } from '@/email/templates/rejectEmail'
 
 interface EmailArgs {
   to: string
@@ -71,6 +72,32 @@ export class EmailService implements IEmailService {
     }
 
     this.logger.info(`Send email is disabled. Verify email link is: ${url}`)
+  }
+
+  async sendUserRejectedEmail(to: string, textHtml: string): Promise<void> {
+    if (this.env.SEND_EMAIL) {
+      return this.send({
+        to,
+        subject: '[Test.Wallet] Account rejected',
+        html: getRejectEmailTemplate(textHtml)
+      })
+    }
+
+    this.logger.info(`Send email is disabled. Reject user email was not sent`)
+  }
+
+  async sendActionRequiredEmail(to: string, textHtml: string): Promise<void> {
+    if (this.env.SEND_EMAIL) {
+      return this.send({
+        to,
+        subject: '[Test.Wallet] Action required',
+        html: getRejectEmailTemplate(textHtml)
+      })
+    }
+
+    this.logger.info(
+      `Send email is disabled. Action required email was not sent`
+    )
   }
 
   public async verifyDomain(domain: string): Promise<void> {
