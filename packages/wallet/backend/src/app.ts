@@ -377,11 +377,11 @@ export class App {
       isAuth,
       cardController.unlock
     )
-    router.put(
+    router.delete(
       '/cards/:cardId/block',
       this.ensureGateHubProductionEnv,
       isAuth,
-      cardController.permanentlyBlockCard
+      cardController.closeCard
     )
 
     // Return an error for invalid routes

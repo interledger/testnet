@@ -1,11 +1,15 @@
 import { Request, Response, NextFunction } from 'express'
-import { Controller, InternalServerError } from '@shared/backend'
+import {
+  BadRequest,
+  Controller,
+  InternalServerError,
+  NotFound
+} from '@shared/backend'
 import { CardService } from '@/card/service'
 import { toSuccessResponse } from '@shared/backend'
 import {
   ICardDetailsRequest,
   ICardDetailsResponse,
-  ICardDetailsWithPinStatusResponse,
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
@@ -25,10 +29,11 @@ import {
   getTokenForPinChange
 } from './validation'
 import { Logger } from 'winston'
+import { UserService } from '@/user/service'
 
 export interface ICardController {
-  getCardsByCustomer: Controller<ICardDetailsResponse[]>
-  getCardDetails: Controller<ICardDetailsWithPinStatusResponse>
+  getCardsByCustomer: Controller<ICardResponse[]>
+  getCardDetails: Controller<ICardDetailsResponse>
   getCardLimits: Controller<ICardLimitResponse[]>
   createOrOverrideCardLimits: Controller<ICardLimitResponse[]>
   getCardTransactions: Controller<IGetTransactionsResponse>
@@ -36,12 +41,13 @@ export interface ICardController {
   changePin: Controller<void>
   lock: Controller<ICardResponse>
   unlock: Controller<ICardResponse>
-  permanentlyBlockCard: Controller<ICardResponse>
+  closeCard: Controller<void>
 }
 
 export class CardController implements ICardController {
   constructor(
     private cardService: CardService,
+    private userService: UserService,
     private logger: Logger
   ) {}
 
@@ -208,13 +214,8 @@ export class CardController implements ICardController {
       const { cardId } = params
       const { token, cypher } = body
 
-      const result = await this.cardService.changePin(
-        userId,
-        cardId,
-        token,
-        cypher
-      )
-      res.status(201).json(toSuccessResponse(result))
+      await this.cardService.changePin(userId, cardId, token, cypher)
+      res.status(201).json(toSuccessResponse())
     } catch (error) {
       next(error)
     }
@@ -256,23 +257,30 @@ export class CardController implements ICardController {
     }
   }
 
-  public permanentlyBlockCard = async (
+  public closeCard = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const userId = req.session.user.id
-      const { params, query } = await validate(permanentlyBlockCardSchema, req)
+      const { params, body } = await validate(permanentlyBlockCardSchema, req)
       const { cardId } = params
-      const { reasonCode } = query
+      const { reasonCode, password } = body
 
-      const result = await this.cardService.permanentlyBlockCard(
-        userId,
-        cardId,
-        reasonCode
-      )
-      res.status(200).json(toSuccessResponse(result))
+      const user = await this.userService.getById(userId)
+
+      if (!user) {
+        throw new NotFound()
+      }
+
+      const passwordIsValid = await user?.verifyPassword(password)
+      if (!passwordIsValid) {
+        throw new BadRequest('Password is not valid')
+      }
+
+      await this.cardService.closeCard(userId, cardId, reasonCode)
+      res.status(200).json(toSuccessResponse())
     } catch (error) {
       next(error)
     }

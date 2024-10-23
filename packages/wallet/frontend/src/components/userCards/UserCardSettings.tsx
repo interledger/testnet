@@ -10,7 +10,7 @@ import NodeRSA from 'node-rsa'
 
 export const UserCardSettings = () => {
   return (
-    <ul role="list" className="space-y-2 pt-4 sm:pt-0">
+    <ul role="list" className="space-y-2 pt-4 lg:pt-0">
       <PinSettings />
     </ul>
   )
@@ -55,7 +55,7 @@ const PinSettings = () => {
   if (!keys) return null
 
   return (
-    <li className="shadow-md rounded-md">
+    <li className="shadow-md rounded-md max-w-80 mx-auto">
       <button
         onClick={async () => {
           const response = await cardService.getPin(card.id, {

@@ -77,4 +77,5 @@ export interface ICardResponse {
   expiryDate: string
   customerId: string
   customerSourceId: string
+  isPinSet: boolean
 }

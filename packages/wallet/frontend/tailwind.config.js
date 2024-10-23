@@ -45,6 +45,22 @@ module.exports = {
       }
     },
     extend: {
+      animation: {
+        blink: 'blink 1.5s infinite both'
+      },
+      keyframes: {
+        blink: {
+          '0%': {
+            opacity: '0.7'
+          },
+          '50%': {
+            opacity: '1'
+          },
+          '100%': {
+            opacity: ' 0.7'
+          }
+        }
+      },
       boxShadow: {
         'glow-button': [
           '0 0 0.2rem #ffffff',

@@ -99,18 +99,8 @@ export const permanentlyBlockCardSchema = z.object({
   params: z.object({
     cardId: z.string()
   }),
-  query: z.object({
-    reasonCode: z.enum([
-      'LostCard',
-      'StolenCard',
-      'IssuerRequestGeneral',
-      'IssuerRequestFraud',
-      'IssuerRequestLegal',
-      'IssuerRequestIncorrectOpening',
-      'CardDamagedOrNotWorking',
-      'UserRequest',
-      'IssuerRequestCustomerDeceased',
-      'ProductDoesNotRenew'
-    ])
+  body: z.object({
+    password: z.string().min(1),
+    reasonCode: z.enum(['UserRequest'])
   })
 })

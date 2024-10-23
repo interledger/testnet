@@ -5,7 +5,7 @@ import {
   Transition,
   TransitionChild
 } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { UserCardFront } from '@/components/userCards/UserCard'
 import { ICardResponse } from '@wallet/shared'
@@ -20,6 +20,32 @@ export const UserCardPINDialog = ({
   pin,
   onClose
 }: UserCardPINDialogProos) => {
+  // Initial time in seconds (1 hour)
+  const initialTime = 10
+  const [timeRemaining, setTimeRemaining] = useState(initialTime)
+
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      setTimeRemaining((prevTime) => {
+        if (prevTime === 0) {
+          clearInterval(timerInterval)
+          return 0
+        } else {
+          return prevTime - 1
+        }
+      })
+    }, 1000)
+
+    return () => clearInterval(timerInterval)
+  }, [])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose()
+    }, initialTime * 1000)
+    return () => clearTimeout(timer)
+  }, [onClose])
+
   return (
     <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -57,9 +83,14 @@ export const UserCardPINDialog = ({
                     className="origin-top-left scale-[.3] [margin:0_calc(-20rem*(1-.3))_calc(-13rem*(1-0.3))_0] "
                   />
                   <div>
-                    <p className="pl-10 tracking-widest text-6xl pt-1">{pin}</p>
+                    <p className="pl-10 tracking-widest text-6xl pt-1 animate-blink">
+                      {pin}
+                    </p>
                   </div>
                 </div>
+                <p className="text-sm text-center">
+                  Dialog will close in {timeRemaining} second(s).
+                </p>
               </DialogPanel>
             </TransitionChild>
           </div>

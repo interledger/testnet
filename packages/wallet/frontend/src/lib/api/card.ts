@@ -50,12 +50,25 @@ export const monthlySpendingLimitSchema = z.object({
     .positive()
 })
 
+export const terminateCardSchema = z.object({
+  password: z.string().min(1),
+  reason: z
+    .object({
+      value: z.string(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
+
 const FREEZE_REASON = 'ClientRequestedLock'
 
 type GetDetailsResponse = SuccessResponse<ICardResponse[]>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
-type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
+type TerminateCardArgs = z.infer<typeof terminateCardSchema>
+type TerminateCardResult =
+  | SuccessResponse<boolean>
+  | ErrorResponse<TerminateCardArgs | undefined>
 
 type FreezeResult = SuccessResponse | ErrorResponse
 
@@ -87,7 +100,10 @@ type GetCardDataResult = GetCardDataResponse | GetCardDataError
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
   getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
-  terminate(): Promise<TerminateCardResult>
+  terminate(
+    cardId: string,
+    args: TerminateCardArgs
+  ): Promise<TerminateCardResult>
   freeze(cardId: string): Promise<FreezeResult>
   unfreeze(cardId: string): Promise<UnfreezeResult>
   getPin(
@@ -164,14 +180,22 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async terminate() {
+  async terminate(cardId, args) {
     try {
       const response = await httpClient
-        .post('card/terminate')
+        .delete(`cards/${cardId}/block`, {
+          json: {
+            password: args.password,
+            reasonCode: args.reason?.value
+          }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, 'Could not terminate card. Please try again.')
+      return getError<TerminateCardArgs>(
+        error,
+        'Could not terminate card. Please try again.'
+      )
     }
   },
 

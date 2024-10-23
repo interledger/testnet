@@ -11,10 +11,6 @@ export interface ICardDetailsRequest {
 export interface ICardDetailsResponse {
   cipher: string
 }
-export interface ICardDetailsWithPinStatusResponse
-  extends ICardDetailsResponse {
-  isPinSet: boolean
-}
 
 export interface ILinksResponse {
   token: string | null
@@ -186,13 +182,7 @@ export interface ICardLimitResponse {
   isDisabled: boolean
 }
 
-export type CloseCardReason =
-  | 'IssuerRequestGeneral'
-  | 'IssuerRequestFraud'
-  | 'IssuerRequestLegal'
-  | 'IssuerRequestIncorrectOpening'
-  | 'UserRequest'
-  | 'IssuerRequestCustomerDeceased'
+export type CloseCardReason = 'UserRequest'
 
 export interface ICreateCardRequest {
   nameOnCard: string

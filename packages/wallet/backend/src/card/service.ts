@@ -1,8 +1,8 @@
 import { GateHubClient } from '../gatehub/client'
 import {
+  CloseCardReason,
   ICardDetailsRequest,
   ICardDetailsResponse,
-  ICardDetailsWithPinStatusResponse,
   ICardLimitRequest,
   ICardLimitResponse,
   ICardLockRequest,
@@ -11,7 +11,6 @@ import {
 import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { LockReasonCode } from '@wallet/shared/src'
 import { InternalServerError, NotFound } from '@shared/backend'
-import { BlockReasonCode } from '@wallet/shared/src'
 import { AccountService } from '@/account/service'
 import { ICardResponse } from '@wallet/shared'
 import { UserService } from '@/user/service'
@@ -30,34 +29,32 @@ export class CardService {
     userId: string,
     customerId: string
   ): Promise<ICardResponse[]> {
+    const user = await User.query().findById(userId)
+    if (!user) {
+      throw new NotFound()
+    }
     const gateHubUserId = await this.ensureGatehubUserUuid(userId)
 
-    return this.gateHubClient.getCardsByCustomer(customerId, gateHubUserId)
+    const cards = await this.gateHubClient.getCardsByCustomer(
+      customerId,
+      gateHubUserId
+    )
+
+    Object.assign(cards[0], { isPinSet: user.isPinSet })
+
+    return cards
   }
 
   async getCardDetails(
     userId: string,
     requestBody: ICardDetailsRequest
-  ): Promise<ICardDetailsWithPinStatusResponse> {
-    const user = await User.query().findById(userId)
-    if (!user) {
-      throw new NotFound()
-    }
-
+  ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
     await this.ensureAccountExists(userId, cardId)
 
     const gateHubUserId = await this.ensureGatehubUserUuid(userId)
 
-    const cardDetails = await this.gateHubClient.getCardDetails(
-      gateHubUserId,
-      requestBody
-    )
-
-    return {
-      ...cardDetails,
-      isPinSet: user.isPinSet
-    }
+    return await this.gateHubClient.getCardDetails(gateHubUserId, requestBody)
   }
 
   async getCardTransactions(
@@ -156,14 +153,16 @@ export class CardService {
     return this.gateHubClient.unlockCard(cardId, gateHubUserId, requestBody)
   }
 
-  async permanentlyBlockCard(
+  async closeCard(
     userId: string,
     cardId: string,
-    reasonCode: BlockReasonCode
-  ): Promise<ICardResponse> {
+    reasonCode: CloseCardReason
+  ): Promise<void> {
     await this.ensureAccountExists(userId, cardId)
 
-    return this.gateHubClient.permanentlyBlockCard(cardId, reasonCode)
+    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+
+    await this.gateHubClient.closeCard(gateHubUserId, cardId, reasonCode)
   }
 
   private async ensureAccountExists(
