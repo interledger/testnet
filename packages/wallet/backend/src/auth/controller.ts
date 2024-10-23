@@ -26,10 +26,10 @@ export class AuthController implements IAuthController {
   signUp = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
       const {
-        body: { email, password }
+        body: { email, password, acceptedCardTerms }
       } = await validate(signUpBodySchema, req)
 
-      await this.authService.signUp({ email, password })
+      await this.authService.signUp({ email, password, acceptedCardTerms })
 
       res
         .status(201)
