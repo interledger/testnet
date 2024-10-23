@@ -40,7 +40,10 @@ export class CardService {
       gateHubUserId
     )
 
-    Object.assign(cards[0], { isPinSet: user.isPinSet })
+    Object.assign(cards[0], {
+      isPinSet: user.isPinSet,
+      walletAddress: user.cardWalletAddress
+    })
 
     return cards
   }

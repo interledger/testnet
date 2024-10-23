@@ -70,7 +70,7 @@ export const UserCardFront = ({
           <Chip />
         </div>
         <div className="flex mt-auto justify-between items-center">
-          <span className="uppercase opacity-50">{nameOnCard}</span>
+          <span className="uppercase text-sm opacity-50">{nameOnCard}</span>
           <MasterCardLogo />
         </div>
       </div>
@@ -154,14 +154,14 @@ export const UserCard = ({ card }: UserCardProps) => {
             <div className="space-y-6 max-w-80 mx-auto">
               {isBlocked ? (
                 <UserCardFront
-                  nameOnCard={card.nameOnCard}
+                  nameOnCard={`${card.nameOnCard} ${card.walletAddress}`}
                   isBlocked={isBlocked}
                 />
               ) : null}
               {!isBlocked && showDetails ? <UserCardBack /> : null}
               {!isBlocked && !showDetails ? (
                 <UserCardFront
-                  nameOnCard={card.nameOnCard}
+                  nameOnCard={`${card.nameOnCard} ${card.walletAddress ? card.walletAddress.replace('https://', '$') : ''}`}
                   isBlocked={isBlocked}
                 />
               ) : null}

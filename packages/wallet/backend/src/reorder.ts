@@ -59,6 +59,7 @@ async function reorder() {
       await gateHubClient.closeCard(
         userUuid,
         cardId,
+        //@ts-expect-error: Ok, we know typescript
         'IssuerRequestIncorrectOpening'
       )
 

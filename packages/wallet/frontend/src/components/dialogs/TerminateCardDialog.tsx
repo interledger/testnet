@@ -96,13 +96,12 @@ export const TerminateCardDialog = ({
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <UserCardFront
-                        nameOnCard={card.nameOnCard}
+                        nameOnCard={`${card.nameOnCard} ${card.walletAddress ? card.walletAddress.replace('https://', '$') : ''}`}
                         isBlocked={false}
                       />
-                      <p className="text-justify">
-                        You won&apos;t be able to use this card again. Any
-                        deposits, such as car rental or hotel reservation
-                        deposits will also be canceled.
+                      <p className="text-center">
+                        Are you sure you want to terminate? <br /> You
+                        won&apos;t be able to use this card again.{' '}
                       </p>
                     </div>
                     <Input

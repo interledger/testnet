@@ -29,6 +29,7 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true
     }
   }
+  console.log(response.result)
 
   return {
     props: {
