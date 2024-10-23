@@ -5,7 +5,7 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { CardController } from '@/card/controller'
-import { BadRequest } from '@shared/backend'
+import { BadRequest, InternalServerError } from '@shared/backend'
 import {
   ICardDetailsResponse,
   ICardLimitRequest,
@@ -49,7 +49,7 @@ describe('CardController', () => {
     getPin: jest.fn(),
     getTokenForPinChange: jest.fn(),
     changePin: jest.fn(),
-    permanentlyBlockCard: jest.fn()
+    closeCard: jest.fn()
   }
 
   const args = mockLogInRequest().body
@@ -67,7 +67,7 @@ describe('CardController', () => {
       email: user.email,
       needsWallet: !user.gateHubUserId,
       needsIDProof: !user.kycVerified,
-      customerId: user.customerId
+      customerId: user.customerId || 'customer-id'
     }
 
     req.params.cardId = 'test-card-id'
@@ -126,11 +126,10 @@ describe('CardController', () => {
 
       mockCardService.getCardsByCustomer.mockResolvedValue(mockedCards)
 
-      req.params.customerId = 'customer-id'
-
       await cardController.getCardsByCustomer(req, res, next)
 
       expect(mockCardService.getCardsByCustomer).toHaveBeenCalledWith(
+        req.session.user.id,
         'customer-id'
       )
       expect(res.statusCode).toBe(200)
@@ -144,7 +143,7 @@ describe('CardController', () => {
     it('should return 400 if customerId is missing', async () => {
       const next = jest.fn()
 
-      delete req.params.customerId
+      delete req.session.user.customerId
 
       await cardController.getCardsByCustomer(req, res, (err) => {
         next(err)
@@ -156,9 +155,8 @@ describe('CardController', () => {
 
       expect(next).toHaveBeenCalled()
       const error = next.mock.calls[0][0]
-      expect(error).toBeInstanceOf(BadRequest)
-      expect(error.message).toBe('Invalid input')
-      expect(res.statusCode).toBe(400)
+      expect(error).toBeInstanceOf(InternalServerError)
+      expect(res.statusCode).toBe(500)
     })
   })
 
@@ -166,7 +164,8 @@ describe('CardController', () => {
     it('should get card details successfully', async () => {
       const next = jest.fn()
 
-      req.query = { publicKey: 'test-public-key' }
+      req.query = { publicKeyBase64: 'test-public-key' }
+      req.params = { cardId: 'test-card-id' }
 
       const mockedCardDetails: ICardDetailsResponse = {
         cipher: 'encrypted-card-data'
@@ -518,7 +517,7 @@ describe('CardController', () => {
     it('should get pin successfully', async () => {
       const next = jest.fn()
 
-      req.query = { publicKey: 'test-public-key' }
+      req.query = { publicKeyBase64: 'test-public-key' }
 
       const mockedCardDetails: ICardDetailsResponse = {
         cipher: 'encrypted-card-pin'
@@ -646,8 +645,7 @@ describe('CardController', () => {
       expect(res.statusCode).toBe(201)
       expect(res._getJSONData()).toEqual({
         success: true,
-        message: 'SUCCESS',
-        result: {}
+        message: 'SUCCESS'
       })
     })
 
@@ -873,23 +871,22 @@ describe('CardController', () => {
     it('should get block card successfully', async () => {
       const next = jest.fn()
 
-      mockCardService.permanentlyBlockCard.mockResolvedValue({})
+      mockCardService.closeCard.mockResolvedValue({})
 
       req.params = { cardId: 'test-card-id' }
-      req.query = { reasonCode: 'StolenCard' }
+      req.body = { reasonCode: 'UserRequest', password: args.password }
 
       await cardController.closeCard(req, res, next)
 
-      expect(mockCardService.permanentlyBlockCard).toHaveBeenCalledWith(
+      expect(mockCardService.closeCard).toHaveBeenCalledWith(
         userId,
         'test-card-id',
-        'StolenCard'
+        'UserRequest'
       )
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toEqual({
         success: true,
-        message: 'SUCCESS',
-        result: {}
+        message: 'SUCCESS'
       })
     })
     it('should return 400 if reasonCode is invalid', async () => {
