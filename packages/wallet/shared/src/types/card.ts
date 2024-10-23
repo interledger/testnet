@@ -29,7 +29,7 @@ export type CardLimitType =
   | 'nonEUPayments'
 
 // Response for fetching card transactions
-export interface ITransaction {
+export interface ICardTransaction {
   id: number
   transactionId: string
   ghResponseCode: string
@@ -59,7 +59,7 @@ export interface IPagination {
 }
 
 export interface IGetTransactionsResponse {
-  data: ITransaction[]
+  data: ICardTransaction[]
   pagination: IPagination
 }
 
