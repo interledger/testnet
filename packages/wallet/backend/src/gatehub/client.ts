@@ -234,10 +234,15 @@ export class GateHubClient {
     return response
   }
 
-  async getUserState(userId: string): Promise<IGetUserStateResponse> {
-    const url = `${this.apiUrl}/id/v1/users/${userId}`
+  async getUserState(managedUserUuid: string): Promise<IGetUserStateResponse> {
+    const url = `${this.apiUrl}/id/v1/users/${managedUserUuid}`
 
-    const response = await this.request<IGetUserStateResponse>('GET', url)
+    const response = await this.request<IGetUserStateResponse>(
+      'GET',
+      url,
+      undefined,
+      { managedUserUuid }
+    )
 
     return response
   }
@@ -481,10 +486,10 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card data retrieval')
     }
 
-    const res = await fetch(
-      'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData',
-      { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
-    )
+    const res = await fetch(this.env.CARD_DATA_HREF, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    })
     // const cardDetailsUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/cardData`
     // const cardDetailsResponse = await this.request<ICardDetailsResponse>(
     //   'GET',
@@ -571,10 +576,10 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card pin retrieval')
     }
 
-    const resp = await fetch(
-      'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin',
-      { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
-    )
+    const resp = await fetch(this.env.CARD_PIN_HREF, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    })
 
     const res = await resp.json()
 
@@ -617,17 +622,14 @@ export class GateHubClient {
   }
 
   async changePin(token: string, cypher: string): Promise<void> {
-    const response = await fetch(
-      'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ cypher })
-      }
-    )
+    const response = await fetch(this.env.CARD_PIN_HREF, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ cypher })
+    })
 
     if (!response.ok) {
       let info = ''

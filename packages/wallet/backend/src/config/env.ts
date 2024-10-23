@@ -46,7 +46,9 @@ const envSchema = z.object({
   SEND_EMAIL: z
     .enum(['true', 'false'])
     .default('false')
-    .transform((value) => value === 'true')
+    .transform((value) => value === 'true'),
+  CARD_DATA_HREF: z.string().default('UPDATEME'),
+  CARD_PIN_HREF: z.string().default('UPDATEME')
 })
 
 export type Env = z.infer<typeof envSchema>
