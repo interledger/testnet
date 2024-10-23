@@ -48,6 +48,7 @@ export const mockSignUpRequest = (
   const result = mockLogInRequest()
   return {
     body: {
+      acceptedCardTerms: true,
       ...result.body,
       confirmPassword: result.body.password,
       ...overrides
