@@ -9,7 +9,11 @@ export interface ICardDetailsRequest {
 }
 
 export interface ICardDetailsResponse {
-  cipher: string | null
+  cipher: string
+}
+export interface ICardDetailsWithPinStatusResponse
+  extends ICardDetailsResponse {
+  isPinSet: boolean
 }
 
 export interface ILinksResponse {
