@@ -203,10 +203,8 @@ export class GateHubService {
     firstName: string,
     lastName: string
   ): Promise<string> {
-    const { account } = await this.createDefaultAccountAndWAForManagedUser(
-      userId,
-      true
-    )
+    const { account, walletAddress } =
+      await this.createDefaultAccountAndWAForManagedUser(userId, true)
 
     const requestBody: ICreateCustomerRequest = {
       walletAddress: account.gateHubWalletId,
@@ -232,7 +230,8 @@ export class GateHubService {
     const cardId = customer.customers.accounts![0].cards![0].id
 
     await User.query().findById(userId).patch({
-      customerId
+      customerId,
+      cardWalletAddress: walletAddress
     })
 
     await Account.query().findById(account.id).patch({
