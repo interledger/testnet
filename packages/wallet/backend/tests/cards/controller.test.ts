@@ -119,7 +119,8 @@ describe('CardController', () => {
           expiryDate: '0929',
           customerId: 'customer-id',
           customerSourceId: 'a5aba6c7-b8ad-4cfe-98d5-497366a4ee2c',
-          productCode: 'VMDTKPREB'
+          productCode: 'VMDTKPREB',
+          isPinSet: false
         }
       ]
 
@@ -165,7 +166,7 @@ describe('CardController', () => {
     it('should get card details successfully', async () => {
       const next = jest.fn()
 
-      req.query = { publicKeyBase64: 'test-public-key' }
+      req.query = { publicKey: 'test-public-key' }
 
       const mockedCardDetails: ICardDetailsResponse = {
         cipher: 'encrypted-card-data'
@@ -177,7 +178,7 @@ describe('CardController', () => {
 
       expect(mockCardService.getCardDetails).toHaveBeenCalledWith(userId, {
         cardId: 'test-card-id',
-        publicKeyBase64: 'test-public-key'
+        publicKey: 'test-public-key'
       })
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toEqual({
@@ -207,7 +208,7 @@ describe('CardController', () => {
       expect(res.statusCode).toBe(400)
     })
 
-    it('should return 400 if publicKeyBase64 is missing', async () => {
+    it('should return 400 if publicKey is missing', async () => {
       const next = jest.fn()
 
       req.params.cardId = 'test-card-id'
@@ -517,7 +518,7 @@ describe('CardController', () => {
     it('should get pin successfully', async () => {
       const next = jest.fn()
 
-      req.query = { publicKeyBase64: 'test-public-key' }
+      req.query = { publicKey: 'test-public-key' }
 
       const mockedCardDetails: ICardDetailsResponse = {
         cipher: 'encrypted-card-pin'
@@ -529,7 +530,7 @@ describe('CardController', () => {
 
       expect(mockCardService.getPin).toHaveBeenCalledWith(userId, {
         cardId: 'test-card-id',
-        publicKeyBase64: 'test-public-key'
+        publicKey: 'test-public-key'
       })
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toEqual({
@@ -559,7 +560,7 @@ describe('CardController', () => {
       expect(res.statusCode).toBe(400)
     })
 
-    it('should return 400 if publicKeyBase64 is missing', async () => {
+    it('should return 400 if publicKey is missing', async () => {
       const next = jest.fn()
 
       req.params.cardId = 'test-card-id'
@@ -877,7 +878,7 @@ describe('CardController', () => {
       req.params = { cardId: 'test-card-id' }
       req.query = { reasonCode: 'StolenCard' }
 
-      await cardController.permanentlyBlockCard(req, res, next)
+      await cardController.closeCard(req, res, next)
 
       expect(mockCardService.permanentlyBlockCard).toHaveBeenCalledWith(
         userId,
@@ -897,7 +898,7 @@ describe('CardController', () => {
       req.params = { cardId: 'test-card-id' }
       req.query = { reasonCode: 'InvalidCode' }
 
-      await cardController.permanentlyBlockCard(req, res, (err) => {
+      await cardController.closeCard(req, res, (err) => {
         next(err)
         res.status(err.statusCode).json({
           success: false,
