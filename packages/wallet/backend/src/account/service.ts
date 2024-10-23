@@ -95,7 +95,7 @@ export class AccountService implements IAccountService {
       assetId: args.assetId,
       assetScale: asset.scale,
       gateHubWalletId,
-      card: args.cardId
+      cardId: args.cardId
     })
 
     // On creation account will have balance 0
@@ -110,8 +110,6 @@ export class AccountService implements IAccountService {
     includeWalletKeys?: boolean
   ): Promise<Account[]> {
     const user = await User.query().findById(userId)
-
-    console.log('user', JSON.stringify(user, null, 2))
 
     // NOT HERE
     if (!user || !user.gateHubUserId) {
@@ -203,8 +201,6 @@ export class AccountService implements IAccountService {
     const user = await User.query()
       .findById(account.userId)
       .select('gateHubUserId')
-
-    console.log('getAccountBalance - user', JSON.stringify(user, null, 2))
 
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
