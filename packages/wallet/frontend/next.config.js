@@ -23,6 +23,7 @@ const nextConfig = {
     NEXT_PUBLIC_AUTH_HOST:
       process.env.NEXT_PUBLIC_AUTH_HOST || 'http://localhost:3006',
     NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
+    NEXT_PUBLIC_GATEHUB_ENV: process.env.NEXT_PUBLIC_GATEHUB_ENV || 'sandbox',
     NEXT_PUBLIC_FEATURES_ENABLED
   }
 }

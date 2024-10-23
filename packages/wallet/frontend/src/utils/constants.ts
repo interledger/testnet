@@ -1,5 +1,6 @@
 export const OPEN_PAYMENTS_HOST = process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST
 export const THEME = process.env.NEXT_PUBLIC_THEME
+export const GATEHUB_ENV = process.env.NEXT_PUBLIC_GATEHUB_ENV
 export const FEATURES_ENABLED =
   process.env.NEXT_PUBLIC_FEATURES_ENABLED === 'true' ? true : false
 /**
