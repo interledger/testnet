@@ -162,7 +162,8 @@ export class App {
       cors({
         origin: [
           'http://localhost:4003',
-          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`,
+          `https://wallet.${env.RAFIKI_MONEY_FRONTEND_HOST}`
         ],
         credentials: true
       })
