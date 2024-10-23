@@ -8,10 +8,10 @@ export interface ICardDetailsRequest {
 }
 
 export interface ICardDetailsResponse {
-  cipher: string | null
+  cipher: string
 }
-export interface ICardDetailsWithPinStatusResponse {
-  cipher: string | null
+export interface ICardDetailsWithPinStatusResponse
+  extends ICardDetailsResponse {
   isPinSet: boolean
 }
 
