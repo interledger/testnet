@@ -1,4 +1,3 @@
-import { HeaderLogo } from '@/components/HeaderLogo'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -61,7 +60,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
 
   return (
     <>
-      <h2 className="py-2 text-xl font-semibold text-green dark:text-pink-neon">
+      <h2 className="py-2 text-2xl font-semibold text-green dark:text-pink-neon">
         Personal Details
       </h2>
       {FEATURES_ENABLED ? null : (
@@ -105,12 +104,7 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 KYCPage.getLayout = function (page) {
-  return (
-    <AuthLayout image="People">
-      <HeaderLogo header="Complete KYC" />
-      {page}
-    </AuthLayout>
-  )
+  return <AuthLayout image="People">{page}</AuthLayout>
 }
 
 export default KYCPage

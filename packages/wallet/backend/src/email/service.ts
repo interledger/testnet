@@ -7,6 +7,8 @@ import dns from 'dns'
 import domains from 'disposable-email-domains'
 import { BadRequest } from '@shared/backend'
 import { getRejectEmailTemplate } from '@/email/templates/rejectEmail'
+import { getActionRequiredEmailTemplate } from './templates/actionRequiredEmail'
+import { getKYCVerificationEmailTemplate } from './templates/kycVerifiedEmail'
 
 interface EmailArgs {
   to: string
@@ -50,10 +52,19 @@ export class EmailService implements IEmailService {
     const url = `${this.baseUrl}/auth/reset/${token}`
 
     if (this.env.SEND_EMAIL) {
+      const imageSrc =
+        this.env.GATEHUB_ENV === 'production'
+          ? 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
+          : 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
+
+      const subject =
+        this.env.GATEHUB_ENV === 'production'
+          ? '[Interledger Wallet] Reset your password'
+          : '[Test.Wallet] Reset your password'
       return this.send({
         to,
-        subject: '[Test.Wallet] Reset your password',
-        html: getForgotPasswordEmailTemplate(url)
+        subject: subject,
+        html: getForgotPasswordEmailTemplate(url, imageSrc)
       })
     }
 
@@ -64,10 +75,18 @@ export class EmailService implements IEmailService {
     const url = `${this.baseUrl}/auth/verify/${token}`
 
     if (this.env.SEND_EMAIL) {
+      const imageSrc =
+        this.env.GATEHUB_ENV === 'production'
+          ? 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
+          : 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
+      const subject =
+        this.env.GATEHUB_ENV === 'production'
+          ? '[Interledger Wallet] Verify your account'
+          : '[Test.Wallet] Verify your account'
       return this.send({
         to,
-        subject: '[Test.Wallet] Verify your account',
-        html: getVerifyEmailTemplate(url)
+        subject: subject,
+        html: getVerifyEmailTemplate(url, imageSrc)
       })
     }
 
@@ -76,10 +95,18 @@ export class EmailService implements IEmailService {
 
   async sendUserRejectedEmail(to: string, textHtml: string): Promise<void> {
     if (this.env.SEND_EMAIL) {
+      const imageSrc =
+        this.env.GATEHUB_ENV === 'production'
+          ? 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
+          : 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
+      const subject =
+        this.env.GATEHUB_ENV === 'production'
+          ? '[Interledger Wallet] Account rejected'
+          : '[Test.Wallet] Account rejected'
       return this.send({
         to,
-        subject: '[Test.Wallet] Account rejected',
-        html: getRejectEmailTemplate(textHtml)
+        subject: subject,
+        html: getRejectEmailTemplate(textHtml, imageSrc)
       })
     }
 
@@ -88,10 +115,41 @@ export class EmailService implements IEmailService {
 
   async sendActionRequiredEmail(to: string, textHtml: string): Promise<void> {
     if (this.env.SEND_EMAIL) {
+      const imageSrc =
+        this.env.GATEHUB_ENV === 'production'
+          ? 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
+          : 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
+      const subject =
+        this.env.GATEHUB_ENV === 'production'
+          ? '[Interledger Wallet] Action required'
+          : '[Test.Wallet] Action required'
       return this.send({
         to,
-        subject: '[Test.Wallet] Action required',
-        html: getRejectEmailTemplate(textHtml)
+        subject: subject,
+        html: getActionRequiredEmailTemplate(textHtml, imageSrc)
+      })
+    }
+
+    this.logger.info(
+      `Send email is disabled. Action required email was not sent`
+    )
+  }
+
+  async sendKYCVerifiedEmail(to: string, loginUrl: string): Promise<void> {
+    if (this.env.SEND_EMAIL) {
+      const imageSrc =
+        this.env.GATEHUB_ENV === 'production'
+          ? 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
+          : 'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
+      const subject =
+        this.env.GATEHUB_ENV === 'production'
+          ? '[Interledger Wallet] You are verified'
+          : '[Test.Wallet] You are verified'
+
+      return this.send({
+        to,
+        subject: subject,
+        html: getKYCVerificationEmailTemplate(loginUrl, imageSrc)
       })
     }
 

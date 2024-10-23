@@ -1,4 +1,7 @@
-export const getRejectEmailTemplate = (textHtml: string): string => {
+export const getRejectEmailTemplate = (
+  textHtml: string,
+  imageSrc: string
+): string => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
     <html lang="en">
@@ -10,7 +13,7 @@ export const getRejectEmailTemplate = (textHtml: string): string => {
               <table style="margin-top:32px;text-align:center;" align="center" border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
                 <tbody>
                   <tr>
-                    <td><a href="https://wallet.interledger-test.dev" target="_blank"><img alt="Interledger Test Wallet" src="https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png" width="250" style="outline:none;border:none;text-decoration:none" /></a></td>
+                    <td><a href="https://wallet.interledger-test.dev" target="_blank"><img alt="Interledger Wallet" src="${imageSrc}" width="250" style="outline:none;border:none;text-decoration:none" /></a></td>
                   </tr>
                 </tbody>
               </table>

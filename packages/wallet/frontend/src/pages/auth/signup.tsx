@@ -15,7 +15,7 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect, useState } from 'react'
 import { cx } from 'class-variance-authority'
 import { signUpSchema } from '@wallet/shared'
-import { THEME } from '@/utils/constants'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
@@ -55,7 +55,8 @@ const SignUpPage: NextPageWithLayout = () => {
                   content={
                     <div>
                       <h4 className="text-lg font-bold">
-                        Welcome to Interledger Test Wallet
+                        Welcome to Interledger{' '}
+                        {FEATURES_ENABLED ? 'Wallet' : 'Test Wallet'}
                       </h4>
                       <p className="text-xs">
                         A verification link has been sent to your email account.

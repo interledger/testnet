@@ -1,6 +1,6 @@
 import { userService } from '@/lib/api/user'
 import { Link } from '@/ui/Link'
-import { Logo } from '@/ui/Logo'
+import { Logo, LogoWallet } from '@/ui/Logo'
 import {
   Dialog,
   DialogPanel,
@@ -237,7 +237,11 @@ export const Menu = () => {
       <header className="fixed inset-x-0 top-0 block h-[84px] border-b-2 border-dotted bg-white px-6 dark:bg-purple md:hidden">
         <nav className="flex items-center justify-between">
           <Link className="" href="/">
-            <Logo className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
+            {FEATURES_ENABLED ? (
+              <LogoWallet className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
+            ) : (
+              <Logo className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
+            )}
           </Link>
           <button
             className="p-1"
@@ -255,7 +259,7 @@ export const Menu = () => {
             className="group mb-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
             href="/"
           >
-            <Logo className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
+            <LogoWallet className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
           </Link>
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, id, Icon }) => (
