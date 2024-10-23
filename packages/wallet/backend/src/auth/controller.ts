@@ -54,6 +54,7 @@ export class AuthController implements IAuthController {
       req.session.user = {
         id: user.id,
         email: user.email,
+        // TODO: REMOVE NEEDSWALLET
         needsWallet: !user.gateHubUserId,
         needsIDProof: !user.kycVerified,
         customerId: user.customerId
