@@ -210,7 +210,7 @@ export class AccountService implements IAccountService {
 
     return Number(
       balances.find((balance) => balance.vault.asset_code === account.assetCode)
-        ?.total ?? 0
+        ?.available ?? 0
     )
   }
 
