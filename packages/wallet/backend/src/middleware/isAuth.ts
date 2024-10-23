@@ -19,6 +19,7 @@ export const isAuth = async (
       const user = await User.query().findById(req.session.user.id)
       if (user?.kycVerified) {
         req.session.user.needsIDProof = false
+        req.session.user.customerId = user.customerId
         await req.session.save()
       } else {
         throw new Unauthorized('Unauthorized')

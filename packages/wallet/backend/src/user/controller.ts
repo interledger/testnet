@@ -40,6 +40,7 @@ export class UserController implements IUserController {
 
       if (req.session.user.needsIDProof && user.kycVerified) {
         req.session.user.needsIDProof = false
+        req.session.user.customerId = user.customerId
         await req.session.save()
       }
 
