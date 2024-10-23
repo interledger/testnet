@@ -3,18 +3,21 @@ import { Limit } from '../icons/Limit'
 import { CardKey } from '../icons/Key'
 import { UserCardSpendingLimitDialog } from '@/components/dialogs/UserCardSpendingLimitDialog'
 import { UserCardPINDialog } from '@/components/dialogs/UserCardPINDialog'
-import { useCardContext } from './UserCardContext'
+import { useCardContext, useKeysContext } from './UserCardContext'
+import { cardService } from '@/lib/api/card'
+import { useToast } from '@/lib/hooks/useToast'
+import NodeRSA from 'node-rsa'
 
 export const UserCardSettings = () => {
   return (
     <ul role="list" className="space-y-2 pt-4 sm:pt-0">
-      <SpendingLimit />
       <PinSettings />
     </ul>
   )
 }
 
-const SpendingLimit = () => {
+// Unused at the moment
+export const SpendingLimit = () => {
   const [openDialog, closeDialog] = useDialog()
 
   return (
@@ -45,13 +48,50 @@ const SpendingLimit = () => {
 
 const PinSettings = () => {
   const { card } = useCardContext()
+  const { keys } = useKeysContext()
+  const { toast } = useToast()
   const [openDialog, closeDialog] = useDialog()
+
+  if (!keys) return null
 
   return (
     <li className="shadow-md rounded-md">
       <button
-        onClick={() => {
-          openDialog(<UserCardPINDialog card={card} onClose={closeDialog} />)
+        onClick={async () => {
+          const response = await cardService.getPin(card.id, {
+            publicKeyBase64: keys.publicKey
+          })
+
+          if (!response.success) {
+            toast({
+              description: 'Could not fetch card PIN. Please try again',
+              variant: 'error'
+            })
+            return
+          }
+
+          if (!response.result) {
+            toast({
+              description: 'Could not fetch card PIN. Please try again',
+              variant: 'error'
+            })
+            return
+          }
+
+          // TODO: Move this to SubtleCrypto
+          const privateKey = new NodeRSA(keys.privateKey)
+          privateKey.setOptions({
+            encryptionScheme: 'pkcs1',
+            environment: 'browser'
+          })
+
+          const pin = privateKey
+            .decrypt(response.result.cypher)
+            .toString('utf8')
+
+          openDialog(
+            <UserCardPINDialog card={card} pin={pin} onClose={closeDialog} />
+          )
         }}
         className="block w-full bg-green-light dark:bg-purple-bright rounded-md p-3 dark:hover:shadow-glow-button group"
       >

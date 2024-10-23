@@ -56,7 +56,7 @@ export const lockCardSchema = z.object({
     ])
   }),
   body: z.object({
-    note: z.string().nullable()
+    note: z.string()
   })
 })
 

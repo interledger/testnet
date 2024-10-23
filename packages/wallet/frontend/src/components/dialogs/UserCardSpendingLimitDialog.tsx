@@ -8,7 +8,7 @@ import {
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import {
-  cardServiceMock,
+  cardService,
   dailySpendingLimitSchema,
   monthlySpendingLimitSchema
 } from '@/lib/api/card'
@@ -78,7 +78,7 @@ const DailySpendingLimitForm = () => {
     <Form
       form={form}
       onSubmit={async (data) => {
-        const response = await cardServiceMock.setDailySpendingLimit(data)
+        const response = await cardService.setDailySpendingLimit(data)
 
         if (response.success) {
           router.replace(router.asPath)
@@ -134,7 +134,7 @@ const MonthlySpendingLimitForm = () => {
     <Form
       form={form}
       onSubmit={async (data) => {
-        const response = await cardServiceMock.setMonthlySpendingLimit(data)
+        const response = await cardService.setMonthlySpendingLimit(data)
 
         if (response.success) {
           router.replace(router.asPath)

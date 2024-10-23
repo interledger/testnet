@@ -81,14 +81,19 @@ export class CardService {
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
     await this.ensureAccountExists(userId, cardId)
+    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
 
-    return this.gateHubClient.getPin(requestBody)
+    return this.gateHubClient.getPin(gateHubUserId, requestBody)
   }
 
   async getTokenForPinChange(userId: string, cardId: string): Promise<string> {
     await this.ensureAccountExists(userId, cardId)
 
-    const token = await this.gateHubClient.getTokenForPinChange(cardId)
+    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const token = await this.gateHubClient.getTokenForPinChange(
+      gateHubUserId,
+      cardId
+    )
 
     return token
   }

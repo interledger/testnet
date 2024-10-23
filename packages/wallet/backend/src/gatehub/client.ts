@@ -481,24 +481,27 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card data retrieval')
     }
 
-    // const resp = await fetch(
-    //   'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData',
-    //   { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
-    // )
-    const cardDetailsUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/cardData`
-    const cardDetailsResponse = await this.request<ICardDetailsResponse>(
-      'GET',
-      cardDetailsUrl,
-      undefined,
-      {
-        managedUserUuid,
-        token
-      }
+    const res = await fetch(
+      'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData',
+      { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
     )
-    return cardDetailsResponse
-    // const res = await resp.json()
-    //
-    // return res
+    // const cardDetailsUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/cardData`
+    // const cardDetailsResponse = await this.request<ICardDetailsResponse>(
+    //   'GET',
+    //   cardDetailsUrl,
+    //   undefined,
+    //   {
+    //     managedUserUuid,
+    //     token
+    //   }
+    // )
+    // return cardDetailsResponse
+    if (!res.ok) {
+      throw new Error('Could not fetch card details')
+    }
+    const cardData = (await res.json()) as ICardDetailsResponse
+
+    return cardData
   }
 
   async getCardTransactions(
@@ -549,15 +552,16 @@ export class GateHubClient {
   }
 
   async getPin(
+    managedUserUuid: string,
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
-    const url = `${this.apiUrl}/token/pin`
-
+    const url = `${this.apiUrl}/cards/v1/token/pin`
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -567,29 +571,39 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card pin retrieval')
     }
 
-    // TODO change this to direct call to card managing entity
-    // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
-    const cardPinResponse = await this.request<ICardDetailsResponse>(
-      'GET',
-      cardPinUrl,
-      undefined,
-      {
-        token
-      }
+    const resp = await fetch(
+      'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin',
+      { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
     )
 
-    return cardPinResponse
+    const res = await resp.json()
+
+    return res
+    // const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
+    // const cardPinResponse = await this.request<ICardDetailsResponse>(
+    //   'GET',
+    //   cardPinUrl,
+    //   undefined,
+    //   {
+    //     token
+    //   }
+    // )
+
+    // return cardPinResponse
   }
 
-  async getTokenForPinChange(cardId: string): Promise<string> {
-    const url = `${this.apiUrl}/token/pin-change`
+  async getTokenForPinChange(
+    managedUserUuid: string,
+    cardId: string
+  ): Promise<string> {
+    const url = `${this.apiUrl}/cards/v1/token/pin-change`
 
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
       JSON.stringify({ cardId: cardId }),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -603,17 +617,44 @@ export class GateHubClient {
   }
 
   async changePin(token: string, cypher: string): Promise<void> {
-    // TODO change this to direct call to card managing entity
-    // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/pin`
-    await this.request<void>(
-      'POST',
-      cardPinUrl,
-      JSON.stringify({ cypher: cypher }),
+    const response = await fetch(
+      'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin',
       {
-        token
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cypher })
       }
     )
+
+    if (!response.ok) {
+      let info = ''
+      if (response.headers.get('content-type') === 'application/json') {
+        info = await response.json()
+      } else {
+        info = await response.text()
+      }
+      this.logger.error(
+        `ClientDevice/pin call failed with status ${response.status}: ${info}`
+      )
+      throw new Error('Could not change the card pin. Please try again')
+    }
+
+    this.logger.info('Successfully changed card pin.')
+
+    // TODO: Move to proxy when it's fixed
+    // const cardPinUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/pin`
+    // await this.request<void>(
+    //   'POST',
+    //   cardPinUrl,
+    //   JSON.stringify({ cypher: cypher }),
+    //   {
+    //     managedUserUuid,
+    //     token
+    //   }
+    // )
   }
 
   async lockCard(
