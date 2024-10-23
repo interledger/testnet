@@ -1,4 +1,5 @@
 import { TransactionTypeEnum } from '@/gatehub/consts'
+import { ICardTransaction } from '@wallet/shared/src'
 
 export type HTTP_METHODS = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
@@ -135,13 +136,28 @@ export interface IOverrideUserRiskLevelRequest {
 }
 export interface IOverrideUserRiskLevelResponse {}
 
-export interface IWebhookDate {
+export type WebhookEventType =
+  | 'core.deposit.completed'
+  | 'id.verification.accepted'
+  | 'id.verification.action_required'
+  | 'id.verification.rejected'
+  | 'id.document_notice.expired'
+  | 'id.document_notice.warning'
+  | 'cards.transaction.authorization'
+export interface IWebhookData {
   uuid: string
   timestamp: string
-  event_type: string
+  event_type: WebhookEventType
   user_uuid: string
   environment: 'sandbox' | 'production'
-  data: {
-    message?: string
-  }
+  data: IEmailMessage | ICardTransactionWebhookData
+}
+
+export interface IEmailMessage {
+  message?: string
+}
+
+export interface ICardTransactionWebhookData {
+  authorizationData: ICardTransaction
+  message?: string
 }
