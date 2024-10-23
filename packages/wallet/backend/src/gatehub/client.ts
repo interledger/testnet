@@ -370,8 +370,6 @@ export class GateHubClient {
       managedUserUuid
     })
 
-    console.log('getWalletBalance - ', JSON.stringify(response, null, 2))
-
     return response
   }
 

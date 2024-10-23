@@ -111,7 +111,6 @@ export class AccountService implements IAccountService {
   ): Promise<Account[]> {
     const user = await User.query().findById(userId)
 
-    // NOT HERE
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
     }
@@ -129,8 +128,6 @@ export class AccountService implements IAccountService {
     }
 
     const accounts = await query
-
-    console.log('accounts', JSON.stringify(accounts, null, 2))
 
     if (!includeWalletAddress) {
       await Promise.all(
