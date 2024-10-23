@@ -94,7 +94,8 @@ export class AccountService implements IAccountService {
       assetCode: asset.code,
       assetId: args.assetId,
       assetScale: asset.scale,
-      gateHubWalletId
+      gateHubWalletId,
+      card: args.cardId
     })
 
     // On creation account will have balance 0
