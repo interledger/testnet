@@ -78,4 +78,5 @@ export interface ICardResponse {
   customerId: string
   customerSourceId: string
   isPinSet: boolean
+  walletAddress?: string
 }
