@@ -132,8 +132,8 @@ const SignUpPage: NextPageWithLayout = () => {
           {FEATURES_ENABLED ? (
             <div className="relative cursor-pointer">
               <Checkbox
-                {...signUpForm.register('userAgreement')}
-                error={signUpForm.formState.errors.userAgreement?.message}
+                {...signUpForm.register('acceptedCardTerms')}
+                error={signUpForm.formState.errors.acceptedCardTerms?.message}
                 label={
                   <div>
                     By clicking here, I confirm that I have read, understood,

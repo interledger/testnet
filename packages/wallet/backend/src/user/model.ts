@@ -23,7 +23,9 @@ export class User extends BaseModel {
   public isDocumentUpdateRequired!: boolean
   public gateHubUserId?: string
   public customerId?: string
+  public cardWalletAddress?: string
   public isPinSet!: boolean
+  public acceptedCardTerms!: boolean
 
   public sessions?: Session[]
   public passwordResetToken?: string | null

@@ -10,6 +10,7 @@ interface CreateUserArgs {
   email: string
   password: string
   verifyEmailToken: string
+  acceptedCardTerms?: boolean
 }
 
 interface VerifyEmailArgs {
