@@ -109,17 +109,6 @@ export class GateHubService {
       throw new NotFound()
     }
 
-    if (!isApproved) {
-      isApproved = await this.gateHubClient.connectUserToGateway(
-        user.gateHubUserId,
-        this.env.GATEHUB_GATEWAY_UUID
-      )
-    }
-
-    this.logger.info(
-      `User ${user.id} with gatehub id ${user.gateHubUserId} CONNECTED TO GATEWAY`
-    )
-
     const userState = await this.gateHubClient.getUserState(user.gateHubUserId)
 
     const userDetails: Partial<User> = {
@@ -135,11 +124,22 @@ export class GateHubService {
         .join(', ')
     }
 
-    if (isApproved) {
-      userDetails.kycVerified = true
+    await User.query().findById(user.id).patch(userDetails)
+
+    if (!isApproved) {
+      isApproved = await this.gateHubClient.connectUserToGateway(
+        user.gateHubUserId,
+        this.env.GATEHUB_GATEWAY_UUID
+      )
     }
 
-    await User.query().findById(user.id).patch(userDetails)
+    this.logger.info(
+      `User ${user.id} with gatehub id ${user.gateHubUserId} CONNECTED TO GATEWAY`
+    )
+
+    if (isApproved) {
+      await this.updateUserFlag(user.id, { kycVerified: true })
+    }
 
     let customerId
     if (
