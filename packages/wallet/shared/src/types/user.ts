@@ -56,7 +56,7 @@ export const signUpSchema = z
       .string()
       .min(8, { message: 'Password should be at least 8 characters long' }),
     confirmPassword: z.string(),
-    userAgreement: z.boolean().default(false)
+    acceptedCardTerms: z.boolean().default(false)
   })
   .superRefine(({ password }, ctx) => {
     if (!isValidPassword(password)) {
