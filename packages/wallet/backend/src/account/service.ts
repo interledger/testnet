@@ -14,6 +14,7 @@ type CreateAccountArgs = {
   name: string
   assetId: string
   isDefaultCardsAccount?: boolean
+  cardId?: string
 }
 
 interface IAccountService {
@@ -230,7 +231,8 @@ export class AccountService implements IAccountService {
   public async createDefaultAccount(
     userId: string,
     name = 'USD Account',
-    isDefaultCardsAccount = false
+    isDefaultCardsAccount = false,
+    cardId?: string
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
       (asset) => asset.code === 'EUR' && asset.scale === DEFAULT_ASSET_SCALE
@@ -242,7 +244,8 @@ export class AccountService implements IAccountService {
       name,
       userId,
       assetId: asset.id,
-      isDefaultCardsAccount
+      isDefaultCardsAccount,
+      cardId
     })
 
     return account
