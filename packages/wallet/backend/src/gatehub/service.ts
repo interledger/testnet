@@ -231,7 +231,7 @@ export class GateHubService {
 
     await User.query().findById(userId).patch({
       customerId,
-      cardWalletAddress: walletAddress
+      cardWalletAddress: walletAddress.url
     })
 
     await Account.query().findById(account.id).patch({
