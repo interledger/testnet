@@ -28,6 +28,7 @@ export class EmailService implements IEmailService {
   private imageSrc: string =
     'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
   private subjectPrefix: string = 'Test.Wallet'
+  private appName: string = 'Interledger Test Wallet'
 
   constructor(
     private env: Env,
@@ -49,7 +50,8 @@ export class EmailService implements IEmailService {
     if (this.env.GATEHUB_ENV === 'production') {
       this.imageSrc =
         'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerWallet.png'
-      this.subjectPrefix = 'Interledger Wallet'
+      this.subjectPrefix = 'Interledger Cards'
+      this.appName = 'Interledger Cards'
     }
   }
 
@@ -78,7 +80,7 @@ export class EmailService implements IEmailService {
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] Verify your account`,
-        html: getVerifyEmailTemplate(url, this.imageSrc)
+        html: getVerifyEmailTemplate(url, this.imageSrc, this.appName)
       })
     }
 
@@ -117,7 +119,11 @@ export class EmailService implements IEmailService {
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] You are verified`,
-        html: getKYCVerificationEmailTemplate(loginUrl, this.imageSrc)
+        html: getKYCVerificationEmailTemplate(
+          loginUrl,
+          this.imageSrc,
+          this.appName
+        )
       })
     }
 

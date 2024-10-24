@@ -1,6 +1,7 @@
 export const getKYCVerificationEmailTemplate = (
   loginUrl: string,
-  imageSrc: string
+  imageSrc: string,
+  appName: string
 ): string => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
       <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
@@ -22,12 +23,12 @@ export const getKYCVerificationEmailTemplate = (
                   <tbody>
                     <tr>
                       <td>
-                        <h1 style="color:#0e7b31;font-size:36px;font-weight:500;margin:30px 0;padding:0;line-height:42px">Interledger Wallet Verification</h1>
+                        <h1 style="color:#0e7b31;font-size:36px;font-weight:500;margin:30px 0;padding:0;line-height:42px">${appName}</h1>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        Thank you for registering with Interledger Wallet. Your KYC data has been successfully verified. You can now <a href="${loginUrl} target="_blank">login to your account</a> and start using the Wallet.
+                        Thank you for registering with ${appName}. Your KYC data has been successfully verified. You can now <a href="${loginUrl} target="_blank">login to your account</a> and start using the wallet.
                       </td>
                     </tr>
                   </tbody>
