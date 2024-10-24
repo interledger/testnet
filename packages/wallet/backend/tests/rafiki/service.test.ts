@@ -1,11 +1,13 @@
 import { env } from '@/config/env'
 import { Cradle, createContainer } from '@/createContainer'
-import { RafikiService } from '@/rafiki/service'
+import { EventType, RafikiService } from '@/rafiki/service'
 import { Knex } from 'knex'
 import { createApp, TestApp } from '../app'
 import {
   mockedListAssets,
-  mockOutgoingPaymenteCreatedEvent,
+  mockOutgoingPaymentCompletedEvent,
+  mockOutgoingPaymentCreatedEvent,
+  mockOutgoingPaymentFailedEvent,
   mockWalletAddress
 } from '../mocks'
 import { truncateTables } from '@shared/backend/tests'
@@ -110,21 +112,82 @@ describe('Rafiki Service', () => {
 
       createMockRafikiServiceDeps(walletAddress)
 
-      const webHook = mockOutgoingPaymenteCreatedEvent({})
+      const webHook = mockOutgoingPaymentCreatedEvent({})
+
+      const result = await rafikiService.onWebHook(webHook)
+      expect(result).toBeUndefined()
+    })
+    it('call outgoing payment should fail because invalid input', async () => {
+      const { walletAddress } = await prepareRafikiDependencies()
+
+      createMockRafikiServiceDeps(walletAddress)
+
+      const webHook = mockOutgoingPaymentCreatedEvent({
+        data: { debitAmount: {} }
+      })
+
+      await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
+        /Invalid Input for outgoing_payment.created/
+      )
+    })
+    it('call outgoing payment should fail because because invalid input', async () => {
+      const { walletAddress } = await prepareRafikiDependencies()
+
+      createMockRafikiServiceDeps(walletAddress)
+
+      const webHook = mockOutgoingPaymentCreatedEvent({
+        data: { debitAmount: { value: '' } }
+      })
+
+      await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
+        /Invalid Input for outgoing_payment.created/
+      )
+    })
+
+    it('should call outgoing payment completed successfully', async () => {
+      const { walletAddress } = await prepareRafikiDependencies()
+
+      createMockRafikiServiceDeps(walletAddress)
+
+      const webHook = mockOutgoingPaymentCompletedEvent({})
 
       const result = await rafikiService.onWebHook(webHook)
       expect(result).toBeUndefined()
     })
 
-    // TODO - Fix the typescript checking error to create te test case for unknow event type
-    /* it('should throw an error unknow event type mock-event', async () => {
-      // eslint-disable-next-line no-use-before-define
-      const webHook = mockOutgoingPaymenteCreatedEvent({type: "mock-event"})
+    it('call outgoing payment completed should fail because invalid input', async () => {
+      const webHook = mockOutgoingPaymentCompletedEvent({ data: {} })
 
       await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
-        /unknow event type mock-event/
+        /Invalid Input for outgoing_payment.completed/
       )
     })
-  */
+
+    it('should call outgoing payment failed successfully', async () => {
+      const webHook = mockOutgoingPaymentFailedEvent({})
+
+      const result = await rafikiService.onWebHook(webHook)
+      expect(result).toBeUndefined()
+    })
+    it('call outgoing payment failed should fail because invalid data', async () => {
+      const webHook = mockOutgoingPaymentFailedEvent({
+        data: { debitAmount: {} }
+      })
+
+      //const result = await rafikiService.onWebHook(webHook)
+      await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
+        /Invalid Input for outgoing_payment.failed/
+      )
+    })
+
+    it('should throw an error unknow event type mock-event', async () => {
+      const webHook = mockOutgoingPaymentCreatedEvent({
+        type: 'mock-event' as EventType
+      })
+
+      await expect(rafikiService.onWebHook(webHook)).rejects.toThrowError(
+        /unknown event type, mock-event/
+      )
+    })
   })
 })
