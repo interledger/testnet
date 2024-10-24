@@ -14,7 +14,6 @@ if (
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  reactStrictMode: true,
   poweredByHeader: false,
   env: {
     NEXT_PUBLIC_BACKEND_URL:
@@ -23,7 +22,8 @@ const nextConfig = {
       process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST || '$rafiki-backend/',
     NEXT_PUBLIC_AUTH_HOST:
       process.env.NEXT_PUBLIC_AUTH_HOST || 'http://localhost:3006',
-    NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'dark',
+    NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
+    NEXT_PUBLIC_GATEHUB_ENV: process.env.NEXT_PUBLIC_GATEHUB_ENV || 'sandbox',
     NEXT_PUBLIC_FEATURES_ENABLED
   }
 }

@@ -14,6 +14,7 @@ type CreateAccountArgs = {
   name: string
   assetId: string
   isDefaultCardsAccount?: boolean
+  cardId?: string
 }
 
 interface IAccountService {
@@ -93,7 +94,8 @@ export class AccountService implements IAccountService {
       assetCode: asset.code,
       assetId: args.assetId,
       assetScale: asset.scale,
-      gateHubWalletId
+      gateHubWalletId,
+      cardId: args.cardId
     })
 
     // On creation account will have balance 0
@@ -208,7 +210,7 @@ export class AccountService implements IAccountService {
 
     return Number(
       balances.find((balance) => balance.vault.asset_code === account.assetCode)
-        ?.total ?? 0
+        ?.available ?? 0
     )
   }
 
@@ -230,7 +232,8 @@ export class AccountService implements IAccountService {
   public async createDefaultAccount(
     userId: string,
     name = 'USD Account',
-    isDefaultCardsAccount = false
+    isDefaultCardsAccount = false,
+    cardId?: string
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
       (asset) => asset.code === 'EUR' && asset.scale === DEFAULT_ASSET_SCALE
@@ -242,7 +245,8 @@ export class AccountService implements IAccountService {
       name,
       userId,
       assetId: asset.id,
-      isDefaultCardsAccount
+      isDefaultCardsAccount,
+      cardId
     })
 
     return account

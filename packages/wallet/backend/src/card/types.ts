@@ -1,18 +1,15 @@
+import { ICardResponse } from '@wallet/shared'
 import { CardLimitType } from '@wallet/shared/src'
 
 export type GateHubCardCurrency = 'EUR'
 
 export interface ICardDetailsRequest {
   cardId: string
-  publicKeyBase64: string
+  publicKey: string
 }
 
 export interface ICardDetailsResponse {
   cipher: string
-}
-export interface ICardDetailsWithPinStatusResponse
-  extends ICardDetailsResponse {
-  isPinSet: boolean
 }
 
 export interface ILinksResponse {
@@ -146,22 +143,6 @@ export interface ICreateCustomerResponse {
   }
 }
 
-export interface ICardResponse {
-  sourceId: string
-  nameOnCard: string
-  productCode: string
-  id: string
-  accountId: string
-  accountSourceId: string
-  maskedPan: string
-  status: string
-  statusReasonCode: string | null
-  lockLevel: string | null
-  expiryDate: string
-  customerId: string
-  customerSourceId: string
-}
-
 export interface ICardProductLimit {
   type: CardLimitType
   currency: string
@@ -201,13 +182,7 @@ export interface ICardLimitResponse {
   isDisabled: boolean
 }
 
-export type CloseCardReason =
-  | 'IssuerRequestGeneral'
-  | 'IssuerRequestFraud'
-  | 'IssuerRequestLegal'
-  | 'IssuerRequestIncorrectOpening'
-  | 'UserRequest'
-  | 'IssuerRequestCustomerDeceased'
+export type CloseCardReason = 'UserRequest'
 
 export interface ICreateCardRequest {
   nameOnCard: string

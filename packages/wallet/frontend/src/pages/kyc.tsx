@@ -5,7 +5,7 @@ import {
   GateHubMessageType,
   type GateHubMessageError
 } from '@/lib/types/windowMessages'
-import { FEATURES_ENABLED } from '@/utils/constants'
+import { FEATURES_ENABLED, GATEHUB_ENV } from '@/utils/constants'
 import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
@@ -31,6 +31,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
     // TODO: Handle resubmitted (https://github.com/interledger/testnet/issues/1748)
     // https://docs.gatehub.net/api-documentation/c3OPAp5dM191CDAdwyYS/gatehub-products/gatehub-onboarding#message-events
     const onMessage = async (e: MessageEvent<MessageData>) => {
+      console.debug(e.data)
       switch (e.data.type) {
         case GateHubMessageType.OnboardingCompleted:
           // eslint-disable-next-line no-case-declarations
@@ -38,12 +39,14 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
             applicantStatus: 'submitted' | 'resubmitted'
           }
           if (value.applicantStatus === 'submitted') {
-            await fetch(addUserToGatewayUrl, {
-              method: 'POST',
-              body: JSON.stringify(e.data, null, 2),
-              credentials: 'include'
-            })
-            router.replace('/')
+            if (FEATURES_ENABLED && GATEHUB_ENV === 'sandbox') {
+              await fetch(addUserToGatewayUrl, {
+                method: 'POST',
+                body: JSON.stringify(e.data, null, 2),
+                credentials: 'include'
+              })
+              router.replace('/')
+            }
           }
           break
         case GateHubMessageType.OnboardingError:

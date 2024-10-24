@@ -162,7 +162,8 @@ export class App {
       cors({
         origin: [
           'http://localhost:4003',
-          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`,
+          `https://wallet.${env.RAFIKI_MONEY_FRONTEND_HOST}`
         ],
         credentials: true
       })
@@ -327,11 +328,7 @@ export class App {
     )
 
     // Cards
-    router.get(
-      '/customers/:customerId/cards',
-      isAuth,
-      cardController.getCardsByCustomer
-    )
+    router.get('/customers/cards', isAuth, cardController.getCardsByCustomer)
     router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.get(
       '/cards/:cardId/transactions',
@@ -358,7 +355,7 @@ export class App {
       cardController.getPin
     )
     router.get(
-      '/cards/:cardId/change-pin',
+      '/cards/:cardId/change-pin-token',
       this.ensureGateHubProductionEnv,
       isAuth,
       cardController.getTokenForPinChange
@@ -381,11 +378,11 @@ export class App {
       isAuth,
       cardController.unlock
     )
-    router.put(
+    router.delete(
       '/cards/:cardId/block',
       this.ensureGateHubProductionEnv,
       isAuth,
-      cardController.permanentlyBlockCard
+      cardController.closeCard
     )
 
     // Return an error for invalid routes

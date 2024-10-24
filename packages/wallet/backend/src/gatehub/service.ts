@@ -173,12 +173,14 @@ export class GateHubService {
     userId: string,
     isDefaultCardsAccount?: boolean,
     walletAddressName?: string,
-    walletAddressPublicName?: string
+    walletAddressPublicName?: string,
+    cardId?: string
   ): Promise<{ account: Account; walletAddress: WalletAddress }> {
     const account = await this.accountService.createDefaultAccount(
       userId,
       'EUR Account',
-      isDefaultCardsAccount
+      isDefaultCardsAccount,
+      cardId
     )
     if (!account) {
       throw new Error('Failed to create account for managed user')
@@ -252,18 +254,26 @@ export class GateHubService {
     const gateHubUser = existingManagedUsers.find(
       (gateHubUser) => gateHubUser.email === userEmail
     )
+    if (!gateHubUser) {
+      throw new Error(`GateHub user with email ${userEmail} not found`)
+    }
 
-    const walletAddressName =
-      gateHubUser!.meta.meta.paymentPointer.split('$ilp.dev/')[1] || ''
+    const customerId = gateHubUser.meta.meta.customerId
+    const cardWalletAddress = gateHubUser.meta.meta.paymentPointer
+
+    const walletAddressName = cardWalletAddress.split('$ilp.dev/')[1] || ''
+    const cards = await this.gateHubClient.getCardsByCustomer(
+      customerId,
+      gateHubUser.id
+    )
+
     await this.createDefaultAccountAndWAForManagedUser(
       userId,
       true,
       walletAddressName,
-      walletAddressPublicName
+      walletAddressPublicName,
+      cards[0].id
     )
-
-    const customerId = gateHubUser!.meta.meta.customerId
-    const cardWalletAddress = gateHubUser!.meta.meta.paymentPointer
 
     await User.query().findById(userId).patch({
       customerId,
