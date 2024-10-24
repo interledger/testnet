@@ -22,6 +22,7 @@ export interface CreateWalletAddressArgs {
   accountId: string
   walletAddressName: string
   publicName: string
+  isCard?: boolean
 }
 
 export type GetWalletAddressArgs = {
@@ -123,7 +124,8 @@ export class WalletAddressService implements IWalletAddressService {
         url: rafikiWalletAddress.url,
         publicName: args.publicName,
         accountId: args.accountId,
-        id: rafikiWalletAddress.id
+        id: rafikiWalletAddress.id,
+        isCard: args.isCard
       })
 
       await this.cache.set(walletAddress.id, walletAddress, {

@@ -119,9 +119,7 @@ export class GateHubService {
       )
       return
     }
-    const walletAddress = await this.getWalletAddressByUrl(
-      user.cardWalletAddress
-    )
+    const walletAddress = await this.getCardWalletAddress(user.id!)
 
     if (!walletAddress) {
       this.logger.error(`Card wallet address not found ${user.id}`, data)
@@ -142,8 +140,16 @@ export class GateHubService {
     })
   }
 
-  private async getWalletAddressByUrl(url: string) {
-    return await WalletAddress.query().findOne({ url })
+  private async getCardWalletAddress(userId: string) {
+    const account = await Account.query().findOne({ userId, assetCode: 'EUR' })
+    if (!account) {
+      return
+    }
+
+    return WalletAddress.query().findOne({
+      accountId: account.id,
+      isCard: true
+    })
   }
   async addUserToGateway(
     userId: string,
@@ -239,7 +245,8 @@ export class GateHubService {
         getRandomValues(new Uint32Array(1))[0].toString(16),
       publicName:
         walletAddressPublicName ||
-        getRandomValues(new Uint32Array(1))[0].toString(16)
+        getRandomValues(new Uint32Array(1))[0].toString(16),
+      isCard: !!walletAddressName
     })
 
     return { account, walletAddress }
