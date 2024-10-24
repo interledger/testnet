@@ -59,7 +59,7 @@ async function reorder() {
       await gateHubClient.closeCard(
         userUuid,
         cardId,
-        //@ts-expect-error: Ok, we know typescript
+        // @ts-expect-error we know
         'IssuerRequestIncorrectOpening'
       )
 
@@ -78,7 +78,10 @@ async function reorder() {
         `Created card with cardId: ${card.id}; customerId: ${card.customerId}`
       )
 
-      await gateHubClient.orderPlasticForCard(userUuid, card.id)
+      await gateHubClient.orderPlasticForCard(
+        '32c471ae-f7d3-4ca9-ac95-68345013d1d4',
+        '24BFDC8415D73F4CE0634701650AB9E6'
+      )
 
       logger.info(
         `Ordered plastic card for user: ${userUuid}; new card id: ${card.id}`
