@@ -3,6 +3,7 @@ import { Limit } from '../icons/Limit'
 import { CardKey } from '../icons/Key'
 import { UserCardSpendingLimitDialog } from '@/components/dialogs/UserCardSpendingLimitDialog'
 import { UserCardPINDialog } from '@/components/dialogs/UserCardPINDialog'
+import { PasswordDialog } from '@/components/dialogs/PasswordDialog'
 import { useCardContext, useKeysContext } from './UserCardContext'
 import { cardService } from '@/lib/api/card'
 import { useToast } from '@/lib/hooks/useToast'
@@ -57,40 +58,53 @@ const PinSettings = () => {
   return (
     <li className="shadow-md rounded-md max-w-80 mx-auto">
       <button
-        onClick={async () => {
-          const response = await cardService.getPin(card.id, {
-            publicKeyBase64: keys.publicKey
-          })
-
-          if (!response.success) {
-            toast({
-              description: 'Could not fetch card PIN. Please try again',
-              variant: 'error'
-            })
-            return
-          }
-
-          if (!response.result) {
-            toast({
-              description: 'Could not fetch card PIN. Please try again',
-              variant: 'error'
-            })
-            return
-          }
-
-          // TODO: Move this to SubtleCrypto
-          const privateKey = new NodeRSA(keys.privateKey)
-          privateKey.setOptions({
-            encryptionScheme: 'pkcs1',
-            environment: 'browser'
-          })
-
-          const pin = privateKey
-            .decrypt(response.result.cypher)
-            .toString('utf8')
-
+        onClick={() => {
           openDialog(
-            <UserCardPINDialog card={card} pin={pin} onClose={closeDialog} />
+            <PasswordDialog
+              title="View card PIN"
+              onClose={closeDialog}
+              onSubmit={async (password: string) => {
+                const response = await cardService.getPin(card.id, {
+                  password,
+                  publicKeyBase64: keys.publicKey
+                })
+
+                if (!response.success) {
+                  toast({
+                    description: response.message,
+                    variant: 'error'
+                  })
+                  return
+                }
+
+                if (!response.result) {
+                  toast({
+                    description: 'Could not fetch card PIN. Please try again',
+                    variant: 'error'
+                  })
+                  return
+                }
+
+                // TODO: Move this to SubtleCrypto
+                const privateKey = new NodeRSA(keys.privateKey)
+                privateKey.setOptions({
+                  encryptionScheme: 'pkcs1',
+                  environment: 'browser'
+                })
+
+                const pin = privateKey
+                  .decrypt(response.result.cypher)
+                  .toString('utf8')
+
+                openDialog(
+                  <UserCardPINDialog
+                    card={card}
+                    pin={pin}
+                    onClose={closeDialog}
+                  />
+                )
+              }}
+            />
           )
         }}
         className="block w-full bg-green-light dark:bg-purple-bright rounded-md p-3 dark:hover:shadow-glow-button group"

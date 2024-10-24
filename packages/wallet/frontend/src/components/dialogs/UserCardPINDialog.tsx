@@ -10,7 +10,7 @@ import type { DialogProps } from '@/lib/types/dialog'
 import { UserCardFront } from '@/components/userCards/UserCard'
 import { ICardResponse } from '@wallet/shared'
 
-type UserCardPINDialogProos = Pick<DialogProps, 'onClose'> & {
+type UserCardPINDialogProps = Pick<DialogProps, 'onClose'> & {
   card: ICardResponse
   pin: string
 }
@@ -19,7 +19,7 @@ export const UserCardPINDialog = ({
   card,
   pin,
   onClose
-}: UserCardPINDialogProos) => {
+}: UserCardPINDialogProps) => {
   // Initial time in seconds (1 hour)
   const initialTime = 10
   const [timeRemaining, setTimeRemaining] = useState(initialTime)
@@ -51,9 +51,6 @@ export const UserCardPINDialog = ({
       <Dialog as="div" className="relative z-10" onClose={onClose}>
         <TransitionChild
           as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
@@ -65,9 +62,6 @@ export const UserCardPINDialog = ({
           <div className="flex min-h-full items-center justify-center p-4">
             <TransitionChild
               as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4"
-              enterTo="opacity-100 translate-y-0"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"

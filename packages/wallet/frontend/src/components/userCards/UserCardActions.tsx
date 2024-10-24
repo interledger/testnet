@@ -12,6 +12,7 @@ import { useToast } from '@/lib/hooks/useToast'
 import NodeRSA from 'node-rsa'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
+import { PasswordDialog } from '../dialogs/PasswordDialog'
 
 export const FrozenCardActions = () => {
   const router = useRouter()
@@ -76,6 +77,7 @@ export const FrozenCardActions = () => {
 
 const DefaultCardActions = () => {
   const router = useRouter()
+  const [openDialog, closeDialog] = useDialog()
   const { card, showDetails, setShowDetails, setCardData } = useCardContext()
   const { keys } = useKeysContext()
   const { toast } = useToast()
@@ -127,48 +129,60 @@ const DefaultCardActions = () => {
               setCardData(null)
               return
             }
-            if (!keys) {
-              await router.replace(router.pathname)
-              return
-            }
+            openDialog(
+              <PasswordDialog
+                title="View card details"
+                onClose={closeDialog}
+                onSubmit={async (password: string) => {
+                  if (!keys) {
+                    await router.replace(router.pathname)
+                    return
+                  }
 
-            const response = await cardService.getCardData(card.id, {
-              publicKeyBase64: keys.publicKey
-            })
+                  const response = await cardService.getCardData(card.id, {
+                    password,
+                    publicKeyBase64: keys.publicKey
+                  })
 
-            if (!response.success) {
-              toast({
-                description: 'Could not fetch card details. Please try again',
-                variant: 'error'
-              })
-              return
-            }
+                  if (!response.success) {
+                    toast({
+                      description: response.message,
+                      variant: 'error'
+                    })
+                    return
+                  }
 
-            if (!response.result) {
-              toast({
-                description: 'Could not fetch card details. Please try again',
-                variant: 'error'
-              })
-              return
-            }
+                  if (!response.result) {
+                    toast({
+                      description:
+                        'Could not fetch card details. Please try again',
+                      variant: 'error'
+                    })
+                    return
+                  }
 
-            // TODO: Move this to SubtleCrypto
-            const privateKey = new NodeRSA(keys.privateKey)
-            privateKey.setOptions({
-              encryptionScheme: 'pkcs1',
-              environment: 'browser'
-            })
+                  closeDialog()
 
-            const decryptedRequestData = privateKey
-              .decrypt(response.result.cypher)
-              .toString('utf8')
+                  // TODO: Move this to SubtleCrypto
+                  const privateKey = new NodeRSA(keys.privateKey)
+                  privateKey.setOptions({
+                    encryptionScheme: 'pkcs1',
+                    environment: 'browser'
+                  })
 
-            const cardData = JSON.parse(decryptedRequestData) as ICardData
-            cardData.Pan = formatCardPan(cardData.Pan)
+                  const decryptedRequestData = privateKey
+                    .decrypt(response.result.cypher)
+                    .toString('utf8')
 
-            setCardData(cardData)
+                  const cardData = JSON.parse(decryptedRequestData) as ICardData
+                  cardData.Pan = formatCardPan(cardData.Pan)
 
-            setShowDetails(true)
+                  setCardData(cardData)
+
+                  setShowDetails(true)
+                }}
+              />
+            )
           }}
         >
           <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">

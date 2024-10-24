@@ -6,6 +6,9 @@ export const getCardDetailsSchema = z.object({
   }),
   query: z.object({
     publicKeyBase64: z.string()
+  }),
+  body: z.object({
+    password: z.string()
   })
 })
 
