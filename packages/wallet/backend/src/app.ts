@@ -329,7 +329,7 @@ export class App {
 
     // Cards
     router.get('/customers/cards', isAuth, cardController.getCardsByCustomer)
-    router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.post('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.get(
       '/cards/:cardId/transactions',
       this.ensureGateHubProductionEnv,
@@ -348,7 +348,7 @@ export class App {
       isAuth,
       cardController.createOrOverrideCardLimits
     )
-    router.get(
+    router.post(
       '/cards/:cardId/pin',
       this.ensureGateHubProductionEnv,
       isAuth,

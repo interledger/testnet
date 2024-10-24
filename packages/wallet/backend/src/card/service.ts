@@ -10,7 +10,7 @@ import {
 } from './types'
 import { IGetTransactionsResponse } from '@wallet/shared/src'
 import { LockReasonCode } from '@wallet/shared/src'
-import { InternalServerError, NotFound } from '@shared/backend'
+import { BadRequest, InternalServerError, NotFound } from '@shared/backend'
 import { AccountService } from '@/account/service'
 import { ICardResponse } from '@wallet/shared'
 import { UserService } from '@/user/service'
@@ -33,7 +33,7 @@ export class CardService {
     if (!user) {
       throw new NotFound()
     }
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { gateHubUserId } = await this.ensureGatehubUserUuid(userId)
 
     const cards = await this.gateHubClient.getCardsByCustomer(
       customerId,
@@ -50,12 +50,18 @@ export class CardService {
 
   async getCardDetails(
     userId: string,
+    password: string,
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
     await this.ensureAccountExists(userId, cardId)
 
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { user, gateHubUserId } = await this.ensureGatehubUserUuid(userId)
+
+    const isValidPassword = await user.verifyPassword(password)
+    if (!isValidPassword) {
+      throw new BadRequest('Password is not valid')
+    }
 
     return await this.gateHubClient.getCardDetails(gateHubUserId, requestBody)
   }
@@ -92,11 +98,17 @@ export class CardService {
 
   async getPin(
     userId: string,
+    password: string,
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
     const { cardId } = requestBody
     await this.ensureAccountExists(userId, cardId)
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { user, gateHubUserId } = await this.ensureGatehubUserUuid(userId)
+
+    const isValidPassword = await user.verifyPassword(password)
+    if (!isValidPassword) {
+      throw new BadRequest('Password is not valid')
+    }
 
     return this.gateHubClient.getPin(gateHubUserId, requestBody)
   }
@@ -104,7 +116,7 @@ export class CardService {
   async getTokenForPinChange(userId: string, cardId: string): Promise<string> {
     await this.ensureAccountExists(userId, cardId)
 
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { gateHubUserId } = await this.ensureGatehubUserUuid(userId)
     const token = await this.gateHubClient.getTokenForPinChange(
       gateHubUserId,
       cardId
@@ -134,7 +146,7 @@ export class CardService {
   ): Promise<ICardResponse> {
     await this.ensureAccountExists(userId, cardId)
 
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { gateHubUserId } = await this.ensureGatehubUserUuid(userId)
 
     return this.gateHubClient.lockCard(
       cardId,
@@ -151,7 +163,7 @@ export class CardService {
   ): Promise<ICardResponse> {
     await this.ensureAccountExists(userId, cardId)
 
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { gateHubUserId } = await this.ensureGatehubUserUuid(userId)
 
     return this.gateHubClient.unlockCard(cardId, gateHubUserId, requestBody)
   }
@@ -163,7 +175,7 @@ export class CardService {
   ): Promise<void> {
     await this.ensureAccountExists(userId, cardId)
 
-    const gateHubUserId = await this.ensureGatehubUserUuid(userId)
+    const { gateHubUserId } = await this.ensureGatehubUserUuid(userId)
 
     await this.gateHubClient.closeCard(gateHubUserId, cardId, reasonCode)
   }
@@ -178,7 +190,9 @@ export class CardService {
     }
   }
 
-  private async ensureGatehubUserUuid(userId: string): Promise<string> {
+  private async ensureGatehubUserUuid(
+    userId: string
+  ): Promise<{ user: User; gateHubUserId: string }> {
     const user = await this.userService.getById(userId)
 
     if (!user) {
@@ -191,6 +205,6 @@ export class CardService {
       throw new InternalServerError()
     }
 
-    return user.gateHubUserId
+    return { user, gateHubUserId: user.gateHubUserId }
   }
 }

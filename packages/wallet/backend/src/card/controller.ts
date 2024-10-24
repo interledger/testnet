@@ -83,9 +83,10 @@ export class CardController implements ICardController {
   ) => {
     try {
       const userId = req.session.user.id
-      const { params, query } = await validate(getCardDetailsSchema, req)
+      const { params, query, body } = await validate(getCardDetailsSchema, req)
       const { cardId } = params
       const { publicKeyBase64 } = query
+      const { password } = body
 
       const requestBody: ICardDetailsRequest = {
         cardId,
@@ -93,6 +94,7 @@ export class CardController implements ICardController {
       }
       const cardDetails = await this.cardService.getCardDetails(
         userId,
+        password,
         requestBody
       )
       res.status(200).json(toSuccessResponse(cardDetails))
@@ -171,15 +173,20 @@ export class CardController implements ICardController {
   public getPin = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.session.user.id
-      const { params, query } = await validate(getCardDetailsSchema, req)
+      const { params, query, body } = await validate(getCardDetailsSchema, req)
       const { cardId } = params
       const { publicKeyBase64 } = query
+      const { password } = body
 
       const requestBody: ICardDetailsRequest = {
         cardId,
         publicKey: publicKeyBase64
       }
-      const cardPin = await this.cardService.getPin(userId, requestBody)
+      const cardPin = await this.cardService.getPin(
+        userId,
+        password,
+        requestBody
+      )
       res.status(200).json(toSuccessResponse(cardPin))
     } catch (error) {
       next(error)
