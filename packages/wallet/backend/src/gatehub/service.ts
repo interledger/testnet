@@ -2,7 +2,7 @@ import { GateHubClient } from '@/gatehub/client'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
 import { NotFound } from '@shared/backend'
-import { IWebhookDate } from '@/gatehub/types'
+import { ICardTransactionWebhookData, IWebhookData } from '@/gatehub/types'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
@@ -12,6 +12,8 @@ import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
 import { getRandomValues } from 'crypto'
 import { EmailService } from '@/email/service'
+import { Transaction } from '@/transaction/model'
+import { transformBalance } from '@/utils/helpers'
 
 export class GateHubService {
   constructor(
@@ -37,7 +39,7 @@ export class GateHubService {
     return url
   }
 
-  async handleWebhook(data: IWebhookDate) {
+  async handleWebhook(data: IWebhookData) {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
 
     if (data.event_type === 'core.deposit.completed') {
@@ -97,9 +99,58 @@ export class GateHubService {
           isDocumentUpdateRequired: true
         })
         break
+      case 'cards.transaction.authorization':
+        await this.handleCardTransactionWebhook(
+          user,
+          data.data as ICardTransactionWebhookData
+        )
+        break
     }
   }
 
+  private async handleCardTransactionWebhook(
+    user: Partial<User>,
+    data: ICardTransactionWebhookData
+  ) {
+    if (!user.cardWalletAddress) {
+      this.logger.warn(
+        `Card transaction received for user without card ${user.id}`,
+        data
+      )
+      return
+    }
+    const walletAddress = await this.getCardWalletAddress(user.id!)
+
+    if (!walletAddress) {
+      this.logger.error(`Card wallet address not found ${user.id}`, data)
+      return
+    }
+    const transaction = data.authorizationData
+
+    await Transaction.query().insert({
+      walletAddressId: walletAddress.id,
+      accountId: walletAddress.accountId,
+      paymentId: transaction.transactionId,
+      assetCode: transaction.billingCurrency,
+      value: transformBalance(Number(transaction.billingAmount), 2),
+      type: 'OUTGOING',
+      status: 'COMPLETED',
+      description: '',
+      isCard: true
+    })
+  }
+
+  private async getCardWalletAddress(userId: string) {
+    const account = await Account.query().findOne({ userId, assetCode: 'EUR' })
+    if (!account) {
+      return
+    }
+
+    return WalletAddress.query().findOne({
+      accountId: account.id,
+      isCard: true
+    })
+  }
   async addUserToGateway(
     userId: string,
     isApproved = false
@@ -194,7 +245,8 @@ export class GateHubService {
         getRandomValues(new Uint32Array(1))[0].toString(16),
       publicName:
         walletAddressPublicName ||
-        getRandomValues(new Uint32Array(1))[0].toString(16)
+        getRandomValues(new Uint32Array(1))[0].toString(16),
+      isCard: !!walletAddressName
     })
 
     return { account, walletAddress }
