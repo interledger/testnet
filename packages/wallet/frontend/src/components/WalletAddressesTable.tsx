@@ -104,7 +104,7 @@ export const CopyWalletAddress = () => {
   let pointer = walletAddress.url
 
   if (walletAddress.isCard) {
-    const url = new URL(walletAddress.url)
+    const url = new URL(walletAddress.url.replace('$', 'https://'))
     pointer = `$ilp.dev${url.pathname}`
   }
 

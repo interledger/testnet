@@ -77,9 +77,6 @@ export const getServerSideProps: GetServerSideProps<{
   const response = await accountService.list(ctx.req.headers.cookie)
   const user = await userService.me(ctx.req.headers.cookie)
 
-  console.log('response', JSON.stringify(response, null, 2))
-  console.log('user', JSON.stringify(user, null, 2))
-
   if (!response.success || !user.success) {
     return {
       notFound: true
