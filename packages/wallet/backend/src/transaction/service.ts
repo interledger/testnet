@@ -130,7 +130,7 @@ export class TransactionService implements ITransactionService {
       return
     }
 
-    const page = 1
+    let page = 1
     const pageSize = 10
     let shouldFetchNext = true
     while (shouldFetchNext) {
@@ -153,6 +153,7 @@ export class TransactionService implements ITransactionService {
       if (transactionsResponse.data.length > newTransactions.length) {
         shouldFetchNext = false
       }
+      page++;
 
       const transactionsToSave: Partial<Transaction>[] = newTransactions.map(
         (transaction) => ({
