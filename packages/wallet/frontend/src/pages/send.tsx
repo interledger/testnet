@@ -37,6 +37,7 @@ import { ExchangeRate } from '@/components/ExchangeRate'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
+import { useRouter } from 'next/router'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -50,6 +51,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
   )
+  const router = useRouter()
+  const receiverFromQueryParams = router.query?.receiver ? decodeURIComponent(router.query.receiver as string) : null;
+
   const [receiverPublicName, setReceiverPublicName] = useState('Recepient')
   const [currentExchangeRates, setCurrentExchangeRates] =
     useState<ExchangeRates>()
@@ -80,7 +84,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     schema: sendSchema,
     defaultValues: {
       paymentType: PAYMENT_SEND,
-      receiver: isUserFirstTime ? INTERLEDGER_WALLET_ADDRESS : ''
+      receiver: receiverFromQueryParams ?? (isUserFirstTime ? INTERLEDGER_WALLET_ADDRESS : '')
     }
   })
 
