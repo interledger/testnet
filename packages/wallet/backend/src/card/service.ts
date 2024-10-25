@@ -44,7 +44,8 @@ export class CardService {
       gateHubUserId
     )
 
-    const activeCard = cards.find((card) => card.status !== 'SoftDelete')
+    const activeCard =
+      cards.find((card) => card.status !== 'SoftDelete') || cards[0]
 
     Object.assign(activeCard, {
       isPinSet: user.isPinSet,
