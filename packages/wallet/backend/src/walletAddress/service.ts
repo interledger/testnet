@@ -9,6 +9,7 @@ import { WalletAddress } from './model'
 import { TransactionService } from '@/transaction/service'
 import { Conflict, NotFound } from '@shared/backend'
 import { WalletAddressOP } from '@wallet/shared'
+import { replaceIlpDev } from '@/utils/helpers'
 
 export interface UpdateWalletAddressArgs {
   userId: string
@@ -250,6 +251,7 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   public async getExternalWalletAddress(url: string): Promise<WalletAddressOP> {
+    url = replaceIlpDev(url)
     const headers = {
       'Host': new URL(url).host,
       'Content-Type': 'application/json',
@@ -259,6 +261,7 @@ export class WalletAddressService implements IWalletAddressService {
       this.env.NODE_ENV === 'development'
         ? url.replace('https://', 'http://')
         : url
+
     const res = await axios.get(url, { headers })
     return res.data
   }

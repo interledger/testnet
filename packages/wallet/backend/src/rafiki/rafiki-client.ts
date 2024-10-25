@@ -72,6 +72,7 @@ import {
   getReceiverQuery
 } from '@/rafiki/backend/request/receiver.request'
 import { BadRequest, NotFound } from '@shared/backend'
+import { replaceIlpDev } from '@/utils/helpers'
 
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
@@ -164,8 +165,9 @@ export class RafikiClient implements IRafikiClient {
   }
 
   public async createReceiver(params: CreateReceiverParams): Promise<Receiver> {
+    const walletAddressUrl = replaceIlpDev(params.walletAddressUrl)
     const input: CreateReceiverInput = {
-      walletAddressUrl: params.walletAddressUrl,
+      walletAddressUrl,
       metadata: {
         description: params.description
       },
