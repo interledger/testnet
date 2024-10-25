@@ -67,6 +67,10 @@ export class GateHubService {
           id: user.id,
           gateHubUserId: user.gateHubUserId
         })
+
+        if (this.gateHubClient.isProduction) {
+          await this.emailService.sendKYCVerifiedEmail(user.email)
+        }
         break
       }
       case 'id.verification.action_required':
