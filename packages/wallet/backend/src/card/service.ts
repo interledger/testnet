@@ -80,8 +80,14 @@ export class CardService {
     pageNumber?: number
   ): Promise<IGetTransactionsResponse> {
     await this.ensureAccountExists(userId, cardId)
+    const { gateHubUserId } = await this.ensureGatehubUserUuid(userId)
 
-    return this.gateHubClient.getCardTransactions(cardId, pageSize, pageNumber)
+    return this.gateHubClient.getCardTransactions(
+      cardId,
+      gateHubUserId,
+      pageSize,
+      pageNumber
+    )
   }
 
   async getCardLimits(

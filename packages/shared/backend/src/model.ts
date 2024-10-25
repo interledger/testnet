@@ -16,7 +16,9 @@ export abstract class BaseModel extends Model {
 
   public $beforeInsert(context: QueryContext): void {
     super.$beforeInsert(context)
-    this.createdAt = new Date()
+    if (!this.createdAt) {
+      this.createdAt = new Date()
+    }
     this.updatedAt = new Date()
   }
 
