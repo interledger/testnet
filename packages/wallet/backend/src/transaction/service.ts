@@ -141,18 +141,20 @@ export class TransactionService implements ITransactionService {
         page
       )
 
-      if (transactionsResponse.data.length === 0) {
-        return
-      }
-
       const newTransactions = transactionsResponse.data.filter(
         (transaction) =>
           !latestTransaction ||
           latestTransaction.createdAt.toISOString() <= transaction.createdAt
       )
+
+      if (newTransactions.length === 0) {
+        return
+      }
+
       if (transactionsResponse.data.length > newTransactions.length) {
         shouldFetchNext = false
       }
+
       page++
 
       const transactionsToSave: Partial<Transaction>[] = newTransactions.map(
