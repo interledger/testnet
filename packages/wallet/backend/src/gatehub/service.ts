@@ -67,6 +67,7 @@ export class GateHubService {
           id: user.id,
           gateHubUserId: user.gateHubUserId
         })
+
         if (this.gateHubClient.isProduction) {
           await this.emailService.sendKYCVerifiedEmail(user.email)
         }
@@ -319,12 +320,14 @@ export class GateHubService {
       gateHubUser.id
     )
 
+    const activeCard = cards.find((card) => card.status !== 'SoftDelete')
+
     await this.createDefaultAccountAndWAForManagedUser(
       userId,
       true,
       walletAddressName,
       walletAddressPublicName,
-      cards[0].id
+      activeCard?.id
     )
 
     await User.query().findById(userId).patch({

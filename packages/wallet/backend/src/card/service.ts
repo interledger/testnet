@@ -16,13 +16,17 @@ import { ICardResponse } from '@wallet/shared'
 import { UserService } from '@/user/service'
 import { Logger } from 'winston'
 import { User } from '@/user/model'
+import { Account } from '@/account/model'
+import { TransactionTypeEnum } from '@/gatehub/consts'
+import { Env } from '@/config/env'
 
 export class CardService {
   constructor(
     private gateHubClient: GateHubClient,
     private accountService: AccountService,
     private userService: UserService,
-    private logger: Logger
+    private logger: Logger,
+    private env: Env
   ) {}
 
   async getCardsByCustomer(
@@ -40,12 +44,15 @@ export class CardService {
       gateHubUserId
     )
 
-    Object.assign(cards[0], {
+    const activeCard =
+      cards.find((card) => card.status !== 'SoftDelete') || cards[0]
+
+    Object.assign(activeCard, {
       isPinSet: user.isPinSet,
       walletAddress: user.cardWalletAddress
     })
 
-    return cards
+    return [activeCard]
   }
 
   async getCardDetails(
@@ -131,11 +138,13 @@ export class CardService {
     token: string,
     cypher: string
   ): Promise<void> {
-    await this.ensureAccountExists(userId, cardId)
+    const cardAccount = await this.ensureAccountExists(userId, cardId)
 
     await this.gateHubClient.changePin(token, cypher)
 
     await User.query().findById(userId).patch({ isPinSet: true })
+
+    await this.fundAccount(cardAccount)
   }
 
   async lock(
@@ -183,11 +192,13 @@ export class CardService {
   private async ensureAccountExists(
     userId: string,
     cardId: string
-  ): Promise<void> {
+  ): Promise<Account> {
     const account = await this.accountService.getAccountByCardId(userId, cardId)
     if (!account) {
       throw new NotFound('Card not found or not associated with the user.')
     }
+
+    return account
   }
 
   private async ensureGatehubUserUuid(
@@ -206,5 +217,23 @@ export class CardService {
     }
 
     return { user, gateHubUserId: user.gateHubUserId }
+  }
+
+  private async fundAccount(cardAccount: Account) {
+    if (cardAccount.isFunded) {
+      this.logger.warn(`Account was already funded ${cardAccount.id}`)
+      return
+    }
+
+    await Account.query().findById(cardAccount.id).patch({ isFunded: true })
+
+    await this.gateHubClient.createTransaction({
+      amount: 20,
+      vault_uuid: this.gateHubClient.getVaultUuid(cardAccount.assetCode),
+      receiving_address: cardAccount.gateHubWalletId,
+      sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
+      type: TransactionTypeEnum.HOSTED,
+      message: 'Transfer'
+    })
   }
 }
