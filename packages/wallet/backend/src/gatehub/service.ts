@@ -70,6 +70,7 @@ export class GateHubService {
         })
         if (this.gateHubClient.isProduction) {
           await this.emailService.sendKYCVerifiedEmail(user.email)
+          await this.fundAccount(user.id)
         }
         break
       }
@@ -250,15 +251,6 @@ export class GateHubService {
       isCard: !!walletAddressName
     })
 
-    await this.gateHubClient.createTransaction({
-      amount: 10,
-      vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
-      receiving_address: account.gateHubWalletId,
-      sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: TransactionTypeEnum.HOSTED,
-      message: 'Transfer'
-    })
-
     return { account, walletAddress }
   }
 
@@ -360,5 +352,36 @@ export class GateHubService {
 
   private async updateUserFlag(userId: string, changes: Partial<User>) {
     await User.query().findById(userId).patch(changes)
+  }
+
+  private async fundAccount(userId: string) {
+    if (
+      this.env.NODE_ENV !== 'production' ||
+      this.env.GATEHUB_ENV !== 'production'
+    ) {
+      return
+    }
+
+    const account = await Account.query().findOne({ userId, assetCode: 'EUR' })
+    if (!account) {
+      this.logger.error(`No account found for user ${userId} on fund account`)
+      return
+    }
+
+    if (account.isFunded) {
+      this.logger.warn(`Account was already funded ${account.id}`)
+      return
+    }
+
+    await Account.query().findById(account.id).patch({ isFunded: true })
+
+    await this.gateHubClient.createTransaction({
+      amount: 10,
+      vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
+      receiving_address: account.gateHubWalletId,
+      sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
+      type: TransactionTypeEnum.HOSTED,
+      message: 'Transfer'
+    })
   }
 }
