@@ -363,8 +363,10 @@ export class GateHubService {
     }
 
     const account = await Account.query().findOne({ userId, assetCode: 'EUR' })
-    if (!account) {
-      this.logger.error(`No account found for user ${userId} on fund account`)
+    if (!account?.cardId) {
+      this.logger.error(
+        `No account with card found for user ${userId} on kyc verified processing`
+      )
       return
     }
 
