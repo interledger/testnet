@@ -164,8 +164,10 @@ describe('CardController', () => {
     it('should get card details successfully', async () => {
       const next = jest.fn()
 
+      const password = 'some password'
       req.query = { publicKeyBase64: 'test-public-key' }
       req.params = { cardId: 'test-card-id' }
+      req.body = { password }
 
       const mockedCardDetails: ICardDetailsResponse = {
         cipher: 'encrypted-card-data'
@@ -175,10 +177,14 @@ describe('CardController', () => {
 
       await cardController.getCardDetails(req, res, next)
 
-      expect(mockCardService.getCardDetails).toHaveBeenCalledWith(userId, {
-        cardId: 'test-card-id',
-        publicKey: 'test-public-key'
-      })
+      expect(mockCardService.getCardDetails).toHaveBeenCalledWith(
+        userId,
+        password,
+        {
+          cardId: 'test-card-id',
+          publicKey: 'test-public-key'
+        }
+      )
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toEqual({
         success: true,
@@ -517,7 +523,11 @@ describe('CardController', () => {
     it('should get pin successfully', async () => {
       const next = jest.fn()
 
+      const password = 'some password'
       req.query = { publicKeyBase64: 'test-public-key' }
+      req.body = {
+        password
+      }
 
       const mockedCardDetails: ICardDetailsResponse = {
         cipher: 'encrypted-card-pin'
@@ -527,7 +537,7 @@ describe('CardController', () => {
 
       await cardController.getPin(req, res, next)
 
-      expect(mockCardService.getPin).toHaveBeenCalledWith(userId, {
+      expect(mockCardService.getPin).toHaveBeenCalledWith(userId, password, {
         cardId: 'test-card-id',
         publicKey: 'test-public-key'
       })
