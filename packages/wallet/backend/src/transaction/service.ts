@@ -122,8 +122,8 @@ export class TransactionService implements ITransactionService {
       .orderBy('createdAt', 'DESC')
 
     const walletAddress = await WalletAddress.query().findOne({
-      accountId: account.id
-      // isCard: true
+      accountId: account.id,
+      isCard: true
     })
 
     if (!walletAddress) {
