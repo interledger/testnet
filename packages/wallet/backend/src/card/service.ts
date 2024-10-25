@@ -44,12 +44,14 @@ export class CardService {
       gateHubUserId
     )
 
-    Object.assign(cards[0], {
+    const activeCard = cards.find((card) => card.status !== 'SoftDelete')
+
+    Object.assign(activeCard, {
       isPinSet: user.isPinSet,
       walletAddress: user.cardWalletAddress
     })
 
-    return cards
+    return [activeCard]
   }
 
   async getCardDetails(
