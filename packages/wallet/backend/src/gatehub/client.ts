@@ -511,10 +511,11 @@ export class GateHubClient {
 
   async getCardTransactions(
     cardId: string,
+    userUuid: string,
     pageSize?: number,
     pageNumber?: number
   ): Promise<IGetTransactionsResponse> {
-    let url = `${this.apiUrl}/v1/cards/${cardId}/transactions`
+    let url = `${this.apiUrl}/cards/v1/cards/${cardId}/transactions`
 
     const queryParams: string[] = []
 
@@ -529,7 +530,10 @@ export class GateHubClient {
       url += `?${queryParams.join('&')}`
     }
 
-    return this.request<IGetTransactionsResponse>('GET', url)
+    return this.request<IGetTransactionsResponse>('GET', url, undefined, {
+      cardAppId: this.env.GATEHUB_CARD_APP_ID,
+      managedUserUuid: userUuid
+    })
   }
 
   async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
