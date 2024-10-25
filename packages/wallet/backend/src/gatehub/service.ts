@@ -14,7 +14,6 @@ import { getRandomValues } from 'crypto'
 import { EmailService } from '@/email/service'
 import { Transaction } from '@/transaction/model'
 import { transformBalance } from '@/utils/helpers'
-import { TransactionTypeEnum } from '@/gatehub/consts'
 
 export class GateHubService {
   constructor(
@@ -68,10 +67,6 @@ export class GateHubService {
           id: user.id,
           gateHubUserId: user.gateHubUserId
         })
-        if (this.gateHubClient.isProduction) {
-          await this.emailService.sendKYCVerifiedEmail(user.email)
-          await this.fundAccount(user.id)
-        }
         break
       }
       case 'id.verification.action_required':
@@ -321,12 +316,14 @@ export class GateHubService {
       gateHubUser.id
     )
 
+    const activeCard = cards.find((card) => card.status !== 'SoftDelete')
+
     await this.createDefaultAccountAndWAForManagedUser(
       userId,
       true,
       walletAddressName,
       walletAddressPublicName,
-      cards[0].id
+      activeCard?.id
     )
 
     await User.query().findById(userId).patch({
@@ -352,38 +349,5 @@ export class GateHubService {
 
   private async updateUserFlag(userId: string, changes: Partial<User>) {
     await User.query().findById(userId).patch(changes)
-  }
-
-  private async fundAccount(userId: string) {
-    if (
-      this.env.NODE_ENV !== 'production' ||
-      this.env.GATEHUB_ENV !== 'production'
-    ) {
-      return
-    }
-
-    const account = await Account.query().findOne({ userId, assetCode: 'EUR' })
-    if (!account?.cardId) {
-      this.logger.error(
-        `No account with card found for user ${userId} on kyc verified processing`
-      )
-      return
-    }
-
-    if (account.isFunded) {
-      this.logger.warn(`Account was already funded ${account.id}`)
-      return
-    }
-
-    await Account.query().findById(account.id).patch({ isFunded: true })
-
-    await this.gateHubClient.createTransaction({
-      amount: 10,
-      vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
-      receiving_address: account.gateHubWalletId,
-      sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: TransactionTypeEnum.HOSTED,
-      message: 'Transfer'
-    })
   }
 }
