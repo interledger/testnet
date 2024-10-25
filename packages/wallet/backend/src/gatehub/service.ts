@@ -14,6 +14,7 @@ import { getRandomValues } from 'crypto'
 import { EmailService } from '@/email/service'
 import { Transaction } from '@/transaction/model'
 import { transformBalance } from '@/utils/helpers'
+import { TransactionTypeEnum } from '@/gatehub/consts'
 
 export class GateHubService {
   constructor(
@@ -247,6 +248,15 @@ export class GateHubService {
         walletAddressPublicName ||
         getRandomValues(new Uint32Array(1))[0].toString(16),
       isCard: !!walletAddressName
+    })
+
+    await this.gateHubClient.createTransaction({
+      amount: 10,
+      vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
+      receiving_address: account.gateHubWalletId,
+      sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
+      type: TransactionTypeEnum.HOSTED,
+      message: 'Transfer'
     })
 
     return { account, walletAddress }
