@@ -85,6 +85,5 @@ export const prefixSomeObjectKeys = (
 export const NodeCacheInstance = new NodeCache({ stdTTL: 60 * 60 })
 
 export const replaceIlpDev = (walletAddressUrl: string) => {
-  console.log(walletAddressUrl)
   return walletAddressUrl.replace('https://ilp.dev', env.OPEN_PAYMENTS_HOST)
 }
