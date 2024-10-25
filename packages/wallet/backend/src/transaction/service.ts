@@ -153,7 +153,7 @@ export class TransactionService implements ITransactionService {
       if (transactionsResponse.data.length > newTransactions.length) {
         shouldFetchNext = false
       }
-      page++;
+      page++
 
       const transactionsToSave: Partial<Transaction>[] = newTransactions.map(
         (transaction) => ({
