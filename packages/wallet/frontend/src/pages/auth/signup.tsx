@@ -40,7 +40,7 @@ const SignUpPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Welcome" />
-      <h2 className="mb-5 mt-10 text-xl text-green dark:text-teal-neon">
+      <h2 className="mb-5 mt-2 text-xl text-green dark:text-teal-neon">
         Create Account
       </h2>
       <div className="z-10 w-2/3">
