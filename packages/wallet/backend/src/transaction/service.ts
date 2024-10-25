@@ -160,7 +160,7 @@ export class TransactionService implements ITransactionService {
           walletAddressId: walletAddress.id,
           accountId: walletAddress.accountId,
           paymentId: transaction.transactionId,
-          assetCode: transaction.billingCurrency,
+          assetCode: 'EUR',
           value: transformBalance(Number(transaction.billingAmount), 2),
           type: 'OUTGOING',
           status: 'COMPLETED',
