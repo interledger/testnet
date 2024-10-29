@@ -13,6 +13,8 @@ type CreateAccountArgs = {
   userId: string
   name: string
   assetId: string
+  isDefaultCardsAccount?: boolean
+  cardId?: string
 }
 
 interface IAccountService {
@@ -70,10 +72,21 @@ export class AccountService implements IAccountService {
       throw new NotFound()
     }
 
-    const result = await this.gateHubClient.createWallet(
-      user.gateHubUserId,
-      args.name
-    )
+    // If user has a card then it already has a GateHub wallet
+    // Therefore, we just need to fetch the wallet and create an associated account for it
+    let gateHubWalletId
+    if (args.isDefaultCardsAccount) {
+      const result = await this.gateHubClient.getWalletForUser(
+        user.gateHubUserId
+      )
+      gateHubWalletId = result.wallets[0].address
+    } else {
+      const result = await this.gateHubClient.createWallet(
+        user.gateHubUserId,
+        args.name
+      )
+      gateHubWalletId = result.address
+    }
 
     const account = await Account.query().insert({
       name: args.name,
@@ -81,7 +94,8 @@ export class AccountService implements IAccountService {
       assetCode: asset.code,
       assetId: args.assetId,
       assetScale: asset.scale,
-      gateHubWalletId: result.address
+      gateHubWalletId,
+      cardId: args.cardId
     })
 
     // On creation account will have balance 0
@@ -162,6 +176,24 @@ export class AccountService implements IAccountService {
     return account
   }
 
+  async getAccountByCardId(userId: string, cardId: string): Promise<Account> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('cardId', cardId)
+      .first()
+
+    if (!account) {
+      throw new NotFound()
+    }
+
+    account.balance = transformBalance(
+      await this.getAccountBalance(account),
+      account.assetScale
+    )
+
+    return account
+  }
+
   async getAccountBalance(account: Account): Promise<number> {
     const user = await User.query()
       .findById(account.userId)
@@ -178,7 +210,7 @@ export class AccountService implements IAccountService {
 
     return Number(
       balances.find((balance) => balance.vault.asset_code === account.assetCode)
-        ?.total ?? 0
+        ?.available ?? 0
     )
   }
 
@@ -199,10 +231,12 @@ export class AccountService implements IAccountService {
 
   public async createDefaultAccount(
     userId: string,
-    name = 'USD Account'
+    name = 'USD Account',
+    isDefaultCardsAccount = false,
+    cardId?: string
   ): Promise<Account | undefined> {
     const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
-      (asset) => asset.code === 'USD' && asset.scale === DEFAULT_ASSET_SCALE
+      (asset) => asset.code === 'EUR' && asset.scale === DEFAULT_ASSET_SCALE
     )
     if (!asset) {
       return
@@ -210,7 +244,9 @@ export class AccountService implements IAccountService {
     const account = await this.createAccount({
       name,
       userId,
-      assetId: asset.id
+      assetId: asset.id,
+      isDefaultCardsAccount,
+      cardId
     })
 
     return account
@@ -225,7 +261,8 @@ export class AccountService implements IAccountService {
       uid: uuid(),
       receiving_address: account.gateHubWalletId,
       vault_uuid: this.gateHubClient.getVaultUuid(account.assetCode),
-      type: TransactionTypeEnum.DEPOSIT
+      type: TransactionTypeEnum.DEPOSIT,
+      absolute_fee: 0
     })
   }
 }

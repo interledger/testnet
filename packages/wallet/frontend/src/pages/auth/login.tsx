@@ -140,6 +140,12 @@ const LoginPage: NextPageWithLayout = () => {
             />
           </button>
         </Form>
+        <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
+          Not a customer?{' '}
+          <Link href="signup" className="font-medium underline">
+            Create an account
+          </Link>
+        </p>
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
@@ -149,12 +155,6 @@ const LoginPage: NextPageWithLayout = () => {
         width={500}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
-        Not a customer?{' '}
-        <Link href="signup" className="font-medium underline">
-          Create an account
-        </Link>
-      </p>
     </>
   )
 }

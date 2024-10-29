@@ -42,18 +42,18 @@ export class SocketService implements ISocketService {
     this.io.on('connection', async (socket) => {
       const user = socket.request.session.user
       if (!user) {
-        this.logger.info(`The socket user is still not logged in...`)
+        this.logger.debug(`The socket user is still not logged in...`)
         return
       }
 
       const userId = user.id
-      this.logger.info(`A socket client ${userId} is connected...`)
+      this.logger.debug(`A socket client ${userId} is connected...`)
       socket.join(userId)
 
       // Handle events
       socket.on('disconnect', () => {
         socket.leave(userId)
-        this.logger.info(`A socket client ${userId} disconnected...`)
+        this.logger.debug(`A socket client ${userId} disconnected...`)
       })
 
       socket.on('error', (e) => {

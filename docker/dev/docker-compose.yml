@@ -61,11 +61,14 @@ services:
       GATEHUB_WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET}
       GATEHUB_GATEWAY_UUID: ${GATEHUB_GATEWAY_UUID}
       GATEHUB_SETTLEMENT_WALLET_ADDRESS: ${GATEHUB_SETTLEMENT_WALLET_ADDRESS}
+      GATEHUB_ORG_ID: ${GATEHUB_ORG_ID}
       GATEHUB_CARD_APP_ID: ${GATEHUB_CARD_APP_ID}
       GATEHUB_ACCOUNT_PRODUCT_CODE: ${GATEHUB_ACCOUNT_PRODUCT_CODE}
       GATEHUB_CARD_PRODUCT_CODE: ${GATEHUB_CARD_PRODUCT_CODE}
       GATEHUB_NAME_ON_CARD: ${GATEHUB_NAME_ON_CARD}
       GATEHUB_CARD_PP_PREFIX: ${GATEHUB_CARD_PP_PREFIX}
+      CARD_DATA_HREF: ${CARD_DATA_HREF}
+      CARD_PIN_HREF: ${CARD_PIN_HREF}
     restart: always
     networks:
       - testnet
@@ -106,7 +109,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.19
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.20
     restart: always
     networks:
       - testnet
@@ -123,7 +126,7 @@ services:
       IDENTITY_SERVER_URL: http://localhost:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
-      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-none}
+      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
       WAIT_SECONDS: 1
       REDIS_URL: redis://redis:6379/0
     depends_on:
@@ -132,7 +135,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.19
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.20
     restart: always
     privileged: true
     volumes:
@@ -181,7 +184,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.19
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.20
     depends_on:
       - rafiki-backend
     restart: always

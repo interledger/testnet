@@ -58,7 +58,7 @@ jobs:
             port: 4003
             cookie_name: testnet.cookie
             backend_url: https://api.wallet.interledger-test.dev
-            open_payments_url: https://ilp.interledger-test.dev/
+            open_payments_host: $ilp.interledger-test.dev/
             auth_host: https://auth.interledger-test.dev
             gatehub_env: sandbox
             theme: dark
@@ -68,7 +68,7 @@ jobs:
             port: 4003
             cookie_name: interledgercards.cookie
             backend_url: https://api.interledger.cards
-            open_payments_url: https://ilp.dev/
+            open_payments_host: $ilp.dev/
             auth_host: https://auth.interledger.cards
             gatehub_env: production
             theme: light

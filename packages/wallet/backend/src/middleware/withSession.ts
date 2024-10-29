@@ -6,13 +6,19 @@ import {
   getIronSession
 } from 'iron-session'
 
+let domain = env.RAFIKI_MONEY_FRONTEND_HOST
+
+if (env.NODE_ENV === 'production' && env.GATEHUB_ENV === 'production') {
+  domain = 'interledger.cards'
+}
+
 export const SESSION_OPTIONS: SessionOptions = {
   password: env.COOKIE_PASSWORD,
   cookieName: env.COOKIE_NAME,
   cookieOptions: {
     secure: env.NODE_ENV === 'production',
     sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: env.RAFIKI_MONEY_FRONTEND_HOST,
+    domain,
     httpOnly: true
   },
   ttl: env.COOKIE_TTL

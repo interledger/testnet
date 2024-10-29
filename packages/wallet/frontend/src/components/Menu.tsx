@@ -1,7 +1,12 @@
 import { userService } from '@/lib/api/user'
 import { Link } from '@/ui/Link'
-import { Logo } from '@/ui/Logo'
-import { Dialog, Transition } from '@headlessui/react'
+import { Logo, LogoWallet } from '@/ui/Logo'
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild
+} from '@headlessui/react'
 import { useRouter } from 'next/router'
 import {
   Fragment,
@@ -166,7 +171,7 @@ export const Menu = () => {
 
   return (
     <>
-      <Transition.Root
+      <Transition
         show={sidebarIsOpen}
         as={Fragment}
         afterEnter={() => {
@@ -180,7 +185,7 @@ export const Menu = () => {
           className="relative z-20 md:hidden"
           onClose={setSidebarIsOpen}
         >
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="transition-opacity duration-500"
             enterFrom="opacity-0"
@@ -190,9 +195,9 @@ export const Menu = () => {
             leaveTo="opacity-0"
           >
             <div className="fixed inset-0 bg-green-modal/30 dark:bg-[#000000]/75" />
-          </Transition.Child>
+          </TransitionChild>
           <div className="fixed inset-y-0 right-0 flex">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="transform transition duration-500"
               enterFrom="translate-x-full"
@@ -201,7 +206,7 @@ export const Menu = () => {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="relative flex flex-col bg-white p-6 dark:bg-purple">
+              <DialogPanel className="relative flex flex-col bg-white p-6 dark:bg-purple">
                 <button
                   className="mb-4 block cursor-pointer self-end border-none px-1"
                   type="button"
@@ -223,16 +228,20 @@ export const Menu = () => {
                   ))}
                 </nav>
                 <LogoutButton />
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </Dialog>
-      </Transition.Root>
+      </Transition>
 
       <header className="fixed inset-x-0 top-0 block h-[84px] border-b-2 border-dotted bg-white px-6 dark:bg-purple md:hidden">
         <nav className="flex items-center justify-between">
           <Link className="" href="/">
-            <Logo className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
+            {FEATURES_ENABLED ? (
+              <LogoWallet className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
+            ) : (
+              <Logo className="w-48 py-4 text-black transition-[transform,fill,color] duration-200 dark:text-white" />
+            )}
           </Link>
           <button
             className="p-1"
@@ -250,7 +259,7 @@ export const Menu = () => {
             className="group mb-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
             href="/"
           >
-            <Logo className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
+            <LogoWallet className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
           </Link>
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, id, Icon }) => (

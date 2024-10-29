@@ -162,7 +162,8 @@ export class App {
       cors({
         origin: [
           'http://localhost:4003',
-          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`
+          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`,
+          `https://wallet.${env.RAFIKI_MONEY_FRONTEND_HOST}`
         ],
         credentials: true
       })
@@ -317,7 +318,7 @@ export class App {
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
     router.post(
       '/gatehub-webhooks',
-      isGateHubSignedWebhook,
+      isGateHubSignedWebhook(env, logger),
       gateHubController.webhook
     )
     router.post(
@@ -327,12 +328,8 @@ export class App {
     )
 
     // Cards
-    router.get(
-      '/customers/:customerId/cards',
-      isAuth,
-      cardController.getCardsByCustomer
-    )
-    router.get('/cards/:cardId/details', isAuth, cardController.getCardDetails)
+    router.get('/customers/cards', isAuth, cardController.getCardsByCustomer)
+    router.post('/cards/:cardId/details', isAuth, cardController.getCardDetails)
     router.get(
       '/cards/:cardId/transactions',
       this.ensureGateHubProductionEnv,
@@ -351,11 +348,17 @@ export class App {
       isAuth,
       cardController.createOrOverrideCardLimits
     )
-    router.get(
+    router.post(
       '/cards/:cardId/pin',
       this.ensureGateHubProductionEnv,
       isAuth,
       cardController.getPin
+    )
+    router.get(
+      '/cards/:cardId/change-pin-token',
+      this.ensureGateHubProductionEnv,
+      isAuth,
+      cardController.getTokenForPinChange
     )
     router.post(
       '/cards/:cardId/change-pin',
@@ -375,11 +378,11 @@ export class App {
       isAuth,
       cardController.unlock
     )
-    router.put(
+    router.delete(
       '/cards/:cardId/block',
       this.ensureGateHubProductionEnv,
       isAuth,
-      cardController.permanentlyBlockCard
+      cardController.closeCard
     )
 
     // Return an error for invalid routes

@@ -16,6 +16,10 @@ import {
   IframeResponse
 } from '@wallet/shared'
 
+export const passwordSchema = z.object({
+  password: z.string()
+})
+
 export const resetPasswordSchema = z
   .object({
     password: z

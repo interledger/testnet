@@ -31,6 +31,7 @@ export class Transaction
   assetCode!: string
   value!: bigint | null
   walletAddress!: WalletAddress
+  isCard?: boolean
 
   static relationMappings = () => ({
     walletAddress: {

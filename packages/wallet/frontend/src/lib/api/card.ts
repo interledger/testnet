@@ -5,15 +5,7 @@ import {
   type ErrorResponse,
   type SuccessResponse
 } from '../httpClient'
-
-// TODO: update interface - can be moved to shared folder as well
-export interface IUserCard {
-  name: string
-  number: string
-  expiry: string
-  cvv: number
-  isFrozen: boolean
-}
+import { ICardResponse } from '@wallet/shared'
 
 export const changePinSchema = z
   .object({
@@ -58,12 +50,27 @@ export const monthlySpendingLimitSchema = z.object({
     .positive()
 })
 
-type GetDetailsResponse = SuccessResponse<IUserCard>
+export const terminateCardSchema = z.object({
+  password: z.string().min(1),
+  reason: z
+    .object({
+      value: z.string(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
+
+const FREEZE_REASON = 'ClientRequestedLock'
+
+type GetDetailsResponse = SuccessResponse<ICardResponse[]>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
-type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
+type TerminateCardArgs = z.infer<typeof terminateCardSchema>
+type TerminateCardResult =
+  | SuccessResponse<boolean>
+  | ErrorResponse<TerminateCardArgs | undefined>
 
-type FreezeResult = SuccessResponse<boolean> | ErrorResponse
+type FreezeResult = SuccessResponse | ErrorResponse
 
 type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
 
@@ -81,12 +88,36 @@ type MonthlySpendingLimitError = ErrorResponse<
 >
 type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 
+const getCardDataSchema = z.object({
+  password: z.string(),
+  publicKeyBase64: z.string()
+})
+
+type GetCardDataArgs = z.infer<typeof getCardDataSchema>
+type GetCardDataError = ErrorResponse<GetCardDataArgs | undefined>
+type GetCardDataResponse = SuccessResponse<{ cypher: string }>
+type GetCardDataResult = GetCardDataResponse | GetCardDataError
+
 interface UserCardService {
   getDetails(cookies?: string): Promise<GetDetailsResult>
-  terminate(): Promise<TerminateCardResult>
-  freeze(): Promise<FreezeResult>
-  unfreeze(): Promise<UnfreezeResult>
-  changePin(args: ChangePinArgs): Promise<ChangePinResult>
+  getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
+  terminate(
+    cardId: string,
+    args: TerminateCardArgs
+  ): Promise<TerminateCardResult>
+  freeze(cardId: string): Promise<FreezeResult>
+  unfreeze(cardId: string): Promise<UnfreezeResult>
+  getPin(
+    cardId: string,
+    args: { password: string; publicKeyBase64: string }
+  ): Promise<SuccessResponse<{ cypher: string }> | ErrorResponse>
+  changePin(
+    cardId: string,
+    args: { token: string; cypher: string }
+  ): Promise<ChangePinResult>
+  getChangePinToken(
+    cardId: string
+  ): Promise<SuccessResponse<string> | ErrorResponse>
   setDailySpendingLimit(
     args: DailySpendingLimitArgs
   ): Promise<DailySpendingLimitResult>
@@ -96,10 +127,39 @@ interface UserCardService {
 }
 
 const createCardService = (): UserCardService => ({
+  async getPin(cardId, args) {
+    try {
+      const response = await httpClient
+        .post(
+          `cards/${cardId}/pin?publicKeyBase64=${encodeURIComponent(args.publicKeyBase64)}`,
+          {
+            json: { password: args.password }
+          }
+        )
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      console.log(error)
+      return getError(error, '[TODO] UPDATE ME!')
+    }
+  },
+  async getChangePinToken(cardId) {
+    try {
+      const response = await httpClient
+        .get(`cards/${cardId}/change-pin-token`)
+        .json<SuccessResponse<string>>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'The request to change the card PIN has failed. Please try again.'
+      )
+    }
+  },
   async getDetails(cookies) {
     try {
       const response = await httpClient
-        .get(`card`, {
+        .get(`customers/cards`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -111,43 +171,69 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async terminate() {
+  async getCardData(cardId, args) {
     try {
       const response = await httpClient
-        .post('card/terminate')
-        .json<SuccessResponse>()
+        .post(
+          `cards/${cardId}/details?publicKeyBase64=${encodeURIComponent(args.publicKeyBase64)}`,
+          { json: { password: args.password } }
+        )
+        .json<GetCardDataResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError<GetCardDataArgs>(error, 'Could not retrieve card details')
     }
   },
 
-  async freeze() {
+  async terminate(cardId, args) {
     try {
       const response = await httpClient
-        .post('card/freeze')
+        .delete(`cards/${cardId}/block`, {
+          json: {
+            password: args.password,
+            reasonCode: args.reason?.value
+          }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError<TerminateCardArgs>(
+        error,
+        'Could not terminate card. Please try again.'
+      )
     }
   },
 
-  async unfreeze() {
+  async freeze(cardId) {
     try {
       const response = await httpClient
-        .post('card/unfreeze')
+        .put(`cards/${cardId}/lock?reasonCode=${FREEZE_REASON}`, {
+          json: { note: 'User request' }
+        })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError(error, '[TODO] UPDATE ME!')
+      return getError(error, 'Could not freeze card. Please try again')
     }
   },
 
-  async changePin(args) {
+  async unfreeze(cardId: string) {
     try {
       const response = await httpClient
-        .post('card/change-pin', {
+        .put(`cards/${cardId}/unlock`, {
+          json: { note: 'User request' }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, 'Could not unfreeze card. Please try again.')
+    }
+  },
+
+  async changePin(cardId, args) {
+    try {
+      const response = await httpClient
+        .post(`cards/${cardId}/change-pin`, {
           json: args
         })
         .json<SuccessResponse>()
@@ -184,49 +270,5 @@ const createCardService = (): UserCardService => ({
   }
 })
 
-const mock = (service: UserCardService): UserCardService => {
-  return {
-    ...service,
-    async getDetails() {
-      return Promise.resolve({
-        success: true,
-        message: 'Mocked getDetails',
-        result: {
-          name: 'John Doe',
-          number: '4242 4242 4242 4242',
-          expiry: '01/27',
-          cvv: 321,
-          isFrozen: Math.random() > 0.5 ? true : false
-        }
-      })
-    },
-
-    async terminate() {
-      return Promise.resolve({
-        success: true,
-        message: 'Mocked terminate',
-        result: true
-      })
-    },
-
-    async freeze() {
-      return Promise.resolve({
-        success: true,
-        message: 'Mocked freeze',
-        result: true
-      })
-    },
-
-    async unfreeze() {
-      return Promise.resolve({
-        success: true,
-        message: 'Mocked unfreeze',
-        result: true
-      })
-    }
-  }
-}
-
 const cardService = createCardService()
-const cardServiceMock = mock(cardService)
-export { cardService, cardServiceMock }
+export { cardService }

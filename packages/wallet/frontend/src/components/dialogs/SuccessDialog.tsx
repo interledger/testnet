@@ -1,5 +1,11 @@
 import { Button } from '@/ui/Button'
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild
+} from '@headlessui/react'
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { CopyButton } from '@/ui/CopyButton'
@@ -43,9 +49,9 @@ export const SuccessDialog = ({
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
 
   return (
-    <Transition.Root show={true} as={Fragment} appear={true}>
+    <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -55,11 +61,10 @@ export const SuccessDialog = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
-        </Transition.Child>
-
+        </TransitionChild>
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4"
@@ -68,7 +73,7 @@ export const SuccessDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel
+              <DialogPanel
                 className={cx(
                   'relative w-full space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl',
                   size === 'xs' && 'max-w-xs',
@@ -82,12 +87,12 @@ export const SuccessDialog = ({
                     <BirdSuccessLight className="mx-auto h-20 w-20" />
                   )}
                   <div className="mt-3 text-center">
-                    <Dialog.Title
+                    <DialogTitle
                       as="h3"
                       className="text-2xl text-center font-bold"
                     >
                       {title}
-                    </Dialog.Title>
+                    </DialogTitle>
 
                     <div className="mt-2 text-sm font-light">{content}</div>
                   </div>
@@ -129,11 +134,11 @@ export const SuccessDialog = ({
                     </Button>
                   )}
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   )
 }
