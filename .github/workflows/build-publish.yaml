@@ -49,16 +49,42 @@ jobs:
     strategy:
       matrix:
         package:
-          - name: rafiki-money-backend
+          - name: test-wallet-backend
             identifier: 'wallet:backend'
             path: packages/wallet/backend
-          - name: rafiki-money-frontend
+          - name: test-wallet-frontend
             identifier: 'wallet:frontend'
             path: packages/wallet/frontend
-          - name: rafiki-boutique-frontend
+            port: 4003
+            cookie_name: testnet.cookie
+            backend_url: https://api.wallet.interledger-test.dev
+            open_payments_host: $ilp.interledger-test.dev/
+            auth_host: https://auth.interledger-test.dev
+            gatehub_env: sandbox
+            theme: dark
+          - name: test-wallet-frontend-cards
+            identifier: 'wallet:frontend'
+            path: packages/wallet/frontend
+            port: 4003
+            cookie_name: interledgercards.cookie
+            backend_url: https://api.interledger.cards
+            open_payments_host: $ilp.dev/
+            auth_host: https://auth.interledger.cards
+            gatehub_env: production
+            theme: light
+          - name: test-boutique-frontend
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
-          - name: rafiki-boutique-backend
+            api_base_url: 'https://api.boutique.interledger-test.dev'
+            currency: 'USD'
+            theme: dark
+          - name: test-boutique-frontend-jopacc
+            identifier: 'boutique:frontend'
+            path: packages/boutique/frontend
+            api_base_url: 'https://api.boutique.jopacc.openpayments.directory'
+            currency: 'JOD'
+            theme: light
+          - name: test-boutique-backend
             identifier: 'boutique:backend'
             path: packages/boutique/backend
     steps:
@@ -80,6 +106,17 @@ jobs:
           context: ./
           push: true
           file: ${{ matrix.package.path }}/Dockerfile.prod
+          build-args: |
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_API_BASE_URL={0}', matrix.package.api_base_url) || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_CURRENCY={0}', matrix.package.currency) || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_THEME={0}', matrix.package.theme) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('PORT={0}', matrix.package.port) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('COOKIE_NAME={0}', matrix.package.cookie_name) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_BACKEND_URL={0}', matrix.package.backend_url) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_OPEN_PAYMENTS_HOST={0}', matrix.package.open_payments_host) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
 
   generate-release:

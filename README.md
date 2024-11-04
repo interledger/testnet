@@ -14,8 +14,8 @@ If you are curious about the Interledger Test Wallet architecture diagram, then 
 
 See Test Network in action:
 
-- [Interledger Test Wallet](https://rafiki.money)
-- [Interledger Boutique](https://rafiki.boutique)
+- [Interledger Test Wallet](https://wallet.interledger-test.dev)
+- [Interledger Test E-Commerce - Boutique](https://boutique.interledger-test.dev)
 
 ## What is Rafiki?
 

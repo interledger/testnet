@@ -1,4 +1,4 @@
-import { useTheme } from 'next-themes'
+import { THEME } from '@/utils/constants'
 import Image from 'next/image'
 import { ReactNode } from 'react'
 
@@ -13,7 +13,7 @@ const IMAGES = {
   PeopleDark: 'people-dark.webp'
 } as const
 
-type Image = keyof typeof IMAGES
+type ImageKey = keyof typeof IMAGES
 
 type AuthLayoutProps = {
   image: string
@@ -21,16 +21,15 @@ type AuthLayoutProps = {
 }
 
 const AuthLayout = ({ image, children }: AuthLayoutProps) => {
-  const theme = useTheme()
-  const imageName = theme.theme === 'dark' ? `${image}Dark` : `${image}Light`
-  const imageSrc = `/${IMAGES[imageName as Image]}`
+  const imageName = THEME === 'dark' ? `${image}Dark` : `${image}Light`
+  const imageSrc = `/${IMAGES[imageName as ImageKey]}`
   return (
     <>
       <div className="flex min-h-full w-screen">
         <div className="relative hidden w-0 flex-1 md:block">
           <Image
             fill
-            className="object-right md:object-cover lg:object-fill"
+            className="object-right md:object-cover"
             src={imageSrc}
             alt={image}
             quality={100}

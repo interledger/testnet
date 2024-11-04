@@ -1,19 +1,23 @@
 import { Button } from '@/ui/Button'
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild
+} from '@headlessui/react'
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
-import { useTheme } from 'next-themes'
 import { BirdErrorDark, BirdErrorLight } from '../icons/Bird'
+import { THEME } from '@/utils/constants'
 
 type ErrorDialogProps = DialogProps
 
 export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
-  const theme = useTheme()
-
   return (
-    <Transition.Root show={true} as={Fragment} appear={true}>
+    <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -23,11 +27,11 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-green-modal/75 dark:bg-black/75 transition-opacity" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4"
@@ -36,20 +40,20 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xs space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
+              <DialogPanel className="relative w-full max-w-xs space-y-4 overflow-hidden rounded-lg bg-white dark:bg-purple p-8 shadow-xl">
                 <div>
                   {' '}
-                  {theme.theme === 'dark' ? (
+                  {THEME === 'dark' ? (
                     <BirdErrorDark className="mx-auto h-20 w-20" />
                   ) : (
                     <BirdErrorLight className="mx-auto h-20 w-20" />
                   )}
-                  <Dialog.Title
+                  <DialogTitle
                     as="h3"
                     className="text-center text-2xl font-bold"
                   >
                     {title}
-                  </Dialog.Title>
+                  </DialogTitle>
                   <p className="mt-2 text-sm font-light">{content}</p>
                 </div>
                 <div className="mt-5 grid grid-cols-1 gap-3">
@@ -62,11 +66,11 @@ export const ErrorDialog = ({ onClose, title, content }: ErrorDialogProps) => {
                     Close
                   </Button>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   )
 }

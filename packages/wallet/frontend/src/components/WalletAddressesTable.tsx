@@ -101,6 +101,13 @@ export const CopyWalletAddress = () => {
   const { walletAddress } = useContext(WalletAddressRowContext)
   const [isCopied, setIsCopied] = useState(false)
 
+  let pointer = walletAddress.url
+
+  if (walletAddress.isCard) {
+    const url = new URL(walletAddress.url.replace('$', 'https://'))
+    pointer = `$ilp.dev${url.pathname}`
+  }
+
   useEffect(() => {
     setTimeout(() => {
       setIsCopied(false)
@@ -114,11 +121,11 @@ export const CopyWalletAddress = () => {
           onClick={(e) => {
             e.preventDefault()
             setIsCopied(true)
-            copyToClipboard(walletAddress.url)
+            copyToClipboard(pointer)
           }}
         >
           <p className="underline decoration-dashed underline-offset-2">
-            {walletAddress.url}
+            {pointer}
           </p>
         </TooltipTrigger>
         <TooltipContent onPointerDownOutside={(e) => e.preventDefault()}>
@@ -156,9 +163,7 @@ export const WalletAddressRow = ({
         <td>
           <EditWalletAddress />
         </td>
-        <td>
-          <DeleteWalletAddress />
-        </td>
+        <td>{walletAddress.isCard ? null : <DeleteWalletAddress />}</td>
       </tr>
     </WalletAddressRowContext.Provider>
   )

@@ -8,7 +8,10 @@ export const PageHeader = ({
 }: HTMLAttributes<HTMLDivElement>) => {
   return (
     <section
-      className={cn('flex flex-col items-start text-turqoise', className)}
+      className={cn(
+        "flex flex-col items-start font-['DejaVuSansMonoBold']",
+        className
+      )}
       {...props}
     >
       {children}
@@ -23,7 +26,7 @@ export const PageHeaderHeading = ({
   return (
     <h1
       className={cn(
-        'text-xl font-bold leading-tight tracking-tighter md:text-3xl',
+        "text-xl leading-tight tracking-tighter md:text-3xl font-['DejaVuSansMonoBold']",
         className
       )}
       {...props}
@@ -35,5 +38,5 @@ export const PageHeaderDescription = ({
   className,
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) => {
-  return <p className={cn('text-turqoise md:text-lg', className)} {...props} />
+  return <p className={cn('md:text-lg', className)} {...props} />
 }

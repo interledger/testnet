@@ -38,6 +38,12 @@ export class UserController implements IUserController {
         throw new Unauthorized('Unauthorized')
       }
 
+      if (req.session.user.needsIDProof && user.kycVerified) {
+        req.session.user.needsIDProof = false
+        req.session.user.customerId = user.customerId
+        await req.session.save()
+      }
+
       res.json(
         toSuccessResponse(
           {
@@ -46,7 +52,8 @@ export class UserController implements IUserController {
             lastName: user.lastName,
             address: user.address,
             needsWallet: !user.gateHubUserId,
-            needsIDProof: !user.kycVerified
+            needsIDProof: !user.kycVerified,
+            customerId: user.customerId
           },
           'User retrieved successfully'
         )

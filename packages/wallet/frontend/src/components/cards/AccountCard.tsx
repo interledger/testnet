@@ -5,13 +5,19 @@ import { useMemo } from 'react'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { balanceState } from '@/lib/balance'
 import { useSnapshot } from 'valtio'
+import { Card } from '../icons/CardButtons'
 
 type AccountCardProps = {
   account: Account
   idOnboarding?: string
+  isCard?: boolean
 }
 
-export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
+export const AccountCard = ({
+  account,
+  idOnboarding,
+  isCard
+}: AccountCardProps) => {
   const { isUserFirstTime, setRunOnboarding } = useOnboardingContext()
   const { accountsSnapshot } = useSnapshot(balanceState)
 
@@ -50,9 +56,16 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
         }
       }}
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-xl text-white dark:text-purple">
-        {formattedAmount.symbol}
-      </span>
+      <div className="flex justify-between">
+        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-xl text-white dark:text-purple">
+          {formattedAmount.symbol}
+        </span>
+        {isCard ? (
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[--accent] text-xl text-white dark:text-purple">
+            <Card />
+          </span>
+        ) : null}
+      </div>
       <span className="mt-auto hidden overflow-hidden text-ellipsis whitespace-nowrap leading-4 text-[--accent] sm:block">
         {account.name}
       </span>

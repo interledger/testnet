@@ -53,7 +53,8 @@ export const loginUser = async ({
       id: user.id,
       email: user.email,
       needsWallet: !user.gateHubUserId,
-      needsIDProof: !user.kycVerified
+      needsIDProof: !user.kycVerified,
+      customerId: user.customerId
     }
   }
   if (req && res) {

@@ -7,6 +7,7 @@ const products = [
       '&quot;I am a great believer in luck, and I find the harder I work, the more I have of it.&quot; - Thomas Jefferson',
     price: 77.0,
     image: 'luck.png',
+    imageDark: 'luck-dark.png',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -18,6 +19,7 @@ const products = [
       '&quot;To know that we know what we know, and to know that we do not know what we do not know, that is true knowledge.&quot; - Nicolaus Copernicus',
     price: 54.0,
     image: 'knowledge.png',
+    imageDark: 'knowledge-dark.png',
     createdAt: new Date(Date.now() + 10).toISOString(),
     updatedAt: new Date(Date.now() + 10).toISOString()
   },
@@ -29,6 +31,7 @@ const products = [
       '&quot;Courage is the most important of all the virtues, because without courage you can&apos;t practice any other virtue consistently. You can practice any virtue erratically, but nothing consistently without courage.&quot; - Maya Angelou',
     price: 20.0,
     image: 'courage.png',
+    imageDark: 'courage-dark.png',
     createdAt: new Date(Date.now() + 10 * 2).toISOString(),
     updatedAt: new Date(Date.now() + 10 * 2).toISOString()
   },
@@ -40,6 +43,7 @@ const products = [
       '&quot;Learning patience can be a difficult experience, but once conquered, you will find life is easier.&quot; - Catherine Pulsifer',
     price: 28.0,
     image: 'patience.png',
+    imageDark: 'patience-dark.png',
     createdAt: new Date(Date.now() + 10 * 3).toISOString(),
     updatedAt: new Date(Date.now() + 10 * 3).toISOString()
   },
@@ -51,6 +55,7 @@ const products = [
       '&quot;A pessimist sees the difficulty in every opportunity; an optimist sees the opportunity in every difficulty.&quot; - Winston Churchill',
     price: 123.0,
     image: 'opportunity.png',
+    imageDark: 'opportunity-dark.png',
     createdAt: new Date(Date.now() + 10 * 4).toISOString(),
     updatedAt: new Date(Date.now() + 10 * 4).toISOString()
   },
@@ -62,6 +67,7 @@ const products = [
       '&quot;Carry out a random act of kindness, with no expectation of reward, safe in the knowledge that one day someone might do the same for you.&quot; - Princess Diana',
     price: 32.0,
     image: 'kindness.png',
+    imageDark: 'kindness-dark.png',
     createdAt: new Date(Date.now() + 10 * 5).toISOString(),
     updatedAt: new Date(Date.now() + 10 * 5).toISOString()
   }

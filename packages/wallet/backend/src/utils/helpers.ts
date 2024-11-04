@@ -2,6 +2,7 @@ import { bcrypt } from 'hash-wasm'
 import { ObjectWithAnyKeys } from '@/shared/types'
 import { createHash, randomBytes } from 'crypto'
 import NodeCache from 'node-cache'
+import { env } from '@/config/env'
 
 export const transformAmount = (
   amount: string | bigint,
@@ -82,3 +83,7 @@ export const prefixSomeObjectKeys = (
   )
 
 export const NodeCacheInstance = new NodeCache({ stdTTL: 60 * 60 })
+
+export const replaceIlpDev = (walletAddressUrl: string) => {
+  return walletAddressUrl.replace('https://ilp.dev', env.OPEN_PAYMENTS_HOST)
+}

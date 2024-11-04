@@ -15,8 +15,8 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect, useState } from 'react'
-import { useTheme } from 'next-themes'
 import { loginSchema } from '@wallet/shared'
+import { THEME } from '@/utils/constants'
 
 const LoginPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
@@ -29,11 +29,8 @@ const LoginPage: NextPageWithLayout = () => {
   const loginForm = useZodForm({
     schema: loginSchema
   })
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/login-mobile-dark.webp'
-      : '/login-mobile-light.webp'
+    THEME === 'dark' ? '/login-mobile-dark.webp' : '/login-mobile-light.webp'
 
   async function resendVerifyEmail() {
     const { email } = loginForm.getValues()
@@ -121,7 +118,7 @@ const LoginPage: NextPageWithLayout = () => {
             />
             <span
               onClick={togglePasswordVisibility}
-              className="absolute right-2.5 top-1/2 cursor-pointer"
+              className="absolute right-2.5 top-9 cursor-pointer"
             >
               {isPasswordVisible ? <SlashEye /> : <Eye />}
             </span>
@@ -143,6 +140,12 @@ const LoginPage: NextPageWithLayout = () => {
             />
           </button>
         </Form>
+        <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
+          Not a customer?{' '}
+          <Link href="signup" className="font-medium underline">
+            Create an account
+          </Link>
+        </p>
       </div>
       <Image
         className="mt-auto object-cover md:hidden"
@@ -152,12 +155,6 @@ const LoginPage: NextPageWithLayout = () => {
         width={500}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
-        Not a customer?{' '}
-        <Link href="signup" className="font-medium underline">
-          Create an account
-        </Link>
-      </p>
     </>
   )
 }

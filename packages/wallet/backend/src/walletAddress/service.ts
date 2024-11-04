@@ -9,6 +9,7 @@ import { WalletAddress } from './model'
 import { TransactionService } from '@/transaction/service'
 import { Conflict, NotFound } from '@shared/backend'
 import { WalletAddressOP } from '@wallet/shared'
+import { replaceIlpDev } from '@/utils/helpers'
 
 export interface UpdateWalletAddressArgs {
   userId: string
@@ -22,6 +23,7 @@ export interface CreateWalletAddressArgs {
   accountId: string
   walletAddressName: string
   publicName: string
+  isCard?: boolean
 }
 
 export type GetWalletAddressArgs = {
@@ -50,7 +52,7 @@ export const createWalletAddressIfFalsy = async ({
   publicName,
   walletAddressService
 }: {
-  walletAddress: WalletAddress
+  walletAddress?: WalletAddress
   userId: string
   accountId: string
   publicName: string
@@ -123,7 +125,8 @@ export class WalletAddressService implements IWalletAddressService {
         url: rafikiWalletAddress.url,
         publicName: args.publicName,
         accountId: args.accountId,
-        id: rafikiWalletAddress.id
+        id: rafikiWalletAddress.id,
+        isCard: args.isCard
       })
 
       await this.cache.set(walletAddress.id, walletAddress, {
@@ -160,20 +163,6 @@ export class WalletAddressService implements IWalletAddressService {
       .findById(args.walletAddressId)
       .where('active', true)
       .where('accountId', args.accountId)
-
-    if (!walletAddress) {
-      throw new NotFound()
-    }
-
-    return walletAddress
-  }
-
-  async getByCardId(userId: string, cardId: string): Promise<WalletAddress> {
-    const walletAddress = await WalletAddress.query()
-      .join('accounts', 'walletAddresses.accountId', 'accounts.id')
-      .where('walletAddresses.cardId', cardId)
-      .andWhere('accounts.userId', userId)
-      .first()
 
     if (!walletAddress) {
       throw new NotFound()
@@ -262,6 +251,7 @@ export class WalletAddressService implements IWalletAddressService {
   }
 
   public async getExternalWalletAddress(url: string): Promise<WalletAddressOP> {
+    url = replaceIlpDev(url)
     const headers = {
       'Host': new URL(url).host,
       'Content-Type': 'application/json',
@@ -271,6 +261,7 @@ export class WalletAddressService implements IWalletAddressService {
       this.env.NODE_ENV === 'development'
         ? url.replace('https://', 'http://')
         : url
+
     const res = await axios.get(url, { headers })
     return res.data
   }

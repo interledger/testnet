@@ -14,15 +14,15 @@ import { getObjectKeys } from '@/utils/helpers'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect, useState } from 'react'
 import { cx } from 'class-variance-authority'
-import { useTheme } from 'next-themes'
 import { signUpSchema } from '@wallet/shared'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
+import { Checkbox } from '@/ui/forms/Checkbox'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
   const [isRepeatPasswordVisible, setRepeatPasswordVisible] =
     useState<boolean>(false)
-  const theme = useTheme()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
@@ -40,13 +40,20 @@ const SignUpPage: NextPageWithLayout = () => {
   return (
     <>
       <HeaderLogo header="Welcome" />
-      <h2 className="mb-5 mt-10 text-xl text-green dark:text-teal-neon">
+      <h2 className="mb-5 mt-2 text-xl text-green dark:text-teal-neon">
         Create Account
       </h2>
       <div className="z-10 w-2/3">
         <Form
           form={signUpForm}
           onSubmit={async (data) => {
+            if (FEATURES_ENABLED && !data.acceptedCardTerms) {
+              const message =
+                'You must agree to the Terms and Conditions before continuing registration'
+              signUpForm.setError('root', { message })
+              return
+            }
+
             const response = await userService.signUp(data)
 
             if (response.success) {
@@ -56,7 +63,8 @@ const SignUpPage: NextPageWithLayout = () => {
                   content={
                     <div>
                       <h4 className="text-lg font-bold">
-                        Welcome to Interledger Test Wallet
+                        Welcome to Interledger{' '}
+                        {FEATURES_ENABLED ? 'Wallet' : 'Test Wallet'}
                       </h4>
                       <p className="text-xs">
                         A verification link has been sent to your email account.
@@ -101,7 +109,7 @@ const SignUpPage: NextPageWithLayout = () => {
             />
             <span
               onClick={togglePasswordVisibility}
-              className="absolute right-2.5 top-1/2 cursor-pointer"
+              className="absolute right-2.5 top-9 cursor-pointer"
             >
               {isPasswordVisible ? <SlashEye /> : <Eye />}
             </span>
@@ -116,11 +124,39 @@ const SignUpPage: NextPageWithLayout = () => {
             />
             <span
               onClick={toggleRepeatPasswordVisibility}
-              className="absolute right-2.5 top-1/2 cursor-pointer"
+              className="absolute right-2.5 top-9 cursor-pointer"
             >
               {isRepeatPasswordVisible ? <SlashEye /> : <Eye />}
             </span>
           </div>
+          {FEATURES_ENABLED ? (
+            <div className="relative cursor-pointer">
+              <Checkbox
+                {...signUpForm.register('acceptedCardTerms')}
+                error={signUpForm.formState.errors.acceptedCardTerms?.message}
+                label={
+                  <div>
+                    By clicking here, I confirm that I have read, understood,
+                    and agree with the&nbsp;
+                    <a
+                      className="underline"
+                      target="_blank"
+                      href="https://cdn.gatehub.net/docs/General_terms_for_Paywiser_x_GateHub-Mastercard_card_V1.pdf"
+                      rel="noreferrer"
+                    >
+                      Paywiser Terms and Conditions
+                    </a>
+                    &nbsp;for the use of the Paywiser MasterCard payment card,
+                    including the additional terms for card testing and
+                    limitations set out therein. I agree to not promote,
+                    advertise or post on any social media the Paywiser x GateHub
+                    MasterCard payment card without the prior written consent of
+                    the card issuer (Paywiser).
+                  </div>
+                }
+              />
+            </div>
+          ) : null}
           <button
             aria-label="login"
             type="submit"
@@ -133,14 +169,16 @@ const SignUpPage: NextPageWithLayout = () => {
           </button>
         </Form>
       </div>
-      <div
-        className={cx(
-          'absolute bottom-0 h-[200px] w-full bg-contain bg-center bg-no-repeat md:hidden',
-          theme.theme === 'dark'
-            ? "bg-[url('../../public/leafs-dark.svg')]"
-            : "bg-[url('../../public/leafs-light.svg')]"
-        )}
-      ></div>
+      {FEATURES_ENABLED ? null : (
+        <div
+          className={cx(
+            'absolute bottom-0 h-[200px] w-full bg-contain bg-center bg-no-repeat md:hidden',
+            THEME === 'dark'
+              ? "bg-[url('../../public/leafs-dark.svg')]"
+              : "bg-[url('../../public/leafs-light.svg')]"
+          )}
+        ></div>
+      )}
       <p className="z-10 mt-auto text-center font-extralight text-green dark:text-green-neon">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">

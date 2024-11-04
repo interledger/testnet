@@ -1,17 +1,14 @@
 import { z } from 'zod'
 
-export const getCardsByCustomerSchema = z.object({
-  params: z.object({
-    customerId: z.string()
-  })
-})
-
 export const getCardDetailsSchema = z.object({
   params: z.object({
     cardId: z.string()
   }),
   query: z.object({
     publicKeyBase64: z.string()
+  }),
+  body: z.object({
+    password: z.string()
   })
 })
 
@@ -85,11 +82,18 @@ export const getCardTransactionsSchema = z.object({
   })
 })
 
+export const getTokenForPinChange = z.object({
+  params: z.object({
+    cardId: z.string()
+  })
+})
+
 export const changePinSchema = z.object({
   params: z.object({
     cardId: z.string()
   }),
   body: z.object({
+    token: z.string(),
     cypher: z.string()
   })
 })
@@ -98,18 +102,8 @@ export const permanentlyBlockCardSchema = z.object({
   params: z.object({
     cardId: z.string()
   }),
-  query: z.object({
-    reasonCode: z.enum([
-      'LostCard',
-      'StolenCard',
-      'IssuerRequestGeneral',
-      'IssuerRequestFraud',
-      'IssuerRequestLegal',
-      'IssuerRequestIncorrectOpening',
-      'CardDamagedOrNotWorking',
-      'UserRequest',
-      'IssuerRequestCustomerDeceased',
-      'ProductDoesNotRenew'
-    ])
+  body: z.object({
+    password: z.string().min(1),
+    reasonCode: z.enum(['UserRequest'])
   })
 })
