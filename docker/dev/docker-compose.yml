@@ -27,14 +27,20 @@ services:
     container_name: wallet-backend
     build:
       context: ../..
+      args:
+        DEV_MODE: ${DEV_MODE}
       dockerfile: ./packages/wallet/backend/Dockerfile.dev
     depends_on:
       - postgres
       - rafiki-backend
       - redis
+    volumes:
+      - ../../packages/wallet/backend:/home/testnet/packages/wallet/backend
+      - ../../packages/wallet/shared:/home/testnet/packages/wallet/shared
     environment:
       NODE_ENV: development
       PORT: 3003
+      DEBUG_PORT: 9229
       DATABASE_URL: postgres://wallet_backend:wallet_backend@postgres/wallet_backend
       COOKIE_NAME: testnet.cookie
       COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
@@ -55,11 +61,14 @@ services:
       GATEHUB_WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET}
       GATEHUB_GATEWAY_UUID: ${GATEHUB_GATEWAY_UUID}
       GATEHUB_SETTLEMENT_WALLET_ADDRESS: ${GATEHUB_SETTLEMENT_WALLET_ADDRESS}
+      GATEHUB_ORG_ID: ${GATEHUB_ORG_ID}
       GATEHUB_CARD_APP_ID: ${GATEHUB_CARD_APP_ID}
       GATEHUB_ACCOUNT_PRODUCT_CODE: ${GATEHUB_ACCOUNT_PRODUCT_CODE}
       GATEHUB_CARD_PRODUCT_CODE: ${GATEHUB_CARD_PRODUCT_CODE}
       GATEHUB_NAME_ON_CARD: ${GATEHUB_NAME_ON_CARD}
       GATEHUB_CARD_PP_PREFIX: ${GATEHUB_CARD_PP_PREFIX}
+      CARD_DATA_HREF: ${CARD_DATA_HREF}
+      CARD_PIN_HREF: ${CARD_PIN_HREF}
     restart: always
     networks:
       - testnet
@@ -73,12 +82,18 @@ services:
     container_name: boutique-backend
     build:
       context: ../..
+      args:
+        DEV_MODE: ${DEV_MODE}
       dockerfile: ./packages/boutique/backend/Dockerfile.dev
+    volumes:
+      - ../../packages/boutique/backend:/home/testnet/packages/boutique/backend
+      - ../../packages/boutique/shared:/home/testnet/packages/boutique/shared
     depends_on:
       - postgres
     environment:
       NODE_ENV: development
       PORT: 3004
+      DEBUG_PORT: 9230
       DATABASE_URL: postgres://boutique_backend:boutique_backend@postgres/boutique_backend
       PRIVATE_KEY: ${PRIVATE_KEY}
       KEY_ID: ${KEY_ID}
@@ -88,12 +103,13 @@ services:
       - testnet
     ports:
       - '3004:3004'
+      - '9230:9230' # Map debugger port to local machine's port 9230
     <<: *logging
 
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.19
+    image: ghcr.io/interledger/rafiki-auth:v1.0.0-alpha.20
     restart: always
     networks:
       - testnet
@@ -110,7 +126,7 @@ services:
       IDENTITY_SERVER_URL: http://localhost:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
-      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-none}
+      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
       WAIT_SECONDS: 1
       REDIS_URL: redis://redis:6379/0
     depends_on:
@@ -119,7 +135,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.19
+    image: ghcr.io/interledger/rafiki-backend:v1.0.0-alpha.20
     restart: always
     privileged: true
     volumes:
@@ -168,7 +184,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.19
+    image: ghcr.io/interledger/rafiki-frontend:v1.0.0-alpha.20
     depends_on:
       - rafiki-backend
     restart: always

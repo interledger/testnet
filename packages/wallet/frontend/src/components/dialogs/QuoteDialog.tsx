@@ -1,7 +1,12 @@
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { Button } from '@/ui/Button'
 import { formatAmount, getFee } from '@/utils/helpers'
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild
+} from '@headlessui/react'
 import { Fragment } from 'react'
 import { PaperPlaneDark, PaperPlaneLight } from '../icons/PaperPlane'
 import { QuoteResponse } from '@wallet/shared'
@@ -39,9 +44,9 @@ export const QuoteDialog = ({
   const fee = getFee(quote)
 
   return (
-    <Transition.Root show={true} as={Fragment} appear={true}>
+    <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -51,11 +56,11 @@ export const QuoteDialog = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4"
@@ -64,7 +69,7 @@ export const QuoteDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
+              <DialogPanel className="relative w-full max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <div className="flex flex-col text-center">
                   {THEME === 'dark' ? (
                     <PaperPlaneDark
@@ -114,11 +119,11 @@ export const QuoteDialog = ({
                     </Button>
                   </div>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   )
 }

@@ -20,6 +20,7 @@ const envSchema = z.object({
   GATEHUB_SETTLEMENT_WALLET_ADDRESS: z
     .string()
     .default('GATEHUB_SETTLEMENT_WALLET_ADDRESS'),
+  GATEHUB_ORG_ID: z.string().default('GATEHUB_ORG_ID'),
   GATEHUB_CARD_APP_ID: z.string().default('GATEHUB_CARD_APP_ID'),
   GATEHUB_ACCOUNT_PRODUCT_CODE: z
     .string()
@@ -35,7 +36,7 @@ const envSchema = z.object({
     .string()
     .url()
     .default('http://rafiki-auth:3008/graphql'),
-  AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3006'),
+  AUTH_DOMAIN: z.string().url().default('http://rafiki-auth:3009'),
   AUTH_IDENTITY_SERVER_SECRET: z.string().default('replace-me'),
   RAFIKI_WEBHOOK_SIGNATURE_SECRET: z.string().default('replace-me'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
@@ -45,7 +46,9 @@ const envSchema = z.object({
   SEND_EMAIL: z
     .enum(['true', 'false'])
     .default('false')
-    .transform((value) => value === 'true')
+    .transform((value) => value === 'true'),
+  CARD_DATA_HREF: z.string().default('UPDATEME'),
+  CARD_PIN_HREF: z.string().default('UPDATEME')
 })
 
 export type Env = z.infer<typeof envSchema>

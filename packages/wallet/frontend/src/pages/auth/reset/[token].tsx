@@ -16,7 +16,7 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
 import { useState } from 'react'
-import { THEME } from '@/utils/constants'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 
 type ResetPasswordPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -51,7 +51,8 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       {token && isValid ? (
         <>
           <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
-            Provide a new password for your Test Wallet account.
+            Provide a new password for your{' '}
+            {FEATURES_ENABLED ? 'Interledger Wallet' : 'Test Wallet'} account.
           </h2>
           <div className="w-2/3">
             <Form
