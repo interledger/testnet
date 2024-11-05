@@ -52,7 +52,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     null
   )
   const router = useRouter()
-  const receiverFromQueryParams = router.query?.receiver ? decodeURIComponent(router.query.receiver as string) : null;
+  const receiverFromQueryParams = router.query?.receiver
+    ? decodeURIComponent(router.query.receiver as string)
+    : null
 
   const [receiverPublicName, setReceiverPublicName] = useState('Recepient')
   const [currentExchangeRates, setCurrentExchangeRates] =
@@ -84,7 +86,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     schema: sendSchema,
     defaultValues: {
       paymentType: PAYMENT_SEND,
-      receiver: receiverFromQueryParams ?? (isUserFirstTime ? INTERLEDGER_WALLET_ADDRESS : '')
+      receiver:
+        receiverFromQueryParams ??
+        (isUserFirstTime ? INTERLEDGER_WALLET_ADDRESS : '')
     }
   })
 
