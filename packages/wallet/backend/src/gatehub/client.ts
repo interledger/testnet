@@ -587,7 +587,7 @@ export class GateHubClient {
 
     const res = await resp.json()
 
-    return res
+    return res as ICardDetailsResponse
     // const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
     // const cardPinResponse = await this.request<ICardDetailsResponse>(
     //   'GET',
@@ -636,7 +636,7 @@ export class GateHubClient {
     })
 
     if (!response.ok) {
-      let info = ''
+      let info
       if (response.headers.get('content-type') === 'application/json') {
         info = await response.json()
       } else {
