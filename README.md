@@ -106,7 +106,7 @@ pnpm dev #this will start the project in hot reload mode for backend containers.
 other options to start the local env are:
 
 ```sh
-pnpm dev:debug #backend containers will not have hot reload feture enabled but will expose and have node `--inspect` option set with wallet container debug port set to 9229 and boutique port set to 9230. Once the containers are running, you can connect your debugger (e.g., Chrome DevTools, VS Code)
+pnpm dev:debug #backend containers will not have hot reload feature enabled but will expose and have node `--inspect` option set with wallet container debug port set to 9229 and boutique port set to 9230. Once the containers are running, you can connect your debugger (e.g., Chrome DevTools, VS Code)
 ```
 
 and:
