@@ -276,7 +276,7 @@ services:
       - testnet
 
   kratos:
-    image: 'oryd/kratos:v1.3.0'
+    image: 'oryd/kratos:v1.3.1'
     privileged: true
     ports:
       - '4433:4433'
