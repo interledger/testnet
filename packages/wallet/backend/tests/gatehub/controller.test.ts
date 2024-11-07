@@ -154,7 +154,7 @@ describe('GateHub Controller', () => {
       const webhookData = {
         uuid: 1,
         event_type: 'id.verification.accepted',
-        user_uuid: 'mocked',
+        user_uuid: 'mocked'
       }
       req.body = webhookData
 

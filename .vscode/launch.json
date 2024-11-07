@@ -25,7 +25,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
-        "program": "${workspaceFolder}/packages/wallet/backend/node_modules/jest/bin/jest.js",
+        "program": "${workspaceFolder}/packages/wallet/backend/node_modules/jest/bin/jest.js"
       }
     }
   ]

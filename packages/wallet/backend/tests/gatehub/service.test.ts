@@ -93,11 +93,7 @@ describe('GateHub Service', (): void => {
       mockEmailService as unknown as EmailService
     )
 
-    Reflect.set(
-      gateHubService,
-      'accountService',
-      mockAccountService
-    )
+    Reflect.set(gateHubService, 'accountService', mockAccountService)
     Reflect.set(
       gateHubService,
       'walletAddressService',
@@ -159,7 +155,9 @@ describe('GateHub Service', (): void => {
           address_city: null
         }
       }
-      mockGateHubClient.getUserState.mockResolvedValue(mockedGetUserStateResponse)
+      mockGateHubClient.getUserState.mockResolvedValue(
+        mockedGetUserStateResponse
+      )
       mockGateHubClient.isProduction = true
 
       const mockData: IWebhookData = {
@@ -174,7 +172,9 @@ describe('GateHub Service', (): void => {
 
       const userData = await User.query().findById(user.id)
       expect(userData?.kycVerified).toBe(true)
-      expect(mockEmailService.sendKYCVerifiedEmail).toHaveBeenCalledWith(user.email)
+      expect(mockEmailService.sendKYCVerifiedEmail).toHaveBeenCalledWith(
+        user.email
+      )
     })
 
     it('sending a different verification event should not mark User As Verified ', async () => {
