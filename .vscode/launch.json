@@ -10,6 +10,23 @@
       "localRoot": "${workspaceFolder}/packages/wallet/backend",
       "remoteRoot": "/home/testnet/packages/wallet/backend",
       "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Current File",
+      "program": "${workspaceFolder}/packages/wallet/backend/node_modules/jest/bin/jest.js",
+      "args": [
+        "--runTestsByPath",
+        "${relativeFile}",
+        "--config",
+        "packages/wallet/backend/jest.config.json"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "windows": {
+        "program": "${workspaceFolder}/packages/wallet/backend/node_modules/jest/bin/jest.js",
+      }
     }
   ]
 }

@@ -105,7 +105,10 @@ describe('GateHub Controller', () => {
 
   describe('addUserToGateway', () => {
     it('should call method gateHubService.addUserToGateway() successfully and have a success result', async () => {
-      const mockedAddUserToGatewayResponse = true
+      const mockedAddUserToGatewayResponse = {
+        isApproved: true,
+        customerId: 'test-customer-123'
+      }
       mockGateHubService.addUserToGateway.mockResolvedValue(
         mockedAddUserToGatewayResponse
       )
@@ -117,13 +120,17 @@ describe('GateHub Controller', () => {
       )
       expect(res.statusCode).toBe(200)
       expect(req.session.user.needsIDProof).toBe(false)
+      expect(req.session.user.customerId).toBe('test-customer-123')
       expect(res._getJSONData()).toMatchObject({
         message: 'SUCCESS'
       })
     })
-    it('should call method gateHubService.addUserToGateway() but return a false result', async () => {
+
+    it('should call method gateHubService.addUserToGateway() but return not approved', async () => {
       const next = jest.fn()
-      const mockedAddUserToGatewayResponse = false
+      const mockedAddUserToGatewayResponse = {
+        isApproved: false
+      }
       mockGateHubService.addUserToGateway.mockResolvedValue(
         mockedAddUserToGatewayResponse
       )
@@ -135,6 +142,7 @@ describe('GateHub Controller', () => {
       )
       expect(res.statusCode).toBe(200)
       expect(req.session.user.needsIDProof).toBe(true)
+      expect(req.session.user.customerId).toBeUndefined()
       expect(res._getJSONData()).toMatchObject({
         message: 'SUCCESS'
       })
@@ -142,11 +150,13 @@ describe('GateHub Controller', () => {
   })
 
   describe('webhook action tests', () => {
-    it('should call method gateHubService.webhook() successfully and have a success result', async () => {
-      req.body = {
-        uuid: 1
+    it('should handle webhook successfully when UUID is present', async () => {
+      const webhookData = {
+        uuid: 1,
+        event_type: 'id.verification.accepted',
+        user_uuid: 'mocked',
       }
-      mockGateHubService.handleWebhook.mockResolvedValue(req.body)
+      req.body = webhookData
 
       await gateHubController.webhook(req, res, next)
 

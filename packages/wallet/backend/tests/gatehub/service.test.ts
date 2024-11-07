@@ -9,8 +9,9 @@ import { AwilixContainer } from 'awilix'
 import { GateHubService } from '@/gatehub/service'
 import { loginUser } from '../utils'
 import { User } from '@/user/model'
-import { IWebhookDate } from '@/gatehub/types'
+import { IWebhookData } from '@/gatehub/types'
 import { GateHubClient } from '@/gatehub/client'
+import { EmailService } from '@/email/service'
 
 describe('GateHub Service', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -20,6 +21,20 @@ describe('GateHub Service', (): void => {
   let gateHubService: GateHubService
   let user: User
 
+  const mockAccountService = {
+    createDefaultAccount: jest.fn()
+  }
+
+  const mockWalletAddressService = {
+    create: jest.fn()
+  }
+
+  const mockEmailService = {
+    sendKYCVerifiedEmail: jest.fn(),
+    sendActionRequiredEmail: jest.fn(),
+    sendUserRejectedEmail: jest.fn()
+  }
+
   const mockGateHubClient = {
     getIframeUrl: jest.fn(),
     handleWebhook: jest.fn(),
@@ -28,7 +43,11 @@ describe('GateHub Service', (): void => {
     createWallet: jest.fn(),
     connectUserToGateway: jest.fn(),
     getWalletBalance: jest.fn(),
-    getUserState: jest.fn()
+    getUserState: jest.fn(),
+    isProduction: false,
+    getManagedUsers: jest.fn(),
+    getCardsByCustomer: jest.fn(),
+    createCustomer: jest.fn()
   }
 
   beforeAll(async (): Promise<void> => {
@@ -49,12 +68,7 @@ describe('GateHub Service', (): void => {
     await knex.destroy()
   })
   beforeEach(async (): Promise<void> => {
-    Reflect.set(
-      gateHubService,
-      'gateHubClient',
-      mockGateHubClient as unknown as GateHubClient
-    )
-
+    // first create the user
     const extraUserArgs = {
       isEmailVerified: true,
       gateHubUserId: 'mocked'
@@ -66,6 +80,46 @@ describe('GateHub Service', (): void => {
     })
 
     user = resp.user
+
+    // after the user is created, setup all the gateHubService mocks with the user
+    Reflect.set(
+      gateHubService,
+      'gateHubClient',
+      mockGateHubClient as unknown as GateHubClient
+    )
+    Reflect.set(
+      gateHubService,
+      'emailService',
+      mockEmailService as unknown as EmailService
+    )
+
+    Reflect.set(
+      gateHubService,
+      'accountService',
+      mockAccountService
+    )
+    Reflect.set(
+      gateHubService,
+      'walletAddressService',
+      mockWalletAddressService
+    )
+
+    // Setup mock responses for the account and wallet address creation
+    mockAccountService.createDefaultAccount.mockResolvedValue({
+      id: faker.string.uuid(),
+      userId: user.id,
+      assetCode: 'EUR',
+      name: 'EUR Account',
+      gateHubWalletId: faker.string.uuid()
+    })
+
+    mockWalletAddressService.create.mockResolvedValue({
+      id: faker.string.uuid(),
+      accountId: faker.string.uuid(),
+      userId: user.id,
+      url: 'test-wallet',
+      isCard: false
+    })
   })
 
   describe('Get Iframe Url', () => {
@@ -93,26 +147,41 @@ describe('GateHub Service', (): void => {
   })
 
   describe('handle Webhook', () => {
-    it('should mark User As Verified ', async () => {
-      const mockData: IWebhookDate = {
+    it('should mark User As Verified', async () => {
+      // mock getUserState which is called by addUserToGateway
+      const mockedGetUserStateResponse = {
+        profile: {
+          last_name: user.lastName,
+          first_name: user.firstName,
+          address_country_code: 'US',
+          address_street1: null,
+          address_street2: null,
+          address_city: null
+        }
+      }
+      mockGateHubClient.getUserState.mockResolvedValue(mockedGetUserStateResponse)
+      mockGateHubClient.isProduction = true
+
+      const mockData: IWebhookData = {
         uuid: faker.string.uuid(),
         timestamp: Date.now().toString(),
         event_type: 'id.verification.accepted',
         user_uuid: 'mocked',
-        environment: 'sandbox',
+        environment: 'production',
         data: {}
       }
       await gateHubService.handleWebhook(mockData)
 
       const userData = await User.query().findById(user.id)
       expect(userData?.kycVerified).toBe(true)
+      expect(mockEmailService.sendKYCVerifiedEmail).toHaveBeenCalledWith(user.email)
     })
 
     it('sending a different verification event should not mark User As Verified ', async () => {
-      const mockData: IWebhookDate = {
+      const mockData: IWebhookData = {
         uuid: faker.string.uuid(),
         timestamp: Date.now().toString(),
-        event_type: 'id.verification.error',
+        event_type: 'id.verification.rejected',
         user_uuid: 'mocked',
         environment: 'sandbox',
         data: {}
@@ -123,7 +192,7 @@ describe('GateHub Service', (): void => {
     })
 
     it('sending a wrong gateHubId will throw a User Not found exception ', async () => {
-      const mockData: IWebhookDate = {
+      const mockData: IWebhookData = {
         uuid: faker.string.uuid(),
         timestamp: Date.now().toString(),
         event_type: 'id.verification.accepted',
@@ -159,7 +228,7 @@ describe('GateHub Service', (): void => {
       )
       const result = await gateHubService.addUserToGateway(user.id)
 
-      expect(result).toBe(mockedConnectUserToGatewayResponse)
+      expect(result.isApproved).toBe(mockedConnectUserToGatewayResponse)
 
       const userData = await User.query().findById(user.id)
       expect(userData?.kycVerified).toBe(true)
@@ -184,7 +253,7 @@ describe('GateHub Service', (): void => {
       )
       const result = await gateHubService.addUserToGateway(user.id)
 
-      expect(result).toBe(mockedConnectUserToGatewayResponse)
+      expect(result.isApproved).toBe(mockedConnectUserToGatewayResponse)
 
       const userData = await User.query().findById(user.id)
       expect(userData?.kycVerified).toBe(false)
