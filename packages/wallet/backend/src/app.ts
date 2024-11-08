@@ -29,6 +29,7 @@ import type { AuthService } from './auth/service'
 import type { Env } from './config/env'
 import { isAuth } from './middleware/isAuth'
 import { withSession } from './middleware/withSession'
+import { rateLimiterEmail, rateLimiterLogin } from './middleware/rateLimit'
 import { QuoteController } from './quote/controller'
 import { QuoteService } from './quote/service'
 import { RafikiController } from './rafiki/controller'
@@ -176,15 +177,23 @@ export class App {
 
     // Auth Routes
     router.post('/signup', authController.signUp)
-    router.post('/login', authController.logIn)
+    router.post('/login', rateLimiterLogin, authController.logIn)
     router.post('/logout', isAuth, authController.logOut)
 
     // Reset password routes
-    router.post('/forgot-password', userController.requestResetPassword)
+    router.post(
+      '/forgot-password',
+      rateLimiterEmail,
+      userController.requestResetPassword
+    )
     router.get('/reset-password/:token/validate', userController.checkToken)
     router.post('/reset-password/:token', userController.resetPassword)
     router.post('/verify-email/:token', authController.verifyEmail)
-    router.post('/resend-verify-email', authController.resendVerifyEmail)
+    router.post(
+      '/resend-verify-email',
+      rateLimiterEmail,
+      authController.resendVerifyEmail
+    )
     router.patch('/change-password', isAuth, userController.changePassword)
 
     // Me Endpoint
