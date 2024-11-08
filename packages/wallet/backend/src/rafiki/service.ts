@@ -10,7 +10,7 @@ import { Account } from '@/account/model'
 import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
-import { HOSTED_TRANSACTION_TYPE } from '@/gatehub/consts'
+import { TransactionTypeEnum } from '@/gatehub/consts'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -179,10 +179,10 @@ export class RafikiService implements IRafikiService {
 
     await this.gateHubClient.createTransaction({
       amount: this.amountToNumber(amount),
-      vault_uuid: this.getVaultUuid(amount.assetCode),
+      vault_uuid: this.gateHubClient.getVaultUuid(amount.assetCode),
       receiving_address: receiverWallet,
       sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: HOSTED_TRANSACTION_TYPE,
+      type: TransactionTypeEnum.HOSTED,
       message: 'Transfer'
     })
 
@@ -260,10 +260,10 @@ export class RafikiService implements IRafikiService {
     await this.gateHubClient.createTransaction(
       {
         amount: this.amountToNumber(debitAmount),
-        vault_uuid: this.getVaultUuid(debitAmount.assetCode),
+        vault_uuid: this.gateHubClient.getVaultUuid(debitAmount.assetCode),
         sending_address: sendingWallet,
         receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-        type: HOSTED_TRANSACTION_TYPE,
+        type: TransactionTypeEnum.HOSTED,
         message: 'Transfer'
       },
       gateHubUserId
@@ -281,7 +281,7 @@ export class RafikiService implements IRafikiService {
     const isExchange = NodeCacheInstance.get(wh.data.id)
     if (userId && !isExchange) {
       const messageType =
-        wh.data.metadata.type === 'instant'
+        wh.data.metadata?.type === 'instant'
           ? MessageType.MONEY_SENT_SHOP
           : MessageType.MONEY_SENT
       await this.socketService.emitMoneySentByUserId(
@@ -324,10 +324,10 @@ export class RafikiService implements IRafikiService {
 
     await this.gateHubClient.createTransaction({
       amount: this.amountToNumber(sentAmount),
-      vault_uuid: this.getVaultUuid(sentAmount.assetCode),
+      vault_uuid: this.gateHubClient.getVaultUuid(sentAmount.assetCode),
       sending_address: sendingWallet,
       receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-      type: HOSTED_TRANSACTION_TYPE,
+      type: TransactionTypeEnum.HOSTED,
       message: 'Transfer'
     })
 
@@ -357,17 +357,6 @@ export class RafikiService implements IRafikiService {
   async getWalletAddress(wh: WebHook) {
     const id: string = wh.data?.walletAddressId || wh.data?.walletAddressId
     return await this.walletAddressService.findByIdWithoutValidation(id)
-  }
-
-  private getVaultUuid(assetCode: string): string {
-    switch (assetCode) {
-      case 'USD':
-        return this.env.GATEHUB_VAULT_UUID_USD
-      case 'EUR':
-        return this.env.GATEHUB_VAULT_UUID_EUR
-      default:
-        throw new BadRequest(`Unsupported asset code ${assetCode}`)
-    }
   }
 
   private async getGateHubWalletAddress(walletAddress: WalletAddress) {

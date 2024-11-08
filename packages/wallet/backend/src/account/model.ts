@@ -15,6 +15,8 @@ export class Account extends BaseModel {
   public readonly userId!: string
   public user!: User
   public walletAddresses!: Array<WalletAddress>
+  public cardId?: string
+  public isFunded!: boolean
 
   static relationMappings = () => ({
     user: {

@@ -1,3 +1,6 @@
+import { TransactionTypeEnum } from '@/gatehub/consts'
+import { ICardTransaction } from '@wallet/shared/src'
+
 export type HTTP_METHODS = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
 export interface IClientIds {
@@ -29,7 +32,12 @@ export interface ICreateManagedUserResponse {
   type2fa: string
   activated: boolean
   role: string
-  meta: Record<string, string>
+  meta: {
+    meta: {
+      paymentPointer: string
+      customerId: string
+    }
+  } & Record<string, string>
   lastPasswordChange: string
   features: string[]
   managed: boolean
@@ -55,6 +63,11 @@ export interface ICreateWalletRequest {
 export interface ICreateWalletResponse {
   address: string
 }
+
+export interface IGetWalletForUserResponse {
+  wallets: ICreateWalletResponse[]
+}
+
 export interface IGetWalletResponse {
   address: string
 }
@@ -65,8 +78,17 @@ export interface ICreateTransactionRequest {
   sending_address: string
   receiving_address: string
   message: string
-  type: number
+  type: TransactionTypeEnum.HOSTED
   vault_uuid: string
+}
+export interface IFundAccountRequest {
+  uid: string
+  amount: number
+  network: number
+  receiving_address: string
+  type: TransactionTypeEnum.DEPOSIT
+  vault_uuid: string
+  absolute_fee?: number
 }
 
 export interface ICreateTransactionResponse {}
@@ -108,11 +130,34 @@ export interface IApproveUserToGatewayRequest {
 }
 export interface IApproveUserToGatewayResponse {}
 
-export interface IWebhookDate {
+export interface IOverrideUserRiskLevelRequest {
+  risk_level: string
+  reason: string
+}
+export interface IOverrideUserRiskLevelResponse {}
+
+export type WebhookEventType =
+  | 'core.deposit.completed'
+  | 'id.verification.accepted'
+  | 'id.verification.action_required'
+  | 'id.verification.rejected'
+  | 'id.document_notice.expired'
+  | 'id.document_notice.warning'
+  | 'cards.transaction.authorization'
+export interface IWebhookData {
   uuid: string
   timestamp: string
-  event_type: string
+  event_type: WebhookEventType
   user_uuid: string
   environment: 'sandbox' | 'production'
-  data: Record<string, unknown>
+  data: IEmailMessage | ICardTransactionWebhookData
+}
+
+export interface IEmailMessage {
+  message?: string
+}
+
+export interface ICardTransactionWebhookData {
+  authorizationData: ICardTransaction
+  message?: string
 }

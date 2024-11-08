@@ -1,10 +1,15 @@
+import { ICardResponse } from '@wallet/shared'
+import { CardLimitType } from '@wallet/shared/src'
+
+export type GateHubCardCurrency = 'EUR'
+
 export interface ICardDetailsRequest {
   cardId: string
-  publicKeyBase64: string
+  publicKey: string
 }
 
 export interface ICardDetailsResponse {
-  cipher: string | null
+  cipher: string
 }
 
 export interface ILinksResponse {
@@ -17,66 +22,126 @@ export interface ILinksResponse {
 }
 
 export interface ICreateCustomerRequest {
-  emailAddress: string
+  walletAddress: string
   account: {
     productCode: string
+    currency: GateHubCardCurrency
+    card: {
+      productCode: string
+    }
   }
-  card: {
-    productCode: string
+  nameOnCard: string
+  citizen: {
+    name: string
+    surname: string
+    birthPlace?: string | null
   }
-  user: {
-    firstName: string
-    lastName: string
-    mobileNumber?: string
-    nationalIdentifier?: string
-  }
-  identification: {
-    documents: Array<{
-      type: string
-      file: string // Base64-encoded file content
-    }>
-  }
-  address: {
-    addressLine1: string
-    addressLine2?: string
-    city: string
-    region?: string
-    postalCode: string
-    countryCode: string
-  }
+}
+
+export interface ICitizen {
+  name: string
+  surname: string
+  birthDate?: string | null
+  birthPlace?: string | null
+  gender?: 'Female' | 'Male' | 'Unspecified' | 'Unknown' | null
+  title?: string | null
+  language?: string | null
+}
+
+export interface ILegalEntity {
+  longName: string
+  shortName: string
+  sector?:
+    | 'Public'
+    | 'Private'
+    | 'Corporate'
+    | 'Others'
+    | 'NoInformation'
+    | 'UnrelatedPersonsLegalEntities'
+    | null
+  industrialClassificationProvider?: string | null
+  industrialClassificationValue?: string | null
+  type?: string | null
+  vat?: string | null
+  hqCustomerId?: number | null
+  contactPerson?: string | null
+  agentCode?: string | null
+  agentName?: string | null
+}
+
+export interface IAddress {
+  sourceId?: string | null
+  type: 'PermanentResidence' | 'Work' | 'Other' | 'TemporaryResidence'
+  countryCode: string
+  line1: string
+  line2?: string | null
+  line3?: string | null
+  city: string
+  postOffice?: string | null
+  zipCode: string
+  status?: 'Inactive' | 'Active' | null
+  id?: string | null
+  customerId?: string | null
+  customerSourceId?: string | null
+}
+
+export interface ICommunication {
+  sourceId?: string | null
+  type: 'Email' | 'Mobile'
+  value?: string | null
+  id?: string | null
+  status?: 'Inactive' | 'Active' | null
+  customerId?: string | null
+  customerSourceId?: string | null
+}
+
+export interface IAccount {
+  sourceId?: string | null
+  type?: 'CHARGE' | 'LOAN' | 'DEBIT' | 'PREPAID' | null
+  productCode?: string | null
+  accountNumber?: string | null
+  feeProfile?: string | null
+  accountProfile?: string | null
+  id?: string | null
+  customerId?: string | null
+  customerSourceId?: string | null
+  status?: 'ACTIVE' | 'LOCKED' | 'BLOCKED' | null
+  statusReasonCode?:
+    | 'TemporaryBlockForDelinquency'
+    | 'TemporaryBlockOnIssuerRequest'
+    | 'TemporaryBlockForDepo'
+    | 'TemporaryBlockForAmlKyc'
+    | 'IssuerRequestGeneral'
+    | 'UserRequest'
+    | 'PremanentBlockChargeOff'
+    | 'IssuerRequestBureauInquiry'
+    | 'IssuerRequestCustomerDeceased'
+    | 'IssuerRequestStornoFromCollectionStraight'
+    | 'IssuerRequestStornoFromCollectionDepo'
+    | 'IssuerRequestStornoFromCollectionDepoPaid'
+    | 'IssuerRequestHandoverToAttorney'
+    | 'IssuerRequestLegalAction'
+    | 'IssuerRequestAmlKyc'
+    | null
+  currency?: string | null
+  cards?: ICardResponse[] | null
 }
 
 export interface ICreateCustomerResponse {
-  customerId: string
-  accountId: string
-  cardId: string
+  walletAddress: string
+  customers: {
+    sourceId?: string | null
+    taxNumber?: string | null
+    code: string
+    type: 'Citizen' | 'LegalEntity'
+    citizen?: ICitizen | null
+    legalEntity?: ILegalEntity | null
+    id?: string | null
+    addresses?: IAddress[] | null
+    communications?: ICommunication[] | null
+    accounts?: IAccount[] | null
+  }
 }
-
-export interface ICardResponse {
-  sourceId: string
-  nameOnCard: string
-  productCode: string
-  id: string
-  accountId: string
-  accountSourceId: string
-  maskedPan: string
-  status: string
-  statusReasonCode: string | null
-  lockLevel: string | null
-  expiryDate: string
-  customerId: string
-  customerSourceId: string
-}
-
-export type CardLimitType =
-  | 'perTransaction'
-  | 'dailyOverall'
-  | 'weeklyOverall'
-  | 'monthlyOverall'
-  | 'dailyAtm'
-  | 'dailyEcomm'
-  | 'monthlyOpenScheme'
-  | 'nonEUPayments'
 
 export interface ICardProductLimit {
   type: CardLimitType
@@ -101,4 +166,31 @@ export interface ICardLockRequest {
 
 export interface ICardUnlockRequest {
   note: string
+}
+
+export interface ICardLimitRequest {
+  type: CardLimitType
+  limit: string
+  currency: string
+  isDisabled: boolean
+}
+
+export interface ICardLimitResponse {
+  type: CardLimitType
+  limit: number
+  currency: string
+  isDisabled: boolean
+}
+
+export type CloseCardReason = 'UserRequest'
+
+export interface ICreateCardRequest {
+  nameOnCard: string
+  deliveryAddressId: string
+  walletAddress: string
+  currency: GateHubCardCurrency
+  productCode: string
+  card: {
+    productCode: string
+  }
 }

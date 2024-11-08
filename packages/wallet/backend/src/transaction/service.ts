@@ -3,14 +3,18 @@ import { OrderByDirection, Page, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
 import { PaginationQueryParams } from '@/shared/types'
-import { prefixSomeObjectKeys } from '@/utils/helpers'
+import { prefixSomeObjectKeys, transformBalance } from '@/utils/helpers'
 import { Knex } from 'knex'
 import {
   IncomingPayment,
   OutgoingPayment
 } from '@/rafiki/backend/generated/graphql'
 import { WalletAddress } from '@/walletAddress/model'
+import { Account } from '@/account/model'
+import { CardService } from '@/card/service'
+import NodeCache from 'node-cache'
 
+const FETCHING_TRANSACTIONS_KEY = 'FETCHING_TRANSACTIONS'
 type ListAllTransactionsInput = {
   userId: string
   paginationParams: PaginationQueryParams
@@ -34,10 +38,12 @@ export interface ITransactionService {
 }
 
 export class TransactionService implements ITransactionService {
+  cache: NodeCache = new NodeCache({ stdTTL: 30 })
   constructor(
     private accountService: AccountService,
     private logger: Logger,
-    private knex: Knex
+    private knex: Knex,
+    private cardService: CardService
   ) {}
 
   async list(
@@ -71,6 +77,10 @@ export class TransactionService implements ITransactionService {
     filterParams,
     orderByDate
   }: ListAllTransactionsInput): Promise<Page<Transaction>> {
+    if (page === 0) {
+      await this.fetchCardTransactions(userId)
+    }
+
     const filterParamsWithTableNames = prefixSomeObjectKeys(
       filterParams,
       ['walletAddressId', 'assetCode', 'type', 'status', 'accountId'],
@@ -93,6 +103,77 @@ export class TransactionService implements ITransactionService {
       .page(page, pageSize)
 
     return transactions
+  }
+
+  async fetchCardTransactions(userId: string) {
+    const key = `${FETCHING_TRANSACTIONS_KEY}-${userId}`
+    if (this.cache.has(key)) {
+      return
+    }
+    this.cache.set(key, true)
+
+    const account = await Account.query().findOne({ userId, assetCode: 'EUR' })
+    if (!account?.cardId) {
+      return
+    }
+
+    const latestTransaction: Transaction | undefined = await Transaction.query()
+      .findOne({ accountId: account.id, isCard: true })
+      .orderBy('createdAt', 'DESC')
+
+    const walletAddress = await WalletAddress.query().findOne({
+      accountId: account.id,
+      isCard: true
+    })
+
+    if (!walletAddress) {
+      return
+    }
+
+    let page = 1
+    const pageSize = 10
+    let shouldFetchNext = true
+    while (shouldFetchNext) {
+      const transactionsResponse = await this.cardService.getCardTransactions(
+        userId,
+        account.cardId,
+        pageSize,
+        page
+      )
+
+      const newTransactions = transactionsResponse.data.filter(
+        (transaction) =>
+          !latestTransaction ||
+          latestTransaction.createdAt.toISOString() <= transaction.createdAt
+      )
+
+      if (newTransactions.length === 0) {
+        return
+      }
+
+      if (transactionsResponse.data.length > newTransactions.length) {
+        shouldFetchNext = false
+      }
+
+      page++
+
+      const transactionsToSave: Partial<Transaction>[] = newTransactions.map(
+        (transaction) => ({
+          walletAddressId: walletAddress.id,
+          accountId: walletAddress.accountId,
+          paymentId: transaction.transactionId,
+          assetCode: 'EUR',
+          value: transformBalance(Number(transaction.billingAmount), 2),
+          type: 'OUTGOING',
+          status: 'COMPLETED',
+          description: '',
+          isCard: true,
+          createdAt: new Date(transaction.createdAt)
+        })
+      )
+
+      await Transaction.query().insert(transactionsToSave)
+    }
   }
 
   async processPendingIncomingPayments(): Promise<string | undefined> {

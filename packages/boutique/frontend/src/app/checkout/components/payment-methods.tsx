@@ -21,10 +21,15 @@ import { resetCart } from '@/lib/stores/cart-store.ts'
 export const PaymentMethods = () => {
   return (
     <Tabs className="py-4 sm:px-6 lg:px-0">
-      <h2 className="mb-4 block">Select payment method</h2>
+      <h2 className="mb-4 block font-['DejaVuSansMonoBold']">
+        Select payment method
+      </h2>
       <TabsList>
-        <TabsTrigger value="open-payments" className="space-x-2">
-          <OpenPaymentsMark width={50} height={32} />
+        <TabsTrigger
+          value="open-payments"
+          className="space-x-2 hover:underline dark:hover:no-underline dark:hover:shadow-glow-button"
+        >
+          <OpenPaymentsMark width={32} height={32} />
           <span className="text-sm">Open Payments</span>
         </TabsTrigger>
       </TabsList>
@@ -73,7 +78,7 @@ const OpenPaymentsForm = () => {
           }))
         })
       )}
-      className="relative my-5 items-center justify-between border-t border-gray-200 pt-6"
+      className="relative my-5 items-center justify-between border-t border-green dark:border-pink-neon pt-6"
     >
       <InputField
         label="Payment pointer"

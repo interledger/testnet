@@ -12,19 +12,17 @@ import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import { useEffect } from 'react'
-import { useTheme } from 'next-themes'
 import { emailSchema } from '@wallet/shared'
+import { THEME } from '@/utils/constants'
 
 const ForgotPasswordPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const forgotPasswordForm = useZodForm({
     schema: emailSchema
   })
-  const theme = useTheme()
+
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   useEffect(() => {
     forgotPasswordForm.setFocus('email')

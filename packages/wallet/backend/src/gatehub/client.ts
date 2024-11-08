@@ -10,9 +10,13 @@ import {
   ICreateTransactionResponse,
   ICreateWalletRequest,
   ICreateWalletResponse,
+  IFundAccountRequest,
   IGetUserStateResponse,
   IGetVaultsResponse,
+  IGetWalletForUserResponse,
   IGetWalletResponse,
+  IOverrideUserRiskLevelRequest,
+  IOverrideUserRiskLevelResponse,
   IRatesResponse,
   ITokenRequest,
   ITokenResponse,
@@ -25,8 +29,9 @@ import {
   ONBOARDING_APP_SCOPE,
   PAYMENT_TYPE,
   PRODUCTION_CLIENT_IDS,
+  PRODUCTION_VAULT_IDS,
   SANDBOX_CLIENT_IDS,
-  SUPPORTED_ASSET_CODES
+  SANDBOX_VAULT_IDS
 } from '@/gatehub/consts'
 import axios, { AxiosError } from 'axios'
 import { Logger } from 'winston'
@@ -39,18 +44,24 @@ import { BadRequest } from '@shared/backend'
 import {
   ICardDetailsResponse,
   ILinksResponse,
-  ICardResponse,
   ICreateCustomerRequest,
   ICreateCustomerResponse,
   ICardProductResponse,
   ICardDetailsRequest,
   ICardLockRequest,
-  ICardUnlockRequest
+  ICardUnlockRequest,
+  ICardLimitResponse,
+  ICardLimitRequest,
+  ICreateCardRequest,
+  CloseCardReason
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
+import { ICardResponse } from '@wallet/shared'
 
 export class GateHubClient {
+  private supportedAssetCodes: string[]
   private clientIds = SANDBOX_CLIENT_IDS
+  private vaultIds = SANDBOX_VAULT_IDS
   private mainUrl = 'sandbox.gatehub.net'
 
   private iframeMappings: Record<
@@ -68,12 +79,15 @@ export class GateHubClient {
   ) {
     if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
+      this.vaultIds = PRODUCTION_VAULT_IDS
       this.mainUrl = 'gatehub.net'
     }
+
+    this.supportedAssetCodes = Object.keys(this.vaultIds)
   }
 
   get isProduction() {
-    return this.env.NODE_ENV === 'production'
+    return this.env.GATEHUB_ENV === 'production'
   }
 
   get apiUrl() {
@@ -178,6 +192,35 @@ export class GateHubClient {
     return response
   }
 
+  async getManagedUsers(): Promise<ICreateManagedUserResponse[]> {
+    const url = `${this.apiUrl}/auth/v1/users/organization/${this.env.GATEHUB_ORG_ID}`
+
+    const response = await this.request<ICreateManagedUserResponse[]>(
+      'GET',
+      url
+    )
+
+    return response
+  }
+
+  /**
+   * The meta was createad as `meta.meta.[property]`
+   * We should be aware of this when the user signs up (for production)
+   */
+  async updateMetaForManagedUser(
+    userUuid: string,
+    meta: Record<string, string>
+  ): Promise<void> {
+    const url = `${this.apiUrl}/auth/v1/users/managed`
+    // This is the reason why the `meta` was created as `meta.meta`.
+    // Keeping this as is for consistency
+    const body = { meta }
+
+    return await this.request<void>('PUT', url, JSON.stringify(body), {
+      managedUserUuid: userUuid
+    })
+  }
+
   async createManagedUser(email: string): Promise<ICreateManagedUserResponse> {
     const url = `${this.apiUrl}/auth/v1/users/managed`
     const body: ICreateManagedUserRequest = { email }
@@ -191,10 +234,15 @@ export class GateHubClient {
     return response
   }
 
-  async getUserState(userId: string): Promise<IGetUserStateResponse> {
-    const url = `${this.apiUrl}/id/v1/users/${userId}`
+  async getUserState(managedUserUuid: string): Promise<IGetUserStateResponse> {
+    const url = `${this.apiUrl}/id/v1/users/${managedUserUuid}`
 
-    const response = await this.request<IGetUserStateResponse>('GET', url)
+    const response = await this.request<IGetUserStateResponse>(
+      'GET',
+      url,
+      undefined,
+      { managedUserUuid }
+    )
 
     return response
   }
@@ -212,6 +260,7 @@ export class GateHubClient {
     if (!this.isProduction) {
       // Auto approve user to gateway in sandbox environment
       await this.approveUserToGateway(managedUserUuid, gatewayUuid)
+      await this.overrideRiskLevel(managedUserUuid, gatewayUuid)
 
       return true
     }
@@ -232,6 +281,25 @@ export class GateHubClient {
 
     const response = await this.request<IApproveUserToGatewayResponse>(
       'PUT',
+      url,
+      JSON.stringify(body)
+    )
+
+    return response
+  }
+
+  private async overrideRiskLevel(
+    userUuid: string,
+    gatewayUuid: string
+  ): Promise<IApproveUserToGatewayResponse> {
+    const url = `${this.apiUrl}/id/v1/hubs/${gatewayUuid}/users/${userUuid}/overrideRiskLevel`
+    const body: IOverrideUserRiskLevelRequest = {
+      risk_level: 'VERY_LOW',
+      reason: 'Risk level change'
+    }
+
+    const response = await this.request<IOverrideUserRiskLevelResponse>(
+      'POST',
       url,
       JSON.stringify(body)
     )
@@ -272,16 +340,41 @@ export class GateHubClient {
     return response
   }
 
-  async getWalletBalance(walletId: string): Promise<IWalletBalance[]> {
+  /**
+   * Retrieves the user with its corresponding wallets.
+   *
+   * !!! The `meta` object is not present here - not the same output as
+   * ICreateManagedUserResponse !!!
+   */
+  async getWalletForUser(userUuid: string): Promise<IGetWalletForUserResponse> {
+    const url = `${this.apiUrl}/core/v1/users/${userUuid}`
+
+    const response = await this.request<IGetWalletForUserResponse>(
+      'GET',
+      url,
+      undefined,
+      {
+        managedUserUuid: userUuid
+      }
+    )
+    return response
+  }
+
+  async getWalletBalance(
+    walletId: string,
+    managedUserUuid: string
+  ): Promise<IWalletBalance[]> {
     const url = `${this.apiUrl}/core/v1/wallets/${walletId}/balances`
 
-    const response = await this.request<IWalletBalance[]>('GET', url)
+    const response = await this.request<IWalletBalance[]>('GET', url, '', {
+      managedUserUuid
+    })
 
     return response
   }
 
   async createTransaction(
-    body: ICreateTransactionRequest,
+    body: ICreateTransactionRequest | IFundAccountRequest,
     managedUserUuid?: string
   ): Promise<ICreateTransactionResponse> {
     const url = `${this.apiUrl}/core/v1/transactions`
@@ -312,17 +405,19 @@ export class GateHubClient {
     const response = await this.request<IRatesResponse>('GET', url)
 
     const flatRates: Record<string, number> = {}
-    for (const code of SUPPORTED_ASSET_CODES) {
+    for (const code of this.supportedAssetCodes) {
       const rateObj = response[code]
       if (rateObj && typeof rateObj !== 'string') {
-        flatRates[code] = +rateObj.rate
+        flatRates[code] = 1 / +rateObj.rate
       }
     }
 
     return flatRates
   }
 
-  // This should be called before creating customers to get the product codes for the card and account
+  /**
+   * @deprecated Only used before creating customers to get the product codes for the card and account.
+   */
   async fetchCardApplicationProducts(): Promise<ICardProductResponse[]> {
     const url = `${this.apiUrl}/v1/card-applications/${this.env.GATEHUB_CARD_APP_ID}/card-products`
     const response = await this.request<ICardProductResponse[]>('GET', url)
@@ -330,34 +425,58 @@ export class GateHubClient {
   }
 
   async createCustomer(
+    managedUserUuid: string,
     requestBody: ICreateCustomerRequest
   ): Promise<ICreateCustomerResponse> {
-    const url = `${this.apiUrl}/v1/customers`
-    return this.request<ICreateCustomerResponse>(
+    const url = `${this.apiUrl}/cards/v1/customers/managed`
+    const response = await this.request<ICreateCustomerResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
+
+    return response
   }
 
-  async getCardsByCustomer(customerId: string): Promise<ICardResponse[]> {
-    const url = `${this.apiUrl}/v1/customers/${customerId}/cards`
-    return this.request<ICardResponse[]>('GET', url)
+  /**
+   * @deprecated Only used when ordering cards.
+   */
+  async orderPlasticForCard(userUuid: string, cardId: string): Promise<void> {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/plastic`
+    await this.request('POST', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  async getCardsByCustomer(
+    customerId: string,
+    managedUserUuid: string
+  ): Promise<ICardResponse[]> {
+    const url = `${this.apiUrl}/cards/v1/customers/${customerId}/cards`
+
+    return this.request<ICardResponse[]>('GET', url, undefined, {
+      managedUserUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
   }
 
   async getCardDetails(
+    managedUserUuid: string,
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
-    const url = `${this.apiUrl}/token/card-data`
+    const url = `${this.apiUrl}/cards/v1/token/card-data`
 
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -367,27 +486,36 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card data retrieval')
     }
 
-    // TODO change this to direct call to card managing entity
-    // Will get this from the GateHub proxy for now
-    const cardDetailsUrl = `${this.apiUrl}/v1/proxy/client-device/card-data`
-    const cardDetailsResponse = await this.request<ICardDetailsResponse>(
-      'GET',
-      cardDetailsUrl,
-      undefined,
-      {
-        token
-      }
-    )
+    const res = await fetch(this.env.CARD_DATA_HREF, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    // const cardDetailsUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/cardData`
+    // const cardDetailsResponse = await this.request<ICardDetailsResponse>(
+    //   'GET',
+    //   cardDetailsUrl,
+    //   undefined,
+    //   {
+    //     managedUserUuid,
+    //     token
+    //   }
+    // )
+    // return cardDetailsResponse
+    if (!res.ok) {
+      throw new Error('Could not fetch card details')
+    }
+    const cardData = (await res.json()) as ICardDetailsResponse
 
-    return cardDetailsResponse
+    return cardData
   }
 
   async getCardTransactions(
     cardId: string,
+    userUuid: string,
     pageSize?: number,
     pageNumber?: number
   ): Promise<IGetTransactionsResponse> {
-    let url = `${this.apiUrl}/v1/cards/${cardId}/transactions`
+    let url = `${this.apiUrl}/cards/v1/cards/${cardId}/transactions`
 
     const queryParams: string[] = []
 
@@ -402,19 +530,47 @@ export class GateHubClient {
       url += `?${queryParams.join('&')}`
     }
 
-    return this.request<IGetTransactionsResponse>('GET', url)
+    return this.request<IGetTransactionsResponse>('GET', url, undefined, {
+      cardAppId: this.env.GATEHUB_CARD_APP_ID,
+      managedUserUuid: userUuid
+    })
+  }
+
+  async getCardLimits(cardId: string): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>('GET', url, undefined, {
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  async createOrOverrideCardLimits(
+    cardId: string,
+    requestBody: ICardLimitRequest[]
+  ): Promise<ICardLimitResponse[]> {
+    const url = `${this.apiUrl}/v1/cards/${cardId}/limits`
+
+    return this.request<ICardLimitResponse[]>(
+      'POST',
+      url,
+      JSON.stringify(requestBody),
+      {
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
   }
 
   async getPin(
+    managedUserUuid: string,
     requestBody: ICardDetailsRequest
   ): Promise<ICardDetailsResponse> {
-    const url = `${this.apiUrl}/token/pin`
-
+    const url = `${this.apiUrl}/cards/v1/token/pin`
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -424,64 +580,103 @@ export class GateHubClient {
       throw new Error('Failed to obtain token for card pin retrieval')
     }
 
-    // TODO change this to direct call to card managing entity
-    // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
-    const cardPinResponse = await this.request<ICardDetailsResponse>(
-      'GET',
-      cardPinUrl,
-      undefined,
-      {
-        token
-      }
-    )
+    const resp = await fetch(this.env.CARD_PIN_HREF, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    })
 
-    return cardPinResponse
+    const res = await resp.json()
+
+    return res
+    // const cardPinUrl = `${this.apiUrl}/v1/proxy/clientDevice/pin`
+    // const cardPinResponse = await this.request<ICardDetailsResponse>(
+    //   'GET',
+    //   cardPinUrl,
+    //   undefined,
+    //   {
+    //     token
+    //   }
+    // )
+
+    // return cardPinResponse
   }
 
-  async changePin(cardId: string, cypher: string): Promise<void> {
-    const url = `${this.apiUrl}/token/pin-change`
+  async getTokenForPinChange(
+    managedUserUuid: string,
+    cardId: string
+  ): Promise<string> {
+    const url = `${this.apiUrl}/cards/v1/token/pin-change`
 
     const response = await this.request<ILinksResponse>(
       'POST',
       url,
       JSON.stringify({ cardId: cardId }),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
 
     const token = response.token
     if (!token) {
-      throw new Error('Failed to obtain token for card pin retrieval')
+      throw new Error('Failed to obtain token for card pin change')
     }
 
-    // TODO change this to direct call to card managing entity
-    // Will get this from the GateHub proxy for now
-    const cardPinUrl = `${this.apiUrl}/v1/proxy/client-device/pin`
-    await this.request<void>(
-      'POST',
-      cardPinUrl,
-      JSON.stringify({ cypher: cypher }),
-      {
-        token
+    return token
+  }
+
+  async changePin(token: string, cypher: string): Promise<void> {
+    const response = await fetch(this.env.CARD_PIN_HREF, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ cypher })
+    })
+
+    if (!response.ok) {
+      let info = ''
+      if (response.headers.get('content-type') === 'application/json') {
+        info = await response.json()
+      } else {
+        info = await response.text()
       }
-    )
+      this.logger.error(
+        `ClientDevice/pin call failed with status ${response.status}: ${info}`
+      )
+      throw new Error('Could not change the card pin. Please try again')
+    }
+
+    this.logger.info('Successfully changed card pin.')
+
+    // TODO: Move to proxy when it's fixed
+    // const cardPinUrl = `${this.apiUrl}/cards/v1/proxy/clientDevice/pin`
+    // await this.request<void>(
+    //   'POST',
+    //   cardPinUrl,
+    //   JSON.stringify({ cypher: cypher }),
+    //   {
+    //     managedUserUuid,
+    //     token
+    //   }
+    // )
   }
 
   async lockCard(
     cardId: string,
+    managedUserUuid: string,
     reasonCode: LockReasonCode,
     requestBody: ICardLockRequest
   ): Promise<ICardResponse> {
-    let url = `${this.apiUrl}/v1/cards/${cardId}/lock`
-    url += `?reasonCode=${encodeURIComponent(reasonCode)}`
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/lock?reasonCode=${encodeURIComponent(reasonCode)}`
 
     return this.request<ICardResponse>(
       'PUT',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -489,15 +684,17 @@ export class GateHubClient {
 
   async unlockCard(
     cardId: string,
+    managedUserUuid: string,
     requestBody: ICardUnlockRequest
   ): Promise<ICardResponse> {
-    const url = `${this.apiUrl}/v1/cards/${cardId}/unlock`
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/unlock`
 
     return this.request<ICardResponse>(
       'PUT',
       url,
       JSON.stringify(requestBody),
       {
+        managedUserUuid,
         cardAppId: this.env.GATEHUB_CARD_APP_ID
       }
     )
@@ -512,6 +709,38 @@ export class GateHubClient {
     url += `?reasonCode=${encodeURIComponent(reasonCode)}`
 
     return this.request<ICardResponse>('PUT', url)
+  }
+
+  async closeCard(userUuid: string, cardId: string, reason: CloseCardReason) {
+    const url = `${this.apiUrl}/cards/v1/cards/${cardId}/card?reasonCode=${reason}`
+
+    await this.request('DELETE', url, undefined, {
+      managedUserUuid: userUuid,
+      cardAppId: this.env.GATEHUB_CARD_APP_ID
+    })
+  }
+
+  /**
+   * @deprecated
+   */
+  async createCard(
+    userUuid: string,
+    accountId: string,
+    payload: ICreateCardRequest
+  ) {
+    const url = `${this.apiUrl}/cards/v1/cards/${accountId}/card`
+
+    const response = await this.request<ICardResponse>(
+      'POST',
+      url,
+      JSON.stringify(payload),
+      {
+        managedUserUuid: userUuid,
+        cardAppId: this.env.GATEHUB_CARD_APP_ID
+      }
+    )
+
+    return response
   }
 
   private async request<T>(
@@ -603,5 +832,15 @@ export class GateHubClient {
     return createHmac('sha256', this.env.GATEHUB_SECRET_KEY)
       .update(toSign)
       .digest('hex')
+  }
+
+  getVaultUuid(assetCode: string): string {
+    const vaultId: string | undefined = this.vaultIds[assetCode]
+
+    if (!vaultId) {
+      throw new BadRequest(`Unsupported asset code ${assetCode}`)
+    }
+
+    return vaultId
   }
 }

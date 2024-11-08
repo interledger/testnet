@@ -6,6 +6,7 @@ export interface IWalletAddressResponse {
   url: string
   publicName: string
   accountId: string
+  isCard?: boolean
 }
 
 export interface WalletAddressResponse extends IWalletAddressResponse {

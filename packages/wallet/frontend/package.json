@@ -1,21 +1,23 @@
 {
   "name": "@wallet/frontend",
   "scripts": {
-    "dev": "PORT=4003 next dev",
+    "dev": "next dev -p 4003",
     "build:deps": "pnpm --filter @wallet/shared build",
     "build": "pnpm build:deps && next build",
     "start": "next start"
   },
   "dependencies": {
-    "@headlessui/react": "^2.1.8",
-    "@hookform/resolvers": "^3.9.0",
-    "@radix-ui/react-toast": "^1.2.1",
-    "@radix-ui/react-tooltip": "^1.1.2",
+    "@headlessui/react": "^2.1.9",
+    "@hookform/resolvers": "^3.9.1",
+    "@radix-ui/react-toast": "^1.2.2",
+    "@radix-ui/react-tooltip": "^1.1.3",
+    "@types/node-rsa": "^1.1.4",
     "@wallet/shared": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "ky": "^1.7.2",
     "next": "14.2.10",
     "next-themes": "^0.3.0",
+    "node-rsa": "^1.1.1",
     "nprogress": "^0.2.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -24,7 +26,7 @@
     "react-select": "^5.8.1",
     "sharp": "^0.33.5",
     "socket.io-client": "^4.8.0",
-    "tailwind-merge": "^2.5.2",
+    "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^2.0.0",
     "zod": "^3.23.8"
@@ -35,11 +37,11 @@
     "@tailwindcss/forms": "^0.5.9",
     "@types/node": "^20.12.11",
     "@types/nprogress": "^0.2.3",
-    "@types/react": "18.3.10",
+    "@types/react": "18.3.11",
     "@types/react-dom": "18.3.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13",
-    "typescript": "^5.6.2"
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
   }
 }

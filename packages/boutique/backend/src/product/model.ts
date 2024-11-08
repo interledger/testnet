@@ -11,6 +11,7 @@ export class Product extends BaseModel {
   public slug!: string
   public price!: number
   public image!: string
+  public imageDark!: string
 
   static relationMappings = () => ({
     orders: {

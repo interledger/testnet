@@ -13,7 +13,7 @@ import { Loader } from '@/components/loader.tsx'
 
 function InstantBuy() {
   return (
-    <div className="mt-28 flex flex-col items-center gap-y-5 text-turqoise">
+    <div className="mt-28 flex flex-col items-center gap-y-5 text-green dark:text-green-neon">
       <AnimatedCheckMark />
       <AnimatedText text="Thank you for your order!" />
       <Button variant="default" aria-label="continue shopping" asChild>
@@ -39,12 +39,12 @@ function CheckoutConfirmation() {
   }, [])
 
   if (data) {
-    let color: string = 'text-turqoise'
+    let color: string = ' text-green dark:text-green-neon'
     let text: string = 'Thank you for your order!'
     let variant: VariantProps<typeof buttonVariants>['variant'] = 'default'
 
     if (result === 'grant_rejected') {
-      color = 'text-pink'
+      color = ' text-orange-dark dark:text-pink-neon'
       text = 'Payment successfully declined.'
       variant = 'secondary'
     }

@@ -1,9 +1,9 @@
 import { forwardRef, useId } from 'react'
-import type { ComponentPropsWithoutRef } from 'react'
+import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { FieldError } from './FieldError'
 
 type CheckboxProps = ComponentPropsWithoutRef<'input'> & {
-  label: string
+  label: string | ReactNode
   error?: string
 }
 

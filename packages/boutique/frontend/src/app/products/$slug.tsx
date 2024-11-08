@@ -7,6 +7,7 @@ import { createContext } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductCTA } from './components/product-cta.tsx'
 import { ProductShimmer } from './components/product-shimmer.tsx'
+import { useThemeContext } from '@/lib/theme.ts'
 
 interface ProductContextValue {
   product: Product
@@ -18,16 +19,19 @@ export const ProductContext = createContext<ProductContextValue>(
 
 export function Component() {
   const { data, error } = useProductQuery()
+  const { theme } = useThemeContext()
 
   if (error) {
     return (
       <div className="col-span-4 mt-4 text-center">
         <BirdError className="mx-auto h-20 w-20" />
-        <p className="text-lg font-bold">Something went wrong...</p>
+        <p className="text-lg font-['DejaVuSansMonoBold']">
+          Something went wrong...
+        </p>
         <p>{error.message}</p>
         <Link
           to="/products"
-          className="mt-2 text-lg text-green-6 hover:text-green-3"
+          className="mt-2 text-lg hover:underline dark:hover:no-underline dark:hover:shadow-glow-link"
         >
           Go back to products page
         </Link>
@@ -39,16 +43,16 @@ export function Component() {
     return (
       <ProductContext.Provider value={{ product: data.result }}>
         <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
-          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-gray-50 lg:w-full">
+          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
             <img
-              src={`${IMAGES_URL}${data.result.image}`}
+              src={`${IMAGES_URL}${theme === 'light' ? data.result.image : data.result.imageDark}`}
               alt={data.result.name}
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-scale-down object-center"
             />
           </div>
 
           <div className="col-span-2 mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-3xl font-['DejaVuSansMonoBold'] tracking-tight">
               {data.result.name}
             </h1>
             <div className="mt-3">

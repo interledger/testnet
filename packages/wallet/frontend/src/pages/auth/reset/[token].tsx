@@ -15,8 +15,8 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
-import { useTheme } from 'next-themes'
 import { useState } from 'react'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 
 type ResetPasswordPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -36,11 +36,9 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       token: token
     }
   })
-  const theme = useTheme()
+
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
   const togglePasswordVisibility = () => {
     setPasswordVisible(!isPasswordVisible)
   }
@@ -53,7 +51,8 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
       {token && isValid ? (
         <>
           <h2 className="mb-5 mt-10 text-center text-xl font-semibold text-green dark:text-teal-neon">
-            Provide a new password for your Test Wallet account.
+            Provide a new password for your{' '}
+            {FEATURES_ENABLED ? 'Interledger Wallet' : 'Test Wallet'} account.
           </h2>
           <div className="w-2/3">
             <Form
@@ -95,7 +94,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 />
                 <span
                   onClick={togglePasswordVisibility}
-                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                  className="absolute right-2.5 top-9 cursor-pointer"
                 >
                   {isPasswordVisible ? <SlashEye /> : <Eye />}
                 </span>
@@ -112,7 +111,7 @@ const ResetPasswordPage: NextPageWithLayout<ResetPasswordPageProps> = ({
                 />
                 <span
                   onClick={toggleConfirmPasswordVisibility}
-                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                  className="absolute right-2.5 top-9 cursor-pointer"
                 >
                   {isConfirmPasswordVisible ? <SlashEye /> : <Eye />}
                 </span>

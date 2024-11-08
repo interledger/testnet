@@ -18,8 +18,18 @@ export type BlockReasonCode =
   | 'IssuerRequestCustomerDeceased'
   | 'ProductDoesNotRenew'
 
+export type CardLimitType =
+  | 'perTransaction'
+  | 'dailyOverall'
+  | 'weeklyOverall'
+  | 'monthlyOverall'
+  | 'dailyAtm'
+  | 'dailyEcomm'
+  | 'monthlyOpenScheme'
+  | 'nonEUPayments'
+
 // Response for fetching card transactions
-export interface ITransaction {
+export interface ICardTransaction {
   id: number
   transactionId: string
   ghResponseCode: string
@@ -49,6 +59,24 @@ export interface IPagination {
 }
 
 export interface IGetTransactionsResponse {
-  data: ITransaction[]
+  data: ICardTransaction[]
   pagination: IPagination
+}
+
+export interface ICardResponse {
+  sourceId: string
+  nameOnCard: string
+  productCode: string
+  id: string
+  accountId: string
+  accountSourceId: string
+  maskedPan: string
+  status: string
+  statusReasonCode: string | null
+  lockLevel: string | null
+  expiryDate: string
+  customerId: string
+  customerSourceId: string
+  isPinSet: boolean
+  walletAddress?: string
 }

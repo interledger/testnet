@@ -7,7 +7,7 @@ import { Button } from '@/ui/Button'
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { z } from 'zod'
 import { userService } from '@/lib/api/user'
-import { useTheme } from 'next-themes'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 
 type VerifyEmailPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -17,11 +17,8 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
   verified,
   message
 }) => {
-  const theme = useTheme()
   const imageName =
-    theme.theme === 'dark'
-      ? '/bird-envelope-dark.webp'
-      : '/bird-envelope-light.webp'
+    THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
   return (
     <>
@@ -30,7 +27,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
         <>
           <h2 className="mb-10 mt-10 px-2 text-center text-xl font-semibold text-green dark:text-teal-neon">
             Your email has been verified. Continue to login to use Interledger
-            Test Wallet.
+            {FEATURES_ENABLED ? 'Wallet' : 'Test Wallet'}.
           </h2>
           <Button intent="primary" aria-label="login" href="/auth/login">
             Login to your account

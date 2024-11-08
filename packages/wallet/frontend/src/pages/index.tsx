@@ -13,6 +13,7 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -56,6 +57,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
                 key={account.id}
                 account={account}
                 idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                isCard={FEATURES_ENABLED && account.assetCode === 'EUR'}
               />
             ))
           : null}
