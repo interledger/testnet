@@ -85,6 +85,13 @@ export const mockedListAssets = [
     id: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
     scale: 4,
     withdrawalThreshold: null
+  },
+  {
+    code: 'EUR',
+    createdAt: '2023-06-28T14:33:24.888Z',
+    id: 'da1d9728-e38f-47e6-a88e-5bfe9e60438d',
+    scale: 2,
+    withdrawalThreshold: null
   }
 ]
 

@@ -12,9 +12,10 @@
       "protocol": "inspector"
     },
     {
+      // debugs jest test file in wallet backend
       "type": "node",
       "request": "launch",
-      "name": "Jest Current File",
+      "name": "Wallet Backend-Jest Test File",
       "program": "${workspaceFolder}/packages/wallet/backend/node_modules/jest/bin/jest.js",
       "args": [
         "--runTestsByPath",
