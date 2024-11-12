@@ -34,7 +34,7 @@
     "objection": "^3.1.5",
     "pg": "^8.13.1",
     "randexp": "^0.5.3",
-    "rate-limiter-flexible": "^5.0.3",
+    "rate-limiter-flexible": "^5.0.4",
     "socket.io": "^4.8.0",
     "uuid": "^10.0.0",
     "winston": "^3.15.0",
