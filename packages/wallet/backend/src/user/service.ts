@@ -138,12 +138,7 @@ export class UserService implements IUserService {
       )
 
       if (!gateHubUser) {
-        // This shouldn't really happen when GATEHUB_ENV=production because we
-        // already created all managed users.
-        this.logger.error(
-          `Could not find GateHub managed user with email: ${user.email})`
-        )
-        throw new Error('Could not find GateHub managed user')
+        gateHubUser = await this.gateHubClient.createManagedUser(user.email)
       }
     } else {
       gateHubUser = await this.gateHubClient.createManagedUser(user.email)
