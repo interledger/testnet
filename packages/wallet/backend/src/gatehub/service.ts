@@ -301,14 +301,14 @@ export class GateHubService {
     userId: string,
     userEmail: string,
     walletAddressPublicName: string
-  ): Promise<string> {
+  ): Promise<string | undefined> {
     const existingManagedUsers = await this.gateHubClient.getManagedUsers()
     // Managed user will always be found here since this check is also performed on sign up
     const gateHubUser = existingManagedUsers.find(
       (gateHubUser) => gateHubUser.email === userEmail
     )
     if (!gateHubUser) {
-      throw new Error(`GateHub user with email ${userEmail} not found`)
+      return
     }
 
     const customerId = gateHubUser.meta.meta.customerId
