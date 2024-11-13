@@ -38,3 +38,8 @@ export const PRODUCTION_VAULT_IDS: Record<string, string> = {
   USD: '5e1ff913-96d4-45ab-b7a3-04197a59fe06',
   EUR: '546ac540-4362-49cb-b639-afc5d4280d03'
 }
+
+export enum DepositTypeEnum {
+  HOSTED = 'hosted',
+  EXTERNAL = 'external'
+}
