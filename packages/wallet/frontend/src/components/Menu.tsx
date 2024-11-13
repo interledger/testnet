@@ -259,7 +259,11 @@ export const Menu = () => {
             className="group mb-4 rounded-md border border-transparent p-2 focus:border-black dark:focus:border-white dark:focus:shadow-glow-link"
             href="/"
           >
-            <LogoWallet className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
+            {FEATURES_ENABLED ? (
+              <LogoWallet className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
+            ) : (
+              <Logo className="w-48 py-4 text-black transition-transform duration-200 group-hover:scale-105 group-focus:scale-105 dark:text-white dark:group-hover:scale-100 dark:group-hover:drop-shadow-glow-svg dark:group-focus:scale-100 dark:group-focus:drop-shadow-glow-svg" />
+            )}
           </Link>
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, id, Icon }) => (

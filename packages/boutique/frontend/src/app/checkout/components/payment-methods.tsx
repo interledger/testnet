@@ -1,4 +1,8 @@
-import { OpenPaymentsMark } from '@/components/icons.tsx'
+import {
+  ApplePayMark,
+  GooglePayMark,
+  OpenPaymentsMark
+} from '@/components/icons.tsx'
 import { Form } from '@/components/ui/form/form.tsx'
 import { InputField } from '@/components/ui/form/input-field.tsx'
 import {
@@ -27,10 +31,23 @@ export const PaymentMethods = () => {
       <TabsList>
         <TabsTrigger
           value="open-payments"
-          className="space-x-2 hover:underline dark:hover:no-underline dark:hover:shadow-glow-button"
+          className="space-x-2 hover:underline dark:hover:no-underline dark:hover:border-pink-neon"
         >
-          <OpenPaymentsMark width={32} height={32} />
-          <span className="text-sm">Open Payments</span>
+          <OpenPaymentsMark width={120} height={40} />
+        </TabsTrigger>
+        <TabsTrigger
+          value="open-payments"
+          className="space-x-2 hover:underline dark:hover:no-underline"
+          disabled
+        >
+          <ApplePayMark width={80} height={40} />
+        </TabsTrigger>
+        <TabsTrigger
+          value="open-payments"
+          className="space-x-2 hover:underline dark:hover:no-underline"
+          disabled
+        >
+          <GooglePayMark width={120} height={40} />
         </TabsTrigger>
       </TabsList>
       <TabsContent value="open-payments">

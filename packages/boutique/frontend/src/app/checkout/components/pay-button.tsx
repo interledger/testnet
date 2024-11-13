@@ -1,4 +1,4 @@
-import { OpenPaymentsMark } from '@/components/icons.tsx'
+import { PayWithInterledgerMark } from '@/components/icons.tsx'
 import { Button, ButtonProps } from '@/components/ui/button.tsx'
 import { cn } from '@/lib/utils.ts'
 
@@ -8,8 +8,8 @@ export interface PayButtonProps
 export const PayButton = ({ className, ...props }: PayButtonProps) => {
   return (
     <Button type="submit" className={cn(className)} aria-label="pay" {...props}>
-      <OpenPaymentsMark className="h-8 w-8 mr-2" />
-      <span className="text-xl">Pay</span>
+      <span className="text-md">Pay with</span>
+      <PayWithInterledgerMark className="h-8 w-40 mr-2" />
     </Button>
   )
 }

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 export const buttonVariants = cva(
   [
-    'inline-flex items-center justify-center outline-none border-2 underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button disabled:decoration-none disabled:bg-grey-light disabled:text-grey-dark disabled:cursor-not-allowed disabled:hover:shadow-none dark:disabled:decoration-none dark:disabled:bg-grey-light dark:disabled:text-grey-dark dark:disabled:cursor-not-allowed dark:disabled:hover:shadow-none'
+    'inline-flex items-center justify-center outline-none border-2 underline dark:no-underline decoration-transparent underline-offset-2 transition-[box-shadow,background-color,text-decoration-color,color] duration-200 ease-in-out hover:decoration-[currentcolor] focus:decoration-[currentcolor] dark:hover:shadow-glow-button dark:focus:shadow-glow-button disabled:decoration-none disabled:bg-grey-light disabled:text-grey-dark disabled:cursor-not-allowed disabled:hover:shadow-none dark:decoration-none dark:disabled:decoration-none dark:disabled:bg-grey-light dark:disabled:text-grey-dark dark:disabled:cursor-not-allowed dark:disabled:hover:shadow-none'
   ],
   {
     variants: {

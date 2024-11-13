@@ -11,7 +11,8 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
-import { THEME } from '@/utils/constants'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
+import { Logo, LogoWallet } from '@/ui/Logo'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -52,7 +53,12 @@ const GrantInteractionPage = ({
 
   return isPendingGrant ? (
     <div className="col-span-full m-auto my-28 px-5 text-center md:px-0">
-      <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg">
+      <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg flex items-center flex-col">
+        {FEATURES_ENABLED ? (
+          <LogoWallet className="h-14 ml-5 mb-16"></LogoWallet>
+        ) : (
+          <Logo className="h-14 ml-5 mb-16" />
+        )}
         <Image
           className="mx-auto object-cover"
           src={imageName}
