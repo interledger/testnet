@@ -17,7 +17,7 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
       {card ? (
         <UserCard card={card} />
       ) : (
-        `You don't have a card linked to your account`
+        `You don't have a card linked to your account.`
       )}
     </>
   )
