@@ -2,7 +2,11 @@ import { GateHubClient } from '@/gatehub/client'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
 import { NotFound } from '@shared/backend'
-import { ICardTransactionWebhookData, IWebhookData } from '@/gatehub/types'
+import {
+  ICardTransactionWebhookData,
+  IDepositWebhookData,
+  IWebhookData
+} from '@/gatehub/types'
 import { Logger } from 'winston'
 import { Env } from '@/config/env'
 import { AccountService } from '@/account/service'
@@ -14,6 +18,7 @@ import { getRandomValues } from 'crypto'
 import { EmailService } from '@/email/service'
 import { Transaction } from '@/transaction/model'
 import { transformBalance } from '@/utils/helpers'
+import { DepositTypeEnum } from '@/gatehub/consts'
 
 export class GateHubService {
   constructor(
@@ -43,8 +48,11 @@ export class GateHubService {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
 
     if (data.event_type === 'core.deposit.completed') {
-      // skip deposit webhooks processing
-      return
+      const depositData = data.data as IDepositWebhookData
+      if (depositData.deposit_type !== DepositTypeEnum.EXTERNAL) {
+        // skip deposit webhooks processing hosted transactions
+        return
+      }
     }
 
     const gateHubUserId = data.user_uuid
@@ -106,6 +114,9 @@ export class GateHubService {
           data.data as ICardTransactionWebhookData
         )
         break
+      case 'core.deposit.completed':
+        await this.handleDepositWebhook(user, data.data as IDepositWebhookData)
+        break
     }
   }
 
@@ -138,6 +149,43 @@ export class GateHubService {
       status: 'COMPLETED',
       description: '',
       isCard: true
+    })
+  }
+
+  private async handleDepositWebhook(
+    user: Partial<User>,
+    data: IDepositWebhookData
+  ) {
+    const account = await this.accountService.getAccountByGatehubWalletId(
+      user.id!,
+      data.address
+    )
+
+    if (!account) {
+      this.logger.error(
+        `Account for user ${user.id} with account ${data.address} not found`,
+        data
+      )
+      return
+    }
+
+    if (data.currency !== account.assetCode) {
+      // Deposits should be allowed only in account currency
+      this.logger.error(
+        `Deposit does not match account currency for ${user.id} with account ${data.address}. Deposit currency ${data.currency}, account currency ${account.assetCode}`,
+        data
+      )
+      return
+    }
+
+    await Transaction.query().insert({
+      accountId: account.id,
+      paymentId: data.tx_uuid,
+      assetCode: data.currency,
+      value: transformBalance(Number(data.amount), 2),
+      type: 'INCOMING',
+      status: 'COMPLETED',
+      description: 'Deposit'
     })
   }
 

@@ -1,4 +1,4 @@
-import { TransactionTypeEnum } from '@/gatehub/consts'
+import { DepositTypeEnum, TransactionTypeEnum } from '@/gatehub/consts'
 import { ICardTransaction } from '@wallet/shared/src'
 
 export type HTTP_METHODS = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
@@ -150,7 +150,7 @@ export interface IWebhookData {
   event_type: WebhookEventType
   user_uuid: string
   environment: 'sandbox' | 'production'
-  data: IEmailMessage | ICardTransactionWebhookData
+  data: IEmailMessage | ICardTransactionWebhookData | IDepositWebhookData
 }
 
 export interface IEmailMessage {
@@ -159,5 +159,14 @@ export interface IEmailMessage {
 
 export interface ICardTransactionWebhookData {
   authorizationData: ICardTransaction
+  message?: string
+}
+
+export interface IDepositWebhookData {
+  tx_uuid: string
+  amount: string
+  currency: string
+  address: string
+  deposit_type: DepositTypeEnum
   message?: string
 }
