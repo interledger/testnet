@@ -14,7 +14,11 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({ card }) => {
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Your Card" />
       </div>
-      <UserCard card={card} />
+      {card ? (
+        <UserCard card={card} />
+      ) : (
+        `You don't have a card linked to your account.`
+      )}
     </>
   )
 }
@@ -33,7 +37,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      card: response.result[0]
+      card: response.result[0] ?? null
     }
   }
 }
