@@ -23,7 +23,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.2",
-    "react-router-dom": "^6.26.2",
+    "react-router-dom": "^6.28.0",
     "remix-params-helper": "^0.5.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
