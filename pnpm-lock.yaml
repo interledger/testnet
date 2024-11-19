@@ -193,8 +193,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.15)
       valtio:
-        specifier: ^2.0.0
-        version: 2.0.0(@types/react@18.3.11)(react@18.3.1)
+        specifier: ^2.1.2
+        version: 2.1.2(@types/react@18.3.11)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -485,8 +485,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.15)
       valtio:
-        specifier: ^2.0.0
-        version: 2.0.0(@types/react@18.3.11)(react@18.3.1)
+        specifier: ^2.1.2
+        version: 2.1.2(@types/react@18.3.11)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -6295,8 +6295,8 @@ packages:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
 
-  valtio@2.0.0:
-    resolution: {integrity: sha512-SzUU5UUK/vBRfHWXihwkJE55YNj8zhOkzxPOexcz0xIIT6Oux5VLynCmzyME2bYuEWcktW2NTaaLbpUydEsHiw==}
+  valtio@2.1.2:
+    resolution: {integrity: sha512-fhekN5Rq7dvHULHHBlJeXHrQDl0Jj9GXfNavCm3gkD06crGchaG1nf/J7gSlfZU2wPcRdVS5jBKWHtE2NNz97A==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -13249,7 +13249,7 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
-  valtio@2.0.0(@types/react@18.3.11)(react@18.3.1):
+  valtio@2.1.2(@types/react@18.3.11)(react@18.3.1):
     dependencies:
       proxy-compare: 3.0.0
     optionalDependencies:
