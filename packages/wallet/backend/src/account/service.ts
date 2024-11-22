@@ -176,6 +176,18 @@ export class AccountService implements IAccountService {
     return account
   }
 
+  public async getAccountByGatehubWalletId(
+    userId: string,
+    gateHubWalletId: string
+  ): Promise<Account | undefined> {
+    const account = await Account.query()
+      .where('userId', userId)
+      .where('gateHubWalletId', gateHubWalletId)
+      .first()
+
+    return account
+  }
+
   async getAccountByCardId(userId: string, cardId: string): Promise<Account> {
     const account = await Account.query()
       .where('userId', userId)

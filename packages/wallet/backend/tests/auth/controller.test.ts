@@ -1,5 +1,6 @@
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
+import { envRateLimit } from '@/config/rateLimit'
 import { createApp, TestApp } from '@/tests/app'
 import { Knex } from 'knex'
 import { truncateTables } from '@shared/backend/tests'
@@ -14,6 +15,8 @@ import type { AuthController } from '@/auth/controller'
 import type { AuthService } from '@/auth/service'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
+import { getRedisClient } from '@/config/redis'
+import { rateLimiterLogin, rateLimiterEmail } from '@/middleware/rateLimit'
 import type { UserService } from '@/user/service'
 import {
   fakeLoginData,
@@ -25,6 +28,7 @@ import { createUser, errorHandler } from '@/tests/helpers'
 import { AwilixContainer } from 'awilix'
 import { getRandomToken, hashToken } from '@/utils/helpers'
 import { GateHubClient } from '@/gatehub/client'
+import { BaseError } from '@shared/backend'
 
 describe('Authentication Controller', (): void => {
   let bindings: AwilixContainer<Cradle>
@@ -36,6 +40,7 @@ describe('Authentication Controller', (): void => {
   let req: MockRequest<Request>
   let res: MockResponse<Response>
 
+  const rateLimit = envRateLimit()
   const next = jest.fn()
 
   beforeAll(async (): Promise<void> => {
@@ -61,6 +66,8 @@ describe('Authentication Controller', (): void => {
   afterAll(async (): Promise<void> => {
     await appContainer.stop()
     await knex.destroy()
+    const redisClient = getRedisClient(env)
+    redisClient?.disconnect()
   })
 
   afterEach(async (): Promise<void> => {
@@ -212,6 +219,40 @@ describe('Authentication Controller', (): void => {
         message: 'Internal Server Error'
       })
     })
+    it('should return status 429 (rate limit) if the user login rate limit is reached', async (): Promise<void> => {
+      if (!rateLimit.RATE_LIMIT) {
+        return
+      }
+      const fakeLogin = fakeLoginData()
+      const newUserData = {
+        ...fakeLogin,
+        isEmailVerified: true
+      }
+      await createUser(newUserData)
+      req.body = { ...fakeLogin, password: 'invalid' }
+
+      let failedLoginResp: MockResponse<Response>
+      for (let i = 0; i < rateLimit.LOGIN_RATE_LIMIT; i++) {
+        failedLoginResp = createResponse()
+        await applyMiddleware(rateLimiterLogin, req, failedLoginResp)
+        await authController.logIn(req, failedLoginResp, (err) => {
+          next()
+          errorHandler(err, req, failedLoginResp, next)
+        })
+        expect(next).toHaveBeenCalledTimes(i + 1)
+        expect(failedLoginResp.statusCode).toBe(401)
+      }
+
+      try {
+        await applyMiddleware(rateLimiterLogin, req, res)
+        await authController.logIn(req, res, next)
+      } catch (err) {
+        expect((err as BaseError).statusCode).toBe(429)
+        expect((err as BaseError).message).toMatch(
+          `Too many attempts. Retry after ${rateLimit.LOGIN_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
+        )
+      }
+    })
   })
 
   describe('Log out', () => {
@@ -343,6 +384,40 @@ describe('Authentication Controller', (): void => {
         success: true,
         message: 'Verification email has been sent successfully'
       })
+    })
+
+    it('should return 429 (rate limit) if the endpoint to resend verify email is called twice ', async () => {
+      if (!rateLimit.RATE_LIMIT) {
+        return
+      }
+      const fakeLogin = fakeLoginData()
+      const newUserData = {
+        ...fakeLogin,
+        isEmailVerified: false
+      }
+      await createUser(newUserData)
+
+      req.body = {
+        email: fakeLogin.email
+      }
+      await applyMiddleware(rateLimiterEmail, req, res)
+      await authController.resendVerifyEmail(req, res, next)
+      expect(next).toHaveBeenCalledTimes(0)
+      expect(res.statusCode).toBe(201)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Verification email has been sent successfully'
+      })
+      try {
+        const limitReachedResp: MockResponse<Response> = createResponse()
+        await applyMiddleware(rateLimiterEmail, req, limitReachedResp)
+        await authController.resendVerifyEmail(req, limitReachedResp, next)
+      } catch (err) {
+        expect((err as BaseError).statusCode).toBe(429)
+        expect((err as BaseError).message).toMatch(
+          `Too many attempts. Retry after ${rateLimit.SEND_EMAIL_RATE_LIMIT_PAUSE_IN_SECONDS / 60} minutes`
+        )
+      }
     })
   })
 })

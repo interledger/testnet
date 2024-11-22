@@ -1,10 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import {
-  BadRequest,
-  Controller,
-  InternalServerError,
-  NotFound
-} from '@shared/backend'
+import { BadRequest, Controller, NotFound } from '@shared/backend'
 import { CardService } from '@/card/service'
 import { toSuccessResponse } from '@shared/backend'
 import {
@@ -28,7 +23,6 @@ import {
   permanentlyBlockCardSchema,
   getTokenForPinChange
 } from './validation'
-import { Logger } from 'winston'
 import { UserService } from '@/user/service'
 
 export interface ICardController {
@@ -47,8 +41,7 @@ export interface ICardController {
 export class CardController implements ICardController {
   constructor(
     private cardService: CardService,
-    private userService: UserService,
-    private logger: Logger
+    private userService: UserService
   ) {}
 
   public getCardsByCustomer = async (
@@ -60,10 +53,8 @@ export class CardController implements ICardController {
       const customerId = req.session.user.customerId
 
       if (!customerId) {
-        this.logger.error(
-          `Customer id was not found on session object for user ${req.session.user.id}`
-        )
-        throw new InternalServerError()
+        res.status(200).json(toSuccessResponse([]))
+        return
       }
 
       const cards = await this.cardService.getCardsByCustomer(

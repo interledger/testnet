@@ -48,7 +48,7 @@ export const OrderSummary = ({ summary }: OrderSummaryProps) => {
           </div>
           <div className="flex items-center justify-between border-t pt-4">
             <dt>Fees</dt>
-            <dd className="text-sm">
+            <dd className="text-sm ml-6">
               Fees will be calculated at the next step
             </dd>
           </div>
