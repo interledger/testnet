@@ -437,17 +437,17 @@ describe('GateHub Service', (): void => {
         expect(updatedUser?.cardWalletAddress).toBe('$ilp.dev/test-wallet')
       })
 
-      it('should throw an error if the GateHub user with the specified email is not found', async () => {
+      it('should return undefined if the GateHub user with the specified email is not found', async () => {
         mockGateHubClient.getManagedUsers.mockResolvedValue([
           { email: 'user1@example.com' },
           { email: 'user2@example.com' }
         ])
 
-        await expect(
-          gateHubService.addUserToGateway(user.id)
-        ).rejects.toThrowError(
-          `GateHub user with email ${user.email} not found`
-        )
+        const result = await gateHubService.addUserToGateway(user.id)
+        expect(result).toEqual({
+          customerId: undefined,
+          isApproved: undefined
+        })
       })
     })
   })
