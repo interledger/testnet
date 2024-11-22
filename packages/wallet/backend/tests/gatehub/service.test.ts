@@ -154,7 +154,7 @@ describe('GateHub Service', (): void => {
       mockGateHubClient.getIframeUrl.mockReturnValue(mockedIframeUrl)
 
       const result = await gateHubService.getIframeUrl('withdrawal', user.id)
-      expect(result).toMatch(mockedIframeUrl)
+      expect(result).toMatchObject({ url: mockedIframeUrl })
     })
 
     it('should return NotFound if no user found', async () => {
