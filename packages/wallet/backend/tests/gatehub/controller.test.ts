@@ -85,7 +85,9 @@ describe('GateHub Controller', () => {
         type: 'withdrawal'
       }
       const mockedIframeUrl = 'URL'
-      mockGateHubService.getIframeUrl.mockResolvedValue({ url: mockedIframeUrl })
+      mockGateHubService.getIframeUrl.mockResolvedValue({
+        url: mockedIframeUrl
+      })
 
       await gateHubController.getIframeUrl(req, res, next)
 
