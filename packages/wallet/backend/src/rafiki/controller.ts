@@ -4,7 +4,7 @@ import { RatesService } from '@/rates/service'
 import { ratesSchema } from '@/rates/validation'
 import { validate } from '@/shared/validate'
 import { RafikiService } from './service'
-import { webhookSchema } from './validation'
+import { webhookBodySchema } from './validation'
 import { RatesResponse } from '@wallet/shared'
 interface IRafikiController {
   getRates: (
@@ -39,7 +39,7 @@ export class RafikiController implements IRafikiController {
 
   onWebHook = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const wh = await validate(webhookSchema, req)
+      const wh = await validate(webhookBodySchema, req)
 
       await this.rafikiService.onWebHook(wh.body)
       res.status(200).send()
