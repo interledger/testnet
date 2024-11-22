@@ -19,7 +19,18 @@ export class GateHubController implements IGateHubController {
     try {
       const userId = req.session.user.id
       const iframeType: IFRAME_TYPE = req.params.type as IFRAME_TYPE
-      const url = await this.gateHubService.getIframeUrl(iframeType, userId)
+      const { url, isApproved, customerId } =
+        await this.gateHubService.getIframeUrl(iframeType, userId)
+
+      if (isApproved) {
+        req.session.user.needsIDProof = false
+
+        if (customerId) {
+          req.session.user.customerId = customerId
+        }
+
+        await req.session.save()
+      }
       res.status(200).json(toSuccessResponse({ url }))
     } catch (e) {
       next(e)
