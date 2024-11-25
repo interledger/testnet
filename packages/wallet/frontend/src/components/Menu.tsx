@@ -234,7 +234,7 @@ export const Menu = () => {
         </Dialog>
       </Transition>
 
-      <header className="fixed inset-x-0 top-0 block h-[84px] border-b-2 border-dotted bg-white px-6 dark:bg-purple md:hidden">
+      <header className="fixed z-50 inset-x-0 top-0 block h-[84px] border-b-2 border-dotted bg-white px-6 dark:bg-purple md:hidden">
         <nav className="flex items-center justify-between">
           <Link className="" href="/">
             {FEATURES_ENABLED ? (
