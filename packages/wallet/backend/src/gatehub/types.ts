@@ -44,6 +44,13 @@ export interface ICreateManagedUserResponse {
   managedBy: string
 }
 
+interface IVerification {
+  uuid: string
+  status: number
+  state: number
+  provider_type: 'sumsub'
+}
+
 export interface IGetUserStateResponse {
   profile: {
     first_name: string
@@ -53,6 +60,7 @@ export interface IGetUserStateResponse {
     address_street1: string
     address_street2: string
   }
+  verifications: IVerification[]
 }
 
 export interface ICreateWalletRequest {
@@ -169,4 +177,9 @@ export interface IDepositWebhookData {
   address: string
   deposit_type: DepositTypeEnum
   message?: string
+}
+
+export interface IAddUserToGatewayResponse {
+  isApproved: boolean
+  customerId?: string
 }
