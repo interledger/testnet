@@ -501,7 +501,7 @@ export class OpenPayments implements IOpenPayments {
     return await this.opClient.incomingPayment
       .create(
         {
-          url: new URL(walletAddress.id).origin,
+          url: walletAddress.resourceServer,
           accessToken: accessToken
         },
         {
@@ -548,7 +548,7 @@ export class OpenPayments implements IOpenPayments {
     return await this.opClient.quote
       .create(
         {
-          url: new URL(walletAddress.id).origin,
+          url: walletAddress.resourceServer,
           accessToken: grant.access_token.value
         },
         {
