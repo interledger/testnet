@@ -1,5 +1,10 @@
 import { Account } from '@/lib/api/account'
-import { Disclosure, Transition } from '@headlessui/react'
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Transition
+} from '@headlessui/react'
 import { Chevron } from '../icons/Chevron'
 import { walletAddressService } from '@/lib/api/walletAddress'
 import { cx } from 'class-variance-authority'
@@ -68,9 +73,9 @@ type DeveloperKeysProps = {
 
 export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
   return (
-    <dl className="space-y-4 divide-y divide-green dark:divide-pink-neon">
+    <dl className="space-y-4">
       {accounts.map((account, accountIdx) => (
-        <Disclosure as="div" key={account.name} className="pt-4">
+        <Disclosure as="div" key={account.name} className="pt-2">
           {({ open }) => (
             <>
               <AccountHeader
@@ -100,14 +105,14 @@ const AccountHeader = ({ name, isOpen, index }: DisclosureGroupHeaderProps) => {
   const { setRunOnboarding, isDevKeysOnboarding } = useOnboardingContext()
   return (
     <dt>
-      <Disclosure.Button className="flex w-full justify-between rounded-md border border-pink-dark p-2 dark:border-teal-neon">
+      <DisclosureButton className="flex w-full justify-between rounded-md border border-pink-dark px-2 py-1 dark:border-teal-neon">
         <span className="font-semibold leading-7 text-pink-dark dark:text-teal-neon">
           Account: {name}
         </span>
         <span className="ml-6 flex items-center">
           <Chevron
-            className="h-6 w-6 text-pink-dark transition-transform duration-300 dark:text-teal-neon"
-            direction={isOpen ? 'down' : 'left'}
+            className="h-6 w-6 text-pink-dark transition-transform duration-300 dark:text-teal-neon mt-0.5"
+            direction={isOpen ? 'down' : 'right'}
             id={index === 0 ? 'accountsList' : ''}
             onClick={() => {
               if (isDevKeysOnboarding) {
@@ -116,7 +121,7 @@ const AccountHeader = ({ name, isOpen, index }: DisclosureGroupHeaderProps) => {
             }}
           />
         </span>
-      </Disclosure.Button>
+      </DisclosureButton>
     </dt>
   )
 }
@@ -146,7 +151,7 @@ const AccountPanel = ({ walletAddresses, index }: AccountPanelProps) => {
       leaveFrom="transform max-h-screen"
       leaveTo="transform max-h-0"
     >
-      <Disclosure.Panel as="dd" className="mt-6 px-2">
+      <DisclosurePanel as="dd" className="mt-6 px-2 mb-14">
         <ul role="list" className="space-y-4">
           {walletAddresses.map((walletAddress, walletAddressIdx) => (
             <WalletAddressProvider
@@ -162,7 +167,7 @@ const AccountPanel = ({ walletAddresses, index }: AccountPanelProps) => {
             </WalletAddressProvider>
           ))}
         </ul>
-      </Disclosure.Panel>
+      </DisclosurePanel>
     </Transition>
   )
 }
@@ -215,7 +220,7 @@ const KeysGroupHeader = ({
 
   return (
     <dt>
-      <Disclosure.Button className="flex w-full justify-between rounded-md border border-purple-bright dark:border-green-neon px-2">
+      <DisclosureButton className="flex w-full justify-between rounded-md border border-purple-bright dark:border-green-neon px-2">
         <div className="flex flex-col py-1 text-left">
           <span className="font-semibold leading-5 text-purple-bright dark:text-green-neon">
             {name}
@@ -227,7 +232,7 @@ const KeysGroupHeader = ({
         <span className="ml-6 mt-1 flex items-center">
           <Chevron
             className="mt-2 h-5 w-5 text-purple-bright dark:text-green-neon transition-transform duration-300"
-            direction={isOpen ? 'down' : 'left'}
+            direction={isOpen ? 'down' : 'right'}
             id={
               accountIdx === 0 && walletAddressIdx === 0 && index === 0
                 ? 'keysList'
@@ -240,7 +245,7 @@ const KeysGroupHeader = ({
             }}
           />
         </span>
-      </Disclosure.Button>
+      </DisclosureButton>
     </dt>
   )
 }
@@ -307,7 +312,7 @@ const KeysGroupPanel = ({
         }
       }}
     >
-      <Disclosure.Panel as="dd" className="mt-6 px-2">
+      <DisclosurePanel as="dd" className="m-4 px-2">
         <div id="keysDetails">
           <div className="flex flex-col justify-between">
             <p className="font-semibold">Key ID</p>
@@ -324,6 +329,7 @@ const KeysGroupPanel = ({
           <PublicKeyContainer publicKey={keys.publicKey} />
           <Button
             intent="outline"
+            size="sm"
             aria-label="revoke keys"
             className="mt-2"
             onClick={() =>
@@ -339,7 +345,7 @@ const KeysGroupPanel = ({
             Revoke {keys.nickname}
           </Button>
         </div>
-      </Disclosure.Panel>
+      </DisclosurePanel>
     </Transition>
   )
 }
@@ -401,7 +407,6 @@ const WalletAddressKeyInfo = ({
           )}
         </Disclosure>
       ))}
-      <hr className="text-green dark:text-pink-neon" />
       <WalletAddressCTA
         accountIdx={accountIdx}
         walletAddressIdx={walletAddressIdx}
@@ -418,9 +423,10 @@ const WalletAddressCTA = ({
   const [openDialog, closeDialog] = useDialog()
   const { setRunOnboarding, isDevKeysOnboarding } = useOnboardingContext()
   return (
-    <div className="flex flex-col justify-between gap-1 md:flex-row">
+    <div className="flex flex-col justify-between gap-1 md:flex-row pt-3">
       <Button
         aria-label="generate keys"
+        size="sm"
         id={accountIdx === 0 && walletAddressIdx === 0 ? 'generateKey' : ''}
         onClick={() => {
           openDialog(
@@ -439,6 +445,7 @@ const WalletAddressCTA = ({
       </Button>
       <Button
         aria-label="upload keys"
+        size="sm"
         id={accountIdx === 0 && walletAddressIdx === 0 ? 'uploadKey' : ''}
         onClick={() => {
           openDialog(
@@ -472,6 +479,7 @@ const PublicKeyContainer = ({ publicKey }: PublicKeyContainerProps) => {
         <p className="font-normal">Public key</p>
         <Button
           intent="outline"
+          size="sm"
           aria-label="show or hide public key"
           onClick={() => setIsVisible((prev) => !prev)}
         >
