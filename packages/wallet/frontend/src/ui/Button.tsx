@@ -25,7 +25,8 @@ const buttonStyles = cva(
         ]
       },
       size: {
-        md: 'p-3 rounded-md'
+        md: 'p-3 rounded-md',
+        sm: 'px-2 py-1 rounded-md'
       },
       fullWidth: {
         true: 'w-full'
