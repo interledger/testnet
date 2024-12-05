@@ -148,7 +148,7 @@ const LoginPage: NextPageWithLayout = () => {
         </p>
       </div>
       <Image
-        className="mt-auto object-cover md:hidden"
+        className="mt-10 object-cover md:hidden"
         src={imageName}
         alt="Login"
         quality={100}
