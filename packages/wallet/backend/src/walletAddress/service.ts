@@ -287,4 +287,10 @@ export class WalletAddressService implements IWalletAddressService {
 
     return walletAddress
   }
+
+  async getByIds(ids: string[]): Promise<WalletAddress[]> {
+    const walletAddresses = await WalletAddress.query().whereIn('id', ids)
+
+    return walletAddresses
+  }
 }

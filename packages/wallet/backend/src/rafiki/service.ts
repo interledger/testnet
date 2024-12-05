@@ -104,10 +104,10 @@ export class RafikiService implements IRafikiService {
     if (!isValidEventType(wh.type)) {
       throw new BadRequest(`unknown event type, ${wh.type}`)
     }
-    const isValid = await this.isValidInput(wh)
-    if (!isValid) {
-      throw new BadRequest(`Invalid Input for ${wh.type}`)
-    }
+    // const isValid = await this.isValidInput(wh)
+    // if (!isValid) {
+    //   throw new BadRequest(`Invalid Input for ${wh.type}`)
+    // }
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -231,9 +231,29 @@ export class RafikiService implements IRafikiService {
 
     await this.rafikiClient.withdrawLiqudity(wh.id)
 
+    let senders
+    try {
+      const outgoingPayments =
+        await this.rafikiClient.getOutgoingPaymentsByReceiver(
+          `${this.env.OPEN_PAYMENTS_HOST}/incoming-payments/${wh.data.id}`
+        )
+
+      const walletAddressIds = outgoingPayments.map(
+        (payment) => payment.walletAddressId
+      )
+      const walletAddresses =
+        await this.walletAddressService.getByIds(walletAddressIds)
+      senders = walletAddresses.map((wa) => wa.publicName).join(', ')
+    } catch (e) {
+      this.logger.warn(
+        'Error on getting outgoing payments by incoming payment',
+        e
+      )
+    }
+
     await this.transactionService.updateTransaction(
       { paymentId: wh.data.id },
-      { status: 'COMPLETED', value: amount.value }
+      { status: 'COMPLETED', value: amount.value, secondParty: senders }
     )
 
     const isExchange = NodeCacheInstance.get(wh.data.id)
@@ -272,9 +292,20 @@ export class RafikiService implements IRafikiService {
       return
     }
 
+    let receiverWA
+    try {
+      const receiver = await this.rafikiClient.getReceiverById(wh.data.receiver)
+      receiverWA = await this.walletAddressService.getExternalWalletAddress(
+        receiver.walletAddressUrl
+      )
+    } catch (e) {
+      this.logger.warn('Error on getting receiver wallet address', e)
+    }
+
     await this.transactionService.createOutgoingTransaction(
       wh.data,
-      walletAddress
+      walletAddress,
+      receiverWA
     )
 
     await this.rafikiClient.depositLiquidity(wh.id)

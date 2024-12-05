@@ -42,7 +42,10 @@ import {
   WithdrawLiquidityMutation,
   WithdrawLiquidityMutationVariables,
   GetReceiverQuery,
-  GetReceiverQueryVariables
+  GetReceiverQueryVariables,
+  QueryOutgoingPaymentsArgs,
+  GetOutgoingPaymentsQuery,
+  GetOutgoingPaymentsQueryVariables
 } from './backend/generated/graphql'
 import {
   createAssetMutation,
@@ -54,7 +57,11 @@ import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
 } from './backend/request/liquidity.request'
-import { createOutgoingPaymentMutation } from './backend/request/outgoing-payment.request'
+import {
+  createOutgoingPaymentMutation,
+  getOutgoingPayments,
+  OutgoingPaymentsGqlResponse
+} from './backend/request/outgoing-payment.request'
 import {
   createWalletAddressKeyMutation,
   revokeWalletAddressKeyMutation
@@ -392,5 +399,22 @@ export class RafikiClient implements IRafikiClient {
     })
 
     return assetInRafiki
+  }
+
+  public async getOutgoingPaymentsByReceiver(receiver: string) {
+    return this.listOutgoingPayments({
+      filter: { receiver: { in: [receiver] } }
+    })
+  }
+
+  public async listOutgoingPayments(args: QueryOutgoingPaymentsArgs) {
+    const response = await this.backendGraphQLClient.request<
+      GetOutgoingPaymentsQuery,
+      GetOutgoingPaymentsQueryVariables
+    >(getOutgoingPayments, args ?? {})
+
+    return response.outgoingPayments.edges.map(
+      (el: { node: OutgoingPaymentsGqlResponse }) => el.node
+    )
   }
 }
