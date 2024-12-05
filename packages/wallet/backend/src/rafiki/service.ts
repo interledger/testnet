@@ -104,10 +104,10 @@ export class RafikiService implements IRafikiService {
     if (!isValidEventType(wh.type)) {
       throw new BadRequest(`unknown event type, ${wh.type}`)
     }
-    // const isValid = await this.isValidInput(wh)
-    // if (!isValid) {
-    //   throw new BadRequest(`Invalid Input for ${wh.type}`)
-    // }
+    const isValid = await this.isValidInput(wh)
+    if (!isValid) {
+      throw new BadRequest(`Invalid Input for ${wh.type}`)
+    }
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
