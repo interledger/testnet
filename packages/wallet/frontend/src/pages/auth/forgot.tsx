@@ -84,14 +84,14 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
         </Form>
       </div>
       <Image
-        className="mt-auto object-cover md:hidden"
+        className="mt-10 object-cover md:hidden"
         src={imageName}
         alt="Forgot password"
         quality={100}
         width={400}
         height={200}
       />
-      <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
+      <p className="mt-10 text-center font-extralight text-green dark:text-green-neon">
         Remembered your credentials?{' '}
         <Link href="login" className="font-medium underline">
           Login
