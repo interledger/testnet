@@ -179,7 +179,7 @@ const SignUpPage: NextPageWithLayout = () => {
           )}
         ></div>
       )}
-      <p className="z-10 mt-auto text-center font-extralight text-green dark:text-green-neon">
+      <p className="z-10 mt-10 text-center font-extralight text-green dark:text-green-neon">
         Already a customer?{' '}
         <Link href="login" className="font-medium underline">
           Log in
