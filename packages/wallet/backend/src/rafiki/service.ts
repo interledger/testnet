@@ -243,7 +243,10 @@ export class RafikiService implements IRafikiService {
       )
       const walletAddresses =
         await this.walletAddressService.getByIds(walletAddressIds)
-      senders = walletAddresses.map((wa) => wa.publicName).join(', ')
+      senders = walletAddresses
+        .filter((wa) => wa.account?.user)
+        .map((wa) => `${wa.account.user.firstName} ${wa.account.user.lastName}`)
+        .join(', ')
     } catch (e) {
       this.logger.warn(
         'Error on getting outgoing payments by incoming payment',
@@ -292,12 +295,16 @@ export class RafikiService implements IRafikiService {
       return
     }
 
-    let receiverWA
+    let secondParty
     try {
       const receiver = await this.rafikiClient.getReceiverById(wh.data.receiver)
-      receiverWA = await this.walletAddressService.getExternalWalletAddress(
+      const receiverWA = await this.walletAddressService.getByUrl(
         receiver.walletAddressUrl
       )
+
+      if (receiverWA?.account?.user) {
+        secondParty = `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
+      }
     } catch (e) {
       this.logger.warn('Error on getting receiver wallet address', e)
     }
@@ -305,7 +312,7 @@ export class RafikiService implements IRafikiService {
     await this.transactionService.createOutgoingTransaction(
       wh.data,
       walletAddress,
-      receiverWA
+      secondParty
     )
 
     await this.rafikiClient.depositLiquidity(wh.id)

@@ -13,7 +13,6 @@ import { WalletAddress } from '@/walletAddress/model'
 import { Account } from '@/account/model'
 import { CardService } from '@/card/service'
 import NodeCache from 'node-cache'
-import { WalletAddressOP } from '@wallet/shared'
 
 const FETCHING_TRANSACTIONS_KEY = 'FETCHING_TRANSACTIONS'
 type ListAllTransactionsInput = {
@@ -226,7 +225,7 @@ export class TransactionService implements ITransactionService {
   async createOutgoingTransaction(
     params: OutgoingPayment,
     walletAddress: WalletAddress,
-    receiverWA?: WalletAddressOP
+    secondParty?: string
   ) {
     const existentTransaction = await Transaction.query().findOne({
       paymentId: params.id
@@ -245,7 +244,7 @@ export class TransactionService implements ITransactionService {
       type: 'OUTGOING',
       status: 'PENDING',
       description: params.metadata?.description,
-      secondParty: receiverWA?.publicName
+      secondParty
     })
   }
 }
