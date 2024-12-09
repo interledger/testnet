@@ -40,7 +40,7 @@ const incomingPaymentCompletedSchema = z.object({
   completed: z.boolean(),
   updatedAt: z.string(),
   metadata: z.object({
-    description: z.string()
+    description: z.string().optional()
   })
 })
 const incomingPaymentSchema = z.object({
@@ -52,13 +52,13 @@ const incomingPaymentSchema = z.object({
   completed: z.boolean(),
   updatedAt: z.string(),
   metadata: z.object({
-    description: z.string()
+    description: z.string().optional()
   })
 })
 const outgoingPaymentSchema = z.object({
   id: z.string(),
   walletAddressId: z.string(),
-  client: z.string(),
+  client: z.string().nullable(),
   state: z.string(),
   receiver: z.string(),
   debitAmount: amountSchema,
@@ -69,62 +69,48 @@ const outgoingPaymentSchema = z.object({
   updatedAt: z.string(),
   balance: z.string(),
   metadata: z.object({
-    description: z.string()
+    description: z.string().optional()
   })
 })
-const outgoingPaymentCreatedSchema = z.object({
-  id: z.string(),
-  walletAddressId: z.string(),
-  client: z.string(),
-  state: z.string(),
-  receiver: z.string(),
-  debitAmount: amountSchema,
-  receiveAmount: amountSchema,
-  sentAmount: amountSchema,
-  stateAttempts: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  balance: z.string(),
-  metadata: z.object({
-    description: z.string()
-  })
-})
+
 export const incomingPaymentCompletedWebhookSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-  type: z.nativeEnum(EventType),
+  type: z.literal(EventType.IncomingPaymentCompleted),
   data: incomingPaymentCompletedSchema
 })
+
 export const incomingPaymentWebhookSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-  type: z.nativeEnum(EventType),
+  type: z.enum([
+    EventType.IncomingPaymentCreated,
+    EventType.IncomingPaymentExpired
+  ]),
   data: incomingPaymentSchema
 })
-export const outgoingPaymentCreatedWebhookSchema = z.object({
-  id: z.string({ required_error: 'id is required' }),
-  type: z.nativeEnum(EventType),
-  data: outgoingPaymentCreatedSchema
-})
+
 export const outgoingPaymentWebhookSchema = z.object({
   id: z.string(),
-  type: z.nativeEnum(EventType),
+  type: z.enum([
+    EventType.OutgoingPaymentCompleted,
+    EventType.OutgoingPaymentCreated,
+    EventType.OutgoingPaymentFailed
+  ]),
   data: outgoingPaymentSchema
 })
 export const walletAddressWebhookSchema = z.object({
   id: z.string(),
-  type: z.nativeEnum(EventType),
+  type: z.literal(EventType.WalletAddressNotFound),
   data: z.object({
     walletAddressUrl: z.string()
   })
 })
-export const webhookSchema = z.union([
+export const webhookSchema = z.discriminatedUnion('type', [
   incomingPaymentCompletedWebhookSchema,
   incomingPaymentWebhookSchema,
   outgoingPaymentWebhookSchema,
   walletAddressWebhookSchema
 ])
-export const incomingPaymentWebhookBodySchema = z.object({
-  body: incomingPaymentWebhookSchema
-})
+
 export const webhookBodySchema = z.object({
   body: webhookSchema
 })

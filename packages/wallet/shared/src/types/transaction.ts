@@ -21,6 +21,9 @@ export interface TransactionResponse {
   value: string | null | bigint
   type: TransactionType
   status: TransactionStatus
+  // Merchant name for card transactions
+  // Receiver or sender WA for ilp payments
+  secondParty?: string
   createdAt: Date
   updatedAt: Date
 }
