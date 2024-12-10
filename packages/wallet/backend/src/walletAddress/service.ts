@@ -287,4 +287,20 @@ export class WalletAddressService implements IWalletAddressService {
 
     return walletAddress
   }
+
+  async getByIds(ids: string[]): Promise<WalletAddress[]> {
+    const walletAddresses = await WalletAddress.query()
+      .whereIn('id', ids)
+      .withGraphFetched('account.[user]')
+
+    return walletAddresses
+  }
+
+  async getByUrl(url: string): Promise<WalletAddress | undefined> {
+    const walletAddress = await WalletAddress.query()
+      .findOne({ url })
+      .withGraphFetched('account.[user]')
+
+    return walletAddress
+  }
 }
