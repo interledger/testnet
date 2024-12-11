@@ -13,7 +13,11 @@ import {
 } from '@/lib/hooks/useTransactions'
 import { Table } from '@/ui/Table'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
-import { formatAmount, formatDate } from '@/utils/helpers'
+import {
+  formatAmount,
+  formatDateNoTime,
+  formatDateOnlyTime
+} from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
 import { cx } from 'class-variance-authority'
@@ -26,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/ui/Tooltip'
+import { Card } from '@/components/icons/CardButtons'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -123,6 +128,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
       <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
     </>
   )
+
+  let groupByDate = ''
 
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
@@ -258,12 +265,11 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
         <Table id="transactionsList" className="min-w-[57rem]">
           <Table.Head
             columns={[
-              'Account',
-              'Payment pointer name',
-              'Description',
+              'Date',
+              'Details',
               'Amount',
               'Status',
-              'Date'
+              'Payment Pointer name'
             ]}
             sort={[
               {
@@ -281,66 +287,124 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
           />
           <Table.Body>
             {transactions.results.length ? (
-              transactions.results.map((trx) => (
-                <Table.Row key={trx.id}>
-                  <Table.Cell>{trx.accountName}</Table.Cell>
-                  <Table.Cell className="whitespace-nowrap">
-                    {trx.walletAddressUrl && trx.walletAddressPublicName ? (
-                      <TooltipProvider delayDuration={100}>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            {trx.walletAddressPublicName}
-                          </TooltipTrigger>
-                          <TooltipContent
-                            className="max-w-80"
-                            side="top"
-                            onPointerDownOutside={(e) => e.preventDefault()}
-                          >
-                            {trx.walletAddressUrl}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      <>{trx.walletAddressUrl ?? ''}</>
-                    )}
-                  </Table.Cell>
-                  <Table.Cell className="whitespace-nowrap">
-                    {trx.description ? (
-                      trx.description
-                    ) : (
-                      <p className="text-sm font-thin">No description</p>
-                    )}
-                  </Table.Cell>
-                  <Table.Cell
-                    className={cx(
-                      'whitespace-nowrap',
-                      trx.type === 'INCOMING' &&
-                        'text-green-dark dark:text-green-neon',
-                      trx.type === 'OUTGOING' &&
-                        'text-pink-dark dark:text-yellow-neon'
-                    )}
-                  >
-                    {trx.type === 'INCOMING' ? '+' : '-'}
-                    {
-                      formatAmount({
-                        value: String(trx.value) || '0',
-                        assetCode: trx.assetCode,
-                        assetScale: trx.assetScale
-                      }).amount
-                    }
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Badge
-                      intent={getStatusBadgeIntent(trx.status)}
-                      size="md"
-                      text={trx.status}
-                    />
-                  </Table.Cell>
-                  <Table.Cell className="whitespace-nowrap">
-                    {formatDate({ date: trx.createdAt.toString() })}
-                  </Table.Cell>
-                </Table.Row>
-              ))
+              transactions.results.map((trx) => {
+                let showDateHeader = false
+                if (
+                  groupByDate !==
+                  formatDateNoTime({ date: trx.createdAt.toString() })
+                ) {
+                  groupByDate = formatDateNoTime({
+                    date: trx.createdAt.toString()
+                  })
+                  showDateHeader = true
+                }
+
+                return (
+                  <>
+                    {showDateHeader ? (
+                      <Table.Row>
+                        <Table.Cell className="bg-green-dark dark:bg-pink-dark text-white text-center text-sm rounded-xl !p-1">
+                          {groupByDate}
+                        </Table.Cell>
+                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                      </Table.Row>
+                    ) : null}
+                    <Table.Row key={trx.id}>
+                      <Table.Cell className="whitespace-nowrap">
+                        at{' '}
+                        {formatDateOnlyTime({ date: trx.createdAt.toString() })}
+                      </Table.Cell>
+
+                      <Table.Cell className="whitespace-nowrap">
+                        <div className="flex flex-row items-center">
+                          {trx.isCard ? (
+                            <div className="text-dark-green dark:text-white pr-2">
+                              <Card />
+                            </div>
+                          ) : null}
+                          <div className="flex flex-col justify-start">
+                            {trx.secondParty ? (
+                              <span>{trx.secondParty}</span>
+                            ) : null}
+                            <span
+                              className={cx(trx.secondParty ? 'text-xs' : '')}
+                            >
+                              {trx.description ? (
+                                trx.description
+                              ) : (
+                                <p
+                                  className={cx(
+                                    'font-thin',
+                                    trx.secondParty ? 'text-xs' : 'text-sm'
+                                  )}
+                                >
+                                  No description
+                                </p>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell
+                        className={cx(
+                          'whitespace-nowrap',
+                          trx.type === 'INCOMING' &&
+                            'text-green-dark dark:text-green-neon',
+                          trx.type === 'OUTGOING' &&
+                            'text-pink-dark dark:text-yellow-neon'
+                        )}
+                      >
+                        {trx.type === 'INCOMING' ? '+' : '-'}
+                        {
+                          formatAmount({
+                            value: String(trx.value) || '0',
+                            assetCode: trx.assetCode,
+                            assetScale: trx.assetScale
+                          }).amount
+                        }
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Badge
+                          intent={getStatusBadgeIntent(trx.status)}
+                          size="md"
+                          text={trx.status}
+                        />
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <div className="flex flex-col justify-start">
+                          <span>
+                            {trx.walletAddressUrl &&
+                            trx.walletAddressPublicName ? (
+                              <TooltipProvider delayDuration={100}>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    {trx.walletAddressPublicName}
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    className="max-w-80"
+                                    side="top"
+                                    onPointerDownOutside={(e) =>
+                                      e.preventDefault()
+                                    }
+                                  >
+                                    {trx.walletAddressUrl}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <>{trx.walletAddressUrl ?? ''}</>
+                            )}
+                          </span>
+                          <span className="text-xs">{trx.accountName}</span>
+                        </div>
+                      </Table.Cell>
+                    </Table.Row>
+                  </>
+                )
+              })
             ) : (
               <Table.Row>
                 <Table.Cell colSpan={4} className="text-center">

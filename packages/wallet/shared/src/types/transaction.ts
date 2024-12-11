@@ -26,6 +26,7 @@ export interface TransactionResponse {
   secondParty?: string
   createdAt: Date
   updatedAt: Date
+  isCard?: boolean
 }
 interface TransactionListResponse extends TransactionResponse {
   assetScale: number
