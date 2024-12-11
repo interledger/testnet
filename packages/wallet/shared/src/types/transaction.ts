@@ -28,7 +28,7 @@ export interface TransactionResponse {
   updatedAt: Date
   isCard?: boolean
 }
-interface TransactionListResponse extends TransactionResponse {
+export interface TransactionListResponse extends TransactionResponse {
   assetScale: number
   accountName: string
   walletAddressPublicName?: string

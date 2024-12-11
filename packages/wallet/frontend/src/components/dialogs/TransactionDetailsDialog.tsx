@@ -1,0 +1,134 @@
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild
+} from '@headlessui/react'
+import { Fragment } from 'react'
+import type { DialogProps } from '@/lib/types/dialog'
+import { TransactionListResponse } from '@wallet/shared/src/types/transaction'
+import { formatAmount, formatDate, getCurrencySymbol } from '@/utils/helpers'
+import { cx } from 'class-variance-authority'
+import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
+import { Card } from '../icons/CardButtons'
+import { FEATURES_ENABLED } from '@/utils/constants'
+
+type TransactionDetailsDialogProps = Pick<DialogProps, 'onClose'> & {
+  transaction: TransactionListResponse
+}
+
+export const TransactionDetailsDialog = ({
+  onClose,
+  transaction
+}: TransactionDetailsDialogProps) => {
+  return (
+    <Transition show={true} as={Fragment} appear={true}>
+      <Dialog as="div" className="relative z-10" onClose={onClose}>
+        <TransitionChild
+          as={Fragment}
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
+        </TransitionChild>
+
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as={Fragment}
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-4"
+            >
+              <DialogPanel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-4 sm:p-8 shadow-xl dark:bg-purple">
+                <DialogTitle as="h3" className="text-center text-2xl font-bold">
+                  <div className="flex flex-row justify-center items-center gap-x-4">
+                    Transaction Details
+                    {transaction.isCard && FEATURES_ENABLED ? (
+                      <div className="text-dark-green dark:text-white pr-2">
+                        <Card />
+                      </div>
+                    ) : null}
+                  </div>
+                </DialogTitle>
+                <div className="flex flex-col gap-y-2">
+                  <div>
+                    <span className="font-bold">Date: </span>
+                    <span>
+                      {formatDate({ date: transaction.createdAt.toString() })}
+                    </span>
+                  </div>
+                  {transaction.secondParty ? (
+                    <div>
+                      <span className="font-bold">
+                        {transaction.type === 'INCOMING'
+                          ? 'Sender: '
+                          : 'Receiver: '}
+                      </span>
+                      <span>{transaction.secondParty}</span>
+                    </div>
+                  ) : null}
+                  <div>
+                    <span className="font-bold">Amount: </span>
+                    <span
+                      className={cx(
+                        transaction.type === 'INCOMING' &&
+                          'text-green-dark dark:text-green-neon',
+                        transaction.type === 'OUTGOING' &&
+                          'text-pink-dark dark:text-yellow-neon'
+                      )}
+                    >
+                      {transaction.type === 'INCOMING' ? '+' : '-'}
+                      {
+                        formatAmount({
+                          value: String(transaction.value) || '0',
+                          assetCode: transaction.assetCode,
+                          assetScale: transaction.assetScale
+                        }).amount
+                      }
+                    </span>
+                  </div>
+                  {transaction.description ? (
+                    <div>
+                      <span className="font-bold">Description: </span>
+                      <span>{transaction.description}</span>
+                    </div>
+                  ) : null}
+                  <div>
+                    <span className="font-bold">
+                      Payment Pointer Public Name:{' '}
+                    </span>
+                    <span>{transaction.walletAddressPublicName}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold">Payment Pointer URL: </span>
+                    <span>{transaction.walletAddressUrl}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold">Account: </span>
+                    <span>
+                      {transaction.accountName} -{' '}
+                      {getCurrencySymbol(transaction.assetCode)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-bold">Status: </span>
+                    <span>
+                      <Badge
+                        intent={getStatusBadgeIntent(transaction.status)}
+                        size="md"
+                        text={transaction.status}
+                      />
+                    </span>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  )
+}

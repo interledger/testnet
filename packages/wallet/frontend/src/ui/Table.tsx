@@ -26,6 +26,7 @@ type THeadProps = ComponentProps<'thead'> & {
   thProps?: ComponentProps<'th'>
   trProps?: ComponentProps<'tr'>
   sort?: SortHeader[]
+  hideForMobile?: string[]
 }
 
 const THead = ({
@@ -33,6 +34,7 @@ const THead = ({
   thProps,
   trProps,
   sort,
+  hideForMobile,
   className,
   ...props
 }: THeadProps) => {
@@ -44,6 +46,8 @@ const THead = ({
             key={col}
             className={cx(
               'border-b border-green dark:border-pink-neon p-4 text-left font-bold',
+              hideForMobile?.find((item) => item === col) !== undefined &&
+                'hidden sm:table-cell',
               sort?.find((item) => item.header === col) !== undefined &&
                 'cursor-pointer'
             )}

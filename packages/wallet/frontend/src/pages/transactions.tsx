@@ -31,6 +31,9 @@ import {
   TooltipTrigger
 } from '@/ui/Tooltip'
 import { Card } from '@/components/icons/CardButtons'
+import { FEATURES_ENABLED } from '@/utils/constants'
+import { TransactionDetailsDialog } from '@/components/dialogs/TransactionDetailsDialog'
+import { useDialog } from '@/lib/hooks/useDialog'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -77,6 +80,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   walletAddresses
 }) => {
   const { isUserFirstTime, stepIndex, setStepIndex } = useOnboardingContext()
+  const [openDialog, closeDialog] = useDialog()
+
   const redirect = useRedirect<TransactionsFilters>({
     path: '/transactions',
     persistQuery: true
@@ -262,7 +267,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
       ) : loading ? (
         <Table.Shimmer />
       ) : (
-        <Table id="transactionsList" className="min-w-[57rem]">
+        <Table id="transactionsList" className="sm:min-w-[57rem]">
           <Table.Head
             columns={[
               'Date',
@@ -284,6 +289,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 }
               }
             ]}
+            hideForMobile={['Status', 'Payment Pointer name']}
           />
           <Table.Body>
             {transactions.results.length ? (
@@ -308,19 +314,33 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                         </Table.Cell>
                         <Table.Cell className="!p-1">&nbsp;</Table.Cell>
                         <Table.Cell className="!p-1">&nbsp;</Table.Cell>
-                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
-                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                        <Table.Cell className="!p-1 hidden sm:table-cell">
+                          &nbsp;
+                        </Table.Cell>
+                        <Table.Cell className="!p-1 hidden sm:table-cell">
+                          &nbsp;
+                        </Table.Cell>
                       </Table.Row>
                     ) : null}
-                    <Table.Row key={trx.id}>
+                    <Table.Row
+                      key={trx.id}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        openDialog(
+                          <TransactionDetailsDialog
+                            transaction={trx}
+                            onClose={closeDialog}
+                          />
+                        )
+                      }}
+                    >
                       <Table.Cell className="whitespace-nowrap">
                         at{' '}
                         {formatDateOnlyTime({ date: trx.createdAt.toString() })}
                       </Table.Cell>
-
                       <Table.Cell className="whitespace-nowrap">
                         <div className="flex flex-row items-center">
-                          {trx.isCard ? (
+                          {trx.isCard && FEATURES_ENABLED ? (
                             <div className="text-dark-green dark:text-white pr-2">
                               <Card />
                             </div>
@@ -366,14 +386,14 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                           }).amount
                         }
                       </Table.Cell>
-                      <Table.Cell>
+                      <Table.Cell className="hidden sm:table-cell">
                         <Badge
                           intent={getStatusBadgeIntent(trx.status)}
                           size="md"
                           text={trx.status}
                         />
                       </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
+                      <Table.Cell className="whitespace-nowrap hidden sm:table-cell">
                         <div className="flex flex-col justify-start">
                           <span>
                             {trx.walletAddressUrl &&
