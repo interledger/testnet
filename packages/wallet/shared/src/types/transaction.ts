@@ -24,6 +24,9 @@ export interface TransactionResponse {
   // Merchant name for card transactions
   // Receiver or sender WA for ilp payments
   secondParty?: string
+  txAmount?: bigint
+  txCurrency?: string
+  conversionRate?: string
   createdAt: Date
   updatedAt: Date
 }
