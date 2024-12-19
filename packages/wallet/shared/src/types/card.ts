@@ -49,6 +49,10 @@ export interface ICardTransaction {
   wallet: number
   transactionDateTime: string
   processDateTime: string | null
+  merchantName?: string
+  mastercardConversion?: {
+    convRate?: string
+  }
 }
 
 export interface IPagination {

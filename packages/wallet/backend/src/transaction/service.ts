@@ -168,6 +168,12 @@ export class TransactionService implements ITransactionService {
           status: 'COMPLETED',
           description: '',
           isCard: true,
+          secondParty: transaction.merchantName,
+          txAmount: transaction.transactionAmount
+            ? transformBalance(Number(transaction.transactionAmount), 2)
+            : undefined,
+          conversionRate: transaction.mastercardConversion?.convRate,
+          txCurrency: transaction.transactionCurrency,
           createdAt: new Date(transaction.createdAt)
         })
       )
