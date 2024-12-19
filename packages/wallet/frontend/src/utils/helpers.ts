@@ -80,6 +80,26 @@ export const formatDate = ({
   })
 }
 
+export const formatDateNoTime = ({
+  date,
+  month = 'short'
+}: FormatDateArgs): string => {
+  return new Date(date).toLocaleDateString('default', {
+    day: '2-digit',
+    month,
+    year: 'numeric'
+  })
+}
+
+export const formatDateOnlyTime = ({
+  date,
+  time = true
+}: FormatDateArgs): string => {
+  return new Date(date).toLocaleTimeString('default', {
+    ...(time && { hour: '2-digit', minute: '2-digit' })
+  })
+}
+
 export const getFee = (quote: QuoteResponse): FormattedAmount => {
   if (quote.fee) {
     return formatAmount({

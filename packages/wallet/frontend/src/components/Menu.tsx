@@ -206,7 +206,7 @@ export const Menu = () => {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <DialogPanel className="relative flex flex-col bg-white p-6 dark:bg-purple">
+              <DialogPanel className="relative flex flex-col bg-white px-6 pt-24 dark:bg-purple">
                 <button
                   className="mb-4 block cursor-pointer self-end border-none px-1"
                   type="button"
