@@ -8,7 +8,11 @@ import { walletAddressService } from '@/lib/api/walletAddress'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { formatAmount, replaceWalletAddressProtocol } from '@/utils/helpers'
+import {
+  formatAmount,
+  replaceCardWalletAddressDomain,
+  replaceWalletAddressProtocol
+} from '@/utils/helpers'
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType
@@ -183,7 +187,10 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
   walletAddressesResponse.result.map((pp) => {
-    pp.url = replaceWalletAddressProtocol(pp.url)
+    pp.url = replaceCardWalletAddressDomain(
+      replaceWalletAddressProtocol(pp.url),
+      pp.isCard
+    )
   })
 
   return {
