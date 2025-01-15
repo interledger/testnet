@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "awilix": "^12.0.4",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "objection": "^3.1.5",
     "knex": "^3.1.0",
     "winston": "^3.17.0",
