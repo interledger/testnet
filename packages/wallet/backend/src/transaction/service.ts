@@ -224,7 +224,8 @@ export class TransactionService implements ITransactionService {
 
   async createOutgoingTransaction(
     params: OutgoingPayment,
-    walletAddress: WalletAddress
+    walletAddress: WalletAddress,
+    secondParty?: string
   ) {
     const existentTransaction = await Transaction.query().findOne({
       paymentId: params.id
@@ -242,7 +243,8 @@ export class TransactionService implements ITransactionService {
       value: amount.value,
       type: 'OUTGOING',
       status: 'PENDING',
-      description: params.metadata?.description
+      description: params.metadata?.description,
+      secondParty
     })
   }
 }

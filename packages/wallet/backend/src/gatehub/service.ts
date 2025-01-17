@@ -3,6 +3,7 @@ import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
 import { NotFound } from '@shared/backend'
 import {
+  IAddUserToGatewayResponse,
   ICardTransactionWebhookData,
   IDepositWebhookData,
   IWebhookData
@@ -30,10 +31,24 @@ export class GateHubService {
     private emailService: EmailService
   ) {}
 
-  async getIframeUrl(iframeType: IFRAME_TYPE, userId: string): Promise<string> {
+  async getIframeUrl(
+    iframeType: IFRAME_TYPE,
+    userId: string
+  ): Promise<{ url: string; isApproved?: boolean; customerId?: string }> {
     const user = await User.query().findById(userId)
     if (!user || !user.gateHubUserId) {
       throw new NotFound()
+    }
+
+    let addUserToGatewayResponse = {}
+    if (iframeType === 'onboarding' && !this.gateHubClient.isProduction) {
+      const userState = await this.gateHubClient.getUserState(
+        user.gateHubUserId
+      )
+
+      if (userState.verifications[0]?.status === 1) {
+        addUserToGatewayResponse = await this.addUserToGateway(userId)
+      }
     }
 
     const url = await this.gateHubClient.getIframeUrl(
@@ -41,7 +56,10 @@ export class GateHubService {
       user.gateHubUserId
     )
 
-    return url
+    return {
+      url,
+      ...addUserToGatewayResponse
+    }
   }
 
   async handleWebhook(data: IWebhookData) {
@@ -203,7 +221,7 @@ export class GateHubService {
   async addUserToGateway(
     userId: string,
     isApproved = false
-  ): Promise<{ isApproved: boolean; customerId?: string }> {
+  ): Promise<IAddUserToGatewayResponse> {
     const user = await User.query().findById(userId)
     if (!user || !user.gateHubUserId) {
       throw new NotFound()

@@ -33,6 +33,10 @@ export class Transaction
   walletAddress!: WalletAddress
   isCard?: boolean
 
+  // Merchant name for card transactions
+  // Receiver or sender WA for ilp payments
+  secondParty?: string
+
   static relationMappings = () => ({
     walletAddress: {
       relation: Model.BelongsToOneRelation,
