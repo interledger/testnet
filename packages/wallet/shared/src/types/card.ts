@@ -1,3 +1,5 @@
+import { CardTrxTypeEnum } from '@/types/transaction'
+
 export type LockReasonCode =
   | 'ClientRequestedLock'
   | 'LostCard'
@@ -34,7 +36,7 @@ export interface ICardTransaction {
   transactionId: string
   ghResponseCode: string
   cardScheme: number
-  type: number
+  type: CardTrxTypeEnum
   createdAt: string
   txStatus: string
   vaultId: number

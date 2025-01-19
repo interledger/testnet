@@ -174,6 +174,8 @@ export class TransactionService implements ITransactionService {
             : undefined,
           conversionRate: transaction.mastercardConversion?.convRate,
           txCurrency: transaction.transactionCurrency,
+          txCurrency: transaction.transactionCurrency,
+          cardTxType: transaction.type,
           createdAt: new Date(transaction.createdAt)
         })
       )

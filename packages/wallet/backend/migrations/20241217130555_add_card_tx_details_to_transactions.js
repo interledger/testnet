@@ -7,6 +7,7 @@ exports.up = function (knex) {
     table.bigint('txAmount').nullable()
     table.string('txCurrency').nullable()
     table.string('conversionRate').nullable()
+    table.integer('cardTxType').nullable()
   })
 }
 
@@ -19,5 +20,6 @@ exports.down = function (knex) {
     table.dropColumn('txAmount')
     table.dropColumn('txCurrency')
     table.dropColumn('conversionRate')
+    table.dropColumn('cardTxType')
   })
 }
