@@ -1,4 +1,4 @@
-import { CardTrxTypeEnum } from '@/types/transaction'
+import { CardTrxTypeEnum } from './transaction'
 
 export type LockReasonCode =
   | 'ClientRequestedLock'
