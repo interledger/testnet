@@ -39,7 +39,7 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
             applicantStatus: 'submitted' | 'resubmitted'
           }
           if (value.applicantStatus === 'submitted') {
-            if (FEATURES_ENABLED && GATEHUB_ENV === 'sandbox') {
+            if (GATEHUB_ENV === 'sandbox') {
               await fetch(addUserToGatewayUrl, {
                 method: 'POST',
                 body: JSON.stringify(e.data, null, 2),
