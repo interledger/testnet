@@ -12,6 +12,22 @@ enum TRANSACTION_STATUS {
 }
 type TransactionStatus = keyof typeof TRANSACTION_STATUS
 
+export enum CardTrxTypeEnum {
+  Purchase = 0,
+  ATMWithdrawal = 1,
+  CardVerificationInquiry = 6,
+  CashAdvance = 17,
+  RefundCreditPayment = 20,
+  BalanceInquiryOnATM = 30,
+  PINUnblock = 91,
+  PINChange = 92,
+  Preauthorization = 101,
+  PreauthorizationIncremental = 102,
+  PreauthorizationCompletion = 103,
+  TransferToAccount = 107,
+  TransferFromAccount = 108
+}
+
 export interface TransactionResponse {
   id: string
   paymentId: string
@@ -24,6 +40,10 @@ export interface TransactionResponse {
   // Merchant name for card transactions
   // Receiver or sender WA for ilp payments
   secondParty?: string
+  txAmount?: bigint
+  txCurrency?: string
+  conversionRate?: string
+  cardTxType?: CardTrxTypeEnum
   createdAt: Date
   updatedAt: Date
   isCard?: boolean
