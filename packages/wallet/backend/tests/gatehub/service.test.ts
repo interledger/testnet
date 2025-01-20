@@ -443,11 +443,9 @@ describe('GateHub Service', (): void => {
           { email: 'user2@example.com' }
         ])
 
-        const result = await gateHubService.addUserToGateway(user.id)
-        expect(result).toEqual({
-          customerId: undefined,
-          isApproved: undefined
-        })
+        expect(gateHubService.addUserToGateway(user.id)).rejects.toThrowError(
+          `GateHub user with email ${user.email} not found`
+        )
       })
     })
   })

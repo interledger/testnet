@@ -32,6 +32,10 @@ export class Transaction
   value!: bigint | null
   walletAddress!: WalletAddress
   isCard?: boolean
+  txAmount?: bigint
+  txCurrency?: string
+  conversionRate?: string
+  cardTxType?: number
 
   // Merchant name for card transactions
   // Receiver or sender WA for ilp payments
