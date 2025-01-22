@@ -8,11 +8,17 @@ import {
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { TransactionListResponse } from '@wallet/shared/src/types/transaction'
-import { formatAmount, formatDate, getCurrencySymbol } from '@/utils/helpers'
+import {
+  formatAmount,
+  formatDate,
+  getCardTransactionType,
+  getCurrencySymbol
+} from '@/utils/helpers'
 import { cx } from 'class-variance-authority'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Card } from '../icons/CardButtons'
 import { FEATURES_ENABLED } from '@/utils/constants'
+import { CardTrxTypeEnum } from '@wallet/shared'
 
 type TransactionDetailsDialogProps = Pick<DialogProps, 'onClose'> & {
   transaction: TransactionListResponse
@@ -71,7 +77,9 @@ export const TransactionDetailsDialog = ({
                     </div>
                   ) : null}
                   <div>
-                    <span className="font-bold">Amount: </span>
+                    <span className="font-bold">
+                      {transaction.txAmount ? `Billed Amount: ` : `Amount: `}
+                    </span>
                     <span
                       className={cx(
                         transaction.type === 'INCOMING' &&
@@ -90,6 +98,36 @@ export const TransactionDetailsDialog = ({
                       }
                     </span>
                   </div>
+                  {transaction.txAmount && transaction.txCurrency ? (
+                    <>
+                      <div>
+                        <span className="font-bold">Transaction amount: </span>
+                        <span>
+                          {
+                            formatAmount({
+                              value: String(transaction.txAmount) || '0',
+                              assetCode: transaction.txCurrency,
+                              assetScale: transaction.assetScale
+                            }).amount
+                          }
+                        </span>
+                      </div>
+                      {transaction.conversionRate ? (
+                        <div>
+                          <span className="font-bold">Exchange Rate: </span>
+                          <span>{transaction.conversionRate}</span>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                  {transaction.cardTxType && transaction.cardTxType !== null ? (
+                    <div>
+                      <span className="font-bold">Transaction Type: </span>
+                      <span>
+                        {getCardTransactionType(transaction.cardTxType)}
+                      </span>
+                    </div>
+                  ) : null}
                   {transaction.description ? (
                     <div>
                       <span className="font-bold">Description: </span>

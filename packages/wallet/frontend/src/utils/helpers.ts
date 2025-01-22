@@ -179,3 +179,36 @@ export function parseJwt(token: string) {
 
   return JSON.parse(jsonPayload)
 }
+
+export function getCardTransactionType(type: number) {
+  switch (type) {
+    case 0:
+      return 'Purchase'
+    case 1:
+      return 'ATM Withdrawal'
+    case 6:
+      return 'Card verification Inquiry'
+    case 17:
+      return 'Cash Advance'
+    case 20:
+      return 'Refund Credit Payment'
+    case 30:
+      return 'Balance Inquiry on ATM'
+    case 91:
+      return 'PIN Unblock'
+    case 92:
+      return 'PIN Change'
+    case 101:
+      return 'Preauthorization'
+    case 102:
+      return 'Preauthorization Incremental'
+    case 103:
+      return 'Preauthorization Completion'
+    case 107:
+      return 'Transfer to Account'
+    case 108:
+      return 'Transfer from Account'
+    default:
+      return null
+  }
+}
