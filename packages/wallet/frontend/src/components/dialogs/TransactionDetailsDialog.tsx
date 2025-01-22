@@ -18,7 +18,6 @@ import { cx } from 'class-variance-authority'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Card } from '../icons/CardButtons'
 import { FEATURES_ENABLED } from '@/utils/constants'
-import { CardTrxTypeEnum } from '@wallet/shared'
 
 type TransactionDetailsDialogProps = Pick<DialogProps, 'onClose'> & {
   transaction: TransactionListResponse
