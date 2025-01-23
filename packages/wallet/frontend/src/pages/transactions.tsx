@@ -335,7 +335,6 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       }}
                     >
                       <Table.Cell className="whitespace-nowrap">
-                        at{' '}
                         {formatDateOnlyTime({ date: trx.createdAt.toString() })}
                       </Table.Cell>
                       <Table.Cell className="whitespace-nowrap">
