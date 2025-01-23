@@ -5,7 +5,7 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { CardController } from '@/card/controller'
-import { BadRequest } from '@shared/backend'
+import { BadRequest, InternalServerError } from '@shared/backend'
 import {
   ICardDetailsResponse,
   ICardLimitRequest,
@@ -153,12 +153,10 @@ describe('CardController', () => {
         })
       })
 
-      expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toEqual({
-        success: true,
-        message: 'SUCCESS',
-        result: []
-      })
+      expect(next).toHaveBeenCalled()
+      const error = next.mock.calls[0][0]
+      expect(error).toBeInstanceOf(InternalServerError)
+      expect(res.statusCode).toBe(500)
     })
   })
 
