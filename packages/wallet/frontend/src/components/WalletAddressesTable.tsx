@@ -16,6 +16,10 @@ import {
 } from '@/ui/Tooltip'
 import { copyToClipboard } from '@/ui/CopyButton'
 import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  replaceCardWalletAddressDomain,
+  replaceWalletAddressProtocol
+} from '@/utils/helpers'
 
 interface WalletAddressesTableProps {
   account: Account
@@ -101,12 +105,10 @@ export const CopyWalletAddress = () => {
   const { walletAddress } = useContext(WalletAddressRowContext)
   const [isCopied, setIsCopied] = useState(false)
 
-  let pointer = walletAddress.url
-
-  if (walletAddress.isCard) {
-    const url = new URL(walletAddress.url.replace('$', 'https://'))
-    pointer = `$ilp.dev${url.pathname}`
-  }
+  const pointer = replaceCardWalletAddressDomain(
+    replaceWalletAddressProtocol(walletAddress.url),
+    walletAddress.isCard
+  )
 
   useEffect(() => {
     setTimeout(() => {

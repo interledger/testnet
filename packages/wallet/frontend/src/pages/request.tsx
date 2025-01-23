@@ -13,6 +13,7 @@ import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import {
   formatAmount,
   getObjectKeys,
+  replaceCardWalletAddressDomain,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
@@ -107,7 +108,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
 
     const walletAddresses = walletAddressesResponse.result.map(
       (walletAddress) => ({
-        label: `${walletAddress.publicName} (${replaceWalletAddressProtocol(walletAddress.url)})`,
+        label: `${walletAddress.publicName} (${replaceCardWalletAddressDomain(replaceWalletAddressProtocol(walletAddress.url), walletAddress.isCard)})`,
         value: walletAddress.id,
         url: walletAddress.url
       })

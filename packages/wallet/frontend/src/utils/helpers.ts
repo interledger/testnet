@@ -140,6 +140,18 @@ export const replaceWalletAddressProtocol = (
       : paymentPointer
 }
 
+export const replaceCardWalletAddressDomain = (
+  paymentPointer: string,
+  isCard?: boolean
+): string => {
+  if (isCard) {
+    const url = new URL(paymentPointer.replace('$', 'https://'))
+    return `$ilp.dev${url.pathname}`
+  } else {
+    return paymentPointer
+  }
+}
+
 export function ab2str(buf: ArrayBuffer) {
   //@ts-expect-error: We know
   return String.fromCharCode.apply(null, new Uint8Array(buf))
