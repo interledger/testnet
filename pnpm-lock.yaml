@@ -193,8 +193,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       valtio:
-        specifier: ^2.1.2
-        version: 2.1.2(@types/react@18.3.18)(react@18.3.1)
+        specifier: ^2.1.3
+        version: 2.1.3(@types/react@18.3.18)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -485,8 +485,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       valtio:
-        specifier: ^2.1.2
-        version: 2.1.2(@types/react@18.3.18)(react@18.3.1)
+        specifier: ^2.1.3
+        version: 2.1.3(@types/react@18.3.18)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -5410,8 +5410,8 @@ packages:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
 
-  proxy-compare@3.0.0:
-    resolution: {integrity: sha512-y44MCkgtZUCT9tZGuE278fB7PWVf7fRYy0vbRXAts2o5F0EfC4fIQrvQQGBJo1WJbFcVLXzApOscyJuZqHQc1w==}
+  proxy-compare@3.0.1:
+    resolution: {integrity: sha512-V9plBAt3qjMlS1+nC8771KNf6oJ12gExvaxnNzN/9yVRLdTv/lc+oJlnSzrdYDAvBfTStPCoiaCOTmTs0adv7Q==}
 
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
@@ -6348,8 +6348,8 @@ packages:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
 
-  valtio@2.1.2:
-    resolution: {integrity: sha512-fhekN5Rq7dvHULHHBlJeXHrQDl0Jj9GXfNavCm3gkD06crGchaG1nf/J7gSlfZU2wPcRdVS5jBKWHtE2NNz97A==}
+  valtio@2.1.3:
+    resolution: {integrity: sha512-q+dVczY5zf7kO39JPVq2qR0VXMeEpF1t+P1njHU7hAhwgtyVa/p38YmgyHZq2IQYwnkNrkvh412k4sfDmcIJ2g==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -12291,7 +12291,7 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
-  proxy-compare@3.0.0: {}
+  proxy-compare@3.0.1: {}
 
   proxy-from-env@1.1.0: {}
 
@@ -13403,9 +13403,9 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
-  valtio@2.1.2(@types/react@18.3.18)(react@18.3.1):
+  valtio@2.1.3(@types/react@18.3.18)(react@18.3.1):
     dependencies:
-      proxy-compare: 3.0.0
+      proxy-compare: 3.0.1
     optionalDependencies:
       '@types/react': 18.3.18
       react: 18.3.1
