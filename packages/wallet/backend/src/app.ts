@@ -156,6 +156,7 @@ export class App {
     const grantController = this.container.resolve('grantController')
     const accountController = this.container.resolve('accountController')
     const rafikiController = this.container.resolve('rafikiController')
+    const stripeController = this.container.resolve('stripeController')
     const gateHubController = this.container.resolve('gateHubController')
     const cardController = this.container.resolve('cardController')
 
@@ -322,6 +323,7 @@ export class App {
 
     router.get('/rates', rafikiController.getRates)
     router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
+    router.post('/stripe-webhooks', stripeController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
