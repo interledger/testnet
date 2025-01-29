@@ -15,8 +15,9 @@ export const ButtonOrLink = forwardRef<
     return <Link href={href} ref={ref} {...props} />
   }
 
-  if (isHTMLButtonElement(ref, isLink))
+  if (isHTMLButtonElement(ref, isLink)) {
     return <button {...props} type={props.type ?? 'button'} ref={ref} />
+  }
 })
 
 ButtonOrLink.displayName = 'ButtonOrLink'
@@ -25,12 +26,12 @@ function isHTMLAnchorElement(
   ref: unknown,
   isLink: boolean
 ): ref is ForwardedRef<HTMLAnchorElement> {
-  return isLink
+  return !!ref && isLink
 }
 
 function isHTMLButtonElement(
   ref: unknown,
   isLink: boolean
 ): ref is ForwardedRef<HTMLButtonElement> {
-  return !isLink
+  return !!ref && !isLink
 }
