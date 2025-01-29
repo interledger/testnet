@@ -24,3 +24,12 @@ export const createIncomingPaymentMutation = gql`
     }
   }
 `
+
+export const getIncomingPaymentQuery = gql`
+  query GetIncomingPaymentQuery($id: String!) {
+    incomingPayment(id: $id) {
+      id
+      walletAddressId
+    }
+  }
+`
