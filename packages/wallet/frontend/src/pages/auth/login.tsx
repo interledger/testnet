@@ -91,6 +91,7 @@ const LoginPage: NextPageWithLayout = () => {
       setCallbackPath(urlFromStorage ?? '/');
     } else {
       sessionStorage.setItem(SessionStorageKeys.CallbackUrl, callbackUrl)
+      setCallbackPath(callbackUrl)
     }
 
   }, [callbackUrl])
