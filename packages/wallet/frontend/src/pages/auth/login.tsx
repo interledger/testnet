@@ -23,7 +23,8 @@ const LoginPage: NextPageWithLayout = () => {
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
   const [callbackPath, setCallbackPath] = useState<string>('/')
   const router = useRouter()
-  const callbackUrl =     router.asPath.indexOf('callbackUrl') !== -1
+  const callbackUrl =
+    router.asPath.indexOf('callbackUrl') !== -1
       ? `${router.query?.callbackUrl}`
       : '/'
   const loginForm = useZodForm({
@@ -55,16 +56,41 @@ const LoginPage: NextPageWithLayout = () => {
       )
     }
   }
-  const togglePasswordVisibility = () => {
+
+  async function submitForm(data: { email: string; password: string }) {
+    const response = await userService.login(data)
+    if (response.success) {
+      handleNavigation()
+      sessionStorage.removeItem(SessionStorageKeys.CallbackUrl)
+    } else {
+      const { errors, message } = response
+      loginForm.setError('root', { message })
+
+      if (errors && errors.email) {
+        loginForm.setError('email', { message: errors.email })
+      }
+    }
+  }
+
+  function handleNavigation() {
+    const isIncorrectCallbackUrl = !callbackPath.startsWith('/') &&
+      !callbackPath.startsWith(window.location.origin)
+    isIncorrectCallbackUrl
+      ? router.push('/')
+      : router.push(callbackPath)
+        .catch(() => router.push('/'))
+  }
+  
+  function togglePasswordVisibility() {
     setPasswordVisible(!isPasswordVisible)
   }
 
   useEffect(() => {
     if (callbackUrl === '/') {
-      const urlFromStorage = sessionStorage.getItem(LocalStorageKeys.CallbackUrl)
+      const urlFromStorage = sessionStorage.getItem(SessionStorageKeys.CallbackUrl)
       setCallbackPath(urlFromStorage ?? '/');
     } else {
-      sessionStorage.setItem(LocalStorageKeys.CallbackUrl, callbackUrl)
+      sessionStorage.setItem(SessionStorageKeys.CallbackUrl, callbackUrl)
     }
 
   }, [callbackUrl])
@@ -82,25 +108,7 @@ const LoginPage: NextPageWithLayout = () => {
       <div className="w-2/3">
         <Form
           form={loginForm}
-          onSubmit={async (data) => {
-            const response = await userService.login(data)
-            if (response.success) {
-              const isIncorrectCallbackUrl =
-                !callbackPath.startsWith('/') &&
-                !callbackPath.startsWith(window.location.origin)
-              isIncorrectCallbackUrl
-                ? router.push('/')
-                : router.push(callbackPath).catch(() => router.push('/'));
-              sessionStorage.removeItem(LocalStorageKeys.CallbackUrl);
-            } else {
-              const { errors, message } = response
-              loginForm.setError('root', { message })
-
-              if (errors && errors.email) {
-                loginForm.setError('email', { message: errors.email })
-              }
-            }
-          }}
+          onSubmit={(data) => submitForm(data)}
         >
           {loginForm.formState.errors.email ? (
             <Link
@@ -176,6 +184,6 @@ LoginPage.getLayout = function (page) {
 
 export default LoginPage
 
-const enum LocalStorageKeys {
+const enum SessionStorageKeys {
   CallbackUrl = 'callbackUrl'
 }
