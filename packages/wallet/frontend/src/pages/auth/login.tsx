@@ -21,9 +21,9 @@ import { THEME } from '@/utils/constants'
 const LoginPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
+  const [callbackPath, setCallbackPath] = useState<string>('/')
   const router = useRouter()
-  const callBackUrl =
-    router.asPath.indexOf('callbackUrl') !== -1
+  const callbackUrl =     router.asPath.indexOf('callbackUrl') !== -1
       ? `${router.query?.callbackUrl}`
       : '/'
   const loginForm = useZodForm({
@@ -58,6 +58,17 @@ const LoginPage: NextPageWithLayout = () => {
   const togglePasswordVisibility = () => {
     setPasswordVisible(!isPasswordVisible)
   }
+
+  useEffect(() => {
+    if (callbackUrl === '/') {
+      const urlFromStorage = sessionStorage.getItem(LocalStorageKeys.CallbackUrl)
+      setCallbackPath(urlFromStorage ?? '/');
+    } else {
+      sessionStorage.setItem(LocalStorageKeys.CallbackUrl, callbackUrl)
+    }
+
+  }, [callbackUrl])
+
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -73,14 +84,14 @@ const LoginPage: NextPageWithLayout = () => {
           form={loginForm}
           onSubmit={async (data) => {
             const response = await userService.login(data)
-
             if (response.success) {
               const isIncorrectCallbackUrl =
-                !callBackUrl.startsWith('/') &&
-                !callBackUrl.startsWith(window.location.origin)
+                !callbackPath.startsWith('/') &&
+                !callbackPath.startsWith(window.location.origin)
               isIncorrectCallbackUrl
                 ? router.push('/')
-                : router.push(callBackUrl)
+                : router.push(callbackPath).catch(() => router.push('/'));
+              sessionStorage.removeItem(LocalStorageKeys.CallbackUrl);
             } else {
               const { errors, message } = response
               loginForm.setError('root', { message })
@@ -164,3 +175,7 @@ LoginPage.getLayout = function (page) {
 }
 
 export default LoginPage
+
+const enum LocalStorageKeys {
+  CallbackUrl = 'callbackUrl'
+}
