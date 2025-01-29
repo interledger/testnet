@@ -73,27 +73,28 @@ const LoginPage: NextPageWithLayout = () => {
   }
 
   function handleNavigation() {
-    const isIncorrectCallbackUrl = !callbackPath.startsWith('/') &&
+    const isIncorrectCallbackUrl =
+      !callbackPath.startsWith('/') &&
       !callbackPath.startsWith(window.location.origin)
     isIncorrectCallbackUrl
       ? router.push('/')
-      : router.push(callbackPath)
-        .catch(() => router.push('/'))
+      : router.push(callbackPath).catch(() => router.push('/'))
   }
-  
+
   function togglePasswordVisibility() {
     setPasswordVisible(!isPasswordVisible)
   }
 
   useEffect(() => {
     if (callbackUrl === '/') {
-      const urlFromStorage = sessionStorage.getItem(SessionStorageKeys.CallbackUrl)
-      setCallbackPath(urlFromStorage ?? '/');
+      const urlFromStorage = sessionStorage.getItem(
+        SessionStorageKeys.CallbackUrl
+      )
+      setCallbackPath(urlFromStorage ?? '/')
     } else {
       sessionStorage.setItem(SessionStorageKeys.CallbackUrl, callbackUrl)
       setCallbackPath(callbackUrl)
     }
-
   }, [callbackUrl])
 
   useEffect(() => {
@@ -107,10 +108,7 @@ const LoginPage: NextPageWithLayout = () => {
         Login
       </h2>
       <div className="w-2/3">
-        <Form
-          form={loginForm}
-          onSubmit={(data) => submitForm(data)}
-        >
+        <Form form={loginForm} onSubmit={(data) => submitForm(data)}>
           {loginForm.formState.errors.email ? (
             <Link
               onClick={() => {
