@@ -31,51 +31,55 @@ async function backfillTrxDetails() {
   }
 
   async function backfillCardTrx(account: Account) {
-    if (!account.cardId || !account.user?.gateHubUserId) {
-      return
-    }
-
-    let page = 1
-    const pageSize = 10
-    let shouldFetchNext = true
-    while (shouldFetchNext) {
-      const transactionsResponse = await gateHubClient.getCardTransactions(
-        account.cardId,
-        account.user.gateHubUserId,
-        pageSize,
-        page
-      )
-
-      if (transactionsResponse.data.length < pageSize) {
-        shouldFetchNext = false
+    try {
+      if (!account.cardId || !account.user?.gateHubUserId) {
+        return
       }
 
-      for (const cardTrx of transactionsResponse.data) {
-        console.log('processing trx: ', cardTrx.id)
-        const existentTrx = await Transaction.query().findOne(
-          'paymentId',
-          cardTrx.id
+      let page = 1
+      const pageSize = 10
+      let shouldFetchNext = true
+      while (shouldFetchNext) {
+        const transactionsResponse = await gateHubClient.getCardTransactions(
+          account.cardId,
+          account.user.gateHubUserId,
+          pageSize,
+          page
         )
-        if (!existentTrx) {
-          console.log('trx not found: ', cardTrx.id)
-          continue
+
+        if (transactionsResponse.data.length < pageSize) {
+          shouldFetchNext = false
         }
 
-        await Transaction.query()
-          .where('id', existentTrx.id)
-          .update({
-            secondParty: cardTrx.merchantName,
-            txAmount: cardTrx.transactionAmount
-              ? transformBalance(Number(cardTrx.transactionAmount), 2)
-              : undefined,
-            conversionRate: cardTrx.mastercardConversion?.convRate,
-            txCurrency: cardTrx.transactionCurrency,
-            cardTxType: cardTrx.type
-          })
-        console.log('trx updated: ', existentTrx.paymentId)
-      }
+        for (const cardTrx of transactionsResponse.data) {
+          console.log('processing trx: ', cardTrx.id)
+          const existentTrx = await Transaction.query().findOne(
+            'paymentId',
+            cardTrx.id
+          )
+          if (!existentTrx) {
+            console.log('trx not found: ', cardTrx.id)
+            continue
+          }
 
-      page++
+          await Transaction.query()
+            .where('id', existentTrx.id)
+            .update({
+              secondParty: cardTrx.merchantName,
+              txAmount: cardTrx.transactionAmount
+                ? transformBalance(Number(cardTrx.transactionAmount), 2)
+                : undefined,
+              conversionRate: cardTrx.mastercardConversion?.convRate,
+              txCurrency: cardTrx.transactionCurrency,
+              cardTxType: cardTrx.type
+            })
+          console.log('trx updated: ', existentTrx.paymentId)
+        }
+
+        page++
+      }
+    } catch (e) {
+      console.log('Failed to update trx for account: ', account.user.email)
     }
   }
 
