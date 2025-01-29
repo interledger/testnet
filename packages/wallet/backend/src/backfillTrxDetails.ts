@@ -52,13 +52,13 @@ async function backfillTrxDetails() {
         }
 
         for (const cardTrx of transactionsResponse.data) {
-          console.log('processing trx: ', cardTrx.id)
+          console.log('processing trx: ', cardTrx.transactionId)
           const existentTrx = await Transaction.query().findOne(
             'paymentId',
-            cardTrx.id
+            cardTrx.transactionId
           )
           if (!existentTrx) {
-            console.log('trx not found: ', cardTrx.id)
+            console.log('trx not found: ', cardTrx.transactionId)
             continue
           }
 
