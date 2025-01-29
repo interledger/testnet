@@ -45,20 +45,28 @@ import {
   GetReceiverQueryVariables,
   QueryOutgoingPaymentsArgs,
   GetOutgoingPaymentsQuery,
-  GetOutgoingPaymentsQueryVariables
+  GetOutgoingPaymentsQueryVariables,
+  GetOutgoingPaymentQuery,
+  GetOutgoingPaymentQueryVariables,
+  GetIncomingPaymentQuery,
+  GetIncomingPaymentQueryVariables
 } from './backend/generated/graphql'
 import {
   createAssetMutation,
   getAssetQuery,
   getAssetsQuery
 } from './backend/request/asset.request'
-import { createIncomingPaymentMutation } from './backend/request/incoming-payment.request'
+import {
+  createIncomingPaymentMutation,
+  getIncomingPaymentQuery
+} from './backend/request/incoming-payment.request'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
 } from './backend/request/liquidity.request'
 import {
   createOutgoingPaymentMutation,
+  getOutgoingPaymentQuery,
   getOutgoingPayments,
   OutgoingPaymentsGqlResponse
 } from './backend/request/outgoing-payment.request'
@@ -416,5 +424,25 @@ export class RafikiClient implements IRafikiClient {
     return response.outgoingPayments.edges.map(
       (el: { node: OutgoingPaymentsGqlResponse }) => el.node
     )
+  }
+
+  public async getOutgoingPaymentById(
+    id: string
+  ): Promise<OutgoingPaymentsGqlResponse> {
+    const response = await this.backendGraphQLClient.request<
+      GetOutgoingPaymentQuery,
+      GetOutgoingPaymentQueryVariables
+    >(getOutgoingPaymentQuery, { id })
+
+    return response.outgoingPayment as OutgoingPaymentsGqlResponse
+  }
+
+  public async getIncomingPaymentById(id: string): Promise<IncomingPayment> {
+    const response = await this.backendGraphQLClient.request<
+      GetIncomingPaymentQuery,
+      GetIncomingPaymentQueryVariables
+    >(getIncomingPaymentQuery, { id })
+
+    return response.incomingPayment as IncomingPayment
   }
 }
