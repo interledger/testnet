@@ -33,9 +33,10 @@ const amountSchema = z.object({
 const incomingPaymentCompletedSchema = z.object({
   id: z.string(),
   walletAddressId: z.string(),
+  client: z.string().optional(),
   createdAt: z.string(),
   expiresAt: z.string(),
-  incomingAmount: amountSchema,
+  incomingAmount: amountSchema.optional(),
   receivedAmount: amountSchema,
   completed: z.boolean(),
   updatedAt: z.string(),
