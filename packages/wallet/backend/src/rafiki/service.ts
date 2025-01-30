@@ -13,11 +13,6 @@ import { GateHubClient } from '@/gatehub/client'
 import { TransactionTypeEnum } from '@/gatehub/consts'
 import {
   WebhookType,
-  incomingPaymentWebhookSchema,
-  incomingPaymentCompletedWebhookSchema,
-  outgoingPaymentWebhookSchema,
-  walletAddressWebhookSchema,
-  validateInput
 } from './validation'
 
 export enum EventType {
@@ -77,9 +72,6 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
-const isValidEventType = (value: string): value is EventType => {
-  return Object.values(EventType).includes(value as EventType)
-}
 interface IRafikiService {
   onWebHook: (wh: WebhookType) => Promise<void>
 }
@@ -101,13 +93,7 @@ export class RafikiService implements IRafikiService {
         wh.type === EventType.WalletAddressNotFound ? '' : `${wh.id}}`
       }`
     )
-    if (!isValidEventType(wh.type)) {
-      throw new BadRequest(`unknown event type, ${wh.type}`)
-    }
-    const isValid = await this.isValidInput(wh)
-    if (!isValid) {
-      throw new BadRequest(`Invalid Input for ${wh.type}`)
-    }
+
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -131,32 +117,6 @@ export class RafikiService implements IRafikiService {
         this.logger.warn(`${EventType.WalletAddressNotFound} received`)
         break
     }
-  }
-
-  private async isValidInput(wh: WebhookType) {
-    let validInput = false
-
-    switch (wh.type) {
-      case EventType.OutgoingPaymentCreated:
-      case EventType.OutgoingPaymentCompleted:
-      case EventType.OutgoingPaymentFailed:
-        validInput = await validateInput(outgoingPaymentWebhookSchema, wh)
-        break
-      case EventType.IncomingPaymentCompleted:
-        validInput = await validateInput(
-          incomingPaymentCompletedWebhookSchema,
-          wh
-        )
-        break
-      case EventType.IncomingPaymentCreated:
-      case EventType.IncomingPaymentExpired:
-        validInput = await validateInput(incomingPaymentWebhookSchema, wh)
-        break
-      case EventType.WalletAddressNotFound:
-        validInput = await validateInput(walletAddressWebhookSchema, wh)
-        break
-    }
-    return validInput
   }
 
   private parseAmount(amount: AmountJSON): Amount {
