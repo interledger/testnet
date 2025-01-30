@@ -22,11 +22,13 @@ import { FEATURES_ENABLED } from '@/utils/constants'
 
 type TransactionDetailsDialogProps = Pick<DialogProps, 'onClose'> & {
   transaction: TransactionListResponse
+  isCardWalletAddress: boolean
 }
 
 export const TransactionDetailsDialog = ({
   onClose,
-  transaction
+  transaction,
+  isCardWalletAddress
 }: TransactionDetailsDialogProps) => {
   return (
     <Transition show={true} as={Fragment} appear={true}>
@@ -147,7 +149,7 @@ export const TransactionDetailsDialog = ({
                       <span>
                         {replaceCardWalletAddressDomain(
                           transaction.walletAddressUrl,
-                          transaction.isCard
+                          isCardWalletAddress
                         )}
                       </span>
                     </div>
