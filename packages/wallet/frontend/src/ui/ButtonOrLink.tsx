@@ -21,6 +21,8 @@ export const ButtonOrLink = forwardRef<
   if (!ref && isLink) {
     return <Link href={href} {...props} />
   }
+  
+  return <button {...props} type={props.type ?? 'button'}/>
 })
 
 ButtonOrLink.displayName = 'ButtonOrLink'
