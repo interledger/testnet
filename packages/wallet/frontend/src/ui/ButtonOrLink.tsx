@@ -10,13 +10,16 @@ export const ButtonOrLink = forwardRef<
   ButtonOrLinkProps
 >(({ href, ...props }, ref) => {
   const isLink = typeof href !== 'undefined'
-
   if (isLink && isHTMLAnchorElement(ref, isLink)) {
     return <Link href={href} ref={ref} {...props} />
   }
 
   if (isHTMLButtonElement(ref, isLink)) {
     return <button {...props} type={props.type ?? 'button'} ref={ref} />
+  }
+
+  if (!ref && isLink) {
+    return <Link href={href} {...props} />
   }
 })
 
