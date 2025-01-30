@@ -40,9 +40,11 @@ const incomingPaymentSchema = z.object({
   completed: z.boolean(),
   receivedAmount: amountSchema,
   incomingAmount: amountSchema.optional(),
-  metadata: z.object({
-    description: z.string().optional()
-  }).optional()
+  metadata: z
+    .object({
+      description: z.string().optional()
+    })
+    .optional()
 })
 
 const outgoingPaymentSchema = z.object({
@@ -58,9 +60,11 @@ const outgoingPaymentSchema = z.object({
   updatedAt: z.string(),
   balance: z.string(),
   client: z.string().nullable().optional(),
-  metadata: z.object({
-    description: z.string().optional()
-  }).optional(),
+  metadata: z
+    .object({
+      description: z.string().optional()
+    })
+    .optional(),
   peerId: z.string().optional(),
   error: z.string().optional(),
   expiresAt: z.string().optional()
@@ -102,4 +106,3 @@ export const webhookBodySchema = z.object({
   body: webhookSchema
 })
 export type WebhookType = z.infer<typeof webhookSchema>
-

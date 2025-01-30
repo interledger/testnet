@@ -11,9 +11,7 @@ import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
 import { TransactionTypeEnum } from '@/gatehub/consts'
-import {
-  WebhookType,
-} from './validation'
+import { WebhookType } from './validation'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
