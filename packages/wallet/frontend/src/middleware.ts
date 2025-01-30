@@ -11,6 +11,7 @@ const isPublicPath = (path: string) => {
 const publicPaths = ['/auth*']
 
 export async function middleware(req: NextRequest) {
+  const callbackUrl = req.nextUrl.searchParams.get('callbackUrl')
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
@@ -39,7 +40,7 @@ export async function middleware(req: NextRequest) {
     }
 
     if (isPublic) {
-      return NextResponse.redirect(new URL('/', req.url))
+      return NextResponse.redirect(new URL(callbackUrl ?? '/', req.url))
     }
   } else {
     // If the user is not logged in and tries to access a private resource,

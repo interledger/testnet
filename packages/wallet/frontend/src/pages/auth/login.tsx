@@ -21,8 +21,9 @@ import { THEME } from '@/utils/constants'
 const LoginPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
+  const [callbackPath, setCallbackPath] = useState<string>('/')
   const router = useRouter()
-  const callBackUrl =
+  const callbackUrl =
     router.asPath.indexOf('callbackUrl') !== -1
       ? `${router.query?.callbackUrl}`
       : '/'
@@ -55,9 +56,47 @@ const LoginPage: NextPageWithLayout = () => {
       )
     }
   }
-  const togglePasswordVisibility = () => {
+
+  async function submitForm(data: { email: string; password: string }) {
+    const response = await userService.login(data)
+    if (response.success) {
+      handleNavigation()
+      sessionStorage.removeItem(SessionStorageKeys.CallbackUrl)
+    } else {
+      const { errors, message } = response
+      loginForm.setError('root', { message })
+
+      if (errors && errors.email) {
+        loginForm.setError('email', { message: errors.email })
+      }
+    }
+  }
+
+  function handleNavigation() {
+    const isIncorrectCallbackUrl =
+      !callbackPath.startsWith('/') &&
+      !callbackPath.startsWith(window.location.origin)
+    isIncorrectCallbackUrl
+      ? router.push('/')
+      : router.push(callbackPath).catch(() => router.push('/'))
+  }
+
+  function togglePasswordVisibility() {
     setPasswordVisible(!isPasswordVisible)
   }
+
+  useEffect(() => {
+    if (callbackUrl === '/') {
+      const urlFromStorage = sessionStorage.getItem(
+        SessionStorageKeys.CallbackUrl
+      )
+      setCallbackPath(urlFromStorage ?? '/')
+    } else {
+      sessionStorage.setItem(SessionStorageKeys.CallbackUrl, callbackUrl)
+      setCallbackPath(callbackUrl)
+    }
+  }, [callbackUrl])
+
   useEffect(() => {
     loginForm.setFocus('email')
   }, [loginForm])
@@ -69,28 +108,7 @@ const LoginPage: NextPageWithLayout = () => {
         Login
       </h2>
       <div className="w-2/3">
-        <Form
-          form={loginForm}
-          onSubmit={async (data) => {
-            const response = await userService.login(data)
-
-            if (response.success) {
-              const isIncorrectCallbackUrl =
-                !callBackUrl.startsWith('/') &&
-                !callBackUrl.startsWith(window.location.origin)
-              isIncorrectCallbackUrl
-                ? router.push('/')
-                : router.push(callBackUrl)
-            } else {
-              const { errors, message } = response
-              loginForm.setError('root', { message })
-
-              if (errors && errors.email) {
-                loginForm.setError('email', { message: errors.email })
-              }
-            }
-          }}
-        >
+        <Form form={loginForm} onSubmit={(data) => submitForm(data)}>
           {loginForm.formState.errors.email ? (
             <Link
               onClick={() => {
@@ -164,3 +182,7 @@ LoginPage.getLayout = function (page) {
 }
 
 export default LoginPage
+
+const enum SessionStorageKeys {
+  CallbackUrl = 'callbackUrl'
+}

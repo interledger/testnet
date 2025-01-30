@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import type { ComponentPropsWithoutRef } from 'react'
+import type { ComponentPropsWithoutRef, ForwardedRef } from 'react'
 import Link from 'next/link'
 
 export type ButtonOrLinkProps = ComponentPropsWithoutRef<'button'> &
@@ -8,15 +8,35 @@ export type ButtonOrLinkProps = ComponentPropsWithoutRef<'button'> &
 export const ButtonOrLink = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   ButtonOrLinkProps
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
->(({ href, ...props }, ref: any) => {
+>(({ href, ...props }, ref) => {
   const isLink = typeof href !== 'undefined'
-
-  if (isLink) {
+  if (isLink && isHTMLAnchorElement(ref, isLink)) {
     return <Link href={href} ref={ref} {...props} />
   }
 
-  return <button {...props} type={props.type ?? 'button'} ref={ref} />
+  if (isHTMLButtonElement(ref, isLink)) {
+    return <button {...props} type={props.type ?? 'button'} ref={ref} />
+  }
+
+  if (!ref && isLink) {
+    return <Link href={href} {...props} />
+  }
+
+  return <button {...props} type={props.type ?? 'button'} />
 })
 
 ButtonOrLink.displayName = 'ButtonOrLink'
+
+function isHTMLAnchorElement(
+  ref: unknown,
+  isLink: boolean
+): ref is ForwardedRef<HTMLAnchorElement> {
+  return !!ref && isLink
+}
+
+function isHTMLButtonElement(
+  ref: unknown,
+  isLink: boolean
+): ref is ForwardedRef<HTMLButtonElement> {
+  return !!ref && !isLink
+}
