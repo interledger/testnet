@@ -16,7 +16,9 @@ import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import {
   formatAmount,
   formatDateNoTime,
-  formatDateOnlyTime
+  formatDateOnlyTime,
+  replaceCardWalletAddressDomain,
+  replaceWalletAddressProtocol
 } from '@/utils/helpers'
 import { useRedirect } from '@/lib/hooks/useRedirect'
 import { Button } from '@/ui/Button'
@@ -37,6 +39,8 @@ import { useDialog } from '@/lib/hooks/useDialog'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
+  isCard: boolean
+  walletId: string
 }
 
 export type TransactionsFilterProps = {
@@ -99,7 +103,9 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
     () =>
       walletAddresses.find((pp) => pp.value === filters.walletAddressId) ?? {
         ...defaultOption,
-        accountId: ''
+        accountId: '',
+        isCard: false,
+        walletId: ''
       },
     [walletAddresses, filters.walletAddressId]
   )
@@ -326,9 +332,14 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                       key={trx.id}
                       className="cursor-pointer"
                       onClick={() => {
+                        const isCardWalletAddress =
+                          walletAddresses.find(
+                            (pp) => trx.walletAddressId === pp.walletId
+                          )?.isCard || false
                         openDialog(
                           <TransactionDetailsDialog
                             transaction={trx}
+                            isCardWalletAddress={isCardWalletAddress}
                             onClose={closeDialog}
                           />
                         )
@@ -541,7 +552,9 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   const accounts = [{ label: 'All', value: '' }]
-  const walletAddresses = [{ label: 'All', value: '', accountId: '' }]
+  const walletAddresses = [
+    { label: 'All', value: '', accountId: '', isCard: false, walletId: '' }
+  ]
 
   accountsResponse.result.map((account) =>
     accounts.push({
@@ -552,9 +565,14 @@ export const getServerSideProps: GetServerSideProps<
 
   walletAddressesResponse.result.map((pp) =>
     walletAddresses.push({
-      label: pp.url,
+      label: replaceCardWalletAddressDomain(
+        replaceWalletAddressProtocol(pp.url),
+        pp.isCard
+      ),
       value: pp.id,
-      accountId: pp.accountId
+      accountId: pp.accountId,
+      isCard: pp.isCard || false,
+      walletId: pp.id
     })
   )
 
