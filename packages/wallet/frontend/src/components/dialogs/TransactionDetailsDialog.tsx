@@ -12,7 +12,8 @@ import {
   formatAmount,
   formatDate,
   getCardTransactionType,
-  getCurrencySymbol
+  getCurrencySymbol,
+  replaceCardWalletAddressDomain
 } from '@/utils/helpers'
 import { cx } from 'class-variance-authority'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
@@ -119,7 +120,8 @@ export const TransactionDetailsDialog = ({
                       ) : null}
                     </>
                   ) : null}
-                  {transaction.cardTxType && transaction.cardTxType !== null ? (
+                  {transaction.cardTxType !== undefined &&
+                  transaction.cardTxType !== null ? (
                     <div>
                       <span className="font-bold">Transaction Type: </span>
                       <span>
@@ -139,10 +141,17 @@ export const TransactionDetailsDialog = ({
                     </span>
                     <span>{transaction.walletAddressPublicName}</span>
                   </div>
-                  <div>
-                    <span className="font-bold">Payment Pointer URL: </span>
-                    <span>{transaction.walletAddressUrl}</span>
-                  </div>
+                  {transaction.walletAddressUrl ? (
+                    <div>
+                      <span className="font-bold">Payment Pointer URL: </span>
+                      <span>
+                        {replaceCardWalletAddressDomain(
+                          transaction.walletAddressUrl,
+                          transaction.isCard
+                        )}
+                      </span>
+                    </div>
+                  ) : null}
                   <div>
                     <span className="font-bold">Account: </span>
                     <span>
