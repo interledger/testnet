@@ -103,7 +103,10 @@ async function backfillTrxDetails() {
         } else {
           secondParty = await getOutgoingPaymentSecondParty(tx.paymentId)
         }
-        await Transaction.query().where('id', tx.id).update({ secondParty })
+        await Transaction.query().where('id', tx.id).update({
+          secondParty: secondParty?.names,
+          secondPartyWA: secondParty?.walletAddresses
+        })
         console.log('trx updated')
       }
 

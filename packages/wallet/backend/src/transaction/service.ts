@@ -22,6 +22,10 @@ type ListAllTransactionsInput = {
   orderByDate: OrderByDirection
 }
 
+export interface ISecondParty {
+  names?: string
+  walletAddresses?: string
+}
 export interface ITransactionService {
   list: (
     userId: string,
@@ -232,7 +236,7 @@ export class TransactionService implements ITransactionService {
   async createOutgoingTransaction(
     params: OutgoingPayment,
     walletAddress: WalletAddress,
-    secondParty?: string
+    secondParty?: ISecondParty
   ) {
     const existentTransaction = await Transaction.query().findOne({
       paymentId: params.id
@@ -251,7 +255,8 @@ export class TransactionService implements ITransactionService {
       type: 'OUTGOING',
       status: 'PENDING',
       description: params.metadata?.description,
-      secondParty
+      secondParty: secondParty?.names,
+      secondPartyWA: secondParty?.walletAddresses
     })
   }
 }

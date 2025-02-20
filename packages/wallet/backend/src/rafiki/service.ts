@@ -1,6 +1,6 @@
 import { Env } from '@/config/env'
 import { WalletAddress } from '@/walletAddress/model'
-import { TransactionService } from '@/transaction/service'
+import { ISecondParty, TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
 import { RafikiClient } from './rafiki-client'
 import { SocketService } from '@/socket/service'
@@ -189,11 +189,16 @@ export class RafikiService implements IRafikiService {
 
     await this.rafikiClient.withdrawLiqudity(wh.id)
 
-    const senders = await this.getIncomingPaymentSenders(wh.data.id)
+    const secondParty = await this.getIncomingPaymentSenders(wh.data.id)
 
     await this.transactionService.updateTransaction(
       { paymentId: wh.data.id },
-      { status: 'COMPLETED', value: amount.value, secondParty: senders }
+      {
+        status: 'COMPLETED',
+        value: amount.value,
+        secondParty: secondParty?.names,
+        secondPartyWA: secondParty?.walletAddresses
+      }
     )
 
     const isExchange = NodeCacheInstance.get(wh.data.id)
@@ -385,7 +390,7 @@ export class RafikiService implements IRafikiService {
     }
   }
 
-  async getIncomingPaymentSenders(id: string) {
+  async getIncomingPaymentSenders(id: string): Promise<ISecondParty | undefined> {
     try {
       const outgoingPayments =
         await this.rafikiClient.getOutgoingPaymentsByReceiver(
@@ -398,10 +403,15 @@ export class RafikiService implements IRafikiService {
       const walletAddresses =
         await this.walletAddressService.getByIds(walletAddressIds)
       // return senders
-      return walletAddresses
-        .filter((wa) => wa.account?.user)
-        .map((wa) => `${wa.account.user.firstName} ${wa.account.user.lastName}`)
-        .join(', ')
+      return {
+        names: walletAddresses
+          .filter((wa) => wa.account?.user)
+          .map(
+            (wa) => `${wa.account.user.firstName} ${wa.account.user.lastName}`
+          )
+          .join(', '),
+        walletAddresses: walletAddresses.map((wa) => wa.url).join(', ')
+      }
     } catch (e) {
       this.logger.warn(
         'Error on getting outgoing payments by incoming payment',
@@ -417,15 +427,21 @@ export class RafikiService implements IRafikiService {
         receiver.walletAddressUrl
       )
 
-      if (receiverWA?.account?.user) {
-        return `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
+      const response: ISecondParty = {
+        walletAddresses: receiver.walletAddressUrl
       }
+
+      if (receiverWA?.account?.user) {
+        response.names = `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
+      }
+
+      return response
     } catch (e) {
       this.logger.warn('Error on getting receiver wallet address', e)
     }
   }
 
-  async getOutgoingPaymentSecondPartyByIncomingPaymentId(paymentId: string) {
+  async getOutgoingPaymentSecondPartyByIncomingPaymentId(paymentId: string): Promise<ISecondParty | undefined> {
     try {
       const receiver = await this.rafikiClient.getIncomingPaymentById(paymentId)
 
@@ -434,7 +450,10 @@ export class RafikiService implements IRafikiService {
       )
 
       if (receiverWA?.account?.user) {
-        return `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
+        return {
+          names: `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`,
+          walletAddresses: receiverWA.url
+        }
       }
     } catch (e) {
       this.logger.warn('Error on getting receiver wallet address', e)
