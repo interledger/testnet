@@ -5,8 +5,9 @@ import {
 } from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { WalletAddressService } from '@/walletAddress/service'
-import { Forbidden } from '@shared/backend'
+import { BadRequest, Forbidden } from '@shared/backend'
 import moment from 'moment'
+import { AxiosError } from 'axios'
 interface IGrantService {
   getGrantByInteraction: (
     userId: string,
@@ -54,11 +55,19 @@ export class GrantService implements IGrantService {
   ): Promise<Grant> {
     await this.getGrantByInteraction(userId, interactionId, nonce)
 
-    return await this.rafikiAuthService.setInteractionResponse(
-      interactionId,
-      nonce,
-      response
-    )
+    try {
+      return await this.rafikiAuthService.setInteractionResponse(
+        interactionId,
+        nonce,
+        response
+      )
+    } catch (e) {
+      if (e instanceof AxiosError && e.response?.data === 'Bad Request') {
+        throw new BadRequest('Invalid interaction')
+      }
+
+      throw e
+    }
   }
 
   async list(userId: string) {
