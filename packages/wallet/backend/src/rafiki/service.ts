@@ -390,7 +390,9 @@ export class RafikiService implements IRafikiService {
     }
   }
 
-  async getIncomingPaymentSenders(id: string): Promise<ISecondParty | undefined> {
+  async getIncomingPaymentSenders(
+    id: string
+  ): Promise<ISecondParty | undefined> {
     try {
       const outgoingPayments =
         await this.rafikiClient.getOutgoingPaymentsByReceiver(
@@ -441,7 +443,9 @@ export class RafikiService implements IRafikiService {
     }
   }
 
-  async getOutgoingPaymentSecondPartyByIncomingPaymentId(paymentId: string): Promise<ISecondParty | undefined> {
+  async getOutgoingPaymentSecondPartyByIncomingPaymentId(
+    paymentId: string
+  ): Promise<ISecondParty | undefined> {
     try {
       const receiver = await this.rafikiClient.getIncomingPaymentById(paymentId)
 
