@@ -38,8 +38,10 @@ export class Transaction
   cardTxType?: number
 
   // Merchant name for card transactions
-  // Receiver or sender WA for ilp payments
+  // Receiver or sender first + last name for ilp payments
   secondParty?: string
+  // Receiver wallet address for ilp payments
+  secondPartyWA?: string
 
   static relationMappings = () => ({
     walletAddress: {
