@@ -63,7 +63,7 @@ export class GrantService implements IGrantService {
       )
     } catch (e) {
       if (e instanceof AxiosError && e.response?.data === 'Bad Request') {
-        throw new BadRequest('Invalid interaction')
+        throw new BadRequest('Expired Grant Interaction')
       }
 
       throw e
