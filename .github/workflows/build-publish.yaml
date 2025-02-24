@@ -81,7 +81,7 @@ jobs:
           - name: test-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
-            api_base_url: 'https://api.boutique.jopacc.openpayments.directory'
+            api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
             currency: 'JOD'
             theme: light
           - name: test-boutique-backend
