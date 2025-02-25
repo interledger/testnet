@@ -305,11 +305,6 @@ export class App {
     router.post('/accounts', isAuth, accountController.createAccount)
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
-    router.post(
-      '/accounts/:accountId/exchange',
-      isAuth,
-      quoteController.createExchangeQuote
-    )
 
     // Fund account is possible only in sandbox
     if (env.GATEHUB_ENV === 'sandbox') {
