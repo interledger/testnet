@@ -3,30 +3,14 @@ import { IncomingPaymentService } from '@/incomingPayment/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import {
-  incomingPaymentRegexp,
-  transformBalance,
-  urlToPaymentId
-} from '@/utils/helpers'
-import {
-  createWalletAddressIfFalsy,
-  WalletAddressService
-} from '@/walletAddress/service'
+import { incomingPaymentRegexp, transformBalance } from '@/utils/helpers'
+import { WalletAddressService } from '@/walletAddress/service'
 import { QuoteWithFees } from './controller'
 import { RatesService } from '@/rates/service'
-import { Account } from '@/account/model'
-import { NodeCacheInstance } from '@/utils/helpers'
 import { BadRequest, NotFound } from '@shared/backend'
-type CreateExchangeQuote = {
-  userId: string
-  accountId: string
-  assetCode: string
-  amount: number
-}
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
-  createExchangeQuote: (args: CreateExchangeQuote) => Promise<QuoteWithFees>
 }
 
 type CreateQuoteParams = {
@@ -42,19 +26,6 @@ type ConvertParams = {
   from: string
   to: string
   amount: bigint
-}
-
-const getAccountWithWalletAddressBy = async (where: Partial<Account>) => {
-  const account = await Account.query()
-    .where(where)
-    .withGraphFetched({ walletAddresses: true })
-    .modifyGraph('walletAddresses', (builder) => {
-      builder.where({ active: true }).orderBy('createdAt', 'ASC').limit(1)
-    })
-    .limit(1)
-    .first()
-
-  return account
 }
 
 export class QuoteService implements IQuoteService {
@@ -144,18 +115,6 @@ export class QuoteService implements IQuoteService {
 
       value = convertedValue
 
-      //* This next check is for first-party transfers. Future Third party transfers will need to go through another flow.
-      // TODO: discuss if this check is required
-      // const assetList = await this.rafikiClient.listAssets({ first: 100 })
-      // asset = assetList.find(
-      //   (a) => a.code === destinationWalletAddress.assetCode
-      // )
-      // if (!asset) {
-      //   throw new BadRequest(
-      //     'Destination wallet address asset is not supported'
-      //   )
-      // }
-
       asset = {
         code: assetDetails.assetCode,
         scale: assetDetails.assetScale
@@ -226,71 +185,5 @@ export class QuoteService implements IQuoteService {
     return BigInt(
       (Number(params.amount) * conversionRate.rates[params.to]).toFixed()
     )
-  }
-
-  public async createExchangeQuote({
-    userId,
-    accountId,
-    assetCode,
-    amount
-  }: CreateExchangeQuote): Promise<QuoteWithFees> {
-    const accountFrom = await getAccountWithWalletAddressBy({
-      userId,
-      id: accountId
-    })
-
-    if (!accountFrom) {
-      throw new NotFound(`The source account does not exist for this user.`)
-    }
-
-    const rafikiAsset = await this.rafikiClient.getRafikiAsset(assetCode)
-    if (!rafikiAsset) {
-      throw new NotFound(
-        `Asset Code "${assetCode}" does not exist in Rafiki; Payment Pointer could not be automatically created.`
-      )
-    }
-
-    const senderPp = await createWalletAddressIfFalsy({
-      walletAddress: accountFrom.walletAddresses?.[0],
-      userId,
-      accountId: accountFrom.id,
-      publicName: `Exchange Payment Pointer (exchanging into ${assetCode})`,
-      walletAddressService: this.walletAddressService
-    })
-    const senderPpId = senderPp.id
-
-    let accountTo = await getAccountWithWalletAddressBy({ userId, assetCode })
-
-    if (!accountTo) {
-      accountTo = await this.accountService.createAccount({
-        name: `${assetCode} account`,
-        userId,
-        assetId: rafikiAsset.id
-      })
-    }
-
-    const receiverPp = await createWalletAddressIfFalsy({
-      walletAddress: accountTo.walletAddresses?.[0],
-      userId,
-      accountId: accountTo.id,
-      publicName: `${assetCode} Payment Pointer`,
-      walletAddressService: this.walletAddressService
-    })
-    const receiverPpUrl = receiverPp.url
-
-    const quote = await this.create({
-      userId,
-      walletAddressId: senderPpId,
-      amount,
-      description: 'Currency exchange',
-      isReceive: true,
-      receiver: receiverPpUrl
-    })
-
-    //OUTCOME
-    NodeCacheInstance.set(quote.id, true)
-    //INCOME
-    NodeCacheInstance.set(urlToPaymentId(quote.receiver), true)
-    return quote
   }
 }
