@@ -407,8 +407,8 @@ importers:
         specifier: ^1.16.2
         version: 1.16.2(@types/express@4.17.21)(@types/node@20.14.15)
       testcontainers:
-        specifier: ^10.14.0
-        version: 10.14.0
+        specifier: ^10.18.0
+        version: 10.18.0
       ts-jest:
         specifier: ^29.2.6
         version: 29.2.6(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@20.14.15)(babel-plugin-macros@3.1.0))(typescript@5.6.3)
@@ -6092,8 +6092,8 @@ packages:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
 
-  testcontainers@10.14.0:
-    resolution: {integrity: sha512-8fReFeQ4bk17T2vHHzcFavBG8UHuHwsdVj+48TchtsCSklwmSUTkg/b57hVjxZdxN1ed/GfF63WZ39I4syV5tQ==}
+  testcontainers@10.18.0:
+    resolution: {integrity: sha512-MnwWsPjsN5QVe+lSU1LwLZVOyjgwSwv1INzkw8FekdwgvOtvJ7FThQEkbmzRcguQootgwmA9FG54NoTChZDRvA==}
 
   text-decoder@1.1.1:
     resolution: {integrity: sha512-8zll7REEv4GDD3x4/0pW+ppIxSNs7H1J10IKFZsuOMscumCdM2a+toDGLPA3T+1+fLBql4zbt5z83GEQGGV5VA==}
@@ -6283,8 +6283,8 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
-  undici@5.28.4:
-    resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
+  undici@5.28.5:
+    resolution: {integrity: sha512-zICwjrDrcrUE0pyyJc1I2QzBkLM8FINsgOrt6WjA+BgajVq9Nxu2PbFFXUrAggLfDXlZGZBVZYw7WNV5KiBiBA==}
     engines: {node: '>=14.0'}
 
   unixify@1.0.0:
@@ -13171,7 +13171,7 @@ snapshots:
       glob: 7.2.3
       minimatch: 3.1.2
 
-  testcontainers@10.14.0:
+  testcontainers@10.18.0:
     dependencies:
       '@balena/dockerignore': 1.0.2
       '@types/dockerode': 3.3.31
@@ -13187,7 +13187,7 @@ snapshots:
       ssh-remote-port-forward: 1.0.4
       tar-fs: 3.0.6
       tmp: 0.2.3
-      undici: 5.28.4
+      undici: 5.28.5
     transitivePeerDependencies:
       - supports-color
 
@@ -13365,7 +13365,7 @@ snapshots:
   undici-types@6.19.8:
     optional: true
 
-  undici@5.28.4:
+  undici@5.28.5:
     dependencies:
       '@fastify/busboy': 2.1.1
 
