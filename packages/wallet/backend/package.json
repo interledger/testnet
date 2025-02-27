@@ -32,7 +32,7 @@
     "moment": "^2.30.1",
     "node-cache": "^5.1.2",
     "objection": "^3.1.5",
-    "pg": "^8.13.1",
+    "pg": "^8.13.3",
     "randexp": "^0.5.3",
     "rate-limiter-flexible": "^5.0.5",
     "socket.io": "^4.8.1",
