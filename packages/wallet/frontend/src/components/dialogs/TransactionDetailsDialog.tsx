@@ -203,7 +203,7 @@ export const TransactionDetailsDialog = ({
                         }}
                       >
                         {transaction.type === 'INCOMING'
-                          ? 'Send Back'
+                          ? 'Refund'
                           : 'Send Again'}
                       </Button>
                     </div>
