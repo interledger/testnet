@@ -57,6 +57,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             into account {account.name}.
           </p>
         ),
+        title: 'Received Money',
         variant: 'success'
       })
       updateBalance(
