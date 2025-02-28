@@ -38,6 +38,7 @@ import { ExchangeRate } from '@/components/ExchangeRate'
 import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
+import { useRefundContext } from '@/lib/context/refund'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -59,6 +60,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [incomingPaymentAmount, setIncomingPaymentAmount] = useState(0)
   const [readOnlyNotes, setReadOnlyNotes] = useState(false)
   const { accountsSnapshot } = useSnapshot(balanceState)
+  const { receiverWalletAddress, setReceiverWalletAddress } = useRefundContext()
   const imageName =
     THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
@@ -365,6 +367,9 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             name="receiver"
             control={sendForm.control}
             render={({ field: { value } }) => {
+              value =
+                receiverWalletAddress !== '' ? receiverWalletAddress : value
+              setReceiverWalletAddress('')
               return (
                 <DebouncedInput
                   required

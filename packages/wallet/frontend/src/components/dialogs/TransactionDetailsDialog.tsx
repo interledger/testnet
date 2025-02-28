@@ -19,6 +19,9 @@ import { cx } from 'class-variance-authority'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { Card } from '../icons/CardButtons'
 import { FEATURES_ENABLED } from '@/utils/constants'
+import { Button } from '@/ui/Button'
+import { useRouter } from 'next/router'
+import { useRefundContext } from '@/lib/context/refund'
 
 type TransactionDetailsDialogProps = Pick<DialogProps, 'onClose'> & {
   transaction: TransactionListResponse
@@ -30,6 +33,9 @@ export const TransactionDetailsDialog = ({
   transaction,
   isCardWalletAddress
 }: TransactionDetailsDialogProps) => {
+  const router = useRouter()
+  const { setReceiverWalletAddress } = useRefundContext()
+
   return (
     <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -76,6 +82,16 @@ export const TransactionDetailsDialog = ({
                           : 'Receiver: '}
                       </span>
                       <span>{transaction.secondParty}</span>
+                    </div>
+                  ) : null}
+                  {transaction.secondPartyWA ? (
+                    <div>
+                      <span className="font-bold">
+                        {transaction.type === 'INCOMING'
+                          ? 'Sender Wallet Address: '
+                          : 'Receiver Wallet Address: '}
+                      </span>
+                      <span>{transaction.secondPartyWA}</span>
                     </div>
                   ) : null}
                   <div>
@@ -139,13 +155,13 @@ export const TransactionDetailsDialog = ({
                   ) : null}
                   <div>
                     <span className="font-bold">
-                      Payment Pointer Public Name:{' '}
+                      Wallet Address Public Name:{' '}
                     </span>
                     <span>{transaction.walletAddressPublicName}</span>
                   </div>
                   {transaction.walletAddressUrl ? (
                     <div>
-                      <span className="font-bold">Payment Pointer URL: </span>
+                      <span className="font-bold">Your Wallet Address: </span>
                       <span>
                         {replaceCardWalletAddressDomain(
                           transaction.walletAddressUrl,
@@ -171,6 +187,27 @@ export const TransactionDetailsDialog = ({
                       />
                     </span>
                   </div>
+                  {transaction.secondPartyWA ? (
+                    <div className="flex justify-center">
+                      <Button
+                        intent="outline"
+                        aria-label="send redirect"
+                        onClick={() => {
+                          setReceiverWalletAddress(
+                            transaction.secondPartyWA
+                              ? transaction.secondPartyWA
+                              : ''
+                          )
+                          router.push('/send')
+                          onClose()
+                        }}
+                      >
+                        {transaction.type === 'INCOMING'
+                          ? 'Refund'
+                          : 'Send Again'}
+                      </Button>
+                    </div>
+                  ) : null}
                 </div>
               </DialogPanel>
             </TransitionChild>
