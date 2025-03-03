@@ -69,8 +69,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(winston@3.17.0)
       '@interledger/open-payments':
-        specifier: ^6.13.2
-        version: 6.13.2
+        specifier: ^6.14.0
+        version: 6.14.0
       '@shared/backend':
         specifier: workspace:*
         version: link:../../shared/backend
@@ -1554,8 +1554,8 @@ packages:
   '@interledger/http-signature-utils@2.0.2':
     resolution: {integrity: sha512-gTAPFMt7xwG1zv1rbrltcZTAqOw/ZJwkVdnNjQzu5G9JTfvJQzS6pcpiVUej1cblpewotbOzosgdX00f93q9zA==}
 
-  '@interledger/open-payments@6.13.2':
-    resolution: {integrity: sha512-siAnS+Rp+SEZtm+YSWVHWCA4EJB7a6pKBZ9SR61UV1kgrzVzVHAZ8HA0cNTteLEEdFuW1xqVv8zqz27lxdvLgA==}
+  '@interledger/open-payments@6.14.0':
+    resolution: {integrity: sha512-8eAcpGfOS3knmi5pmiXsJovrOHVMR4rOW4L2nhqEDBxWkPZdVBOn77Rb5WfOAaJgQUTKE2G+sg+UvNJWHy09Ag==}
 
   '@interledger/openapi@2.0.2':
     resolution: {integrity: sha512-HOQnALmRtRkGkh63OnFhoCVsK4BKhQosJyoBCe6Cuu+jp8Oj2fAqTNz8ys+h6s30cJcIpk2UBlsj4wZ3pj26Ug==}
@@ -4635,10 +4635,6 @@ packages:
 
   kuler@2.0.0:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
-
-  ky@1.7.2:
-    resolution: {integrity: sha512-OzIvbHKKDpi60TnF9t7UUVAF1B4mcqc02z5PIvrm08Wyb+yOcz63GRvEuVxNT18a9E1SrNouhB4W2NNLeD7Ykg==}
-    engines: {node: '>=18'}
 
   ky@1.7.5:
     resolution: {integrity: sha512-HzhziW6sc5m0pwi5M196+7cEBtbt0lCYi67wNsiwMUmz833wloE0gbzJPWKs1gliFKQb34huItDQX97LyOdPdA==}
@@ -7858,13 +7854,13 @@ snapshots:
       jose: 4.15.9
       uuid: 9.0.1
 
-  '@interledger/open-payments@6.13.2':
+  '@interledger/open-payments@6.14.0':
     dependencies:
       '@interledger/http-signature-utils': 2.0.2
       '@interledger/openapi': 2.0.2
       base64url: 3.0.1
       http-message-signatures: 0.1.2
-      ky: 1.7.2
+      ky: 1.7.5
       pino: 8.21.0
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -11577,8 +11573,6 @@ snapshots:
       - supports-color
 
   kuler@2.0.0: {}
-
-  ky@1.7.2: {}
 
   ky@1.7.5: {}
 
