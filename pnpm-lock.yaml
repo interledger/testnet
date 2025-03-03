@@ -127,8 +127,8 @@ importers:
         specifier: ^29.2.6
         version: 29.2.6(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@20.14.15)(babel-plugin-macros@3.1.0))(typescript@5.6.3)
       tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.10
+        specifier: ^1.8.11
+        version: 1.8.11
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -271,8 +271,8 @@ importers:
         specifier: ^5.4.2
         version: 5.4.2
       tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.10
+        specifier: ^1.8.11
+        version: 1.8.11
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -413,8 +413,8 @@ importers:
         specifier: ^29.2.6
         version: 29.2.6(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@20.14.15)(babel-plugin-macros@3.1.0))(typescript@5.6.3)
       tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.10
+        specifier: ^1.8.11
+        version: 1.8.11
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -6206,8 +6206,8 @@ packages:
   ts-log@2.2.5:
     resolution: {integrity: sha512-PGcnJoTBnVGy6yYNFxWVNkdcAuAMstvutN9MgDJIV6L0oG8fB+ZNNy1T+wJzah8RPGor1mZuPQkVfXNDpy9eHA==}
 
-  tsc-alias@1.8.10:
-    resolution: {integrity: sha512-Ibv4KAWfFkFdKJxnWfVtdOmB0Zi1RJVxcbPGiCDsFpCQSsmpWyuzHG3rQyI5YkobWwxFPEyQfu1hdo4qLG2zPw==}
+  tsc-alias@1.8.11:
+    resolution: {integrity: sha512-2DuEQ58A9Rj2NE2c1+/qaGKlshni9MCK95MJzRGhQG0CYLw0bE/ACgbhhTSf/p1svLelwqafOd8stQate2bYbg==}
     hasBin: true
 
   tslib@2.6.3:
@@ -13269,7 +13269,7 @@ snapshots:
 
   ts-log@2.2.5: {}
 
-  tsc-alias@1.8.10:
+  tsc-alias@1.8.11:
     dependencies:
       chokidar: 3.6.0
       commander: 9.5.0
