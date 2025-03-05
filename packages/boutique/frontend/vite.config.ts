@@ -11,7 +11,7 @@ export default defineConfig({
         // Read the theme from the environment variable
         return html.replace(
           '<html class="',
-          `<html class="${process.env.VITE_THEME ?? 'dark'} `
+          `<html class="${process.env.VITE_THEME ?? 'light'} `
         )
       }
     }

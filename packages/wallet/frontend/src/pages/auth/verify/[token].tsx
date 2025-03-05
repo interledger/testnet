@@ -27,7 +27,7 @@ const VerifyEmailPage: NextPageWithLayout<VerifyEmailPageProps> = ({
         <>
           <h2 className="mb-10 mt-10 px-2 text-center text-xl font-semibold text-green dark:text-teal-neon">
             Your email has been verified. Continue to login to use Interledger
-            {FEATURES_ENABLED ? 'Wallet' : 'Test Wallet'}.
+            {FEATURES_ENABLED ? ' Wallet' : ' Test Wallet'}.
           </h2>
           <Button intent="primary" aria-label="login" href="/auth/login">
             Login to your account
