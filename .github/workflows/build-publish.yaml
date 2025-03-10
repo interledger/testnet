@@ -77,7 +77,7 @@ jobs:
             path: packages/boutique/frontend
             api_base_url: 'https://api.boutique.interledger-test.dev'
             currency: 'USD'
-            theme: dark
+            theme: light
           - name: test-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
