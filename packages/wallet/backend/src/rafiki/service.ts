@@ -230,7 +230,7 @@ export class RafikiService implements IRafikiService {
     const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    const { gateHubWalletId } =
+    const { gateHubWalletId, gateHubUserId } =
       await this.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
@@ -247,12 +247,24 @@ export class RafikiService implements IRafikiService {
       secondParty
     )
 
+    const balance = await this.getWalletBalance(
+      gateHubWalletId,
+      gateHubUserId,
+      amount.assetCode
+    )
+    const amountValue = this.amountToNumber(amount)
+
+    if (balance < amountValue) {
+      this.logger.info(
+        `Insufficient funds. Payment amount ${amountValue}, balance ${balance}`
+      )
+      throw new Error('Insufficient funds')
+    }
+
     await this.rafikiClient.depositLiquidity(wh.id)
 
     this.logger.info(
-      `Succesfully held ${this.amountToNumber(
-        amount
-      )} in ${gateHubWalletId}  on ${EventType.OutgoingPaymentCreated}`
+      `Succesfully held ${amountValue} in ${gateHubWalletId}  on ${EventType.OutgoingPaymentCreated}`
     )
   }
 
@@ -462,5 +474,21 @@ export class RafikiService implements IRafikiService {
     } catch (e) {
       this.logger.warn('Error on getting receiver wallet address', e)
     }
+  }
+
+  async getWalletBalance(
+    gateHubWalletId: string,
+    gateHubUserId: string,
+    assetCode: string
+  ) {
+    const balances = await this.gateHubClient.getWalletBalance(
+      gateHubWalletId,
+      gateHubUserId
+    )
+
+    return Number(
+      balances.find((balance) => balance.vault.asset_code === assetCode)
+        ?.available ?? 0
+    )
   }
 }
