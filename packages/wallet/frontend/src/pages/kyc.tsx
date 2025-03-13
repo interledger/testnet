@@ -68,7 +68,8 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
       </h2>
       {FEATURES_ENABLED ? null : (
         <h2>
-          The e-mail and phone number must be accurate data in the Sandbox.
+          The e-mail must be accurate data in the Test Wallet. All other data
+          can be FAKE!
         </h2>
       )}
       <div className="w-full h-full">
