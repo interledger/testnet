@@ -193,8 +193,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       valtio:
-        specifier: ^2.1.3
-        version: 2.1.3(@types/react@18.3.18)(react@18.3.1)
+        specifier: ^2.1.4
+        version: 2.1.4(@types/react@18.3.18)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -485,8 +485,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       valtio:
-        specifier: ^2.1.3
-        version: 2.1.3(@types/react@18.3.18)(react@18.3.1)
+        specifier: ^2.1.4
+        version: 2.1.4(@types/react@18.3.18)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -1130,6 +1130,7 @@ packages:
   '@faker-js/faker@9.5.1':
     resolution: {integrity: sha512-0fzMEDxkExR2cn731kpDaCCnBGBUOIXEi2S1N5l8Hltp6aPf4soTMJ+g4k8r2sI5oB+rpwIW8Uy/6jkwGpnWPg==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
+    deprecated: Please update to a newer version
 
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
@@ -6362,8 +6363,8 @@ packages:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
 
-  valtio@2.1.3:
-    resolution: {integrity: sha512-q+dVczY5zf7kO39JPVq2qR0VXMeEpF1t+P1njHU7hAhwgtyVa/p38YmgyHZq2IQYwnkNrkvh412k4sfDmcIJ2g==}
+  valtio@2.1.4:
+    resolution: {integrity: sha512-O6U79SacltN5E5XOwLNixrGSAc4+TNkQw8AWSqjcpvvRjvFbfMvdbFW98g/VgxKoT8v9kb8WQkD8lvf+Dcme8w==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -13412,7 +13413,7 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
-  valtio@2.1.3(@types/react@18.3.18)(react@18.3.1):
+  valtio@2.1.4(@types/react@18.3.18)(react@18.3.1):
     dependencies:
       proxy-compare: 3.0.1
     optionalDependencies:
