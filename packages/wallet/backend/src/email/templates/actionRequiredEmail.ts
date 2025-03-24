@@ -30,6 +30,7 @@ export const getActionRequiredEmailTemplate = (
                       ${textHtml}
                     </td>
                   </tr>
+                  <tr><td><br /><br />If you need further support, contact us on our <a href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack">community slack.</td></tr>
                 </tbody>
               </table>
   

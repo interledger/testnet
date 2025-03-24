@@ -1637,6 +1637,13 @@ export type CreateIncomingPaymentMutationVariables = Exact<{
 
 export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, walletAddressId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
 
+export type GetIncomingPaymentQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type GetIncomingPaymentQuery = { __typename?: 'Query', incomingPayment?: { __typename?: 'IncomingPayment', id: string, walletAddressId: string } | null };
+
 export type WithdrawLiquidityMutationVariables = Exact<{
   eventId: Scalars['String']['input'];
   idempotencyKey: Scalars['String']['input'];
@@ -1670,6 +1677,13 @@ export type GetOutgoingPaymentsQueryVariables = Exact<{
 
 
 export type GetOutgoingPaymentsQuery = { __typename?: 'Query', outgoingPayments: { __typename?: 'OutgoingPaymentConnection', edges: Array<{ __typename?: 'OutgoingPaymentEdge', cursor: string, node: { __typename?: 'OutgoingPayment', id: string, walletAddressId: string, receiver: string, grantId?: string | null, state: OutgoingPaymentState, createdAt: string, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+
+export type GetOutgoingPaymentQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type GetOutgoingPaymentQuery = { __typename?: 'Query', outgoingPayment?: { __typename?: 'OutgoingPayment', id: string, walletAddressId: string, receiver: string, grantId?: string | null, state: OutgoingPaymentState, createdAt: string, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;

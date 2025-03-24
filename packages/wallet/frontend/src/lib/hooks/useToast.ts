@@ -151,6 +151,12 @@ export function toast({ ...props }: Toast) {
       open: true,
       onOpenChange: (open) => {
         if (!open) dismiss()
+        if (
+          props.title === 'Received Money' &&
+          window.location.href.indexOf('/transactions') !== -1
+        ) {
+          window.location.reload()
+        }
       }
     }
   })

@@ -91,6 +91,24 @@ export const getOutgoingPayments = gql`
   }
 `
 
+export const getOutgoingPaymentQuery = gql`
+  query GetOutgoingPaymentQuery($id: String!) {
+    outgoingPayment(id: $id) {
+      id
+      walletAddressId
+      receiver
+      grantId
+      sentAmount {
+        assetCode
+        assetScale
+        value
+      }
+      state
+      createdAt
+    }
+  }
+`
+
 export type OutgoingPaymentsGqlResponse = Pick<
   OutgoingPayment,
   | 'id'

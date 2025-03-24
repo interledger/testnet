@@ -12,11 +12,15 @@ import { Logger } from 'winston'
 import {
   mockGetRatesRequest,
   mockOnWebhookRequest,
+  mockOutgoingPaymentCompletedEvent,
+  mockOutgoingPaymentCreatedEvent,
+  mockOutgoingPaymentFailedEvent,
   mockRafikiService,
   mockRatesService
 } from '../mocks'
 import { AwilixContainer } from 'awilix'
 import { errorHandler } from '@/tests/helpers'
+import { EventType } from '@/rafiki/service'
 
 describe('Rafiki controller', () => {
   let bindings: AwilixContainer<Cradle>
@@ -44,15 +48,15 @@ describe('Rafiki controller', () => {
       )
   }
 
+  beforeAll(async () => {
+    bindings = await createContainer(env)
+    rafikiController = await bindings.resolve('rafikiController')
+    logger = await bindings.resolve('logger')
+
+    createRafikiControllerDepsMocked()
+  })
+
   describe('Get Rates', () => {
-    beforeAll(async () => {
-      bindings = await createContainer(env)
-      rafikiController = await bindings.resolve('rafikiController')
-      logger = await bindings.resolve('logger')
-
-      createRafikiControllerDepsMocked()
-    })
-
     beforeEach(async (): Promise<void> => {
       req = createRequest()
       res = createResponse()
@@ -111,6 +115,11 @@ describe('Rafiki controller', () => {
   })
 
   describe('On Webhook', () => {
+    beforeEach(async (): Promise<void> => {
+      req = createRequest()
+      res = createResponse()
+    })
+
     it('should call onWebHook in rafikiService.', async () => {
       req.body = mockOnWebhookRequest().body
       const onWebHookSpy = jest.spyOn(mockRafikiService, 'onWebHook')
@@ -166,6 +175,79 @@ describe('Rafiki controller', () => {
 
       expect(loggerSpy).toBeCalled()
       expect(loggerSpy).toBeCalledTimes(1)
+    })
+
+    it('call outgoing payment should fail because invalid input', async () => {
+      req.body = mockOutgoingPaymentCreatedEvent({
+        data: { debitAmount: {} }
+      })
+
+      await rafikiController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('call outgoing payment should fail because because invalid input', async () => {
+      req.body = mockOutgoingPaymentCreatedEvent({
+        data: { debitAmount: { value: '' } }
+      })
+
+      await rafikiController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('call outgoing payment completed should fail because invalid input', async () => {
+      req.body = mockOutgoingPaymentCompletedEvent({ data: {} })
+
+      await rafikiController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('call outgoing payment failed should fail because invalid data', async () => {
+      req.body = mockOutgoingPaymentFailedEvent({
+        data: { debitAmount: {} }
+      })
+
+      await rafikiController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+    })
+
+    it('should throw an error unknow event type mock-event', async () => {
+      req.body = mockOutgoingPaymentCreatedEvent({
+        type: 'mock-event' as EventType
+      })
+
+      await rafikiController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(next).toBeCalled()
+      expect(next).toBeCalledTimes(1)
+      expect(res.statusCode).toBe(400)
     })
   })
 })

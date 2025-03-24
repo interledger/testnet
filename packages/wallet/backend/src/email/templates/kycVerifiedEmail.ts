@@ -31,6 +31,7 @@ export const getKYCVerificationEmailTemplate = (
                         Thank you for registering with ${appName}. Your KYC data has been successfully verified. You can now <a href="${loginUrl} target="_blank">login to your account</a> and start using the wallet.
                       </td>
                     </tr>
+                    <tr><td><br /><br />If you need further support, contact us on our <a href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack">community slack.</td></tr>
                   </tbody>
                 </table>
     

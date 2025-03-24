@@ -200,7 +200,7 @@ export class GateHubService {
       accountId: account.id,
       paymentId: data.tx_uuid,
       assetCode: data.currency,
-      value: transformBalance(Number(data.amount), 2),
+      value: transformBalance(Number(data.amount.replace(',', '')), 2),
       type: 'INCOMING',
       status: 'COMPLETED',
       description: 'Deposit'

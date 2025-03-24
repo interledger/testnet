@@ -3,7 +3,6 @@ import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import { QuoteService } from './service'
 import { quoteSchema } from './validation'
-import { createExchangeQuoteSchema } from '@/account/validation'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { QuoteResponse } from '@wallet/shared'
 
@@ -37,31 +36,6 @@ export class QuoteController implements IQuoteController {
         receiver,
         description
       })
-      res.status(200).json(toSuccessResponse(quote))
-    } catch (e) {
-      next(e)
-    }
-  }
-
-  createExchangeQuote = async (
-    req: Request,
-    res: CustomResponse<QuoteResponse>,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = req.session.user.id
-      const { accountId } = req.params
-      const {
-        body: { assetCode, amount }
-      } = await validate(createExchangeQuoteSchema, req)
-
-      const quote = await this.quoteService.createExchangeQuote({
-        userId,
-        accountId,
-        assetCode,
-        amount
-      })
-
       res.status(200).json(toSuccessResponse(quote))
     } catch (e) {
       next(e)

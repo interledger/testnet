@@ -77,11 +77,11 @@ jobs:
             path: packages/boutique/frontend
             api_base_url: 'https://api.boutique.interledger-test.dev'
             currency: 'USD'
-            theme: dark
+            theme: light
           - name: test-boutique-frontend-jopacc
             identifier: 'boutique:frontend'
             path: packages/boutique/frontend
-            api_base_url: 'https://api.boutique.jopacc.openpayments.directory'
+            api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
             currency: 'JOD'
             theme: light
           - name: test-boutique-backend
@@ -136,7 +136,7 @@ jobs:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
       - name: Create Release
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.16.0
         with:
           allowUpdates: true
           draft: false

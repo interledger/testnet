@@ -1,6 +1,6 @@
 import { Env } from '@/config/env'
 import { WalletAddress } from '@/walletAddress/model'
-import { TransactionService } from '@/transaction/service'
+import { ISecondParty, TransactionService } from '@/transaction/service'
 import { Logger } from 'winston'
 import { RafikiClient } from './rafiki-client'
 import { SocketService } from '@/socket/service'
@@ -11,14 +11,7 @@ import MessageType from '@/socket/messageType'
 import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
 import { TransactionTypeEnum } from '@/gatehub/consts'
-import {
-  WebhookType,
-  incomingPaymentWebhookSchema,
-  incomingPaymentCompletedWebhookSchema,
-  outgoingPaymentWebhookSchema,
-  walletAddressWebhookSchema,
-  validateInput
-} from './validation'
+import { WebhookType } from './validation'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -77,9 +70,6 @@ type Fee = {
 
 export type Fees = Record<string, Fee>
 
-const isValidEventType = (value: string): value is EventType => {
-  return Object.values(EventType).includes(value as EventType)
-}
 interface IRafikiService {
   onWebHook: (wh: WebhookType) => Promise<void>
 }
@@ -101,13 +91,7 @@ export class RafikiService implements IRafikiService {
         wh.type === EventType.WalletAddressNotFound ? '' : `${wh.id}}`
       }`
     )
-    if (!isValidEventType(wh.type)) {
-      throw new BadRequest(`unknown event type, ${wh.type}`)
-    }
-    const isValid = await this.isValidInput(wh)
-    if (!isValid) {
-      throw new BadRequest(`Invalid Input for ${wh.type}`)
-    }
+
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
         await this.handleOutgoingPaymentCreated(wh)
@@ -131,32 +115,6 @@ export class RafikiService implements IRafikiService {
         this.logger.warn(`${EventType.WalletAddressNotFound} received`)
         break
     }
-  }
-
-  private async isValidInput(wh: WebhookType) {
-    let validInput = false
-
-    switch (wh.type) {
-      case EventType.OutgoingPaymentCreated:
-      case EventType.OutgoingPaymentCompleted:
-      case EventType.OutgoingPaymentFailed:
-        validInput = await validateInput(outgoingPaymentWebhookSchema, wh)
-        break
-      case EventType.IncomingPaymentCompleted:
-        validInput = await validateInput(
-          incomingPaymentCompletedWebhookSchema,
-          wh
-        )
-        break
-      case EventType.IncomingPaymentCreated:
-      case EventType.IncomingPaymentExpired:
-        validInput = await validateInput(incomingPaymentWebhookSchema, wh)
-        break
-      case EventType.WalletAddressNotFound:
-        validInput = await validateInput(walletAddressWebhookSchema, wh)
-        break
-    }
-    return validInput
   }
 
   private parseAmount(amount: AmountJSON): Amount {
@@ -231,32 +189,16 @@ export class RafikiService implements IRafikiService {
 
     await this.rafikiClient.withdrawLiqudity(wh.id)
 
-    let senders
-    try {
-      const outgoingPayments =
-        await this.rafikiClient.getOutgoingPaymentsByReceiver(
-          `${this.env.OPEN_PAYMENTS_HOST}/incoming-payments/${wh.data.id}`
-        )
-
-      const walletAddressIds = outgoingPayments.map(
-        (payment) => payment.walletAddressId
-      )
-      const walletAddresses =
-        await this.walletAddressService.getByIds(walletAddressIds)
-      senders = walletAddresses
-        .filter((wa) => wa.account?.user)
-        .map((wa) => `${wa.account.user.firstName} ${wa.account.user.lastName}`)
-        .join(', ')
-    } catch (e) {
-      this.logger.warn(
-        'Error on getting outgoing payments by incoming payment',
-        e
-      )
-    }
+    const secondParty = await this.getIncomingPaymentSenders(wh.data.id)
 
     await this.transactionService.updateTransaction(
       { paymentId: wh.data.id },
-      { status: 'COMPLETED', value: amount.value, secondParty: senders }
+      {
+        status: 'COMPLETED',
+        value: amount.value,
+        secondParty: secondParty?.names,
+        secondPartyWA: secondParty?.walletAddresses
+      }
     )
 
     const isExchange = NodeCacheInstance.get(wh.data.id)
@@ -288,26 +230,16 @@ export class RafikiService implements IRafikiService {
     const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebHook(wh)
 
-    const { gateHubWalletId } =
+    const { gateHubWalletId, gateHubUserId } =
       await this.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
       return
     }
 
-    let secondParty
-    try {
-      const receiver = await this.rafikiClient.getReceiverById(wh.data.receiver)
-      const receiverWA = await this.walletAddressService.getByUrl(
-        receiver.walletAddressUrl
-      )
-
-      if (receiverWA?.account?.user) {
-        secondParty = `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
-      }
-    } catch (e) {
-      this.logger.warn('Error on getting receiver wallet address', e)
-    }
+    const secondParty = await this.getOutgoingPaymentSecondPartyByReceiver(
+      wh.data.receiver
+    )
 
     await this.transactionService.createOutgoingTransaction(
       wh.data,
@@ -315,12 +247,24 @@ export class RafikiService implements IRafikiService {
       secondParty
     )
 
+    const balance = await this.getWalletBalance(
+      gateHubWalletId,
+      gateHubUserId,
+      amount.assetCode
+    )
+    const amountValue = this.amountToNumber(amount)
+
+    if (balance < amountValue) {
+      this.logger.info(
+        `Insufficient funds. Payment amount ${amountValue}, balance ${balance}`
+      )
+      throw new Error('Insufficient funds')
+    }
+
     await this.rafikiClient.depositLiquidity(wh.id)
 
     this.logger.info(
-      `Succesfully held ${this.amountToNumber(
-        amount
-      )} in ${gateHubWalletId}  on ${EventType.OutgoingPaymentCreated}`
+      `Succesfully held ${amountValue} in ${gateHubWalletId}  on ${EventType.OutgoingPaymentCreated}`
     )
   }
 
@@ -456,5 +400,95 @@ export class RafikiService implements IRafikiService {
       gateHubWalletId: account.gateHubWalletId,
       gateHubUserId: account.user.gateHubUserId
     }
+  }
+
+  async getIncomingPaymentSenders(
+    id: string
+  ): Promise<ISecondParty | undefined> {
+    try {
+      const outgoingPayments =
+        await this.rafikiClient.getOutgoingPaymentsByReceiver(
+          `${this.env.OPEN_PAYMENTS_HOST}/incoming-payments/${id}`
+        )
+
+      const walletAddressIds = outgoingPayments.map(
+        (payment) => payment.walletAddressId
+      )
+      const walletAddresses =
+        await this.walletAddressService.getByIds(walletAddressIds)
+      // return senders
+      return {
+        names: walletAddresses
+          .filter((wa) => wa.account?.user)
+          .map(
+            (wa) => `${wa.account.user.firstName} ${wa.account.user.lastName}`
+          )
+          .join(', '),
+        walletAddresses: walletAddresses.map((wa) => wa.url).join(', ')
+      }
+    } catch (e) {
+      this.logger.warn(
+        'Error on getting outgoing payments by incoming payment',
+        e
+      )
+    }
+  }
+
+  async getOutgoingPaymentSecondPartyByReceiver(receiverId: string) {
+    try {
+      const receiver = await this.rafikiClient.getReceiverById(receiverId)
+      const receiverWA = await this.walletAddressService.getByUrl(
+        receiver.walletAddressUrl
+      )
+
+      const response: ISecondParty = {
+        walletAddresses: receiver.walletAddressUrl
+      }
+
+      if (receiverWA?.account?.user) {
+        response.names = `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
+      }
+
+      return response
+    } catch (e) {
+      this.logger.warn('Error on getting receiver wallet address', e)
+    }
+  }
+
+  async getOutgoingPaymentSecondPartyByIncomingPaymentId(
+    paymentId: string
+  ): Promise<ISecondParty | undefined> {
+    try {
+      const receiver = await this.rafikiClient.getIncomingPaymentById(paymentId)
+
+      const receiverWA = await this.walletAddressService.getByIdWIthUserDetails(
+        receiver.walletAddressId
+      )
+
+      if (receiverWA?.account?.user) {
+        return {
+          names: `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`,
+          walletAddresses: receiverWA.url
+        }
+      }
+    } catch (e) {
+      this.logger.warn('Error on getting receiver wallet address', e)
+    }
+  }
+
+  async getWalletBalance(
+    gateHubWalletId: string,
+    gateHubUserId: string,
+    assetCode: string
+  ) {
+    const balances = await this.gateHubClient.getWalletBalance(
+      gateHubWalletId,
+      gateHubUserId
+    )
+
+    return Number(
+      balances.find((balance) => balance.vault.asset_code === assetCode)
+        ?.available ?? 0
+    )
   }
 }

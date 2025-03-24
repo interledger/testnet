@@ -7,13 +7,6 @@ export const accountSchema = z.object({
   })
 })
 
-export const createExchangeQuoteSchema = z.object({
-  body: z.object({
-    assetCode: z.string(),
-    amount: z.number().positive()
-  })
-})
-
 export const fundSchema = z.object({
   params: z.object({
     accountId: z.string().uuid()

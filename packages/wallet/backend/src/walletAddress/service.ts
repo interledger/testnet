@@ -303,4 +303,12 @@ export class WalletAddressService implements IWalletAddressService {
 
     return walletAddress
   }
+
+  async getByIdWIthUserDetails(id: string): Promise<WalletAddress | undefined> {
+    const walletAddress = await WalletAddress.query()
+      .findById(id)
+      .withGraphFetched('account.[user]')
+
+    return walletAddress
+  }
 }

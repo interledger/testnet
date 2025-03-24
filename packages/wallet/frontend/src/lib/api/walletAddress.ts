@@ -26,7 +26,9 @@ export const updateWalletAddressSchema = z.object({
 })
 
 export const generateKeysSchema = z.object({
-  nickname: z.string()
+  nickname: z.string().min(3, {
+    message: 'The nickname should be at least 3 characters long'
+  })
 })
 
 export const uploadKeySchema = z.object({
