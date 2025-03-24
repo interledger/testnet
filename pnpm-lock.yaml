@@ -213,7 +213,7 @@ importers:
         version: 18.3.5(@types/react@18.3.18)
       '@vitejs/plugin-react-swc':
         specifier: ^3.8.0
-        version: 3.8.0(@swc/helpers@0.5.5)(vite@5.4.14(@types/node@22.5.5))
+        version: 3.8.0(@swc/helpers@0.5.5)(vite@5.4.15(@types/node@22.5.5))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.3)
@@ -227,8 +227,8 @@ importers:
         specifier: ^5.6.3
         version: 5.6.3
       vite:
-        specifier: ^5.4.14
-        version: 5.4.14(@types/node@22.5.5)
+        specifier: ^5.4.15
+        version: 5.4.15(@types/node@22.5.5)
 
   packages/boutique/shared:
     dependencies:
@@ -1130,6 +1130,7 @@ packages:
   '@faker-js/faker@9.5.1':
     resolution: {integrity: sha512-0fzMEDxkExR2cn731kpDaCCnBGBUOIXEi2S1N5l8Hltp6aPf4soTMJ+g4k8r2sI5oB+rpwIW8Uy/6jkwGpnWPg==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
+    deprecated: Please update to a newer version
 
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
@@ -6382,8 +6383,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vite@5.4.14:
-    resolution: {integrity: sha512-EK5cY7Q1D8JNhSaPKVK4pwBFvaTmZxEnoKXLG/U9gmdDcihQGNzFlgIvaxezFR4glP1LsuiedwMBqCXH3wZccA==}
+  vite@5.4.15:
+    resolution: {integrity: sha512-6ANcZRivqL/4WtwPGTKNaosuNJr5tWiftOC7liM7G9+rMb8+oeJeyzymDu4rTN93seySBmbjSfsS3Vzr19KNtA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -9008,10 +9009,10 @@ snapshots:
       '@typescript-eslint/types': 7.18.0
       eslint-visitor-keys: 3.4.3
 
-  '@vitejs/plugin-react-swc@3.8.0(@swc/helpers@0.5.5)(vite@5.4.14(@types/node@22.5.5))':
+  '@vitejs/plugin-react-swc@3.8.0(@swc/helpers@0.5.5)(vite@5.4.15(@types/node@22.5.5))':
     dependencies:
       '@swc/core': 1.11.5(@swc/helpers@0.5.5)
-      vite: 5.4.14(@types/node@22.5.5)
+      vite: 5.4.15(@types/node@22.5.5)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -13423,7 +13424,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@5.4.14(@types/node@22.5.5):
+  vite@5.4.15(@types/node@22.5.5):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
