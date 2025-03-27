@@ -54,6 +54,7 @@ import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
 import { StripeController } from './stripe/controller'
+import { StripeService } from './stripe/service'
 
 export interface Cradle {
   env: Env
@@ -76,6 +77,7 @@ export interface Cradle {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentService: OutgoingPaymentService
   rafikiService: RafikiService
+  stripeService: StripeService
   quoteService: QuoteService
   grantService: GrantService
   socketService: SocketService
@@ -132,6 +134,7 @@ export async function createContainer(
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
     rafikiService: asClassSingletonWithLogger(RafikiService, logger),
+    stripeService: asClassSingletonWithLogger(StripeService, logger),
     quoteService: asClass(QuoteService).singleton(),
     grantService: asClass(GrantService).singleton(),
     socketService: asClassSingletonWithLogger(SocketService, logger),

@@ -2,6 +2,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
 import { StripeService } from './service'
+import { validate } from '@/shared/validate'
+import { webhookBodySchema } from './validation'
 
 interface IStripeController {
   onWebHook: (
@@ -21,8 +23,8 @@ export class StripeController implements IStripeController {
 
   onWebHook = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const wh = await validate(webhookBodySchema, req)
-      await this.stripeService.onWebHook(req.body)
+      const wh = await validate(webhookBodySchema, req)
+      await this.stripeService.onWebHook(wh.body)
       res.status(200).send()
     } catch (e) {
       this.logger.error(
