@@ -141,7 +141,6 @@ describe('Stripe Service', (): void => {
     it('should create transaction with correct parameters', async (): Promise<void> => {
       const webhook = createMockWebhook()
 
-      // Use Reflect to access the private method
       await Reflect.get(stripeService, 'handlePaymentIntentSucceeded').call(
         stripeService,
         webhook
@@ -179,7 +178,6 @@ describe('Stripe Service', (): void => {
     it('should log payment failure details', async (): Promise<void> => {
       const webhook = createMockWebhook(EventType.payment_intent_payment_failed)
 
-      // Use Reflect to access the private method
       await Reflect.get(stripeService, 'handlePaymentIntentFailed').call(
         stripeService,
         webhook
@@ -200,7 +198,6 @@ describe('Stripe Service', (): void => {
     it('should log payment cancellation details', async (): Promise<void> => {
       const webhook = createMockWebhook(EventType.payment_intent_canceled)
 
-      // Use Reflect to access the private method
       await Reflect.get(stripeService, 'handlePaymentIntentCanceled').call(
         stripeService,
         webhook
