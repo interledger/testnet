@@ -277,4 +277,10 @@ export class AccountService implements IAccountService {
       absolute_fee: 0
     })
   }
+
+  async patch(userId: string, accountId: string, changes: Partial<Account>) {
+    const account = await this.findAccountById(accountId, userId)
+
+    await account.$query().patch(changes)
+  }
 }

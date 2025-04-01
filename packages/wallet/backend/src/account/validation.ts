@@ -7,6 +7,15 @@ export const accountSchema = z.object({
   })
 })
 
+export const patchAccountSchema = z.object({
+  params: z.object({
+    accountId: z.string().uuid()
+  }),
+  body: z.object({
+    isHidden: z.boolean()
+  })
+})
+
 export const fundSchema = z.object({
   params: z.object({
     accountId: z.string().uuid()
