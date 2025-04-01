@@ -121,6 +121,22 @@ describe('Account Controller', (): void => {
       })
     })
   })
+
+  describe('patchAccount', (): void => {
+    it('should patch Account', async (): Promise<void> => {
+      await createMockAccount()
+
+      req.body = {
+        isHidden: true
+      }
+
+      req.params = {
+        accountId: createdAccount.id
+      }
+      await accountController.patchAccount(req, res, next)
+      expect(res.statusCode).toBe(200)
+    })
+  })
   describe('listAccounts', (): void => {
     beforeEach(async (): Promise<void> => {
       await createMockAccount()

@@ -27,10 +27,14 @@ export type AccountingTransfer = Model & {
   creditAccountId: Scalars['ID']['output'];
   /** Unique identifier for the debit account. */
   debitAccountId: Scalars['ID']['output'];
+  /** The date and time that the accounting transfer will expire. */
+  expiresAt?: Maybe<Scalars['String']['output']>;
   /** Unique identifier for the accounting transfer. */
   id: Scalars['ID']['output'];
   /** Identifier that partitions the sets of accounts that can transact with each other. */
   ledger: Scalars['UInt8']['output'];
+  /** The state of the accounting transfer. */
+  state: TransferState;
   /** Type of the accounting transfer. */
   transferType: TransferType;
 };
@@ -1119,6 +1123,8 @@ export type Query = {
   accountingTransfers: AccountingTransferConnection;
   /** Fetch an asset by its ID. */
   asset?: Maybe<Asset>;
+  /** Get an asset based on its currency code and scale if it exists. */
+  assetByCodeAndScale?: Maybe<Asset>;
   /** Fetch a paginated list of assets. */
   assets: AssetsConnection;
   /** Fetch an Open Payments incoming payment by its ID. */
@@ -1131,6 +1137,8 @@ export type Query = {
   payments: PaymentConnection;
   /** Fetch a peer by its ID. */
   peer?: Maybe<Peer>;
+  /** Get a peer based on its ILP address and asset ID if it exists. */
+  peerByAddressAndAsset?: Maybe<Peer>;
   /** Fetch a paginated list of peers. */
   peers: PeersConnection;
   /** Fetch an Open Payments quote by its ID. */
@@ -1139,6 +1147,8 @@ export type Query = {
   receiver?: Maybe<Receiver>;
   /** Fetch a wallet address by its ID. */
   walletAddress?: Maybe<WalletAddress>;
+  /** Get a wallet address by its url if it exists */
+  walletAddressByUrl?: Maybe<WalletAddress>;
   /** Fetch a paginated list of wallet addresses. */
   walletAddresses: WalletAddressesConnection;
   /** Fetch a paginated list of webhook events. */
@@ -1154,6 +1164,12 @@ export type QueryAccountingTransfersArgs = {
 
 export type QueryAssetArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryAssetByCodeAndScaleArgs = {
+  code: Scalars['String']['input'];
+  scale: Scalars['UInt8']['input'];
 };
 
 
@@ -1201,6 +1217,12 @@ export type QueryPeerArgs = {
 };
 
 
+export type QueryPeerByAddressAndAssetArgs = {
+  assetId: Scalars['String']['input'];
+  staticIlpAddress: Scalars['String']['input'];
+};
+
+
 export type QueryPeersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -1222,6 +1244,11 @@ export type QueryReceiverArgs = {
 
 export type QueryWalletAddressArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryWalletAddressByUrlArgs = {
+  url: Scalars['String']['input'];
 };
 
 
@@ -1342,6 +1369,15 @@ export enum SortOrder {
   Asc = 'ASC',
   /** Sort the results in descending order. */
   Desc = 'DESC'
+}
+
+export enum TransferState {
+  /** The accounting transfer is pending */
+  Pending = 'PENDING',
+  /** The accounting transfer is posted */
+  Posted = 'POSTED',
+  /** The accounting transfer is voided */
+  Voided = 'VOIDED'
 }
 
 export enum TransferType {

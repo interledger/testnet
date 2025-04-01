@@ -303,6 +303,7 @@ export class App {
 
     // account
     router.post('/accounts', isAuth, accountController.createAccount)
+    router.patch('/accounts/:accountId', isAuth, accountController.patchAccount)
     router.get('/accounts', isAuth, accountController.listAccounts)
     router.get('/accounts/:id', isAuth, accountController.getAccountById)
 
