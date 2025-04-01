@@ -14,7 +14,6 @@ import { withSession } from '@/middleware/withSession'
 import { User } from '@/user/model'
 import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
-import { faker } from '@faker-js/faker'
 import { createUser, errorHandler } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
 import { mockCreateQuoteRequest, mockLogInRequest } from '@/tests/mocks'
@@ -72,8 +71,7 @@ describe('Quote Controller', () => {
         })
     const quoteControllerDepsMocked = {
       quoteService: {
-        create: quoteWithFees,
-        createExchangeQuote: quoteWithFees
+        create: quoteWithFees
       }
     }
     Reflect.set(
@@ -156,75 +154,6 @@ describe('Quote Controller', () => {
       delete req.body.zip
 
       await quoteController.create(req, res, (err) => {
-        next()
-        errorHandler(err, req, res, next)
-      })
-
-      expect(next).toHaveBeenCalledTimes(1)
-      expect(res.statusCode).toBe(400)
-      expect(res._getJSONData()).toMatchObject({
-        success: false,
-        message: 'Invalid input'
-      })
-    })
-  })
-
-  describe('create exchange quote', () => {
-    it('should return QuoteWithFees', async () => {
-      req.body = {
-        assetCode: faker.finance.currencyCode(),
-        amount: Number(faker.finance.amount({ dec: 0 }))
-      }
-
-      await quoteController.createExchangeQuote(req, res, (err) => {
-        next()
-        errorHandler(err, req, res, next)
-      })
-      expect(res.statusCode).toBe(200)
-      expect(res._getJSONData()).toMatchObject({
-        success: true,
-        message: 'SUCCESS',
-        result: {
-          debitAmount: {
-            assetCode: 'BRG',
-            assetScale: 2,
-            value: 100
-          },
-          receiveAmount: {
-            assetCode: 'BRG',
-            assetScale: 2,
-            value: 100
-          },
-          fee: {
-            value: 100,
-            assetCode: 'BRG',
-            assetScale: 2
-          }
-        }
-      })
-    })
-
-    it('should fail with status 500 on unexpected error', async () => {
-      createMockQuoteControllerDeps(true)
-      req.body = {
-        assetCode: faker.finance.currencyCode(),
-        amount: Number(faker.finance.amount({ dec: 0 }))
-      }
-
-      await quoteController.createExchangeQuote(req, res, (err) => {
-        next()
-        errorHandler(err, req, res, next)
-      })
-      expect(next).toHaveBeenCalledTimes(1)
-      expect(res.statusCode).toBe(500)
-      expect(res._getJSONData()).toMatchObject({
-        success: false,
-        message: 'Internal Server Error'
-      })
-    })
-
-    it('should return status 400 if the request body is not valid', async (): Promise<void> => {
-      await quoteController.createExchangeQuote(req, res, (err) => {
         next()
         errorHandler(err, req, res, next)
       })
