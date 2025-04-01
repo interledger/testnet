@@ -1,4 +1,3 @@
-// import { validate } from '@/shared/validate'
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
 import { StripeService } from './service'

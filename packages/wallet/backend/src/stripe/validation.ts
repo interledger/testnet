@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { EventType } from './service'
 
-// Define schema for the payment intent object
 const paymentIntentSchema = z.object({
   id: z.string(),
   amount: z.number(),
@@ -14,7 +13,6 @@ const paymentIntentSchema = z.object({
   last_payment_error: z.any().optional()
 })
 
-// Payment intent succeeded webhook schema
 const paymentIntentSucceededSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
   type: z.literal(EventType.payment_intent_succeeded),
@@ -23,7 +21,6 @@ const paymentIntentSucceededSchema = z.object({
   })
 })
 
-// Payment intent failed webhook schema
 const paymentIntentFailedSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
   type: z.literal(EventType.payment_intent_payment_failed),
@@ -34,7 +31,6 @@ const paymentIntentFailedSchema = z.object({
   })
 })
 
-// Payment intent canceled webhook schema
 const paymentIntentCanceledSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
   type: z.literal(EventType.payment_intent_canceled),
@@ -43,14 +39,12 @@ const paymentIntentCanceledSchema = z.object({
   })
 })
 
-// Union of all possible webhook types
 export const webhookSchema = z.discriminatedUnion('type', [
   paymentIntentSucceededSchema,
   paymentIntentFailedSchema,
   paymentIntentCanceledSchema
 ])
 
-// Schema for the request body
 export const webhookBodySchema = z.object({
   body: webhookSchema
 })
