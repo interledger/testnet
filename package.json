@@ -47,13 +47,13 @@
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^15.15.0",
     "nodemon": "^3.1.9",
     "only-allow": "^1.2.1",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "typescript": "^5.6.3"
+    "typescript": "^5.8.2"
   },
   "engines": {
     "pnpm": "^9.1.4",

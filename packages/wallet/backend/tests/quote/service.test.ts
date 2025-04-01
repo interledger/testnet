@@ -187,35 +187,4 @@ describe('Quote Service', () => {
       })
     })
   })
-
-  describe('Create ExchangeQuote', () => {
-    it.skip('should create quote with fee', async () => {
-      const { account } = await prepareQuoteDependencies()
-
-      const result = await quoteService.createExchangeQuote({
-        userId: userInfo.id,
-        accountId: account.id,
-        assetCode: 'BRG',
-        amount: 100
-      })
-
-      expect(result).toMatchObject({
-        debitAmount: {
-          assetCode: 'BRG',
-          assetScale: 3,
-          value: 100
-        },
-        receiveAmount: {
-          assetCode: 'BRG',
-          assetScale: 3,
-          value: 100
-        },
-        fee: {
-          value: 100,
-          assetCode: 'BRG',
-          assetScale: 2
-        }
-      })
-    })
-  })
 })
