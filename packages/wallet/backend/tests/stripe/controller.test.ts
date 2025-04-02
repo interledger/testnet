@@ -53,7 +53,9 @@ describe('Stripe Controller', () => {
       Reflect.set(
         stripeController,
         key,
-        stripeControllerDepsMocked[key as keyof typeof stripeControllerDepsMocked]
+        stripeControllerDepsMocked[
+          key as keyof typeof stripeControllerDepsMocked
+        ]
       )
     }
 

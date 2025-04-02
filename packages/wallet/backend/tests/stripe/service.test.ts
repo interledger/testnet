@@ -42,7 +42,10 @@ describe('Stripe Service', (): void => {
         metadata: {
           receiving_address: 'wallet_address_123'
         },
-        last_payment_error: type === EventType.payment_intent_payment_failed ? 'Payment failed' : null
+        last_payment_error:
+          type === EventType.payment_intent_payment_failed
+            ? 'Payment failed'
+            : null
       }
     },
     ...overrides
@@ -78,7 +81,6 @@ describe('Stripe Service', (): void => {
   })
 
   describe('onWebHook', (): void => {
-
     it('should handle payment_intent_succeeded event type', async (): Promise<void> => {
       const webhook = createMockWebhook()
 
@@ -125,14 +127,15 @@ describe('Stripe Service', (): void => {
       expect(mockGateHubClient.createTransaction).not.toHaveBeenCalled()
     })
 
-
     it('should log information about the received webhook', async (): Promise<void> => {
       const webhook = createMockWebhook()
 
       await stripeService.onWebHook(webhook)
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`received webhook of type : ${webhook.type} for : ${webhook.id}`)
+        expect.stringContaining(
+          `received webhook of type : ${webhook.type} for : ${webhook.id}`
+        )
       )
     })
   })
@@ -158,9 +161,14 @@ describe('Stripe Service', (): void => {
 
     it('should throw error when GateHub transaction creation fails', async (): Promise<void> => {
       const webhook = createMockWebhook()
-      mockGateHubClient.createTransaction.mockRejectedValueOnce(new Error('GateHub error'))
+      mockGateHubClient.createTransaction.mockRejectedValueOnce(
+        new Error('GateHub error')
+      )
 
-      const handlePaymentIntentSucceeded = Reflect.get(stripeService, 'handlePaymentIntentSucceeded')
+      const handlePaymentIntentSucceeded = Reflect.get(
+        stripeService,
+        'handlePaymentIntentSucceeded'
+      )
       await expect(
         handlePaymentIntentSucceeded.call(stripeService, webhook)
       ).rejects.toThrow('Failed to create transaction')

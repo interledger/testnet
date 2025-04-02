@@ -5,20 +5,14 @@ import { validate } from '@/shared/validate'
 import { webhookBodySchema } from './validation'
 
 interface IStripeController {
-  onWebHook: (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<void>
+  onWebHook: (req: Request, res: Response, next: NextFunction) => Promise<void>
 }
 
 export class StripeController implements IStripeController {
   constructor(
     private logger: Logger,
-    private stripeService: StripeService,
+    private stripeService: StripeService
   ) {}
-
-
 
   onWebHook = async (req: Request, res: Response, next: NextFunction) => {
     try {

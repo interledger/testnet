@@ -8,7 +8,7 @@ import { StripeWebhookType } from './validation'
 export enum EventType {
   payment_intent_canceled = 'payment_intent.canceled',
   payment_intent_payment_failed = 'payment_intent.payment_failed',
-  payment_intent_succeeded = 'payment_intent.succeeded',
+  payment_intent_succeeded = 'payment_intent.succeeded'
 }
 
 interface IStripeService {
@@ -23,9 +23,7 @@ export class StripeService implements IStripeService {
   ) {}
 
   public async onWebHook(wh: StripeWebhookType): Promise<void> {
-    this.logger.info(
-      `received webhook of type : ${wh.type} for : ${wh.id}`
-    )
+    this.logger.info(`received webhook of type : ${wh.type} for : ${wh.id}`)
 
     switch (wh.type) {
       case EventType.payment_intent_succeeded:
@@ -41,11 +39,11 @@ export class StripeService implements IStripeService {
   }
 
   private async handlePaymentIntentSucceeded(wh: StripeWebhookType) {
-    const paymentIntent = wh.data.object;
-    const metadata = paymentIntent.metadata;
-    const receiving_address: string = metadata.receiving_address;
-    const currency: string = paymentIntent.currency;
-    const amount: number = paymentIntent.amount;
+    const paymentIntent = wh.data.object
+    const metadata = paymentIntent.metadata
+    const receiving_address: string = metadata.receiving_address
+    const currency: string = paymentIntent.currency
+    const amount: number = paymentIntent.amount
 
     try {
       await this.gateHubClient.createTransaction({
@@ -55,32 +53,32 @@ export class StripeService implements IStripeService {
         sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
-      });
+      })
     } catch (error) {
-      this.logger.error('Error creating gatehub transaction', { error });
-      throw new BadRequest('Failed to create transaction');
+      this.logger.error('Error creating gatehub transaction', { error })
+      throw new BadRequest('Failed to create transaction')
     }
   }
 
   private async handlePaymentIntentFailed(wh: StripeWebhookType) {
     // No need to take action on the GateHub side as no funds were transferred
-    const paymentIntent = wh.data.object;
-    const metadata = paymentIntent.metadata;
-    const receiving_address = metadata.receiving_address;
+    const paymentIntent = wh.data.object
+    const metadata = paymentIntent.metadata
+    const receiving_address = metadata.receiving_address
 
     this.logger.warn('Payment intent failed', {
       payment_intent_id: paymentIntent.id,
       receiving_address,
       error: paymentIntent.last_payment_error
-    });
+    })
   }
 
   private async handlePaymentIntentCanceled(wh: StripeWebhookType) {
-    const paymentIntent = wh.data.object;
+    const paymentIntent = wh.data.object
     // No action needed on GateHub side as payment was canceled
     this.logger.info('Payment intent canceled', {
       payment_intent_id: paymentIntent.id,
       receiving_address: paymentIntent.metadata.receiving_address
-    });
+    })
   }
 }
