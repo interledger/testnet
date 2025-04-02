@@ -5,10 +5,10 @@ import { Knex } from 'knex'
 import { truncateTables } from '@shared/backend/tests'
 import { faker } from '@faker-js/faker'
 import { AwilixContainer } from 'awilix'
-import { StripeService, EventType } from '@/stripe/service'
+import { StripeService, EventType } from '@/stripe-integration/service'
 import { GateHubClient } from '@/gatehub/client'
 import { TransactionTypeEnum } from '@/gatehub/consts'
-import { StripeWebhookType } from '../../src/stripe/validation'
+import { StripeWebhookType } from '../../src/stripe-integration/validation'
 
 describe('Stripe Service', (): void => {
   let bindings: AwilixContainer<Cradle>

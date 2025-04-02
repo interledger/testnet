@@ -172,6 +172,10 @@ export class App {
     )
 
     app.use(helmet())
+
+    // Stripe webhook signature validation requires raw body, parsing is done afterwards
+    app.post('/stripe-webhooks', stripeController.webhookMiddleware, stripeController.onWebHook)
+
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
@@ -319,7 +323,6 @@ export class App {
 
     router.get('/rates', rafikiController.getRates)
     router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
-    router.post('/stripe-webhooks', stripeController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)

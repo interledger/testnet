@@ -7,7 +7,7 @@ import {
   MockResponse
 } from 'node-mocks-http'
 import { Request, Response } from 'express'
-import { StripeController } from '@/stripe/controller'
+import { StripeController } from '@/stripe-integration/controller'
 import { applyMiddleware } from '@/tests/utils'
 import { withSession } from '@/middleware/withSession'
 import { Cradle, createContainer } from '@/createContainer'
@@ -15,7 +15,19 @@ import { env } from '@/config/env'
 import { errorHandler } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
 import { AwilixContainer } from 'awilix'
-import { EventType } from '@/stripe/service'
+import { EventType } from '@/stripe-integration/service'
+
+const mockConstructEvent = jest.fn()
+
+jest.mock('stripe', () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      webhooks: {
+        constructEvent: mockConstructEvent
+      }
+    }
+  })
+})
 
 describe('Stripe Controller', () => {
   let bindings: AwilixContainer<Cradle>
@@ -30,6 +42,7 @@ describe('Stripe Controller', () => {
   const createReqRes = async () => {
     res = createResponse()
     req = createRequest()
+    req.headers['stripe-signature'] = 'mock-signature'
 
     await applyMiddleware(withSession, req, res)
   }
@@ -71,6 +84,7 @@ describe('Stripe Controller', () => {
 
   beforeEach(async (): Promise<void> => {
     await createReqRes()
+    mockConstructEvent.mockReset()
   })
 
   afterAll(async (): Promise<void> => {
@@ -84,8 +98,11 @@ describe('Stripe Controller', () => {
   })
 
   describe('onWebHook', () => {
-    it('should process webhook successfully if it has correct type and required fields', async () => {
+    it('should verify webhook signature and process webhook successfully', async () => {
       const mockDeps = createMockStripeControllerDeps()
+
+      // Successfully verify the signature
+      mockConstructEvent.mockReturnValue({})
 
       req.body = {
         id: 'webhookId123',
@@ -104,12 +121,88 @@ describe('Stripe Controller', () => {
 
       await stripeController.onWebHook(req, res, next)
 
+      expect(mockConstructEvent).toHaveBeenCalledWith(
+        req.body,
+        'mock-signature',
+        env.STRIPE_WEBHOOK_SECRET
+      )
       expect(mockDeps.stripeService.onWebHook).toHaveBeenCalledWith(req.body)
       expect(res.statusCode).toBe(200)
     })
 
+    it('should fail if stripe-signature header is missing', async () => {
+      const mockDeps = createMockStripeControllerDeps()
+
+      // Remove the signature header
+      delete req.headers['stripe-signature']
+
+      req.body = {
+        id: 'webhookId123',
+        type: EventType.payment_intent_succeeded,
+        data: {
+          object: {
+            id: 'pi_123456',
+            amount: 1000,
+            currency: 'usd',
+            metadata: {
+              receiving_address: 'wallet_address_123'
+            }
+          }
+        }
+      }
+
+      await stripeController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(mockConstructEvent).not.toHaveBeenCalled()
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(mockDeps.logger.error).toHaveBeenCalled()
+      expect(res.statusCode).toBe(400)
+      expect(mockDeps.stripeService.onWebHook).not.toHaveBeenCalled()
+    })
+
+    it('should fail if signature verification fails', async () => {
+      const mockDeps = createMockStripeControllerDeps()
+
+      // Make the signature verification fail
+      mockConstructEvent.mockImplementation(() => {
+        throw new Error('Invalid signature')
+      })
+
+      req.body = {
+        id: 'webhookId123',
+        type: EventType.payment_intent_succeeded,
+        data: {
+          object: {
+            id: 'pi_123456',
+            amount: 1000,
+            currency: 'usd',
+            metadata: {
+              receiving_address: 'wallet_address_123'
+            }
+          }
+        }
+      }
+
+      await stripeController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(mockConstructEvent).toHaveBeenCalled()
+      expect(mockDeps.logger.error).toHaveBeenCalled()
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(res.statusCode).toBe(400)
+      expect(mockDeps.stripeService.onWebHook).not.toHaveBeenCalled()
+    })
+
     it('should fail if webhook has unknown event type', async () => {
       const mockDeps = createMockStripeControllerDeps()
+
+      // Successfully verify the signature
+      mockConstructEvent.mockReturnValue({})
 
       req.body = {
         id: 'webhookId123',
@@ -131,6 +224,7 @@ describe('Stripe Controller', () => {
         errorHandler(err, req, res, next)
       })
 
+      expect(mockConstructEvent).toHaveBeenCalled()
       expect(next).toHaveBeenCalledTimes(1)
       expect(mockDeps.logger.error).toHaveBeenCalled()
       expect(res.statusCode).toBe(400)
@@ -139,6 +233,9 @@ describe('Stripe Controller', () => {
 
     it('should fail if webhook has invalid data (missing required fields)', async () => {
       const mockDeps = createMockStripeControllerDeps()
+
+      // Successfully verify the signature
+      mockConstructEvent.mockReturnValue({})
 
       req.body = {
         id: 'webhookId123',
@@ -159,6 +256,7 @@ describe('Stripe Controller', () => {
         errorHandler(err, req, res, next)
       })
 
+      expect(mockConstructEvent).toHaveBeenCalled()
       expect(next).toHaveBeenCalledTimes(1)
       expect(mockDeps.logger.error).toHaveBeenCalled()
       expect(res.statusCode).toBe(400)

@@ -53,8 +53,8 @@ import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
-import { StripeController } from './stripe/controller'
-import { StripeService } from './stripe/service'
+import { StripeController } from './stripe-integration/controller'
+import { StripeService } from './stripe-integration/service'
 
 export interface Cradle {
   env: Env

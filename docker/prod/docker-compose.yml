@@ -75,6 +75,8 @@ services:
       GATEHUB_CARD_PRODUCT_CODE: ${WALLET_BACKEND_GATEHUB_CARD_PRODUCT_CODE}
       GATEHUB_NAME_ON_CARD: ${WALLET_BACKEND_GATEHUB_NAME_ON_CARD}
       GATEHUB_CARD_PP_PREFIX: ${WALLET_BACKEND_GATEHUB_CARD_PP_PREFIX}
+      STRIPE_SECRET_KEY: ${WALLET_BACKEND_STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${WALLET_BACKEND_STRIPE_WEBHOOK_SECRET}
     networks:
       - testnet
     ports:
@@ -262,8 +264,8 @@ services:
         DATA_FILE_EXISTS="$$?"
         set -e
         echo $$DATA_FILE_EXISTS
-        if [ "$$DATA_FILE_EXISTS" != 0 ]; then 
-          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE; 
+        if [ "$$DATA_FILE_EXISTS" != 0 ]; then
+          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE;
         fi
         hostname -i
         ls /var/lib/tigerbeetle
