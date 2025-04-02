@@ -174,7 +174,11 @@ export class App {
     app.use(helmet())
 
     // Stripe webhook signature validation requires raw body, parsing is done afterwards
-    app.post('/stripe-webhooks', stripeController.webhookMiddleware, stripeController.onWebHook)
+    app.post(
+      '/stripe-webhooks',
+      stripeController.webhookMiddleware,
+      stripeController.onWebHook
+    )
 
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))

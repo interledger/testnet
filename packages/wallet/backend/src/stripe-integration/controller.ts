@@ -5,7 +5,7 @@ import { validate } from '../shared/validate'
 import { webhookBodySchema } from './validation'
 import { BadRequest } from '@shared/backend'
 import { env } from '../config/env'
-import express from 'express';
+import express from 'express'
 import Stripe from 'stripe'
 
 interface IStripeController {
@@ -13,13 +13,14 @@ interface IStripeController {
 }
 
 export class StripeController implements IStripeController {
-
-  public webhookMiddleware: express.RequestHandler = express.raw({ type: 'application/json' })
+  public webhookMiddleware: express.RequestHandler = express.raw({
+    type: 'application/json'
+  })
   private stripe: Stripe
 
   constructor(
     private logger: Logger,
-    private stripeService: StripeService,
+    private stripeService: StripeService
   ) {
     this.stripe = new Stripe(env.STRIPE_SECRET_KEY)
   }
@@ -33,13 +34,15 @@ export class StripeController implements IStripeController {
       }
 
       try {
-         this.stripe.webhooks.constructEvent(
+        this.stripe.webhooks.constructEvent(
           req.body,
           signature,
           env.STRIPE_WEBHOOK_SECRET
         )
       } catch (err) {
-        this.logger.error('Webhook signature verification failed', { error: err })
+        this.logger.error('Webhook signature verification failed', {
+          error: err
+        })
         throw new BadRequest('Invalid stripe webhook signature')
       }
 
@@ -55,4 +58,3 @@ export class StripeController implements IStripeController {
     }
   }
 }
-
