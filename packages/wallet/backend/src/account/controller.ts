@@ -1,7 +1,7 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
 import { AccountService } from './service'
-import { accountSchema, fundSchema } from './validation'
+import { accountSchema, fundSchema, patchAccountSchema } from './validation'
 import { Account } from '@/account/model'
 import { Controller, toSuccessResponse } from '@shared/backend'
 
@@ -9,6 +9,7 @@ interface IAccountController {
   createAccount: Controller<Account>
   listAccounts: Controller<Account[]>
   getAccountById: Controller<Account>
+  patchAccount: Controller
   fundAccount: Controller
 }
 
@@ -103,6 +104,26 @@ export class AccountController implements IAccountController {
       await this.accountService.fundAccount(userId, accountId, amount)
 
       res.status(200).json(toSuccessResponse(undefined, 'Account funded'))
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  patchAccount = async (
+    req: Request,
+    res: CustomResponse<Account>,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.session.user.id
+      const {
+        body: { isHidden },
+        params: { accountId }
+      } = await validate(patchAccountSchema, req)
+
+      await this.accountService.patch(userId, accountId, { isHidden })
+
+      res.status(200).json(toSuccessResponse())
     } catch (e) {
       next(e)
     }
