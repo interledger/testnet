@@ -48,7 +48,9 @@ const envSchema = z.object({
     .default('false')
     .transform((value) => value === 'true'),
   CARD_DATA_HREF: z.string().default('UPDATEME'),
-  CARD_PIN_HREF: z.string().default('UPDATEME')
+  CARD_PIN_HREF: z.string().default('UPDATEME'),
+  STRIPE_SECRET_KEY: z.string().default('STRIPE_SECRET_KEY'),
+  STRIPE_WEBHOOK_SECRET: z.string().default('STRIPE_WEBHOOK_SECRET')
 })
 
 export type Env = z.infer<typeof envSchema>

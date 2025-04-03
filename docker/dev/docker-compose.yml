@@ -71,6 +71,8 @@ services:
       GATEHUB_CARD_PP_PREFIX: ${GATEHUB_CARD_PP_PREFIX}
       CARD_DATA_HREF: ${CARD_DATA_HREF}
       CARD_PIN_HREF: ${CARD_PIN_HREF}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     restart: always
     networks:
       - testnet
@@ -241,8 +243,8 @@ services:
         DATA_FILE_EXISTS="$$?"
         set -e
         echo $$DATA_FILE_EXISTS
-        if [ "$$DATA_FILE_EXISTS" != 0 ]; then 
-          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE; 
+        if [ "$$DATA_FILE_EXISTS" != 0 ]; then
+          ./tigerbeetle format --cluster=0 --replica=0 --replica-count=1 $$DATA_FILE;
         fi
         hostname -i
         ls /var/lib/tigerbeetle
