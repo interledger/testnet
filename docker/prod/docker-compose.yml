@@ -155,7 +155,7 @@ services:
     <<: *logging
 
   rafiki-backend:
-    image: ghcr.io/interledger/rafiki-backend:v1.0.1-beta
+    image: ghcr.io/interledger/rafiki-backend:v1.1.0-beta
     container_name: rafiki-backend
     depends_on:
       - postgres
