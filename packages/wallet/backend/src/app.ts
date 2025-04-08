@@ -156,7 +156,7 @@ export class App {
     const grantController = this.container.resolve('grantController')
     const accountController = this.container.resolve('accountController')
     const rafikiController = this.container.resolve('rafikiController')
-    const stripeController = this.container.resolve('stripeController')
+    const stripeController = env.USE_STRIPE ? this.container.resolve('stripeController') : undefined
     const gateHubController = this.container.resolve('gateHubController')
     const cardController = this.container.resolve('cardController')
 
@@ -174,11 +174,13 @@ export class App {
     app.use(helmet())
 
     // Stripe webhook signature validation requires raw body, parsing is done afterwards
-    app.post(
-      '/stripe-webhooks',
-      stripeController.webhookMiddleware,
-      stripeController.onWebHook
-    )
+    if (env.USE_STRIPE && stripeController) {
+      app.post(
+        '/stripe-webhooks',
+        stripeController.webhookMiddleware,
+        stripeController.onWebHook
+      )
+    }
 
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))

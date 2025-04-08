@@ -77,7 +77,7 @@ export interface Cradle {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentService: OutgoingPaymentService
   rafikiService: RafikiService
-  stripeService: StripeService
+  stripeService?: StripeService
   quoteService: QuoteService
   grantService: GrantService
   socketService: SocketService
@@ -89,7 +89,7 @@ export interface Cradle {
   incomingPaymentController: IncomingPaymentController
   outgoingPaymentController: OutgoingPaymentController
   rafikiController: RafikiController
-  stripeController: StripeController
+  stripeController?: StripeController
   quoteController: QuoteController
   grantController: GrantController
   walletAddressController: WalletAddressController
@@ -134,7 +134,12 @@ export async function createContainer(
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
     rafikiService: asClassSingletonWithLogger(RafikiService, logger),
-    stripeService: asClassSingletonWithLogger(StripeService, logger),
+    ...(env.USE_STRIPE
+      ? {
+          stripeService: asClassSingletonWithLogger(StripeService, logger),
+          stripeController: asClassSingletonWithLogger(StripeController, logger)
+        }
+      : {}),
     quoteService: asClass(QuoteService).singleton(),
     grantService: asClass(GrantService).singleton(),
     socketService: asClassSingletonWithLogger(SocketService, logger),
@@ -147,7 +152,6 @@ export async function createContainer(
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),
     outgoingPaymentController: asClass(OutgoingPaymentController).singleton(),
     rafikiController: asClassSingletonWithLogger(RafikiController, logger),
-    stripeController: asClassSingletonWithLogger(StripeController, logger),
     quoteController: asClass(QuoteController).singleton(),
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),
