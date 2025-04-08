@@ -76,10 +76,13 @@ describe('Stripe Controller', () => {
   }
 
   beforeAll(async (): Promise<void> => {
-    bindings = await createContainer(env)
+    const testEnv = { ...env, USE_STRIPE: true }
+    bindings = await createContainer(testEnv)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
-    stripeController = await bindings.resolve('stripeController')
+    stripeController = (await bindings.resolve(
+      'stripeController'
+    )) as StripeController
   })
 
   beforeEach(async (): Promise<void> => {

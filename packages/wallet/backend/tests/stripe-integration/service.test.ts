@@ -52,10 +52,11 @@ describe('Stripe Service', (): void => {
   })
 
   beforeAll(async (): Promise<void> => {
-    bindings = await createContainer(env)
+    const testEnv = { ...env, USE_STRIPE: true }
+    bindings = await createContainer(testEnv)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
-    stripeService = await bindings.resolve('stripeService')
+    stripeService = (await bindings.resolve('stripeService')) as StripeService
   })
 
   afterEach(async (): Promise<void> => {
