@@ -156,7 +156,9 @@ export class App {
     const grantController = this.container.resolve('grantController')
     const accountController = this.container.resolve('accountController')
     const rafikiController = this.container.resolve('rafikiController')
-    const stripeController = env.USE_STRIPE ? this.container.resolve('stripeController') : undefined
+    const stripeController = env.USE_STRIPE
+      ? this.container.resolve('stripeController')
+      : undefined
     const gateHubController = this.container.resolve('gateHubController')
     const cardController = this.container.resolve('cardController')
 

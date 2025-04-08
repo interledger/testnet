@@ -80,7 +80,9 @@ describe('Stripe Controller', () => {
     bindings = await createContainer(testEnv)
     appContainer = await createApp(bindings)
     knex = appContainer.knex
-    stripeController = (await bindings.resolve('stripeController')) as StripeController
+    stripeController = (await bindings.resolve(
+      'stripeController'
+    )) as StripeController
   })
 
   beforeEach(async (): Promise<void> => {
