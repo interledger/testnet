@@ -52,14 +52,16 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
           </span>
         </Link>
         {accounts.length > 0
-          ? accounts.map((account) => (
-              <AccountCard
-                key={account.id}
-                account={account}
-                idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                isCard={FEATURES_ENABLED && account.assetCode === 'EUR'}
-              />
-            ))
+          ? accounts.map((account) =>
+              !account.isHidden ? (
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
+                  isCard={FEATURES_ENABLED && account.assetCode === 'EUR'}
+                />
+              ) : null
+            )
           : null}
       </div>
     </>

@@ -40,7 +40,7 @@ export const ChangePasswordForm = () => {
 
   return (
     <div className="pt-5">
-      <h3 className="mb-5 text-2xl text-green dark:text-teal-neon">
+      <h3 className="mb-5 text-lg text-green dark:text-teal-neon">
         Change account password
       </h3>
       <Form

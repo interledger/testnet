@@ -25,6 +25,7 @@ export type Account = {
   assetScale: number
   assetId: string
   balance: string
+  isHidden: boolean
   walletAddresses: WalletAddressResponse[]
 }
 
@@ -39,6 +40,11 @@ type CreateAccountResult = SuccessResponse<Account>
 type CreateAccountError = ErrorResponse<CreateAccountArgs | undefined>
 type CreateAccountResponse = CreateAccountResult | CreateAccountError
 
+type UpdateAccountArgs = {
+  accountId: string
+  isHidden: boolean
+}
+
 type DepositArgs = z.infer<typeof depositSchema>
 type DepositResult = SuccessResponse
 type DepositError = ErrorResponse<DepositArgs | undefined>
@@ -51,6 +57,7 @@ interface AccountService {
     include?: ('walletAddresses' | 'walletAddressKeys')[]
   ) => Promise<ListAccountsResponse>
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
+  update: (args: UpdateAccountArgs) => Promise<SuccessResponse | ErrorResponse>
   deposit: (args: DepositArgs) => Promise<DepositResponse>
 }
 
@@ -106,6 +113,24 @@ const createAccountService = (): AccountService => ({
       return getError<CreateAccountArgs>(
         error,
         'We were not able to create your account. Please try again.'
+      )
+    }
+  },
+
+  async update(args) {
+    try {
+      const response = await httpClient
+        .patch(`accounts/${args.accountId}`, {
+          json: {
+            isHidden: args.isHidden
+          }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to update your account. Please try again.'
       )
     }
   },

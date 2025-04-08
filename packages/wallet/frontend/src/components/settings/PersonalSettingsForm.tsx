@@ -3,14 +3,21 @@ import { Input } from '@/ui/forms/Input'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { usePasswordContext } from '@/lib/context/password'
 import { UserResponse } from '@wallet/shared'
+import { useState } from 'react'
+import { WalletAccounts } from './WalletAccounts'
+import { Account } from '@/lib/api/account'
 
 type PersonalSettingsFormProps = {
   user: UserResponse
+  accounts: Account[]
 }
 
-// TODO: Can these details be updated by the user when switching to GateHub?
-export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
+export const PersonalSettingsForm = ({
+  user,
+  accounts
+}: PersonalSettingsFormProps) => {
   const { isChangePassword, setIsChangePassword } = usePasswordContext()
+  const [walletAccountsOpen, setWalletAccountsOpen] = useState(false)
 
   return (
     <>
@@ -19,26 +26,9 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
       </div>
       <div className="mb-4">
         <Input
-          label="First name"
-          placeholder="First name"
+          label="Name"
           disabled
-          value={user.firstName}
-        />
-      </div>
-      <div className="mb-4">
-        <Input
-          label="Last name"
-          placeholder="Last name"
-          disabled
-          value={user.lastName}
-        />
-      </div>
-      <div className="mb-4">
-        <Input
-          label="Address"
-          placeholder="Address"
-          disabled
-          value={user.address}
+          value={`${user.firstName} ${user.lastName}`}
         />
       </div>
       <div className="mb-4">
@@ -70,6 +60,30 @@ export const PersonalSettingsForm = ({ user }: PersonalSettingsFormProps) => {
         )}
       </div>
       {isChangePassword && <ChangePasswordForm />}
+      {accounts.length > 0 ? (
+        <>
+          <div className="mt-4 flex justify-between">
+            {!walletAccountsOpen ? (
+              <Button
+                intent="primary"
+                aria-label="wallet accounts"
+                onClick={() => setWalletAccountsOpen(!walletAccountsOpen)}
+              >
+                Wallet Accounts Settings
+              </Button>
+            ) : (
+              <Button
+                intent="outline"
+                aria-label="close wallet accounts"
+                onClick={() => setWalletAccountsOpen(!walletAccountsOpen)}
+              >
+                Hide Wallet Accounts Settings
+              </Button>
+            )}
+          </div>
+          {walletAccountsOpen && <WalletAccounts accounts={accounts} />}
+        </>
+      ) : null}
     </>
   )
 }

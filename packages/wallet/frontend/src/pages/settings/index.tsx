@@ -8,13 +8,15 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
 import { UserResponse } from '@wallet/shared'
 import { THEME } from '@/utils/constants'
+import { Account, accountService } from '@/lib/api/account'
 
 type AccountSettingsProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >
 
 const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
-  user
+  user,
+  accounts
 }) => {
   const imageName =
     THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
@@ -23,7 +25,7 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
       <PageHeader title="Account Settings" />
       <SettingsTabs />
       <div className="flex w-full flex-col md:max-w-lg">
-        <PersonalSettingsForm user={user} />
+        <PersonalSettingsForm user={user} accounts={accounts} />
       </div>
       <Image
         className="object-contain mt-10"
@@ -39,10 +41,12 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
 
 export const getServerSideProps: GetServerSideProps<{
   user: UserResponse
+  accounts: Account[]
 }> = async (ctx) => {
   const response = await userService.me(ctx.req.headers.cookie)
+  const accounts = await accountService.list(ctx.req.headers.cookie)
 
-  if (!response.success) {
+  if (!response.success || !accounts.success) {
     return {
       notFound: true
     }
@@ -56,7 +60,8 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      user: response.result
+      user: response.result,
+      accounts: accounts.result ?? []
     }
   }
 }
