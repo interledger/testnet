@@ -48,7 +48,7 @@ export class StripeService implements IStripeService {
     try {
       await this.gateHubClient.createTransaction({
         amount,
-        vault_uuid: this.gateHubClient.getVaultUuid(currency),
+        vault_uuid: this.gateHubClient.getVaultUuid(currency.toUpperCase()),
         receiving_address,
         sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
