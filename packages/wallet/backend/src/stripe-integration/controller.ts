@@ -45,14 +45,13 @@ export class StripeController implements IStripeController {
         })
         throw new BadRequest('Invalid stripe webhook signature')
       }
-      this.logger.info("\n--------------------------------\n")
-      this.logger.info("Stripe webhook received \n");
-      this.logger.info("Request \n");
-      this.logger.info(req);
-      this.logger.info("Request body \n");
-      this.logger.info(req.body);
-      this.logger.info("\n--------------------------------\n")
-
+      this.logger.info('\n--------------------------------\n')
+      this.logger.info('Stripe webhook received \n')
+      this.logger.info('Request \n')
+      this.logger.info(req)
+      this.logger.info('Request body \n')
+      this.logger.info(req.body)
+      this.logger.info('\n--------------------------------\n')
 
       const wh = await validate(webhookBodySchema, req)
       await this.stripeService.onWebHook(wh.body)
