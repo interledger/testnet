@@ -126,7 +126,10 @@ jobs:
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
-          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
+          tags: |
+            ${{ github.event_name == 'workflow_dispatch' &&
+              'ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }}' ||
+              'ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ github.ref_name }},ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest' }}
 
   generate-release:
     runs-on: ubuntu-latest
