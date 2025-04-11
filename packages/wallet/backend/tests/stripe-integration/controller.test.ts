@@ -16,6 +16,7 @@ import { errorHandler } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
 import { AwilixContainer } from 'awilix'
 import { EventType } from '@/stripe-integration/service'
+import { BadRequest } from '@shared/backend'
 
 const mockConstructEvent = jest.fn()
 
@@ -43,6 +44,22 @@ describe('Stripe Controller', () => {
     res = createResponse()
     req = createRequest()
     req.headers['stripe-signature'] = 'mock-signature'
+    req.body = Buffer.from(
+      JSON.stringify({
+        id: 'webhookId123',
+        type: EventType.payment_intent_succeeded,
+        data: {
+          object: {
+            id: 'pi_123456',
+            amount: 1000,
+            currency: 'usd',
+            metadata: {
+              receiving_address: 'wallet_address_123'
+            }
+          }
+        }
+      })
+    )
 
     await applyMiddleware(withSession, req, res)
   }
@@ -51,8 +68,10 @@ describe('Stripe Controller', () => {
     const stripeControllerDepsMocked = {
       stripeService: {
         onWebHook: isFailure
-          ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
-          : jest.fn()
+          ? jest
+              .fn()
+              .mockRejectedValueOnce(new BadRequest('Test bad request error'))
+          : jest.fn().mockResolvedValue(undefined)
       },
       logger: {
         info: jest.fn(),
@@ -107,7 +126,14 @@ describe('Stripe Controller', () => {
       // Successfully verify the signature
       mockConstructEvent.mockReturnValue({})
 
-      req.body = {
+      await stripeController.onWebHook(req, res, next)
+
+      expect(mockConstructEvent).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        'mock-signature',
+        env.STRIPE_WEBHOOK_SECRET
+      )
+      expect(mockDeps.stripeService.onWebHook).toHaveBeenCalledWith({
         id: 'webhookId123',
         type: EventType.payment_intent_succeeded,
         data: {
@@ -120,16 +146,7 @@ describe('Stripe Controller', () => {
             }
           }
         }
-      }
-
-      await stripeController.onWebHook(req, res, next)
-
-      expect(mockConstructEvent).toHaveBeenCalledWith(
-        req.body,
-        'mock-signature',
-        env.STRIPE_WEBHOOK_SECRET
-      )
-      expect(mockDeps.stripeService.onWebHook).toHaveBeenCalledWith(req.body)
+      })
       expect(res.statusCode).toBe(200)
     })
 
@@ -138,21 +155,6 @@ describe('Stripe Controller', () => {
 
       // Remove the signature header
       delete req.headers['stripe-signature']
-
-      req.body = {
-        id: 'webhookId123',
-        type: EventType.payment_intent_succeeded,
-        data: {
-          object: {
-            id: 'pi_123456',
-            amount: 1000,
-            currency: 'usd',
-            metadata: {
-              receiving_address: 'wallet_address_123'
-            }
-          }
-        }
-      }
 
       await stripeController.onWebHook(req, res, (err) => {
         next()
@@ -169,25 +171,10 @@ describe('Stripe Controller', () => {
     it('should fail if signature verification fails', async () => {
       const mockDeps = createMockStripeControllerDeps()
 
-      // Make the signature verification fail
+      // Signature verification fail
       mockConstructEvent.mockImplementation(() => {
-        throw new Error('Invalid signature')
+        throw new BadRequest('Invalid stripe webhook signature')
       })
-
-      req.body = {
-        id: 'webhookId123',
-        type: EventType.payment_intent_succeeded,
-        data: {
-          object: {
-            id: 'pi_123456',
-            amount: 1000,
-            currency: 'usd',
-            metadata: {
-              receiving_address: 'wallet_address_123'
-            }
-          }
-        }
-      }
 
       await stripeController.onWebHook(req, res, (err) => {
         next()
@@ -207,20 +194,23 @@ describe('Stripe Controller', () => {
       // Successfully verify the signature
       mockConstructEvent.mockReturnValue({})
 
-      req.body = {
-        id: 'webhookId123',
-        type: 'unknown_event_type',
-        data: {
-          object: {
-            id: 'pi_123456',
-            amount: 1000,
-            currency: 'usd',
-            metadata: {
-              receiving_address: 'wallet_address_123'
+      // unknown event type
+      req.body = Buffer.from(
+        JSON.stringify({
+          id: 'webhookId123',
+          type: 'unknown_event_type',
+          data: {
+            object: {
+              id: 'pi_123456',
+              amount: 1000,
+              currency: 'usd',
+              metadata: {
+                receiving_address: 'wallet_address_123'
+              }
             }
           }
-        }
-      }
+        })
+      )
 
       await stripeController.onWebHook(req, res, (err) => {
         next()
@@ -240,19 +230,21 @@ describe('Stripe Controller', () => {
       // Successfully verify the signature
       mockConstructEvent.mockReturnValue({})
 
-      req.body = {
-        id: 'webhookId123',
-        type: EventType.payment_intent_succeeded,
-        data: {
-          object: {
-            id: 'pi_123456',
-            amount: 1000,
-            currency: 'usd',
-            // Missing receiving_address in metadata
-            metadata: {}
+      // (missing receiving_address)
+      req.body = Buffer.from(
+        JSON.stringify({
+          id: 'webhookId123',
+          type: EventType.payment_intent_succeeded,
+          data: {
+            object: {
+              id: 'pi_123456',
+              amount: 1000,
+              currency: 'usd',
+              metadata: {}
+            }
           }
-        }
-      }
+        })
+      )
 
       await stripeController.onWebHook(req, res, (err) => {
         next()
