@@ -420,22 +420,4 @@ export class GateHubService {
   private async updateUserFlag(userId: string, changes: Partial<User>) {
     await User.query().findById(userId).patch(changes)
   }
-
-  public async getGateHubWalletAddress(walletAddress: WalletAddress) {
-    const account = await Account.query()
-      .findById(walletAddress.accountId)
-      .withGraphFetched('user')
-
-    if (!account?.gateHubWalletId || !account.user?.gateHubUserId) {
-      throw new BadRequest(
-        'No account associated to the provided payment pointer'
-      )
-    }
-
-    return {
-      userId: account.userId,
-      gateHubWalletId: account.gateHubWalletId,
-      gateHubUserId: account.user.gateHubUserId
-    }
-  }
 }

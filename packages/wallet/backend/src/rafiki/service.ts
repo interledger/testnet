@@ -1,18 +1,16 @@
 import { Env } from '@/config/env'
-import { WalletAddress } from '@/walletAddress/model'
-import { ISecondParty, TransactionService } from '@/transaction/service'
-import { Logger } from 'winston'
-import { RafikiClient } from './rafiki-client'
-import { SocketService } from '@/socket/service'
-import { NodeCacheInstance } from '@/utils/helpers'
-import { WalletAddressService } from '@/walletAddress/service'
-import { Account } from '@/account/model'
-import MessageType from '@/socket/messageType'
-import { BadRequest } from '@shared/backend'
 import { GateHubClient } from '@/gatehub/client'
 import { TransactionTypeEnum } from '@/gatehub/consts'
+import MessageType from '@/socket/messageType'
+import { SocketService } from '@/socket/service'
+import { ISecondParty, TransactionService } from '@/transaction/service'
+import { NodeCacheInstance } from '@/utils/helpers'
+import { WalletAddressService } from '@/walletAddress/service'
+import { BadRequest } from '@shared/backend'
+import { Logger } from 'winston'
+import { AccountService } from '../account/service'
+import { RafikiClient } from './rafiki-client'
 import { WebhookType } from './validation'
-import { GateHubService } from '../gatehub/service'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -79,12 +77,12 @@ export class RafikiService implements IRafikiService {
   constructor(
     private socketService: SocketService,
     private gateHubClient: GateHubClient,
-    private gateHubService: GateHubService,
     private env: Env,
     private logger: Logger,
     private rafikiClient: RafikiClient,
     private transactionService: TransactionService,
-    private walletAddressService: WalletAddressService
+    private walletAddressService: WalletAddressService,
+    private accountService: AccountService
   ) {}
 
   public async onWebHook(wh: WebhookType): Promise<void> {
@@ -166,7 +164,7 @@ export class RafikiService implements IRafikiService {
     const amount = this.getAmountFromWebHook(wh)
 
     const { gateHubWalletId: receiverWallet, userId } =
-      await this.gateHubService.getGateHubWalletAddress(walletAddress)
+      await this.accountService.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
       //* Only in case the expired incoming payment has no money received will it be set as expired.
@@ -233,7 +231,7 @@ export class RafikiService implements IRafikiService {
     const amount = this.getAmountFromWebHook(wh)
 
     const { gateHubWalletId, gateHubUserId } =
-      await this.gateHubService.getGateHubWalletAddress(walletAddress)
+      await this.accountService.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
       return
@@ -278,7 +276,7 @@ export class RafikiService implements IRafikiService {
       gateHubWalletId: sendingWallet,
       userId,
       gateHubUserId
-    } = await this.gateHubService.getGateHubWalletAddress(walletAddress)
+    } = await this.accountService.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(debitAmount, wh.type)) {
       return
@@ -338,7 +336,7 @@ export class RafikiService implements IRafikiService {
     const sentAmount = this.parseAmount(wh.data.sentAmount as AmountJSON)
 
     const { gateHubWalletId: sendingWallet } =
-      await this.gateHubService.getGateHubWalletAddress(walletAddress)
+      await this.accountService.getGateHubWalletAddress(walletAddress)
 
     await this.transactionService.updateTransaction(
       { paymentId: wh.data.id },

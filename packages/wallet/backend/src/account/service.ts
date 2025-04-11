@@ -3,11 +3,12 @@ import { User } from '@/user/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Amount } from '@/rafiki/service'
-import { Conflict, NotFound } from '@shared/backend'
+import { BadRequest, Conflict, NotFound } from '@shared/backend'
 import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
 import { GateHubClient } from '@/gatehub/client'
 import { v4 as uuid } from 'uuid'
 import { MANUAL_NETWORK, TransactionTypeEnum } from '@/gatehub/consts'
+import { WalletAddress } from '../walletAddress/model'
 
 type CreateAccountArgs = {
   userId: string
@@ -282,5 +283,23 @@ export class AccountService implements IAccountService {
     const account = await this.findAccountById(accountId, userId)
 
     await account.$query().patch(changes)
+  }
+
+  public async getGateHubWalletAddress(walletAddress: WalletAddress) {
+    const account = await Account.query()
+      .findById(walletAddress.accountId)
+      .withGraphFetched('user')
+
+    if (!account?.gateHubWalletId || !account.user?.gateHubUserId) {
+      throw new BadRequest(
+        'No account associated to the provided payment pointer'
+      )
+    }
+
+    return {
+      userId: account.userId,
+      gateHubWalletId: account.gateHubWalletId,
+      gateHubUserId: account.user.gateHubUserId
+    }
   }
 }
