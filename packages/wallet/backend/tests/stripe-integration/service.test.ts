@@ -84,16 +84,8 @@ describe('Stripe Service', (): void => {
       mockGateHubClient as unknown as GateHubClient
     )
     Reflect.set(stripeService, 'logger', mockLogger)
-    Reflect.set(
-      stripeService,
-      'walletAddressService',
-      mockWalletAddressService
-    )
-    Reflect.set(
-      stripeService,
-      'accountService',
-      mockAccountService
-    )
+    Reflect.set(stripeService, 'walletAddressService', mockWalletAddressService)
+    Reflect.set(stripeService, 'accountService', mockAccountService)
 
     // Mock vault UUID lookup
     mockGateHubClient.getVaultUuid.mockReturnValue('vault-uuid-123')
