@@ -4,6 +4,8 @@ import { GateHubClient } from '../gatehub/client'
 import { Env } from '../config/env'
 import { TransactionTypeEnum } from '../gatehub/consts'
 import { StripeWebhookType } from './validation'
+import { WalletAddressService } from '../walletAddress/service'
+import { GateHubService } from '../gatehub/service'
 
 export enum EventType {
   payment_intent_canceled = 'payment_intent.canceled',
@@ -19,7 +21,9 @@ export class StripeService implements IStripeService {
   constructor(
     private env: Env,
     private logger: Logger,
-    private gateHubClient: GateHubClient
+    private gateHubClient: GateHubClient,
+    private walletAddressService: WalletAddressService,
+    private gateHubService: GateHubService
   ) {}
 
   public async onWebHook(wh: StripeWebhookType): Promise<void> {
@@ -46,10 +50,20 @@ export class StripeService implements IStripeService {
     const amount: number = paymentIntent.amount
 
     try {
+      const walletAddress = await this.walletAddressService.getByUrl(
+        receiving_address
+      )
+
+      if (!walletAddress) {
+        throw new BadRequest('Wallet address not found')
+      }
+
+      const { gateHubWalletId } = await this.gateHubService.getGateHubWalletAddress(walletAddress)
+
       await this.gateHubClient.createTransaction({
         amount,
         vault_uuid: this.gateHubClient.getVaultUuid(currency.toUpperCase()),
-        receiving_address,
+        receiving_address: gateHubWalletId,
         sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
