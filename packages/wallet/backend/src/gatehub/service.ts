@@ -1,7 +1,7 @@
 import { GateHubClient } from '@/gatehub/client'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
-import { BadRequest, NotFound } from '@shared/backend'
+import { NotFound } from '@shared/backend'
 import {
   IAddUserToGatewayResponse,
   ICardTransactionWebhookData,
