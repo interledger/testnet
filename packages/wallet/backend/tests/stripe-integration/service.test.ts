@@ -28,6 +28,14 @@ describe('Stripe Service', (): void => {
     warn: jest.fn()
   }
 
+  const mockWalletAddressService = {
+    getByUrl: jest.fn()
+  }
+
+  const mockAccountService = {
+    getGateHubWalletAddress: jest.fn()
+  }
+
   const createMockWebhook = (
     type: EventType = EventType.payment_intent_succeeded,
     overrides: Partial<StripeWebhookType> = {}
@@ -76,9 +84,33 @@ describe('Stripe Service', (): void => {
       mockGateHubClient as unknown as GateHubClient
     )
     Reflect.set(stripeService, 'logger', mockLogger)
+    Reflect.set(
+      stripeService,
+      'walletAddressService',
+      mockWalletAddressService
+    )
+    Reflect.set(
+      stripeService,
+      'accountService',
+      mockAccountService
+    )
 
     // Mock vault UUID lookup
     mockGateHubClient.getVaultUuid.mockReturnValue('vault-uuid-123')
+
+    // Mock successful transaction creation
+    mockGateHubClient.createTransaction.mockResolvedValue(undefined)
+
+    // Mock wallet address lookup
+    mockWalletAddressService.getByUrl.mockResolvedValue({
+      id: 'wallet-123',
+      url: 'wallet_address_123'
+    })
+
+    // Mock gatehub wallet address lookup
+    mockAccountService.getGateHubWalletAddress.mockResolvedValue({
+      gateHubWalletId: 'gatehub-wallet-123'
+    })
   })
 
   describe('onWebHook', (): void => {
@@ -90,7 +122,7 @@ describe('Stripe Service', (): void => {
       expect(mockGateHubClient.createTransaction).toHaveBeenCalledWith({
         amount: webhook.data.object.amount,
         vault_uuid: 'vault-uuid-123',
-        receiving_address: webhook.data.object.metadata.receiving_address,
+        receiving_address: 'gatehub-wallet-123',
         sending_address: env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
@@ -153,7 +185,7 @@ describe('Stripe Service', (): void => {
       expect(mockGateHubClient.createTransaction).toHaveBeenCalledWith({
         amount: webhook.data.object.amount,
         vault_uuid: 'vault-uuid-123',
-        receiving_address: webhook.data.object.metadata.receiving_address,
+        receiving_address: 'gatehub-wallet-123',
         sending_address: env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
