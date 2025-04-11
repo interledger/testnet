@@ -46,6 +46,9 @@ export class StripeController implements IStripeController {
         throw new BadRequest('Invalid stripe webhook signature')
       }
 
+      const parsedBody = JSON.parse(req.body.toString())
+      req.body = parsedBody
+
       const wh = await validate(webhookBodySchema, req)
       await this.stripeService.onWebHook(wh.body)
       res.status(200).send()

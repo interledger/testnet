@@ -51,7 +51,7 @@ const envSchema = z.object({
   CARD_PIN_HREF: z.string().default('UPDATEME'),
   STRIPE_SECRET_KEY: z.string().default('STRIPE_SECRET_KEY'),
   STRIPE_WEBHOOK_SECRET: z.string().default('STRIPE_WEBHOOK_SECRET'),
-  USE_STRIPE: z.boolean().default(false)
+  USE_STRIPE: z.coerce.boolean().default(false)
 })
 
 export type Env = z.infer<typeof envSchema>
