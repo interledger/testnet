@@ -182,6 +182,7 @@ services:
       INSTANCE_NAME: 'Testnet Wallet'
       SLIPPAGE: 0.01
       KEY_ID: rafiki
+      WALLET_ADDRESS_REDIRECT_HTML_PAGE: ${WALLET_ADDRESS_REDIRECT_HTML_PAGE}
     depends_on:
       - postgres
       - redis
