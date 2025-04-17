@@ -27,6 +27,8 @@ import { UploadPublicKeyDialog } from '../dialogs/UploadPublicKeyDialog'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { WalletAddressResponse } from '@wallet/shared/src'
 import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddressKey'
+import { Checkbox } from '@/ui/forms/Checkbox'
+import { useDeveloperKeysContext } from '@/lib/context/developerKeys'
 
 type WalletAddressContextType = {
   walletAddress: WalletAddressResponse
@@ -72,26 +74,101 @@ type DeveloperKeysProps = {
 }
 
 export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
+  const { revokeMultiple, setRevokeMultiple, setSelectedDevKeys } =
+    useDeveloperKeysContext()
+  const [isSelectedAll, setIsSelectedAll] = useState(false)
   return (
-    <dl className="space-y-4">
-      {accounts.map((account, accountIdx) => (
-        <Disclosure as="div" key={account.name} className="pt-2">
-          {({ open }) => (
-            <>
-              <AccountHeader
-                name={account.name}
-                isOpen={open}
-                index={accountIdx}
-              />
-              <AccountPanel
-                walletAddresses={account.walletAddresses}
-                index={accountIdx}
-              />
-            </>
-          )}
-        </Disclosure>
-      ))}
-    </dl>
+    <>
+      <div className="mb-4 flex justify-center">
+        {!revokeMultiple ? (
+          <Button
+            intent="primary"
+            size="sm"
+            aria-label="show revoke multiple"
+            onClick={() => setRevokeMultiple(!revokeMultiple)}
+          >
+            Revoke Multiple Developer Keys
+          </Button>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <Button
+              intent="outline"
+              size="sm"
+              aria-label="cancel revoke multiple"
+              onClick={() => {
+                setRevokeMultiple(!revokeMultiple)
+                setSelectedDevKeys([])
+                setIsSelectedAll(false)
+              }}
+            >
+              Cancel Revoke Multiple Developer Keys
+            </Button>
+            <div className="flex flex-row justify-evenly">
+              {!isSelectedAll ? (
+                <Button
+                  intent="primary"
+                  size="sm"
+                  aria-label="select all"
+                  onClick={() => {
+                    const allDevKeys: string[] = []
+                    accounts.forEach((account) => {
+                      account.walletAddresses.forEach((walletAddress) => {
+                        walletAddress.keys.forEach((devKey) => {
+                          allDevKeys.push(devKey.id)
+                        })
+                      })
+                    })
+                    setSelectedDevKeys(allDevKeys)
+                    setIsSelectedAll(true)
+                  }}
+                >
+                  Select All
+                </Button>
+              ) : (
+                <Button
+                  intent="outline"
+                  size="sm"
+                  aria-label="deselect all"
+                  onClick={() => {
+                    setSelectedDevKeys([])
+                    setIsSelectedAll(false)
+                  }}
+                >
+                  Deselect All
+                </Button>
+              )}
+              <Button
+                intent="danger"
+                size="sm"
+                aria-label="revoke multiple"
+                onClick={() => setRevokeMultiple(!revokeMultiple)}
+              >
+                Revoke Developer Keys
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+      <dl className="space-y-4">
+        {accounts.map((account, accountIdx) => (
+          <Disclosure as="div" key={account.name} className="pt-2">
+            {({ open }) => (
+              <>
+                <AccountHeader
+                  name={account.name}
+                  isOpen={open}
+                  index={accountIdx}
+                />
+                <AccountPanel
+                  walletAddresses={account.walletAddresses}
+                  index={accountIdx}
+                />
+              </>
+            )}
+          </Disclosure>
+        ))}
+      </dl>
+    </>
   )
 }
 
@@ -383,29 +460,56 @@ const WalletAddressKeyInfo = ({
   walletAddressIdx
 }: WalletAddressInfoProps) => {
   const { walletAddress } = useWalletAddressContext()
+  const { selectedDevKeys, setSelectedDevKeys, revokeMultiple } =
+    useDeveloperKeysContext()
 
   return (
     <div className="flex flex-col space-y-2">
       {walletAddress.keys.map((keyInfo, keysIdx) => (
-        <Disclosure as="div" key={`nickname_${keysIdx}`} className="pt-1">
-          {({ open }) => (
-            <>
-              <KeysGroupHeader
-                name={keyInfo.nickname}
-                createdAt={keyInfo.createdAt.toString()}
-                isOpen={open}
-                index={keysIdx}
-                accountIdx={accountIdx}
-                walletAddressIdx={walletAddressIdx}
-              />
-              <KeysGroupPanel
-                keys={keyInfo}
-                walletAddressId={walletAddress.id}
-                accountId={walletAddress.accountId}
-              />
-            </>
-          )}
-        </Disclosure>
+        <div key={keyInfo.id} className="flex flex-row">
+          {revokeMultiple ? (
+            <Checkbox
+              label
+              className="h-5 w-5 mt-3 accent-green-modal"
+              checked={selectedDevKeys.includes(keyInfo.id)}
+              onChange={(event) => {
+                if (
+                  event.target.checked &&
+                  !selectedDevKeys.includes(keyInfo.id)
+                ) {
+                  setSelectedDevKeys([...selectedDevKeys, keyInfo.id])
+                } else if (!event.target.checked) {
+                  setSelectedDevKeys(
+                    selectedDevKeys.filter((devKey) => devKey !== keyInfo.id)
+                  )
+                }
+              }}
+            ></Checkbox>
+          ) : null}
+          <Disclosure
+            as="div"
+            key={`nickname_${keysIdx}`}
+            className="pt-1 flex-1"
+          >
+            {({ open }) => (
+              <>
+                <KeysGroupHeader
+                  name={keyInfo.nickname}
+                  createdAt={keyInfo.createdAt.toString()}
+                  isOpen={open}
+                  index={keysIdx}
+                  accountIdx={accountIdx}
+                  walletAddressIdx={walletAddressIdx}
+                />
+                <KeysGroupPanel
+                  keys={keyInfo}
+                  walletAddressId={walletAddress.id}
+                  accountId={walletAddress.accountId}
+                />
+              </>
+            )}
+          </Disclosure>
+        </div>
       ))}
       <WalletAddressCTA
         accountIdx={accountIdx}
