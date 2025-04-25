@@ -25,7 +25,7 @@ export class StripeService implements IStripeService {
     private logger: Logger,
     private gateHubClient: GateHubClient,
     private walletAddressService: WalletAddressService,
-    private accountService: AccountService,
+    private accountService: AccountService
   ) {}
 
   public async onWebHook(wh: StripeWebhookType): Promise<void> {
