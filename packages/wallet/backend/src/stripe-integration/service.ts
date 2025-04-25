@@ -6,6 +6,8 @@ import { TransactionTypeEnum } from '../gatehub/consts'
 import { StripeWebhookType } from './validation'
 import { WalletAddressService } from '../walletAddress/service'
 import { AccountService } from '../account/service'
+import { Transaction } from '../transaction/model'
+import { transformBalance } from '../utils/helpers'
 
 export enum EventType {
   payment_intent_canceled = 'payment_intent.canceled',
@@ -23,7 +25,7 @@ export class StripeService implements IStripeService {
     private logger: Logger,
     private gateHubClient: GateHubClient,
     private walletAddressService: WalletAddressService,
-    private accountService: AccountService
+    private accountService: AccountService,
   ) {}
 
   public async onWebHook(wh: StripeWebhookType): Promise<void> {
@@ -67,6 +69,18 @@ export class StripeService implements IStripeService {
         sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
+      })
+
+      await Transaction.query().insert({
+        walletAddressId: walletAddress.id,
+        accountId: walletAddress.accountId,
+        paymentId: paymentIntent.id,
+        assetCode: currency.toUpperCase(),
+        value: transformBalance(Number(amount), 2),
+        type: 'INCOMING',
+        status: 'COMPLETED',
+        description: 'Stripe Payment',
+        source: 'Stripe'
       })
     } catch (error) {
       this.logger.error('Error creating gatehub transaction', { error })
