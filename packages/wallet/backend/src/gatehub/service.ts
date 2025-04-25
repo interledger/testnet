@@ -166,7 +166,7 @@ export class GateHubService {
       type: 'OUTGOING',
       status: 'COMPLETED',
       description: '',
-      isCard: true
+      source: 'Card'
     })
   }
 
