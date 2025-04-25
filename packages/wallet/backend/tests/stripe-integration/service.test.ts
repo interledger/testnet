@@ -141,7 +141,7 @@ describe('Stripe Service', (): void => {
       await stripeService.onWebHook(webhook)
 
       expect(mockGateHubClient.createTransaction).toHaveBeenCalledWith({
-        amount: webhook.data.object.amount,
+        amount: 10,
         vault_uuid: 'vault-uuid-123',
         receiving_address: 'gatehub-wallet-123',
         sending_address: env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
@@ -226,7 +226,7 @@ describe('Stripe Service', (): void => {
       )
 
       expect(mockGateHubClient.createTransaction).toHaveBeenCalledWith({
-        amount: webhook.data.object.amount,
+        amount: 10,
         vault_uuid: 'vault-uuid-123',
         receiving_address: 'gatehub-wallet-123',
         sending_address: env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,

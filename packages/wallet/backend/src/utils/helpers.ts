@@ -3,6 +3,7 @@ import { ObjectWithAnyKeys } from '@/shared/types'
 import { createHash, randomBytes } from 'crypto'
 import NodeCache from 'node-cache'
 import { env } from '@/config/env'
+import { DEFAULT_ASSET_SCALE } from './consts'
 
 export const transformAmount = (
   amount: string | bigint,
@@ -24,6 +25,16 @@ export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
 }
 
+export const applyScale = (
+  value: number,
+  scale: number = DEFAULT_ASSET_SCALE
+): number => {
+  const factor = 10 ** scale
+  const scaledValue = value * 10 ** -scale
+  const truncatedValue = Math.floor(scaledValue * factor) / factor
+  return truncatedValue
+}
+
 export function extractUuidFromUrl(url: string): string {
   const { pathname } = new URL(url)
   const id = pathname.match(
@@ -36,6 +47,7 @@ export function extractUuidFromUrl(url: string): string {
 
   return id
 }
+
 export const incomingPaymentRegexp =
   /\/incoming-payments\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
 
