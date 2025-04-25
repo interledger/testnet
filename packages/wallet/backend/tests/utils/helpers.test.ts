@@ -14,5 +14,9 @@ describe('Utils Helper Functions', (): void => {
     it('should handle zero correctly', (): void => {
       expect(applyScale(0, 2)).toBe(0)
     })
+
+    it('should use default scale if not provided', (): void => {
+      expect(applyScale(1000)).toBe(10)
+    })
   })
 })

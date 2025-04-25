@@ -50,7 +50,7 @@ export class StripeService implements IStripeService {
     const receiving_address: string = metadata.receiving_address
     const currency: string = paymentIntent.currency
 
-    const scaledAmount = applyScale(paymentIntent.amount, 2)
+    const scaledAmount = applyScale(paymentIntent.amount)
 
     try {
       const walletAddress =

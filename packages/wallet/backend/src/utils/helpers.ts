@@ -3,6 +3,7 @@ import { ObjectWithAnyKeys } from '@/shared/types'
 import { createHash, randomBytes } from 'crypto'
 import NodeCache from 'node-cache'
 import { env } from '@/config/env'
+import { DEFAULT_ASSET_SCALE } from './consts'
 
 export const transformAmount = (
   amount: string | bigint,
@@ -24,7 +25,7 @@ export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
 }
 
-export const applyScale = (value: number, scale: number): number => {
+export const applyScale = (value: number, scale: number = DEFAULT_ASSET_SCALE): number => {
   const factor = 10 ** scale
   const scaledValue = value * 10 ** -scale
   const truncatedValue = Math.floor(scaledValue * factor) / factor
