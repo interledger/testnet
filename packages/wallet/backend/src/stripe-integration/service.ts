@@ -7,7 +7,7 @@ import { StripeWebhookType } from './validation'
 import { WalletAddressService } from '../walletAddress/service'
 import { AccountService } from '../account/service'
 import { Transaction } from '../transaction/model'
-import { transformBalance } from '../utils/helpers'
+import { transformBalance, applyScale } from '../utils/helpers'
 
 export enum EventType {
   payment_intent_canceled = 'payment_intent.canceled',
@@ -49,7 +49,8 @@ export class StripeService implements IStripeService {
     const metadata = paymentIntent.metadata
     const receiving_address: string = metadata.receiving_address
     const currency: string = paymentIntent.currency
-    const amount: number = paymentIntent.amount
+
+    const scaledAmount = applyScale(paymentIntent.amount, 2)
 
     try {
       const walletAddress =
@@ -63,7 +64,7 @@ export class StripeService implements IStripeService {
         await this.accountService.getGateHubWalletAddress(walletAddress)
 
       await this.gateHubClient.createTransaction({
-        amount,
+        amount: scaledAmount,
         vault_uuid: this.gateHubClient.getVaultUuid(currency.toUpperCase()),
         receiving_address: gateHubWalletId,
         sending_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
@@ -76,7 +77,7 @@ export class StripeService implements IStripeService {
         accountId: walletAddress.accountId,
         paymentId: paymentIntent.id,
         assetCode: currency.toUpperCase(),
-        value: transformBalance(Number(amount), 2),
+        value: transformBalance(scaledAmount, 2),
         type: 'INCOMING',
         status: 'COMPLETED',
         description: 'Stripe Payment',
