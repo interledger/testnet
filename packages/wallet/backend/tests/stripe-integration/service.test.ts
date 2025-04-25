@@ -9,12 +9,21 @@ import { StripeService, EventType } from '@/stripe-integration/service'
 import { GateHubClient } from '@/gatehub/client'
 import { TransactionTypeEnum } from '@/gatehub/consts'
 import { StripeWebhookType } from '../../src/stripe-integration/validation'
+import { Transaction } from '@/transaction/model'
+import { Account } from '@/account/model'
+import { WalletAddress } from '@/walletAddress/model'
+import { loginUser } from '@/tests/utils'
+import { mockedListAssets } from '@/tests/mocks'
 
 describe('Stripe Service', (): void => {
   let bindings: AwilixContainer<Cradle>
   let appContainer: TestApp
   let knex: Knex
   let stripeService: StripeService
+  let userId: string
+  let account: Account
+  let walletAddress: WalletAddress
+  let walletId: string
 
   const mockGateHubClient = {
     createTransaction: jest.fn(),
@@ -78,6 +87,33 @@ describe('Stripe Service', (): void => {
   })
 
   beforeEach(async (): Promise<void> => {
+    // Necessary db setup for transaction creation
+    const { user } = await loginUser({
+      authService: await bindings.resolve('authService'),
+      extraUserArgs: {
+        isEmailVerified: true,
+        gateHubUserId: 'test-gatehub-user'
+      }
+    })
+    userId = user.id
+    walletId = faker.string.uuid()
+
+    account = await Account.query().insert({
+      name: faker.string.alpha(10),
+      userId: userId,
+      assetCode: 'USD',
+      assetId: mockedListAssets[0].id,
+      assetScale: 2,
+      gateHubWalletId: 'gatehub-wallet-123'
+    })
+
+    walletAddress = await WalletAddress.query().insert({
+      url: 'wallet_address_123',
+      publicName: 'Test Wallet',
+      accountId: account.id,
+      id: walletId
+    })
+
     Reflect.set(
       stripeService,
       'gateHubClient',
@@ -87,19 +123,12 @@ describe('Stripe Service', (): void => {
     Reflect.set(stripeService, 'walletAddressService', mockWalletAddressService)
     Reflect.set(stripeService, 'accountService', mockAccountService)
 
-    // Mock vault UUID lookup
     mockGateHubClient.getVaultUuid.mockReturnValue('vault-uuid-123')
 
-    // Mock successful transaction creation
     mockGateHubClient.createTransaction.mockResolvedValue(undefined)
 
-    // Mock wallet address lookup
-    mockWalletAddressService.getByUrl.mockResolvedValue({
-      id: 'wallet-123',
-      url: 'wallet_address_123'
-    })
+    mockWalletAddressService.getByUrl.mockResolvedValue(walletAddress)
 
-    // Mock gatehub wallet address lookup
     mockAccountService.getGateHubWalletAddress.mockResolvedValue({
       gateHubWalletId: 'gatehub-wallet-123'
     })
@@ -119,6 +148,19 @@ describe('Stripe Service', (): void => {
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
       })
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(1)
+      expect(transactions[0]).toMatchObject({
+        walletAddressId: walletAddress.id,
+        accountId: account.id,
+        paymentId: webhook.data.object.id,
+        assetCode: webhook.data.object.currency.toUpperCase(),
+        type: 'INCOMING',
+        status: 'COMPLETED',
+        description: 'Stripe Payment',
+        source: 'Stripe'
+      })
     })
 
     it('should handle payment_intent_payment_failed event type', async (): Promise<void> => {
@@ -135,6 +177,9 @@ describe('Stripe Service', (): void => {
         })
       )
       expect(mockGateHubClient.createTransaction).not.toHaveBeenCalled()
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(0)
     })
 
     it('should handle payment_intent_canceled event type', async (): Promise<void> => {
@@ -150,6 +195,9 @@ describe('Stripe Service', (): void => {
         })
       )
       expect(mockGateHubClient.createTransaction).not.toHaveBeenCalled()
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(0)
     })
 
     it('should log information about the received webhook', async (): Promise<void> => {
@@ -162,6 +210,9 @@ describe('Stripe Service', (): void => {
           `received webhook of type : ${webhook.type} for : ${webhook.id}`
         )
       )
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(1)
     })
   })
 
@@ -181,6 +232,19 @@ describe('Stripe Service', (): void => {
         sending_address: env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
         type: TransactionTypeEnum.HOSTED,
         message: 'Stripe Transfer'
+      })
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(1)
+      expect(transactions[0]).toMatchObject({
+        walletAddressId: walletAddress.id,
+        accountId: account.id,
+        paymentId: webhook.data.object.id,
+        assetCode: webhook.data.object.currency.toUpperCase(),
+        type: 'INCOMING',
+        status: 'COMPLETED',
+        description: 'Stripe Payment',
+        source: 'Stripe'
       })
     })
 
@@ -204,6 +268,9 @@ describe('Stripe Service', (): void => {
           error: expect.any(Error)
         })
       )
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(0)
     })
   })
 
@@ -224,6 +291,9 @@ describe('Stripe Service', (): void => {
           error: webhook.data.object.last_payment_error
         })
       )
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(0)
     })
   })
 
@@ -243,6 +313,9 @@ describe('Stripe Service', (): void => {
           receiving_address: webhook.data.object.metadata.receiving_address
         })
       )
+
+      const transactions = await Transaction.query()
+      expect(transactions).toHaveLength(0)
     })
   })
 })
