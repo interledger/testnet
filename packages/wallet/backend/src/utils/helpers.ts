@@ -25,7 +25,10 @@ export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
 }
 
-export const applyScale = (value: number, scale: number = DEFAULT_ASSET_SCALE): number => {
+export const applyScale = (
+  value: number,
+  scale: number = DEFAULT_ASSET_SCALE
+): number => {
   const factor = 10 ** scale
   const scaledValue = value * 10 ** -scale
   const truncatedValue = Math.floor(scaledValue * factor) / factor
