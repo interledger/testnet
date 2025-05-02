@@ -2,6 +2,7 @@ import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import { KeyResponse, WalletAddressKeyService } from './service'
 import {
+  batchRevokeWalletAddressKeys,
   generateWalletAddressKey,
   patchWalletAddressKey,
   uploadWalletAddressKey
@@ -12,6 +13,7 @@ import { WalletAddressKeyResponse } from '@wallet/shared/src/types/WalletAddress
 interface IWalletAddressKeyController {
   registerKey: Controller<KeyResponse>
   revokeKey: Controller
+  batchRevokeKeys: Controller
   uploadKey: Controller
   patchKey: Controller
   list: Controller<WalletAddressKeyResponse[]>
@@ -136,6 +138,31 @@ export class WalletAddressKeyController implements IWalletAddressKeyController {
         .status(200)
         .json(
           toSuccessResponse(undefined, 'Public key was successfully revoked.')
+        )
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  batchRevokeKeys = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { keys }
+      } = await validate(batchRevokeWalletAddressKeys, req)
+
+      await this.walletAddressKeyService.batchRevokeKeys(
+        req.session.user.id,
+        keys
+      )
+
+      res
+        .status(200)
+        .json(
+          toSuccessResponse(undefined, 'Public keys were successfully revoked.')
         )
     } catch (e) {
       next(e)

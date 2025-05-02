@@ -38,6 +38,12 @@ interface RevokeKeyArgs extends WalletAddressKeyArgs {
   keyId: string
 }
 
+interface BatchRevokeKeyArgs {
+  keyId: string
+  accountId: string
+  walletAddressId: string
+}
+
 interface PatchKeyArgs extends WalletAddressKeyArgs {
   keyId: string
   nickname: string
@@ -46,6 +52,7 @@ interface PatchKeyArgs extends WalletAddressKeyArgs {
 interface IWalletAddressKeyService {
   registerKey: (params: RegisterKeyArgs) => Promise<KeyResponse>
   revokeKey: (params: RevokeKeyArgs) => Promise<void>
+  batchRevokeKeys: (userId: string, data: BatchRevokeKeyArgs[]) => Promise<void>
   uploadKey: (params: UploadKeyArgs) => Promise<void>
   patch: (params: PatchKeyArgs) => Promise<void>
   listByWalletId: (params: WalletAddressKeyArgs) => Promise<WalletAddressKeys[]>
@@ -188,6 +195,40 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
         walletAddressKey.$query(trx).delete(),
         this.rafikiClient.revokeWalletAddressKey(walletAddressKey.rafikiId)
       ])
+      await trx.commit()
+    } catch (e) {
+      await trx.rollback()
+    }
+  }
+  async batchRevokeKeys(
+    userId: string,
+    data: BatchRevokeKeyArgs[]
+  ): Promise<void> {
+    await Promise.all(
+      data.map((key) =>
+        this.walletAddressService.getById({
+          userId,
+          accountId: key.accountId,
+          walletAddressId: key.walletAddressId
+        })
+      )
+    )
+
+    const keys = await Promise.all(
+      data.map((key) => this.getById(key.walletAddressId, key.keyId))
+    )
+
+    const trx = await WalletAddressKeys.startTransaction()
+
+    try {
+      await Promise.all(
+        keys.map(async (walletAddressKey) => {
+          await Promise.all([
+            walletAddressKey.$query(trx).delete(),
+            this.rafikiClient.revokeWalletAddressKey(walletAddressKey.rafikiId)
+          ])
+        })
+      )
       await trx.commit()
     } catch (e) {
       await trx.rollback()

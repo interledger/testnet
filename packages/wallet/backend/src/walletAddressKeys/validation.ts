@@ -26,3 +26,17 @@ export const uploadWalletAddressKey = z.object({
     base64Key: z.string()
   })
 })
+
+export const batchRevokeWalletAddressKeys = z.object({
+  body: z.object({
+    keys: z
+      .array(
+        z.object({
+          keyId: z.string().uuid(),
+          accountId: z.string().uuid(),
+          walletAddressId: z.string().uuid()
+        })
+      )
+      .nonempty()
+  })
+})
