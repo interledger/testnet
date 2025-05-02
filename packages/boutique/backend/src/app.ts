@@ -79,6 +79,7 @@ export class App {
     router.post('/orders/setup-one-click', orderController.setup)
     router.post('/orders/setup-one-click/finish', orderController.setupFinish)
     router.patch('/orders/:id', orderController.finish)
+    router.get('/orders/:id', orderController.get)
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
