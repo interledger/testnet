@@ -253,7 +253,7 @@ services:
         ./tigerbeetle start --addresses=0.0.0.0:4342 $$DATA_FILE
 
   redis:
-    image: 'redis:7'
+    image: 'redis:8'
     restart: unless-stopped
     networks:
       - testnet
