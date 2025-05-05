@@ -58,7 +58,7 @@ function CheckoutConfirmation() {
 
     if (order.status === OrderStatus.FAILED) {
       color = ' text-orange-dark dark:text-pink-neon'
-      text = 'Payment failed.'
+      text = 'Payment failed. Check funds and please try again.'
       variant = 'secondary'
     }
 
