@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { checkoutConfirmationSearchParamsSchema } from '../route-schemas.ts'
 import { Loader } from '@/components/loader.tsx'
+import { OrderStatus, useOrderQuery } from '@/hooks/use-order-query.ts'
 
 function InstantBuy() {
   return (
@@ -27,8 +28,8 @@ function CheckoutConfirmation() {
   const [{ orderId, hash, interact_ref, result }] = useZodSearchParams(
     checkoutConfirmationSearchParamsSchema
   )
-  const { mutate, data, error } = useFinishCheckoutMutation(orderId)
-
+  const { data: orderResponse } = useOrderQuery(orderId)
+  const { mutate, error } = useFinishCheckoutMutation(orderId)
   useEffect(() => {
     mutate({
       hash,
@@ -38,7 +39,13 @@ function CheckoutConfirmation() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (data) {
+  if (!orderResponse) {
+    return <Loader />
+  }
+
+  const order = orderResponse.result
+
+  if (order.status !== OrderStatus.PROCESSING) {
     let color: string = ' text-green dark:text-green-neon'
     let text: string = 'Thank you for your order!'
     let variant: VariantProps<typeof buttonVariants>['variant'] = 'default'
@@ -46,6 +53,12 @@ function CheckoutConfirmation() {
     if (result === 'grant_rejected') {
       color = ' text-orange-dark dark:text-pink-neon'
       text = 'Payment successfully declined.'
+      variant = 'secondary'
+    }
+
+    if (order.status === OrderStatus.FAILED) {
+      color = ' text-orange-dark dark:text-pink-neon'
+      text = 'Payment failed. Check funds and please try again.'
       variant = 'secondary'
     }
 
