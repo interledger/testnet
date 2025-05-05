@@ -283,7 +283,9 @@ const createWalletAddressService = (): WalletAddressService => ({
     try {
       const response = await httpClient
         .post(`revoke-keys`, {
-          json: args
+          json: {
+            keys: args
+          }
         })
         .json<SuccessResponse>()
       return response
