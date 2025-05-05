@@ -8,7 +8,9 @@ type DeveloperKeysProviderProps = {
 export const DeveloperKeysProvider = ({
   children
 }: DeveloperKeysProviderProps) => {
-  const [selectedDevKeys, setSelectedDevKeys] = useState<string[]>([])
+  const [selectedDevKeys, setSelectedDevKeys] = useState<
+    { accountId: string; walletAddressId: string; keyId: string }[]
+  >([])
   const [revokeMultiple, setRevokeMultiple] = useState(false)
 
   return (

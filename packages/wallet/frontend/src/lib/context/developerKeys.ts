@@ -1,8 +1,14 @@
 import { createContext, useContext } from 'react'
 
 type DeveloperKeysContextProps = {
-  selectedDevKeys: string[]
-  setSelectedDevKeys: (keyIds: string[]) => void
+  selectedDevKeys: {
+    accountId: string
+    walletAddressId: string
+    keyId: string
+  }[]
+  setSelectedDevKeys: (
+    devKeys: { accountId: string; walletAddressId: string; keyId: string }[]
+  ) => void
   revokeMultiple: boolean
   setRevokeMultiple: (showCheckBoxes: boolean) => void
 }

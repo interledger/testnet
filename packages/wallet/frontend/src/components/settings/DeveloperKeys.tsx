@@ -74,9 +74,43 @@ type DeveloperKeysProps = {
 }
 
 export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
-  const { revokeMultiple, setRevokeMultiple, setSelectedDevKeys } =
-    useDeveloperKeysContext()
+  const {
+    revokeMultiple,
+    setRevokeMultiple,
+    selectedDevKeys,
+    setSelectedDevKeys
+  } = useDeveloperKeysContext()
   const [isSelectedAll, setIsSelectedAll] = useState(false)
+  const [openDialog, closeDialog] = useDialog()
+  const router = useRouter()
+
+  async function revokeKeys() {
+    const response = await walletAddressService.revokeKeys(selectedDevKeys)
+
+    if (!response.success) {
+      openDialog(
+        <ErrorDialog
+          onClose={() => {
+            closeDialog()
+          }}
+          content={response.message}
+        />
+      )
+      return
+    }
+
+    openDialog(
+      <SuccessDialog
+        title="Success"
+        onClose={() => {
+          closeDialog()
+          router.replace(router.asPath)
+        }}
+        content={response.message}
+      />
+    )
+  }
+
   return (
     <>
       <div className="mb-4 flex justify-center">
@@ -110,11 +144,19 @@ export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
                   size="sm"
                   aria-label="select all"
                   onClick={() => {
-                    const allDevKeys: string[] = []
+                    const allDevKeys: {
+                      accountId: string
+                      walletAddressId: string
+                      keyId: string
+                    }[] = []
                     accounts.forEach((account) => {
                       account.walletAddresses.forEach((walletAddress) => {
                         walletAddress.keys.forEach((devKey) => {
-                          allDevKeys.push(devKey.id)
+                          allDevKeys.push({
+                            accountId: account.id,
+                            walletAddressId: walletAddress.id,
+                            keyId: devKey.id
+                          })
                         })
                       })
                     })
@@ -141,7 +183,16 @@ export const DeveloperKeys = ({ accounts }: DeveloperKeysProps) => {
                 intent="danger"
                 size="sm"
                 aria-label="revoke multiple"
-                onClick={() => setRevokeMultiple(!revokeMultiple)}
+                onClick={() => {
+                  setRevokeMultiple(!revokeMultiple)
+                  openDialog(
+                    <ConfirmationDialog
+                      confirmText="Revoke keys"
+                      onConfirm={() => revokeKeys()}
+                      onClose={closeDialog}
+                    />
+                  )
+                }}
               >
                 Revoke Developer Keys
               </Button>
@@ -471,16 +522,27 @@ const WalletAddressKeyInfo = ({
             <Checkbox
               label
               className="h-5 w-5 mt-3 accent-green-modal"
-              checked={selectedDevKeys.includes(keyInfo.id)}
+              checked={selectedDevKeys.some(
+                (devKey) => devKey.keyId === keyInfo.id
+              )}
               onChange={(event) => {
                 if (
                   event.target.checked &&
-                  !selectedDevKeys.includes(keyInfo.id)
+                  !selectedDevKeys.some((devKey) => devKey.keyId === keyInfo.id)
                 ) {
-                  setSelectedDevKeys([...selectedDevKeys, keyInfo.id])
+                  setSelectedDevKeys([
+                    ...selectedDevKeys,
+                    {
+                      accountId: walletAddress.accountId,
+                      walletAddressId: walletAddress.id,
+                      keyId: keyInfo.id
+                    }
+                  ])
                 } else if (!event.target.checked) {
                   setSelectedDevKeys(
-                    selectedDevKeys.filter((devKey) => devKey !== keyInfo.id)
+                    selectedDevKeys.filter(
+                      (devKey) => devKey.keyId !== keyInfo.id
+                    )
                   )
                 }
               }}
