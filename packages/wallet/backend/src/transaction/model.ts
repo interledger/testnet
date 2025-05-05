@@ -5,6 +5,7 @@ import { BaseModel } from '@shared/backend'
 import { TransactionResponse } from '@wallet/shared'
 
 export type TransactionType = 'INCOMING' | 'OUTGOING'
+export type TransactionSource = 'Interledger' | 'Stripe' | 'Card'
 export type TransactionExtended = Transaction & {
   walletAddressUrl: WalletAddress['url']
   accountName: Account['name']
@@ -31,7 +32,7 @@ export class Transaction
   assetCode!: string
   value!: bigint | null
   walletAddress!: WalletAddress
-  isCard?: boolean
+  source!: TransactionSource
   txAmount?: bigint
   txCurrency?: string
   conversionRate?: string

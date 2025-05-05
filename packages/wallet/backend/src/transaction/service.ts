@@ -1,4 +1,4 @@
-import { Transaction } from './model'
+import { Transaction, TransactionSource } from './model'
 import { OrderByDirection, Page, PartialModelObject } from 'objection'
 import { AccountService } from '@/account/service'
 import { Logger } from 'winston'
@@ -122,7 +122,7 @@ export class TransactionService implements ITransactionService {
     }
 
     const latestTransaction: Transaction | undefined = await Transaction.query()
-      .findOne({ accountId: account.id, isCard: true })
+      .findOne({ accountId: account.id, source: 'Card' })
       .orderBy('createdAt', 'DESC')
 
     const walletAddress = await WalletAddress.query().findOne({
@@ -171,7 +171,7 @@ export class TransactionService implements ITransactionService {
           type: 'OUTGOING',
           status: 'COMPLETED',
           description: '',
-          isCard: true,
+          source: 'Card' as TransactionSource,
           secondParty: transaction.merchantName,
           txAmount: transaction.transactionAmount
             ? transformBalance(Number(transaction.transactionAmount), 2)
@@ -229,7 +229,8 @@ export class TransactionService implements ITransactionService {
       value: amount.value,
       type: 'INCOMING',
       status: 'PENDING',
-      description: params.metadata?.description
+      description: params.metadata?.description,
+      source: 'Interledger'
     })
   }
 
@@ -256,7 +257,8 @@ export class TransactionService implements ITransactionService {
       status: 'PENDING',
       description: params.metadata?.description,
       secondParty: secondParty?.names,
-      secondPartyWA: secondParty?.walletAddresses
+      secondPartyWA: secondParty?.walletAddresses,
+      source: 'Interledger'
     })
   }
 }
