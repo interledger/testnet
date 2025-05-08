@@ -63,6 +63,7 @@ describe('Wallet Address Keys Controller', () => {
   const createMockWalletAddressKeyControllerDeps = () => {
     walletAddressKeyServiceMock = {
       revokeKey: () => Promise.resolve(),
+      batchRevokeKeys: () => Promise.resolve(),
       uploadKey: () => Promise.resolve(),
       patch: () => Promise.resolve(),
       registerKey: () => Promise.resolve(keyResponse),
@@ -246,6 +247,30 @@ describe('Wallet Address Keys Controller', () => {
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'Public key was successfully revoked.'
+      })
+    })
+  })
+
+  describe('Batch revoke keys', () => {
+    it('should call batchRevokeKeys', async () => {
+      const spy = jest.spyOn(walletAddressKeyServiceMock, 'batchRevokeKeys')
+      const keys = [
+        {
+          accountId: faker.string.uuid(),
+          walletAddressId: faker.string.uuid(),
+          keyId: faker.string.uuid()
+        }
+      ]
+      req.body = {
+        keys
+      }
+
+      await walletAddressKeyController.batchRevokeKeys(req, res, next)
+      expect(spy).toHaveBeenCalledWith(userId, keys)
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        success: true,
+        message: 'Public keys were successfully revoked.'
       })
     })
   })

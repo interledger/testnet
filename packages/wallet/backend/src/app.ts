@@ -277,6 +277,12 @@ export class App {
       walletAddressKeyController.patchKey
     )
 
+    router.post(
+      '/revoke-keys',
+      isAuth,
+      walletAddressKeyController.batchRevokeKeys
+    )
+
     router.get(
       '/accounts/:accountId/wallet-addresses/:walletAddressId/keys',
       isAuth,

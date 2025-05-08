@@ -4,6 +4,7 @@ import { OnboardingProvider } from './OnboardingProvider'
 import { PasswordProvider } from './PasswordProvider'
 import { MenuProvider } from './MenuProvider'
 import { RefundProvider } from './RefundProvider'
+import { DeveloperKeysProvider } from './DeveloperKeysProvider'
 
 type AppProviderProps = {
   children: ReactNode
@@ -15,7 +16,9 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       <OnboardingProvider>
         <RefundProvider>
           <PasswordProvider>
-            <DialogProvider>{children}</DialogProvider>
+            <DeveloperKeysProvider>
+              <DialogProvider>{children}</DialogProvider>
+            </DeveloperKeysProvider>
           </PasswordProvider>
         </RefundProvider>
       </OnboardingProvider>

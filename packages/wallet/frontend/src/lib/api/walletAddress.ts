@@ -113,6 +113,7 @@ interface WalletAddressService {
   generateKey: (args: GenerateKeyArgs) => Promise<GenerateKeyResponse>
   uploadKey: (args: UploadKeyArgs) => Promise<UploadKeyResponse>
   revokeKey: (args: RevokeKeyArgs) => Promise<RevokeKeyResponse>
+  revokeKeys: (args: RevokeKeyArgs[]) => Promise<RevokeKeyResponse>
   getExternal: (url: string) => Promise<AssetCodeResponse>
 }
 
@@ -274,6 +275,24 @@ const createWalletAddressService = (): WalletAddressService => ({
       return getError(
         error,
         'We were not able to revoke the key. Please try again.'
+      )
+    }
+  },
+
+  async revokeKeys(args) {
+    try {
+      const response = await httpClient
+        .post(`revoke-keys`, {
+          json: {
+            keys: args
+          }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'We were not able to revoke the developer keys. Please try again.'
       )
     }
   },

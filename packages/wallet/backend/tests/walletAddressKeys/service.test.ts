@@ -187,6 +187,37 @@ describe('Wallet Address Key Service', () => {
     })
   })
 
+  describe('Batch revoke keys', () => {
+    let newKey: WalletAddressKeys | undefined
+
+    beforeEach(async () => {
+      const nickname = faker.lorem.word()
+      await walletAddressKeyService.registerKey({
+        userId,
+        accountId: walletAddress.accountId,
+        walletAddressId: walletAddress.id,
+        nickname
+      })
+
+      newKey = await WalletAddressKeys.query().first()
+    })
+
+    it('should delete key', async () => {
+      const spy = jest.spyOn(rafikiClientMock, 'revokeWalletAddressKey')
+
+      await walletAddressKeyService.batchRevokeKeys(userId, [
+        {
+          accountId: walletAddress.accountId,
+          walletAddressId: walletAddress.id,
+          keyId: newKey?.id ?? ''
+        }
+      ])
+      const key = await WalletAddressKeys.query().first()
+      expect(key).toBeUndefined()
+      expect(spy).toHaveBeenCalledWith(newKey?.rafikiId)
+    })
+  })
+
   describe('Patch key', () => {
     let newKey: WalletAddressKeys | undefined
 
