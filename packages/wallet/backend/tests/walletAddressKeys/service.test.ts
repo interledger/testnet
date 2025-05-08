@@ -187,7 +187,7 @@ describe('Wallet Address Key Service', () => {
     })
   })
 
-  describe('Barch revoke keys', () => {
+  describe('Batch revoke keys', () => {
     let newKey: WalletAddressKeys | undefined
 
     beforeEach(async () => {
