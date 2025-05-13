@@ -9,7 +9,7 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@google-cloud/logging-winston": "^6.0.0",
+    "@google-cloud/logging-winston": "^6.0.1",
     "@sendgrid/mail": "^8.1.4",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
