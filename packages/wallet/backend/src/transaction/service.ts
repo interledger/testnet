@@ -145,13 +145,6 @@ export class TransactionService implements ITransactionService {
         page
       )
 
-      this.logger.info(
-        `Fetched ${transactionsResponse.data.length} transactions for card ${account.cardId}`
-      )
-      this.logger.info(
-        `Transactions: ${JSON.stringify(transactionsResponse.data, undefined, 2)}`
-      )
-
       const newTransactions = transactionsResponse.data.filter(
         (transaction) =>
           transaction.transactionClassification !== 'Advice' &&
