@@ -154,8 +154,9 @@ export class TransactionService implements ITransactionService {
 
       const newTransactions = transactionsResponse.data.filter(
         (transaction) =>
-          !latestTransaction ||
-          latestTransaction.createdAt.toISOString() <= transaction.createdAt
+          transaction.transactionClassification !== 'Advice' &&
+          (!latestTransaction ||
+            latestTransaction.createdAt.toISOString() < transaction.createdAt)
       )
 
       if (newTransactions.length === 0) {

@@ -55,6 +55,7 @@ export interface ICardTransaction {
   mastercardConversion?: {
     convRate?: string
   }
+  transactionClassification?: 'Advice'
 }
 
 export interface IPagination {
