@@ -204,18 +204,21 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     } else {
       const walletAddressAssetCodeResponse =
         await walletAddressService.getExternal(url)
-
       if (
         !walletAddressAssetCodeResponse.success ||
         !walletAddressAssetCodeResponse.result
       ) {
+        sendForm.setError('receiver', {
+          message: 'Please check that the Wallet Address is correct'
+        })
         setReceiverAssetCode(null)
         return
+      } else {
+        sendForm.clearErrors('receiver')
+        setReceiverPublicName(walletAddressAssetCodeResponse.result.publicName)
+        setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
+        setReadOnlyNotes(false)
       }
-
-      setReceiverPublicName(walletAddressAssetCodeResponse.result.publicName)
-      setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
-      setReadOnlyNotes(false)
     }
 
     if (isToggleDisabled) {
