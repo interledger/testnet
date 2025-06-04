@@ -51,23 +51,24 @@ export class QuoteService implements IQuoteService {
       params.userId
     )
 
-    const account = await this.accountService.getAccountById(
-      params.userId,
-      existingWalletAddress.accountId
-    )
-    const balance = account.balance
-
-    if (Number(balance) < params.amount) {
-      throw new BadRequest('Not enough funds in account')
-    }
-
     let asset: Pick<Asset, 'scale' | 'code'> | undefined =
       await this.rafikiClient.getAssetById(assetId)
     if (!asset) {
       throw new NotFound()
     }
 
+    const account = await this.accountService.getAccountById(
+      params.userId,
+      existingWalletAddress.accountId
+    )
+    const balance = account.balance
+
     const originalValue = BigInt((params.amount * 10 ** asset.scale).toFixed())
+
+    if (Number(balance) < originalValue) {
+      throw new BadRequest('Not enough funds in account')
+    }
+
     let value = originalValue
 
     let paymentUrl = params.receiver
