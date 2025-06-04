@@ -46,7 +46,7 @@
     "@graphql-codegen/cli": "^5.0.5",
     "@graphql-codegen/typescript": "^4.1.6",
     "@graphql-codegen/typescript-operations": "^4.6.0",
-    "@types/cors": "^2.8.17",
+    "@types/cors": "^2.8.18",
     "@types/crypto-js": "^4.2.2",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
