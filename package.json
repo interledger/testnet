@@ -52,7 +52,7 @@
     "nodemon": "^3.1.10",
     "only-allow": "^1.2.1",
     "prettier": "^3.5.3",
-    "prettier-plugin-tailwindcss": "^0.6.11",
+    "prettier-plugin-tailwindcss": "^0.6.12",
     "typescript": "^5.8.2"
   },
   "engines": {
