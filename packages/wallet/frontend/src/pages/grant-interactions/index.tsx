@@ -167,7 +167,7 @@ export const getServerSideProps: GetServerSideProps<{
       return {
         redirect: {
           permanent: false,
-          destination: '/no-access'
+          destination: `/no-access?interactionId=${result.data.interactId}&nonce=${result.data.nonce}`
         }
       }
     }

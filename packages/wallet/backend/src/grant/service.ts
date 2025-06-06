@@ -41,6 +41,12 @@ export class GrantService implements IGrantService {
     const url = grant.access.find(({ identifier }) => identifier)?.identifier
 
     if (!url || !(await this.walletAddressService.belongsToUser(userId, url))) {
+      // reject the grant if the user does not have access
+      await this.rafikiAuthService.setInteractionResponse(
+        interactionId,
+        nonce,
+        'reject'
+      )
       throw new Forbidden('NO_ACCESS')
     }
 
