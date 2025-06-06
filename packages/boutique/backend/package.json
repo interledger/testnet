@@ -8,7 +8,7 @@
     "test": "pnpm build:deps && NODE_OPTIONS='--experimental-vm-modules' jest --passWithNoTests --maxWorkers=2"
   },
   "dependencies": {
-    "@google-cloud/logging-winston": "^6.0.0",
+    "@google-cloud/logging-winston": "^6.0.1",
     "@interledger/open-payments": "^6.13.2",
     "@shared/backend": "workspace:*",
     "@boutique/shared": "workspace:*",
