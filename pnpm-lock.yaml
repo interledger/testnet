@@ -361,8 +361,8 @@ importers:
         specifier: ^4.8.1
         version: 4.8.1
       stripe:
-        specifier: 17.4.0
-        version: 17.4.0
+        specifier: 18.3.0
+        version: 18.3.0(@types/node@20.17.30)
       uuid:
         specifier: ^10.0.0
         version: 10.0.0
@@ -6048,9 +6048,14 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  stripe@17.4.0:
-    resolution: {integrity: sha512-sQQGZguPxe7/QYXJKtDpfzT2OAH9F8nyE2SOsVdTU793iiU33/dpaKgWaJEGJm8396Yy/6NvTLblgdHlueGLhA==}
+  stripe@18.3.0:
+    resolution: {integrity: sha512-FkxrTUUcWB4CVN2yzgsfF/YHD6WgYHduaa7VmokCy5TLCgl5UNJkwortxcedrxSavQ8Qfa4Ir4JxcbIYiBsyLg==}
     engines: {node: '>=12.*'}
+    peerDependencies:
+      '@types/node': '>=12.x.x'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   structured-headers@0.5.0:
     resolution: {integrity: sha512-oLnmXSsjhud+LxRJpvokwP8ImEB2wTg8sg30buwfVViKMuluTv3BlOJHUX9VW9pJ2nQOxmx87Z0kB86O4cphag==}
@@ -13152,10 +13157,11 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  stripe@17.4.0:
+  stripe@18.3.0(@types/node@20.17.30):
     dependencies:
-      '@types/node': 20.17.30
       qs: 6.13.0
+    optionalDependencies:
+      '@types/node': 20.17.30
 
   structured-headers@0.5.0: {}
 
