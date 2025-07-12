@@ -114,7 +114,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.1.2-beta
+    image: ghcr.io/interledger/rafiki-auth:v1.2.0-beta
     restart: always
     networks:
       - testnet
