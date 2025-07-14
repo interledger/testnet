@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
-    "@sendgrid/mail": "^8.1.4",
+    "@sendgrid/mail": "^8.1.5",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
     "awilix": "^12.0.4",
