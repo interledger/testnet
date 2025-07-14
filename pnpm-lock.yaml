@@ -227,7 +227,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.19
         version: 5.4.19(@types/node@22.13.17)
 
   packages/boutique/shared:
