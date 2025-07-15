@@ -172,8 +172,8 @@ describe('Wallet Address Service', () => {
           walletAddressName: 'my-work',
           publicName: 'My Work'
         })
-      ).rejects.toThrowError(
-        /This payment pointer already exists. Please choose another name./
+      ).rejects.toThrow(
+        /This wallet address already exists. Please choose another name./
       )
     })
   })

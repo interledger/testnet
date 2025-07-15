@@ -112,7 +112,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again."
+          content="Could not load wallet addresses. Please try again."
         />
       )
       return
@@ -337,13 +337,13 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             render={({ field: { value } }) => (
               <Select<SelectOption>
                 required
-                label="Payment pointer"
+                label="Wallet address"
                 options={walletAddresses}
                 aria-invalid={
                   sendForm.formState.errors.walletAddressId ? 'true' : 'false'
                 }
                 error={sendForm.formState.errors.walletAddressId?.message}
-                placeholder="Select payment pointer..."
+                placeholder="Select wallet address..."
                 value={value}
                 id="selectWalletAddress"
                 onMenuOpen={() => {
@@ -377,7 +377,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 <DebouncedInput
                   required
                   error={sendForm.formState.errors.receiver?.message}
-                  label="Payment pointer or Incoming payment URL"
+                  label="Wallet address or Incoming payment URL"
                   value={value}
                   id="addRecipientWalletAddress"
                   onChange={onWalletAddressChange}

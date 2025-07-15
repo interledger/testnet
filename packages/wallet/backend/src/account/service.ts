@@ -292,7 +292,7 @@ export class AccountService implements IAccountService {
 
     if (!account?.gateHubWalletId || !account.user?.gateHubUserId) {
       throw new BadRequest(
-        'No account associated to the provided payment pointer'
+        'No account associated to the provided wallet address'
       )
     }
 

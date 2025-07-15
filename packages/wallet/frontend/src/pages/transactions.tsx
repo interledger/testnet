@@ -179,8 +179,8 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                     (pp) => pp.accountId === currentAccount.value
                   )
             }
-            label="Payment Pointer"
-            placeholder="Select payment pointer..."
+            label="Wallet Address"
+            placeholder="Select wallet address..."
             value={
               currentWalletAddress.accountId !== currentAccount.value &&
               currentAccount.value !== ''
@@ -280,7 +280,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               'Details',
               'Amount',
               'Status',
-              'Payment Pointer name'
+              'Wallet Address name'
             ]}
             sort={[
               {
@@ -295,7 +295,7 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
                 }
               }
             ]}
-            hideForMobile={['Status', 'Payment Pointer name']}
+            hideForMobile={['Status', 'Wallet Address name']}
           />
           <Table.Body>
             {transactions.results.length ? (

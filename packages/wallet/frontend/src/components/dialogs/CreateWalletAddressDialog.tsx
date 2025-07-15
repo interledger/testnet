@@ -65,7 +65,8 @@ export const CreateWalletAddressDialog = ({
             >
               <DialogPanel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <DialogTitle as="h3" className="text-center text-2xl font-bold">
-                  Create Payment Pointer
+                  Create Wallet Address{' '}
+                  <div className="text-sm">(Payment Pointer)</div>
                 </DialogTitle>
                 <Form
                   form={createWalletAddressForm}
@@ -108,7 +109,7 @@ export const CreateWalletAddressDialog = ({
                     <Input
                       addOn={OPEN_PAYMENTS_HOST}
                       required
-                      label="Payment Pointer name"
+                      label="Wallet Address name"
                       error={
                         createWalletAddressForm.formState?.errors
                           ?.walletAddressName?.message

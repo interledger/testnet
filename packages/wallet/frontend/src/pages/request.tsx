@@ -100,7 +100,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
       openDialog(
         <ErrorDialog
           onClose={closeDialog}
-          content="Could not load payment pointers. Please try again."
+          content="Could not load wallet addresses. Please try again."
         />
       )
       return
@@ -193,7 +193,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               render={({ field: { value } }) => (
                 <Select<SelectOption>
                   required
-                  label="Payment pointer"
+                  label="`Wallet address"
                   options={walletAddresses}
                   aria-invalid={
                     requestForm.formState.errors.walletAddressId
@@ -201,7 +201,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                       : 'false'
                   }
                   error={requestForm.formState.errors.walletAddressId?.message}
-                  placeholder="Select payment pointer..."
+                  placeholder="Select wallet address..."
                   value={value}
                   id="selectWalletAddressRequest"
                   onMenuOpen={() => {
