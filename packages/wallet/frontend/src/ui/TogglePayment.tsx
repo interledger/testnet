@@ -1,6 +1,6 @@
 import { Info } from '@/components/icons/Info'
 import { PAYMENT_RECEIVE, PAYMENT_SEND } from '@/utils/constants'
-import { Switch } from '@headlessui/react'
+import { Field, Label, Switch } from '@headlessui/react'
 import { cx } from 'class-variance-authority'
 import { useState, useEffect } from 'react'
 import {
@@ -44,9 +44,9 @@ export const TogglePayment = ({
   }
 
   return (
-    <Switch.Group>
+    <Field>
       <div className="flex items-center justify-end">
-        <Switch.Label
+        <Label
           className={cx(
             'pr-1',
             disabled
@@ -55,7 +55,7 @@ export const TogglePayment = ({
           )}
         >
           {PAYMENT_SEND}
-        </Switch.Label>
+        </Label>
         <Switch
           id="sendReceive"
           checked={enabled || disabled}
@@ -73,7 +73,7 @@ export const TogglePayment = ({
             )}
           />
         </Switch>
-        <Switch.Label
+        <Label
           className={cx(
             'pl-1',
             disabled
@@ -82,7 +82,7 @@ export const TogglePayment = ({
           )}
         >
           {PAYMENT_RECEIVE}
-        </Switch.Label>
+        </Label>
         <TooltipProvider delayDuration={100}>
           <Tooltip>
             <TooltipTrigger>
@@ -102,6 +102,6 @@ export const TogglePayment = ({
           </Tooltip>
         </TooltipProvider>
       </div>
-    </Switch.Group>
+    </Field>
   )
 }

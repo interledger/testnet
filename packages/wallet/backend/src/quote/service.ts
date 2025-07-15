@@ -131,7 +131,9 @@ export class QuoteService implements IQuoteService {
         },
         walletAddressUrl: params.receiver,
         description: params.description,
-        expiresAt: new Date(Date.now() + 1000 * 15)
+        expiresAt: params.isReceive
+          ? undefined
+          : new Date(Date.now() + 1000 * 15)
       })
     }
 
