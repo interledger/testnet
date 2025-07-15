@@ -82,7 +82,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
-      paymentType: PAYMENT_SEND,
+      paymentType: PAYMENT_RECEIVE,
       receiver: isUserFirstTime ? INTERLEDGER_WALLET_ADDRESS : ''
     }
   })
@@ -401,7 +401,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             labelHint={
               <Controller
                 name="paymentType"
-                defaultValue={PAYMENT_SEND}
+                defaultValue={PAYMENT_RECEIVE}
                 control={sendForm.control}
                 render={({ field: { onChange, value } }) => {
                   return (
