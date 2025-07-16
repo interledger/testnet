@@ -52,7 +52,7 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
           </div>
           {accessDetails.identifier ? (
             <div>
-              <span>Access to your payment pointer: </span>
+              <span>Access to your wallet address: </span>
               <span className="font-light">{accessDetails.identifier}</span>
             </div>
           ) : null}
@@ -84,14 +84,6 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
                   <span>Amount to receive: </span>
                   <span className="font-light">
                     {accessDetails.limits.receiveAmount.formattedAmount}
-                  </span>
-                </div>
-              ) : null}
-              {accessDetails.limits.receiver ? (
-                <div>
-                  <span>Payment Pointer of the receiver: </span>
-                  <span className="font-light">
-                    {accessDetails.limits.receiver}
                   </span>
                 </div>
               ) : null}

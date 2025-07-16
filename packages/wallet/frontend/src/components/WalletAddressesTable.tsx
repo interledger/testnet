@@ -68,7 +68,7 @@ const DeleteWalletAddress = () => {
       onClick={() =>
         openDialog(
           <ConfirmationDialog
-            confirmText="Delete payment pointer"
+            confirmText="Delete wallet address"
             onConfirm={() => handleDeleteConfirmation(walletAddress.id)}
             onClose={closeDialog}
           />
@@ -86,7 +86,7 @@ const EditWalletAddress = () => {
 
   return (
     <Link
-      aria-label="Edit payment pointer"
+      aria-label="edit payment pointer"
       onClick={() =>
         openDialog(
           <EditWalletAddressDialog

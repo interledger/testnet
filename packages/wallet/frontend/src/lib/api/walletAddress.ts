@@ -10,18 +10,18 @@ import { WalletAddressResponse, WalletAddressOP } from '@wallet/shared'
 export const createWalletAddressSchema = z.object({
   walletAddressName: z.string().toLowerCase().min(3, {
     message:
-      'The name of the payment pointer should be at least 3 characters long'
+      'The name of the wallet address should be at least 3 characters long'
   }),
   publicName: z.string().min(3, {
     message:
-      'The public name of the payment pointer should be at least 3 characters long'
+      'The public name of the wallet address should be at least 3 characters long'
   })
 })
 
 export const updateWalletAddressSchema = z.object({
   publicName: z.string().min(3, {
     message:
-      'The public name of the payment pointer should be at least 3 characters long'
+      'The public name of the wallet address should be at least 3 characters long'
   })
 })
 
@@ -134,7 +134,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     } catch (error) {
       return getError(
         error,
-        'We were not able to fetch information about the payment pointer. Please try again.'
+        'We were not able to fetch information about the wallet address. Please try again.'
       )
     }
   },
@@ -150,7 +150,7 @@ const createWalletAddressService = (): WalletAddressService => ({
         .json<ListWalletAddressResult>()
       return response
     } catch (error) {
-      return getError(error, 'Unable to fetch payment pointers.')
+      return getError(error, 'Unable to fetch wallet addresses.')
     }
   },
 
@@ -165,7 +165,7 @@ const createWalletAddressService = (): WalletAddressService => ({
         .json<ListAllWalletAddressResponse>()
       return response
     } catch (error) {
-      return getError(error, 'Unable to fetch payment pointers.')
+      return getError(error, 'Unable to fetch wallet addresses.')
     }
   },
 
@@ -180,7 +180,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     } catch (error) {
       return getError<CreateWalletAddressArgs>(
         error,
-        'We were not able to create your payment pointer. Please try again.'
+        'We were not able to create your wallet address. Please try again.'
       )
     }
   },
@@ -201,7 +201,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     } catch (error) {
       return getError<UpdateWalletAddressArgs>(
         error,
-        'We were not able to update your payment pointer. Please try again.'
+        'We were not able to update your wallet address. Please try again.'
       )
     }
   },
@@ -215,7 +215,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     } catch (error) {
       return getError(
         error,
-        'We were not able to delete your payment pointer. Please try again.'
+        'We were not able to delete your wallet address. Please try again.'
       )
     }
   },
@@ -236,7 +236,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     } catch (error) {
       return getError(
         error,
-        'We were not able to generate a key for your payment pointer. Please try again.'
+        'We were not able to generate a key for your wallet address. Please try again.'
       )
     }
   },
@@ -258,7 +258,7 @@ const createWalletAddressService = (): WalletAddressService => ({
     } catch (error) {
       return getError(
         error,
-        'We were not able to upload the provided JWK for the payment pointer. Please try again.'
+        'We were not able to upload the provided JWK for the wallet address. Please try again.'
       )
     }
   },
@@ -304,7 +304,7 @@ const createWalletAddressService = (): WalletAddressService => ({
         .json<AssetCodeResult>()
       return response
     } catch (error) {
-      return getError(error, 'Error fetching external payment pointer details.')
+      return getError(error, 'Error fetching external wallet address details.')
     }
   }
 })

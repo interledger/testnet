@@ -62,7 +62,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 4
     target: '#walletAddress',
-    content: `In order to send and receive money, all accounts need at least one payment pointer, so let's add a payment pointer to your account.`,
+    content: `In order to send and receive money, all accounts need at least one wallet address (payment pointer), so let's add a wallet address to your account.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: New
@@ -87,7 +87,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 7
     target: '#send',
     content:
-      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
+      'Now that you have created your account and added a wallet address (payment pointer), we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Send
@@ -96,7 +96,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 8
     target: '#mobile_send',
     content:
-      'Now that you have created your account and added a payment pointer, we can start making your first Interledger transaction.',
+      'Now that you have created your account and added a wallet address (payment pointer), we can start making your first Interledger transaction.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Send
@@ -114,7 +114,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 10
     target: '#selectWalletAddress',
     content:
-      'Select a payment pointer from the above accounts list of payment pointers.',
+      'Select a wallet address (payment pointer) from the above accounts list of wallet addresses.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Pointer
@@ -123,7 +123,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 11
     target: '#addRecipientWalletAddress',
     content:
-      'For your first transaction, we already added a recipient payment pointer. For your future transactions here you can add the recipients payment pointer, or a received incoming payment URL.',
+      'For your first transaction, we already added a recipient wallet address (payment pointer). For your future transactions you can add the recipients wallet address, or a received incoming payment URL.',
     disableOverlayClose: true,
     Icon: Pointer
   },
@@ -188,7 +188,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
     // 19
     target: '#selectWalletAddressRequest',
     content:
-      'Select a payment pointer from the above accounts list of payment pointers.',
+      'Select a wallet address (payment pointer) from the above accounts list of wallet addresses.',
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Pointer
@@ -238,7 +238,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 25
     target: 'body',
-    content: `Here you can see the transaction list for this payment pointer. Now you are familiar with the basics of Test Wallet. Continue to play around.`,
+    content: `Here you can see the transaction list for this wallet address (payment pointer). Now you are familiar with the basics of Test Wallet. Continue to play around.`,
     disableOverlayClose: true,
     placement: 'center',
     Icon: HomeRooftop
@@ -268,7 +268,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 27
     target: '#accountsList',
-    content: `On this page you have a list of all your accounts. Expand an account to see all your payment pointers and the developer keys.`,
+    content: `On this page you have a list of all your accounts. Expand an account to see all your wallet addresses (payment pointers) and the developer keys.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Pointer
@@ -276,7 +276,7 @@ export const ONBOARDING_STEPS: StepWithIcon[] = [
   {
     // 28
     target: '#generateKey',
-    content: `You can generate or upload as many keys as you want for a payment pointer. Let's generate a set of keys for this one.`,
+    content: `You can generate or upload as many keys as you want for a wallet address (payment pointer). Let's generate a set of keys for this one.`,
     disableOverlayClose: true,
     spotlightClicks: true,
     Icon: Key

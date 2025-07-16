@@ -70,7 +70,8 @@ export const EditWalletAddressDialog = ({
                   as="h3"
                   className="text-center text-2xl font-medium"
                 >
-                  Edit Payment Pointer
+                  Edit Wallet Address{' '}
+                  <div className="text-sm">(Payment Pointer)</div>
                 </DialogTitle>
 
                 <div className="px-4">
@@ -114,7 +115,7 @@ export const EditWalletAddressDialog = ({
                       disabled
                       readOnly
                       value={walletAddress.url.split('/')[1]}
-                      label="Payment Pointer name"
+                      label="Wallet Address name"
                     />
                     <Input
                       required

@@ -133,7 +133,7 @@ export class WalletAddressController implements IWalletAddressController {
         .json(
           toSuccessResponse(
             undefined,
-            'Payment pointer was successfully deleted'
+            'Wallet Address was successfully deleted'
           )
         )
     } catch (e) {
@@ -161,7 +161,7 @@ export class WalletAddressController implements IWalletAddressController {
         .json(
           toSuccessResponse(
             undefined,
-            'Payment pointer was successfully updated.'
+            'Wallet address was successfully updated.'
           )
         )
     } catch (e) {

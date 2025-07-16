@@ -95,7 +95,7 @@ To enable rate limiter on the wallet for security purposes you can set these env
 Cross-currency transactions are supported. To enable this functionality, you will need to register at [freecurrencyapi.com/](https://freecurrencyapi.com/) and update the `RATE_API_KEY` environment variable with your own API key.
 Currencies can be added in the `admin` environment. For example `assetCode` is `EUR`, `assetScale` is `2`, and you will need to add an amount to `liquidity`.
 
-If you would like to set up e-commerce application, you will need to create a USD payment pointer, then generate public and private key for the payment pointer in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the payment pointer key id and `PAYMENT_POINTER` to the created payment pointer address.
+If you would like to set up e-commerce application, you will need to create a USD Wallet Address (payment pointer), then generate public and private key for the wallet address in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the wallet address key id and `PAYMENT_POINTER` to the created wallet address (payment pointer) address.
 
 ### Local Playground
 

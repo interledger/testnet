@@ -88,7 +88,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           >
             <New className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
             <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-              Add payment pointer
+              Add wallet address
             </span>
           </button>
           <Link
@@ -140,7 +140,9 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           </div>
         ) : null}
       </div>
-      <h2 className="mb-2 text-2xl font-bold">Payment Pointers</h2>
+      <h2 className="mb-2 text-2xl font-bold">
+        Wallet Address list <div className="text-sm">(Payment Pointers)</div>
+      </h2>
 
       {walletAddresses.length > 0 ? (
         <WalletAddressesTable
@@ -148,8 +150,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           walletAddresses={walletAddresses}
         />
       ) : (
-        <div className="p-4">
-          <span>No payment pointers found for this account.</span>
+        <div className="mt-4 text-sm">
+          No Wallet Addresses (Payment Pointers) found for this account.
         </div>
       )}
     </>

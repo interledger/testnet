@@ -98,7 +98,7 @@ const OpenPaymentsForm = () => {
       className="relative my-5 items-center justify-between border-t border-green dark:border-pink-neon pt-6"
     >
       <InputField
-        label="Payment pointer"
+        label="Wallet Address"
         {...form.register('walletAddressUrl')}
       />
       <PayButton className="mt-5 w-full" />

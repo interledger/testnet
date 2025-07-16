@@ -69,7 +69,7 @@ export const DepositDialog = ({
                   Deposit to Account
                 </DialogTitle>
                 <p className="text-xs text-center">
-                  A small fee will be applied when making a deposit.
+                  A small fee might be applied when making a deposit.
                 </p>
                 <Form
                   form={depositForm}

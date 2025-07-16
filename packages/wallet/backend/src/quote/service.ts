@@ -43,7 +43,7 @@ export class QuoteService implements IQuoteService {
     )
 
     if (!existingWalletAddress || !existingWalletAddress.active) {
-      throw new BadRequest('Invalid payment pointer')
+      throw new BadRequest('Invalid wallet address')
     }
 
     const { assetId, assetCode } = await this.accountService.findAccountById(

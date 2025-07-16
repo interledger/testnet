@@ -98,7 +98,7 @@ export class WalletAddressService implements IWalletAddressService {
         account.userId !== args.userId
       ) {
         throw new Conflict(
-          'This payment pointer already exists. Please choose another name.'
+          'This wallet address already exists. Please choose another name.'
         )
       } else if (
         walletAddress.accountId === args.accountId &&
