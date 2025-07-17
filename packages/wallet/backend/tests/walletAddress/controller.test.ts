@@ -262,7 +262,7 @@ describe('Wallet Address', () => {
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'Wallet address was successfully deleted'
+        message: 'Wallet address was successfully deleted.'
       })
     })
   })
