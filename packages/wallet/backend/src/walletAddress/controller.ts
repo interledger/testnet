@@ -133,7 +133,7 @@ export class WalletAddressController implements IWalletAddressController {
         .json(
           toSuccessResponse(
             undefined,
-            'Wallet Address was successfully deleted'
+            'Wallet address was successfully deleted.'
           )
         )
     } catch (e) {
