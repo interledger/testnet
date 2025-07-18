@@ -75,8 +75,8 @@ importers:
         specifier: workspace:*
         version: link:../../shared/backend
       awilix:
-        specifier: ^12.0.4
-        version: 12.0.4
+        specifier: ^12.0.5
+        version: 12.0.5
       axios:
         specifier: ^1.7.9
         version: 1.8.2
@@ -243,8 +243,8 @@ importers:
   packages/shared/backend:
     dependencies:
       awilix:
-        specifier: ^12.0.4
-        version: 12.0.4
+        specifier: ^12.0.5
+        version: 12.0.5
       axios:
         specifier: ^1.7.9
         version: 1.8.2
@@ -292,8 +292,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
       awilix:
-        specifier: ^12.0.4
-        version: 12.0.4
+        specifier: ^12.0.5
+        version: 12.0.5
       axios:
         specifier: ^1.7.9
         version: 1.8.2
@@ -2840,8 +2840,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  awilix@12.0.4:
-    resolution: {integrity: sha512-P6bd20vqMiUyjgBAVl+4WixM/MR9O9zsTzd9vS5lTd1eLpFEn6Re4+GeeYzDDE8U1DXL8cO/nTOHofKDEJUfAQ==}
+  awilix@12.0.5:
+    resolution: {integrity: sha512-Qf/V/hRo6DK0FoBKJ9QiObasRxHAhcNi0mV6kW2JMawxS3zq6Un+VsZmVAZDUfvB+MjTEiJ2tUJUl4cr0JiUAw==}
     engines: {node: '>=16.3.0'}
 
   axios@1.8.2:
@@ -3773,6 +3773,10 @@ packages:
 
   fast-glob@3.3.2:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
+    engines: {node: '>=8.6.0'}
+
+  fast-glob@3.3.3:
+    resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
 
   fast-json-stable-stringify@2.1.0:
@@ -9360,10 +9364,10 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  awilix@12.0.4:
+  awilix@12.0.5:
     dependencies:
       camel-case: 4.1.2
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
 
   axios@1.8.2:
     dependencies:
@@ -10527,6 +10531,14 @@ snapshots:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.7
+
+  fast-glob@3.3.3:
+    dependencies:
+      '@nodelib/fs.stat': 2.0.5
+      '@nodelib/fs.walk': 1.2.8
+      glob-parent: 5.1.2
+      merge2: 1.4.1
+      micromatch: 4.0.8
 
   fast-json-stable-stringify@2.1.0: {}
 

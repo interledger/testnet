@@ -13,7 +13,7 @@
     "@sendgrid/mail": "^8.1.5",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
-    "awilix": "^12.0.4",
+    "awilix": "^12.0.5",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
