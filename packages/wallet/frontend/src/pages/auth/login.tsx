@@ -16,7 +16,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useEffect, useState } from 'react'
 import { loginSchema } from '@wallet/shared'
-import { THEME } from '@/utils/constants'
+import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 
 const LoginPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
@@ -158,12 +158,14 @@ const LoginPage: NextPageWithLayout = () => {
             />
           </button>
         </Form>
-        <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
-          Not a customer?{' '}
-          <Link href="signup" className="font-medium underline">
-            Create an account
-          </Link>
-        </p>
+        {!FEATURES_ENABLED ? (
+          <p className="mt-auto text-center font-extralight text-green dark:text-green-neon">
+            Not a customer?{' '}
+            <Link href="signup" className="font-medium underline">
+              Create an account
+            </Link>
+          </p>
+        ) : null}
       </div>
       <Image
         className="mt-10 object-cover md:hidden"
