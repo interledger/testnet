@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
-    "@hookform/resolvers": "^3.9.1",
+    "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-toast": "^1.2.14",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@types/node-rsa": "^1.1.4",
