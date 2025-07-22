@@ -120,7 +120,6 @@ pnpm dev:lite #backend containers will build and run the builds, no debug and no
 Upon executing the above command, the following will be available
 
 - Interledger Test Wallet application
-
   - Frontend at [http://localhost:4003](http://localhost:4003)
   - Backend at [http://localhost:3003](http://localhost:3003)
   - Admin at [http://localhost:3012](http://localhost:3012)
