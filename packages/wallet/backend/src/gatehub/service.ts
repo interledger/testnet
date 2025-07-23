@@ -65,7 +65,6 @@ export class GateHubService {
   async handleWebhook(data: IWebhookData) {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
 
-
     const gateHubUserId = data.user_uuid
     const user = await User.query().findOne({ gateHubUserId })
     if (!user) {
