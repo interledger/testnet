@@ -43,7 +43,6 @@ export const getReceiverQuery = gql`
         assetScale
         value
       }
-      updatedAt
     }
   }
 `

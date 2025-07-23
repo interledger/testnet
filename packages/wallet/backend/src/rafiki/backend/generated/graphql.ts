@@ -1328,8 +1328,6 @@ export type Receiver = {
   metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** The total amount that has been paid into the wallet address under this incoming payment. */
   receivedAmount: Amount;
-  /** The date and time that the incoming payment was last updated. */
-  updatedAt: Scalars['String']['output'];
   /** Wallet address URL under which the incoming payment was created. */
   walletAddressUrl: Scalars['String']['output'];
 };
@@ -1747,7 +1745,7 @@ export type GetReceiverQueryVariables = Exact<{
 }>;
 
 
-export type GetReceiverQuery = { __typename?: 'Query', receiver?: { __typename?: 'Receiver', completed: boolean, createdAt: string, expiresAt?: string | null, metadata?: any | null, id: string, walletAddressUrl: string, updatedAt: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null };
+export type GetReceiverQuery = { __typename?: 'Query', receiver?: { __typename?: 'Receiver', completed: boolean, createdAt: string, expiresAt?: string | null, metadata?: any | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null };
 
 export type CreateWalletAddressKeyMutationVariables = Exact<{
   input: CreateWalletAddressKeyInput;
