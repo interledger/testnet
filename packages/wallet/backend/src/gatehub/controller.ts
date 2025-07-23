@@ -87,35 +87,33 @@ export class GateHubController implements IGateHubController {
       // ONLY TEMPORARY - added to forward webhooks to the wallet
       // wallet and cards share the same Gatehub account witch in turn means
       // they share the same webhook -> if no user is found in cards send to wallet
-      await this.sendMessageToWallet(e, req, next)
+      const url = this.env.WALLET_WEBHOOK_FORWARD_URL
+      if (e instanceof NotFound && url) {
+        await this.sendMessageToWallet(req, res, next)
+        return
+      }
       //===================
       next(e)
     }
   }
 
   private async sendMessageToWallet(
-    e: unknown,
     req: Request,
+    res: CustomResponse<IframeResponse>,
     next: NextFunction
   ) {
     const url = this.env.WALLET_WEBHOOK_FORWARD_URL
-    if (!url) {
-      this.logger.warn('No wallet webhook forwarding URL configured')
+    try {
+      await axios.post(url, req.body, {
+        headers: {
+          'x-gh-webhook-signature': req.get('x-gh-webhook-signature'),
+          'x-gh-webhook-timestamp': req.get('x-gh-webhook-timestamp')
+        }
+      })
+      this.logger.info('GateHub webhook forwarded to wallet')
+      res.status(200).json()
+    } catch (error) {
+      next(error)
     }
-    if (e instanceof NotFound && url)
-      try {
-        await axios.post(url, req.body, {
-          headers: {
-            'x-gh-webhook-signature': req.get('x-gh-webhook-signature'),
-            'x-gh-webhook-timestamp': req.get('x-gh-webhook-timestamp')
-          }
-        })
-
-        this.logger.info('GateHub webhook forwarded to wallet')
-        next(e)
-      } catch (e) {
-        this.logger.info('GateHub webhook forwarded to wallet failed')
-        next(e)
-      }
   }
 }
