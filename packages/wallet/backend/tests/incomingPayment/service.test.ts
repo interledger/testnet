@@ -74,7 +74,6 @@ describe('Incoming Payment Service', () => {
             assetScale: 2
           },
           createdAt: faker.date.recent().toISOString(),
-          updatedAt: faker.date.recent().toISOString(),
           metadata: {
             description: 'Fake receiver'
           }
