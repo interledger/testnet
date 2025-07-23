@@ -98,9 +98,7 @@ export class GateHubController implements IGateHubController {
     req: Request,
     next: NextFunction
   ) {
-    const url =
-      this.env.WALLET_WEBHOOK_FORWARD_URL ??
-      'https://interledger.test/webhooks/gatehub'
+    const url = this.env.WALLET_WEBHOOK_FORWARD_URL
     if (!url) {
       this.logger.warn('No wallet webhook forwarding URL configured')
     }
@@ -108,8 +106,8 @@ export class GateHubController implements IGateHubController {
       try {
         await axios.post(url, req.body, {
           headers: {
-            'x-gh-webhook-signature': req.headers['x-gh-webhook-signature'],
-            'x-gh-webhook-timestamp': req.headers['x-gh-webhook-timestamp']
+            'x-gh-webhook-signature': req.get('x-gh-webhook-signature'),
+            'x-gh-webhook-timestamp': req.get('x-gh-webhook-timestamp')
           }
         })
 
