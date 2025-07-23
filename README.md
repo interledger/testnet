@@ -19,19 +19,17 @@ See Test Network in action:
 
 ## What is Rafiki?
 
-[Rafiki](https://github.com/interledger/rafiki) is an open-source package that exposes a comprehensive set of
-Interledger APIs. It's intended to be run by wallet providers, allowing them to
-offer Interledger functionality to their users.
+Rafiki is open source software that provides an efficient solution for an [account servicing entity](https://rafiki.dev/resources/glossary#account-servicing-entity-ase) to enable Interledger functionality on its users' accounts.
 
 ### New to Interledger?
 
 Never heard of Interledger before, or you would like to learn more? Here are some good places to start:
 
-- [Good first issues](https://github.com/interledger/testnet/contribute)
+- [Interledger Website](https://interledger.org/)
+- [Interledger Specs](https://interledger.org/developers/get-started/)
 - [Interledger Explainer Video](https://twitter.com/Interledger/status/1567916000074678272)
-- [Interledger Website](https://interledger.org)
-- [Payment pointers](https://paymentpointers.org/)
-- [Web monetization](https://webmonetization.org/)
+- [Open Payments](https://openpayments.dev/)
+- [Web Monetization](https://webmonetization.org/)
 
 ## Contributing
 
