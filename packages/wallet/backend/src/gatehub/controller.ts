@@ -1,10 +1,7 @@
 import { IFRAME_TYPE, IframeResponse } from '@wallet/shared/src'
-import { Controller, NotFound, toSuccessResponse } from '@shared/backend'
+import { Controller, toSuccessResponse } from '@shared/backend'
 import { NextFunction, Request } from 'express'
 import { GateHubService } from '@/gatehub/service'
-import { Logger } from 'winston'
-import { Env } from '@/config/env'
-import axios from 'axios'
 
 interface IGateHubController {
   getIframeUrl: Controller<IframeResponse>
@@ -12,11 +9,7 @@ interface IGateHubController {
 }
 
 export class GateHubController implements IGateHubController {
-  constructor(
-    private gateHubService: GateHubService,
-    private logger: Logger,
-    private env: Env
-  ) {}
+  constructor(private gateHubService: GateHubService) {}
 
   public getIframeUrl = async (
     req: Request,
@@ -81,39 +74,10 @@ export class GateHubController implements IGateHubController {
       }
 
       await this.gateHubService.handleWebhook(req.body)
+
       res.status(200).json()
     } catch (e) {
-      //==========================
-      // ONLY TEMPORARY - added to forward webhooks to the wallet
-      // wallet and cards share the same Gatehub account witch in turn means
-      // they share the same webhook -> if no user is found in cards send to wallet
-      const url = this.env.WALLET_WEBHOOK_FORWARD_URL
-      if (e instanceof NotFound && url) {
-        await this.sendMessageToWallet(req, res, next)
-        return
-      }
-      //===================
       next(e)
-    }
-  }
-
-  private async sendMessageToWallet(
-    req: Request,
-    res: CustomResponse<IframeResponse>,
-    next: NextFunction
-  ) {
-    const url = this.env.WALLET_WEBHOOK_FORWARD_URL
-    try {
-      await axios.post(url, req.body, {
-        headers: {
-          'x-gh-webhook-signature': req.get('x-gh-webhook-signature'),
-          'x-gh-webhook-timestamp': req.get('x-gh-webhook-timestamp')
-        }
-      })
-      this.logger.info('GateHub webhook forwarded to wallet')
-      res.status(200).json()
-    } catch (error) {
-      next(error)
     }
   }
 }

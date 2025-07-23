@@ -74,7 +74,6 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       USE_STRIPE: ${USE_STRIPE}
-      WALLET_WEBHOOK_FORWARD_URL: ${WALLET_WEBHOOK_FORWARD_URL}
     restart: always
     networks:
       - testnet
