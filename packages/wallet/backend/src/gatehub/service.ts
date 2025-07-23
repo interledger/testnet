@@ -65,19 +65,20 @@ export class GateHubService {
   async handleWebhook(data: IWebhookData) {
     this.logger.debug(`GateHub webhook event received: ${JSON.stringify(data)}`)
 
-    if (data.event_type === 'core.deposit.completed') {
-      const depositData = data.data as IDepositWebhookData
-      if (depositData.deposit_type !== DepositTypeEnum.EXTERNAL) {
-        // skip deposit webhooks processing hosted transactions
-        return
-      }
-    }
 
     const gateHubUserId = data.user_uuid
     const user = await User.query().findOne({ gateHubUserId })
     if (!user) {
       this.logger.error(`User not found ${gateHubUserId}`)
       throw new NotFound('User not found')
+    }
+
+    if (data.event_type === 'core.deposit.completed') {
+      const depositData = data.data as IDepositWebhookData
+      if (depositData.deposit_type !== DepositTypeEnum.EXTERNAL) {
+        // skip deposit webhooks processing hosted transactions
+        return
+      }
     }
 
     switch (data.event_type) {
