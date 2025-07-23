@@ -44,7 +44,6 @@ interface CreateOutgoingPaymentParams {
   finishUrl?: string
   limits: {
     debitAmount: Amount
-    receiveAmount: Amount
     receiver?: string
   }
 }
@@ -132,7 +131,6 @@ export class OpenPayments implements IOpenPayments {
       authServer: customerWalletAddress.authServer,
       limits: {
         debitAmount: quote.debitAmount,
-        receiveAmount: quote.receiveAmount,
         receiver: incomingPayment.id
       },
       nonce: clientNonce
@@ -266,8 +264,7 @@ export class OpenPayments implements IOpenPayments {
       authServer: walletAddress.authServer,
       identifier: clientIdentifer,
       limits: {
-        debitAmount: amountData,
-        receiveAmount: amountData
+        debitAmount: amountData
       },
       finishUrl: `${this.env.FRONTEND_URL}/cart/finish?identifier=${clientIdentifer}`
     })

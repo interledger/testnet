@@ -69,8 +69,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(winston@3.17.0)
       '@interledger/open-payments':
-        specifier: ^6.13.2
-        version: 6.13.2
+        specifier: ^7.0.0
+        version: 7.1.1
       '@shared/backend':
         specifier: workspace:*
         version: link:../../shared/backend
@@ -1586,14 +1586,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@interledger/http-signature-utils@2.0.2':
-    resolution: {integrity: sha512-gTAPFMt7xwG1zv1rbrltcZTAqOw/ZJwkVdnNjQzu5G9JTfvJQzS6pcpiVUej1cblpewotbOzosgdX00f93q9zA==}
+  '@interledger/http-signature-utils@2.0.3':
+    resolution: {integrity: sha512-/vn6+FxZ3g1A5ZC3vOVivjFns5A6F4lhEmdAGg3W9mD2uADXI575rIBcMdqI3wTOJo7qOXRutPXOG/jXONFs/Q==}
 
-  '@interledger/open-payments@6.13.2':
-    resolution: {integrity: sha512-siAnS+Rp+SEZtm+YSWVHWCA4EJB7a6pKBZ9SR61UV1kgrzVzVHAZ8HA0cNTteLEEdFuW1xqVv8zqz27lxdvLgA==}
+  '@interledger/open-payments@7.1.1':
+    resolution: {integrity: sha512-eXZ1tHDGhj2m3Sj4NPKc/p+ZlPtsyRgvdSU0wEm0P7RHBaflufRNvxXwxX7US3uJyJwy90ncVyLZ/VupwrQ1bA==}
 
-  '@interledger/openapi@2.0.2':
-    resolution: {integrity: sha512-HOQnALmRtRkGkh63OnFhoCVsK4BKhQosJyoBCe6Cuu+jp8Oj2fAqTNz8ys+h6s30cJcIpk2UBlsj4wZ3pj26Ug==}
+  '@interledger/openapi@2.0.3':
+    resolution: {integrity: sha512-5wGncgpc/WVHd+RNE9oZHzdNdZK8UjaOqLmMnPm6kyNfXBtcZmDOumE00jEYa4BOXbaIm82qB4zD/dLc46AjRA==}
 
   '@ioredis/commands@1.2.0':
     resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
@@ -4777,10 +4777,6 @@ packages:
 
   kuler@2.0.0:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
-
-  ky@1.7.2:
-    resolution: {integrity: sha512-OzIvbHKKDpi60TnF9t7UUVAF1B4mcqc02z5PIvrm08Wyb+yOcz63GRvEuVxNT18a9E1SrNouhB4W2NNLeD7Ykg==}
-    engines: {node: '>=18'}
 
   ky@1.7.5:
     resolution: {integrity: sha512-HzhziW6sc5m0pwi5M196+7cEBtbt0lCYi67wNsiwMUmz833wloE0gbzJPWKs1gliFKQb34huItDQX97LyOdPdA==}
@@ -8064,26 +8060,26 @@ snapshots:
   '@img/sharp-win32-x64@0.33.5':
     optional: true
 
-  '@interledger/http-signature-utils@2.0.2':
+  '@interledger/http-signature-utils@2.0.3':
     dependencies:
       http-message-signatures: 1.0.4
       httpbis-digest-headers: 1.0.0
       jose: 4.15.9
       uuid: 9.0.1
 
-  '@interledger/open-payments@6.13.2':
+  '@interledger/open-payments@7.1.1':
     dependencies:
-      '@interledger/http-signature-utils': 2.0.2
-      '@interledger/openapi': 2.0.2
+      '@interledger/http-signature-utils': 2.0.3
+      '@interledger/openapi': 2.0.3
       base64url: 3.0.1
       http-message-signatures: 0.1.2
-      ky: 1.7.2
+      ky: 1.7.5
       pino: 8.21.0
       uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
 
-  '@interledger/openapi@2.0.2':
+  '@interledger/openapi@2.0.3':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.7.0
       ajv: 8.17.1
@@ -11911,8 +11907,6 @@ snapshots:
       - supports-color
 
   kuler@2.0.0: {}
-
-  ky@1.7.2: {}
 
   ky@1.7.5: {}
 
