@@ -36,7 +36,6 @@ const incomingPaymentSchema = z.object({
   client: z.string().nullable().optional(),
   createdAt: z.string(),
   expiresAt: z.string(),
-  updatedAt: z.string(),
   completed: z.boolean(),
   receivedAmount: amountSchema,
   incomingAmount: amountSchema.optional(),
@@ -57,7 +56,6 @@ const outgoingPaymentSchema = z.object({
   sentAmount: amountSchema,
   stateAttempts: z.number(),
   createdAt: z.string(),
-  updatedAt: z.string(),
   balance: z.string(),
   client: z.string().nullable().optional(),
   metadata: z

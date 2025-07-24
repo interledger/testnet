@@ -265,7 +265,6 @@ const mockOutgoingPaymentData = {
   },
   stateAttempts: 0,
   createdAt: faker.string.uuid(),
-  updatedAt: faker.string.uuid(),
   balance: '0',
   metadata: {
     description: 'Free Money!'
@@ -291,7 +290,6 @@ export const mockOnWebhookRequest = (
           assetScale: 1
         },
         completed: false,
-        updatedAt: faker.string.uuid(),
         metadata: {
           description: 'Free Money!'
         }
@@ -352,7 +350,6 @@ export function mockIncomingPaymentCreatedEvent(
         assetScale: 1
       },
       completed: false,
-      updatedAt: faker.string.uuid(),
       metadata: {
         description: 'Free Money!'
       }
