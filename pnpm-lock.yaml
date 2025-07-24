@@ -334,8 +334,8 @@ importers:
         specifier: ^8.0.4
         version: 8.0.4
       json-canonicalize:
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: ^1.2.0
+        version: 1.2.0
       knex:
         specifier: ^3.1.0
         version: 3.1.0(pg@8.13.3)
@@ -4691,8 +4691,8 @@ packages:
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
-  json-canonicalize@1.0.6:
-    resolution: {integrity: sha512-kP2iYpOS5SZHYhIaR1t9oG80d4uTY3jPoaBj+nimy3njtJk8+sRsVatN8pyJRDRtk9Su3+6XqA2U8k0dByJBUQ==}
+  json-canonicalize@1.2.0:
+    resolution: {integrity: sha512-TTdjBvqrqJKSADlEsY5rWbx8/1tOrVlTR/aSLU8N2VSInCTffP0p+byYB8Es+OmL4ZOeEftjUdvV+eJeSzJC/Q==}
 
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -11813,7 +11813,7 @@ snapshots:
 
   json-buffer@3.0.1: {}
 
-  json-canonicalize@1.0.6: {}
+  json-canonicalize@1.2.0: {}
 
   json-parse-even-better-errors@2.3.1: {}
 
