@@ -36,7 +36,8 @@ export const SANDBOX_VAULT_IDS: Record<string, string> = {
   SGD: 'e2914c33-2e57-49a5-ac06-25c006497b3d',
   CAD: 'bd5af6fe-5d92-4b20-9bd4-1baa52b7a02e',
   EGG: '9a550347-799e-4c10-9142-f1a2e1c084e7',
-  PEB: '0ba2b0d1-b7a2-416c-a4ac-1cb3e5281300'
+  PEB: '0ba2b0d1-b7a2-416c-a4ac-1cb3e5281300',
+  PKR: '2868b4e5-7178-4945-8ec5-8208fac2a22d'
 }
 export const PRODUCTION_VAULT_IDS: Record<string, string> = {
   USD: '5e1ff913-96d4-45ab-b7a3-04197a59fe06',

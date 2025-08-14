@@ -86,7 +86,7 @@ export class OrderController implements IOrderController {
           { orderItems: products },
           trx
         )
-        return await newOrder.calcaulateTotalAmount(trx)
+        return await newOrder.calculateTotalAmount(trx)
       })
 
       const grant = await this.openPayments.preparePayment({
@@ -231,7 +231,7 @@ export class OrderController implements IOrderController {
           { orderItems: args.products },
           trx
         )
-        return await newOrder.calcaulateTotalAmount(trx)
+        return await newOrder.calculateTotalAmount(trx)
       })
       const tokenInfo = await this.openPayments.instantBuy({ order, ...args })
 

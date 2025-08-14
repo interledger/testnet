@@ -25,7 +25,7 @@ export class Order extends BaseModel {
   public orderItems!: OrderItem[]
   public payments!: Payment
 
-  async calcaulateTotalAmount(trx: TransactionOrKnex): Promise<Order> {
+  async calculateTotalAmount(trx: TransactionOrKnex): Promise<Order> {
     const { totalAmount } = (await OrderItem.query(trx)
       .where({
         orderId: this.id
