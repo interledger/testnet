@@ -140,7 +140,7 @@ importers:
         version: link:../shared
       '@hookform/resolvers':
         specifier: ^3.10.0
-        version: 3.10.0(react-hook-form@7.61.1(react@18.3.1))
+        version: 3.10.0(react-hook-form@7.63.0(react@18.3.1))
       '@radix-ui/react-dialog':
         specifier: ^1.1.14
         version: 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -178,8 +178,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.61.1
-        version: 7.61.1(react@18.3.1)
+        specifier: ^7.63.0
+        version: 7.63.0(react@18.3.1)
       react-router-dom:
         specifier: ^6.30.1
         version: 6.30.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -429,7 +429,7 @@ importers:
         version: 2.2.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@hookform/resolvers':
         specifier: ^3.10.0
-        version: 3.10.0(react-hook-form@7.61.1(react@18.3.1))
+        version: 3.10.0(react-hook-form@7.63.0(react@18.3.1))
       '@radix-ui/react-toast':
         specifier: ^1.2.14
         version: 1.2.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -467,8 +467,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.61.1
-        version: 7.61.1(react@18.3.1)
+        specifier: ^7.63.0
+        version: 7.63.0(react@18.3.1)
       react-joyride:
         specifier: ^2.9.3
         version: 2.9.3(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1390,6 +1390,7 @@ packages:
   '@graphql-tools/prisma-loader@8.0.4':
     resolution: {integrity: sha512-hqKPlw8bOu/GRqtYr0+dINAI13HinTVYBDqhwGAPIFmLr5s+qKskzgCiwbsckdrb5LWVFmVZc+UXn80OGiyBzg==}
     engines: {node: '>=16.0.0'}
+    deprecated: 'This package was intended to be used with an older versions of Prisma.\nThe newer versions of Prisma has a different approach to GraphQL integration.\nTherefore, this package is no longer needed and has been deprecated and removed.\nLearn more: https://www.prisma.io/graphql'
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
@@ -5646,8 +5647,8 @@ packages:
       react: 15 - 18
       react-dom: 15 - 18
 
-  react-hook-form@7.61.1:
-    resolution: {integrity: sha512-2vbXUFDYgqEgM2RcXcAT2PwDW/80QARi+PKmHy5q2KhuKvOlG8iIYgf7eIlIANR5trW9fJbP4r5aub3a4egsew==}
+  react-hook-form@7.63.0:
+    resolution: {integrity: sha512-ZwueDMvUeucovM2VjkCf7zIHcs1aAlDimZu2Hvel5C5907gUzMpm4xCrQXtRzCvsBqFjonB4m3x4LzCFI1ZKWA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -7990,9 +7991,9 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.5.0(react@18.3.1)
 
-  '@hookform/resolvers@3.10.0(react-hook-form@7.61.1(react@18.3.1))':
+  '@hookform/resolvers@3.10.0(react-hook-form@7.63.0(react@18.3.1))':
     dependencies:
-      react-hook-form: 7.61.1(react@18.3.1)
+      react-hook-form: 7.63.0(react@18.3.1)
 
   '@humanfs/core@0.19.1': {}
 
@@ -12722,7 +12723,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       tree-changes: 0.9.3
 
-  react-hook-form@7.61.1(react@18.3.1):
+  react-hook-form@7.63.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
