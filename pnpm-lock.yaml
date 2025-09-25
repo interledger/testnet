@@ -102,8 +102,8 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.11
+        version: 4.1.11
     devDependencies:
       '@types/cors':
         specifier: ^2.8.19
@@ -185,7 +185,7 @@ importers:
         version: 6.30.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       remix-params-helper:
         specifier: ^0.5.1
-        version: 0.5.1(zod@3.25.76)
+        version: 0.5.1(zod@4.1.11)
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
@@ -196,8 +196,8 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5(@types/react@18.3.23)(react@18.3.1)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.11
+        version: 4.1.11
     devDependencies:
       '@tailwindcss/forms':
         specifier: ^0.5.10
@@ -233,8 +233,8 @@ importers:
   packages/boutique/shared:
     dependencies:
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.11
+        version: 4.1.11
     devDependencies:
       '@types/node':
         specifier: ^20.17.30
@@ -370,8 +370,8 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.11
+        version: 4.1.11
     devDependencies:
       '@faker-js/faker':
         specifier: ^9.9.0
@@ -491,8 +491,8 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5(@types/react@18.3.23)(react@18.3.1)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.11
+        version: 4.1.11
     devDependencies:
       '@next/bundle-analyzer':
         specifier: ^13.4.12
@@ -531,8 +531,8 @@ importers:
   packages/wallet/shared:
     dependencies:
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.11
+        version: 4.1.11
     devDependencies:
       '@types/node':
         specifier: ^20.17.30
@@ -1390,6 +1390,7 @@ packages:
   '@graphql-tools/prisma-loader@8.0.4':
     resolution: {integrity: sha512-hqKPlw8bOu/GRqtYr0+dINAI13HinTVYBDqhwGAPIFmLr5s+qKskzgCiwbsckdrb5LWVFmVZc+UXn80OGiyBzg==}
     engines: {node: '>=16.0.0'}
+    deprecated: 'This package was intended to be used with an older versions of Prisma.\nThe newer versions of Prisma has a different approach to GraphQL integration.\nTherefore, this package is no longer needed and has been deprecated and removed.\nLearn more: https://www.prisma.io/graphql'
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
@@ -6777,8 +6778,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.1.11:
+    resolution: {integrity: sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==}
 
 snapshots:
 
@@ -12900,9 +12901,9 @@ snapshots:
 
   remedial@1.0.8: {}
 
-  remix-params-helper@0.5.1(zod@3.25.76):
+  remix-params-helper@0.5.1(zod@4.1.11):
     dependencies:
-      zod: 3.25.76
+      zod: 4.1.11
 
   remove-trailing-separator@1.1.0: {}
 
@@ -14019,4 +14020,4 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.5.2
 
-  zod@3.25.76: {}
+  zod@4.1.11: {}
