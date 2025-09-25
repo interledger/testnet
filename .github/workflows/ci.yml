@@ -18,7 +18,7 @@ jobs:
     name: ESLint and Prettier checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm checks
 
@@ -29,7 +29,7 @@ jobs:
     if: >
       contains(github.event.pull_request.labels.*.name, 'package: wallet/frontend')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:frontend build
 
@@ -40,7 +40,7 @@ jobs:
     if: >
       contains(github.event.pull_request.labels.*.name, 'package: boutique/frontend')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm boutique:frontend build
 
@@ -51,7 +51,7 @@ jobs:
     if: >
       contains(github.event.pull_request.labels.*.name, 'package: wallet/backend')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:backend build
 
@@ -62,7 +62,7 @@ jobs:
     if: >
       contains(github.event.pull_request.labels.*.name, 'package: boutique/backend')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm boutique:backend build
 
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wallet-backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm wallet:backend build && pnpm wallet:backend test --detectOpenHandles --forceExit
 
@@ -80,6 +80,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-boutique-backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/workflows/setup
       - run: pnpm boutique:backend test
