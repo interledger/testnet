@@ -13,7 +13,7 @@
     "@shared/backend": "workspace:*",
     "@boutique/shared": "workspace:*",
     "awilix": "^12.0.5",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "helmet": "^7.2.0",
