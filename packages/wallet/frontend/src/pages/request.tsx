@@ -193,7 +193,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               render={({ field: { value } }) => (
                 <Select<SelectOption>
                   required
-                  label="`Wallet address"
+                  label="Wallet address"
                   options={walletAddresses}
                   aria-invalid={
                     requestForm.formState.errors.walletAddressId
