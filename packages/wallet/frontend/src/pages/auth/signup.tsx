@@ -17,14 +17,12 @@ import { cx } from 'class-variance-authority'
 import { signUpSchema } from '@wallet/shared'
 import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 import { Checkbox } from '@/ui/forms/Checkbox'
-import { useRouter } from 'next/router'
 
 const SignUpPage: NextPageWithLayout = () => {
   const [openDialog, closeDialog] = useDialog()
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
   const [isRepeatPasswordVisible, setRepeatPasswordVisible] =
     useState<boolean>(false)
-  const router = useRouter()
 
   const signUpForm = useZodForm({
     schema: signUpSchema
@@ -36,9 +34,7 @@ const SignUpPage: NextPageWithLayout = () => {
     setRepeatPasswordVisible(!isRepeatPasswordVisible)
   }
   useEffect(() => {
-    FEATURES_ENABLED ? router.push('/auth/login') : null
     signUpForm.setFocus('email')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signUpForm])
 
   return (
