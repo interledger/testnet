@@ -60,30 +60,26 @@ export const PersonalSettingsForm = ({
         )}
       </div>
       {isChangePassword && <ChangePasswordForm />}
-      {accounts.length > 0 ? (
-        <>
-          <div className="mt-4 flex justify-between">
-            {!walletAccountsOpen ? (
-              <Button
-                intent="primary"
-                aria-label="wallet accounts"
-                onClick={() => setWalletAccountsOpen(!walletAccountsOpen)}
-              >
-                Wallet Accounts Settings
-              </Button>
-            ) : (
-              <Button
-                intent="outline"
-                aria-label="close wallet accounts"
-                onClick={() => setWalletAccountsOpen(!walletAccountsOpen)}
-              >
-                Hide Wallet Accounts Settings
-              </Button>
-            )}
-          </div>
-          {walletAccountsOpen && <WalletAccounts accounts={accounts} />}
-        </>
-      ) : null}
+      <div className="mt-4 flex justify-between">
+        {!walletAccountsOpen ? (
+          <Button
+            intent="primary"
+            aria-label="wallet accounts"
+            onClick={() => setWalletAccountsOpen(!walletAccountsOpen)}
+          >
+            Extra Accounts Settings
+          </Button>
+        ) : (
+          <Button
+            intent="outline"
+            aria-label="close wallet accounts"
+            onClick={() => setWalletAccountsOpen(!walletAccountsOpen)}
+          >
+            Hide Extra Accounts Settings
+          </Button>
+        )}
+      </div>
+      {walletAccountsOpen && <WalletAccounts accounts={accounts} />}
     </>
   )
 }
