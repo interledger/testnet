@@ -132,28 +132,11 @@ const SignUpPage: NextPageWithLayout = () => {
           {FEATURES_ENABLED ? (
             <div className="relative cursor-pointer">
               <Checkbox
+                hidden
+                checked
                 {...signUpForm.register('acceptedCardTerms')}
                 error={signUpForm.formState.errors.acceptedCardTerms?.message}
-                label={
-                  <div>
-                    By clicking here, I confirm that I have read, understood,
-                    and agree with the&nbsp;
-                    <a
-                      className="underline"
-                      target="_blank"
-                      href="https://cdn.gatehub.net/docs/General_terms_for_Paywiser_x_GateHub-Mastercard_card_V1.pdf"
-                      rel="noreferrer"
-                    >
-                      Paywiser Terms and Conditions
-                    </a>
-                    &nbsp;for the use of the Paywiser MasterCard payment card,
-                    including the additional terms for card testing and
-                    limitations set out therein. I agree to not promote,
-                    advertise or post on any social media the Paywiser x GateHub
-                    MasterCard payment card without the prior written consent of
-                    the card issuer (Paywiser).
-                  </div>
-                }
+                label=""
               />
             </div>
           ) : null}
