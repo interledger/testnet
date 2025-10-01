@@ -4,7 +4,7 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { Divider } from '@/ui/Divider'
 import { Link } from '@/ui/Link'
-import { FEATURES_ENABLED, THEME } from '@/utils/constants'
+import { THEME } from '@/utils/constants'
 import Image from 'next/image'
 
 const WelcomePage: NextPageWithLayout = () => {
@@ -20,19 +20,15 @@ const WelcomePage: NextPageWithLayout = () => {
       <Button aria-label="log in" href="auth/login">
         Log in
       </Button>
-      {!FEATURES_ENABLED ? (
-        <>
-          <Divider content="or" />
-          <h2 className="mb-5 text-xl font-semibold text-green dark:text-teal-neon">
-            New here?
-          </h2>
-          <Button aria-label="sign up" href="auth/signup">
-            Create account
-          </Button>
-        </>
-      ) : (
-        <Divider />
-      )}
+
+      <Divider content="or" />
+      <h2 className="mb-5 text-xl font-semibold text-green dark:text-teal-neon">
+        New here?
+      </h2>
+      <Button aria-label="sign up" href="auth/signup">
+        Create account
+      </Button>
+
       <Image
         className="mt-10 object-cover md:hidden"
         src={imageName}
