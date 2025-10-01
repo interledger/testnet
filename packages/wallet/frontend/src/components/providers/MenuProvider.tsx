@@ -7,12 +7,15 @@ type MenuProviderProps = {
 
 export const MenuProvider = ({ children }: MenuProviderProps) => {
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false)
+  const [isCardsEnabled, setIsCardsEnabled] = useState(false)
 
   return (
     <MenuContext.Provider
       value={{
         sidebarIsOpen,
-        setSidebarIsOpen
+        setSidebarIsOpen,
+        isCardsEnabled,
+        setIsCardsEnabled
       }}
     >
       {children}

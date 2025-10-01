@@ -2,7 +2,9 @@ import { createContext, useContext } from 'react'
 
 type MenuContextProps = {
   sidebarIsOpen: boolean
-  setSidebarIsOpen: (isUserFirstTime: boolean) => void
+  setSidebarIsOpen: (sidebarIsOpen: boolean) => void
+  isCardsEnabled: boolean
+  setIsCardsEnabled: (isCardsEnabled: boolean) => void
 }
 
 export const MenuContext = createContext<MenuContextProps | null>(null)

@@ -79,7 +79,7 @@ export const PersonalSettingsForm = ({
           </Button>
         )}
       </div>
-      {walletAccountsOpen && <WalletAccounts accounts={accounts} />}
+      {walletAccountsOpen && <WalletAccounts accounts={accounts} user={user} />}
     </>
   )
 }
