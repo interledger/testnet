@@ -26,6 +26,7 @@ export class User extends BaseModel {
   public cardWalletAddress?: string
   public isPinSet!: boolean
   public acceptedCardTerms!: boolean
+  public isCardsVisible!: boolean
 
   public sessions?: Session[]
   public passwordResetToken?: string | null

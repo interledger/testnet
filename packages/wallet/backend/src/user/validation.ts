@@ -46,3 +46,9 @@ export const changePasswordSchema = z.object({
       }
     })
 })
+
+export const changeCardsVisibilitySchema = z.object({
+  body: z.object({
+    isCardsVisible: z.boolean()
+  })
+})

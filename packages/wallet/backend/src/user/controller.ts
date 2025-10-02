@@ -2,6 +2,7 @@ import type { NextFunction, Request } from 'express'
 import type { UserService } from './service'
 import { validate } from '@/shared/validate'
 import {
+  changeCardsVisibilitySchema,
   changePasswordSchema,
   forgotPasswordSchema,
   resetPasswordSchema
@@ -15,6 +16,7 @@ interface IUserController {
   requestResetPassword: Controller
   resetPassword: Controller
   checkToken: Controller<ValidTokenResponse>
+  changeCardsVisibility: Controller
 }
 
 export class UserController implements IUserController {
@@ -53,7 +55,8 @@ export class UserController implements IUserController {
             address: user.address,
             needsWallet: !user.gateHubUserId,
             needsIDProof: !user.kycVerified,
-            customerId: user.customerId
+            customerId: user.customerId,
+            isCardsVisible: user.isCardsVisible
           },
           'User retrieved successfully'
         )
@@ -140,6 +143,26 @@ export class UserController implements IUserController {
       const isValid = await this.userService.validateToken(token)
 
       res.json(toSuccessResponse({ isValid }, 'Token was checked'))
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  changeCardsVisibility = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    const { id: userId } = req.session.user
+
+    try {
+      const {
+        body: { isCardsVisible }
+      } = await validate(changeCardsVisibilitySchema, req)
+
+      await this.userService.changeCardsVisibility(isCardsVisible, userId)
+
+      res.json(toSuccessResponse(undefined, 'Cards visibility changed'))
     } catch (e) {
       next(e)
     }
