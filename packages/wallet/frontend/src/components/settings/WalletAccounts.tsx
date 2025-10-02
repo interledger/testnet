@@ -39,7 +39,9 @@ export const WalletAccounts = ({ accounts }: WalletAccountsProps) => {
         </>
       ) : null}
       <div className="flex flex-row">
-        <div className="text-green dark:text-teal-neon pr-4">Show Cards</div>
+        <div className="text-green dark:text-teal-neon pr-4">
+          Show Cards Management
+        </div>
         <ToggleCardsVisibility />
       </div>
     </div>
