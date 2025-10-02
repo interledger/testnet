@@ -4,15 +4,13 @@ import {
   ToggleCardsVisibility,
   ToggleWalletVisibility
 } from './ToggleVisibility'
-import { UserResponse } from '@wallet/shared'
 import { Divider } from '@/ui/Divider'
 
 type WalletAccountsProps = {
   accounts: Account[]
-  user: UserResponse
 }
 
-export const WalletAccounts = ({ accounts, user }: WalletAccountsProps) => {
+export const WalletAccounts = ({ accounts }: WalletAccountsProps) => {
   return (
     <div className="pt-5">
       {accounts.length > 0 ? (
@@ -42,7 +40,7 @@ export const WalletAccounts = ({ accounts, user }: WalletAccountsProps) => {
       ) : null}
       <div className="flex flex-row">
         <div className="text-green dark:text-teal-neon pr-4">Show Cards</div>
-        <ToggleCardsVisibility user={user} />
+        <ToggleCardsVisibility />
       </div>
     </div>
   )

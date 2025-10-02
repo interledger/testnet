@@ -14,18 +14,22 @@ import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { FEATURES_ENABLED } from '@/utils/constants'
+import { useMenuContext } from '@/lib/context/menu'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
+  const { setIsCardsVisible } = useMenuContext()
 
   useEffect(() => {
     if (isUserFirstTime) {
       setStepIndex(stepIndex + 1)
       setRunOnboarding(true)
     }
+    setIsCardsVisible(user.isCardsVisible)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -74,6 +78,7 @@ export const getServerSideProps: GetServerSideProps<{
     firstName: string
     lastName: string
     email: string
+    isCardsVisible: boolean
   }
 }> = async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie)
@@ -91,7 +96,8 @@ export const getServerSideProps: GetServerSideProps<{
       user: {
         firstName: user.result?.firstName ?? '',
         lastName: user.result?.lastName ?? '',
-        email: user.result?.email ?? ''
+        email: user.result?.email ?? '',
+        isCardsVisible: user.result?.isCardsVisible ?? false
       }
     }
   }

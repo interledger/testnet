@@ -124,8 +124,7 @@ type GetGateHubIframeSrcResult = SuccessResponse<IframeResponse>
 type GetGateHubIframeSrcResponse = GetGateHubIframeSrcResult | ErrorResponse
 
 type UpdateUserArgs = {
-  userId: string
-  isCardsEnabled: boolean
+  isCardsVisible: boolean
 }
 
 interface UserService {
@@ -145,7 +144,9 @@ interface UserService {
     type: IFRAME_TYPE,
     cookies?: string
   ) => Promise<GetGateHubIframeSrcResponse>
-  update: (args: UpdateUserArgs) => Promise<SuccessResponse | ErrorResponse>
+  updateCardsVisibility: (
+    args: UpdateUserArgs
+  ) => Promise<SuccessResponse | ErrorResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -323,20 +324,18 @@ const createUserService = (): UserService => ({
     }
   },
 
-  async update(args) {
+  async updateCardsVisibility(args) {
     try {
       const response = await httpClient
-        .patch(`user/${args.userId}`, {
-          json: {
-            isHidden: args.isCardsEnabled
-          }
+        .patch('change-cards-visibility', {
+          json: args
         })
         .json<SuccessResponse>()
       return response
     } catch (error) {
       return getError(
         error,
-        'We were not able to update your user settings. Please try again.'
+        'Something went wrong while updating the settings. Please try again.'
       )
     }
   }
