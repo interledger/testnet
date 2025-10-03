@@ -31,6 +31,22 @@ export const generateKeysSchema = z.object({
   })
 })
 
+export const orderCardsSchema = z.object({
+  nickname: z.string(),
+  accountId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable(),
+  walletAddressId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
+
 export const uploadKeySchema = z.object({
   jwk: z.string(),
   nickname: z.string()
