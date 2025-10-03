@@ -208,6 +208,11 @@ export class App {
       authController.resendVerifyEmail
     )
     router.patch('/change-password', isAuth, userController.changePassword)
+    router.patch(
+      '/change-cards-visibility',
+      isAuth,
+      userController.changeCardsVisibility
+    )
 
     // Me Endpoint
     router.get('/me', userController.me)

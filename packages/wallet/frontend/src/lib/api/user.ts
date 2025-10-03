@@ -123,6 +123,10 @@ type ChangePasswordResponse = SuccessResponse | ChangePasswordError
 type GetGateHubIframeSrcResult = SuccessResponse<IframeResponse>
 type GetGateHubIframeSrcResponse = GetGateHubIframeSrcResult | ErrorResponse
 
+type UpdateUserArgs = {
+  isCardsVisible: boolean
+}
+
 interface UserService {
   signUp: (args: SignUpArgs) => Promise<SignUpResponse>
   login: (args: LoginArgs) => Promise<LoginResponse>
@@ -140,6 +144,9 @@ interface UserService {
     type: IFRAME_TYPE,
     cookies?: string
   ) => Promise<GetGateHubIframeSrcResponse>
+  updateCardsVisibility: (
+    args: UpdateUserArgs
+  ) => Promise<SuccessResponse | ErrorResponse>
 }
 
 const createUserService = (): UserService => ({
@@ -313,6 +320,22 @@ const createUserService = (): UserService => ({
         error,
         // TODO: Better error message
         'Something went wrong. Please try again.'
+      )
+    }
+  },
+
+  async updateCardsVisibility(args) {
+    try {
+      const response = await httpClient
+        .patch('change-cards-visibility', {
+          json: args
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'Something went wrong while updating the settings. Please try again.'
       )
     }
   }

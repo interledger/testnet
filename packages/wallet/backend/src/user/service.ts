@@ -172,6 +172,21 @@ export class UserService implements IUserService {
     })
   }
 
+  public async changeCardsVisibility(
+    isCardsVisible: boolean,
+    userId: string
+  ): Promise<void> {
+    const user = await this.getById(userId)
+
+    if (!user) {
+      throw new BadRequest('Invalid user')
+    }
+
+    await User.query().findById(user.id).patch({
+      isCardsVisible
+    })
+  }
+
   private async getUserByToken(token: string): Promise<User | undefined> {
     const passwordResetToken = hashToken(token)
 

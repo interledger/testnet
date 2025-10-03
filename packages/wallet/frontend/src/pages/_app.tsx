@@ -10,6 +10,7 @@ import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 const font = localFont({
   src: [
@@ -130,7 +131,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <>
       <Head>
-        <title>Interledger Test Wallet</title>
+        {FEATURES_ENABLED ? (
+          <title>Interledger Wallet</title>
+        ) : (
+          <title>Interledger Test Wallet</title>
+        )}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

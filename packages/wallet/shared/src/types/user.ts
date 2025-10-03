@@ -7,6 +7,7 @@ export interface UserResponse {
   address: string
   needsWallet: boolean
   needsIDProof: boolean
+  isCardsVisible: boolean
 }
 
 export type ValidTokenResponse = {
