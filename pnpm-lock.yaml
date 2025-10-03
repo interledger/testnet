@@ -268,8 +268,8 @@ importers:
         specifier: ^20.17.30
         version: 20.17.30
       ioredis:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.8.0
+        version: 5.8.0
       tsc-alias:
         specifier: ^1.8.16
         version: 1.8.16
@@ -328,8 +328,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
       ioredis:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.8.0
+        version: 5.8.0
       iron-session:
         specifier: ^8.0.4
         version: 8.0.4
@@ -1621,8 +1621,8 @@ packages:
   '@interledger/openapi@2.0.4':
     resolution: {integrity: sha512-3V6xCk2dKnpBiS6ppBDtQsItZ4r1r/YO9T93Pag2yMxIIAe0NAwUfq5yWPYJtNTQ8j2br+z/AwlgWwenxKffWg==}
 
-  '@ioredis/commands@1.2.0':
-    resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
+  '@ioredis/commands@1.4.0':
+    resolution: {integrity: sha512-aFT2yemJJo+TZCmieA7qnYGQooOS7QfNmYrzGtsYd3g9j5iDP8AimYYAesf79ohjbLG12XxC4nG5DyEnC88AsQ==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -4337,8 +4337,8 @@ packages:
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
 
-  ioredis@5.6.1:
-    resolution: {integrity: sha512-UxC0Yv1Y4WRJiGQxQkP0hfdL0/5/6YvdfOOClRgJ0qppSarkhneSa6UvkMkms0AkdGimSH3Ikqm+6mkMmX7vGA==}
+  ioredis@5.8.0:
+    resolution: {integrity: sha512-AUXbKn9gvo9hHKvk6LbZJQSKn/qIfkWXrnsyL9Yrf+oeXmla9Nmf6XEumOddyhM8neynpK5oAV6r9r99KBuwzA==}
     engines: {node: '>=12.22.0'}
 
   ipaddr.js@1.9.1:
@@ -8152,7 +8152,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ioredis/commands@1.2.0': {}
+  '@ioredis/commands@1.4.0': {}
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -11290,9 +11290,9 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  ioredis@5.6.1:
+  ioredis@5.8.0:
     dependencies:
-      '@ioredis/commands': 1.2.0
+      '@ioredis/commands': 1.4.0
       cluster-key-slot: 1.1.2
       debug: 4.3.6(supports-color@5.5.0)
       denque: 2.1.0
