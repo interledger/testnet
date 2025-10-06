@@ -1,6 +1,6 @@
 import { useState, type ComponentProps } from 'react'
 import { CopyButton } from '@/ui/CopyButton'
-import { Chip, GateHubLogo, MasterCardLogo } from '../icons/UserCardIcons'
+import { Chip, InterledgerLogo } from '../icons/UserCardIcons'
 import { cn, parseJwt } from '@/utils/helpers'
 import {
   ICardData,
@@ -31,7 +31,7 @@ const UserCardContainer = ({
   return (
     <div
       className={cn(
-        'relative text-purple-dark font-sans w-80 h-52 rounded-xl bg-white shadow-[rgba(0,0,0,0.16)_0px_10px_36px_0px,rgba(0,0,0,0.06)_0px_0px_0px_1px] py-4 px-5 overflow-hidden',
+        'relative text-[#040607] font-sans w-80 h-52 rounded-xl bg-gradient-to-r from-[#D8EEEC] via-[#A0D5D5] to-[#36B3B0] shadow-[rgba(0,0,0,0.16)_0px_10px_36px_0px,rgba(0,0,0,0.06)_0px_0px_0px_1px] py-4 px-5 overflow-hidden',
         className
       )}
       {...props}
@@ -63,15 +63,14 @@ export const UserCardFront = ({
         )}
       >
         <div className="flex justify-between text-sm items-center">
-          <GateHubLogo className="opacity-50" />
-          <span className="font-sans opacity-50">debit</span>
+          <InterledgerLogo />
+          <span className="font-sans">debit</span>
         </div>
         <div className="ml-4 mt-5">
           <Chip />
         </div>
         <div className="flex mt-auto justify-between items-center">
-          <span className="uppercase text-sm opacity-50">{nameOnCard}</span>
-          <MasterCardLogo />
+          <span className="uppercase text-sm">{nameOnCard}</span>
         </div>
       </div>
       {isBlocked ? (
@@ -82,7 +81,11 @@ export const UserCardFront = ({
 }
 
 const UserCardBack = () => {
-  const { cardData } = useCardContext()
+  const cardData = {
+    Pan: 'fwefwfw',
+    ExpiryDate: 'ferfrefe',
+    Cvc2: '333'
+  } // useCardContext()
 
   if (!cardData) {
     return null
@@ -91,17 +94,15 @@ const UserCardBack = () => {
   return (
     <UserCardContainer>
       <div className="flex flex-col h-full">
-        <div className="bg-purple-dark -mx-5 mt-1 h-12" />
+        <div className="bg-[#005D5F] -mx-5 mt-1 h-12" />
         <div className="mt-auto space-y-6">
           <div>
-            <p className="leading-3 text-xs font-medium opacity-50">
-              Card Number
-            </p>
+            <p className="leading-3 text-xs font-medium">Card Number</p>
             <div className="flex items-center gap-x-3">
               <p className="font-mono">{cardData.Pan}</p>
               <CopyButton
                 aria-label="copy card number"
-                className="h-4 w-4 p-0 opacity-50"
+                className="h-4 w-4 p-0"
                 copyType="card"
                 value={cardData.Pan}
               />
@@ -109,20 +110,19 @@ const UserCardBack = () => {
           </div>
           <div className="flex gap-x-6">
             <div>
-              <p className="leading-3 text-xs font-medium opacity-50">Expiry</p>
+              <p className="leading-3 text-xs font-medium">Expiry</p>
               <p className="font-mono">{`${cardData.ExpiryDate.substring(0, 2)}/${cardData.ExpiryDate.substring(2, 4)}`}</p>
             </div>
             <div>
-              <p className="leading-3 text-xs font-medium opacity-50">CVV</p>
+              <p className="leading-3 text-xs font-medium">CVV</p>
               <p className="font-mono">{cardData.Cvc2}</p>
             </div>
             <CopyButton
               aria-label="copy cvv"
-              className="mt-2.5 -ml-3 h-4 w-4 p-0 opacity-50"
+              className="mt-2.5 -ml-3 h-4 w-4 p-0"
               copyType="card"
               value={cardData.Cvc2}
             />
-            <MasterCardLogo className="ml-auto" />
           </div>
         </div>
       </div>

@@ -93,12 +93,24 @@ const getCardDataSchema = z.object({
   publicKeyBase64: z.string()
 })
 
+export const orderCardsSchema = z.object({
+  walletAddressId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
+
 type GetCardDataArgs = z.infer<typeof getCardDataSchema>
 type GetCardDataError = ErrorResponse<GetCardDataArgs | undefined>
 type GetCardDataResponse = SuccessResponse<{ cypher: string }>
 type GetCardDataResult = GetCardDataResponse | GetCardDataError
 
 interface UserCardService {
+  orderCard(
+    walletAddressId: string
+  ): Promise<SuccessResponse<string> | ErrorResponse>
   getDetails(cookies?: string): Promise<GetDetailsResult>
   getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
   terminate(
@@ -127,6 +139,17 @@ interface UserCardService {
 }
 
 const createCardService = (): UserCardService => ({
+  async orderCard(walletAddressId) {
+    try {
+      const response = await httpClient
+        .get(`cards/${walletAddressId}/order`)
+        .json<SuccessResponse<string>>()
+      return response
+    } catch (error) {
+      return getError(error, 'We could not order a new card. Please try again.')
+    }
+  },
+
   async getPin(cardId, args) {
     try {
       const response = await httpClient
@@ -139,10 +162,10 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      console.log(error)
       return getError(error, '[TODO] UPDATE ME!')
     }
   },
+
   async getChangePinToken(cardId) {
     try {
       const response = await httpClient
@@ -156,6 +179,7 @@ const createCardService = (): UserCardService => ({
       )
     }
   },
+
   async getDetails(cookies) {
     try {
       const response = await httpClient

@@ -2,16 +2,15 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { cardService } from '@/lib/api/card'
+import { cardService, orderCardsSchema } from '@/lib/api/card'
 import { UserCard } from '@/components/userCards/UserCard'
 import { ICardResponse } from '@wallet/shared'
-import { orderCardsSchema, walletAddressService } from '@/lib/api/walletAddress'
+import { walletAddressService } from '@/lib/api/walletAddress'
 import { useRouter } from 'next/router'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import {
-  generateAndDownloadFile,
   replaceCardWalletAddressDomain,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
@@ -44,17 +43,13 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
   })
 
   type orderCardsType = {
-    nickname: string
-    accountId: { value: string; label: string } | null
     walletAddressId: { value: string; label: string } | null
   }
 
-  async function generatePublicAndPrivateKeys(data: orderCardsType) {
-    const response = await walletAddressService.generateKey({
-      accountId: data.accountId?.value || '',
-      walletAddressId: data.walletAddressId?.value || '',
-      nickname: data.nickname
-    })
+  async function orderCardWithKeys(data: orderCardsType) {
+    const response = await cardService.orderCard(
+      data.walletAddressId?.value || ''
+    )
 
     if (!response.success) {
       openDialog(
@@ -63,14 +58,8 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
       return
     }
 
-    if (response.result && !FEATURES_ENABLED) {
-      const { privateKey } = response.result
-
-      generateAndDownloadFile({
-        content: privateKey,
-        fileName: 'private.key',
-        fileType: 'TEXT_PLAIN'
-      })
+    if (response.result && FEATURES_ENABLED) {
+      const privateKey = response.result
 
       openDialog(
         <SuccessDialog
@@ -80,10 +69,6 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
             <div className="text-base">
               <p>Your keys for the new card were successfully generated.</p>
               <div className="mt-4 space-y-2" id="copyKey">
-                <p className="text-base">
-                  The private key has been automatically downloaded to your
-                  machine.
-                </p>
                 <pre className="whitespace-pre-wrap rounded-md bg-green-light p-2 text-left text-sm dark:bg-purple-dark">
                   <code className="break-all">{privateKey}</code>
                 </pre>
@@ -163,32 +148,21 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
               className="px-3 pt-10"
               form={orderCardsForm}
               onSubmit={async (data) => {
-                generatePublicAndPrivateKeys(data)
+                orderCardWithKeys(data)
               }}
             >
-              <Controller
-                name="accountId"
-                control={orderCardsForm.control}
-                render={({ field: { value } }) => (
-                  <Select
-                    required
-                    label="Account"
-                    options={accounts}
-                    placeholder="Select account..."
-                    isSearchable={false}
-                    error={orderCardsForm.formState.errors.accountId?.message}
-                    value={value}
-                    id="selectAccount"
-                    onChange={(option) => {
-                      if (option) {
-                        orderCardsForm.setValue('accountId', {
-                          ...option
-                        })
-                        onAccountChange(option.value)
-                      }
-                    }}
-                  />
-                )}
+              <Select
+                required
+                label="Account"
+                placeholder="Select account..."
+                options={accounts}
+                isSearchable={false}
+                id="selectAccount"
+                onChange={(option) => {
+                  if (option) {
+                    onAccountChange(option.value)
+                  }
+                }}
               />
               <Controller
                 name="walletAddressId"
@@ -219,20 +193,13 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
                   />
                 )}
               />
-              <input
-                type="hidden"
-                {...orderCardsForm.register('nickname')}
-                value={'Interledger Card'}
-              />
+
               <div className="mt-5 flex justify-between">
                 <Button
                   intent="outline"
                   aria-label="cancel order"
                   onClick={() => {
                     orderCardsForm.resetField('walletAddressId', {
-                      defaultValue: null
-                    })
-                    orderCardsForm.resetField('accountId', {
                       defaultValue: null
                     })
                   }}
