@@ -319,8 +319,8 @@ importers:
         specifier: ^16.11.0
         version: 16.11.0
       graphql-request:
-        specifier: ^6.1.0
-        version: 6.1.0(graphql@16.11.0)
+        specifier: ^7.2.0
+        version: 7.2.0(graphql@16.11.0)
       hash-wasm:
         specifier: ^4.12.0
         version: 4.12.0
@@ -4158,6 +4158,11 @@ packages:
 
   graphql-request@6.1.0:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
+    peerDependencies:
+      graphql: 14 - 16
+
+  graphql-request@7.2.0:
+    resolution: {integrity: sha512-0GR7eQHBFYz372u9lxS16cOtEekFlZYB2qOyq8wDvzRmdRSJ0mgUVX1tzNcIzk3G+4NY+mGtSz411wZdeDF/+A==}
     peerDependencies:
       graphql: 14 - 16
 
@@ -11101,6 +11106,11 @@ snapshots:
       graphql: 16.11.0
     transitivePeerDependencies:
       - encoding
+
+  graphql-request@7.2.0(graphql@16.11.0):
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
+      graphql: 16.11.0
 
   graphql-sock@1.0.1(graphql@16.11.0):
     dependencies:
