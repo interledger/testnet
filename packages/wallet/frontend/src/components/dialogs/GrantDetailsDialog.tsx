@@ -83,7 +83,8 @@ export const GrantDetailsDialog = ({
                   <div className="mt-4 flex justify-end">
                     <Button
                       intent="outline"
-                      onClick={() =>
+                      onClick={() => {
+                        closeDialog() // Close any existing dialog first
                         openDialog(
                           <ConfirmationDialog
                             confirmText="Revoke Grant"
@@ -92,8 +93,8 @@ export const GrantDetailsDialog = ({
                             onClose={closeDialog}
                           />
                         )
-                      }
-                      aria-label={''}
+                      }}
+                      aria-label="Revoke Grant"
                     >
                       Revoke Grant
                     </Button>
