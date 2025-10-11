@@ -9,7 +9,10 @@ import { GrantListArgs } from '@/lib/api/grants'
 import { Table } from '@/ui/Table'
 import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
-import { Link } from '@/ui/Link'
+import { useState } from 'react'
+import { grantsService } from '@/lib/api/grants'
+import { GrantResponse } from '@wallet/shared'
+import { GrantDetailsDialog } from '@/components/dialogs/GrantDetailsDialog'
 
 const GrantsPage: NextPageWithLayout = () => {
   const redirect = useRedirect<GrantListArgs>({
@@ -18,6 +21,17 @@ const GrantsPage: NextPageWithLayout = () => {
   })
   const [grantsList, pagination, fetch, loading, error] = useGrants()
   const grants = grantsList.grants
+
+  const [selectedGrant, setSelectedGrant] = useState<GrantResponse | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const handleRowClick = async (grantId: string) => {
+    const res = await grantsService.get(grantId)
+    if (res.success && res.result) {
+      setSelectedGrant(res.result)
+      setIsDialogOpen(true)
+    }
+  }
 
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
@@ -41,11 +55,15 @@ const GrantsPage: NextPageWithLayout = () => {
       ) : (
         <div className="w-full" id="grantsList">
           <Table>
-            <Table.Head columns={['', 'Client', 'Status', 'Date', 'Details']} />
+            <Table.Head columns={['', 'Client', 'Status', 'Date']} />
             <Table.Body>
               {grants.edges.length ? (
                 grants.edges.map((grant) => (
-                  <Table.Row key={grant.node.id}>
+                  <Table.Row
+                    key={grant.node.id}
+                    onClick={() => handleRowClick(grant.node.id)}
+                    className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
+                  >
                     <Table.Cell className="w-1">{''}</Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
                       {replaceWalletAddressProtocol(grant.node.client)}
@@ -77,14 +95,6 @@ const GrantsPage: NextPageWithLayout = () => {
                     <Table.Cell className="whitespace-nowrap">
                       {formatDate({ date: grant.node.createdAt })}
                     </Table.Cell>
-                    <Table.Cell>
-                      <Link
-                        href={`/grants/${grant.node.id}`}
-                        aria-label="view grant details"
-                      >
-                        View
-                      </Link>
-                    </Table.Cell>
                   </Table.Row>
                 ))
               ) : (
@@ -98,6 +108,7 @@ const GrantsPage: NextPageWithLayout = () => {
           </Table>
         </div>
       )}
+
       {!error &&
       !loading &&
       (grants.pageInfo.hasPreviousPage || grants.pageInfo.hasNextPage) ? (
@@ -130,6 +141,13 @@ const GrantsPage: NextPageWithLayout = () => {
           </Button>
         </div>
       ) : null}
+
+      {isDialogOpen && selectedGrant && (
+        <GrantDetailsDialog
+          grant={selectedGrant}
+          onClose={() => setIsDialogOpen(false)}
+        />
+      )}
     </div>
   )
 }
