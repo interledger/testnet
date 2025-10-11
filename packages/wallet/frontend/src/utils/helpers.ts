@@ -50,12 +50,12 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
 
   // Handle very large numbers with abbreviations
   const absValue = Math.abs(flooredValue)
-  
+
   // Check if number is too large to display normally (>= 1 trillion)
-  if (absValue >= 1e12) {
+  if (absValue >= 1e9) {
     const sign = flooredValue < 0 ? '-' : ''
     let abbreviated: string
-    
+
     if (absValue >= 1e15) {
       // Quadrillion
       abbreviated = `${sign}${symbol}${(absValue / 1e15).toFixed(2)}Q`
@@ -72,7 +72,7 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
       // Thousand
       abbreviated = `${sign}${symbol}${(absValue / 1e3).toFixed(2)}K`
     }
-    
+
     return {
       amount: abbreviated,
       symbol
