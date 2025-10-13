@@ -1,5 +1,6 @@
 import type { DialogProps } from '@/lib/types/dialog'
-import { Dialog, Transition, TransitionChild } from '@headlessui/react'
+
+import { Dialog, DialogPanel, Transition, TransitionChild, DialogTitle } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -32,7 +33,7 @@ export const TerminateCardDialog = ({
   })
 
   return (
-    <Transition.Root show={true} as={Fragment} appear={true}>
+    <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
         <TransitionChild
           as={Fragment}
@@ -56,13 +57,13 @@ export const TerminateCardDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
-                <Dialog.Title
+              <DialogPanel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
+                <DialogTitle
                   as="h3"
                   className="text-center text-2xl font-bold"
                 >
                   Terminate Card
-                </Dialog.Title>
+                </DialogTitle>
                 <div className="px-4">
                   <Form
                     form={terminateCardForm}
@@ -133,11 +134,11 @@ export const TerminateCardDialog = ({
                     </div>
                   </Form>
                 </div>
-              </Dialog.Panel>
+              </DialogPanel>
             </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   )
 }
