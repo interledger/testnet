@@ -1,5 +1,5 @@
 import type { DialogProps } from '@/lib/types/dialog'
-import { Dialog, Transition } from '@headlessui/react'
+import { Dialog, Transition, TransitionChild } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -34,7 +34,7 @@ export const TerminateCardDialog = ({
   return (
     <Transition.Root show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -44,10 +44,10 @@ export const TerminateCardDialog = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
-        </Transition.Child>
+        </TransitionChild>
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4"
@@ -134,7 +134,7 @@ export const TerminateCardDialog = ({
                   </Form>
                 </div>
               </Dialog.Panel>
-            </Transition.Child>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
