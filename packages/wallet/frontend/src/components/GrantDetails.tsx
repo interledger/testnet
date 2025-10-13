@@ -5,7 +5,7 @@ type GrantDetailsProps = { grant: GrantResponse }
 export const GrantDetails = ({ grant }: GrantDetailsProps) => {
   return (
     <div className="flex flex-col my-6">
-      <div className="text-xl">
+      <div className="text-md">
         <span className="font-semibold">Client: </span>
         <span className="font-light">{grant.client}</span>
       </div>
