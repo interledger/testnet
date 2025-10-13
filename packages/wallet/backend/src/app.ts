@@ -436,7 +436,6 @@ export class App {
     )
     router.delete(
       '/cards/:cardId/terminate',
-      this.ensureGateHubProductionEnv,
       isAuth,
       interledgerCardController.terminate
     )
