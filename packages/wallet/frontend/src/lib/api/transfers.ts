@@ -20,7 +20,9 @@ export const sendSchema = z.object({
     invalid_type_error: 'Please enter a valid amount'
   }),
   description: z.string(),
-  paymentType: z.enum([PAYMENT_SEND, PAYMENT_RECEIVE])
+  paymentType: z.enum([PAYMENT_SEND, PAYMENT_RECEIVE]),
+  firstName: z.string().optional(),
+  lastName: z.string().optional()
 })
 
 export const acceptQuoteSchema = z.object({
@@ -104,6 +106,10 @@ type IncomingPaymentDetailsResponse =
   | IncomingPaymentDetailsResult
   | ErrorResponse
 
+type SEPAArgs = { receiver: string; firstName: string; lastName: string }
+type SEPAResult = SuccessResponse<{ nonce: string }>
+type SEPAResponse = SEPAResult | ErrorResponse
+
 interface TransfersService {
   send: (args: SendArgs) => Promise<SendResponse>
   acceptQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
@@ -111,6 +117,7 @@ interface TransfersService {
   getIncomingPaymentDetails: (
     incomingPaymentUrl: string
   ) => Promise<IncomingPaymentDetailsResponse>
+  getSEPADetails: (args: SEPAArgs) => Promise<SEPAResponse>
 }
 
 const createTransfersService = (): TransfersService => ({
@@ -198,6 +205,24 @@ const createTransfersService = (): TransfersService => ({
       return getError(
         error,
         'Something went wrong. Please make sure the url is correct and try again.'
+      )
+    }
+  },
+
+  async getSEPADetails(args) {
+    try {
+      const response = await httpClient
+        .get('sepa-details', {
+          json: {
+            ...args
+          }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(
+        error,
+        'Something went wrong. Please make sure the data is correct and try again.'
       )
     }
   }

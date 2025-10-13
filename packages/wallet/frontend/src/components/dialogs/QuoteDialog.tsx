@@ -89,7 +89,7 @@ export const QuoteDialog = ({
                     {type === 'quote'
                       ? receiverName
                         ? `${receiverName} gets: `
-                        : 'Recepient gets: '
+                        : 'Recipient gets: '
                       : 'You get: '}
                     {receiveAmount.amount}
                     <br />

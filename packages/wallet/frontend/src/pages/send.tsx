@@ -39,6 +39,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
 import { useRefundContext } from '@/lib/context/refund'
+import { useMenuContext } from '@/lib/context/menu'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -52,7 +53,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [receiverAssetCode, setReceiverAssetCode] = useState<string | null>(
     null
   )
-  const [receiverPublicName, setReceiverPublicName] = useState('Recepient')
+  const [receiverPublicName, setReceiverPublicName] = useState('Recipient')
   const [currentExchangeRates, setCurrentExchangeRates] =
     useState<ExchangeRates>()
   const [convertAmount, setConvertAmount] = useState(0)
@@ -61,6 +62,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [readOnlyNotes, setReadOnlyNotes] = useState(false)
   const { accountsSnapshot } = useSnapshot(balanceState)
   const { receiverWalletAddress, setReceiverWalletAddress } = useRefundContext()
+  const { isCardsVisible } = useMenuContext()
+  const [isSepa, setIsSepa] = useState(false)
   const imageName =
     THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
 
@@ -159,65 +162,73 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     if (url === '') {
       setReceiverAssetCode(null)
       setReadOnlyNotes(false)
-      setReceiverPublicName('Recepient')
+      setReceiverPublicName('Recipient')
+      setIsSepa(false)
       return
     }
 
-    if (url.includes('/incoming-payments/')) {
-      const response = await transfersService.getIncomingPaymentDetails(url)
-      setReceiverPublicName('Recepient')
-
-      if (response.success && response.result) {
-        let value = response.result.value
-        setIncomingPaymentAmount(value)
-        const responseAssetCode = response.result.assetCode
-
-        if (
-          selectedAccount &&
-          selectedAccount.assetCode !== responseAssetCode
-        ) {
-          const ratesResponse =
-            await assetService.getExchangeRates(responseAssetCode)
-
-          if (ratesResponse.success && ratesResponse.result) {
-            value = Number(
-              (value * ratesResponse.result[selectedAccount.assetCode]).toFixed(
-                2
-              )
-            )
-          }
-        }
-
-        sendForm.clearErrors('receiver')
-        sendForm.setValue('paymentType', 'receive')
-        sendForm.setValue('amount', value)
-        sendForm.setValue('description', response.result.description ?? '')
-        setReadOnlyNotes(true)
-        setReceiverAssetCode(responseAssetCode)
-        setConvertAmount(value)
-        setIsToggleDisabled(true)
-      } else {
-        sendForm.setError('receiver', { message: response.message })
-        setReceiverAssetCode(null)
-        setReadOnlyNotes(false)
-      }
+    if (isCardsVisible && url.includes('/iban/')) {
+      setIsSepa(true)
     } else {
-      const walletAddressAssetCodeResponse =
-        await walletAddressService.getExternal(url)
-      if (
-        !walletAddressAssetCodeResponse.success ||
-        !walletAddressAssetCodeResponse.result
-      ) {
-        sendForm.setError('receiver', {
-          message: 'Please check that the Wallet Address is correct'
-        })
-        setReceiverAssetCode(null)
-        return
+      setIsSepa(false)
+      if (url.includes('/incoming-payments/')) {
+        const response = await transfersService.getIncomingPaymentDetails(url)
+        setReceiverPublicName('Recipient')
+
+        if (response.success && response.result) {
+          let value = response.result.value
+          setIncomingPaymentAmount(value)
+          const responseAssetCode = response.result.assetCode
+
+          if (
+            selectedAccount &&
+            selectedAccount.assetCode !== responseAssetCode
+          ) {
+            const ratesResponse =
+              await assetService.getExchangeRates(responseAssetCode)
+
+            if (ratesResponse.success && ratesResponse.result) {
+              value = Number(
+                (
+                  value * ratesResponse.result[selectedAccount.assetCode]
+                ).toFixed(2)
+              )
+            }
+          }
+
+          sendForm.clearErrors('receiver')
+          sendForm.setValue('paymentType', 'receive')
+          sendForm.setValue('amount', value)
+          sendForm.setValue('description', response.result.description ?? '')
+          setReadOnlyNotes(true)
+          setReceiverAssetCode(responseAssetCode)
+          setConvertAmount(value)
+          setIsToggleDisabled(true)
+        } else {
+          sendForm.setError('receiver', { message: response.message })
+          setReceiverAssetCode(null)
+          setReadOnlyNotes(false)
+        }
       } else {
-        sendForm.clearErrors('receiver')
-        setReceiverPublicName(walletAddressAssetCodeResponse.result.publicName)
-        setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
-        setReadOnlyNotes(false)
+        const walletAddressAssetCodeResponse =
+          await walletAddressService.getExternal(url)
+        if (
+          !walletAddressAssetCodeResponse.success ||
+          !walletAddressAssetCodeResponse.result
+        ) {
+          sendForm.setError('receiver', {
+            message: 'Please check that the Wallet Address is correct'
+          })
+          setReceiverAssetCode(null)
+          return
+        } else {
+          sendForm.clearErrors('receiver')
+          setReceiverPublicName(
+            walletAddressAssetCodeResponse.result.publicName
+          )
+          setReceiverAssetCode(walletAddressAssetCodeResponse.result.assetCode)
+          setReadOnlyNotes(false)
+        }
       }
     }
 
@@ -267,6 +278,17 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         className="px-3"
         form={sendForm}
         onSubmit={async (data) => {
+          if (isCardsVisible && isSepa) {
+            const responseSEPA = await transfersService.getSEPADetails({
+              receiver: data.receiver,
+              firstName: data.firstName || '',
+              lastName: data.lastName || ''
+            })
+            if (responseSEPA.success && responseSEPA.result) {
+              const nonce = responseSEPA.result.nonce
+            }
+            setTimeout(() => {}, 100000)
+          }
           const response = await transfersService.send(data)
           if (response.success) {
             if (response.result) {
@@ -385,6 +407,22 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               )
             }}
           />
+          <div>
+            {isSepa ? (
+              <>
+                <Input
+                  {...sendForm.register('firstName')}
+                  label="First Name"
+                  required
+                />
+                <Input
+                  {...sendForm.register('lastName')}
+                  label="Last Name"
+                  required
+                />
+              </>
+            ) : null}
+          </div>
           <input type="hidden" {...sendForm.register('paymentType')} />
           <Input
             required
