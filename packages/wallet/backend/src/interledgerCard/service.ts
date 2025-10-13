@@ -76,7 +76,9 @@ export class InterledgerCardService implements IInterledgerCardService {
       throw new NotFound()
     }
 
-    return await Card.query().where('userId', userId)
+    return await Card.query()
+      .where('userId', userId)
+      .withGraphFetched('walletAddress')
   }
 
   public async getById(userId: string, cardId: string): Promise<Card> {
@@ -86,7 +88,9 @@ export class InterledgerCardService implements IInterledgerCardService {
       throw new NotFound()
     }
 
-    const card = await Card.query().findById(cardId)
+    const card = await Card.query()
+      .findById(cardId)
+      .withGraphFetched('walletAddress')
 
     if (!card) {
       throw new NotFound()
