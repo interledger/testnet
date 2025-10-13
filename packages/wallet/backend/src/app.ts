@@ -161,6 +161,9 @@ export class App {
       : undefined
     const gateHubController = this.container.resolve('gateHubController')
     const cardController = this.container.resolve('cardController')
+    const interledgerCardController = this.container.resolve(
+      'interledgerCardController'
+    )
 
     app.use(
       cors({
@@ -412,6 +415,29 @@ export class App {
       this.ensureGateHubProductionEnv,
       isAuth,
       cardController.closeCard
+    )
+
+    // Interledger cards
+    router.get('/cards', isAuth, interledgerCardController.list)
+
+    router.get('/cards/:cardId', isAuth, interledgerCardController.getById)
+
+    router.post('/cards', isAuth, interledgerCardController.create)
+
+    router.put(
+      '/cards/:cardId/freeze',
+      isAuth,
+      interledgerCardController.freeze
+    )
+    router.put(
+      '/cards/:cardId/unfreeze',
+      isAuth,
+      interledgerCardController.unfreeze
+    )
+    router.delete(
+      '/cards/:cardId/terminate',
+      isAuth,
+      interledgerCardController.terminate
     )
 
     // Return an error for invalid routes
