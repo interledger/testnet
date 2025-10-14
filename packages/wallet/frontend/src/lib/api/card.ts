@@ -64,10 +64,9 @@ type GetDetailsResponse = SuccessResponse<ICardResponse[]>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
 type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
-
 type FreezeResult = SuccessResponse | ErrorResponse
-
 type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
+type ActivateResult = SuccessResponse<boolean> | ErrorResponse
 
 type ChangePinArgs = z.infer<typeof changePinSchema>
 type ChangePinError = ErrorResponse<ChangePinArgs | undefined>
@@ -122,6 +121,7 @@ interface UserCardService {
   terminate(cardId: string): Promise<TerminateCardResult>
   freeze(cardId: string): Promise<FreezeResult>
   unfreeze(cardId: string): Promise<UnfreezeResult>
+  activate(cardId: string): Promise<ActivateResult>
   getPin(
     cardId: string,
     args: { password: string; publicKeyBase64: string }
@@ -227,6 +227,19 @@ const createCardService = (): UserCardService => ({
       return response
     } catch (error) {
       return getError(error, 'Could not terminate card. Please try again.')
+    }
+  },
+
+  async activate(cardId) {
+    try {
+      const response = await httpClient
+        .put(`cards/${cardId}/activate`, {
+          json: { note: 'User request' }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, 'Could not activate card. Please try again')
     }
   },
 

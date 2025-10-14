@@ -137,13 +137,14 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Your Card" />
       </div>
-      {card ? (
+      {card && card.status !== 'TERMINATED' ? (
         <UserCard card={card} />
       ) : (
         <div>
           <span>
-            You don&apos;t have a card linked to your account.
-            <br /> You can order one here and link it to a Wallet Address.
+            You don&apos;t have a card linked to your account, or you terminated
+            your previous card.
+            <br /> You can order a new one here and link it to a Wallet Address.
           </span>
           <div className="w-full lg:max-w-xl">
             <Form

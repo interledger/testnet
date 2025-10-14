@@ -77,6 +77,21 @@ export class InterledgerCardController implements IInterledgerCardController {
     }
   }
 
+  activate = async (req: Request, res: CustomResponse, next: NextFunction) => {
+    try {
+      const userId = req.session.user.id
+      const {
+        params: { cardId }
+      } = await validate(cardIdSchema, req)
+
+      await this.interledgerCardService.activate(userId, cardId)
+
+      res.status(200).json(toSuccessResponse())
+    } catch (e) {
+      next(e)
+    }
+  }
+
   freeze = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
       const userId = req.session.user.id

@@ -1,10 +1,20 @@
 import { type ComponentProps } from 'react'
 import { Chip, InterledgerLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
-import { isLockedCard, KeysProvider, UserCardContext } from './UserCardContext'
+import {
+  isLockedCard,
+  isOrderedCard,
+  KeysProvider,
+  useCardContext,
+  UserCardContext
+} from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
 import { UserCardSettings } from './UserCardSettings'
 import { ICardResponse } from '@wallet/shared'
+import { Button } from '@/ui/Button'
+import { cardService } from '@/lib/api/card'
+import { toast } from '@/lib/hooks/useToast'
+import { useRouter } from 'next/router'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -77,132 +87,166 @@ export const UserCard = ({ card }: UserCardProps) => {
   }
 
   const isBlocked = isLockedCard(card)
+  const isOrdered = isOrderedCard(card)
 
   return (
     <UserCardContext.Provider value={{ card }}>
       <KeysProvider>
-        {/* {card.isPinSet ? ( */}
-        <div className="grid grid-cols-1 lg:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
-          <div className="space-y-6 max-w-80 mx-auto">
-            <UserCardFront
-              cardWalletAddress={card.walletAddress.url}
-              isBlocked={isBlocked}
-            />
-            <UserCardActions />
+        {isOrdered ? (
+          <>
+            <div className="">
+              Card is Ordered and will need to be activated.
+            </div>
+            <SetPinForm />
+          </>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-[20rem_1fr] max-w-3xl gap-x-24">
+            <div className="space-y-6 max-w-80 mx-auto">
+              <UserCardFront
+                cardWalletAddress={card.walletAddress.url}
+                isBlocked={isBlocked}
+              />
+
+              <UserCardActions />
+            </div>
+            <UserCardSettings />
           </div>
-          <UserCardSettings />
-        </div>
-        {/* ) : (
-          <SetPinForm />
-        )} */}
+        )}
       </KeysProvider>
     </UserCardContext.Provider>
   )
 }
 
-// const SetPinForm = () => {
-//   const router = useRouter()
-//   const { card } = useCardContext()
-//   const { toast } = useToast()
-//   const form = useZodForm({
-//     schema: changePinSchema
-//   })
+const SetPinForm = () => {
+  const router = useRouter()
+  const { card } = useCardContext()
+  // const { toast } = useToast()
+  // const form = useZodForm({
+  //   schema: changePinSchema
+  // })
 
-//   return (
-//     <Form
-//       form={form}
-//       className="max-w-lg mx-auto"
-//       onSubmit={async (data) => {
-//         const response = await cardService.getChangePinToken(card.id)
+  return (
+    <Button
+      intent="primary"
+      aria-label="unfreeze"
+      className="group"
+      onClick={async () => {
+        const response = await cardService.activate(card.id)
 
-//         if (!response.success) {
-//           toast({
-//             description:
-//               'Could not get details for change PIN. Please try again.',
-//             variant: 'error'
-//           })
-//           console.error(response.message)
-//           return
-//         }
+        if (!response.success) {
+          toast({
+            description: 'Could not activate card. Please try again',
+            variant: 'error'
+          })
+          console.error(response.message)
+          return
+        }
 
-//         if (!response.result) {
-//           toast({
-//             description:
-//               'Could not get details for change PIN. Please try again.',
-//             variant: 'error'
-//           })
-//           console.error(response.message)
-//           return
-//         }
+        if (response.success) {
+          toast({
+            description: 'Card was successfully activated.',
+            variant: 'success'
+          })
+          router.replace(router.asPath)
+        }
+      }}
+    >
+      Activate
+    </Button>
+    // <Form
+    //   form={form}
+    //   className="max-w-lg mx-auto"
+    //   onSubmit={async (data) => {
+    //     const response = await cardService.getChangePinToken(card.id)
 
-//         const token = response.result
+    //     if (!response.success) {
+    //       toast({
+    //         description:
+    //           'Could not get details for change PIN. Please try again.',
+    //         variant: 'error'
+    //       })
+    //       console.error(response.message)
+    //       return
+    //     }
 
-//         const { publicKey } = parseJwt(token) as {
-//           publicKey: string
-//         }
+    //     if (!response.result) {
+    //       toast({
+    //         description:
+    //           'Could not get details for change PIN. Please try again.',
+    //         variant: 'error'
+    //       })
+    //       console.error(response.message)
+    //       return
+    //     }
 
-//         const pemPublicKey = `-----BEGIN PUBLIC KEY-----\n${publicKey}\n-----END PUBLIC KEY-----`
+    //     const token = response.result
 
-//         const buf = Buffer.from(data.pin, 'utf8')
-//         const cypher = crypto
-//           .publicEncrypt(
-//             {
-//               key: pemPublicKey,
-//               padding: crypto.constants.RSA_PKCS1_PADDING
-//             },
-//             buf
-//           )
-//           .toString('base64')
+    //     const { publicKey } = parseJwt(token) as {
+    //       publicKey: string
+    //     }
 
-//         const res = await cardService.changePin(card.id, {
-//           token,
-//           cypher
-//         })
+    //     const pemPublicKey = `-----BEGIN PUBLIC KEY-----\n${publicKey}\n-----END PUBLIC KEY-----`
 
-//         if (!res.success) {
-//           toast({
-//             description: 'Could not change PIN for card. Please try again.',
-//             variant: 'error'
-//           })
-//           console.error(response.message)
-//           return
-//         }
+    //     const buf = Buffer.from(data.pin, 'utf8')
+    //     const cypher = crypto
+    //       .publicEncrypt(
+    //         {
+    //           key: pemPublicKey,
+    //           padding: crypto.constants.RSA_PKCS1_PADDING
+    //         },
+    //         buf
+    //       )
+    //       .toString('base64')
 
-//         toast({
-//           description: 'Card PIN was successfully set.',
-//           variant: 'success'
-//         })
-//         router.replace(router.asPath)
-//       }}
-//     >
-//       <p className="text-2xl">Set PIN</p>
-//       <Input
-//         type="password"
-//         inputMode="numeric"
-//         label="PIN"
-//         required
-//         maxLength={4}
-//         placeholder="Enter PIN"
-//         error={form.formState?.errors?.pin?.message}
-//         {...form.register('pin')}
-//       />
-//       <Input
-//         type="password"
-//         inputMode="numeric"
-//         label="Confirm PIN"
-//         required
-//         maxLength={4}
-//         placeholder="Repeat PIN"
-//         error={form.formState?.errors?.confirmPin?.message}
-//         {...form.register('confirmPin')}
-//       />
-//       <Button
-//         aria-label="set pin"
-//         type="submit"
-//         loading={form.formState.isSubmitting}
-//       >
-//         Confirm PIN change
-//       </Button>
-//     </Form>
-//   )
-// }
+    //     const res = await cardService.changePin(card.id, {
+    //       token,
+    //       cypher
+    //     })
+
+    //     if (!res.success) {
+    //       toast({
+    //         description: 'Could not change PIN for card. Please try again.',
+    //         variant: 'error'
+    //       })
+    //       console.error(response.message)
+    //       return
+    //     }
+
+    //     toast({
+    //       description: 'Card PIN was successfully set.',
+    //       variant: 'success'
+    //     })
+    //     router.replace(router.asPath)
+    //   }}
+    // >
+    //   <p className="text-2xl">Set PIN</p>
+    //   <Input
+    //     type="password"
+    //     inputMode="numeric"
+    //     label="PIN"
+    //     required
+    //     maxLength={4}
+    //     placeholder="Enter PIN"
+    //     error={form.formState?.errors?.pin?.message}
+    //     {...form.register('pin')}
+    //   />
+    //   <Input
+    //     type="password"
+    //     inputMode="numeric"
+    //     label="Confirm PIN"
+    //     required
+    //     maxLength={4}
+    //     placeholder="Repeat PIN"
+    //     error={form.formState?.errors?.confirmPin?.message}
+    //     {...form.register('confirmPin')}
+    //   />
+    //   <Button
+    //     aria-label="set pin"
+    //     type="submit"
+    //     loading={form.formState.isSubmitting}
+    //   >
+    //     Confirm PIN change
+    //   </Button>
+    // </Form>
+  )
+}
