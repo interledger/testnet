@@ -48,9 +48,8 @@ export class InterledgerCardController implements IInterledgerCardController {
     const userId = req.session.user.id
 
     try {
-      const accounts = await this.interledgerCardService.list(userId)
-
-      res.status(200).json(toSuccessResponse(accounts))
+      const cards = await this.interledgerCardService.list(userId)
+      res.status(200).json(toSuccessResponse(cards))
     } catch (e) {
       next(e)
     }

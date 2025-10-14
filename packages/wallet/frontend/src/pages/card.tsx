@@ -33,23 +33,22 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
   const [walletAddresses, setWalletAddresses] = useState<SelectOption[]>([])
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedAccount, setSelectedAccount] = useState<SelectOption | null>(
-    null
-  )
+  const [, setSelectedAccount] = useState<SelectOption | null>(null)
 
   const orderCardsForm = useZodForm({
     schema: orderCardsSchema
   })
 
   type orderCardsType = {
+    accountId: { value: string; label: string } | null
     walletAddressId: { value: string; label: string } | null
   }
 
   async function orderCardWithKeys(data: orderCardsType) {
-    const response = await cardService.orderCard(
-      data.walletAddressId?.value || ''
-    )
+    const response = await cardService.orderCard({
+      walletAddressId: data.walletAddressId?.value || '',
+      accountId: data.accountId?.value || ''
+    })
 
     if (!response.success) {
       openDialog(
@@ -58,8 +57,8 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
       return
     }
 
-    if (response.result && FEATURES_ENABLED) {
-      const privateKey = response.result
+    if (response.result && !FEATURES_ENABLED) {
+      const privateKey = response.result.privateKey
 
       openDialog(
         <SuccessDialog
@@ -67,7 +66,10 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
           size="lg"
           content={
             <div className="text-base">
-              <p>Your keys for the new card were successfully generated.</p>
+              <p>
+                Your card was succesfully ordered and the keys for the new card
+                were successfully generated.
+              </p>
               <div className="mt-4 space-y-2" id="copyKey">
                 <pre className="whitespace-pre-wrap rounded-md bg-green-light p-2 text-left text-sm dark:bg-purple-dark">
                   <code className="break-all">{privateKey}</code>
@@ -151,19 +153,30 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
                 orderCardWithKeys(data)
               }}
             >
-              <Select
-                required
-                label="Account"
-                placeholder="Select account..."
-                options={accounts}
-                isSearchable={false}
-                id="selectAccount"
-                onChange={(option) => {
-                  if (option) {
-                    onAccountChange(option.value)
-                  }
-                }}
-              />
+              <Controller
+                name="accountId"
+                control={orderCardsForm.control}
+                render={({ field: { value } }) => (
+                  <Select
+                    required
+                    label="Account"
+                    options={accounts}
+                    placeholder="Select account..."
+                    isSearchable={false}
+                    error={orderCardsForm.formState.errors.accountId?.message}
+                    value={value}
+                    id="selectAccount"
+                    onChange={(option) => {
+                      if (option) {
+                        orderCardsForm.setValue('accountId', {
+                          ...option
+                        })
+                        onAccountChange(option.value)
+                      }
+                    }}
+                  />
+                )}
+              ></Controller>
               <Controller
                 name="walletAddressId"
                 control={orderCardsForm.control}
@@ -202,6 +215,9 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
                     orderCardsForm.resetField('walletAddressId', {
                       defaultValue: null
                     })
+                    orderCardsForm.resetField('accountId', {
+                      defaultValue: null
+                    })
                   }}
                 >
                   Cancel
@@ -223,7 +239,7 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  card: ICardResponse
+  card: ICardResponse | null
   accounts: SelectOption[]
 }> = async (ctx) => {
   const response = await cardService.getDetails(ctx.req.headers.cookie)
@@ -247,9 +263,18 @@ export const getServerSideProps: GetServerSideProps<{
     value: account.id
   }))
 
+  let currentCard: ICardResponse | undefined
+  if (response.result && response.result.length > 0) {
+    const userCards = response.result
+    currentCard = userCards.find((card) => card.status !== 'TERMINATED')
+    if (currentCard === undefined) {
+      currentCard = response.result.find((card) => card.status === 'TERMINATED')
+    }
+  }
+
   return {
     props: {
-      card: response.result[0] ?? null,
+      card: currentCard ? currentCard : null,
       accounts
     }
   }

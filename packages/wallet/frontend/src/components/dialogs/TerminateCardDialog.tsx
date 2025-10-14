@@ -66,11 +66,8 @@ export const TerminateCardDialog = ({
                 <div className="px-4">
                   <Form
                     form={terminateCardForm}
-                    onSubmit={async (data) => {
-                      const response = await cardService.terminate(
-                        card.id,
-                        data
-                      )
+                    onSubmit={async () => {
+                      const response = await cardService.terminate(card.id)
 
                       if (response.success) {
                         closeDialog()
@@ -80,14 +77,7 @@ export const TerminateCardDialog = ({
                         })
                         router.replace(router.pathname)
                       } else {
-                        const { errors, message } = response
-                        if (errors) {
-                          getObjectKeys(errors).map((field) =>
-                            terminateCardForm.setError(field, {
-                              message: errors[field]
-                            })
-                          )
-                        }
+                        const { message } = response
                         if (message) {
                           terminateCardForm.setError('root', { message })
                         }
@@ -96,7 +86,7 @@ export const TerminateCardDialog = ({
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <UserCardFront
-                        nameOnCard={`${card.nameOnCard} ${card.walletAddress ? card.walletAddress.replace('https://', '$') : ''}`}
+                        cardWalletAddress={card ? card.walletAddress.url : ''}
                         isBlocked={false}
                       />
                       <p className="text-center">
