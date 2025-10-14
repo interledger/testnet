@@ -52,7 +52,7 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   const absValue = Math.abs(flooredValue)
 
   // Check if number is too large to display normally (>= 1 trillion)
-  if (absValue >= 1e12) {
+  if (absValue >= 1e9) {
     const sign = flooredValue < 0 ? '-' : ''
     let abbreviated: string
 
