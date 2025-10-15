@@ -1,9 +1,15 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
 import { CreateCardResponse, InterledgerCardService } from './service'
-import { cardIdSchema, cardSchema } from './validation'
-import { Controller, toSuccessResponse } from '@shared/backend'
+import { cardIdSchema, cardSchema, terminateCardSchema } from './validation'
+import {
+  BadRequest,
+  Controller,
+  NotFound,
+  toSuccessResponse
+} from '@shared/backend'
 import { Card } from '@/interledgerCard/model'
+import { UserService } from '@/user/service'
 
 interface IInterledgerCardController {
   create: Controller<CreateCardResponse>
@@ -15,7 +21,10 @@ interface IInterledgerCardController {
 }
 
 export class InterledgerCardController implements IInterledgerCardController {
-  constructor(private interledgerCardService: InterledgerCardService) {}
+  constructor(
+    private interledgerCardService: InterledgerCardService,
+    private userService: UserService
+  ) {}
 
   create = async (
     req: Request,
@@ -126,8 +135,20 @@ export class InterledgerCardController implements IInterledgerCardController {
     try {
       const userId = req.session.user.id
       const {
-        params: { cardId }
-      } = await validate(cardIdSchema, req)
+        params: { cardId },
+        body: { password }
+      } = await validate(terminateCardSchema, req)
+
+      const user = await this.userService.getById(userId)
+
+      if (!user) {
+        throw new NotFound()
+      }
+
+      const passwordIsValid = await user?.verifyPassword(password)
+      if (!passwordIsValid) {
+        throw new BadRequest('Password is not valid')
+      }
 
       await this.interledgerCardService.terminate(userId, cardId)
 
