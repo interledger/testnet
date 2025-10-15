@@ -62,5 +62,8 @@
     "node": "^20.12.1"
   },
   "private": true,
-  "packageManager": "pnpm@9.1.4"
+  "packageManager": "pnpm@9.1.4",
+  "dependencies": {
+    "next-qrcode": "^2.5.1"
+  }
 }
