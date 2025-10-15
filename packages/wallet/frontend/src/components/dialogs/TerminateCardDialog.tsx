@@ -68,8 +68,11 @@ export const TerminateCardDialog = ({
                 <div className="px-4">
                   <Form
                     form={terminateCardForm}
-                    onSubmit={async () => {
-                      const response = await cardService.terminate(card.id)
+                    onSubmit={async (data) => {
+                      const response = await cardService.terminate(
+                        card.id,
+                        data.password
+                      )
 
                       if (response.success) {
                         closeDialog()

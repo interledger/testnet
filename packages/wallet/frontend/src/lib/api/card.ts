@@ -118,7 +118,7 @@ interface UserCardService {
   }): Promise<SuccessResponse<OrderCardResponse> | ErrorResponse>
   getDetails(cookies?: string): Promise<GetDetailsResult>
   getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
-  terminate(cardId: string): Promise<TerminateCardResult>
+  terminate(cardId: string, password: string): Promise<TerminateCardResult>
   freeze(cardId: string): Promise<FreezeResult>
   unfreeze(cardId: string): Promise<UnfreezeResult>
   activate(cardId: string): Promise<ActivateResult>
@@ -217,11 +217,13 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async terminate(cardId) {
+  async terminate(cardId, password) {
     try {
       const response = await httpClient
         .delete(`cards/${cardId}/terminate`, {
-          json: {}
+          json: {
+            password: password
+          }
         })
         .json<SuccessResponse>()
       return response
