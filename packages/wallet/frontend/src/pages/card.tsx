@@ -33,7 +33,6 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
   const router = useRouter()
   const [openDialog, closeDialog] = useDialog()
   const [walletAddresses, setWalletAddresses] = useState<SelectOption[]>([])
-  const [, setSelectedAccount] = useState<SelectOption | null>(null)
 
   const orderCardsForm = useZodForm({
     schema: orderCardsSchema
@@ -101,12 +100,6 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
   }
 
   const onAccountChange = async (accountId: string) => {
-    const selectedAccount = accounts.find(
-      (account) => account.value === accountId
-    )
-
-    setSelectedAccount(selectedAccount || null)
-
     orderCardsForm.resetField('walletAddressId', {
       defaultValue: null
     })
