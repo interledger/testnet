@@ -1,5 +1,11 @@
 import type { DialogProps } from '@/lib/types/dialog'
-import { Dialog, DialogPanel, Transition, TransitionChild, DialogTitle } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+  DialogTitle
+} from '@headlessui/react'
 import { Fragment } from 'react'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -57,10 +63,7 @@ export const TerminateCardDialog = ({
               leaveTo="opacity-0 translate-y-4"
             >
               <DialogPanel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
-                <DialogTitle
-                  as="h3"
-                  className="text-center text-2xl font-bold"
-                >
+                <DialogTitle as="h3" className="text-center text-2xl font-bold">
                   Terminate Card
                 </DialogTitle>
                 <div className="px-4">
