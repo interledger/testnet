@@ -21,6 +21,7 @@ export const RegisterPOSDialog = ({
 }: RegisterPOSDialogProps) => {
   const { Image } = useQRCode()
   const walletAddressUrl = walletAddress.url.replace('$', 'https://')
+  const qrPayload = { paymentPointer: walletAddressUrl, signSec: '' }
 
   return (
     <Transition show={true} as={Fragment} appear={true}>
@@ -61,7 +62,7 @@ export const RegisterPOSDialog = ({
                   <div>{walletAddressUrl}</div>
                   <div className="pb-2">
                     <Image
-                      text={walletAddressUrl}
+                      text={JSON.stringify(qrPayload)}
                       options={{
                         type: 'image/jpeg',
                         quality: 1,
