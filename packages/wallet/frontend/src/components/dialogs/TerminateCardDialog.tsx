@@ -14,7 +14,6 @@ import { Form } from '@/ui/forms/Form'
 import { UserCardFront } from '../userCards/UserCard'
 import { cardService, terminateCardSchema } from '@/lib/api/card'
 import { useToast } from '@/lib/hooks/useToast'
-import { getObjectKeys } from '@/utils/helpers'
 import { ICardResponse } from '@wallet/shared'
 import { Input } from '@/ui/forms/Input'
 import { useRouter } from 'next/router'
@@ -72,7 +71,7 @@ export const TerminateCardDialog = ({
                     onSubmit={async (data) => {
                       const response = await cardService.terminate(
                         card.id,
-                        data
+                        data.password
                       )
 
                       if (response.success) {
@@ -83,14 +82,7 @@ export const TerminateCardDialog = ({
                         })
                         router.replace(router.pathname)
                       } else {
-                        const { errors, message } = response
-                        if (errors) {
-                          getObjectKeys(errors).map((field) =>
-                            terminateCardForm.setError(field, {
-                              message: errors[field]
-                            })
-                          )
-                        }
+                        const { message } = response
                         if (message) {
                           terminateCardForm.setError('root', { message })
                         }
@@ -99,7 +91,7 @@ export const TerminateCardDialog = ({
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <UserCardFront
-                        nameOnCard={`${card.nameOnCard} ${card.walletAddress ? card.walletAddress.replace('https://', '$') : ''}`}
+                        cardWalletAddress={card ? card.walletAddress.url : ''}
                         isBlocked={false}
                       />
                       <p className="text-center">

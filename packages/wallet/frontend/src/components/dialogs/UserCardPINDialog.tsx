@@ -72,7 +72,7 @@ export const UserCardPINDialog = ({
                 </DialogTitle>
                 <div className="flex space-x-5">
                   <UserCardFront
-                    nameOnCard={`${card.nameOnCard} ${card.walletAddress ? card.walletAddress.replace('https://', '$') : ''}`}
+                    cardWalletAddress={card ? card.walletAddress.url : ''}
                     isBlocked={false}
                     className="origin-top-left scale-[.3] [margin:0_calc(-20rem*(1-.3))_calc(-13rem*(1-0.3))_0] "
                   />

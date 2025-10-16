@@ -74,9 +74,7 @@ async function reorder() {
         card: { productCode: cardProductCode }
       })
 
-      logger.info(
-        `Created card with cardId: ${card.id}; customerId: ${card.customerId}`
-      )
+      logger.info(`Created card with cardId: ${card.id};`)
 
       await gateHubClient.orderPlasticForCard(
         '32c471ae-f7d3-4ca9-ac95-68345013d1d4',

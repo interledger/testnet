@@ -99,6 +99,17 @@ export class InterledgerCardService implements IInterledgerCardService {
     return card
   }
 
+  async activate(userId: string, cardId: string) {
+    const card = await this.getById(userId, cardId)
+    if (card.status !== 'ORDERED') {
+      throw new BadRequest('Incorrect status')
+    }
+
+    await card.$query().patch({
+      status: 'ACTIVE'
+    })
+  }
+
   async freeze(userId: string, cardId: string) {
     const card = await this.getById(userId, cardId)
     if (card.status !== 'ACTIVE') {

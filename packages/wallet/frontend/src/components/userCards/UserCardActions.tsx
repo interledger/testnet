@@ -1,18 +1,11 @@
 import { Button } from '@/ui/Button'
-import { Eye, EyeCross, Snow, Trash } from '../icons/CardButtons'
-import {
-  ICardData,
-  isLockedCard,
-  useCardContext,
-  useKeysContext
-} from './UserCardContext'
+import { Snow, Trash } from '../icons/CardButtons'
+import { isLockedCard, useCardContext } from './UserCardContext'
 import { cardService } from '@/lib/api/card'
 import { useRouter } from 'next/router'
 import { useToast } from '@/lib/hooks/useToast'
-import NodeRSA from 'node-rsa'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { TerminateCardDialog } from '../dialogs/TerminateCardDialog'
-import { PasswordDialog } from '../dialogs/PasswordDialog'
 
 export const FrozenCardActions = () => {
   const router = useRouter()
@@ -77,9 +70,7 @@ export const FrozenCardActions = () => {
 
 const DefaultCardActions = () => {
   const router = useRouter()
-  const [openDialog, closeDialog] = useDialog()
-  const { card, showDetails, setShowDetails, setCardData } = useCardContext()
-  const { keys } = useKeysContext()
+  const { card } = useCardContext()
   const { toast } = useToast()
 
   return (
@@ -106,8 +97,7 @@ const DefaultCardActions = () => {
                 description: 'Card was successfully frozen.',
                 variant: 'success'
               })
-              setCardData(null)
-              setShowDetails(false)
+
               router.replace(router.asPath)
             }
           }}
@@ -118,85 +108,6 @@ const DefaultCardActions = () => {
         </Button>
         <p className="text-center text-sm">Freeze</p>
       </div>
-      <div className="flex flex-col gap-y-4">
-        <Button
-          intent="secondary"
-          aria-label={showDetails ? 'hide details' : 'show details'}
-          className="group"
-          onClick={async () => {
-            if (showDetails) {
-              setShowDetails(false)
-              setCardData(null)
-              return
-            }
-            openDialog(
-              <PasswordDialog
-                title="View card details"
-                onClose={closeDialog}
-                onSubmit={async (password: string) => {
-                  if (!keys) {
-                    await router.replace(router.pathname)
-                    return
-                  }
-
-                  const response = await cardService.getCardData(card.id, {
-                    password,
-                    publicKeyBase64: keys.publicKey
-                  })
-
-                  if (!response.success) {
-                    toast({
-                      description: response.message,
-                      variant: 'error'
-                    })
-                    return
-                  }
-
-                  if (!response.result) {
-                    toast({
-                      description:
-                        'Could not fetch card details. Please try again',
-                      variant: 'error'
-                    })
-                    return
-                  }
-
-                  closeDialog()
-
-                  // TODO: Move this to SubtleCrypto
-                  const privateKey = new NodeRSA(keys.privateKey)
-                  privateKey.setOptions({
-                    encryptionScheme: 'pkcs1',
-                    environment: 'browser'
-                  })
-
-                  const decryptedRequestData = privateKey
-                    .decrypt(response.result.cypher)
-                    .toString('utf8')
-
-                  const cardData = JSON.parse(decryptedRequestData) as ICardData
-                  cardData.Pan = formatCardPan(cardData.Pan)
-
-                  setCardData(cardData)
-
-                  setShowDetails(true)
-                }}
-              />
-            )
-          }}
-        >
-          <div className="flex gap-2 justify-center items-center group-hover:drop-shadow-glow-svg-green dark:group-hover:drop-shadow-none">
-            {showDetails ? (
-              <EyeCross className="size-6" />
-            ) : (
-              <Eye className="size-6" />
-            )}
-          </div>
-        </Button>
-        <p className="text-center text-sm">
-          {showDetails ? 'Hide Details' : 'Details'}
-        </p>
-      </div>
     </>
   )
 }
@@ -204,14 +115,9 @@ const DefaultCardActions = () => {
 export const UserCardActions = () => {
   const { card } = useCardContext()
   const isLocked = isLockedCard(card)
-
   return (
     <div className="grid grid-cols-2 gap-x-3">
       {isLocked ? <FrozenCardActions /> : <DefaultCardActions />}
     </div>
   )
-}
-
-function formatCardPan(pan: string): string {
-  return pan.replace(/(\d{4})(?=\d)/g, '$1 ').trim()
 }
