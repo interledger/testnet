@@ -20,6 +20,7 @@ import {
   replaceCardWalletAddressDomain,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
+import { RegisterPOSDialog } from './dialogs/RegisterPOSDialog'
 
 interface WalletAddressesTableProps {
   account: Account
@@ -101,6 +102,27 @@ const EditWalletAddress = () => {
   )
 }
 
+const RegisterPOSforWA = () => {
+  const { walletAddress } = useContext(WalletAddressRowContext)
+  const [openDialog, closeDialog] = useDialog()
+
+  return (
+    <Link
+      aria-label="register POS for wallet address"
+      onClick={() =>
+        openDialog(
+          <RegisterPOSDialog
+            walletAddress={walletAddress}
+            onClose={closeDialog}
+          />
+        )
+      }
+    >
+      Register POS
+    </Link>
+  )
+}
+
 export const CopyWalletAddress = () => {
   const { walletAddress } = useContext(WalletAddressRowContext)
   const [isCopied, setIsCopied] = useState(false)
@@ -145,7 +167,7 @@ export const WalletAddressRow = ({
   return (
     <WalletAddressRowContext.Provider value={{ walletAddress, idOnboarding }}>
       <tr
-        className="[&>td]:p-4 [&>td]:border-b [&>td]:border-green dark:[&>td]:border-pink-neon hover:bg-green-light dark:hover:bg-purple-dark"
+        className="cursor-pointer mb-5 sm:[&>td]:p-4 rounded-xl sm:[&>td]:border-b sm:[&>td]:border-green sm:dark:[&>td]:border-pink-neon hover:bg-grey-light sm:hover:bg-green-light dark:hover:bg-purple-dark bg-green-light dark:bg-pink-neon sm:bg-transparent sm:dark:bg-transparent flex flex-col sm:inline-block justify-center items-center"
         key={walletAddress.id}
       >
         <td>
@@ -166,6 +188,9 @@ export const WalletAddressRow = ({
           <EditWalletAddress />
         </td>
         <td>{walletAddress.isCard ? null : <DeleteWalletAddress />}</td>
+        <td>
+          <RegisterPOSforWA />
+        </td>
       </tr>
     </WalletAddressRowContext.Provider>
   )
@@ -177,7 +202,7 @@ export const WalletAddressesTable = ({
 }: WalletAddressesTableProps) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-[35rem] border-collapse">
+      <table className="min-w-[16rem] border-collapse">
         <tbody>
           {walletAddresses.map((walletAddress, idx) => (
             <WalletAddressRow
