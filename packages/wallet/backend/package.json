@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
+    "@interledger/tlv-kit": "^1.0.2",
     "@sendgrid/mail": "^8.1.6",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
