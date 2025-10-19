@@ -1,6 +1,5 @@
 import { ab2str } from '@/utils/helpers'
 import { ICardResponse } from '@wallet/shared'
-import { useRouter } from 'next/router'
 import {
   createContext,
   ReactNode,
@@ -11,18 +10,8 @@ import {
   type SetStateAction
 } from 'react'
 
-export interface ICardData {
-  Pan: string
-  ExpiryDate: string
-  Cvc2: string
-}
-
 interface UserCardContextValue {
-  showDetails: boolean
-  setShowDetails: Dispatch<SetStateAction<boolean>>
   card: ICardResponse
-  cardData: ICardData | null
-  setCardData: Dispatch<SetStateAction<UserCardContextValue['cardData']>>
 }
 
 export const UserCardContext = createContext({} as UserCardContextValue)
@@ -66,9 +55,7 @@ type KeysProviderProps = {
 }
 
 export const KeysProvider = ({ children }: KeysProviderProps) => {
-  const { pathname } = useRouter()
   const [keys, setKeys] = useState<Keys | null>(null)
-  const { setCardData, setShowDetails } = useCardContext()
 
   useEffect(() => {
     async function generateKeyPair() {
@@ -107,13 +94,6 @@ export const KeysProvider = ({ children }: KeysProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    if (pathname !== '/cards') {
-      setCardData(null)
-      setShowDetails(false)
-    }
-  }, [pathname, setCardData, setShowDetails])
-
   return (
     <KeysContext.Provider value={{ keys, setKeys }}>
       {children}
@@ -122,5 +102,8 @@ export const KeysProvider = ({ children }: KeysProviderProps) => {
 }
 
 export function isLockedCard(card: ICardResponse): boolean {
-  return card.lockLevel === 'Client'
+  return card.status === 'FROZEN'
+}
+export function isOrderedCard(card: ICardResponse): boolean {
+  return card.status === 'ORDERED'
 }

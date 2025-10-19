@@ -69,7 +69,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         <h2 className="mb-2 text-xl">Balance</h2>
         <div className="text-3xl font-bold">{formattedAmount.amount}</div>
       </div>
-      <div className="my-12 flex md:max-w-lg gap-4 flex-col sm:flex-row">
+      <div className="my-12 flex md:max-w-lg md:items-center gap-4 flex-col sm:flex-row">
         <div className="flex gap-4">
           <button
             id="walletAddress"
@@ -140,7 +140,7 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
           </div>
         ) : null}
       </div>
-      <h2 className="mb-2 text-2xl font-bold">
+      <h2 className="mb-2 text-xl sm:text-2xl font-bold">
         Wallet Address list <div className="text-sm">(Payment Pointers)</div>
       </h2>
 

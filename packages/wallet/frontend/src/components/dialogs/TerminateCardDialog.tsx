@@ -1,5 +1,11 @@
 import type { DialogProps } from '@/lib/types/dialog'
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+  DialogTitle
+} from '@headlessui/react'
 import { Fragment } from 'react'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
@@ -8,7 +14,6 @@ import { Form } from '@/ui/forms/Form'
 import { UserCardFront } from '../userCards/UserCard'
 import { cardService, terminateCardSchema } from '@/lib/api/card'
 import { useToast } from '@/lib/hooks/useToast'
-import { getObjectKeys } from '@/utils/helpers'
 import { ICardResponse } from '@wallet/shared'
 import { Input } from '@/ui/forms/Input'
 import { useRouter } from 'next/router'
@@ -32,9 +37,9 @@ export const TerminateCardDialog = ({
   })
 
   return (
-    <Transition.Root show={true} as={Fragment} appear={true}>
+    <Transition show={true} as={Fragment} appear={true}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -44,10 +49,10 @@ export const TerminateCardDialog = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-green-modal/75 transition-opacity dark:bg-black/75" />
-        </Transition.Child>
+        </TransitionChild>
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4"
@@ -56,20 +61,17 @@ export const TerminateCardDialog = ({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-4"
             >
-              <Dialog.Panel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
-                <Dialog.Title
-                  as="h3"
-                  className="text-center text-2xl font-bold"
-                >
+              <DialogPanel className="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-2 shadow-xl dark:bg-purple sm:p-8">
+                <DialogTitle as="h3" className="text-center text-2xl font-bold">
                   Terminate Card
-                </Dialog.Title>
+                </DialogTitle>
                 <div className="px-4">
                   <Form
                     form={terminateCardForm}
                     onSubmit={async (data) => {
                       const response = await cardService.terminate(
                         card.id,
-                        data
+                        data.password
                       )
 
                       if (response.success) {
@@ -80,14 +82,7 @@ export const TerminateCardDialog = ({
                         })
                         router.replace(router.pathname)
                       } else {
-                        const { errors, message } = response
-                        if (errors) {
-                          getObjectKeys(errors).map((field) =>
-                            terminateCardForm.setError(field, {
-                              message: errors[field]
-                            })
-                          )
-                        }
+                        const { message } = response
                         if (message) {
                           terminateCardForm.setError('root', { message })
                         }
@@ -96,7 +91,7 @@ export const TerminateCardDialog = ({
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <UserCardFront
-                        nameOnCard={`${card.nameOnCard} ${card.walletAddress ? card.walletAddress.replace('https://', '$') : ''}`}
+                        cardWalletAddress={card ? card.walletAddress.url : ''}
                         isBlocked={false}
                       />
                       <p className="text-center">
@@ -133,11 +128,11 @@ export const TerminateCardDialog = ({
                     </div>
                   </Form>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   )
 }
