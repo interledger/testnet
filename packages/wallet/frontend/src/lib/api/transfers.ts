@@ -212,7 +212,7 @@ const createTransfersService = (): TransfersService => ({
   async getSEPADetails(args) {
     try {
       const response = await httpClient
-        .get('sepa-details', {
+        .get('/sepa-transaction', {
           json: {
             ...args
           }

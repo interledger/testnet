@@ -9,6 +9,10 @@ import { TransactionService } from '@/transaction/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { TransactionsPageResponse } from '@wallet/shared'
 
+export type SepaTransactionResponse = {
+  nonce: string
+}
+
 interface ITransactionController {
   list: Controller<Transaction[]>
 }
@@ -62,6 +66,25 @@ export class TransactionController implements ITransactionController {
         orderByDate
       })
       res.status(200).json(toSuccessResponse(transactions))
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  sepaTransaction = async (
+    req: Request,
+    res: CustomResponse<SepaTransactionResponse>,
+    next: NextFunction
+  ) => {
+    try {
+      // const userId = req.session.user.id
+      const { receiver, firstName, lastName } = req.params
+      console.log(receiver)
+      console.log(lastName)
+      console.log(firstName)
+      const nonce = { nonce: 'NONCE' }
+
+      res.status(200).json(toSuccessResponse(nonce))
     } catch (e) {
       next(e)
     }
