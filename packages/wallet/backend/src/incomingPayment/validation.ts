@@ -29,3 +29,10 @@ export const paymentDetailsSchema = z.object({
       .transform((val) => val.replace('$', 'https://'))
   })
 })
+
+export const sepaDetailsSchema = z.object({
+  query: z.object({
+    receiver: z.string(),
+    legalName: z.string()
+  })
+})

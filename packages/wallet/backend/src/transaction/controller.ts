@@ -8,9 +8,14 @@ import {
 import { TransactionService } from '@/transaction/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { TransactionsPageResponse } from '@wallet/shared'
+import { sepaDetailsSchema } from '@/incomingPayment/validation'
 
 export type SepaTransactionResponse = {
-  nonce: string
+  vop: {
+    description: string
+    nonce: string
+    match: string
+  }
 }
 
 interface ITransactionController {
@@ -77,12 +82,16 @@ export class TransactionController implements ITransactionController {
     next: NextFunction
   ) => {
     try {
-      // const userId = req.session.user.id
-      const { receiver, legalName } = req.params
-      console.log(receiver)
-      console.log(legalName)
+      const {
+        query: { receiver, legalName }
+      } = await validate(sepaDetailsSchema, req)
+      const sepaDetails =
+        await this.transactionService.getSepaTransactionDetails({
+          receiver,
+          legalName
+        })
 
-      res.status(200).json(toSuccessResponse({ nonce: 'NONCE' }))
+      res.status(200).json(toSuccessResponse(sepaDetails))
     } catch (e) {
       next(e)
     }

@@ -13,6 +13,7 @@ import { WalletAddress } from '@/walletAddress/model'
 import { Account } from '@/account/model'
 import { CardService } from '@/card/service'
 import NodeCache from 'node-cache'
+import { GateHubClient } from '@/gatehub/client'
 
 const FETCHING_TRANSACTIONS_KEY = 'FETCHING_TRANSACTIONS'
 type ListAllTransactionsInput = {
@@ -22,6 +23,18 @@ type ListAllTransactionsInput = {
   orderByDate: OrderByDirection
 }
 
+type SEPATransactionInput = {
+  receiver: string
+  legalName: string
+}
+
+type SEPADetails = {
+  vop: {
+    description: string
+    nonce: string
+    match: string
+  }
+}
 export interface ISecondParty {
   names?: string
   walletAddresses?: string
@@ -39,6 +52,9 @@ export interface ITransactionService {
   ) => Promise<void>
   listAll: (input: ListAllTransactionsInput) => Promise<Page<Transaction>>
   processPendingIncomingPayments: () => Promise<string | undefined>
+  getSepaTransactionDetails: (
+    input: SEPATransactionInput
+  ) => Promise<SEPADetails>
 }
 
 export class TransactionService implements ITransactionService {
@@ -47,7 +63,8 @@ export class TransactionService implements ITransactionService {
     private accountService: AccountService,
     private logger: Logger,
     private knex: Knex,
-    private cardService: CardService
+    private cardService: CardService,
+    private gateHubClient: GateHubClient
   ) {}
 
   async list(
@@ -205,6 +222,14 @@ export class TransactionService implements ITransactionService {
 
       return transaction.id
     })
+  }
+
+  async getSepaTransactionDetails({
+    receiver,
+    legalName
+  }: SEPATransactionInput): Promise<SEPADetails> {
+    const iban = receiver.split('/iban/')[1]
+    return await this.gateHubClient.getSEPATransactionDetails(iban, legalName)
   }
 
   private async handleExpired(

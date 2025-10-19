@@ -106,7 +106,9 @@ type IncomingPaymentDetailsResponse =
   | ErrorResponse
 
 type SEPAArgs = { receiver: string; legalName: string }
-type SEPAResult = SuccessResponse<{ nonce: string; match: string }>
+type SEPAResult = SuccessResponse<{
+  vop: { description: string; nonce: string; match: string }
+}>
 type SEPAResponse = SEPAResult | ErrorResponse
 
 interface TransfersService {
@@ -212,9 +214,10 @@ const createTransfersService = (): TransfersService => ({
   async getSEPADetails(args) {
     try {
       const response = await httpClient
-        .get('/sepa-transaction', {
-          json: {
-            ...args
+        .get('sepa-transaction', {
+          searchParams: {
+            receiver: args.receiver,
+            legalName: args.legalName
           }
         })
         .json<SuccessResponse>()
