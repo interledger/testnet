@@ -25,7 +25,14 @@ export class QuoteController implements IQuoteController {
     try {
       const userId = req.session.user.id
       const {
-        body: { receiver, walletAddressId, amount, isReceive, description }
+        body: {
+          receiver,
+          walletAddressId,
+          amount,
+          isReceive,
+          description,
+          vopNonce
+        }
       } = await validate(quoteSchema, req)
 
       const quote = await this.quoteService.create({
@@ -34,7 +41,8 @@ export class QuoteController implements IQuoteController {
         amount,
         isReceive,
         receiver,
-        description
+        description,
+        vopNonce
       })
       res.status(200).json(toSuccessResponse(quote))
     } catch (e) {

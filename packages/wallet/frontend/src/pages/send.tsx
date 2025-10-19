@@ -82,6 +82,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
     }).amount
   }, [accountsSnapshot, selectedAccount])
 
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
   const sendForm = useZodForm({
     schema: sendSchema,
     defaultValues: {
@@ -278,18 +280,21 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         className="px-3"
         form={sendForm}
         onSubmit={async (data) => {
+          let nonce = ''
+          let sepaMatch = 'NO MATCH'
           if (isCardsVisible && isSepa) {
             const responseSEPA = await transfersService.getSEPADetails({
               receiver: data.receiver,
-              firstName: data.firstName || '',
-              lastName: data.lastName || ''
+              legalName: data.legalName || ''
             })
             if (responseSEPA.success && responseSEPA.result) {
-              const nonce = responseSEPA.result.nonce
+              nonce = responseSEPA.result.nonce
+              sepaMatch = responseSEPA.result.match
             }
-            setTimeout(() => {}, 100000)
+
+            await sleep(20000)
           }
-          const response = await transfersService.send(data)
+          const response = await transfersService.send(data, nonce)
           if (response.success) {
             if (response.result) {
               const quoteId = response.result.id
@@ -297,6 +302,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 <QuoteDialog
                   quote={response.result}
                   receiverName={receiverPublicName}
+                  sepaMatch={sepaMatch}
                   type="quote"
                   onAccept={() => {
                     handleAcceptQuote(quoteId)
@@ -409,18 +415,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
           />
           <div>
             {isSepa ? (
-              <>
-                <Input
-                  {...sendForm.register('firstName')}
-                  label="First Name"
-                  required
-                />
-                <Input
-                  {...sendForm.register('lastName')}
-                  label="Last Name"
-                  required
-                />
-              </>
+              <Input
+                {...sendForm.register('legalName')}
+                label="Legal Name"
+                required
+              />
             ) : null}
           </div>
           <input type="hidden" {...sendForm.register('paymentType')} />

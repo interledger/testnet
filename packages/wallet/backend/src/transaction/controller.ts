@@ -78,13 +78,11 @@ export class TransactionController implements ITransactionController {
   ) => {
     try {
       // const userId = req.session.user.id
-      const { receiver, firstName, lastName } = req.params
+      const { receiver, legalName } = req.params
       console.log(receiver)
-      console.log(lastName)
-      console.log(firstName)
-      const nonce = { nonce: 'NONCE' }
+      console.log(legalName)
 
-      res.status(200).json(toSuccessResponse(nonce))
+      res.status(200).json(toSuccessResponse({ nonce: 'NONCE' }))
     } catch (e) {
       next(e)
     }

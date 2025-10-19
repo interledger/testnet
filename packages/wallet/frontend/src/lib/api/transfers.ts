@@ -21,8 +21,7 @@ export const sendSchema = z.object({
   }),
   description: z.string(),
   paymentType: z.enum([PAYMENT_SEND, PAYMENT_RECEIVE]),
-  firstName: z.string().optional(),
-  lastName: z.string().optional()
+  legalName: z.string().optional()
 })
 
 export const acceptQuoteSchema = z.object({
@@ -106,12 +105,12 @@ type IncomingPaymentDetailsResponse =
   | IncomingPaymentDetailsResult
   | ErrorResponse
 
-type SEPAArgs = { receiver: string; firstName: string; lastName: string }
-type SEPAResult = SuccessResponse<{ nonce: string }>
+type SEPAArgs = { receiver: string; legalName: string }
+type SEPAResult = SuccessResponse<{ nonce: string; match: string }>
 type SEPAResponse = SEPAResult | ErrorResponse
 
 interface TransfersService {
-  send: (args: SendArgs) => Promise<SendResponse>
+  send: (args: SendArgs, nonce: string) => Promise<SendResponse>
   acceptQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
   getIncomingPaymentDetails: (
@@ -121,7 +120,7 @@ interface TransfersService {
 }
 
 const createTransfersService = (): TransfersService => ({
-  async send(args) {
+  async send(args, nonce) {
     try {
       const response = await httpClient
         .post('quotes', {
@@ -132,7 +131,8 @@ const createTransfersService = (): TransfersService => ({
             receiver: args.receiver,
             amount: args.amount,
             description: args.description,
-            isReceive: args.paymentType === PAYMENT_RECEIVE
+            isReceive: args.paymentType === PAYMENT_RECEIVE,
+            vopNonce: nonce
           }
         })
         .json<SuccessResponse>()

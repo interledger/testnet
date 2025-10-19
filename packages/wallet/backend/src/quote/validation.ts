@@ -6,6 +6,7 @@ export const quoteSchema = z.object({
     walletAddressId: z.string().uuid(),
     amount: z.number().positive(),
     isReceive: z.boolean().default(true),
-    description: z.string().optional()
+    description: z.string().optional(),
+    vopNonce: z.string()
   })
 })

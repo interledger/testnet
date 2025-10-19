@@ -18,6 +18,7 @@ type QuoteDialogProps = {
   quote: QuoteResponse
   type: string
   receiverName?: string
+  sepaMatch: string
 }
 
 export const QuoteDialog = ({
@@ -25,7 +26,8 @@ export const QuoteDialog = ({
   onAccept,
   quote,
   type,
-  receiverName
+  receiverName,
+  sepaMatch
 }: QuoteDialogProps) => {
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
@@ -41,7 +43,19 @@ export const QuoteDialog = ({
     assetScale: quote.debitAmount.assetScale
   })
 
+  const getSepaMatch = (sepaMatch: string) => {
+    return sepaMatch === 'MATCH'
+      ? 'Verification result: MATCH - The provided legal name corresponds to the IBAN holder.'
+      : sepaMatch === 'NO MATCH'
+        ? 'Verification result: NO MATCH - The provided legal name does not correspond to the account holder.'
+        : sepaMatch === 'CLOSE MATCH'
+          ? 'Verification result: CLOSE MATCH - Minor discrepancies detected between the payee name and IBAN owner.'
+          : 'Verification result: OTHER.'
+  }
+
   const fee = getFee(quote)
+  const verificationOfPayeeSepa =
+    sepaMatch !== '' ? getSepaMatch(sepaMatch) : ''
 
   return (
     <Transition show={true} as={Fragment} appear={true}>
@@ -81,6 +95,12 @@ export const QuoteDialog = ({
                       strokeWidth={2}
                       className="mx-auto h-16 w-16"
                     />
+                  )}
+                  {sepaMatch === '' ? null : (
+                    <>
+                      <p>{verificationOfPayeeSepa}</p>
+                      <br />
+                    </>
                   )}
                   <p className="text-center font-semibold text-green-modal dark:text-green-neon">
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
