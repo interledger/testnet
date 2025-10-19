@@ -60,19 +60,13 @@ export const terminateCardSchema = z.object({
     .nullable()
 })
 
-const FREEZE_REASON = 'ClientRequestedLock'
-
 type GetDetailsResponse = SuccessResponse<ICardResponse[]>
 type GetDetailsResult = GetDetailsResponse | ErrorResponse
 
-type TerminateCardArgs = z.infer<typeof terminateCardSchema>
-type TerminateCardResult =
-  | SuccessResponse<boolean>
-  | ErrorResponse<TerminateCardArgs | undefined>
-
+type TerminateCardResult = SuccessResponse<boolean> | ErrorResponse
 type FreezeResult = SuccessResponse | ErrorResponse
-
 type UnfreezeResult = SuccessResponse<boolean> | ErrorResponse
+type ActivateResult = SuccessResponse<boolean> | ErrorResponse
 
 type ChangePinArgs = z.infer<typeof changePinSchema>
 type ChangePinError = ErrorResponse<ChangePinArgs | undefined>
@@ -93,20 +87,41 @@ const getCardDataSchema = z.object({
   publicKeyBase64: z.string()
 })
 
+export const orderCardsSchema = z.object({
+  walletAddressId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable(),
+  accountId: z
+    .object({
+      value: z.string().uuid(),
+      label: z.string().min(1)
+    })
+    .nullable()
+})
+
 type GetCardDataArgs = z.infer<typeof getCardDataSchema>
 type GetCardDataError = ErrorResponse<GetCardDataArgs | undefined>
 type GetCardDataResponse = SuccessResponse<{ cypher: string }>
 type GetCardDataResult = GetCardDataResponse | GetCardDataError
+type OrderCardResponse = {
+  publicKey: string
+  privateKey: string
+}
 
 interface UserCardService {
+  orderCard(args: {
+    walletAddressId: string
+    accountId: string
+  }): Promise<SuccessResponse<OrderCardResponse> | ErrorResponse>
   getDetails(cookies?: string): Promise<GetDetailsResult>
   getCardData(cardId: string, args: GetCardDataArgs): Promise<GetCardDataResult>
-  terminate(
-    cardId: string,
-    args: TerminateCardArgs
-  ): Promise<TerminateCardResult>
+  terminate(cardId: string, password: string): Promise<TerminateCardResult>
   freeze(cardId: string): Promise<FreezeResult>
   unfreeze(cardId: string): Promise<UnfreezeResult>
+  activate(cardId: string): Promise<ActivateResult>
   getPin(
     cardId: string,
     args: { password: string; publicKeyBase64: string }
@@ -127,6 +142,22 @@ interface UserCardService {
 }
 
 const createCardService = (): UserCardService => ({
+  async orderCard(args) {
+    try {
+      const response = await httpClient
+        .post(`cards`, {
+          json: {
+            accountId: args.accountId,
+            walletAddressId: args.walletAddressId
+          }
+        })
+        .json<SuccessResponse<OrderCardResponse>>()
+      return response
+    } catch (error) {
+      return getError(error, 'We could not order a new card. Please try again.')
+    }
+  },
+
   async getPin(cardId, args) {
     try {
       const response = await httpClient
@@ -139,10 +170,10 @@ const createCardService = (): UserCardService => ({
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      console.log(error)
       return getError(error, '[TODO] UPDATE ME!')
     }
   },
+
   async getChangePinToken(cardId) {
     try {
       const response = await httpClient
@@ -156,10 +187,11 @@ const createCardService = (): UserCardService => ({
       )
     }
   },
+
   async getDetails(cookies) {
     try {
       const response = await httpClient
-        .get(`customers/cards`, {
+        .get(`cards`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -185,29 +217,38 @@ const createCardService = (): UserCardService => ({
     }
   },
 
-  async terminate(cardId, args) {
+  async terminate(cardId, password) {
     try {
       const response = await httpClient
-        .delete(`cards/${cardId}/block`, {
+        .delete(`cards/${cardId}/terminate`, {
           json: {
-            password: args.password,
-            reasonCode: args.reason?.value
+            password: password
           }
         })
         .json<SuccessResponse>()
       return response
     } catch (error) {
-      return getError<TerminateCardArgs>(
-        error,
-        'Could not terminate card. Please try again.'
-      )
+      return getError(error, 'Could not terminate card. Please try again.')
+    }
+  },
+
+  async activate(cardId) {
+    try {
+      const response = await httpClient
+        .put(`cards/${cardId}/activate`, {
+          json: { note: 'User request' }
+        })
+        .json<SuccessResponse>()
+      return response
+    } catch (error) {
+      return getError(error, 'Could not activate card. Please try again')
     }
   },
 
   async freeze(cardId) {
     try {
       const response = await httpClient
-        .put(`cards/${cardId}/lock?reasonCode=${FREEZE_REASON}`, {
+        .put(`cards/${cardId}/freeze`, {
           json: { note: 'User request' }
         })
         .json<SuccessResponse>()
@@ -220,7 +261,7 @@ const createCardService = (): UserCardService => ({
   async unfreeze(cardId: string) {
     try {
       const response = await httpClient
-        .put(`cards/${cardId}/unlock`, {
+        .put(`cards/${cardId}/unfreeze`, {
           json: { note: 'User request' }
         })
         .json<SuccessResponse>()

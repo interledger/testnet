@@ -425,6 +425,11 @@ export class App {
     router.post('/cards', isAuth, interledgerCardController.create)
 
     router.put(
+      '/cards/:cardId/activate',
+      isAuth,
+      interledgerCardController.activate
+    )
+    router.put(
       '/cards/:cardId/freeze',
       isAuth,
       interledgerCardController.freeze

@@ -12,3 +12,11 @@ export const cardIdSchema = z.object({
     cardId: z.string().uuid()
   })
 })
+export const terminateCardSchema = z.object({
+  params: z.object({
+    cardId: z.string().uuid()
+  }),
+  body: z.object({
+    password: z.string().min(1)
+  })
+})

@@ -107,20 +107,14 @@ describe('CardController', () => {
 
       const mockedCards: ICardResponse[] = [
         {
-          sourceId: '3dc96e41-279d-4355-921a-e1946e90e1ff',
-          nameOnCard: 'Jane Doe',
           id: 'test-card-id',
-          accountId: '469E3666F8914020B6B2604F7D4A10F6',
-          accountSourceId: 'c44e6bc8-d0ef-491e-b374-6d09b6fa6332',
-          maskedPan: '528700******9830',
-          status: 'Active',
-          statusReasonCode: null,
-          lockLevel: null,
-          expiryDate: '0929',
-          customerId: 'customer-id',
-          customerSourceId: 'a5aba6c7-b8ad-4cfe-98d5-497366a4ee2c',
-          productCode: 'VMDTKPREB',
-          isPinSet: false
+          status: 'ORDERED',
+          walletAddress: {
+            id: 'test-wa-id',
+            publicName: 'test',
+            url: 'test-url',
+            active: false
+          }
         }
       ]
 
