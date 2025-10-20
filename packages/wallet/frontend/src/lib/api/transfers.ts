@@ -214,10 +214,9 @@ const createTransfersService = (): TransfersService => ({
   async getSEPADetails(args) {
     try {
       const response = await httpClient
-        .get('sepa-transaction', {
-          searchParams: {
-            receiver: args.receiver,
-            legalName: args.legalName
+        .post('sepa-transaction', {
+          json: {
+            ...args
           }
         })
         .json<SuccessResponse>()

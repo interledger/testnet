@@ -83,7 +83,7 @@ export class TransactionController implements ITransactionController {
   ) => {
     try {
       const {
-        query: { receiver, legalName }
+        body: { receiver, legalName }
       } = await validate(sepaDetailsSchema, req)
       const sepaDetails =
         await this.transactionService.getSepaTransactionDetails({

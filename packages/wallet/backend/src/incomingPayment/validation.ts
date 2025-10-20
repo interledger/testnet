@@ -31,7 +31,7 @@ export const paymentDetailsSchema = z.object({
 })
 
 export const sepaDetailsSchema = z.object({
-  query: z.object({
+  body: z.object({
     receiver: z.string(),
     legalName: z.string()
   })

@@ -748,22 +748,21 @@ export class GateHubClient {
     iban: string,
     legalName: string
   ): Promise<SepaTransactionResponse> {
-    const organizationUuid = '9433cfe1-bf88-4d70-a9ce-a95cd2eb5a6c'
+    const organizationUuid = this.env.GATEHUB_ORG_ID
     const url = `${this.apiUrl}/core/v1/users/${organizationUuid}/accounts`
+    const payload = {
+      iban: iban,
+      legal_name: legalName.trim(),
+      recipient_type: 'PERSONAL',
+      network: 30
+    }
     const response = await this.request<SepaTransactionResponse>(
-      'GET',
+      'POST',
       url,
-      JSON.stringify({
-        iban: iban,
-        legal_name: legalName,
-        recipient_type: 'PERSONAL',
-        network: 30
-      }),
+      JSON.stringify(payload),
       undefined
     )
 
-    console.log('*************')
-    console.log({ response })
     return response
   }
 

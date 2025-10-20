@@ -43,19 +43,7 @@ export const QuoteDialog = ({
     assetScale: quote.debitAmount.assetScale
   })
 
-  const getSepaMatch = (sepaMatch: string) => {
-    return sepaMatch === 'MATCH'
-      ? 'Verification result: MATCH - The provided legal name corresponds to the IBAN holder.'
-      : sepaMatch === 'NO MATCH'
-        ? 'Verification result: NO MATCH - The provided legal name does not correspond to the account holder.'
-        : sepaMatch === 'CLOSE MATCH'
-          ? 'Verification result: CLOSE MATCH - Minor discrepancies detected between the payee name and IBAN owner.'
-          : 'Verification result: OTHER.'
-  }
-
   const fee = getFee(quote)
-  const verificationOfPayeeSepa =
-    sepaMatch !== '' ? getSepaMatch(sepaMatch) : ''
 
   return (
     <Transition show={true} as={Fragment} appear={true}>
@@ -98,7 +86,7 @@ export const QuoteDialog = ({
                   )}
                   {sepaMatch === '' ? null : (
                     <>
-                      <p>{verificationOfPayeeSepa}</p>
+                      <p>Verification result: {sepaMatch}</p>
                       <br />
                     </>
                   )}

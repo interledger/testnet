@@ -298,7 +298,7 @@ export class App {
     )
 
     // sepa transfer routes
-    router.get(
+    router.post(
       '/sepa-transaction',
       isAuth,
       transactionController.sepaTransaction

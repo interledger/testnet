@@ -280,21 +280,25 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         className="px-3"
         form={sendForm}
         onSubmit={async (data) => {
-          let nonce = ''
-          let sepaMatch = 'NO MATCH'
+          const sepaDetails = {
+            nonce: '',
+            match: '',
+            description: ''
+          }
           if (isCardsVisible && isSepa) {
             const responseSEPA = await transfersService.getSEPADetails({
               receiver: data.receiver,
               legalName: data.legalName || ''
             })
             if (responseSEPA.success && responseSEPA.result) {
-              nonce = responseSEPA.result.nonce
-              sepaMatch = responseSEPA.result.match
+              sepaDetails.nonce = responseSEPA.result.vop.nonce
+              sepaDetails.match = responseSEPA.result.vop.match
+              sepaDetails.description = responseSEPA.result.vop.description
             }
 
             await sleep(20000)
           }
-          const response = await transfersService.send(data, nonce)
+          const response = await transfersService.send(data, sepaDetails.nonce)
           if (response.success) {
             if (response.result) {
               const quoteId = response.result.id
@@ -302,7 +306,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
                 <QuoteDialog
                   quote={response.result}
                   receiverName={receiverPublicName}
-                  sepaMatch={sepaMatch}
+                  sepaMatch={sepaDetails.description}
                   type="quote"
                   onAccept={() => {
                     handleAcceptQuote(quoteId)
