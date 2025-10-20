@@ -58,7 +58,7 @@ export class InterledgerCardService implements IInterledgerCardService {
       userId: args.userId,
       accountId: args.accountId,
       walletAddressId: args.walletAddressId,
-      status: 'ORDERED',
+      status: 'ACTIVE',
       publicKey: publicKeyPEM
     })
 
