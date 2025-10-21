@@ -69,51 +69,33 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-base">
           <div>
             <span className="font-semibold">{client}</span> is requesting access
-            to your account with the following permissions:
+            to make{' '}
+            {grant.access.length > 1 ? 'a list of payments' : 'a payment'} on
+            your behalf.
           </div>
-          <div className="mt-4">
-            <div className="font-semibold mb-2">Requested Accesses:</div>
-            {grant.access.map((accessItem, index) => (
-              <div key={index} className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-2">
-                <div>
-                  <span className="font-medium">Type: </span>
-                  <span>{accessItem.type}</span>
-                </div>
-                {accessItem.identifier && (
-                  <div>
-                    <span className="font-medium">Identifier: </span>
-                    <span>{accessItem.identifier}</span>
-                  </div>
-                )}
-                <div>
-                  <span className="font-medium">Actions: </span>
-                  <span>{accessItem.actions.join(', ')}</span>
-                </div>
-                {accessItem.limits && (
-                  <div>
-                    {accessItem.limits.debitAmount && (
-                      <div>
-                        <span className="font-medium">Debit Amount: </span>
-                        <span>{accessItem.limits.debitAmount.formattedAmount}</span>
-                      </div>
-                    )}
-                    {accessItem.limits.receiveAmount && (
-                      <div>
-                        <span className="font-medium">Receive Amount: </span>
-                        <span>{accessItem.limits.receiveAmount.formattedAmount}</span>
-                      </div>
-                    )}
-                    {accessItem.limits.interval && (
-                      <div>
-                        <span className="font-medium">Interval: </span>
-                        <span>{accessItem.limits.interval}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
+          {grant.access.length === 1 ? (
+            <>
+              <div>
+                Wallet Address client:{' '}
+                <span className="font-semibold">{grant.client}</span>
               </div>
-            ))}
-          </div>
+              <div>
+                Total amount to debit:{' '}
+                <span className="font-semibold">
+                  {grant.access[0]?.limits?.debitAmount?.formattedAmount}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="mt-4">
+              <div className="font-semibold mb-2">Payment Amounts:</div>
+              {grant.access.map((accessItem, index) => (
+                <div key={index} className="mb-1">
+                  {accessItem.limits?.debitAmount?.formattedAmount}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
@@ -148,50 +130,27 @@ const GrantInteractionPage = ({
           height={150}
         />
         <div className="mt-20 text-xl">
-          The request from <span className="font-semibold">{client}</span> was previously
-          processed with the following accesses:
-          <div className="mt-4">
-            {grant.access.map((accessItem, index) => (
-              <div key={index} className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-2">
-                <div>
-                  <span className="font-medium">Type: </span>
-                  <span>{accessItem.type}</span>
-                </div>
-                {accessItem.identifier && (
-                  <div>
-                    <span className="font-medium">Identifier: </span>
-                    <span>{accessItem.identifier}</span>
+          The request from <span className="font-semibold">{client}</span> was
+          previously processed
+          {grant.access.length > 1 ? ' with a list of payments' : ''}.
+          {grant.access.length === 1 ? (
+            <>
+              {' '}
+              for the amount of{' '}
+              {grant.access[0]?.limits?.debitAmount?.formattedAmount}
+            </>
+          ) : (
+            <>
+              <div className="mt-4">
+                <div className="font-semibold mb-2">Payment Amounts:</div>
+                {grant.access.map((accessItem, index) => (
+                  <div key={index} className="mb-1">
+                    {accessItem.limits?.debitAmount?.formattedAmount}
                   </div>
-                )}
-                <div>
-                  <span className="font-medium">Actions: </span>
-                  <span>{accessItem.actions.join(', ')}</span>
-                </div>
-                {accessItem.limits && (
-                  <div>
-                    {accessItem.limits.debitAmount && (
-                      <div>
-                        <span className="font-medium">Debit Amount: </span>
-                        <span>{accessItem.limits.debitAmount.formattedAmount}</span>
-                      </div>
-                    )}
-                    {accessItem.limits.receiveAmount && (
-                      <div>
-                        <span className="font-medium">Receive Amount: </span>
-                        <span>{accessItem.limits.receiveAmount.formattedAmount}</span>
-                      </div>
-                    )}
-                    {accessItem.limits.interval && (
-                      <div>
-                        <span className="font-medium">Interval: </span>
-                        <span>{accessItem.limits.interval}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
