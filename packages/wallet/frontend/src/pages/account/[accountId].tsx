@@ -69,8 +69,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
         <h2 className="mb-2 text-xl">Balance</h2>
         <div className="text-3xl font-bold">{formattedAmount.amount}</div>
       </div>
-      <div className="my-12 flex md:max-w-lg md:items-center gap-4 flex-col sm:flex-row">
-        <div className="flex gap-4">
+      <div className="my-12 flex md:max-w-lg md:items-center gap-2 flex-col sm:flex-row">
+        <div className="flex">
           <button
             id="walletAddress"
             onClick={() => {
@@ -91,6 +91,8 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
               Add wallet address
             </span>
           </button>
+        </div>
+        <div className="flex gap-4">
           <Link
             id="fund"
             href={FEATURES_ENABLED ? '/deposit' : undefined}
@@ -114,31 +116,17 @@ const AccountPage: NextPageWithLayout<AccountPageProps> = ({
               Deposit
             </span>
           </Link>
+          <Link
+            id="withdraw"
+            href="/withdraw"
+            className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
+          >
+            <Withdraw className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
+            <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
+              Withdraw
+            </span>
+          </Link>
         </div>
-        {FEATURES_ENABLED ? (
-          <div className="flex gap-4">
-            <Link
-              id="withdraw"
-              href="/withdraw"
-              className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-            >
-              <Withdraw className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-              <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-                Withdraw
-              </span>
-            </Link>
-            <Link
-              id="cards"
-              href="/card"
-              className="group flex aspect-square min-w-28 flex-shrink-0 flex-grow-0 basis-1/4 flex-col items-center justify-center rounded-lg border-2 text-center transition-[box-shadow] duration-200 dark:hover:shadow-glow-button dark:focus:shadow-glow-button"
-            >
-              <Card className="mb-1 h-8 w-8 transition-[filter] duration-200 group-hover:dark:drop-shadow-glow-svg group-focus:dark:drop-shadow-glow-svg" />
-              <span className="text-center text-[smaller] leading-4 underline-offset-2 transition-transform group-hover:scale-110 group-hover:underline group-focus:scale-110 group-focus:underline group-focus:underline-offset-2 dark:group-hover:decoration-transparent">
-                Card
-              </span>
-            </Link>
-          </div>
-        ) : null}
       </div>
       <h2 className="mb-2 text-xl sm:text-2xl font-bold">
         Wallet Address list <div className="text-sm">(Payment Pointers)</div>

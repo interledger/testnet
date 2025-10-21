@@ -13,8 +13,8 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
-import { FEATURES_ENABLED } from '@/utils/constants'
 import { useMenuContext } from '@/lib/context/menu'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -28,7 +28,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
       setStepIndex(stepIndex + 1)
       setRunOnboarding(true)
     }
-    setIsCardsVisible(user.isCardsVisible)
+    setIsCardsVisible(user.isCardsVisible || FEATURES_ENABLED)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -62,7 +62,6 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
                   key={account.id}
                   account={account}
                   idOnboarding={account.assetCode === 'EUR' ? 'eurAccount' : ''}
-                  isCard={FEATURES_ENABLED && account.assetCode === 'EUR'}
                 />
               ) : null
             )
