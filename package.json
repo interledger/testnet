@@ -56,11 +56,11 @@
     "typescript": "^5.9.3"
   },
   "engines": {
-    "pnpm": "^9.1.4",
+    "pnpm": "^10.19.0",
     "npm": "pnpm",
     "yarn": "pnpm",
     "node": "^20.12.1"
   },
   "private": true,
-  "packageManager": "pnpm@9.1.4"
+  "packageManager": "pnpm@10.19.0"
 }
