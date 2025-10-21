@@ -1,19 +1,9 @@
 import { type ComponentProps } from 'react'
 import { Chip, InterledgerLogo } from '../icons/UserCardIcons'
 import { cn } from '@/utils/helpers'
-import {
-  isLockedCard,
-  KeysProvider,
-  // useCardContext,
-  UserCardContext
-} from './UserCardContext'
+import { isLockedCard, KeysProvider, UserCardContext } from './UserCardContext'
 import { UserCardActions } from './UserCardActions'
-import { UserCardSettings } from './UserCardSettings'
 import { ICardResponse } from '@wallet/shared'
-// import { Button } from '@/ui/Button'
-// import { cardService } from '@/lib/api/card'
-// import { toast } from '@/lib/hooks/useToast'
-// import { useRouter } from 'next/router'
 
 export type UserCardContainerProps = ComponentProps<'div'>
 
@@ -101,13 +91,15 @@ export const UserCard = ({ card }: UserCardProps) => {
 
             <UserCardActions />
           </div>
-          <UserCardSettings />
+          {/* old cards PIN settings - new cards still in discussion */}
+          {/* <UserCardSettings /> */}
         </div>
       </KeysProvider>
     </UserCardContext.Provider>
   )
 }
 
+// old cards activated when you set PIN - new cards still in discussion
 // const SetPinForm = () => {
 //   const router = useRouter()
 //   const { card } = useCardContext()
