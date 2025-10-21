@@ -37,7 +37,7 @@
     "rate-limiter-flexible": "^5.0.5",
     "socket.io": "^4.8.1",
     "stripe": "17.7.0",
-    "uuid": "^10.0.0",
+    "uuid": "^13.0.0",
     "winston": "^3.18.3",
     "zod": "^3.25.76"
   },
