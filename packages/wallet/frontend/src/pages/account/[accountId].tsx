@@ -28,7 +28,6 @@ import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 import { Link } from '@/ui/Link'
 import { DepositDialog } from '@/components/dialogs/DepositDialog'
 import { FEATURES_ENABLED } from '@/utils/constants'
-import { Card } from '@/components/icons/CardButtons'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
