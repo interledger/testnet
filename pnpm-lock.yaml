@@ -102,8 +102,8 @@ importers:
         specifier: ^3.18.3
         version: 3.18.3
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@types/cors':
         specifier: ^2.8.19
@@ -185,7 +185,7 @@ importers:
         version: 6.30.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       remix-params-helper:
         specifier: ^0.5.1
-        version: 0.5.1(zod@3.25.76)
+        version: 0.5.1(zod@4.1.12)
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
@@ -196,8 +196,8 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(@types/react@18.3.25)(react@18.3.1)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@tailwindcss/forms':
         specifier: ^0.5.10
@@ -233,8 +233,8 @@ importers:
   packages/boutique/shared:
     dependencies:
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@types/node':
         specifier: ^20.17.30
@@ -370,8 +370,8 @@ importers:
         specifier: ^3.18.3
         version: 3.18.3
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@faker-js/faker':
         specifier: ^9.9.0
@@ -494,8 +494,8 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(@types/react@18.3.25)(react@18.3.1)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@next/bundle-analyzer':
         specifier: ^13.4.12
@@ -534,8 +534,8 @@ importers:
   packages/wallet/shared:
     dependencies:
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@types/node':
         specifier: ^20.17.30
@@ -6828,8 +6828,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
 snapshots:
 
@@ -12971,9 +12971,9 @@ snapshots:
 
   remedial@1.0.8: {}
 
-  remix-params-helper@0.5.1(zod@3.25.76):
+  remix-params-helper@0.5.1(zod@4.1.12):
     dependencies:
-      zod: 3.25.76
+      zod: 4.1.12
 
   remove-trailing-separator@1.1.0: {}
 
@@ -14099,4 +14099,4 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.5.2
 
-  zod@3.25.76: {}
+  zod@4.1.12: {}

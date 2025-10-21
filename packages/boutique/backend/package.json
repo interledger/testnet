@@ -21,7 +21,7 @@
     "objection": "^3.1.5",
     "pg": "^8.16.3",
     "winston": "^3.18.3",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
