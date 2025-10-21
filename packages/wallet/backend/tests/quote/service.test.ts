@@ -170,6 +170,7 @@ describe('Quote Service', () => {
         walletAddressId: walletAddress.id,
         receiver:
           'https://rafiki-backend/work-acc/incoming-payments/d2697d29-ee3c-499f-bdbf-db49f57b1137',
+        vopNonce: '',
         isReceive: true
       })
 
