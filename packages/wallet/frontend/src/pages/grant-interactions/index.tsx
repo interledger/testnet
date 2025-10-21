@@ -73,19 +73,17 @@ const GrantInteractionPage = ({
             {grant.access.length > 1 ? 'a list of payments' : 'a payment'} on
             your behalf.
           </div>
+          <div>
+            Wallet Address client:{' '}
+            <span className="font-semibold">{grant.client}</span>
+          </div>
           {grant.access.length === 1 ? (
-            <>
-              <div>
-                Wallet Address client:{' '}
-                <span className="font-semibold">{grant.client}</span>
-              </div>
-              <div>
-                Total amount to debit:{' '}
-                <span className="font-semibold">
-                  {grant.access[0]?.limits?.debitAmount?.formattedAmount}
-                </span>
-              </div>
-            </>
+            <div>
+              Total amount to debit:{' '}
+              <span className="font-semibold">
+                {grant.access[0]?.limits?.debitAmount?.formattedAmount}
+              </span>
+            </div>
           ) : (
             <div className="mt-4">
               <div className="font-semibold mb-2">Payment Amounts:</div>
