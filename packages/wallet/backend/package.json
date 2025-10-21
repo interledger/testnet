@@ -55,7 +55,7 @@
     "jest": "^29.7.0",
     "node-mocks-http": "^1.17.2",
     "testcontainers": "^10.28.0",
-    "ts-jest": "^29.4.4",
+    "ts-jest": "^29.4.5",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3"
   }
