@@ -104,6 +104,3 @@ export const KeysProvider = ({ children }: KeysProviderProps) => {
 export function isLockedCard(card: ICardResponse): boolean {
   return card.status === 'FROZEN'
 }
-export function isOrderedCard(card: ICardResponse): boolean {
-  return card.status === 'ORDERED'
-}
