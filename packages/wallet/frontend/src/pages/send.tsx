@@ -296,7 +296,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
               sepaDetails.description = responseSEPA.result.vop.description
             }
 
-            await sleep(20000)
+            await sleep(10000)
           }
           const response = await transfersService.send(data, sepaDetails.nonce)
           if (response.success) {
