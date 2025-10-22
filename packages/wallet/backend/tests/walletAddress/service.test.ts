@@ -77,7 +77,7 @@ describe('Wallet Address Service', () => {
       rafikiClient: {
         createRafikiWalletAddress: () => ({
           id: faker.string.uuid(),
-          url: faker.internet.url()
+          address: faker.internet.url()
         }),
         createRafikiWalletAddressKey: () => ({
           id: faker.string.uuid()
