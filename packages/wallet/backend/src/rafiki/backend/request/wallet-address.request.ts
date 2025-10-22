@@ -5,7 +5,7 @@ export const createWalletAddressMutation = gql`
     createWalletAddress(input: $input) {
       walletAddress {
         id
-        url
+        address
         publicName
       }
     }
@@ -17,7 +17,7 @@ export const updateWalletAddressMutation = gql`
     updateWalletAddress(input: $input) {
       walletAddress {
         id
-        url
+        address
         publicName
       }
     }
