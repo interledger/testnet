@@ -74,6 +74,9 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       USE_STRIPE: ${USE_STRIPE}
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      ADMIN_SIGNATURE_VERSION: 1
     restart: always
     networks:
       - testnet
@@ -114,7 +117,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v1.2.0-beta
+    image: ghcr.io/interledger/rafiki-auth:v2.0.0-beta
     restart: always
     networks:
       - testnet
@@ -134,13 +137,16 @@ services:
       INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
       WAIT_SECONDS: 1
       REDIS_URL: redis://redis:6379/0
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      ADMIN_SIGNATURE_VERSION: 1
     depends_on:
       - postgres
     <<: *logging
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v1.2.0-beta
+    image: ghcr.io/interledger/rafiki-backend:v2.0.0-beta
     restart: always
     privileged: true
     volumes:
@@ -183,6 +189,10 @@ services:
       SLIPPAGE: 0.01
       KEY_ID: rafiki
       WALLET_ADDRESS_REDIRECT_HTML_PAGE: ${WALLET_ADDRESS_REDIRECT_HTML_PAGE}
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      ADMIN_SIGNATURE_VERSION: 1
+      AUTH_SERVICE_API_URL: http://rafiki-auth:3011
     depends_on:
       - postgres
       - redis
@@ -190,7 +200,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v1.2.0-beta
+    image: ghcr.io/interledger/rafiki-frontend:v2.0.0-beta
     depends_on:
       - rafiki-backend
     restart: always
@@ -208,6 +218,7 @@ services:
       KRATOS_BROWSER_PUBLIC_URL: 'http://localhost:4433'
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
       AUTH_ENABLED: false
+      SIGNATURE_VERSION: 1
     <<: *logging
 
   kratos:
