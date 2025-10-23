@@ -110,6 +110,7 @@ export type CreateIncomingPaymentParams = {
 
 export type CreateReceiverParams = {
   walletAddressUrl: string
+  vopNonce?: string
 } & PaymentParams
 export class RafikiClient implements IRafikiClient {
   constructor(private backendGraphQLClient: GraphQLClient) {}
@@ -184,7 +185,8 @@ export class RafikiClient implements IRafikiClient {
     const input: CreateReceiverInput = {
       walletAddressUrl,
       metadata: {
-        description: params.description
+        description: params.description,
+        vopNonce: params.vopNonce
       },
       expiresAt: params.expiresAt?.toISOString(),
       ...(params.amount && {

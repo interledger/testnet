@@ -18,6 +18,7 @@ type QuoteDialogProps = {
   quote: QuoteResponse
   type: string
   receiverName?: string
+  sepaMatch?: string
 }
 
 export const QuoteDialog = ({
@@ -25,7 +26,8 @@ export const QuoteDialog = ({
   onAccept,
   quote,
   type,
-  receiverName
+  receiverName,
+  sepaMatch
 }: QuoteDialogProps) => {
   const { setRunOnboarding, stepIndex, setStepIndex, isUserFirstTime } =
     useOnboardingContext()
@@ -82,6 +84,12 @@ export const QuoteDialog = ({
                       className="mx-auto h-16 w-16"
                     />
                   )}
+                  {sepaMatch ? null : (
+                    <>
+                      <p>Verification result: {sepaMatch}</p>
+                      <br />
+                    </>
+                  )}
                   <p className="text-center font-semibold text-green-modal dark:text-green-neon">
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}
@@ -89,7 +97,7 @@ export const QuoteDialog = ({
                     {type === 'quote'
                       ? receiverName
                         ? `${receiverName} gets: `
-                        : 'Recepient gets: '
+                        : 'Recipient gets: '
                       : 'You get: '}
                     {receiveAmount.amount}
                     <br />

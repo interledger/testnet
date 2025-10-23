@@ -297,6 +297,13 @@ export class App {
       walletAddressKeyController.list
     )
 
+    // sepa transfer routes
+    router.post(
+      '/sepa-transaction',
+      isAuth,
+      transactionController.sepaTransaction
+    )
+
     // incoming payment routes
     router.post('/incoming-payments', isAuth, incomingPaymentController.create)
     router.get(

@@ -25,6 +25,7 @@ interface CreateReceiverParams {
   walletAddressUrl: string
   description?: string
   expiresAt?: Date
+  vopNonce?: string
 }
 
 interface Expiration {
@@ -87,7 +88,8 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       description,
       asset,
       amount: BigInt(amount * 10 ** asset.scale),
-      expiresAt: expiryDate
+      expiresAt: expiryDate,
+      vopNonce: ''
     })
 
     return response.id

@@ -19,6 +19,7 @@ type CreateQuoteParams = {
   amount: number
   isReceive: boolean
   receiver: string
+  vopNonce?: string
   description?: string
 }
 
@@ -133,7 +134,8 @@ export class QuoteService implements IQuoteService {
         description: params.description,
         expiresAt: params.isReceive
           ? undefined
-          : new Date(Date.now() + 1000 * 15)
+          : new Date(Date.now() + 1000 * 15),
+        vopNonce: params.vopNonce
       })
     }
 
