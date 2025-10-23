@@ -52,9 +52,7 @@ export interface ITransactionService {
   ) => Promise<void>
   listAll: (input: ListAllTransactionsInput) => Promise<Page<Transaction>>
   processPendingIncomingPayments: () => Promise<string | undefined>
-  getSepaTransactionDetails: (
-    input: SEPATransactionInput
-  ) => Promise<SEPADetails>
+  getSepaDetails: (input: SEPATransactionInput) => Promise<SEPADetails>
 }
 
 export class TransactionService implements ITransactionService {
@@ -224,12 +222,12 @@ export class TransactionService implements ITransactionService {
     })
   }
 
-  async getSepaTransactionDetails({
+  async getSepaDetails({
     receiver,
     legalName
   }: SEPATransactionInput): Promise<SEPADetails> {
     const iban = receiver.split('/iban/')[1]
-    return await this.gateHubClient.getSEPATransactionDetails(iban, legalName)
+    return await this.gateHubClient.getSEPADetails(iban, legalName)
   }
 
   private async handleExpired(

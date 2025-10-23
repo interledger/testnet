@@ -10,7 +10,7 @@ import { Controller, toSuccessResponse } from '@shared/backend'
 import { TransactionsPageResponse } from '@wallet/shared'
 import { sepaDetailsSchema } from '@/incomingPayment/validation'
 
-export type SepaTransactionResponse = {
+export type SepaResponse = {
   vop: {
     description: string
     nonce: string
@@ -78,18 +78,17 @@ export class TransactionController implements ITransactionController {
 
   sepaTransaction = async (
     req: Request,
-    res: CustomResponse<SepaTransactionResponse>,
+    res: CustomResponse<SepaResponse>,
     next: NextFunction
   ) => {
     try {
       const {
         body: { receiver, legalName }
       } = await validate(sepaDetailsSchema, req)
-      const sepaDetails =
-        await this.transactionService.getSepaTransactionDetails({
-          receiver,
-          legalName
-        })
+      const sepaDetails = await this.transactionService.getSepaDetails({
+        receiver,
+        legalName
+      })
 
       res.status(200).json(toSuccessResponse(sepaDetails))
     } catch (e) {

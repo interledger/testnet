@@ -57,7 +57,7 @@ import {
 } from '@/card/types'
 import { BlockReasonCode } from '@wallet/shared/src'
 import { ICardResponse } from '@wallet/shared'
-import { SepaTransactionResponse } from '@/transaction/controller'
+import { SepaResponse } from '@/transaction/controller'
 
 export class GateHubClient {
   private supportedAssetCodes: string[]
@@ -744,10 +744,7 @@ export class GateHubClient {
     return response
   }
 
-  async getSEPATransactionDetails(
-    iban: string,
-    legalName: string
-  ): Promise<SepaTransactionResponse> {
+  async getSEPADetails(iban: string, legalName: string): Promise<SepaResponse> {
     const organizationUuid = this.env.GATEHUB_ORG_ID
     const url = `${this.apiUrl}/core/v1/users/${organizationUuid}/accounts`
     const payload = {
@@ -756,7 +753,7 @@ export class GateHubClient {
       recipient_type: 'PERSONAL',
       network: 30
     }
-    const response = await this.request<SepaTransactionResponse>(
+    const response = await this.request<SepaResponse>(
       'POST',
       url,
       JSON.stringify(payload),
