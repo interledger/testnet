@@ -175,7 +175,7 @@ services:
       ILP_CONNECTOR_URL: http://127.0.0.1:3002
       STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
       ADMIN_KEY: admin
-      OPEN_PAYMENTS_URL: http://rafiki-backend
+      OPEN_PAYMENTS_URL: https://rafiki-backend
       REDIS_URL: redis://redis:6379/0
       WALLET_ADDRESS_URL: https://rafiki-backend/.well-known/pay
       # Testnet urls - not implemented
