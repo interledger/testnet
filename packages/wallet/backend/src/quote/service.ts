@@ -19,7 +19,7 @@ type CreateQuoteParams = {
   amount: number
   isReceive: boolean
   receiver: string
-  vopNonce: string
+  vopNonce?: string
   description?: string
 }
 

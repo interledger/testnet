@@ -107,12 +107,12 @@ type IncomingPaymentDetailsResponse =
 
 type SEPAArgs = { receiver: string; legalName: string }
 type SEPAResult = SuccessResponse<{
-  vop: { description: string; nonce: string; match: string }
+  vop: { description?: string; nonce?: string; match?: string }
 }>
 type SEPAResponse = SEPAResult | ErrorResponse
 
 interface TransfersService {
-  send: (args: SendArgs, nonce: string) => Promise<SendResponse>
+  send: (args: SendArgs, nonce?: string) => Promise<SendResponse>
   acceptQuote: (args: AcceptQuoteArgs) => Promise<AcceptQuoteResponse>
   request: (args: RequestArgs) => Promise<RequestResponse>
   getIncomingPaymentDetails: (

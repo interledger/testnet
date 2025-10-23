@@ -43,6 +43,12 @@ import { useMenuContext } from '@/lib/context/menu'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
+type SepaDetails = {
+  nonce?: string
+  description?: string
+  match?: string
+}
+
 const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [openDialog, closeDialog] = useDialog()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
@@ -280,10 +286,10 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
         className="px-3"
         form={sendForm}
         onSubmit={async (data) => {
-          const sepaDetails = {
-            nonce: '',
-            match: '',
-            description: ''
+          const sepaDetails: SepaDetails = {
+            description: undefined,
+            match: undefined,
+            nonce: undefined
           }
           if (isCardsVisible && isSepa) {
             const responseSEPA = await transfersService.getSEPADetails({

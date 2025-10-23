@@ -7,6 +7,6 @@ export const quoteSchema = z.object({
     amount: z.number().positive(),
     isReceive: z.boolean().default(true),
     description: z.string().optional(),
-    vopNonce: z.string()
+    vopNonce: z.string().optional()
   })
 })

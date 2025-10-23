@@ -25,7 +25,7 @@ interface CreateReceiverParams {
   walletAddressUrl: string
   description?: string
   expiresAt?: Date
-  vopNonce: string
+  vopNonce?: string
 }
 
 interface Expiration {

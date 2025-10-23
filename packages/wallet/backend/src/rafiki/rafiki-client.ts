@@ -110,7 +110,7 @@ export type CreateIncomingPaymentParams = {
 
 export type CreateReceiverParams = {
   walletAddressUrl: string
-  vopNonce: string
+  vopNonce?: string
 } & PaymentParams
 export class RafikiClient implements IRafikiClient {
   constructor(private backendGraphQLClient: GraphQLClient) {}

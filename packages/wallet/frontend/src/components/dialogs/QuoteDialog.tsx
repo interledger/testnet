@@ -18,7 +18,7 @@ type QuoteDialogProps = {
   quote: QuoteResponse
   type: string
   receiverName?: string
-  sepaMatch: string
+  sepaMatch?: string
 }
 
 export const QuoteDialog = ({
@@ -84,7 +84,7 @@ export const QuoteDialog = ({
                       className="mx-auto h-16 w-16"
                     />
                   )}
-                  {sepaMatch === '' ? null : (
+                  {sepaMatch ? null : (
                     <>
                       <p>Verification result: {sepaMatch}</p>
                       <br />
