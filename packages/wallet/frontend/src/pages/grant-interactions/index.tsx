@@ -75,8 +75,12 @@ const GrantInteractionPage = ({
             <div>
               Your wallet is requesting access to the following amounts:{' '}
               {grant.access
-                .map((accessItem) => accessItem.limits?.debitAmount?.formattedAmount)
-                .join(', ')}.
+                .map(
+                  (accessItem) =>
+                    accessItem.limits?.debitAmount?.formattedAmount
+                )
+                .join(', ')}
+              .
             </div>
           )}
           <div>
@@ -136,8 +140,12 @@ const GrantInteractionPage = ({
             <div>
               Your wallet previously granted access to the following amounts:{' '}
               {grant.access
-                .map((accessItem) => accessItem.limits?.debitAmount?.formattedAmount)
-                .join(', ')}.
+                .map(
+                  (accessItem) =>
+                    accessItem.limits?.debitAmount?.formattedAmount
+                )
+                .join(', ')}
+              .
             </div>
           )}
           {grant.access.length === 1 ? null : (
