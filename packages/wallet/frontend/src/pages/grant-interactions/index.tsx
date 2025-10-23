@@ -22,10 +22,9 @@ const GrantInteractionPage = ({
   grant,
   interactionId,
   nonce,
-  clientName
+  clientName: _clientName
 }: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
-  const client = clientName ? clientName : grant.client
   const router = useRouter()
   const isPendingGrant = grant.state === 'PENDING'
   const imageName =
@@ -67,26 +66,26 @@ const GrantInteractionPage = ({
           height={150}
         />
         <div className="mt-20 text-base">
-          <div>
-            <span className="font-semibold">{client}</span> is requesting access
-            to make{' '}
-            {grant.access.length > 1 ? 'a list of payments' : 'a payment'} on
-            your behalf.
-          </div>
+          {grant.access.length === 1 ? (
+            <div>
+              Your wallet is requesting access to an amount of{' '}
+              {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+            </div>
+          ) : (
+            <div>
+              Your wallet is requesting access to the following amounts:{' '}
+              {grant.access
+                .map((accessItem) => accessItem.limits?.debitAmount?.formattedAmount)
+                .join(', ')}.
+            </div>
+          )}
           <div>
             Wallet Address client:{' '}
             <span className="font-semibold">{grant.client}</span>
           </div>
-          {grant.access.length === 1 ? (
-            <div>
-              Total amount to debit:{' '}
-              <span className="font-semibold">
-                {grant.access[0]?.limits?.debitAmount?.formattedAmount}
-              </span>
-            </div>
-          ) : (
+          {grant.access.length === 1 ? null : (
             <div className="mt-4">
-              <div className="font-semibold mb-2">Payment Amounts:</div>
+              <div className="font-semibold mb-2">Amounts:</div>
               {grant.access.map((accessItem, index) => (
                 <div key={index} className="mb-1">
                   {accessItem.limits?.debitAmount?.formattedAmount}
@@ -128,19 +127,23 @@ const GrantInteractionPage = ({
           height={150}
         />
         <div className="mt-20 text-xl">
-          The request from <span className="font-semibold">{client}</span> was
-          previously processed
-          {grant.access.length > 1 ? ' with a list of payments' : ''}.
           {grant.access.length === 1 ? (
-            <>
-              {' '}
-              for the amount of{' '}
-              {grant.access[0]?.limits?.debitAmount?.formattedAmount}
-            </>
+            <div>
+              Your wallet previously granted access to an amount of{' '}
+              {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+            </div>
           ) : (
+            <div>
+              Your wallet previously granted access to the following amounts:{' '}
+              {grant.access
+                .map((accessItem) => accessItem.limits?.debitAmount?.formattedAmount)
+                .join(', ')}.
+            </div>
+          )}
+          {grant.access.length === 1 ? null : (
             <>
               <div className="mt-4">
-                <div className="font-semibold mb-2">Payment Amounts:</div>
+                <div className="font-semibold mb-2">Amounts:</div>
                 {grant.access.map((accessItem, index) => (
                   <div key={index} className="mb-1">
                     {accessItem.limits?.debitAmount?.formattedAmount}
