@@ -87,16 +87,6 @@ const GrantInteractionPage = ({
             Wallet Address client:{' '}
             <span className="font-semibold">{grant.client}</span>
           </div>
-          {grant.access.length === 1 ? null : (
-            <div className="mt-4">
-              <div className="font-semibold mb-2">Amounts:</div>
-              {grant.access.map((accessItem, index) => (
-                <div key={index} className="mb-1">
-                  {accessItem.limits?.debitAmount?.formattedAmount}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
@@ -147,18 +137,6 @@ const GrantInteractionPage = ({
                 .join(', ')}
               .
             </div>
-          )}
-          {grant.access.length === 1 ? null : (
-            <>
-              <div className="mt-4">
-                <div className="font-semibold mb-2">Amounts:</div>
-                {grant.access.map((accessItem, index) => (
-                  <div key={index} className="mb-1">
-                    {accessItem.limits?.debitAmount?.formattedAmount}
-                  </div>
-                ))}
-              </div>
-            </>
           )}
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
