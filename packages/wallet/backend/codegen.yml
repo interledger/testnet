@@ -9,13 +9,13 @@ config:
 generates:
   src/rafiki/backend/generated/graphql.ts:
     documents: 'src/rafiki/backend/**/!(*.d).{ts,tsx}'
-    schema: http://localhost:3011/graphql
+    schema: https://raw.githubusercontent.com/interledger/rafiki/refs/tags/v2.0.0-beta/packages/backend/src/graphql/schema.graphql
     plugins:
       - 'typescript'
       - 'typescript-operations'
   src/rafiki/auth/generated/graphql.ts:
     documents: 'src/rafiki/auth/**/!(*.d).{ts,tsx}'
-    schema: http://localhost:3008/graphql
+    schema: https://raw.githubusercontent.com/interledger/rafiki/refs/tags/v2.0.0-beta/packages/auth/src/graphql/schema.graphql
     plugins:
       - 'typescript'
       - 'typescript-operations'

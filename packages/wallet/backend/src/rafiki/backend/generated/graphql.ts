@@ -12,15 +12,18 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  BigInt: { input: bigint; output: bigint; }
+  /** The `JSONObject` scalar type represents JSON objects as specified by the [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf) standard. */
   JSONObject: { input: any; output: any; }
+  /** The `UInt8` scalar type represents unsigned 8-bit whole numeric values, ranging from 0 to 255. */
   UInt8: { input: number; output: number; }
+  /** The `UInt64` scalar type represents unsigned 64-bit whole numeric values. It is capable of handling values that are larger than the JavaScript `Number` type limit (greater than 2^53). */
+  UInt64: { input: any; output: any; }
 };
 
 export type AccountingTransfer = Model & {
   __typename?: 'AccountingTransfer';
   /** Amount sent (fixed send). */
-  amount: Scalars['BigInt']['output'];
+  amount: Scalars['UInt64']['output'];
   /** The date and time that the accounting transfer was created. */
   createdAt: Scalars['String']['output'];
   /** Unique identifier for the credit account. */
@@ -76,7 +79,7 @@ export type Amount = {
   /** Difference in order of magnitude between the standard unit of an asset and its corresponding fractional unit. */
   assetScale: Scalars['UInt8']['output'];
   /** Numerical value. */
-  value: Scalars['BigInt']['output'];
+  value: Scalars['UInt64']['output'];
 };
 
 export type AmountInput = {
@@ -85,7 +88,7 @@ export type AmountInput = {
   /** Difference in order of magnitude between the standard unit of an asset and its corresponding fractional unit. */
   assetScale: Scalars['UInt8']['input'];
   /** Numerical value. */
-  value: Scalars['BigInt']['input'];
+  value: Scalars['UInt64']['input'];
 };
 
 export type ApproveIncomingPaymentInput = {
@@ -110,17 +113,18 @@ export type Asset = Model & {
   /** Unique identifier of the asset. */
   id: Scalars['ID']['output'];
   /** Available liquidity */
-  liquidity?: Maybe<Scalars['BigInt']['output']>;
+  liquidity?: Maybe<Scalars['UInt64']['output']>;
   /** A webhook event will notify the Account Servicing Entity if liquidity falls below this value. */
-  liquidityThreshold?: Maybe<Scalars['BigInt']['output']>;
+  liquidityThreshold?: Maybe<Scalars['UInt64']['output']>;
   /** The receiving fee structure for the asset. */
   receivingFee?: Maybe<Fee>;
   /** Difference in order of magnitude between the standard unit of an asset and its corresponding fractional unit. */
   scale: Scalars['UInt8']['output'];
   /** The sending fee structure for the asset. */
   sendingFee?: Maybe<Fee>;
+  tenantId: Scalars['ID']['output'];
   /** Minimum amount of liquidity that can be withdrawn from the asset. */
-  withdrawalThreshold?: Maybe<Scalars['BigInt']['output']>;
+  withdrawalThreshold?: Maybe<Scalars['UInt64']['output']>;
 };
 
 
@@ -191,16 +195,18 @@ export type CreateAssetInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** A webhook event will notify the Account Servicing Entity if liquidity falls below this value. */
-  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  liquidityThreshold?: InputMaybe<Scalars['UInt64']['input']>;
   /** Difference in order of magnitude between the standard unit of an asset and its corresponding fractional unit. */
   scale: Scalars['UInt8']['input'];
+  /** Unique identifier of the tenant associated with the asset. This cannot be changed. Optional, if not provided, the tenantId will be obtained from the signature. */
+  tenantId?: InputMaybe<Scalars['ID']['input']>;
   /** Minimum amount of liquidity that can be withdrawn from the asset. */
-  withdrawalThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  withdrawalThreshold?: InputMaybe<Scalars['UInt64']['input']>;
 };
 
 export type CreateAssetLiquidityWithdrawalInput = {
   /** Amount of liquidity to withdraw. */
-  amount: Scalars['BigInt']['input'];
+  amount: Scalars['UInt64']['input'];
   /** Unique identifier of the asset to create the withdrawal for. */
   assetId: Scalars['String']['input'];
   /** Unique identifier of the withdrawal. */
@@ -208,7 +214,7 @@ export type CreateAssetLiquidityWithdrawalInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey: Scalars['String']['input'];
   /** Interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
-  timeoutSeconds: Scalars['BigInt']['input'];
+  timeoutSeconds: Scalars['UInt64']['input'];
 };
 
 export type CreateIncomingPaymentInput = {
@@ -230,7 +236,7 @@ export type CreateIncomingPaymentWithdrawalInput = {
   /** Unique identifier of the incoming payment to withdraw liquidity from. */
   incomingPaymentId: Scalars['String']['input'];
   /** Interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
-  timeoutSeconds: Scalars['BigInt']['input'];
+  timeoutSeconds: Scalars['UInt64']['input'];
 };
 
 export type CreateOrUpdatePeerByUrlInput = {
@@ -239,11 +245,11 @@ export type CreateOrUpdatePeerByUrlInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** A webhook event will notify the Account Servicing Entity if peer liquidity falls below this value. */
-  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  liquidityThreshold?: InputMaybe<Scalars['UInt64']['input']>;
   /** Amount of liquidity to deposit for the peer. */
-  liquidityToDeposit?: InputMaybe<Scalars['BigInt']['input']>;
+  liquidityToDeposit?: InputMaybe<Scalars['UInt64']['input']>;
   /** Maximum packet amount that the peer accepts. */
-  maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  maxPacketAmount?: InputMaybe<Scalars['UInt64']['input']>;
   /** Internal name for the peer, used to override auto-peering default names. */
   name?: InputMaybe<Scalars['String']['input']>;
   /** Peer's URL address, where auto-peering requests are accepted. */
@@ -258,7 +264,7 @@ export type CreateOrUpdatePeerByUrlMutationResponse = {
 
 export type CreateOutgoingPaymentFromIncomingPaymentInput = {
   /** Amount to send (fixed send). */
-  debitAmount: AmountInput;
+  debitAmount?: InputMaybe<AmountInput>;
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Incoming payment URL to create the outgoing payment from. */
@@ -286,7 +292,7 @@ export type CreateOutgoingPaymentWithdrawalInput = {
   /** Unique identifier of the outgoing payment to withdraw liquidity from. */
   outgoingPaymentId: Scalars['String']['input'];
   /** Interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
-  timeoutSeconds: Scalars['BigInt']['input'];
+  timeoutSeconds: Scalars['UInt64']['input'];
 };
 
 export type CreatePeerInput = {
@@ -297,11 +303,11 @@ export type CreatePeerInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Initial amount of liquidity to deposit for the peer. */
-  initialLiquidity?: InputMaybe<Scalars['BigInt']['input']>;
+  initialLiquidity?: InputMaybe<Scalars['UInt64']['input']>;
   /** A webhook event will notify the Account Servicing Entity if peer liquidity falls below this value. */
-  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  liquidityThreshold?: InputMaybe<Scalars['UInt64']['input']>;
   /** Maximum packet amount that the peer accepts. */
-  maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  maxPacketAmount?: InputMaybe<Scalars['UInt64']['input']>;
   /** Internal name of the peer. */
   name?: InputMaybe<Scalars['String']['input']>;
   /** ILP address of the peer. */
@@ -310,7 +316,7 @@ export type CreatePeerInput = {
 
 export type CreatePeerLiquidityWithdrawalInput = {
   /** Amount of liquidity to withdraw. */
-  amount: Scalars['BigInt']['input'];
+  amount: Scalars['UInt64']['input'];
   /** Unique identifier of the withdrawal. */
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
@@ -318,7 +324,7 @@ export type CreatePeerLiquidityWithdrawalInput = {
   /** Unique identifier of the peer to create the withdrawal for. */
   peerId: Scalars['String']['input'];
   /** Interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
-  timeoutSeconds: Scalars['BigInt']['input'];
+  timeoutSeconds: Scalars['UInt64']['input'];
 };
 
 export type CreatePeerMutationResponse = {
@@ -359,17 +365,47 @@ export type CreateReceiverResponse = {
   receiver?: Maybe<Receiver>;
 };
 
+export type CreateTenantInput = {
+  /** Secret used to secure requests made for this tenant. */
+  apiSecret: Scalars['String']['input'];
+  /** Contact email of the tenant owner. */
+  email?: InputMaybe<Scalars['String']['input']>;
+  /** Unique identifier of the tenant. Must be compliant with uuid v4. Will be generated automatically if not provided. */
+  id?: InputMaybe<Scalars['ID']['input']>;
+  /** URL of the tenant's identity provider's consent screen. */
+  idpConsentUrl?: InputMaybe<Scalars['String']['input']>;
+  /** Secret used to secure requests from the tenant's identity provider. */
+  idpSecret?: InputMaybe<Scalars['String']['input']>;
+  /** Public name for the tenant. */
+  publicName?: InputMaybe<Scalars['String']['input']>;
+  /** Initial settings for tenant. */
+  settings?: InputMaybe<Array<TenantSettingInput>>;
+};
+
+export type CreateTenantSettingsInput = {
+  /** List of a settings for a tenant. */
+  settings: Array<TenantSettingInput>;
+};
+
+export type CreateTenantSettingsMutationResponse = {
+  __typename?: 'CreateTenantSettingsMutationResponse';
+  /** New tenant settings. */
+  settings: Array<TenantSetting>;
+};
+
 export type CreateWalletAddressInput = {
   /** Additional properties associated with the wallet address. */
   additionalProperties?: InputMaybe<Array<AdditionalPropertyInput>>;
+  /** Wallet address. This cannot be changed. */
+  address: Scalars['String']['input'];
   /** Unique identifier of the asset associated with the wallet address. This cannot be changed. */
   assetId: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** Public name associated with the wallet address. This is visible to anyone with the wallet address URL. */
   publicName?: InputMaybe<Scalars['String']['input']>;
-  /** Wallet address URL. This cannot be changed. */
-  url: Scalars['String']['input'];
+  /** Unique identifier of the tenant associated with the wallet address. This cannot be changed. Optional, if not provided, the tenantId will be obtained from the signature. */
+  tenantId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type CreateWalletAddressKeyInput = {
@@ -399,7 +435,7 @@ export type CreateWalletAddressWithdrawalInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey: Scalars['String']['input'];
   /** Interval in seconds after a pending transfer's created at which it may be posted or voided. Zero denotes a no timeout single-phase posted transfer. */
-  timeoutSeconds: Scalars['BigInt']['input'];
+  timeoutSeconds: Scalars['UInt64']['input'];
   /** Unique identifier of the Open Payments wallet address to create the withdrawal for. */
   walletAddressId: Scalars['String']['input'];
 };
@@ -435,9 +471,14 @@ export type DeletePeerMutationResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type DeleteTenantMutationResponse = {
+  __typename?: 'DeleteTenantMutationResponse';
+  success: Scalars['Boolean']['output'];
+};
+
 export type DepositAssetLiquidityInput = {
   /** Amount of liquidity to deposit. */
-  amount: Scalars['BigInt']['input'];
+  amount: Scalars['UInt64']['input'];
   /** Unique identifier of the asset to deposit liquidity into. */
   assetId: Scalars['String']['input'];
   /** Unique identifier of the liquidity transfer. */
@@ -462,7 +503,7 @@ export type DepositOutgoingPaymentLiquidityInput = {
 
 export type DepositPeerLiquidityInput = {
   /** Amount of liquidity to deposit. */
-  amount: Scalars['BigInt']['input'];
+  amount: Scalars['UInt64']['input'];
   /** Unique identifier of the liquidity transfer. */
   id: Scalars['String']['input'];
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
@@ -480,7 +521,7 @@ export type Fee = Model & {
   /** The date and time that this fee was created. */
   createdAt: Scalars['String']['output'];
   /** Amount of the flat, fixed fee to charge. */
-  fixed: Scalars['BigInt']['output'];
+  fixed: Scalars['UInt64']['output'];
   /** Unique identifier of the fee. */
   id: Scalars['ID']['output'];
   /** Type of fee, either sending or receiving. */
@@ -491,7 +532,7 @@ export type FeeDetails = {
   /** Basis points fee is a variable fee charged based on the total amount. Should be between 0 and 10000 (inclusive). 1 basis point = 0.01%, 100 basis points = 1%, 10000 basis points = 100%. */
   basisPoints: Scalars['Int']['input'];
   /** Amount of the flat, fixed fee to charge. */
-  fixed: Scalars['BigInt']['input'];
+  fixed: Scalars['UInt64']['input'];
 };
 
 export type FeeEdge = {
@@ -568,13 +609,15 @@ export type IncomingPayment = BasePayment & Model & {
   /** The maximum amount that should be paid into the wallet address under this incoming payment. */
   incomingAmount?: Maybe<Amount>;
   /** Current amount of liquidity available for this incoming payment. */
-  liquidity?: Maybe<Scalars['BigInt']['output']>;
+  liquidity?: Maybe<Scalars['UInt64']['output']>;
   /** Additional metadata associated with the incoming payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** The total amount that has been paid into the wallet address under this incoming payment. */
   receivedAmount: Amount;
   /** State of the incoming payment. */
   state: IncomingPaymentState;
+  /** The tenant UUID associated with the incoming payment. If not provided, it will be obtained from the signature. */
+  tenantId?: Maybe<Scalars['String']['output']>;
   /** Unique identifier of the wallet address under which the incoming payment was created. */
   walletAddressId: Scalars['ID']['output'];
 };
@@ -661,6 +704,8 @@ export enum LiquidityError {
   UnknownAsset = 'UnknownAsset',
   /** The specified incoming payment could not be found. */
   UnknownIncomingPayment = 'UnknownIncomingPayment',
+  /** The specified outgoing payment could not be found. */
+  UnknownOutgoingPayment = 'UnknownOutgoingPayment',
   /** The specified payment could not be found. */
   UnknownPayment = 'UnknownPayment',
   /** The specified peer could not be found. */
@@ -716,6 +761,9 @@ export type Mutation = {
   createQuote: QuoteResponse;
   /** Create an internal or external Open Payments incoming payment. The receiver has a wallet address on either this or another Open Payments resource server. */
   createReceiver: CreateReceiverResponse;
+  /** As an operator, create a tenant. */
+  createTenant: TenantMutationResponse;
+  createTenantSettings?: Maybe<CreateTenantSettingsMutationResponse>;
   /** Create a new wallet address. */
   createWalletAddress: CreateWalletAddressMutationResponse;
   /** Add a public key to a wallet address that is used to verify Open Payments requests. */
@@ -726,6 +774,8 @@ export type Mutation = {
   deleteAsset: DeleteAssetMutationResponse;
   /** Delete a peer. */
   deletePeer: DeletePeerMutationResponse;
+  /** Delete a tenant. */
+  deleteTenant: DeleteTenantMutationResponse;
   /** Deposit asset liquidity. */
   depositAssetLiquidity?: Maybe<LiquidityMutationResponse>;
   /**
@@ -751,6 +801,8 @@ export type Mutation = {
   updateIncomingPayment: IncomingPaymentResponse;
   /** Update an existing peer. */
   updatePeer: UpdatePeerMutationResponse;
+  /** Update a tenant. */
+  updateTenant: TenantMutationResponse;
   /** Update an existing wallet address. */
   updateWalletAddress: UpdateWalletAddressMutationResponse;
   /** Void liquidity withdrawal. Withdrawals are two-phase commits and are rolled back via this mutation. */
@@ -838,6 +890,16 @@ export type MutationCreateReceiverArgs = {
 };
 
 
+export type MutationCreateTenantArgs = {
+  input: CreateTenantInput;
+};
+
+
+export type MutationCreateTenantSettingsArgs = {
+  input: CreateTenantSettingsInput;
+};
+
+
 export type MutationCreateWalletAddressArgs = {
   input: CreateWalletAddressInput;
 };
@@ -860,6 +922,11 @@ export type MutationDeleteAssetArgs = {
 
 export type MutationDeletePeerArgs = {
   input: DeletePeerInput;
+};
+
+
+export type MutationDeleteTenantArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -918,6 +985,11 @@ export type MutationUpdatePeerArgs = {
 };
 
 
+export type MutationUpdateTenantArgs = {
+  input: UpdateTenantInput;
+};
+
+
 export type MutationUpdateWalletAddressArgs = {
   input: UpdateWalletAddressInput;
 };
@@ -947,7 +1019,7 @@ export type OutgoingPayment = BasePayment & Model & {
   /** Unique identifier of the outgoing payment. */
   id: Scalars['ID']['output'];
   /** Current amount of liquidity available for this outgoing payment. */
-  liquidity?: Maybe<Scalars['BigInt']['output']>;
+  liquidity?: Maybe<Scalars['UInt64']['output']>;
   /** Additional metadata associated with the outgoing payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** Corresponding quote for the outgoing payment. */
@@ -962,6 +1034,8 @@ export type OutgoingPayment = BasePayment & Model & {
   state: OutgoingPaymentState;
   /** Number of attempts made to send an outgoing payment. */
   stateAttempts: Scalars['Int']['output'];
+  /** Tenant ID of the outgoing payment. */
+  tenantId?: Maybe<Scalars['String']['output']>;
   /** Unique identifier of the wallet address under which the outgoing payment was created. */
   walletAddressId: Scalars['ID']['output'];
 };
@@ -1031,7 +1105,7 @@ export type Payment = BasePayment & Model & {
   /** Unique identifier of the payment. */
   id: Scalars['ID']['output'];
   /** Current amount of liquidity available for this payment. */
-  liquidity?: Maybe<Scalars['BigInt']['output']>;
+  liquidity?: Maybe<Scalars['UInt64']['output']>;
   /** Additional metadata associated with the payment. */
   metadata?: Maybe<Scalars['JSONObject']['output']>;
   /** State of the payment, either `IncomingPaymentState` or `OutgoingPaymentState` according to payment type */
@@ -1083,15 +1157,17 @@ export type Peer = Model & {
   /** Unique identifier of the peer. */
   id: Scalars['ID']['output'];
   /** Current amount of peer liquidity available. */
-  liquidity?: Maybe<Scalars['BigInt']['output']>;
+  liquidity?: Maybe<Scalars['UInt64']['output']>;
   /** A webhook event will notify the Account Servicing Entity if liquidity falls below this value. */
-  liquidityThreshold?: Maybe<Scalars['BigInt']['output']>;
+  liquidityThreshold?: Maybe<Scalars['UInt64']['output']>;
   /** Maximum packet amount that the peer accepts. */
-  maxPacketAmount?: Maybe<Scalars['BigInt']['output']>;
+  maxPacketAmount?: Maybe<Scalars['UInt64']['output']>;
   /** Public name for the peer. */
   name?: Maybe<Scalars['String']['output']>;
   /** ILP address of the peer. */
   staticIlpAddress: Scalars['String']['output'];
+  /** Unique identifier of the tenant associated with the peer. */
+  tenantId: Scalars['ID']['output'];
 };
 
 export type PeerEdge = {
@@ -1145,6 +1221,10 @@ export type Query = {
   quote?: Maybe<Quote>;
   /** Retrieve an Open Payments incoming payment by receiver ID. The receiver's wallet address can be hosted on this server or a remote Open Payments resource server. */
   receiver?: Maybe<Receiver>;
+  /** Retrieve a tenant of the instance. */
+  tenant: Tenant;
+  /** As an operator, fetch a paginated list of tenants on the instance. */
+  tenants: TenantsConnection;
   /** Fetch a wallet address by its ID. */
   walletAddress?: Maybe<WalletAddress>;
   /** Get a wallet address by its url if it exists */
@@ -1153,6 +1233,8 @@ export type Query = {
   walletAddresses: WalletAddressesConnection;
   /** Fetch a paginated list of webhook events. */
   webhookEvents: WebhookEventsConnection;
+  /** Determine if the requester has operator permissions */
+  whoami: WhoamiResponse;
 };
 
 
@@ -1179,6 +1261,7 @@ export type QueryAssetsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
+  tenantId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1199,6 +1282,7 @@ export type QueryOutgoingPaymentsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
+  tenantId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1209,6 +1293,7 @@ export type QueryPaymentsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
+  tenantId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1229,6 +1314,7 @@ export type QueryPeersArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
+  tenantId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -1239,6 +1325,20 @@ export type QueryQuoteArgs = {
 
 export type QueryReceiverArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryTenantArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryTenantsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -1258,6 +1358,7 @@ export type QueryWalletAddressesArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
+  tenantId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1268,6 +1369,7 @@ export type QueryWebhookEventsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
+  tenantId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Quote = {
@@ -1286,6 +1388,8 @@ export type Quote = {
   receiveAmount: Amount;
   /** Wallet address URL of the receiver. */
   receiver: Scalars['String']['output'];
+  /** Unique identifier of the tenant under which the quote was created. */
+  tenantId: Scalars['ID']['output'];
   /** Unique identifier of the wallet address under which the quote was created. */
   walletAddressId: Scalars['ID']['output'];
 };
@@ -1369,6 +1473,73 @@ export enum SortOrder {
   Desc = 'DESC'
 }
 
+export type Tenant = Model & {
+  __typename?: 'Tenant';
+  /** Secret used to secure requests made for this tenant. */
+  apiSecret: Scalars['String']['output'];
+  /** The date and time that this tenant was created. */
+  createdAt: Scalars['String']['output'];
+  /** The date and time that this tenant was deleted. */
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  /** Contact email of the tenant owner. */
+  email?: Maybe<Scalars['String']['output']>;
+  /** Unique identifier of the tenant. */
+  id: Scalars['ID']['output'];
+  /** URL of the tenant's identity provider's consent screen. */
+  idpConsentUrl?: Maybe<Scalars['String']['output']>;
+  /** Secret used to secure requests from the tenant's identity provider. */
+  idpSecret?: Maybe<Scalars['String']['output']>;
+  /** Public name for the tenant. */
+  publicName?: Maybe<Scalars['String']['output']>;
+  /** List of settings for the tenant. */
+  settings: Array<TenantSetting>;
+};
+
+export type TenantEdge = {
+  __typename?: 'TenantEdge';
+  /** A cursor for paginating through the tenants. */
+  cursor: Scalars['String']['output'];
+  /** A tenant node in the list. */
+  node: Tenant;
+};
+
+export type TenantMutationResponse = {
+  __typename?: 'TenantMutationResponse';
+  tenant: Tenant;
+};
+
+export type TenantSetting = {
+  __typename?: 'TenantSetting';
+  /** Key for this setting. */
+  key: TenantSettingKey;
+  /** Value of a setting for this key. */
+  value: Scalars['String']['output'];
+};
+
+export type TenantSettingInput = {
+  /** Key for this setting. */
+  key: TenantSettingKey;
+  /** Value of a setting for this key. */
+  value: Scalars['String']['input'];
+};
+
+export enum TenantSettingKey {
+  ExchangeRatesUrl = 'EXCHANGE_RATES_URL',
+  IlpAddress = 'ILP_ADDRESS',
+  WalletAddressUrl = 'WALLET_ADDRESS_URL',
+  WebhookMaxRetry = 'WEBHOOK_MAX_RETRY',
+  WebhookTimeout = 'WEBHOOK_TIMEOUT',
+  WebhookUrl = 'WEBHOOK_URL'
+}
+
+export type TenantsConnection = {
+  __typename?: 'TenantsConnection';
+  /** A list of edges representing tenants and cursors for pagination. */
+  edges: Array<TenantEdge>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+};
+
 export enum TransferState {
   /** The accounting transfer is pending */
   Pending = 'PENDING',
@@ -1406,9 +1577,9 @@ export type UpdateAssetInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** A webhook event will notify the Account Servicing Entity if liquidity falls below this new value. */
-  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  liquidityThreshold?: InputMaybe<Scalars['UInt64']['input']>;
   /** New minimum amount of liquidity that can be withdrawn from the asset. */
-  withdrawalThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  withdrawalThreshold?: InputMaybe<Scalars['UInt64']['input']>;
 };
 
 export type UpdateIncomingPaymentInput = {
@@ -1426,9 +1597,9 @@ export type UpdatePeerInput = {
   /** Unique key to ensure duplicate or retried requests are processed only once. For more information, refer to [idempotency](https://rafiki.dev/apis/graphql/admin-api-overview/#idempotency). */
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
   /** A webhook event will notify the Account Servicing Entity if peer liquidity falls below this new value. */
-  liquidityThreshold?: InputMaybe<Scalars['BigInt']['input']>;
+  liquidityThreshold?: InputMaybe<Scalars['UInt64']['input']>;
   /** New maximum packet amount that the peer accepts. */
-  maxPacketAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  maxPacketAmount?: InputMaybe<Scalars['UInt64']['input']>;
   /** New public name for the peer. */
   name?: InputMaybe<Scalars['String']['input']>;
   /** New ILP address for the peer. */
@@ -1439,6 +1610,21 @@ export type UpdatePeerMutationResponse = {
   __typename?: 'UpdatePeerMutationResponse';
   /** The peer that was updated. */
   peer?: Maybe<Peer>;
+};
+
+export type UpdateTenantInput = {
+  /** Secret used to secure requests made for this tenant. */
+  apiSecret?: InputMaybe<Scalars['String']['input']>;
+  /** Contact email of the tenant owner. */
+  email?: InputMaybe<Scalars['String']['input']>;
+  /** Unique identifier of the tenant. */
+  id: Scalars['ID']['input'];
+  /** URL of the tenant's identity provider's consent screen. */
+  idpConsentUrl?: InputMaybe<Scalars['String']['input']>;
+  /** Secret used to secure requests from the tenant's identity provider. */
+  idpSecret?: InputMaybe<Scalars['String']['input']>;
+  /** Public name for the tenant. */
+  publicName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateWalletAddressInput = {
@@ -1471,6 +1657,8 @@ export type WalletAddress = Model & {
   __typename?: 'WalletAddress';
   /** Additional properties associated with the wallet address. */
   additionalProperties?: Maybe<Array<Maybe<AdditionalProperty>>>;
+  /** Wallet Address. */
+  address: Scalars['String']['output'];
   /** Asset of the wallet address. */
   asset: Asset;
   /** The date and time when the wallet address was created. */
@@ -1480,7 +1668,7 @@ export type WalletAddress = Model & {
   /** List of incoming payments received by this wallet address */
   incomingPayments?: Maybe<IncomingPaymentConnection>;
   /** Current amount of liquidity available for this wallet address. */
-  liquidity?: Maybe<Scalars['BigInt']['output']>;
+  liquidity?: Maybe<Scalars['UInt64']['output']>;
   /** List of outgoing payments sent from this wallet address */
   outgoingPayments?: Maybe<OutgoingPaymentConnection>;
   /** Public name associated with the wallet address. This is visible to anyone with the wallet address URL. */
@@ -1489,8 +1677,8 @@ export type WalletAddress = Model & {
   quotes?: Maybe<QuoteConnection>;
   /** The current status of the wallet, either active or inactive. */
   status: WalletAddressStatus;
-  /** Wallet Address URL. */
-  url: Scalars['String']['output'];
+  /** Tenant ID of the wallet address. */
+  tenantId?: Maybe<Scalars['String']['output']>;
   /** List of keys associated with this wallet address */
   walletAddressKeys?: Maybe<WalletAddressKeyConnection>;
 };
@@ -1579,7 +1767,7 @@ export enum WalletAddressStatus {
 export type WalletAddressWithdrawal = {
   __typename?: 'WalletAddressWithdrawal';
   /** Amount to be withdrawn. */
-  amount: Scalars['BigInt']['output'];
+  amount: Scalars['UInt64']['output'];
   /** Unique identifier for the withdrawal. */
   id: Scalars['ID']['output'];
   /** Details about the wallet address from which the withdrawal is made. */
@@ -1608,6 +1796,8 @@ export type WebhookEvent = Model & {
   data: Scalars['JSONObject']['output'];
   /** Unique identifier of the webhook event. */
   id: Scalars['ID']['output'];
+  /** Tenant of the webhook event. */
+  tenantId: Scalars['ID']['output'];
   /** Type of webhook event. */
   type: Scalars['String']['output'];
 };
@@ -1633,6 +1823,12 @@ export type WebhookEventsEdge = {
   node: WebhookEvent;
 };
 
+export type WhoamiResponse = {
+  __typename?: 'WhoamiResponse';
+  id: Scalars['String']['output'];
+  isOperator: Scalars['Boolean']['output'];
+};
+
 export type WithdrawEventLiquidityInput = {
   /** Unique identifier of the event to withdraw liquidity from. */
   eventId: Scalars['String']['input'];
@@ -1655,21 +1851,21 @@ export type GetAssetsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetsConnection', edges: Array<{ __typename?: 'AssetEdge', cursor: string, node: { __typename?: 'Asset', code: string, createdAt: string, id: string, scale: number, withdrawalThreshold?: bigint | null } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetsConnection', edges: Array<{ __typename?: 'AssetEdge', cursor: string, node: { __typename?: 'Asset', code: string, createdAt: string, id: string, scale: number, withdrawalThreshold?: any | null } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type GetAssetQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset?: { __typename?: 'Asset', code: string, createdAt: string, id: string, scale: number, withdrawalThreshold?: bigint | null } | null };
+export type GetAssetQuery = { __typename?: 'Query', asset?: { __typename?: 'Asset', code: string, createdAt: string, id: string, scale: number, withdrawalThreshold?: any | null } | null };
 
 export type CreateIncomingPaymentMutationVariables = Exact<{
   input: CreateIncomingPaymentInput;
 }>;
 
 
-export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, walletAddressId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateIncomingPaymentMutation = { __typename?: 'Mutation', createIncomingPayment: { __typename?: 'IncomingPaymentResponse', payment?: { __typename?: 'IncomingPayment', createdAt: string, metadata?: any | null, expiresAt: string, id: string, walletAddressId: string, state: IncomingPaymentState, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null } };
 
 export type GetIncomingPaymentQueryVariables = Exact<{
   id: Scalars['String']['input'];
@@ -1699,7 +1895,7 @@ export type CreateOutgoingPaymentMutationVariables = Exact<{
 }>;
 
 
-export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, id: string, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateOutgoingPaymentMutation = { __typename?: 'Mutation', createOutgoingPayment: { __typename?: 'OutgoingPaymentResponse', payment?: { __typename?: 'OutgoingPayment', createdAt: string, metadata?: any | null, error?: string | null, id: string, walletAddressId: string, receiver: string, state: OutgoingPaymentState, stateAttempts: number, quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, id: string, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any }, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null } };
 
 export type GetOutgoingPaymentsQueryVariables = Exact<{
   filter?: InputMaybe<OutgoingPaymentFilter>;
@@ -1710,42 +1906,42 @@ export type GetOutgoingPaymentsQueryVariables = Exact<{
 }>;
 
 
-export type GetOutgoingPaymentsQuery = { __typename?: 'Query', outgoingPayments: { __typename?: 'OutgoingPaymentConnection', edges: Array<{ __typename?: 'OutgoingPaymentEdge', cursor: string, node: { __typename?: 'OutgoingPayment', id: string, walletAddressId: string, receiver: string, grantId?: string | null, state: OutgoingPaymentState, createdAt: string, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type GetOutgoingPaymentsQuery = { __typename?: 'Query', outgoingPayments: { __typename?: 'OutgoingPaymentConnection', edges: Array<{ __typename?: 'OutgoingPaymentEdge', cursor: string, node: { __typename?: 'OutgoingPayment', id: string, walletAddressId: string, receiver: string, grantId?: string | null, state: OutgoingPaymentState, createdAt: string, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type GetOutgoingPaymentQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type GetOutgoingPaymentQuery = { __typename?: 'Query', outgoingPayment?: { __typename?: 'OutgoingPayment', id: string, walletAddressId: string, receiver: string, grantId?: string | null, state: OutgoingPaymentState, createdAt: string, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null };
+export type GetOutgoingPaymentQuery = { __typename?: 'Query', outgoingPayment?: { __typename?: 'OutgoingPayment', id: string, walletAddressId: string, receiver: string, grantId?: string | null, state: OutgoingPaymentState, createdAt: string, sentAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
 
 
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, id: string, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote: { __typename?: 'QuoteResponse', quote?: { __typename?: 'Quote', createdAt: string, expiresAt: string, id: string, walletAddressId: string, receiver: string, receiveAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any }, debitAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null } };
 
 export type GetQuoteQueryVariables = Exact<{
   quoteId: Scalars['String']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: bigint, assetCode: string, assetScale: number } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, walletAddressId: string, receiver: string, createdAt: string, expiresAt: string, debitAmount: { __typename?: 'Amount', value: any, assetCode: string, assetScale: number }, receiveAmount: { __typename?: 'Amount', value: any, assetCode: string, assetScale: number } } | null };
 
 export type CreateReceiverMutationVariables = Exact<{
   input: CreateReceiverInput;
 }>;
 
 
-export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null } };
+export type CreateReceiverMutation = { __typename?: 'Mutation', createReceiver: { __typename?: 'CreateReceiverResponse', receiver?: { __typename?: 'Receiver', createdAt: string, metadata?: any | null, expiresAt?: string | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null } };
 
 export type GetReceiverQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type GetReceiverQuery = { __typename?: 'Query', receiver?: { __typename?: 'Receiver', completed: boolean, createdAt: string, expiresAt?: string | null, metadata?: any | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: bigint } } | null };
+export type GetReceiverQuery = { __typename?: 'Query', receiver?: { __typename?: 'Receiver', completed: boolean, createdAt: string, expiresAt?: string | null, metadata?: any | null, id: string, walletAddressUrl: string, incomingAmount?: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } | null, receivedAmount: { __typename?: 'Amount', assetCode: string, assetScale: number, value: any } } | null };
 
 export type CreateWalletAddressKeyMutationVariables = Exact<{
   input: CreateWalletAddressKeyInput;
@@ -1766,11 +1962,11 @@ export type CreateWalletAddressMutationVariables = Exact<{
 }>;
 
 
-export type CreateWalletAddressMutation = { __typename?: 'Mutation', createWalletAddress: { __typename?: 'CreateWalletAddressMutationResponse', walletAddress?: { __typename?: 'WalletAddress', id: string, url: string, publicName?: string | null } | null } };
+export type CreateWalletAddressMutation = { __typename?: 'Mutation', createWalletAddress: { __typename?: 'CreateWalletAddressMutationResponse', walletAddress?: { __typename?: 'WalletAddress', id: string, address: string, publicName?: string | null } | null } };
 
 export type UpdateWalletAddressMutationVariables = Exact<{
   input: UpdateWalletAddressInput;
 }>;
 
 
-export type UpdateWalletAddressMutation = { __typename?: 'Mutation', updateWalletAddress: { __typename?: 'UpdateWalletAddressMutationResponse', walletAddress?: { __typename?: 'WalletAddress', id: string, url: string, publicName?: string | null } | null } };
+export type UpdateWalletAddressMutation = { __typename?: 'Mutation', updateWalletAddress: { __typename?: 'UpdateWalletAddressMutationResponse', walletAddress?: { __typename?: 'WalletAddress', id: string, address: string, publicName?: string | null } | null } };

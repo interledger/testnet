@@ -122,7 +122,7 @@ export class WalletAddressService implements IWalletAddressService {
         )
 
       walletAddress = await WalletAddress.query().insert({
-        url: rafikiWalletAddress.url,
+        url: rafikiWalletAddress.address,
         publicName: args.publicName,
         accountId: args.accountId,
         id: rafikiWalletAddress.id,

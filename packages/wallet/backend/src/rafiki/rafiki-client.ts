@@ -133,7 +133,7 @@ export class RafikiClient implements IRafikiClient {
       GetAssetsQueryVariables
     >(getAssetsQuery, args ?? {})
 
-    return response.assets.edges.map((el: { node: Asset }) => el.node)
+    return response.assets.edges.map((el) => el.node as Asset)
   }
 
   public async getAssetById(id: string): Promise<Asset> {
@@ -282,7 +282,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error('Unable to fetch created outgoing payment')
     }
 
-    return paymentResponse.payment
+    return paymentResponse.payment as OutgoingPayment
   }
 
   public async createRafikiWalletAddress(
@@ -297,7 +297,7 @@ export class RafikiClient implements IRafikiClient {
       input: {
         assetId,
         publicName,
-        url
+        address: url
       }
     })
 
@@ -382,7 +382,7 @@ export class RafikiClient implements IRafikiClient {
       throw new Error('Unable to create Quote')
     }
 
-    return createQuote.quote
+    return createQuote.quote as Quote
   }
 
   public async getQuote(quoteId: string) {
