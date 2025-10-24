@@ -129,7 +129,7 @@ services:
     <<: *logging
 
   rafiki-auth:
-    image: ghcr.io/interledger/rafiki-auth:v1.2.0-beta
+    image: ghcr.io/interledger/rafiki-auth:v2.0.0-beta
     container_name: rafiki-auth
     environment:
       NODE_ENV: ${NODE_ENV}
