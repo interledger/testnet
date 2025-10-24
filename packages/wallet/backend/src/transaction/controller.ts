@@ -8,6 +8,15 @@ import {
 import { TransactionService } from '@/transaction/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { TransactionsPageResponse } from '@wallet/shared'
+import { sepaDetailsSchema } from '@/incomingPayment/validation'
+
+export type SepaResponse = {
+  vop: {
+    description: string
+    nonce: string
+    match: string
+  }
+}
 
 interface ITransactionController {
   list: Controller<Transaction[]>
@@ -62,6 +71,26 @@ export class TransactionController implements ITransactionController {
         orderByDate
       })
       res.status(200).json(toSuccessResponse(transactions))
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  sepaTransaction = async (
+    req: Request,
+    res: CustomResponse<SepaResponse>,
+    next: NextFunction
+  ) => {
+    try {
+      const {
+        body: { receiver, legalName }
+      } = await validate(sepaDetailsSchema, req)
+      const sepaDetails = await this.transactionService.getSepaDetails({
+        receiver,
+        legalName
+      })
+
+      res.status(200).json(toSuccessResponse(sepaDetails))
     } catch (e) {
       next(e)
     }

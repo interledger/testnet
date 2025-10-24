@@ -38,7 +38,7 @@ export class RafikiAuthService implements IRafikiAuthService {
       GetGrantsQueryVariables
     >(getGrantsQuery, { filter: { identifier: { in: identifiers } } })
 
-    return response.grants.edges.map((el: { node: Grant }) => el.node)
+    return response.grants.edges.map((el) => el.node as Grant)
   }
 
   async listGrantsWithPagination(args: GetGrantsQueryVariables) {
@@ -67,7 +67,7 @@ export class RafikiAuthService implements IRafikiAuthService {
       GetGrantQueryVariables
     >(getGrantByIdQuery, { grantId })
 
-    return response.grant
+    return response.grant as Grant
   }
 
   async getGrantByInteraction(interactionId: string, nonce: string) {

@@ -66,6 +66,7 @@ export const mockCreateQuoteRequest = (
       walletAddressId: uuid(),
       amount: Number(faker.finance.amount({ dec: 0 })),
       isReceive: true,
+      vopNonce: '',
       ...overrides
     }
   }
