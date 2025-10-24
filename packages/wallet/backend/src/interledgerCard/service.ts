@@ -2,7 +2,6 @@ import { Card } from './model'
 import { User } from '@/user/model'
 import { BadRequest, NotFound } from '@shared/backend'
 import { WalletAddressService } from '@/walletAddress/service'
-import { Env } from '@/config/env'
 import { generateKeyPairSync } from 'crypto'
 
 type CreateCardArgs = {
@@ -27,10 +26,7 @@ interface IInterledgerCardService {
 }
 
 export class InterledgerCardService implements IInterledgerCardService {
-  constructor(
-    private walletAddressService: WalletAddressService,
-    private env: Env
-  ) {}
+  constructor(private walletAddressService: WalletAddressService) {}
 
   public async create(args: CreateCardArgs): Promise<CreateCardResponse> {
     await this.walletAddressService.getById({
@@ -39,20 +35,16 @@ export class InterledgerCardService implements IInterledgerCardService {
       walletAddressId: args.walletAddressId
     })
 
-    let publicKeyPEM: undefined | string, privateKeyPEM: undefined | string
+    const { publicKey, privateKey } = generateKeyPairSync('ec', {
+      namedCurve: 'P-256'
+    })
 
-    if (this.env.GATEHUB_ENV !== 'production') {
-      const { publicKey, privateKey } = generateKeyPairSync('ec', {
-        namedCurve: 'P-256'
-      })
-
-      publicKeyPEM = publicKey
-        .export({ type: 'spki', format: 'pem' })
-        .toString()
-      privateKeyPEM = privateKey
-        .export({ type: 'pkcs8', format: 'pem' })
-        .toString()
-    }
+    const publicKeyPEM = publicKey
+      .export({ type: 'spki', format: 'pem' })
+      .toString()
+    const privateKeyPEM = privateKey
+      .export({ type: 'pkcs8', format: 'pem' })
+      .toString()
 
     const card = await Card.query().insert({
       userId: args.userId,

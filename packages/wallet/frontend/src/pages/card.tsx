@@ -22,7 +22,6 @@ import { Select, type SelectOption } from '@/ui/forms/Select'
 import { accountService } from '@/lib/api/account'
 import { useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { FEATURES_ENABLED } from '@/utils/constants'
 
 type UserCardPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -56,7 +55,7 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
       return
     }
 
-    if (response.result && !FEATURES_ENABLED) {
+    if (response.success && response.result) {
       const privateKey = response.result.privateKey
 
       openDialog(
