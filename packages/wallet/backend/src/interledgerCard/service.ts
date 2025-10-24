@@ -2,7 +2,6 @@ import { Card } from './model'
 import { User } from '@/user/model'
 import { BadRequest, NotFound } from '@shared/backend'
 import { WalletAddressService } from '@/walletAddress/service'
-import { Env } from '@/config/env'
 import { generateKeyPairSync } from 'crypto'
 
 type CreateCardArgs = {
@@ -27,10 +26,7 @@ interface IInterledgerCardService {
 }
 
 export class InterledgerCardService implements IInterledgerCardService {
-  constructor(
-    private walletAddressService: WalletAddressService,
-    private env: Env
-  ) {}
+  constructor(private walletAddressService: WalletAddressService) {}
 
   public async create(args: CreateCardArgs): Promise<CreateCardResponse> {
     await this.walletAddressService.getById({
