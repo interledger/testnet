@@ -39,20 +39,16 @@ export class InterledgerCardService implements IInterledgerCardService {
       walletAddressId: args.walletAddressId
     })
 
-    let publicKeyPEM: undefined | string, privateKeyPEM: undefined | string
+    const { publicKey, privateKey } = generateKeyPairSync('ec', {
+      namedCurve: 'P-256'
+    })
 
-    if (this.env.GATEHUB_ENV !== 'production') {
-      const { publicKey, privateKey } = generateKeyPairSync('ec', {
-        namedCurve: 'P-256'
-      })
-
-      publicKeyPEM = publicKey
-        .export({ type: 'spki', format: 'pem' })
-        .toString()
-      privateKeyPEM = privateKey
-        .export({ type: 'pkcs8', format: 'pem' })
-        .toString()
-    }
+    const publicKeyPEM = publicKey
+      .export({ type: 'spki', format: 'pem' })
+      .toString()
+    const privateKeyPEM = privateKey
+      .export({ type: 'pkcs8', format: 'pem' })
+      .toString()
 
     const card = await Card.query().insert({
       userId: args.userId,
