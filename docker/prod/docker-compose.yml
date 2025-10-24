@@ -228,7 +228,7 @@ services:
     <<: *logging
 
   rafiki-frontend:
-    image: ghcr.io/interledger/rafiki-frontend:v1.1.2-beta
+    image: ghcr.io/interledger/rafiki-frontend:v2.0.0-beta
     container_name: rafiki-frontend
     depends_on:
       - rafiki-backend
