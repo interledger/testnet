@@ -55,7 +55,7 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
       return
     }
 
-    if (response.result) {
+    if (response.success && response.result) {
       const privateKey = response.result.privateKey
 
       openDialog(
