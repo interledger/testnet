@@ -11,7 +11,6 @@ import { Fragment } from 'react'
 import { PaperPlaneDark, PaperPlaneLight } from '../icons/PaperPlane'
 import { QuoteResponse } from '@wallet/shared'
 import { THEME } from '@/utils/constants'
-import { sep } from 'path'
 
 type QuoteDialogProps = {
   onClose: () => void
