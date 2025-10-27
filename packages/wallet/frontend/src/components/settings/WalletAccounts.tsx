@@ -5,6 +5,7 @@ import {
   ToggleWalletVisibility
 } from './ToggleVisibility'
 import { Divider } from '@/ui/Divider'
+import { FEATURES_ENABLED } from '@/utils/constants'
 
 type WalletAccountsProps = {
   accounts: Account[]
@@ -38,12 +39,14 @@ export const WalletAccounts = ({ accounts }: WalletAccountsProps) => {
           <Divider />
         </>
       ) : null}
-      <div className="flex flex-row">
-        <div className="text-green dark:text-teal-neon pr-4">
-          Show Cards Management
+      {FEATURES_ENABLED ? null : (
+        <div className="flex flex-row">
+          <div className="text-green dark:text-teal-neon pr-4">
+            Show Cards Management
+          </div>
+          <ToggleCardsVisibility />
         </div>
-        <ToggleCardsVisibility />
-      </div>
+      )}
     </div>
   )
 }

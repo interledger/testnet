@@ -167,10 +167,13 @@ export class OpenPayments implements IOpenPayments {
         interactRef
       })
 
+      const customerWalletAddress = await this.getWalletAddress(
+        order.payments.walletAddress
+      )
       await this.opClient.outgoingPayment
         .create(
           {
-            url: new URL(order.payments.walletAddress).origin,
+            url: customerWalletAddress.resourceServer,
             accessToken: continuation.accessToken
           },
           {
@@ -219,6 +222,9 @@ export class OpenPayments implements IOpenPayments {
     if (this.env.NODE_ENV === 'development') {
       url = url.replace('rafiki-auth', 'localhost')
     }
+
+    // remove tenant id as it is not used for hash
+    url = url.replace(/\/[0-9a-fA-F-]+\/?$/, '')
 
     const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}/`
     const hash = createHash('sha-256').update(data).digest('base64')

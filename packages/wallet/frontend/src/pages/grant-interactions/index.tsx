@@ -22,12 +22,10 @@ const GrantInteractionPage = ({
   grant,
   interactionId,
   nonce,
-  clientName
+  clientName: _clientName
 }: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
-  const client = clientName ? clientName : grant.client
   const router = useRouter()
-  const access = grant.access.find((el) => el.type === 'outgoing-payment')
   const isPendingGrant = grant.state === 'PENDING'
   const imageName =
     THEME === 'dark' ? '/grants-dark.webp' : '/grants-light.webp'
@@ -68,19 +66,26 @@ const GrantInteractionPage = ({
           height={150}
         />
         <div className="mt-20 text-base">
-          <div>
-            <span className="font-semibold">{client}</span> is requesting access
-            to make a payment on your behalf.
-          </div>
+          {grant.access.length === 1 ? (
+            <div>
+              Your wallet is requesting access to an amount of{' '}
+              {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+            </div>
+          ) : (
+            <div>
+              Your wallet is requesting access to the following amounts:{' '}
+              {grant.access
+                .map(
+                  (accessItem) =>
+                    accessItem.limits?.debitAmount?.formattedAmount
+                )
+                .join(', ')}
+              .
+            </div>
+          )}
           <div>
             Wallet Address client:{' '}
             <span className="font-semibold">{grant.client}</span>
-          </div>
-          <div>
-            Total amount to debit:{' '}
-            <span className="font-semibold">
-              {access?.limits?.debitAmount?.formattedAmount}
-            </span>
           </div>
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
@@ -116,10 +121,23 @@ const GrantInteractionPage = ({
           height={150}
         />
         <div className="mt-20 text-xl">
-          The request from <span className="font-semibold">{client}</span> to
-          make a payment on your behalf for the amount of
-          {access?.limits?.debitAmount?.formattedAmount}, was previously
-          processed.
+          {grant.access.length === 1 ? (
+            <div>
+              Your wallet previously granted access to an amount of{' '}
+              {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+            </div>
+          ) : (
+            <div>
+              Your wallet previously granted access to the following amounts:{' '}
+              {grant.access
+                .map(
+                  (accessItem) =>
+                    accessItem.limits?.debitAmount?.formattedAmount
+                )
+                .join(', ')}
+              .
+            </div>
+          )}
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
