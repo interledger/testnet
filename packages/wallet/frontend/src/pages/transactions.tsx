@@ -36,6 +36,7 @@ import { Card } from '@/components/icons/CardButtons'
 import { FEATURES_ENABLED } from '@/utils/constants'
 import { TransactionDetailsDialog } from '@/components/dialogs/TransactionDetailsDialog'
 import { useDialog } from '@/lib/hooks/useDialog'
+import { userService } from '@/lib/api/user'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -533,18 +534,20 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
 }
 
 export const getServerSideProps: GetServerSideProps<
-  TransactionsFilterProps
+  TransactionsFilterProps & { user: { isCardsVisible: boolean } }
 > = async (ctx) => {
   const [accountsResponse, walletAddressesResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie),
     walletAddressService.listAll(ctx.req.headers.cookie)
   ])
+  const user = await userService.me(ctx.req.headers.cookie)
 
   if (
     !accountsResponse.success ||
     !walletAddressesResponse.success ||
     !walletAddressesResponse.result ||
-    !accountsResponse.result
+    !accountsResponse.result ||
+    !user.success
   ) {
     return {
       notFound: true
@@ -579,13 +582,18 @@ export const getServerSideProps: GetServerSideProps<
   return {
     props: {
       accounts,
-      walletAddresses
+      walletAddresses,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 TransactionsPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default TransactionsPage

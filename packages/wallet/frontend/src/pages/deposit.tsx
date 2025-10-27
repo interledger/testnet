@@ -35,13 +35,15 @@ const DepositPage: NextPageWithLayout<DepositPageProps> = ({ url }) => {
 
 export const getServerSideProps: GetServerSideProps<{
   url: string
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
     'deposit',
     ctx.req.headers.cookie
   )
+  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !response.result) {
+  if (!response.success || !response.result || !user.success) {
     return {
       notFound: true
     }
@@ -52,13 +54,18 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      url: url.href
+      url: url.href,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 DepositPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default DepositPage

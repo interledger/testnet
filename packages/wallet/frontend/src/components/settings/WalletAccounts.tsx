@@ -9,9 +9,13 @@ import { FEATURES_ENABLED } from '@/utils/constants'
 
 type WalletAccountsProps = {
   accounts: Account[]
+  isCardsVisible: boolean
 }
 
-export const WalletAccounts = ({ accounts }: WalletAccountsProps) => {
+export const WalletAccounts = ({
+  accounts,
+  isCardsVisible
+}: WalletAccountsProps) => {
   return (
     <div className="pt-5">
       {accounts.length > 0 ? (
@@ -44,7 +48,7 @@ export const WalletAccounts = ({ accounts }: WalletAccountsProps) => {
           <div className="text-green dark:text-teal-neon pr-4">
             Show Cards Management
           </div>
-          <ToggleCardsVisibility />
+          <ToggleCardsVisibility isCardsVisible={isCardsVisible} />
         </div>
       )}
     </div>
