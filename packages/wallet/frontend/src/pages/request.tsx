@@ -31,6 +31,7 @@ import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { THEME } from '@/utils/constants'
+import { userService } from '@/lib/api/user'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -311,18 +312,14 @@ type SelectAccountOption = SelectOption &
   }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
   ])
+  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!accountsResponse.success) {
-    return {
-      notFound: true
-    }
-  }
-
-  if (!accountsResponse.result) {
+  if (!accountsResponse.success || !accountsResponse.result || !user.success) {
     return {
       notFound: true
     }
@@ -338,13 +335,18 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      accounts
+      accounts,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 RequestPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default RequestPage

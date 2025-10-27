@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { DeveloperKeys } from '@/components/settings/DeveloperKeys'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { Account, accountService } from '@/lib/api/account'
+import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
 import {
   formatDate,
@@ -32,13 +33,15 @@ const DeveloperKeysPage: NextPageWithLayout<DeveloperKeysPageProps> = ({
 
 export const getServerSideProps: GetServerSideProps<{
   accounts: Account[]
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie, [
     'walletAddresses',
     'walletAddressKeys'
   ])
+  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !response.result) {
+  if (!response.success || !response.result || !user.success) {
     return {
       notFound: true
     }
@@ -68,13 +71,18 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      accounts
+      accounts,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 DeveloperKeysPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default DeveloperKeysPage
