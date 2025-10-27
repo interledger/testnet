@@ -11,6 +11,7 @@ import { Fragment } from 'react'
 import { PaperPlaneDark, PaperPlaneLight } from '../icons/PaperPlane'
 import { QuoteResponse } from '@wallet/shared'
 import { THEME } from '@/utils/constants'
+import { sep } from 'path'
 
 type QuoteDialogProps = {
   onClose: () => void
@@ -84,7 +85,7 @@ export const QuoteDialog = ({
                       className="mx-auto h-16 w-16"
                     />
                   )}
-                  {sepaMatch ? null : (
+                  {sepaMatch === undefined ? null : (
                     <>
                       <p>Verification result: {sepaMatch}</p>
                       <br />
