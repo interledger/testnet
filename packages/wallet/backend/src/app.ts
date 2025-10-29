@@ -192,7 +192,7 @@ export class App {
     app.use(withSession)
 
     // Auth Routes
-    router.post('/signup', authController.signUp)
+    router.post('/signup', this.ensureGateHubSandboxEnv, authController.signUp)
     router.post('/login', rateLimiterLogin, authController.logIn)
     router.post('/logout', isAuth, authController.logOut)
 
@@ -497,6 +497,23 @@ export class App {
     try {
       const env = this.container.resolve('env')
       if (env.NODE_ENV === 'production' && env.GATEHUB_ENV === 'sandbox') {
+        throw new Forbidden('You cannot access this resource')
+      }
+    } catch (e) {
+      next(e)
+    }
+
+    next()
+  }
+
+  ensureGateHubSandboxEnv = async (
+    _req: Request,
+    _res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const env = this.container.resolve('env')
+      if (env.GATEHUB_ENV !== 'sandbox') {
         throw new Forbidden('You cannot access this resource')
       }
     } catch (e) {
