@@ -167,8 +167,7 @@ export const WalletAddressRow = ({
   return (
     <WalletAddressRowContext.Provider value={{ walletAddress, idOnboarding }}>
       <tr
-        // className="cursor-pointer mb-5 sm:[&>td]:p-4 rounded-xl sm:[&>td]:border-b sm:[&>td]:border-green sm:dark:[&>td]:border-pink-neon hover:bg-grey-light sm:hover:bg-green-light dark:hover:bg-purple-dark bg-green-light dark:bg-pink-neon sm:bg-transparent sm:dark:bg-transparent  justify-center items-center"
-        className="[&>td]:p-4 [&>td]:border-b [&>td]:border-green dark:[&>td]:border-pink-neon hover:bg-green-light dark:hover:bg-purple-dark"
+        className="cursor-pointer mb-5 sm:[&>td]:p-4 rounded-xl sm:[&>td]:border-b sm:[&>td]:border-green sm:dark:[&>td]:border-pink-neon hover:bg-grey-light sm:hover:bg-green-light dark:hover:bg-purple-dark bg-green-light dark:bg-pink-neon sm:bg-transparent sm:dark:bg-transparent flex flex-col sm:block justify-center items-center"
         key={walletAddress.id}
       >
         <td>
