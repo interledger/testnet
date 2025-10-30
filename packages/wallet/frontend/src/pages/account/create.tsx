@@ -20,6 +20,7 @@ import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { createAccountSchema } from '@wallet/shared'
 import { BASE_ASSET_SCALE } from '@/utils/constants'
+import { userService } from '@/lib/api/user'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
@@ -125,11 +126,13 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
 
 export const getServerSideProps: GetServerSideProps<{
   assets: SelectOption[]
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const response = await assetService.list(ctx.req.headers.cookie)
+  const user = await userService.me(ctx.req.headers.cookie)
 
   // TODO: https://nextjs.org/docs/advanced-features/custom-error-page#more-advanced-error-page-customizing
-  if (!response.success) {
+  if (!response.success || !user.success) {
     return {
       notFound: true
     }
@@ -144,13 +147,18 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      assets: assets ?? []
+      assets: assets ?? [],
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 CreateAccountPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default CreateAccountPage

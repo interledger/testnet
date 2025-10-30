@@ -13,8 +13,12 @@ import { useState } from 'react'
 import { grantsService } from '@/lib/api/grants'
 import { GrantResponse } from '@wallet/shared'
 import { GrantDetailsDialog } from '@/components/dialogs/GrantDetailsDialog'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import { userService } from '@/lib/api/user'
 
-const GrantsPage: NextPageWithLayout = () => {
+type GrantsPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
+
+const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
   const redirect = useRedirect<GrantListArgs>({
     path: '/grants',
     persistQuery: false
@@ -152,8 +156,34 @@ const GrantsPage: NextPageWithLayout = () => {
   )
 }
 
+export const getServerSideProps: GetServerSideProps<{
+  user: {
+    isCardsVisible: boolean
+  }
+}> = async (ctx) => {
+  const user = await userService.me(ctx.req.headers.cookie)
+
+  if (!user.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  return {
+    props: {
+      user: {
+        isCardsVisible: user.result?.isCardsVisible ?? false
+      }
+    }
+  }
+}
+
 GrantsPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default GrantsPage

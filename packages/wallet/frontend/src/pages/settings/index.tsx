@@ -67,7 +67,11 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 AccountSettingsPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default AccountSettingsPage

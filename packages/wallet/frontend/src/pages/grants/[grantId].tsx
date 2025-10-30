@@ -22,6 +22,7 @@ import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
 import { GrantResponse } from '@wallet/shared'
 import { THEME } from '@/utils/constants'
+import { userService } from '@/lib/api/user'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -92,6 +93,7 @@ const querySchema = z.object({
 
 export const getServerSideProps: GetServerSideProps<{
   grant: GrantResponse
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
@@ -104,8 +106,9 @@ export const getServerSideProps: GetServerSideProps<{
     result.data.grantId,
     ctx.req.headers.cookie
   )
+  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!grantResponse.success || !grantResponse.result) {
+  if (!grantResponse.success || !grantResponse.result || !user.success) {
     return {
       notFound: true
     }
@@ -147,13 +150,18 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      grant: grantResponse.result
+      grant: grantResponse.result,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 GrantPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default GrantPage

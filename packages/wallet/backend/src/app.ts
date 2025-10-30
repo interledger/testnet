@@ -507,4 +507,21 @@ export class App {
 
     next()
   }
+
+  ensureGateHubSandboxEnv = async (
+    _req: Request,
+    _res: CustomResponse,
+    next: NextFunction
+  ) => {
+    try {
+      const env = this.container.resolve('env')
+      if (env.GATEHUB_ENV !== 'sandbox') {
+        throw new Forbidden('You cannot access this resource')
+      }
+    } catch (e) {
+      next(e)
+    }
+
+    next()
+  }
 }

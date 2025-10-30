@@ -28,6 +28,7 @@ import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 import { Link } from '@/ui/Link'
 import { DepositDialog } from '@/components/dialogs/DepositDialog'
 import { FEATURES_ENABLED } from '@/utils/constants'
+import { userService } from '@/lib/api/user'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -152,6 +153,7 @@ const querySchema = z.object({
 export const getServerSideProps: GetServerSideProps<{
   account: Account
   walletAddresses: WalletAddressResponse[]
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -164,12 +166,14 @@ export const getServerSideProps: GetServerSideProps<{
     accountService.get(result.data.accountId, ctx.req.headers.cookie),
     walletAddressService.list(result.data.accountId, ctx.req.headers.cookie)
   ])
+  const user = await userService.me(ctx.req.headers.cookie)
 
   if (
     !accountResponse.success ||
     !walletAddressesResponse.success ||
     !accountResponse.result ||
-    !walletAddressesResponse.result
+    !walletAddressesResponse.result ||
+    !user.success
   ) {
     return {
       notFound: true
@@ -185,13 +189,18 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       account: accountResponse.result,
-      walletAddresses: walletAddressesResponse.result
+      walletAddresses: walletAddressesResponse.result,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 AccountPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default AccountPage

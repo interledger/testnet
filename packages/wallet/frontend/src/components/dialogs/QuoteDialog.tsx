@@ -84,7 +84,7 @@ export const QuoteDialog = ({
                       className="mx-auto h-16 w-16"
                     />
                   )}
-                  {sepaMatch ? null : (
+                  {sepaMatch === undefined ? null : (
                     <>
                       <p>Verification result: {sepaMatch}</p>
                       <br />

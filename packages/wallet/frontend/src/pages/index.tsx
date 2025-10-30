@@ -13,22 +13,18 @@ import { userService } from '@/lib/api/user'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
-import { useMenuContext } from '@/lib/context/menu'
-import { FEATURES_ENABLED } from '@/utils/constants'
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
-  const { setIsCardsVisible } = useMenuContext()
 
   useEffect(() => {
     if (isUserFirstTime) {
       setStepIndex(stepIndex + 1)
       setRunOnboarding(true)
     }
-    setIsCardsVisible(user.isCardsVisible || FEATURES_ENABLED)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -103,7 +99,11 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 HomePage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default HomePage
