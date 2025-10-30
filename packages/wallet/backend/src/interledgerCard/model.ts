@@ -19,6 +19,13 @@ export class Card extends BaseModel {
   public readonly walletAddressId!: string
   public readonly publicKey?: string | null
   public readonly status!: CardStatusType
+  public readonly atc!: number
+  public readonly pin!: string | null
+  public readonly pinTryCounter!: number
+  public readonly lastUnpredictableNumber!: string
+  public readonly pinTryLimit!: number
+  public readonly amountThresholdForPin!: number | null
+  public readonly cmacKey?: string | null
 
   public user!: User
   public account!: Account

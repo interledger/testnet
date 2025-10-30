@@ -283,8 +283,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(winston@3.18.3)
       '@interledger/tlv-kit':
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       '@sendgrid/mail':
         specifier: ^8.1.6
         version: 8.1.6
@@ -1627,8 +1627,8 @@ packages:
   '@interledger/openapi@2.0.4':
     resolution: {integrity: sha512-3V6xCk2dKnpBiS6ppBDtQsItZ4r1r/YO9T93Pag2yMxIIAe0NAwUfq5yWPYJtNTQ8j2br+z/AwlgWwenxKffWg==}
 
-  '@interledger/tlv-kit@1.0.2':
-    resolution: {integrity: sha512-lVfM37GkU2vqbxJc8CEu8aXYYqvarW5g+Kmeiz9xyOLgiFyg9ZQmfEU6BQRB94oLc1+cEVTjId3ZcfvEaBiAUg==}
+  '@interledger/tlv-kit@1.0.3':
+    resolution: {integrity: sha512-wOzYIsOCrFlUFtfEnacwYXxcMYYIYewQPycUm7GlXXKSobJziq1l4yGsw1zBWt4VVMfqLoLLsyeyVSsoLIZZ5g==}
     engines: {node: '20', npm: pnpm, pnpm: ^9.15.4, yarn: pnpm}
 
   '@ioredis/commands@1.4.0':
@@ -8192,7 +8192,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@interledger/tlv-kit@1.0.2': {}
+  '@interledger/tlv-kit@1.0.3': {}
 
   '@ioredis/commands@1.4.0': {}
 
