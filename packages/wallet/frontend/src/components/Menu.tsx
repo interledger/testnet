@@ -157,10 +157,11 @@ const LogoutButton = () => {
   )
 }
 
-export const Menu = () => {
+type MenuProps = { isCardsVisible: boolean }
+export const Menu = (args: MenuProps) => {
   const router = useRouter()
   const pathname = `/${router.pathname.split('/')?.slice(1)[0] ?? ''}`
-  const { sidebarIsOpen, setSidebarIsOpen, isCardsVisible } = useMenuContext()
+  const { sidebarIsOpen, setSidebarIsOpen } = useMenuContext()
   const { isUserFirstTime, stepIndex, setRunOnboarding } =
     useOnboardingContext()
 
@@ -211,7 +212,7 @@ export const Menu = () => {
                 </button>
                 <nav className="space-y-4">
                   {menuItems.map(({ name, href, id, Icon }) =>
-                    name === 'Cards' && !isCardsVisible ? null : (
+                    name === 'Cards' && !args.isCardsVisible ? null : (
                       <NavLink
                         currentPath={pathname}
                         key={name}
@@ -264,7 +265,7 @@ export const Menu = () => {
           </Link>
           <div className="w-full space-y-4">
             {menuItems.map(({ name, href, id, Icon }) =>
-              name === 'Cards' && !isCardsVisible ? null : (
+              name === 'Cards' && !args.isCardsVisible ? null : (
                 <NavLink
                   currentPath={pathname}
                   key={name}

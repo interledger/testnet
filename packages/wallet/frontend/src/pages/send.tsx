@@ -39,7 +39,7 @@ import { useSnapshot } from 'valtio'
 import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
 import { useRefundContext } from '@/lib/context/refund'
-import { useMenuContext } from '@/lib/context/menu'
+import { userService } from '@/lib/api/user'
 
 type SendProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -49,7 +49,7 @@ type SepaDetails = {
   match?: string
 }
 
-const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
+const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
   const [openDialog, closeDialog] = useDialog()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -68,7 +68,6 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
   const [readOnlyNotes, setReadOnlyNotes] = useState(false)
   const { accountsSnapshot } = useSnapshot(balanceState)
   const { receiverWalletAddress, setReceiverWalletAddress } = useRefundContext()
-  const { isCardsVisible } = useMenuContext()
   const [isSepa, setIsSepa] = useState(false)
   const imageName =
     THEME === 'dark' ? '/bird-envelope-dark.webp' : '/bird-envelope-light.webp'
@@ -175,7 +174,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
       return
     }
 
-    if (isCardsVisible && url.includes('/iban/')) {
+    if (user.isCardsVisible && url.includes('/iban/')) {
       setIsSepa(true)
     } else {
       setIsSepa(false)
@@ -291,7 +290,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts }) => {
             match: undefined,
             nonce: undefined
           }
-          if (isCardsVisible && isSepa) {
+          if (user.isCardsVisible && isSepa) {
             const responseSEPA = await transfersService.getSEPADetails({
               receiver: data.receiver,
               legalName: data.legalName || ''
@@ -521,18 +520,15 @@ type SelectAccountOption = SelectOption &
   }
 export const getServerSideProps: GetServerSideProps<{
   accounts: SelectAccountOption[]
+  user: { isCardsVisible: boolean }
 }> = async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
   ])
 
-  if (!accountsResponse.success) {
-    return {
-      notFound: true
-    }
-  }
+  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!accountsResponse.result) {
+  if (!accountsResponse.success || !accountsResponse.result || !user.success) {
     return {
       notFound: true
     }
@@ -548,13 +544,18 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      accounts
+      accounts,
+      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
     }
   }
 }
 
 SendPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return (
+    <AppLayout isCardsVisible={page.props.user.isCardsVisible}>
+      {page}
+    </AppLayout>
+  )
 }
 
 export default SendPage

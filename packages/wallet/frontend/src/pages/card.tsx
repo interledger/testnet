@@ -274,7 +274,7 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 UserCardPage.getLayout = function (page) {
-  return <AppLayout>{page}</AppLayout>
+  return <AppLayout isCardsVisible={true}>{page}</AppLayout>
 }
 
 export default UserCardPage
