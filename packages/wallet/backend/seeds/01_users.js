@@ -43,7 +43,7 @@ exports.seed = async function (knex) {
 
   const walletAddress = {
     id: randomUUID(),
-    url: '$cozminu.com/ilp-wallet',
+    url: '$rafiki-backend/mxn',
     publicName: 'Cozminu Wallet',
     accountId: account.id,
     active: true,
