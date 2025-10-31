@@ -59,6 +59,11 @@ import { BlockReasonCode } from '@wallet/shared/src'
 import { ICardResponse } from '@wallet/shared'
 import { SepaResponse } from '@/transaction/controller'
 
+interface CustomKeys {
+  accessKey: string
+  secretKey: string
+}
+
 export class GateHubClient {
   private supportedAssetCodes: string[]
   private clientIds = SANDBOX_CLIENT_IDS
@@ -745,7 +750,8 @@ export class GateHubClient {
   }
 
   async getSEPADetails(iban: string, legalName: string): Promise<SepaResponse> {
-    const organizationUuid = this.env.GATEHUB_ORG_ID
+    const organizationUuid =
+      this.env.GATEHUB_SEPA_ORG_ID || this.env.GATEHUB_ORG_ID
     const url = `${this.apiUrl}/core/v1/users/${organizationUuid}/accounts`
     const payload = {
       iban: iban,
@@ -753,11 +759,20 @@ export class GateHubClient {
       recipient_type: 'PERSONAL',
       network: 30
     }
+    let customKeys: CustomKeys | undefined
+
+    if (this.env.GATEHUB_SEPA_ACCESS_KEY && this.env.GATEHUB_SEPA_SECRET_KEY) {
+      customKeys = {
+        accessKey: this.env.GATEHUB_SEPA_ACCESS_KEY,
+        secretKey: this.env.GATEHUB_SEPA_SECRET_KEY
+      }
+    }
     const response = await this.request<SepaResponse>(
       'POST',
       url,
       JSON.stringify(payload),
-      undefined
+      undefined,
+      customKeys
     )
 
     return response
@@ -771,7 +786,8 @@ export class GateHubClient {
       managedUserUuid?: string
       token?: string
       cardAppId?: string
-    }
+    },
+    keys?: CustomKeys
   ): Promise<T> {
     const timestamp = Date.now().toString()
     const headers = this.getRequestHeaders(
@@ -779,7 +795,8 @@ export class GateHubClient {
       method,
       url,
       body ?? '',
-      headersOptions
+      headersOptions,
+      keys
     )
 
     try {
@@ -818,13 +835,21 @@ export class GateHubClient {
       managedUserUuid?: string
       token?: string
       cardAppId?: string
-    }
+    },
+    keys?: CustomKeys
   ) {
+    const accessKey = keys?.accessKey || this.env.GATEHUB_ACCESS_KEY
     return {
       'Content-Type': 'application/json',
-      'x-gatehub-app-id': this.env.GATEHUB_ACCESS_KEY,
+      'x-gatehub-app-id': accessKey,
       'x-gatehub-timestamp': timestamp,
-      'x-gatehub-signature': this.getSignature(timestamp, method, url, body),
+      'x-gatehub-signature': this.getSignature(
+        timestamp,
+        method,
+        url,
+        body,
+        keys?.secretKey
+      ),
       ...(headersOptions?.managedUserUuid && {
         'x-gatehub-managed-user-uuid': headersOptions.managedUserUuid
       }),
@@ -841,17 +866,17 @@ export class GateHubClient {
     timestamp: string,
     method: HTTP_METHODS,
     url: string,
-    body?: string
+    body?: string,
+    secretKey?: string
   ) {
     const args = [timestamp, method, url]
     if (body) {
       args.push(body)
     }
 
+    const key = secretKey || this.env.GATEHUB_SECRET_KEY
     const toSign = args.join('|')
-    return createHmac('sha256', this.env.GATEHUB_SECRET_KEY)
-      .update(toSign)
-      .digest('hex')
+    return createHmac('sha256', key).update(toSign).digest('hex')
   }
 
   getVaultUuid(assetCode: string): string {
