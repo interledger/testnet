@@ -117,7 +117,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth
-    image: ghcr.io/interledger/rafiki-auth:v2.0.0-beta
+    image: ghcr.io/interledger/rafiki-auth:v2.2.0-beta
     restart: always
     networks:
       - testnet
@@ -146,7 +146,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:pos-card-services
+    image: ghcr.io/interledger/rafiki-backend:v2.2.0-beta
     restart: always
     privileged: true
     volumes:
@@ -204,7 +204,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend
-    image: ghcr.io/interledger/rafiki-frontend:v2.0.0-beta
+    image: ghcr.io/interledger/rafiki-frontend:v2.2.0-beta
     depends_on:
       - rafiki-backend
     restart: always
@@ -227,7 +227,7 @@ services:
 
   rafiki-card-service:
     container_name: rafiki-card-service
-    image: ghcr.io/interledger/rafiki-card-service:pos-card-services
+    image: ghcr.io/interledger/rafiki-card-service:v2.2.0-beta
     restart: always
     privileged: true
     networks:
@@ -247,7 +247,7 @@ services:
 
   rafiki-pos-service:
     container_name: rafiki-pos-service
-    image: ghcr.io/interledger/rafiki-point-of-sale:pos-card-services
+    image: ghcr.io/interledger/rafiki-point-of-sale:v2.2.0-beta
     restart: always
     privileged: true
     networks:
@@ -258,13 +258,13 @@ services:
       NODE_ENV: development
       LOG_LEVEL: debug
       PORT: 3014
-      REDIS_URL: redis://redis:6379/0
       GRAPHQL_URL: http://rafiki-backend:3001/graphql
       TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
       TENANT_SECRET: ${ADMIN_API_SECRET:-secret-key}
       TENANT_SIGNATURE_VERSION: 1
       WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       WEBHOOK_SIGNATURE_VERSION: 1
+      USE_HTTP: true
     <<: *logging
 
   kratos:
