@@ -114,14 +114,3 @@ export const webhookBodySchema = z.object({
   body: webhookSchema
 })
 export type WebhookType = z.infer<typeof webhookSchema>
-
-export const cardDetailsSchema = z.object({
-  requestId: z.string().uuid(),
-  initiatedAt: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Invalid date format'
-  }),
-  data: z.object({
-    signature: z.string(),
-    payload: z.string()
-  })
-})

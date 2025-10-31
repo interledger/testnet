@@ -108,12 +108,6 @@ export class App {
     })
     Model.knex(knex)
 
-    // Dev Only
-    // await knex.seed.run({
-    //   directory: __dirname + '/../seeds',
-    //   variables: this.container
-    // })
-
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
 

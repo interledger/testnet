@@ -10,15 +10,13 @@ import { BadRequest } from '@shared/backend'
 import { Logger } from 'winston'
 import { AccountService } from '../account/service'
 import { RafikiClient } from './rafiki-client'
-import { cardDetailsSchema, WebhookType } from './validation'
-import { validate } from '@/shared/validate'
+import { WebhookType } from './validation'
 import { InterledgerCardService } from '@/interledgerCard/service'
 import {
   CancelOutgoingPaymentInput,
   CardPaymentFailureReason
 } from '@/rafiki/backend/generated/graphql'
 import { Card } from '@/interledgerCard/model'
-import z from 'zod'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -247,10 +245,8 @@ export class RafikiService implements IRafikiService {
     }
 
     let card: Card | undefined
-    let cardDetails: z.infer<typeof cardDetailsSchema>
 
     if (wh.data?.cardDetails) {
-      cardDetails = await validate(cardDetailsSchema, wh.data.cardDetails)
       card = await this.interledgerCardService.findActiveCardByWalletAddress(
         walletAddress.id
       )
@@ -269,7 +265,7 @@ export class RafikiService implements IRafikiService {
 
       try {
         await this.interledgerCardService.processCardPayment(
-          cardDetails.data.payload,
+          wh.data.cardDetails?.data?.payload,
           card,
           walletAddress.url
         )
