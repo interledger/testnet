@@ -13,7 +13,6 @@ import {
   AES128Verifier,
   ECDSAP256Verifier
 } from '@interledger/tlv-kit'
-import { WalletAddress } from '@/walletAddress/model'
 import { Logger } from 'winston'
 
 type CreateCardArgs = {
@@ -39,7 +38,11 @@ interface IInterledgerCardService {
   freeze: (userId: string, cardId: string) => Promise<void>
   unfreeze: (userId: string, cardId: string) => Promise<void>
   terminate: (userId: string, cardId: string) => Promise<void>
-  processCardPayment: (payload: string) => Promise<boolean>
+  processCardPayment: (
+    payload: string,
+    card: Card,
+    walletAddress: string
+  ) => Promise<boolean>
 }
 
 export class InterledgerCardService implements IInterledgerCardService {
@@ -167,7 +170,11 @@ export class InterledgerCardService implements IInterledgerCardService {
     })
   }
 
-  async processCardPayment(payload: string): Promise<boolean> {
+  async processCardPayment(
+    payload: string,
+    cardData: Card,
+    walletAddress: string
+  ): Promise<boolean> {
     // Parse TLV data
     const tlv = TLVParser(payload)[0]
     if (!tlv) throw new Error('No TLV data found')
@@ -195,12 +202,16 @@ export class InterledgerCardService implements IInterledgerCardService {
     if (!data.senderWalletAddress)
       throw new Error('Missing sender wallet address')
 
-    // Get card data
-    const cardData = await this.getCardData(
-      uint8ArrayToAscii(data.senderWalletAddress)
-    )
+    walletAddress = walletAddress.replace('https://', '$')
+    const cardWalletAddress = uint8ArrayToAscii(data.senderWalletAddress)
+      .replace(/\0/g, '')
+      .trim()
 
-    if (!cardData) throw new Error('Card not found')
+    if (walletAddress !== cardWalletAddress) {
+      throw new Error(
+        `Invalid sender wallet address: ${cardWalletAddress}, expected: ${walletAddress}`
+      )
+    }
 
     // Check PIN try counter
     if (cardData.pinTryCounter > cardData.pinTryLimit)
@@ -340,14 +351,6 @@ export class InterledgerCardService implements IInterledgerCardService {
       default:
         throw new Error('Unknown signature type')
     }
-  }
-
-  async getCardData(walletAddress: string): Promise<Card | undefined> {
-    const wallet = await WalletAddress.query()
-      .withGraphFetched('card')
-      .findOne({ address: walletAddress })
-
-    return wallet?.card
   }
 
   verifyTransactionDate(

@@ -39,18 +39,29 @@ exports.seed = async function (knex) {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
-  await knex('accounts').insert([account])
+  const account2 = {
+    ...account,
+    id: randomUUID(),
+    assetCode: 'MXN'
+  }
+  await knex('accounts').insert([account, account2])
 
   const walletAddress = {
-    id: randomUUID(),
-    url: '$rafiki-backend/mxn',
+    id: '098fec04-c04e-411e-85d2-cc2332bc726f',
+    url: 'https://rafiki-backend/mxn',
     publicName: 'Cozminu Wallet',
     accountId: account.id,
     active: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
-  await knex('walletAddresses').insert([walletAddress])
+  const walletAddress2 = {
+    ...walletAddress,
+    id: '5082cc3d-d1f7-4b04-873b-3eb4430a6719',
+    url: 'https://rafiki-backend/eur',
+    accountId: account2.id
+  }
+  await knex('walletAddresses').insert([walletAddress, walletAddress2])
 
   const card = {
     id: randomUUID(),
@@ -71,6 +82,12 @@ iqsKH/XpWHE7oJEmMe5l/sy1o1XDtBn5UH9/IUjY6blBAn+y936lciqYqQ==
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
+  const card2 = {
+    ...card,
+    id: randomUUID(),
+    accountId: account2.id,
+    walletAddressId: walletAddress2.id
+  }
 
-  await knex('cards').insert([card])
+  await knex('cards').insert([card, card2])
 }

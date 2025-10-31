@@ -121,7 +121,7 @@ export const cardDetailsSchema = z.object({
     message: 'Invalid date format'
   }),
   data: z.object({
-    signature: z.string().min(1),
-    payload: z.string().min(1)
+    signature: z.string(),
+    payload: z.string()
   })
 })

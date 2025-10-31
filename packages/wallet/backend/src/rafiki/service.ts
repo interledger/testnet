@@ -18,6 +18,7 @@ import {
   CardPaymentFailureReason
 } from '@/rafiki/backend/generated/graphql'
 import { Card } from '@/interledgerCard/model'
+import z from 'zod'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -246,10 +247,14 @@ export class RafikiService implements IRafikiService {
     }
 
     let card: Card | undefined
+    let cardDetails: z.infer<typeof cardDetailsSchema>
+
     if (wh.data?.cardDetails) {
+      cardDetails = await validate(cardDetailsSchema, wh.data.cardDetails)
       card = await this.interledgerCardService.findActiveCardByWalletAddress(
         walletAddress.id
       )
+
       if (!card) {
         this.logger.info(
           `Active card for wallet address ${walletAddress.id} - ${walletAddress.url} not found`
@@ -259,7 +264,27 @@ export class RafikiService implements IRafikiService {
           reason: 'No active card found',
           id: wh.data.id
         })
+        return
+      }
 
+      try {
+        await this.interledgerCardService.processCardPayment(
+          cardDetails.data.payload,
+          card,
+          walletAddress.url
+        )
+        this.logger.info(
+          `Card payment processed for outgoing payment ${wh.data.id}`
+        )
+      } catch (e) {
+        this.logger.info(
+          `Error processing card payment for outgoing payment ${wh.data.id}: ${e}`
+        )
+        await this.rafikiClient.cancelOutgoingPayment({
+          reason: 'Card payment processing failed',
+          cardPaymentFailureReason: CardPaymentFailureReason.InvalidRequest,
+          id: wh.data.id
+        })
         return
       }
     }
@@ -296,15 +321,6 @@ export class RafikiService implements IRafikiService {
       }
 
       await this.rafikiClient.cancelOutgoingPayment(input)
-      return
-    }
-
-    // Check if is card payment
-    if (wh.data?.cardDetails) {
-      const cardDetails = await validate(cardDetailsSchema, wh.data.cardDetails)
-      await this.interledgerCardService.processCardPayment(
-        cardDetails.data.payload
-      )
       return
     }
 
