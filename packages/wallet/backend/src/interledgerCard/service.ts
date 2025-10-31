@@ -91,6 +91,17 @@ export class InterledgerCardService implements IInterledgerCardService {
     return card
   }
 
+  public async findActiveCardByWalletAddress(
+    walletAddressId: string
+  ): Promise<Card> {
+    const card = await Card.query().findOne({
+      walletAddressId,
+      status: 'ACTIVE'
+    })
+
+    return card
+  }
+
   async activate(userId: string, cardId: string) {
     const card = await this.getById(userId, cardId)
     if (card.status !== 'ORDERED') {

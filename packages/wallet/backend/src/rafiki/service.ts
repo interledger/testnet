@@ -11,6 +11,12 @@ import { Logger } from 'winston'
 import { AccountService } from '../account/service'
 import { RafikiClient } from './rafiki-client'
 import { WebhookType } from './validation'
+import { InterledgerCardService } from '@/interledgerCard/service'
+import {
+  CancelOutgoingPaymentInput,
+  CardPaymentFailureReason
+} from '@/rafiki/backend/generated/graphql'
+import { Card } from '@/interledgerCard/model'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -82,7 +88,8 @@ export class RafikiService implements IRafikiService {
     private rafikiClient: RafikiClient,
     private transactionService: TransactionService,
     private walletAddressService: WalletAddressService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private interledgerCardService: InterledgerCardService
   ) {}
 
   public async onWebHook(wh: WebhookType): Promise<void> {
@@ -237,6 +244,25 @@ export class RafikiService implements IRafikiService {
       return
     }
 
+    let card: Card | undefined
+    if (wh.data?.cardDetails) {
+      card = await this.interledgerCardService.findActiveCardByWalletAddress(
+        walletAddress.id
+      )
+      if (!card) {
+        this.logger.info(
+          `Active card for wallet address ${walletAddress.id} - ${walletAddress.url} not found`
+        )
+        await this.rafikiClient.cancelOutgoingPayment({
+          cardPaymentFailureReason: CardPaymentFailureReason.InvalidRequest,
+          reason: 'No active card found',
+          id: wh.data.id
+        })
+
+        throw new Error('No active card found')
+      }
+    }
+
     const secondParty = await this.getOutgoingPaymentSecondPartyByReceiver(
       wh.data.receiver
     )
@@ -258,6 +284,17 @@ export class RafikiService implements IRafikiService {
       this.logger.info(
         `Insufficient funds. Payment amount ${amountValue}, balance ${balance}`
       )
+
+      const input: CancelOutgoingPaymentInput = {
+        reason: 'Insufficient funds',
+        id: wh.data.id
+      }
+
+      if (card) {
+        input.cardPaymentFailureReason = CardPaymentFailureReason.InvalidRequest
+      }
+
+      await this.rafikiClient.cancelOutgoingPayment(input)
       throw new Error('Insufficient funds')
     }
 

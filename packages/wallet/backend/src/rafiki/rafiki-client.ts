@@ -49,7 +49,10 @@ import {
   GetOutgoingPaymentQuery,
   GetOutgoingPaymentQueryVariables,
   GetIncomingPaymentQuery,
-  GetIncomingPaymentQueryVariables
+  GetIncomingPaymentQueryVariables,
+  CancelOutgoingPaymentInput,
+  CancelOutgoingPaymentVariables,
+  CancelOutgoingPayment
 } from './backend/generated/graphql'
 import {
   createAssetMutation,
@@ -65,6 +68,7 @@ import {
   withdrawLiquidityMutation
 } from './backend/request/liquidity.request'
 import {
+  cancelOutgoingPaymentMutation,
   createOutgoingPaymentMutation,
   getOutgoingPaymentQuery,
   getOutgoingPayments,
@@ -283,6 +287,27 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return paymentResponse.payment as OutgoingPayment
+  }
+
+  public async cancelOutgoingPayment(
+    input: CancelOutgoingPaymentInput
+  ): Promise<OutgoingPayment> {
+    const { cancelOutgoingPayment: response } =
+      await this.backendGraphQLClient.request<
+        CancelOutgoingPayment,
+        CancelOutgoingPaymentVariables
+      >(cancelOutgoingPaymentMutation, {
+        input
+      })
+
+    if (!response) {
+      throw new Error('Empty result')
+    }
+    if (!response.payment) {
+      throw new Error('Unable to fetch cancel outgoing payment respose')
+    }
+
+    return response.payment as OutgoingPayment
   }
 
   public async createRafikiWalletAddress(
