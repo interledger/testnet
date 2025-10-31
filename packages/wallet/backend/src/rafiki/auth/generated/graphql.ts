@@ -67,6 +67,8 @@ export type Grant = Model & {
   id: Scalars['ID']['output'];
   /** Current state of the grant. */
   state: GrantState;
+  /** Details of the subject provided by the grant. */
+  subject?: Maybe<Subject>;
   /** Unique identifier of the tenant associated with the grant. */
   tenantId: Scalars['ID']['output'];
 };
@@ -209,6 +211,23 @@ export enum SortOrder {
   /** Sort the results in descending order. */
   Desc = 'DESC'
 }
+
+export type Subject = {
+  __typename?: 'Subject';
+  sub_ids: Array<SubjectItem>;
+};
+
+export type SubjectItem = Model & {
+  __typename?: 'SubjectItem';
+  /** The date and time when the subject was created. */
+  createdAt: Scalars['String']['output'];
+  /** Unique identifier of the subject object. */
+  id: Scalars['ID']['output'];
+  /** Wallet address of the subject's account. */
+  subId: Scalars['String']['output'];
+  /** Format of the subject identifier */
+  subIdFormat: Scalars['String']['output'];
+};
 
 export type GetGrantsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;

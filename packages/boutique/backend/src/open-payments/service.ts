@@ -223,10 +223,7 @@ export class OpenPayments implements IOpenPayments {
       url = url.replace('rafiki-auth', 'localhost')
     }
 
-    // remove tenant id as it is not used for hash
-    url = url.replace(/\/[0-9a-fA-F-]+\/?$/, '')
-
-    const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}/`
+    const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}`
     const hash = createHash('sha-256').update(data).digest('base64')
 
     if (hash !== receivedHash) {
