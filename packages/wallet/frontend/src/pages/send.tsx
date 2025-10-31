@@ -26,6 +26,7 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import {
+  FEATURES_ENABLED,
   INTERLEDGER_WALLET_ADDRESS,
   PAYMENT_RECEIVE,
   PAYMENT_SEND,
@@ -290,7 +291,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
             match: undefined,
             nonce: undefined
           }
-          if (user.isCardsVisible && isSepa) {
+          if ((user.isCardsVisible || FEATURES_ENABLED) && isSepa) {
             const responseSEPA = await transfersService.getSEPADetails({
               receiver: data.receiver,
               legalName: data.legalName || ''
