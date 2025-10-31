@@ -50,6 +50,20 @@ export const createOutgoingPaymentMutation = gql`
   }
 `
 
+export const cancelOutgoingPaymentMutation = gql`
+  mutation CancelOutgoingPayment($input: CancelOutgoingPaymentInput!) {
+    cancelOutgoingPayment(input: $input) {
+      payment {
+        createdAt
+        error
+        metadata
+        id
+        walletAddressId
+      }
+    }
+  }
+`
+
 export const getOutgoingPayments = gql`
   query GetOutgoingPaymentsQuery(
     $filter: OutgoingPaymentFilter

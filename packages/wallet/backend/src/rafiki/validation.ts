@@ -65,7 +65,17 @@ const outgoingPaymentSchema = z.object({
     .optional(),
   peerId: z.string().optional(),
   error: z.string().optional(),
-  expiresAt: z.string().optional()
+  expiresAt: z.string().optional(),
+  cardDetails: z
+    .object({
+      data: z.object({
+        signature: z.string(),
+        payload: z.string()
+      }),
+      requestId: z.string(),
+      initiatedAt: z.string()
+    })
+    .optional()
 })
 
 export const incomingPaymentWebhookSchema = z.object({
