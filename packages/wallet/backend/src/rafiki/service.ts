@@ -245,10 +245,12 @@ export class RafikiService implements IRafikiService {
     }
 
     let card: Card | undefined
+
     if (wh.data?.cardDetails) {
       card = await this.interledgerCardService.findActiveCardByWalletAddress(
         walletAddress.id
       )
+
       if (!card) {
         this.logger.info(
           `Active card for wallet address ${walletAddress.id} - ${walletAddress.url} not found`
@@ -258,7 +260,27 @@ export class RafikiService implements IRafikiService {
           reason: 'No active card found',
           id: wh.data.id
         })
+        return
+      }
 
+      try {
+        await this.interledgerCardService.processCardPayment(
+          wh.data.cardDetails?.data?.payload,
+          card,
+          walletAddress.url
+        )
+        this.logger.info(
+          `Card payment processed for outgoing payment ${wh.data.id}`
+        )
+      } catch (e) {
+        this.logger.info(
+          `Error processing card payment for outgoing payment ${wh.data.id}: ${e}`
+        )
+        await this.rafikiClient.cancelOutgoingPayment({
+          reason: 'Card payment processing failed',
+          cardPaymentFailureReason: CardPaymentFailureReason.InvalidRequest,
+          id: wh.data.id
+        })
         return
       }
     }

@@ -4,6 +4,7 @@ import { Transaction } from '@/transaction/model'
 import { WalletAddressKeys } from '@/walletAddressKeys/model'
 import { BaseModel } from '@shared/backend'
 import { IWalletAddressResponse } from '@wallet/shared/src'
+import { Card } from '@/interledgerCard/model'
 
 export class WalletAddress extends BaseModel implements IWalletAddressResponse {
   static tableName = 'walletAddresses'
@@ -16,6 +17,7 @@ export class WalletAddress extends BaseModel implements IWalletAddressResponse {
   isCard?: boolean
   account!: Account
   transactions!: Array<Transaction>
+  card!: Card
 
   static relationMappings = () => ({
     account: {
@@ -42,6 +44,15 @@ export class WalletAddress extends BaseModel implements IWalletAddressResponse {
       join: {
         from: 'walletAddresses.id',
         to: 'walletAddressKeys.walletAddressId'
+      }
+    },
+
+    card: {
+      relation: Model.HasOneRelation,
+      modelClass: Card,
+      join: {
+        from: 'walletAddresses.id',
+        to: 'cards.walletAddressId'
       }
     }
   })
