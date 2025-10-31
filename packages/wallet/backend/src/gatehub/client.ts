@@ -750,7 +750,8 @@ export class GateHubClient {
   }
 
   async getSEPADetails(iban: string, legalName: string): Promise<SepaResponse> {
-    const organizationUuid = this.env.GATEHUB_ORG_ID
+    const organizationUuid =
+      this.env.GATEHUB_SEPA_ORG_ID || this.env.GATEHUB_ORG_ID
     const url = `${this.apiUrl}/core/v1/users/${organizationUuid}/accounts`
     const payload = {
       iban: iban,
