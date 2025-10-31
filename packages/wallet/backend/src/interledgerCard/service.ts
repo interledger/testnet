@@ -27,6 +27,7 @@ export type CreateCardResponse = {
   publicKey?: string
 }
 
+const MAX_HOURS_DIFF = 24
 const CDOL1 = hexToUint8Array(
   '9f36029f02065f2a025f36019a039f21039f3704df0140df0240'
 )
@@ -245,7 +246,11 @@ export class InterledgerCardService implements IInterledgerCardService {
       throw new Error(`Invalid ATC value: ${atcValue}, last: ${cardData.atc}`)
 
     // Verify transaction date
-    this.verifyTransactionDate(data.transactionDate, data.transactionTime)
+    this.verifyTransactionDate(
+      data.transactionDate,
+      data.transactionTime,
+      MAX_HOURS_DIFF
+    )
 
     // Verify cryptogram
     await this.verifyCryptogram(
@@ -332,7 +337,8 @@ export class InterledgerCardService implements IInterledgerCardService {
           hexToUint8Array(cardData.cmacKey),
           atc
         )
-        isValid = verifier.verify(context, signature)
+
+        isValid = await verifier.verify(context, signature)
 
         if (!isValid) throw new Error('Invalid signature')
         break
