@@ -259,7 +259,7 @@ export class RafikiService implements IRafikiService {
           id: wh.data.id
         })
 
-        throw new Error('No active card found')
+        return
       }
     }
 
@@ -295,7 +295,7 @@ export class RafikiService implements IRafikiService {
       }
 
       await this.rafikiClient.cancelOutgoingPayment(input)
-      throw new Error('Insufficient funds')
+      return
     }
 
     await this.rafikiClient.depositLiquidity(wh.id)

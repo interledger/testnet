@@ -93,7 +93,7 @@ export class InterledgerCardService implements IInterledgerCardService {
 
   public async findActiveCardByWalletAddress(
     walletAddressId: string
-  ): Promise<Card> {
+  ): Promise<Card | undefined> {
     const card = await Card.query().findOne({
       walletAddressId,
       status: 'ACTIVE'
