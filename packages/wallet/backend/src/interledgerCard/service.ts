@@ -267,9 +267,12 @@ export class InterledgerCardService implements IInterledgerCardService {
     if (!data.currencyExponent) throw new Error('Missing currency exponent')
 
     // Only EUR (0978) is supported for now
+    // This is NOT VERIFIED YET against the actual wallet asset code
     const currency = uint8ArrayToHex(data.currencyCode)
     const EUR_CURRENCY_CODE = '0978'
     if (currency !== EUR_CURRENCY_CODE) throw new Error('Unsupported currency')
+
+    // TODO: Check that the wallet address asset code matches the currency code
 
     const amount = Number.parseInt(uint8ArrayToHex(data.amountAuthorized))
     const exponent = Number.parseInt(uint8ArrayToHex(data.currencyExponent))
