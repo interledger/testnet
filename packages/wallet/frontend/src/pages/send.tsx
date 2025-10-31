@@ -175,7 +175,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
       return
     }
 
-    if (user.isCardsVisible && url.includes('/iban/')) {
+    if ((user.isCardsVisible || FEATURES_ENABLED) && url.includes('/iban/')) {
       setIsSepa(true)
     } else {
       setIsSepa(false)
