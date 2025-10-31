@@ -4,9 +4,6 @@ import {
   Asset,
   CreateAssetMutation,
   CreateAssetMutationVariables,
-  CreateIncomingPaymentInput,
-  CreateIncomingPaymentMutation,
-  CreateIncomingPaymentMutationVariables,
   CreateOutgoingPaymentInput,
   CreateOutgoingPaymentMutation,
   CreateOutgoingPaymentMutationVariables,
@@ -49,22 +46,23 @@ import {
   GetOutgoingPaymentQuery,
   GetOutgoingPaymentQueryVariables,
   GetIncomingPaymentQuery,
-  GetIncomingPaymentQueryVariables
+  GetIncomingPaymentQueryVariables,
+  CancelOutgoingPaymentInput,
+  CancelOutgoingPaymentVariables,
+  CancelOutgoingPayment
 } from './backend/generated/graphql'
 import {
   createAssetMutation,
   getAssetQuery,
   getAssetsQuery
 } from './backend/request/asset.request'
-import {
-  createIncomingPaymentMutation,
-  getIncomingPaymentQuery
-} from './backend/request/incoming-payment.request'
+import { getIncomingPaymentQuery } from './backend/request/incoming-payment.request'
 import {
   depositLiquidityMutation,
   withdrawLiquidityMutation
 } from './backend/request/liquidity.request'
 import {
+  cancelOutgoingPaymentMutation,
   createOutgoingPaymentMutation,
   getOutgoingPaymentQuery,
   getOutgoingPayments,
@@ -143,41 +141,6 @@ export class RafikiClient implements IRafikiClient {
     >(getAssetQuery, { id })
 
     return response.asset as Asset
-  }
-
-  public async createIncomingPayment(
-    params: CreateIncomingPaymentParams
-  ): Promise<IncomingPayment> {
-    const input: CreateIncomingPaymentInput = {
-      walletAddressId: params.walletAddressId,
-      metadata: {
-        description: params.description
-      },
-      expiresAt: params.expiresAt?.toISOString(),
-      ...(params.amount && {
-        incomingAmount: {
-          value: params.amount,
-          assetCode: params.asset.code,
-          assetScale: params.asset.scale
-        }
-      })
-    }
-    const { createIncomingPayment: paymentResponse } =
-      await this.backendGraphQLClient.request<
-        CreateIncomingPaymentMutation,
-        CreateIncomingPaymentMutationVariables
-      >(createIncomingPaymentMutation, {
-        input
-      })
-
-    if (!paymentResponse) {
-      throw new Error('Empty result')
-    }
-    if (!paymentResponse.payment) {
-      throw new Error('Unable to fetch created incoming payment')
-    }
-
-    return paymentResponse.payment
   }
 
   public async createReceiver(params: CreateReceiverParams): Promise<Receiver> {
@@ -283,6 +246,27 @@ export class RafikiClient implements IRafikiClient {
     }
 
     return paymentResponse.payment as OutgoingPayment
+  }
+
+  public async cancelOutgoingPayment(
+    input: CancelOutgoingPaymentInput
+  ): Promise<OutgoingPayment> {
+    const { cancelOutgoingPayment: response } =
+      await this.backendGraphQLClient.request<
+        CancelOutgoingPayment,
+        CancelOutgoingPaymentVariables
+      >(cancelOutgoingPaymentMutation, {
+        input
+      })
+
+    if (!response) {
+      throw new Error('Empty result')
+    }
+    if (!response.payment) {
+      throw new Error('Unable to fetch cancel outgoing payment respose')
+    }
+
+    return response.payment as OutgoingPayment
   }
 
   public async createRafikiWalletAddress(

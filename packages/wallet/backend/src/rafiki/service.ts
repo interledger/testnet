@@ -13,6 +13,11 @@ import { RafikiClient } from './rafiki-client'
 import { cardDetailsSchema, WebhookType } from './validation'
 import { validate } from '@/shared/validate'
 import { InterledgerCardService } from '@/interledgerCard/service'
+import {
+  CancelOutgoingPaymentInput,
+  CardPaymentFailureReason
+} from '@/rafiki/backend/generated/graphql'
+import { Card } from '@/interledgerCard/model'
 
 export enum EventType {
   IncomingPaymentCreated = 'incoming_payment.created',
@@ -240,6 +245,25 @@ export class RafikiService implements IRafikiService {
       return
     }
 
+    let card: Card | undefined
+    if (wh.data?.cardDetails) {
+      card = await this.interledgerCardService.findActiveCardByWalletAddress(
+        walletAddress.id
+      )
+      if (!card) {
+        this.logger.info(
+          `Active card for wallet address ${walletAddress.id} - ${walletAddress.url} not found`
+        )
+        await this.rafikiClient.cancelOutgoingPayment({
+          cardPaymentFailureReason: CardPaymentFailureReason.InvalidRequest,
+          reason: 'No active card found',
+          id: wh.data.id
+        })
+
+        return
+      }
+    }
+
     const secondParty = await this.getOutgoingPaymentSecondPartyByReceiver(
       wh.data.receiver
     )
@@ -261,7 +285,18 @@ export class RafikiService implements IRafikiService {
       this.logger.info(
         `Insufficient funds. Payment amount ${amountValue}, balance ${balance}`
       )
-      throw new Error('Insufficient funds')
+
+      const input: CancelOutgoingPaymentInput = {
+        reason: 'Insufficient funds',
+        id: wh.data.id
+      }
+
+      if (card) {
+        input.cardPaymentFailureReason = CardPaymentFailureReason.InvalidRequest
+      }
+
+      await this.rafikiClient.cancelOutgoingPayment(input)
+      return
     }
 
     // Check if is card payment

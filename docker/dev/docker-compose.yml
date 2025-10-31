@@ -146,7 +146,7 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend
-    image: ghcr.io/interledger/rafiki-backend:v2.0.0-beta
+    image: ghcr.io/interledger/rafiki-backend:pos-card-services
     restart: always
     privileged: true
     volumes:
@@ -193,6 +193,10 @@ services:
       ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
       ADMIN_SIGNATURE_VERSION: 1
       AUTH_SERVICE_API_URL: http://rafiki-auth:3011
+      CARD_SERVICE_URL: 'http://rafiki-card-service:3007'
+      CARD_WEBHOOK_SERVICE_URL: 'http://rafiki-card-service:3007/webhook'
+      POS_SERVICE_URL: 'http://rafiki-pos-servicee:3014'
+      POS_WEBHOOK_SERVICE_URL: 'http://rafiki-pos-service:3014/webhook'
     depends_on:
       - postgres
       - redis
@@ -219,6 +223,48 @@ services:
       KRATOS_ADMIN_URL: 'http://kratos:4434/admin'
       AUTH_ENABLED: false
       SIGNATURE_VERSION: 1
+    <<: *logging
+
+  rafiki-card-service:
+    container_name: rafiki-card-service
+    image: ghcr.io/interledger/rafiki-card-service:pos-card-services
+    restart: always
+    privileged: true
+    networks:
+      - testnet
+    ports:
+      - '3007:3007'
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      CARD_SERVICE_PORT: 3007
+      REDIS_URL: redis://redis:6379/0
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
+      TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      TENANT_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      TENANT_SIGNATURE_VERSION: 1
+    <<: *logging
+
+  rafiki-pos-service:
+    container_name: rafiki-pos-service
+    image: ghcr.io/interledger/rafiki-point-of-sale:pos-card-services
+    restart: always
+    privileged: true
+    networks:
+      - testnet
+    ports:
+      - '3014:3014'
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      PORT: 3014
+      REDIS_URL: redis://redis:6379/0
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
+      TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      TENANT_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      TENANT_SIGNATURE_VERSION: 1
+      WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
+      WEBHOOK_SIGNATURE_VERSION: 1
     <<: *logging
 
   kratos:

@@ -9,7 +9,7 @@ config:
 generates:
   src/rafiki/backend/generated/graphql.ts:
     documents: 'src/rafiki/backend/**/!(*.d).{ts,tsx}'
-    schema: https://raw.githubusercontent.com/interledger/rafiki/refs/tags/v2.0.0-beta/packages/backend/src/graphql/schema.graphql
+    schema: https://raw.githubusercontent.com/interledger/rafiki/refs/heads/pos-card-services/packages/backend/src/graphql/schema.graphql
     plugins:
       - 'typescript'
       - 'typescript-operations'

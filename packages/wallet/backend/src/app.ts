@@ -198,7 +198,9 @@ export class App {
     app.use(withSession)
 
     // Auth Routes
-    router.post('/signup', this.ensureGateHubSandboxEnv, authController.signUp)
+    if (env.NODE_ENV !== 'production' || env.GATEHUB_ENV !== 'production') {
+      router.post('/signup', authController.signUp)
+    }
     router.post('/login', rateLimiterLogin, authController.logIn)
     router.post('/logout', isAuth, authController.logOut)
 
