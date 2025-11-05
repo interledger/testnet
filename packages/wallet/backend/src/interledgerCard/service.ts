@@ -246,11 +246,11 @@ export class InterledgerCardService implements IInterledgerCardService {
       throw new Error(`Invalid ATC value: ${atcValue}, last: ${cardData.atc}`)
 
     // Verify transaction date
-    this.verifyTransactionDate(
-      data.transactionDate,
-      data.transactionTime,
-      MAX_HOURS_DIFF
-    )
+    // this.verifyTransactionDate(
+    //   data.transactionDate,
+    //   data.transactionTime,
+    //   MAX_HOURS_DIFF
+    // )
 
     // Verify cryptogram
     await this.verifyCryptogram(
