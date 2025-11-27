@@ -110,7 +110,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       : 0n
 
     return {
-      description: receiver.metadata.description,
+      description: receiver.metadata?.description,
       value: parseFloat(transformAmount(value.toString(), asset.scale)),
       assetCode: asset.code
     }
