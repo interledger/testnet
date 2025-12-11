@@ -44,7 +44,8 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
 
   const scaledValue = Number(`${value}e-${assetScale}`)
   const flooredValue =
-    Math.floor(scaledValue * 10 ** displayScale) / 10 ** displayScale
+    Math.floor(Math.round(scaledValue * 10 ** displayScale)) /
+    10 ** displayScale
 
   const symbol = getCurrencySymbol(assetCode)
 
