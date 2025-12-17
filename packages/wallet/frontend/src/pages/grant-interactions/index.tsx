@@ -22,11 +22,12 @@ const GrantInteractionPage = ({
   grant,
   interactionId,
   nonce,
-  clientName: _clientName
+  clientName
 }: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
   const isPendingGrant = grant.state === 'PENDING'
+  const client = clientName ? clientName : grant.client
   const imageName =
     THEME === 'dark' ? '/grants-dark.webp' : '/grants-light.webp'
 
@@ -68,12 +69,13 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-base">
           {grant.access.length === 1 ? (
             <div>
-              Your wallet is requesting access to an amount of{' '}
+              {client} is requesting access to make payments to an amount of{' '}
               {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
             </div>
           ) : (
             <div>
-              Your wallet is requesting access to the following amounts:{' '}
+              {client} is requesting access to make payments on the following
+              amounts:{' '}
               {grant.access
                 .map(
                   (accessItem) =>
@@ -123,12 +125,12 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-xl">
           {grant.access.length === 1 ? (
             <div>
-              Your wallet previously granted access to an amount of{' '}
+              {client} was previously granted access to an amount of{' '}
               {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
             </div>
           ) : (
             <div>
-              Your wallet previously granted access to the following amounts:{' '}
+              {client} was previously granted access to the following amounts:{' '}
               {grant.access
                 .map(
                   (accessItem) =>
