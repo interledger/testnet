@@ -2,7 +2,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
 
-let NEXT_PUBLIC_FEATURES_ENABLED = 'true'
+let NEXT_PUBLIC_FEATURES_ENABLED = 'false'
 
 if (
   process.env.NODE_ENV === 'production' &&
@@ -15,6 +15,17 @@ if (
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  headers: () => [
+    {
+      source: '/:path*',
+      headers: [
+        {
+          key: 'Link',
+          value: '</pay/payment-manifest.json>; rel="payment-method-manifest"'
+        }
+      ]
+    }
+  ],
   env: {
     NEXT_PUBLIC_BACKEND_URL:
       process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3003',

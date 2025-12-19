@@ -137,7 +137,7 @@ const createTransfersService = (): TransfersService => ({
             vopNonce: nonce
           }
         })
-        .json<SuccessResponse>()
+        .json<SendResponse>()
       return response
     } catch (error) {
       return getError<SendArgs>(
@@ -153,7 +153,7 @@ const createTransfersService = (): TransfersService => ({
         .post('outgoing-payments', {
           json: args
         })
-        .json<SuccessResponse>()
+        .json<AcceptQuoteResponse>()
       return response
     } catch (error) {
       return getError<AcceptQuoteArgs>(

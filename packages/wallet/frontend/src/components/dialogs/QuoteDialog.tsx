@@ -94,11 +94,17 @@ export const QuoteDialog = ({
                     {type === 'quote' ? 'You send: ' : 'You exchange: '}
                     {debitAmount.amount}
                     <br />
-                    {type === 'quote'
-                      ? receiverName
-                        ? `${receiverName} gets: `
-                        : 'Recipient gets: '
-                      : 'You get: '}
+                    {type === 'quote' ? (
+                      receiverName ? (
+                        <span className="font-light">
+                          {receiverName} gets:{' '}
+                        </span>
+                      ) : (
+                        'Recipient gets: '
+                      )
+                    ) : (
+                      'You get: '
+                    )}
                     {receiveAmount.amount}
                     <br />
                     {type === 'quote' ? 'Fee: ' : 'Exchange fee: '} {fee.amount}

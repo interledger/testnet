@@ -138,6 +138,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         )}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="manifest" href="/manifest.json" />
       </Head>
 
       {/* eslint-disable-next-line react/no-unknown-property */}
