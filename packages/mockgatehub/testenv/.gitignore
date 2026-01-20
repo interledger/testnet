@@ -1,0 +1,6 @@
+# Go build artifacts
+go.mod
+go.sum
+
+# Legacy bash script (keeping for reference but preferring Go)
+run-integration-tests.sh

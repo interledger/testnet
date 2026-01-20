@@ -89,7 +89,7 @@ func (h *Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetWalletBalance(w http.ResponseWriter, r *http.Request) {
 	walletID := chi.URLParam(r, "walletID")
 	logger.Info.Printf("DEBUG: walletID from path = '%s'", walletID)
-	
+
 	if walletID == "" {
 		// Try legacy parameter name
 		walletID = chi.URLParam(r, "address")

@@ -79,6 +79,11 @@ packages/mockgatehub/
 │   │   └── utils_test.go
 │   └── logger/                # Logging
 │       └── logger.go         # Simple logger setup
+├── testenv/                   # Isolated integration test environment
+│   ├── docker-compose.yml    # Test-only compose (ports 28080, 26380)
+│   ├── testscript.go         # Go-based integration test suite
+│   ├── .gitignore            # Ignore go.mod/go.sum
+│   └── README.md             # Test environment documentation
 ├── web/                       # Static web assets
 │   └── kyc-form.html         # KYC iframe HTML
 ├── Dockerfile                 # Multi-stage Docker build
@@ -421,41 +426,51 @@ Already configured in `docker/local/docker-compose.yml`:
 ```bash
 cd packages/mockgatehub
 go mod tidy                    # Update dependencies
-go test ./...                  # Run tests
-go build ./cmd/mockgatehub     # Build binary
+go test ./...                  # Run unit tests
+cd testenv && go run testscript.go  # Run integration tests
+cd .. && go build ./cmd/mockgatehub  # Build binary
 ```
 
 ### 2. Running Locally
 
 ```bash
-# In-memory mode
+# In-memory mode (for quick testing)
 ./mockgatehub
 
-# With Redis
+# With Redis (production-like)
 MOCKGATEHUB_REDIS_URL=redis://localhost:6379 \
 MOCKGATEHUB_REDIS_DB=1 \
 ./mockgatehub
 ```
 
-### 3. Docker Build
+### 3. Docker Build & Test
 
 ```bash
-cd docker/local
-docker-compose build mockgatehub
+# Build fresh image
+cd /path/to/testnet
+docker build -f packages/mockgatehub/Dockerfile -t local-mockgatehub .
+
+# Test in isolated environment
+cd packages/mockgatehub/testenv
+go run testscript.go
+
+# Deploy to main development stack
+cd ../../../docker/local
 docker-compose up -d mockgatehub
 docker-compose logs -f mockgatehub
 ```
 
-### 4. Testing Integration
+### 4. Full Integration Testing
 
 ```bash
-# Create a test user
-curl -X POST http://localhost:8080/auth/v1/users/managed \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com"}'
+# Option 1: Isolated test environment (recommended for development)
+cd packages/mockgatehub/testenv
+go run testscript.go
 
-# Check balance
-curl http://localhost:8080/core/v1/wallets/{address}/balance
+# Option 2: With full wallet stack
+cd docker/local
+docker-compose up -d  # Starts wallet, rafiki, mockgatehub, etc.
+# Test via wallet UI or API
 ```
 
 ## Troubleshooting
@@ -511,10 +526,40 @@ curl http://localhost:8080/core/v1/wallets/{address}/balance
 
 - [ ] Unit tests pass: `go test ./...`
 - [ ] Coverage acceptable: `go test -cover ./...` (aim for 80%+)
-- [ ] Integration test passes
+- [ ] Integration test passes: `cd testenv && go run testscript.go`
 - [ ] Docker build succeeds
-- [ ] Full stack starts: `docker-compose up`
+- [ ] Full stack starts: `docker-compose up` (in `docker/local`)
 - [ ] Wallet application works with MockGatehub
+- [ ] Test environment isolated: No port conflicts with main environment
+
+### Critical: Maintain testenv/
+
+**The `testenv/` directory is NOT optional**. Future agents MUST maintain it when making changes:
+
+1. **When adding new endpoints**: Update `testscript.go` with corresponding test cases
+2. **When changing API responses**: Verify tests still pass - update assertions if needed
+3. **When modifying authentication**: Ensure test headers are still valid
+4. **When adding new features**: Add comprehensive test coverage in testscript.go
+
+**testenv/ provides**:
+- Isolated integration testing (no conflicts with `docker/local`)
+- Fast feedback loop for full-stack changes
+- Regression prevention for critical user journeys
+- CI/CD validation readiness
+
+**Running tests**:
+```bash
+cd testenv
+go run testscript.go  # Starts containers, runs all tests, cleans up
+```
+
+**Expected outcome**: All 10 tests pass (Health → User → Auth → KYC → Wallet → Balance → Rates → Vaults → Transaction)
+
+**If tests fail after your changes**:
+1. Check what changed in API responses
+2. Update test assertions in testscript.go
+3. Ensure backward compatibility (wallet code depends on exact response format)
+4. If breaking change is necessary, document it and coordinate with wallet team
 
 ## Key Files Reference
 
