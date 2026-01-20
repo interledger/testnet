@@ -107,6 +107,7 @@ type ErrorResponse struct {
 // TokenResponse is the response for token creation
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
+	Token       string `json:"token"`
 	TokenType   string `json:"token_type"`
 	ExpiresIn   int    `json:"expires_in"`
 }

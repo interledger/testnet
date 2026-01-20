@@ -6,22 +6,29 @@ This directory contains an isolated test environment for running MockGatehub int
 
 ```
 testenv/
-├── docker-compose.yml           # Isolated compose environment
-├── run-integration-tests.sh     # Integration test script
-└── README.md                    # This file
+├── docker-compose.yml              # Isolated compose environment
+├── testscript.go                   # Go-based integration tests (primary)
+├── run-tests.sh                    # Test runner script
+├── run-integration-tests.sh        # DEPRECATED - redirects to run-tests.sh
+└── README.md                       # This file
 ```
 
 ## Quick Start
 
+**Option 1: Direct execution (recommended)**
 ```bash
-# Run the integration tests (Go - recommended)
 go run testscript.go
+```
+
+**Option 2: Using the wrapper script**
+```bash
+./run-tests.sh
 ```
 
 The test script will:
 1. Start MockGatehub and Redis in isolated containers (ports 28080, 26380)
 2. Wait for services to be ready
-3. Run all 10 integration tests
+3. Run all 12 integration tests
 4. Print detailed results with color-coded output
 5. Clean up containers and volumes automatically
 
@@ -30,9 +37,11 @@ The test script will:
 The integration test suite validates:
 - ✅ Service health and availability
 - ✅ User creation and management
+- ✅ **Wallet auto-creation** (GET /core/v1/users/{userId} creates wallet if none exists)
+- ✅ **Wallet persistence** (subsequent calls return same wallet)
 - ✅ Authentication token generation
 - ✅ KYC workflow (auto-approval in sandbox)
-- ✅ Wallet creation and retrieval
+- ✅ Additional wallet creation via POST
 - ✅ Multi-currency balance queries (11 currencies)
 - ✅ Exchange rate data
 - ✅ Vault information

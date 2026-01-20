@@ -23,7 +23,7 @@ type Manager struct {
 type WebhookPayload struct {
 	Event     string                 `json:"event"`
 	UserID    string                 `json:"user_id"`
-	Timestamp time.Time              `json:"timestamp"`
+	Timestamp int64                  `json:"timestamp"` // Milliseconds since epoch
 	Data      map[string]interface{} `json:"data"`
 }
 
@@ -88,11 +88,11 @@ func (m *Manager) sendWithRetry(eventType, userID string, data map[string]interf
 
 // send performs the actual HTTP webhook request
 func (m *Manager) send(eventType, userID string, data map[string]interface{}) error {
-	// Build payload
+	// Build payload with timestamp in milliseconds since epoch
 	payload := WebhookPayload{
 		Event:     eventType,
 		UserID:    userID,
-		Timestamp: time.Now(),
+		Timestamp: time.Now().UnixMilli(), // Milliseconds since epoch
 		Data:      data,
 	}
 
@@ -112,17 +112,14 @@ func (m *Manager) send(eventType, userID string, data map[string]interface{}) er
 	// Add headers
 	req.Header.Set("Content-Type", "application/json")
 
-	// Generate HMAC signature
-	timestamp := fmt.Sprintf("%d", time.Now().Unix())
-	signature := auth.GenerateSignature(timestamp, "POST", req.URL.Path, string(body), m.webhookSecret)
-
-	req.Header.Set("X-Webhook-Timestamp", timestamp)
-	req.Header.Set("X-Webhook-Signature", signature)
+	// Generate signature - GateHub expects SHA256(body) signed with the secret
+	// The signature should use the entire JSON payload as the message
+	signature := auth.GenerateGateHubWebhookSignature(string(body), m.webhookSecret)
+	req.Header.Set("X-GH-Webhook-Signature", signature)
 
 	logger.Info.Printf("[WEBHOOK] Request headers:")
 	logger.Info.Printf("[WEBHOOK]   Content-Type: application/json")
-	logger.Info.Printf("[WEBHOOK]   X-Webhook-Timestamp: %s", timestamp)
-	logger.Info.Printf("[WEBHOOK]   X-Webhook-Signature: %s", signature)
+	logger.Info.Printf("[WEBHOOK]   X-GH-Webhook-Signature: %s", signature)
 	logger.Info.Printf("[WEBHOOK]   Secret used: %s", m.webhookSecret)
 
 	// Send request
