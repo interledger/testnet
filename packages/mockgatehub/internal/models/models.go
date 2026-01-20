@@ -17,11 +17,11 @@ type User struct {
 
 // Wallet represents an XRPL wallet
 type Wallet struct {
-	Address   string    `json:"address"`  // Mock XRPL address
+	Address   string    `json:"address"` // Mock XRPL address
 	UserID    string    `json:"user_id"`
 	Name      string    `json:"name"`
 	Type      int       `json:"type"`
-	Network   int       `json:"network"`  // 30 for XRP Ledger
+	Network   int       `json:"network"` // 30 for XRP Ledger
 	CreatedAt time.Time `json:"created_at"`
 }
 

@@ -12,11 +12,11 @@ import (
 // MemoryStorage implements Storage using in-memory maps
 type MemoryStorage struct {
 	mu           sync.RWMutex
-	users        map[string]*models.User          // userID -> User
-	usersByEmail map[string]*models.User          // email -> User
-	wallets      map[string]*models.Wallet        // address -> Wallet
-	transactions map[string]*models.Transaction   // txID -> Transaction
-	balances     map[string]map[string]float64    // userID -> currency -> amount
+	users        map[string]*models.User        // userID -> User
+	usersByEmail map[string]*models.User        // email -> User
+	wallets      map[string]*models.Wallet      // address -> Wallet
+	transactions map[string]*models.Transaction // txID -> Transaction
+	balances     map[string]map[string]float64  // userID -> currency -> amount
 }
 
 // NewMemoryStorage creates a new in-memory storage
