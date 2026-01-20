@@ -6,6 +6,7 @@ import (
 	"mockgatehub/internal/consts"
 	"mockgatehub/internal/logger"
 	"mockgatehub/internal/models"
+	"mockgatehub/internal/utils"
 )
 
 // CreateToken generates an access token (stub - always succeeds)
@@ -47,6 +48,7 @@ func (h *Handler) CreateManagedUser(w http.ResponseWriter, r *http.Request) {
 
 	// Create new user
 	user := &models.User{
+		ID:        utils.GenerateUUID(),
 		Email:     req.Email,
 		Activated: true,
 		Managed:   true,

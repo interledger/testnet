@@ -18,6 +18,12 @@ func (h *Handler) CreateWallet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get userID from path parameter if not in body
+	userID := chi.URLParam(r, "userID")
+	if req.UserID == "" && userID != "" {
+		req.UserID = userID
+	}
+
 	if req.UserID == "" {
 		h.sendError(w, http.StatusBadRequest, "user_id is required")
 		return
@@ -59,15 +65,19 @@ func (h *Handler) CreateWallet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
-	address := chi.URLParam(r, "address")
-	if address == "" {
+	walletID := chi.URLParam(r, "walletID")
+	if walletID == "" {
+		// Try legacy parameter name
+		walletID = chi.URLParam(r, "address")
+	}
+	if walletID == "" {
 		h.sendError(w, http.StatusBadRequest, "Wallet address is required")
 		return
 	}
 
-	logger.Info.Printf("Getting wallet: %s", address)
+	logger.Info.Printf("Getting wallet: %s", walletID)
 
-	wallet, err := h.store.GetWallet(address)
+	wallet, err := h.store.GetWallet(walletID)
 	if err != nil {
 		h.sendError(w, http.StatusNotFound, "Wallet not found")
 		return
@@ -77,15 +87,22 @@ func (h *Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetWalletBalance(w http.ResponseWriter, r *http.Request) {
-	address := chi.URLParam(r, "address")
-	if address == "" {
+	walletID := chi.URLParam(r, "walletID")
+	logger.Info.Printf("DEBUG: walletID from path = '%s'", walletID)
+	
+	if walletID == "" {
+		// Try legacy parameter name
+		walletID = chi.URLParam(r, "address")
+		logger.Info.Printf("DEBUG: walletID from address = '%s'", walletID)
+	}
+	if walletID == "" {
 		h.sendError(w, http.StatusBadRequest, "Wallet address is required")
 		return
 	}
 
-	logger.Info.Printf("Getting balance for wallet: %s", address)
+	logger.Info.Printf("Getting balance for wallet: %s", walletID)
 
-	wallet, err := h.store.GetWallet(address)
+	wallet, err := h.store.GetWallet(walletID)
 	if err != nil {
 		h.sendError(w, http.StatusNotFound, "Wallet not found")
 		return
@@ -101,7 +118,7 @@ func (h *Handler) GetWalletBalance(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	logger.Info.Printf("Returning %d currency balances for wallet %s", len(balances), address)
+	logger.Info.Printf("Returning %d currency balances for wallet %s", len(balances), walletID)
 
 	response := models.GetBalanceResponse{
 		Balances: balances,
