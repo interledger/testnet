@@ -7,9 +7,18 @@ type CreateManagedUserRequest struct {
 	Email string `json:"email"`
 }
 
-// CreateManagedUserResponse is the response for creating a managed user
+// CreateManagedUserResponse matches the unmanaged (flat) response returned by mock GateHub
+// after the API was aligned to match the wallet backend expectations.
 type CreateManagedUserResponse struct {
-	User User `json:"user"`
+	ID        string   `json:"id"`
+	Email     string   `json:"email"`
+	Activated bool     `json:"activated"`
+	Managed   bool     `json:"managed"`
+	Role      string   `json:"role"`
+	Features  []string `json:"features"`
+	KYCState  string   `json:"kyc_state"`
+	RiskLevel string   `json:"risk_level"`
+	CreatedAt string   `json:"created_at"`
 }
 
 // GetManagedUserResponse is the response for getting a managed user

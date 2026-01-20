@@ -27,7 +27,36 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.sendJSON(w, http.StatusOK, user)
+	// Build response with verifications array matching production GateHub API
+	response := map[string]interface{}{
+		"id":         user.ID,
+		"email":      user.Email,
+		"activated":  user.Activated,
+		"managed":    user.Managed,
+		"role":       user.Role,
+		"features":   user.Features,
+		"kyc_state":  user.KYCState,
+		"risk_level": user.RiskLevel,
+		"created_at": user.CreatedAt,
+		"profile": map[string]string{
+			"first_name":           "",
+			"last_name":            "",
+			"address_country_code": "",
+			"address_city":         "",
+			"address_street1":      "",
+			"address_street2":      "",
+		},
+		"verifications": []map[string]interface{}{
+			{
+				"uuid":          "mock-verification-uuid",
+				"status":        1, // 1 = verified
+				"state":         1,
+				"provider_type": "sumsub",
+			},
+		},
+	}
+
+	h.sendJSON(w, http.StatusOK, response)
 }
 
 // StartKYC initiates the KYC verification process
@@ -125,6 +154,46 @@ func (h *Handler) UpdateKYCState(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	h.sendJSON(w, http.StatusOK, user)
+}
+
+// KYCIframe serves the KYC onboarding iframe
+// OverrideRiskLevel updates the risk level for a user
+func (h *Handler) OverrideRiskLevel(w http.ResponseWriter, r *http.Request) {
+	userID := chi.URLParam(r, "userID")
+	gatewayID := chi.URLParam(r, "gatewayID")
+
+	if userID == "" || gatewayID == "" {
+		h.sendError(w, http.StatusBadRequest, "User ID and Gateway ID are required")
+		return
+	}
+
+	var req struct {
+		RiskLevel string `json:"risk_level"`
+		Reason    string `json:"reason"`
+	}
+	if err := h.decodeJSON(r, &req); err != nil {
+		h.sendError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	logger.Info.Printf("Overriding risk level for user %s: risk=%s, reason=%s", userID, req.RiskLevel, req.Reason)
+
+	user, err := h.store.GetUser(userID)
+	if err != nil {
+		h.sendError(w, http.StatusNotFound, "User not found")
+		return
+	}
+
+	user.RiskLevel = req.RiskLevel
+
+	if err := h.store.UpdateUser(user); err != nil {
+		logger.Error.Printf("Failed to update user risk level: %v", err)
+		h.sendError(w, http.StatusInternalServerError, "Failed to update user")
+		return
+	}
+
+	logger.Info.Printf("Risk level updated successfully for user %s", userID)
 	h.sendJSON(w, http.StatusOK, user)
 }
 

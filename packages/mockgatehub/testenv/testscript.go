@@ -309,14 +309,14 @@ func runTest(name string, testFunc func() (bool, string)) {
 		if message != "" {
 			fmt.Printf(": %s", message)
 		}
-		fmt.Println("\n")
+		fmt.Println()
 		passed++
 	} else {
 		fmt.Printf("%s✗ FAILED%s", colorRed, colorReset)
 		if message != "" {
 			fmt.Printf(": %s", message)
 		}
-		fmt.Println("\n")
+		fmt.Println()
 		failed++
 	}
 }

@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"mockgatehub/internal/logger"
 	"mockgatehub/internal/models"
+	"mockgatehub/internal/utils"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -52,8 +54,16 @@ func (s *RedisStorage) Close() error {
 // User operations
 
 func (s *RedisStorage) CreateUser(user *models.User) error {
+	if user.Email == "" {
+		return errors.New("email is required")
+	}
+
+	// Generate ID and timestamps similar to memory storage
 	if user.ID == "" {
-		return errors.New("user ID is required")
+		user.ID = utils.GenerateUUID()
+	}
+	if user.CreatedAt.IsZero() {
+		user.CreatedAt = time.Now()
 	}
 
 	// Check if user exists
@@ -202,6 +212,10 @@ func (s *RedisStorage) GetWalletsByUser(userID string) ([]*models.Wallet, error)
 // Transaction operations
 
 func (s *RedisStorage) CreateTransaction(tx *models.Transaction) error {
+	if tx.ID == "" {
+		tx.ID = utils.GenerateUUID()
+	}
+
 	tx.CreatedAt = time.Now()
 
 	data, err := json.Marshal(tx)
@@ -244,28 +258,17 @@ func (s *RedisStorage) GetBalance(userID, currency string) (float64, error) {
 		return 0, fmt.Errorf("failed to get balance: %w", err)
 	}
 
-	var balance float64
-	if err := json.Unmarshal([]byte(val), &balance); err != nil {
-		return 0, fmt.Errorf("failed to unmarshal balance: %w", err)
+	balance, err := strconv.ParseFloat(val, 64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse balance: %w", err)
 	}
 
 	return balance, nil
 }
 
 func (s *RedisStorage) AddBalance(userID, currency string, amount float64) error {
-	current, err := s.GetBalance(userID, currency)
-	if err != nil {
-		return err
-	}
-
-	newBalance := current + amount
-	data, err := json.Marshal(newBalance)
-	if err != nil {
-		return fmt.Errorf("failed to marshal balance: %w", err)
-	}
-
-	if err := s.client.Set(s.ctx, s.balanceKey(userID, currency), data, 0).Err(); err != nil {
-		return fmt.Errorf("failed to set balance: %w", err)
+	if _, err := s.client.IncrByFloat(s.ctx, s.balanceKey(userID, currency), amount).Result(); err != nil {
+		return fmt.Errorf("failed to update balance: %w", err)
 	}
 
 	return nil
