@@ -74,9 +74,12 @@ export class EmailService implements IEmailService {
   }
 
   async sendVerifyEmail(to: string, token: string): Promise<void> {
+    console.log('[EMAIL-SERVICE] sendVerifyEmail called for:', to)
     const url = `${this.baseUrl}/auth/verify/${token}`
+    console.log('[EMAIL-SERVICE] Verification URL:', url)
 
     if (this.env.SEND_EMAIL) {
+      console.log('[EMAIL-SERVICE] SEND_EMAIL enabled, sending via SendGrid')
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] Verify your account`,
@@ -84,6 +87,7 @@ export class EmailService implements IEmailService {
       })
     }
 
+    console.log('[EMAIL-SERVICE] SEND_EMAIL disabled. Verify email link is:', url)
     this.logger.info(`Send email is disabled. Verify email link is: ${url}`)
   }
 

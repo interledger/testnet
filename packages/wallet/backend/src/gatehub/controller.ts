@@ -17,10 +17,21 @@ export class GateHubController implements IGateHubController {
     next: NextFunction
   ) => {
     try {
+      console.log('[GATEHUB-CTRL] getIframeUrl called')
+      console.log('[GATEHUB-CTRL] session:', {
+        hasSession: Boolean((req as any)?.session),
+        sessionId: (req as any)?.session?.id,
+        hasUser: Boolean((req as any)?.session?.user),
+        userId: (req as any)?.session?.user?.id
+      })
+      console.log('[GATEHUB-CTRL] type:', req.params.type)
+      
       const userId = req.session.user.id
       const iframeType: IFRAME_TYPE = req.params.type as IFRAME_TYPE
       const { url, isApproved, customerId } =
         await this.gateHubService.getIframeUrl(iframeType, userId)
+
+      console.log('[GATEHUB-CTRL] getIframeUrl result:', { url, isApproved, customerId })
 
       if (isApproved) {
         req.session.user.needsIDProof = false
@@ -33,6 +44,7 @@ export class GateHubController implements IGateHubController {
       }
       res.status(200).json(toSuccessResponse({ url }))
     } catch (e) {
+      console.error('[GATEHUB-CTRL] getIframeUrl error:', (e as any)?.message, (e as any)?.stack)
       next(e)
     }
   }

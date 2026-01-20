@@ -18,6 +18,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_BACKEND_URL:
       process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3003',
+    // Internal URL for server-side (middleware) to reach backend in Docker
+    BACKEND_INTERNAL_URL: process.env.BACKEND_URL || 'http://wallet-backend:3003',
     NEXT_PUBLIC_OPEN_PAYMENTS_HOST:
       process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST || '$rafiki-backend/',
     NEXT_PUBLIC_AUTH_HOST:
