@@ -10,6 +10,7 @@ import (
 
 	"mockgatehub/internal/auth"
 	"mockgatehub/internal/logger"
+	"mockgatehub/internal/utils"
 )
 
 // Manager handles webhook delivery
@@ -19,12 +20,14 @@ type Manager struct {
 	httpClient    *http.Client
 }
 
-// WebhookPayload represents the webhook request body
+// WebhookPayload represents the webhook request body (matches wallet-backend IWebhookData)
 type WebhookPayload struct {
-	Event     string                 `json:"event"`
-	UserID    string                 `json:"user_id"`
-	Timestamp int64                  `json:"timestamp"` // Milliseconds since epoch
-	Data      map[string]interface{} `json:"data"`
+	UUID        string                 `json:"uuid"`        // Webhook UUID (required by controller check)
+	Timestamp   string                 `json:"timestamp"`   // Milliseconds since epoch as string (e.g., "1768920404045")
+	EventType   string                 `json:"event_type"`  // e.g., "core.deposit.completed"
+	UserUUID    string                 `json:"user_uuid"`   // GateHub user UUID
+	Environment string                 `json:"environment"` // "sandbox" or "production"
+	Data        map[string]interface{} `json:"data"`        // Event-specific data (IDepositWebhookData, etc.)
 }
 
 // NewManager creates a new webhook manager
@@ -88,12 +91,15 @@ func (m *Manager) sendWithRetry(eventType, userID string, data map[string]interf
 
 // send performs the actual HTTP webhook request
 func (m *Manager) send(eventType, userID string, data map[string]interface{}) error {
-	// Build payload with timestamp in milliseconds since epoch
+	// Build payload - testnet wallet-backend expects timestamp as milliseconds string
+	now := time.Now()
 	payload := WebhookPayload{
-		Event:     eventType,
-		UserID:    userID,
-		Timestamp: time.Now().UnixMilli(), // Milliseconds since epoch
-		Data:      data,
+		UUID:        utils.GenerateUUID(),               // Generate unique webhook UUID
+		Timestamp:   fmt.Sprintf("%d", now.UnixMilli()), // Milliseconds since epoch as string
+		EventType:   eventType,                          // e.g., "core.deposit.completed"
+		UserUUID:    userID,                             // GateHub user UUID
+		Environment: "sandbox",                          // Always sandbox for mockgatehub
+		Data:        data,
 	}
 
 	body, err := json.Marshal(payload)
