@@ -65,7 +65,7 @@ services:
       OPEN_PAYMENTS_HOST: https://rafiki-backend
       GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
       AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
-      AUTH_DOMAIN: http://rafiki-auth:3009
+      AUTH_DOMAIN: http://rafiki-auth:3006
       AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
       RAFIKI_WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
@@ -146,9 +146,9 @@ services:
       INTROSPECTION_PORT: 3007
       ADMIN_PORT: 3008
       NODE_ENV: development
-      AUTH_SERVER_URL: http://localhost:3006
+      AUTH_SERVER_URL: http://rafiki-auth:3006
       AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres-local/rafiki_auth
-      IDENTITY_SERVER_URL: http://localhost:4003/grant-interactions
+      IDENTITY_SERVER_URL: http://wallet-frontend:4003/grant-interactions
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
       INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
@@ -181,9 +181,7 @@ services:
       CONNECTOR_PORT: 3002
       OPEN_PAYMENTS_PORT: 80
       DATABASE_URL: postgresql://rafiki_backend:rafiki_backend@postgres-local/rafiki_backend
-      USE_TIGERBEETLE: 'true'
-      TIGERBEETLE_CLUSTER_ID: 0
-      TIGERBEETLE_REPLICA_ADDRESSES: 10.5.0.50:4342
+      USE_TIGERBEETLE: 'false'
       NONCE_REDIS_KEY: test
       AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
       AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
