@@ -1,13 +1,17 @@
 package handler
 
 import (
+	"encoding/json"
 	"html/template"
+	"io"
 	"net/http"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"mockgatehub/internal/logger"
 	"mockgatehub/internal/storage"
+	"mockgatehub/internal/utils"
 	"mockgatehub/internal/webhook"
 )
 
@@ -15,6 +19,7 @@ import (
 type Handler struct {
 	store          storage.Storage
 	webhookManager *webhook.Manager
+	tokenToUser    sync.Map // Maps bearer tokens to user UUIDs
 }
 
 // NewHandler creates a new handler with dependencies
@@ -139,9 +144,90 @@ func (h *Handler) TransactionCompleteHandler(w http.ResponseWriter, r *http.Requ
 
 	logger.Info.Printf("[HANDLER] Transaction completed for paymentType=%s with bearer token", paymentType)
 
+	// Parse request body for transaction details (amount, currency, etc.)
+	type TransactionRequest struct {
+		Amount   string `json:"amount"`
+		Currency string `json:"currency"`
+	}
+
+	var txReq TransactionRequest
+	// Default values if body is empty or parsing fails
+	txReq.Amount = "100.00"
+	txReq.Currency = "USD"
+
+	if r.Body != nil {
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err == nil && len(bodyBytes) > 0 {
+			if err := json.Unmarshal(bodyBytes, &txReq); err == nil {
+				logger.Info.Printf("[HANDLER] Parsed transaction details: amount=%s, currency=%s", txReq.Amount, txReq.Currency)
+			} else {
+				logger.Warn.Printf("[HANDLER] Failed to parse request body, using defaults: %v", err)
+			}
+		}
+	}
+
+	// For deposit type, send a webhook to wallet-backend
+	if paymentType == "deposit" {
+		// Decode bearer to get user UUID
+		// In a real implementation, we would validate the JWT token
+		// For mock purposes, we extract the user UUID from a simple format
+		userUUID := h.extractUserFromBearer(bearer)
+
+		if userUUID != "" {
+			// Get user to find their wallet address
+			user, err := h.store.GetUser(userUUID)
+			if err == nil && user != nil {
+				// Get user's wallets to find the deposit address
+				wallets, err := h.store.GetWalletsByUser(userUUID)
+				if err == nil && len(wallets) > 0 {
+					// Use the first wallet's address
+					walletAddress := wallets[0].Address
+
+					// Send deposit webhook (matches GateHub webhook spec) with dynamic values
+					h.webhookManager.SendAsync("core.deposit.completed", userUUID, map[string]interface{}{
+						"tx_uuid":      utils.GenerateUUID(),
+						"amount":       txReq.Amount,   // From iframe form
+						"currency":     txReq.Currency, // From iframe form
+						"address":      walletAddress,  // The wallet address that received the deposit
+						"deposit_type": "external",     // External deposit type (lowercase per spec)
+						"total_fees":   "0",            // Fees charged (matches GateHub spec)
+					})
+
+					logger.Info.Printf("[HANDLER] Sent deposit webhook for user %s: %s %s to wallet %s", userUUID, txReq.Amount, txReq.Currency, walletAddress)
+				} else {
+					logger.Error.Printf("[HANDLER] No wallets found for user %s", userUUID)
+				}
+			} else {
+				logger.Error.Printf("[HANDLER] User not found: %s, error: %v", userUUID, err)
+			}
+		} else {
+			logger.Warn.Println("[HANDLER] Could not extract user UUID from bearer token")
+		}
+	}
+
 	// Return success response
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"success","message":"Transaction completed"}`))
+}
+
+// extractUserFromBearer extracts the user UUID from the bearer token
+func (h *Handler) extractUserFromBearer(bearer string) string {
+	// Look up the user UUID from the token mapping
+	if userUUID, ok := h.tokenToUser.Load(bearer); ok {
+		if uuid, ok := userUUID.(string); ok {
+			return uuid
+		}
+	}
+
+	logger.Warn.Printf("[HANDLER] Bearer token not found in mapping: %s", bearer[:min(len(bearer), 20)])
+	return ""
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -13,10 +13,30 @@ import (
 func (h *Handler) CreateToken(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("CreateToken called")
 
+	// Check for managedUserUuid header (used for iframe tokens)
+	managedUserUuid := r.Header.Get("x-gatehub-managed-user-uuid")
+	if managedUserUuid == "" {
+		managedUserUuid = r.Header.Get("managedUserUuid")
+	}
+
+	var token string
+	if managedUserUuid != "" {
+		// Generate a unique token for this user's iframe session
+		token = "iframe-token-" + utils.GenerateUUID()
+
+		// Store the mapping of token -> user UUID
+		h.tokenToUser.Store(token, managedUserUuid)
+
+		logger.Info.Printf("Created iframe token for user %s: %s", managedUserUuid, token[:min(len(token), 20)])
+	} else {
+		// Regular access token (backward compatibility)
+		token = "mock-access-token-" + consts.TestUser1ID
+	}
+
 	// In sandbox mode, always return a valid token
 	response := models.TokenResponse{
-		AccessToken: "mock-access-token-" + consts.TestUser1ID,
-		Token:       "mock-access-token-" + consts.TestUser1ID,
+		AccessToken: token,
+		Token:       token,
 		TokenType:   "Bearer",
 		ExpiresIn:   3600,
 	}

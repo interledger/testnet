@@ -203,6 +203,35 @@ func runTests() {
 		return false, "Failed to extract token"
 	})
 
+	// Test 5.5: Get iframe authorization token (with user mapping)
+	var iframeToken string
+	runTest("Get Iframe Token (User Mapping)", func() (bool, string) {
+		body := map[string]interface{}{
+			"scope": []string{"deposit"},
+		}
+		var result map[string]interface{}
+		if err := postJSONWithHeaders(
+			"/auth/v1/tokens?clientId=test-client-id",
+			body,
+			map[string]string{
+				"x-gatehub-managed-user-uuid": userID,
+			},
+			&result,
+		); err != nil {
+			return false, err.Error()
+		}
+
+		if tkn, ok := result["token"].(string); ok {
+			iframeToken = tkn
+			// Verify it's an iframe token format
+			if len(tkn) < 13 || tkn[:13] != "iframe-token-" {
+				return false, fmt.Sprintf("Invalid iframe token format: %s", tkn[:20])
+			}
+			return true, fmt.Sprintf("Iframe token: %s...", tkn[:30])
+		}
+		return false, "Failed to extract iframe token"
+	})
+
 	// Test 6: Start KYC
 	runTest("Start KYC (Auto-Approval)", func() (bool, string) {
 		var result map[string]interface{}
@@ -320,7 +349,32 @@ func runTests() {
 		return true, fmt.Sprintf("Retrieved %d vaults", len(vaults))
 	})
 
-	// Test 12: Create transaction (optional)
+	// Test 12: Dynamic deposit transaction
+	runTest("Dynamic Deposit with Custom Amount/Currency", func() (bool, string) {
+		// Complete deposit transaction with dynamic amount and currency
+		depositBody := map[string]interface{}{
+			"amount":   "75.50",
+			"currency": "EUR",
+		}
+		var result map[string]interface{}
+		if err := postJSONWithHeaders(
+			fmt.Sprintf("/transaction/complete?paymentType=deposit&bearer=%s", iframeToken),
+			depositBody,
+			map[string]string{
+				"Authorization": "Bearer " + iframeToken,
+			},
+			&result,
+		); err != nil {
+			return false, err.Error()
+		}
+
+		if status, ok := result["status"].(string); ok && status == "success" {
+			return true, "Deposit completed with 75.50 EUR"
+		}
+		return false, "Deposit transaction failed"
+	})
+
+	// Test 13: Create transaction (optional)
 	total++
 	fmt.Printf("%sTEST %d: Create Transaction%s\n", colorBlue, total, colorReset)
 	body := map[string]interface{}{
@@ -351,7 +405,7 @@ func runTests() {
 		failed++
 	}
 
-	_, _ = token, walletAddress // Keep for future use
+	_, _, _ = token, walletAddress, iframeToken // Keep for future use
 }
 
 func runTest(name string, testFunc func() (bool, string)) {

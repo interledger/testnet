@@ -130,13 +130,26 @@
 			console.log("Is iframe?", window.parent !== window);
 			
 			try {
+				// Get form values (amount and currency for deposits)
+				const requestBody = {};
+				if (paymentType === "deposit") {
+					const amountInput = document.getElementById("amount");
+					const currencySelect = document.getElementById("currency");
+					if (amountInput && currencySelect) {
+						requestBody.amount = amountInput.value;
+						requestBody.currency = currencySelect.value;
+						console.log("Deposit details:", requestBody);
+					}
+				}
+				
 				// Call mockgatehub completion endpoint
 				const response = await fetch(`/transaction/complete?paymentType=${paymentType}&bearer=${encodeURIComponent(bearer)}`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 						'Authorization': `Bearer ${bearer}`
-					}
+					},
+					body: JSON.stringify(requestBody)
 				});
 				
 				if (!response.ok) {
@@ -212,7 +225,7 @@
 		// Display content based on payment type
 		const content = document.getElementById("content");
 		if (paymentType === "deposit") {
-			content.innerHTML = "<h2>Deposit Funds</h2><p>Enter the amount and payment method to deposit funds into your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"100\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Currency:</label><br><select style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>JPY</option><option>AUD</option><option>CHF</option><option>CNY</option><option>INR</option><option>AED</option><option>PEB</option><option>XRP</option></select></div>";
+			content.innerHTML = "<h2>Deposit Funds</h2><p>Enter the amount and payment method to deposit funds into your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"100\" step=\"0.01\" min=\"0\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Currency:</label><br><select id=\"currency\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>JPY</option><option>AUD</option><option>CHF</option><option>CNY</option><option>INR</option><option>AED</option><option>PEB</option><option>XRP</option></select></div>";
 		} else if (paymentType === "withdraw") {
 			content.innerHTML = "<h2>Withdraw Funds</h2><p>Enter the amount and destination to withdraw funds from your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"50\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Destination Address:</label><br><input type=\"text\" placeholder=\"Wallet address\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br></div>";
 		} else if (paymentType === "exchange") {

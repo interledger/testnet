@@ -57,15 +57,14 @@ func TestSend_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify payload
-	assert.Equal(t, "core.deposit.completed", receivedPayload.Event)
-	assert.Equal(t, "user-123", receivedPayload.UserID)
+	assert.Equal(t, "core.deposit.completed", receivedPayload.EventType)
+	assert.Equal(t, "user-123", receivedPayload.UserUUID)
 	assert.Equal(t, 100.50, receivedPayload.Data["amount"])
 	assert.Equal(t, "USD", receivedPayload.Data["currency"])
 
 	// Verify headers
 	assert.Equal(t, "application/json", receivedHeaders.Get("Content-Type"))
-	assert.NotEmpty(t, receivedHeaders.Get("X-Webhook-Timestamp"))
-	assert.NotEmpty(t, receivedHeaders.Get("X-Webhook-Signature"))
+	assert.NotEmpty(t, receivedHeaders.Get("X-GH-Webhook-Signature"))
 }
 
 func TestSend_ServerError(t *testing.T) {
