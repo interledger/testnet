@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GateHub Mock Iframe</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 20px;
+			background-color: #f5f5f5;
+		}
+		.container {
+			max-width: 600px;
+			margin: 0 auto;
+			background: white;
+			padding: 20px;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+		h1 {
+			color: #333;
+			margin-top: 0;
+		}
+		.info-box {
+			background: #e3f2fd;
+			padding: 15px;
+			border-left: 4px solid #2196F3;
+			margin: 20px 0;
+			border-radius: 4px;
+		}
+		.button {
+			background-color: #2196F3;
+			color: white;
+			padding: 12px 24px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 16px;
+			margin: 10px 5px;
+		}
+		.button:hover {
+			background-color: #1976D2;
+		}
+		.button.success {
+			background-color: #4CAF50;
+		}
+		.button.success:hover {
+			background-color: #388E3C;
+		}
+		.button.danger {
+			background-color: #f44336;
+		}
+		.button.danger:hover {
+			background-color: #d32f2f;
+		}
+		.info {
+			font-size: 14px;
+			color: #666;
+			margin-top: 20px;
+			padding: 10px;
+			background: #f9f9f9;
+			border-radius: 4px;
+			font-family: monospace;
+			word-break: break-all;
+		}
+		.status {
+			margin-top: 20px;
+			padding: 10px;
+			border-radius: 4px;
+			display: none;
+		}
+		.status.success {
+			background: #d4edda;
+			color: #155724;
+			display: block;
+		}
+		.status.error {
+			background: #f8d7da;
+			color: #721c24;
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>GateHub Mock Payment Interface</h1>
+		
+		<div class="info-box">
+			<strong>Payment Type:</strong> <span id="paymentType"></span><br>
+			<strong>Bearer Token:</strong> <span id="bearerDisplay"></span>
+		</div>
+		
+		<div id="content">
+		</div>
+		
+		<div class="info">
+			<strong>Debug Info:</strong><br>
+			<small id="debugInfo"></small>
+		</div>
+		
+		<div id="status" class="status"></div>
+		
+		<div style="margin-top: 20px;">
+			<button class="button success" onclick="completeTransaction()">OK Complete</button>
+			<button class="button danger" onclick="cancelTransaction()">Cancel</button>
+		</div>
+	</div>
+	
+	<script>
+		const paymentType = "{{.PaymentType}}";
+		const bearer = "{{.Bearer}}";
+		const bearerShort = "{{.BearerShort}}";
+		
+		document.getElementById("paymentType").textContent = paymentType;
+		document.getElementById("bearerDisplay").textContent = bearerShort;
+		document.getElementById("debugInfo").innerHTML = "Bearer Token: " + bearer + "<br>Payment Type: " + paymentType;
+		
+		function showMessage(type, message) {
+			const status = document.getElementById("status");
+			status.textContent = message;
+			status.className = "status " + type;
+		}
+		
+		async function completeTransaction() {
+			showMessage("success", "Completing transaction...");
+			console.log("Transaction completing with bearer:", bearer);
+			console.log("Parent window:", window.parent);
+			console.log("Is iframe?", window.parent !== window);
+			
+			try {
+				// Call mockgatehub completion endpoint
+				const response = await fetch(`/transaction/complete?paymentType=${paymentType}&bearer=${encodeURIComponent(bearer)}`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${bearer}`
+					}
+				});
+				
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				
+				const data = await response.json();
+				console.log("Transaction completion response:", data);
+				
+				// Notify parent window of completion
+				if (window.parent && window.parent !== window) {
+					console.log("Sending postMessage to parent...");
+					window.parent.postMessage({
+						type: 'deposit-complete',
+						paymentType: paymentType,
+						status: 'success',
+						message: 'Transaction completed successfully'
+					}, '*');
+					console.log("postMessage sent");
+				} else {
+					console.warn("Not in iframe context or no parent");
+				}
+				
+				// Show success message - let parent window handle redirect
+				showMessage("success", "✓ Transaction completed successfully! Redirecting...");
+				
+				// Auto-close after delay if in iframe
+				if (window.parent && window.parent !== window) {
+					setTimeout(() => {
+						window.history.back();
+					}, 2000);
+				}
+				
+			} catch (error) {
+				console.error('Error completing transaction:', error);
+				showMessage("error", "Error: " + error.message);
+				
+				// Still notify parent of the error
+				if (window.parent && window.parent !== window) {
+					console.log("Sending error postMessage to parent...");
+					window.parent.postMessage({
+						type: 'deposit-complete',
+						paymentType: paymentType,
+						status: 'error',
+						message: 'Error: ' + error.message
+					}, '*');
+				}
+			}
+		}
+		
+		function cancelTransaction() {
+			showMessage("error", "Transaction cancelled.");
+			console.log("Transaction cancelled");
+			
+			// Notify parent window of cancellation
+			if (window.parent && window.parent !== window) {
+				window.parent.postMessage({
+					type: 'deposit-cancelled',
+					paymentType: paymentType,
+					status: 'cancelled',
+					message: 'User cancelled the transaction'
+				}, '*');
+			}
+			
+			// Close or redirect after a delay
+			setTimeout(() => {
+				if (window.parent && window.parent !== window) {
+					window.history.back();
+				}
+			}, 1500);
+		}
+		
+		// Display content based on payment type
+		const content = document.getElementById("content");
+		if (paymentType === "deposit") {
+			content.innerHTML = "<h2>Deposit Funds</h2><p>Enter the amount and payment method to deposit funds into your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"100\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Currency:</label><br><select style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>JPY</option><option>AUD</option><option>CHF</option><option>CNY</option><option>INR</option><option>AED</option><option>PEB</option><option>XRP</option></select></div>";
+		} else if (paymentType === "withdraw") {
+			content.innerHTML = "<h2>Withdraw Funds</h2><p>Enter the amount and destination to withdraw funds from your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"50\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Destination Address:</label><br><input type=\"text\" placeholder=\"Wallet address\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br></div>";
+		} else if (paymentType === "exchange") {
+			content.innerHTML = "<h2>Exchange Funds</h2><p>Exchange funds between different currencies.</p><div style=\"margin: 20px 0;\"><label>From Amount:</label><br><input type=\"number\" id=\"from_amount\" placeholder=\"0.00\" value=\"100\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>From Currency:</label><br><select id=\"from_currency\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>USD</option><option>EUR</option><option>CAD</option></select><br><br><label>To Currency:</label><br><select id=\"to_currency\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>EUR</option><option>USD</option><option>CAD</option></select></div>";
+		} else {
+			content.innerHTML = "<h2>Account Setup</h2><p>Complete your account verification and setup your payment preferences.</p><div style=\"margin: 20px 0;\"><label>Full Name:</label><br><input type=\"text\" placeholder=\"John Doe\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Email:</label><br><input type=\"email\" placeholder=\"john@example.com\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br></div>";
+		}
+	</script>
+</body>
+</html>

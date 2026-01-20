@@ -73,3 +73,19 @@ func SignRequest(r *http.Request, secret string, body []byte) {
 	r.Header.Set("x-gatehub-signature", signature)
 	r.Header.Set("x-gatehub-app-id", "mockgatehub")
 }
+
+// GenerateGateHubWebhookSignature generates the signature for webhooks as expected by the backend
+// The backend expects: HMAC-SHA256(json_body, hex_decoded_secret)
+func GenerateGateHubWebhookSignature(jsonBody, hexSecret string) string {
+	// Decode hex secret to bytes (the secret is stored as hex in env)
+	key, err := hex.DecodeString(hexSecret)
+	if err != nil {
+		// If decoding fails, use the secret as-is (it might not be hex encoded)
+		key = []byte(hexSecret)
+	}
+
+	// Create HMAC-SHA256 of the body
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(jsonBody))
+	return hex.EncodeToString(mac.Sum(nil))
+}

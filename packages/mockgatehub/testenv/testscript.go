@@ -111,24 +111,81 @@ func runTests() {
 	// Test 2: Create managed user
 	runTest("Create Managed User", func() (bool, string) {
 		body := map[string]string{
-			"email":    "testuser@example.com",
-			"password": "TestPass123!",
+			"email": "testuser@example.com",
 		}
 		var result map[string]interface{}
 		if err := postJSON("/auth/v1/users/managed", body, &result); err != nil {
 			return false, err.Error()
 		}
 
-		if user, ok := result["user"].(map[string]interface{}); ok {
-			if id, ok := user["id"].(string); ok {
-				userID = id
-				return true, fmt.Sprintf("User ID = %s", userID)
-			}
+		if id, ok := result["id"].(string); ok {
+			userID = id
+			return true, fmt.Sprintf("User ID = %s", userID)
 		}
 		return false, "Failed to extract user ID"
 	})
 
-	// Test 3: Get authorization token
+	// Test 3: Get user wallets (should auto-create if none exist)
+	runTest("Get User Wallets (Auto-Create)", func() (bool, string) {
+		var result map[string]interface{}
+		if err := getJSON(fmt.Sprintf("/core/v1/users/%s", userID), &result); err != nil {
+			return false, err.Error()
+		}
+
+		wallets, ok := result["wallets"].([]interface{})
+		if !ok {
+			return false, "No wallets field in response"
+		}
+
+		if len(wallets) == 0 {
+			return false, "Wallets array is empty (auto-creation failed)"
+		}
+
+		wallet, ok := wallets[0].(map[string]interface{})
+		if !ok {
+			return false, "Invalid wallet structure"
+		}
+
+		address, ok := wallet["address"].(string)
+		if !ok || address == "" {
+			return false, "No address in wallet"
+		}
+
+		// Verify XRPL address format (starts with 'r')
+		if address[0] != 'r' {
+			return false, fmt.Sprintf("Invalid XRPL address format: %s", address)
+		}
+
+		walletAddress = address
+		return true, fmt.Sprintf("Auto-created wallet with address: %s", address)
+	})
+
+	// Test 4: Verify wallet persistence (second GET should return same wallet)
+	runTest("Verify Wallet Persistence", func() (bool, string) {
+		var result map[string]interface{}
+		if err := getJSON(fmt.Sprintf("/core/v1/users/%s", userID), &result); err != nil {
+			return false, err.Error()
+		}
+
+		wallets, ok := result["wallets"].([]interface{})
+		if !ok || len(wallets) == 0 {
+			return false, "No wallets returned on second request"
+		}
+
+		wallet, ok := wallets[0].(map[string]interface{})
+		if !ok {
+			return false, "Invalid wallet structure"
+		}
+
+		address, ok := wallet["address"].(string)
+		if !ok || address != walletAddress {
+			return false, fmt.Sprintf("Address mismatch: expected %s, got %s", walletAddress, address)
+		}
+
+		return true, fmt.Sprintf("Wallet persisted correctly: %s", address)
+	})
+
+	// Test 5: Get authorization token
 	runTest("Get Authorization Token", func() (bool, string) {
 		body := map[string]string{
 			"username": "testuser@example.com",
@@ -146,7 +203,7 @@ func runTests() {
 		return false, "Failed to extract token"
 	})
 
-	// Test 4: Start KYC
+	// Test 6: Start KYC
 	runTest("Start KYC (Auto-Approval)", func() (bool, string) {
 		var result map[string]interface{}
 		if err := postJSONWithHeaders(
@@ -168,7 +225,7 @@ func runTests() {
 		return false, "No token in response"
 	})
 
-	// Test 5: Get user KYC state
+	// Test 7: Get user KYC state
 	runTest("Get User KYC State", func() (bool, string) {
 		var result map[string]interface{}
 		if err := getJSONWithHeaders(
@@ -187,8 +244,8 @@ func runTests() {
 		return kycState == "accepted", fmt.Sprintf("KYC State = %s", kycState)
 	})
 
-	// Test 6: Create wallet
-	runTest("Create Wallet", func() (bool, string) {
+	// Test 8: Create additional wallet
+	runTest("Create Additional Wallet", func() (bool, string) {
 		body := map[string]string{
 			"name":     "My Wallet",
 			"currency": "XRP",
@@ -214,9 +271,9 @@ func runTests() {
 		return false, "Failed to extract wallet address"
 	})
 
-	// Test 7: Get wallet balance
+	// Test 9: Get wallet balance
 	runTest("Get Wallet Balance", func() (bool, string) {
-		var result map[string]interface{}
+		var balances []interface{}
 		if err := getJSONWithHeaders(
 			fmt.Sprintf("/core/v1/wallets/%s/balances", walletAddress),
 			map[string]string{
@@ -224,19 +281,18 @@ func runTests() {
 				"x-gatehub-timestamp": strconv.FormatInt(time.Now().Unix(), 10),
 				"x-gatehub-signature": "dummy",
 			},
-			&result,
+			&balances,
 		); err != nil {
 			return false, err.Error()
 		}
 
-		balances, ok := result["balances"].([]interface{})
-		if !ok || len(balances) == 0 {
+		if len(balances) == 0 {
 			return false, "No balances returned"
 		}
 		return true, fmt.Sprintf("Retrieved %d currency balances", len(balances))
 	})
 
-	// Test 8: Get exchange rates
+	// Test 10: Get exchange rates
 	runTest("Get Exchange Rates", func() (bool, string) {
 		var result map[string]interface{}
 		if err := getJSON("/rates/v1/rates/current", &result); err != nil {
@@ -250,7 +306,7 @@ func runTests() {
 		return true, fmt.Sprintf("Retrieved %d rate pairs", len(rates))
 	})
 
-	// Test 9: Get vault information
+	// Test 11: Get vault information
 	runTest("Get Vault Information", func() (bool, string) {
 		var result map[string]interface{}
 		if err := getJSON("/rates/v1/liquidity_provider/vaults", &result); err != nil {
@@ -264,7 +320,7 @@ func runTests() {
 		return true, fmt.Sprintf("Retrieved %d vaults", len(vaults))
 	})
 
-	// Test 10: Create transaction (optional)
+	// Test 12: Create transaction (optional)
 	total++
 	fmt.Printf("%sTEST %d: Create Transaction%s\n", colorBlue, total, colorReset)
 	body := map[string]interface{}{

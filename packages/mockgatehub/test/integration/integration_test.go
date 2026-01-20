@@ -196,18 +196,21 @@ func TestFullUserJourney(t *testing.T) {
 	rr = ts.MakeRequest("GET", balancePath, nil)
 	require.Equal(t, http.StatusOK, rr.Code)
 
-	var balanceResponse models.GetBalanceResponse
-	err = json.NewDecoder(rr.Body).Decode(&balanceResponse)
+	var balances []map[string]interface{}
+	err = json.NewDecoder(rr.Body).Decode(&balances)
 	require.NoError(t, err)
-	assert.Len(t, balanceResponse.Balances, 11, "Should return all 11 currencies")
+	require.NotEmpty(t, balances)
+	assert.Equal(t, "USD", balances[1]["vault"].(map[string]interface{})["asset_code"])
 
 	// Find USD balance
 	var usdBalance float64
-	for _, bal := range balanceResponse.Balances {
-		if bal.Currency == "USD" {
-			usdBalance = bal.Balance
-			assert.NotEmpty(t, bal.VaultUUID)
-			logger.Info.Printf("[TEST] USD Balance: %.2f (Vault: %s)", bal.Balance, bal.VaultUUID)
+	for _, bal := range balances {
+		v := bal["vault"].(map[string]interface{})
+		if v["asset_code"] == "USD" {
+			valStr, _ := bal["available"].(string)
+			fmt.Sscan(valStr, &usdBalance)
+			assert.NotEmpty(t, v["uuid"])
+			logger.Info.Printf("[TEST] USD Balance: %s (Vault: %s)", valStr, v["uuid"])
 		}
 	}
 	assert.Equal(t, 500.00, usdBalance)

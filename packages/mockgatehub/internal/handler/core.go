@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"mockgatehub/internal/consts"
 	"mockgatehub/internal/logger"
@@ -64,6 +66,67 @@ func (h *Handler) CreateWallet(w http.ResponseWriter, r *http.Request) {
 	h.sendJSON(w, http.StatusCreated, wallet)
 }
 
+// GetUserWallets retrieves all wallets for a user (GET /core/v1/users/{userID})
+// If no wallets exist, creates one automatically
+func (h *Handler) GetUserWallets(w http.ResponseWriter, r *http.Request) {
+	userID := chi.URLParam(r, "userID")
+	if userID == "" {
+		h.sendError(w, http.StatusBadRequest, "User ID is required")
+		return
+	}
+
+	logger.Info.Printf("Getting wallets for user: %s", userID)
+
+	_, err := h.store.GetUser(userID)
+	if err != nil {
+		h.sendError(w, http.StatusNotFound, "User not found")
+		return
+	}
+
+	wallets, err := h.store.GetWalletsByUser(userID)
+	if err != nil {
+		logger.Error.Printf("Failed to get user wallets: %v", err)
+		h.sendError(w, http.StatusInternalServerError, "Failed to get wallets")
+		return
+	}
+
+	// If no wallets exist, create one automatically
+	if len(wallets) == 0 {
+		logger.Info.Printf("No wallets found for user %s, creating one automatically", userID)
+		address := utils.GenerateMockXRPLAddress()
+		wallet := &models.Wallet{
+			Address: address,
+			UserID:  userID,
+			Name:    "Default Wallet",
+			Type:    consts.WalletTypeStandard,
+			Network: consts.NetworkXRPLedger,
+		}
+
+		if err := h.store.CreateWallet(wallet); err != nil {
+			logger.Error.Printf("Failed to create wallet: %v", err)
+			h.sendError(w, http.StatusInternalServerError, "Failed to create wallet")
+			return
+		}
+
+		logger.Info.Printf("Created default wallet %s for user %s", address, userID)
+		wallets = append(wallets, wallet)
+	}
+
+	// Return in the format expected by wallet-backend: { wallets: [...] }
+	response := map[string]interface{}{
+		"wallets": []map[string]interface{}{},
+	}
+
+	for _, w := range wallets {
+		response["wallets"] = append(response["wallets"].([]map[string]interface{}), map[string]interface{}{
+			"address": w.Address,
+		})
+	}
+
+	logger.Info.Printf("Returning %d wallets for user %s", len(wallets), userID)
+	h.sendJSON(w, http.StatusOK, response)
+}
+
 func (h *Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
 	walletID := chi.URLParam(r, "walletID")
 	if walletID == "" {
@@ -108,23 +171,26 @@ func (h *Handler) GetWalletBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var balances []models.BalanceItem
+	var balances []map[string]interface{}
 	for _, currency := range consts.SandboxCurrencies {
 		balance, _ := h.store.GetBalance(wallet.UserID, currency)
-		balances = append(balances, models.BalanceItem{
-			Currency:  currency,
-			VaultUUID: consts.SandboxVaultIDs[currency],
-			Balance:   balance,
+		balances = append(balances, map[string]interface{}{
+			"available": fmt.Sprintf("%g", balance),
+			"pending":   "0",
+			"total":     fmt.Sprintf("%g", balance),
+			"vault": map[string]interface{}{
+				"uuid":       consts.SandboxVaultIDs[currency],
+				"name":       fmt.Sprintf("Sandbox Vault %s", currency),
+				"asset_code": currency,
+				"created_at": time.Now().Format(time.RFC3339),
+				"updated_at": time.Now().Format(time.RFC3339),
+			},
 		})
 	}
 
 	logger.Info.Printf("Returning %d currency balances for wallet %s", len(balances), walletID)
 
-	response := models.GetBalanceResponse{
-		Balances: balances,
-	}
-
-	h.sendJSON(w, http.StatusOK, response)
+	h.sendJSON(w, http.StatusOK, balances)
 }
 
 func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {

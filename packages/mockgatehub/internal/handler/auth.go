@@ -16,6 +16,7 @@ func (h *Handler) CreateToken(w http.ResponseWriter, r *http.Request) {
 	// In sandbox mode, always return a valid token
 	response := models.TokenResponse{
 		AccessToken: "mock-access-token-" + consts.TestUser1ID,
+		Token:       "mock-access-token-" + consts.TestUser1ID,
 		TokenType:   "Bearer",
 		ExpiresIn:   3600,
 	}
