@@ -14,9 +14,26 @@ import (
 func (h *Handler) CreateManagedCustomer(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("CreateManagedCustomer called (stub)")
 	h.sendJSON(w, http.StatusOK, map[string]interface{}{
-		"id":      "mock-customer-id",
-		"status":  "active",
-		"message": "Card customer created successfully (sandbox stub)",
+		"walletAddress": "mock-wallet-address",
+		"customers": map[string]interface{}{
+			"id":   "mock-customer-id",
+			"code": "CUST001",
+			"type": "Citizen",
+			"accounts": []map[string]interface{}{
+				{
+					"id":       "mock-account-id",
+					"currency": "EUR",
+					"cards": []map[string]interface{}{
+						{
+							"id":     "mock-card-id",
+							"status": "active",
+							"type":   "virtual",
+							"last4":  "1234",
+						},
+					},
+				},
+			},
+		},
 	})
 }
 

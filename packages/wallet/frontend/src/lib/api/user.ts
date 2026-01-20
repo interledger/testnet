@@ -152,13 +152,19 @@ interface UserService {
 const createUserService = (): UserService => ({
   async signUp(args) {
     try {
+      console.log('[USER-API] signUp called for:', args.email)
       const response = await httpClient
         .post('signup', {
           json: args
         })
         .json<SuccessResponse>()
+      console.log('[USER-API] signUp succeeded for:', args.email)
       return response
     } catch (error) {
+      console.error('[USER-API] signUp failed for:', args.email, {
+        error: (error as any)?.message || String(error),
+        status: (error as any)?.response?.status
+      })
       return getError<SignUpArgs>(
         error,
         'We could not create your account. Please try again.'
@@ -168,13 +174,23 @@ const createUserService = (): UserService => ({
 
   async login(args) {
     try {
+      console.log('[USER-API] login called for:', args.email)
       const response = await httpClient
         .post('login', {
           json: args
         })
         .json<SuccessResponse>()
+      console.log('[USER-API] login response received:', {
+        success: response.success,
+        message: response.message
+      })
       return response
     } catch (error) {
+      console.error('[USER-API] login failed for:', args.email, {
+        error: (error as any)?.message || String(error),
+        status: (error as any)?.response?.status,
+        errorData: (error as any)?.response?.data
+      })
       return getError<LoginArgs>(
         error,
         'We could not log you in. Please try again.'
@@ -247,13 +263,20 @@ const createUserService = (): UserService => ({
 
   async verifyEmail(args) {
     try {
+      console.log('[USER-API] verifyEmail called with token:', args.token)
       const response = await httpClient
         .post(`verify-email/${args.token}`, {
           json: args
         })
         .json<SuccessResponse>()
+      console.log('[USER-API] verifyEmail succeeded:', response)
       return response
     } catch (error) {
+      console.error('[USER-API] verifyEmail failed:', {
+        token: args.token,
+        error: (error as any)?.message || String(error),
+        status: (error as any)?.response?.status
+      })
       return getError(
         error,
         'We could not verify your email. Please try again.'
@@ -307,6 +330,11 @@ const createUserService = (): UserService => ({
 
   async getGateHubIframeSrc(type, cookies) {
     try {
+      console.log('[USER-API] getGateHubIframeSrc called:', {
+        type,
+        hasCookies: Boolean(cookies),
+        isServer: typeof window === 'undefined'
+      })
       const response = await httpClient
         .get(`iframe-urls/${type}`, {
           headers: {
@@ -314,8 +342,16 @@ const createUserService = (): UserService => ({
           }
         })
         .json<GetGateHubIframeSrcResult>()
+      console.log('[USER-API] getGateHubIframeSrc response:', {
+        success: response.success,
+        hasResult: Boolean((response as any)?.result)
+      })
       return response
     } catch (error) {
+      console.error('[USER-API] getGateHubIframeSrc error:', {
+        error: (error as any)?.message || String(error),
+        status: (error as any)?.response?.status
+      })
       return getError(
         error,
         // TODO: Better error message

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { userService } from './lib/api/user'
+// Do not use the browser httpClient here; middleware runs in the container.
+// Call backend using the internal Docker hostname to validate the session.
 
 const isPublicPath = (path: string) => {
   return publicPaths.find((x) =>
@@ -15,9 +16,25 @@ export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
-  const response = await userService.me(
-    `${cookieName}=${req.cookies.get(cookieName)?.value}`
-  )
+  console.log('[MW] path:', req.nextUrl.pathname, 'public:', Boolean(isPublic))
+  const cookieVal = req.cookies.get(cookieName)?.value
+  console.log('[MW] cookie check:', cookieName, cookieVal ? 'present' : 'missing')
+
+  // Build internal backend URL for middleware
+  const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
+  let response: { success: boolean; result?: any; message?: string } = {
+    success: false
+  }
+  try {
+    const meRes = await fetch(`${backendUrl}/me`, {
+      headers: cookieVal ? { Cookie: `${cookieName}=${cookieVal}` } : {}
+    })
+    const json = await meRes.json()
+    response = json
+    console.log('[MW] /me status:', meRes.status, 'success:', json?.success)
+  } catch (e) {
+    console.log('[MW] /me fetch error:', (e as any)?.message || String(e))
+  }
 
   // Success TRUE - the user is logged in
   if (response.success && response.result) {
@@ -27,6 +44,7 @@ export async function middleware(req: NextRequest) {
       req.nextUrl.pathname !== '/kyc'
     ) {
       const url = new URL('/kyc', req.url)
+      console.log('[MW] Redirecting to /kyc')
       return NextResponse.redirect(url)
     }
 
@@ -36,11 +54,14 @@ export async function middleware(req: NextRequest) {
       response.result.needsIDProof === false &&
       req.nextUrl.pathname.startsWith('/kyc')
     ) {
+      console.log('[MW] Redirecting to / from /kyc* (KYC complete)')
       return NextResponse.redirect(new URL('/', req.url))
     }
 
     if (isPublic) {
-      return NextResponse.redirect(new URL(callbackUrl ?? '/', req.url))
+      const dest = callbackUrl ?? '/'
+      console.log('[MW] Logged in on public path, redirecting to:', dest)
+      return NextResponse.redirect(new URL(dest, req.url))
     }
   } else {
     // If the user is not logged in and tries to access a private resource,
@@ -54,6 +75,7 @@ export async function middleware(req: NextRequest) {
           `${req.nextUrl.pathname}${req.nextUrl.search}`
         )
       }
+      console.log('[MW] Not logged in, redirecting to login with callback:', url.toString())
       return NextResponse.redirect(url)
     }
   }

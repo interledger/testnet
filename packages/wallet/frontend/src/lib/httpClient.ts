@@ -14,13 +14,29 @@ export type ErrorResponse<T = undefined> = {
   errors?: T extends FieldValues ? Record<FieldPath<T>, string> : undefined
 }
 
+// Use internal backend URL when running on the server (SSR/middleware)
+const isServer = typeof window === 'undefined'
+const baseUrl = isServer
+  ? process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
+  : process.env.NEXT_PUBLIC_BACKEND_URL
+
+console.log('[HTTP-CLIENT] Initializing:', {
+  isServer,
+  baseUrl,
+  BACKEND_INTERNAL_URL: process.env.BACKEND_INTERNAL_URL,
+  NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL
+})
+
 export const httpClient = ky.extend({
-  prefixUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
+  prefixUrl: baseUrl,
   credentials: 'include',
   retry: 0,
   hooks: {
     beforeRequest: [
       (request) => {
+        if (isServer) {
+          console.log('[HTTP-CLIENT] Server-side request to:', request.url)
+        }
         request.headers.set('Content-Type', 'application/json')
       }
     ]

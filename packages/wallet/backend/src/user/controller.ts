@@ -28,6 +28,9 @@ export class UserController implements IUserController {
     next: NextFunction
   ) => {
     try {
+      console.log('[BACKEND:/me] session present?', Boolean((req as any)?.session))
+      console.log('[BACKEND:/me] session.id:', (req as any)?.session?.id)
+      console.log('[BACKEND:/me] session.user exists?', Boolean((req as any)?.session?.user))
       if (!req.session.id || !req.session.user) {
         req.session.destroy()
         throw new Unauthorized('Unauthorized')
@@ -62,6 +65,7 @@ export class UserController implements IUserController {
         )
       )
     } catch (e) {
+      console.error('[BACKEND:/me] error:', (e as any)?.message)
       next(e)
     }
   }

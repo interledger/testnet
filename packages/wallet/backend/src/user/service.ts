@@ -117,37 +117,49 @@ export class UserService implements IUserService {
   }
 
   public async verifyEmail(token: string): Promise<void> {
+    console.log('[USER-SERVICE] verifyEmail called')
     const verifyEmailToken = hashToken(token)
+    console.log('[USER-SERVICE] Looking up user with hashed token')
 
     const user = await User.query().findOne({ verifyEmailToken })
 
     if (!user) {
+      console.error('[USER-SERVICE] No user found with given token')
       throw new BadRequest('Invalid token')
     }
 
+    console.log('[USER-SERVICE] User found:', { userId: user.id, email: user.email })
+    console.log('[USER-SERVICE] Calling gateHubClient.createManagedUser for:', user.email)
     const gateHubUser = await this.gateHubClient.createManagedUser(user.email)
+    console.log('[USER-SERVICE] GateHub user created:', { gateHubUserId: gateHubUser.id })
 
+    console.log('[USER-SERVICE] Updating user in database with isEmailVerified=true')
     await User.query().findById(user.id).patch({
       isEmailVerified: true,
       verifyEmailToken: null,
       gateHubUserId: gateHubUser.id
     })
+    console.log('[USER-SERVICE] User successfully verified and updated')
   }
 
   public async resetVerifyEmailToken(args: VerifyEmailArgs): Promise<void> {
+    console.log('[USER-SERVICE] resetVerifyEmailToken called for:', args.email)
     const user = await this.getByEmail(args.email)
 
     if (!user) {
+      console.log('[USER-SERVICE] User not found for email:', args.email)
       this.logger.info(
         `Invalid account on resend verify account email: ${args.email}`
       )
       return
     }
 
+    console.log('[USER-SERVICE] Resetting verify email token for user:', { userId: user.id, email: args.email })
     await User.query().findById(user.id).patch({
       isEmailVerified: false,
       verifyEmailToken: args.verifyEmailToken
     })
+    console.log('[USER-SERVICE] Verify email token reset successfully')
   }
 
   public async changeCardsVisibility(
