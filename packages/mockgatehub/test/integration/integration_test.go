@@ -121,7 +121,16 @@ func TestFullUserJourney(t *testing.T) {
 	var createUserResp models.CreateManagedUserResponse
 	err := json.NewDecoder(rr.Body).Decode(&createUserResp)
 	require.NoError(t, err)
-	user := createUserResp.User
+	user := models.User{
+		ID:        createUserResp.ID,
+		Email:     createUserResp.Email,
+		Activated: createUserResp.Activated,
+		Managed:   createUserResp.Managed,
+		Role:      createUserResp.Role,
+		Features:  createUserResp.Features,
+		KYCState:  createUserResp.KYCState,
+		RiskLevel: createUserResp.RiskLevel,
+	}
 
 	// 2. Start KYC process
 	logger.Info.Println("[TEST] Step 2: Start KYC")

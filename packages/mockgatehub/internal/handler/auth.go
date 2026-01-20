@@ -42,7 +42,7 @@ func (h *Handler) CreateManagedUser(w http.ResponseWriter, r *http.Request) {
 	existing, _ := h.store.GetUserByEmail(req.Email)
 	if existing != nil {
 		logger.Info.Printf("User already exists: %s", req.Email)
-		h.sendJSON(w, http.StatusOK, models.CreateManagedUserResponse{User: *existing})
+		h.sendJSON(w, http.StatusOK, *existing)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *Handler) CreateManagedUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Info.Printf("Created user: %s (ID: %s)", user.Email, user.ID)
-	h.sendJSON(w, http.StatusCreated, models.CreateManagedUserResponse{User: *user})
+	h.sendJSON(w, http.StatusCreated, *user)
 }
 
 // GetManagedUser retrieves a managed user by email
