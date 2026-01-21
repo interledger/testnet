@@ -2,7 +2,9 @@ package handler
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
+	"os"
 
 	"mockgatehub/internal/consts"
 	"mockgatehub/internal/logger"
@@ -83,17 +85,12 @@ func (h *Handler) StartKYC(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info.Printf("KYC iframe URL: %s", iframeURL)
 
-	// Auto-approve KYC in sandbox mode
-	user.KYCState = consts.KYCStateAccepted
+	// Move user into action_required so KYC must be completed via iframe submission
+	user.KYCState = consts.KYCStateActionRequired
 	user.RiskLevel = consts.RiskLevelLow
 	if err := h.store.UpdateUser(user); err != nil {
 		logger.Error.Printf("Failed to update user KYC state: %v", err)
 	}
-
-	// Send webhook asynchronously
-	go h.webhookManager.SendAsync(consts.WebhookEventKYCAccepted, userID, map[string]interface{}{
-		"message": "User verification accepted",
-	})
 
 	response := models.StartKYCResponse{
 		IframeURL: iframeURL,
@@ -204,68 +201,46 @@ func (h *Handler) KYCIframe(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info.Printf("Serving KYC iframe: token=%s, user_id=%s", token, userID)
 
-	// Serve simple HTML form
-	html := `<!DOCTYPE html>
-<html>
-<head>
-    <title>KYC Verification</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .success { color: green; margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <h2>KYC Verification - MockGatehub</h2>
-    <p>This is a mock KYC verification form. In sandbox mode, all submissions are automatically approved.</p>
-    <form id="kycForm">
-        <div class="form-group">
-            <label>First Name:</label>
-            <input type="text" name="first_name" required>
-        </div>
-        <div class="form-group">
-            <label>Last Name:</label>
-            <input type="text" name="last_name" required>
-        </div>
-        <div class="form-group">
-            <label>Date of Birth:</label>
-            <input type="date" name="dob" required>
-        </div>
-        <div class="form-group">
-            <label>Address:</label>
-            <input type="text" name="address" required>
-        </div>
-        <div class="form-group">
-            <label>City:</label>
-            <input type="text" name="city" required>
-        </div>
-        <div class="form-group">
-            <label>Country:</label>
-            <input type="text" name="country" required>
-        </div>
-        <button type="submit">Submit for Verification</button>
-    </form>
-    <div id="result"></div>
-    <script>
-        document.getElementById('kycForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            var result = document.getElementById('result');
-            result.innerHTML = '<p class="success">✓ KYC verification submitted and automatically approved!</p>';
-            setTimeout(function() {
-                window.parent.postMessage({type: 'kyc_complete', status: 'accepted'}, '*');
-            }, 1000);
-        });
-    </script>
-</body>
-</html>`
+	// Try multiple paths to find the template
+	possiblePaths := []string{
+		"web/kyc-iframe.html",
+		"./web/kyc-iframe.html",
+		"../web/kyc-iframe.html",
+		"../../web/kyc-iframe.html",
+	}
 
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(html))
+	var templatePath string
+	for _, path := range possiblePaths {
+		if _, err := os.Stat(path); err == nil {
+			templatePath = path
+			break
+		}
+	}
+
+	if templatePath == "" {
+		logger.Error.Printf("Could not find KYC iframe template in any of: %v", possiblePaths)
+		h.sendError(w, http.StatusInternalServerError, "Template not found")
+		return
+	}
+
+	tmpl, err := template.ParseFiles(templatePath)
+	if err != nil {
+		logger.Error.Printf("Failed to parse KYC iframe template: %v", err)
+		h.sendError(w, http.StatusInternalServerError, "Template error")
+		return
+	}
+
+	data := map[string]string{
+		"Token":  token,
+		"UserID": userID,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := tmpl.Execute(w, data); err != nil {
+		logger.Error.Printf("Failed to execute KYC iframe template: %v", err)
+		h.sendError(w, http.StatusInternalServerError, "Template execution error")
+		return
+	}
 }
 
 // KYCIframeSubmit handles KYC form submission
@@ -289,9 +264,12 @@ func (h *Handler) KYCIframeSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Auto-approve in sandbox mode
 	user.KYCState = consts.KYCStateAccepted
-	user.RiskLevel = consts.RiskLevelLow
+	riskLevel := r.FormValue("risk_level")
+	if riskLevel == "" {
+		riskLevel = consts.RiskLevelLow
+	}
+	user.RiskLevel = riskLevel
 
 	if err := h.store.UpdateUser(user); err != nil {
 		logger.Error.Printf("Failed to update user: %v", err)
@@ -299,13 +277,12 @@ func (h *Handler) KYCIframeSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send webhook
 	go h.webhookManager.SendAsync(consts.WebhookEventKYCAccepted, userID, map[string]interface{}{
 		"message": "User verification accepted",
 	})
 
 	h.sendJSON(w, http.StatusOK, map[string]string{
-		"status":  "accepted",
+		"status":  consts.KYCStateAccepted,
 		"message": "KYC verification completed successfully",
 	})
 }

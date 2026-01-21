@@ -144,8 +144,8 @@ func TestFullUserJourney(t *testing.T) {
 	assert.NotEmpty(t, kycResponse.IframeURL)
 	logger.Info.Printf("[TEST] KYC iframe URL: %s", kycResponse.IframeURL)
 
-	// 3. Verify user is auto-approved
-	logger.Info.Println("[TEST] Step 3: Verify KYC auto-approval")
+	// 3. Verify user is in action_required state (not auto-approved)
+	logger.Info.Println("[TEST] Step 3: Verify KYC is pending approval")
 	time.Sleep(100 * time.Millisecond) // Let goroutine complete
 	userPath := fmt.Sprintf("/id/v1/users/%s", user.ID)
 	rr = ts.MakeRequest("GET", userPath, nil)
@@ -153,9 +153,28 @@ func TestFullUserJourney(t *testing.T) {
 
 	err = json.NewDecoder(rr.Body).Decode(&user)
 	require.NoError(t, err)
-	assert.Equal(t, "accepted", user.KYCState)
+	assert.Equal(t, "action_required", user.KYCState)
 	assert.Equal(t, "low", user.RiskLevel)
 	logger.Info.Printf("[TEST] KYC Status: %s, Risk: %s", user.KYCState, user.RiskLevel)
+
+	// 3b. Submit KYC form to approve user
+	logger.Info.Println("[TEST] Step 3b: Submit KYC form")
+	kycSubmitData := fmt.Sprintf("user_id=%s&first_name=John&last_name=Doe&dob=1990-01-01&address=123+Main+St&city=NY&country=USA&risk_level=low", user.ID)
+	req := httptest.NewRequest("POST", "/iframe/submit", bytes.NewBufferString(kycSubmitData))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rr = httptest.NewRecorder()
+	ts.Router.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	// 3c. Verify user is now accepted
+	logger.Info.Println("[TEST] Step 3c: Verify user is approved after form submission")
+	rr = ts.MakeRequest("GET", userPath, nil)
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	err = json.NewDecoder(rr.Body).Decode(&user)
+	require.NoError(t, err)
+	assert.Equal(t, "accepted", user.KYCState)
+	logger.Info.Printf("[TEST] KYC Status after submission: %s", user.KYCState)
 
 	// 4. Create a wallet
 	logger.Info.Println("[TEST] Step 4: Create wallet")
@@ -223,7 +242,7 @@ func TestKYCIframe(t *testing.T) {
 
 	rr := ts.MakeRequest("GET", "/iframe/onboarding?token=test-token&user_id=test-user", nil)
 	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Equal(t, "text/html", rr.Header().Get("Content-Type"))
+	assert.Contains(t, rr.Header().Get("Content-Type"), "text/html")
 	assert.Contains(t, rr.Body.String(), "KYC Verification")
 	assert.Contains(t, rr.Body.String(), "MockGatehub")
 }

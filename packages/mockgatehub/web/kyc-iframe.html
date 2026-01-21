@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KYC Verification - MockGatehub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
+        button { background: #0066ff; color: #fff; padding: 12px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .status { margin-top: 12px; padding: 10px; border-radius: 4px; display: none; }
+        .status.success { background: #e6f4ea; color: #1b5e20; display: block; }
+        .status.error { background: #fdecea; color: #b71c1c; display: block; }
+        .hint { color: #666; font-size: 13px; margin-top: -6px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>KYC Verification</h2>
+        <p>Please complete this mock verification form. Submission will trigger the webhook after server-side approval.</p>
+        <form id="kycForm" method="POST" action="/iframe/submit">
+            <input type="hidden" name="user_id" value="{{.UserID}}">
+            <input type="hidden" name="token" value="{{.Token}}">
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input id="first_name" name="first_name" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input id="last_name" name="last_name" required>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <input id="dob" name="dob" type="date" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input id="address" name="address" required>
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input id="city" name="city" required>
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <input id="country" name="country" required>
+            </div>
+            <div class="form-group">
+                <label for="risk_level">Risk Level</label>
+                <select id="risk_level" name="risk_level">
+                    <option value="low" selected>Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+                <div class="hint">Optional override to exercise webhook payloads.</div>
+            </div>
+            <button type="submit" id="submitBtn">Submit for Verification</button>
+            <div id="status" class="status"></div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('kycForm');
+        const statusEl = document.getElementById('status');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showStatus(type, message) {
+            statusEl.className = 'status ' + type;
+            statusEl.textContent = message;
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            submitBtn.disabled = true;
+            showStatus('success', 'Submitting verification...');
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                showStatus('success', 'Verification completed.');
+                window.parent.postMessage({ type: 'kyc_complete', status: data.status || 'accepted' }, '*');
+            } catch (err) {
+                console.error('KYC submission failed', err);
+                showStatus('error', 'Submission failed. Please retry.');
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
