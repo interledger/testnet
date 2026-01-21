@@ -85,7 +85,7 @@ packages/mockgatehub/
 │   ├── .gitignore            # Ignore go.mod/go.sum
 │   └── README.md             # Test environment documentation
 ├── web/                       # Static web assets
-│   └── kyc-form.html         # KYC iframe HTML
+│   └── kyc-iframe.html       # KYC iframe HTML (onboarding)
 ├── Dockerfile                 # Multi-stage Docker build
 ├── go.mod                     # Go module definition
 ├── go.sum                     # Dependency checksums
@@ -192,24 +192,28 @@ GBP: 1.27  // 1 GBP = 1.27 USD
 
 ### 4. KYC (Know Your Customer) Flow
 
-**Endpoints**:
-1. `POST /id/v1/users/{userID}/hubs/{gatewayID}` - Initiate KYC
-   - Returns iframe URL with token
-2. `GET /iframe/onboarding?token=...` - Display KYC form
-3. `POST /iframe/submit` - User submits KYC form
-4. `PUT /hubs/{gatewayID}/users/{userID}` - Update KYC state (internal)
+**Endpoints & Flow**:
+1. `POST /id/v1/users/{userID}/hubs/{gatewayID}` – Initiates KYC, sets user to `action_required`.
+2. `GET /?paymentType=onboarding&bearer={token}[&user_id={uuid}]` – Serves the KYC iframe HTML. `bearer` is required; `user_id` is optional and can be inferred from the token mapping.
+3. `POST /iframe/submit` – Iframe form submission (multipart or urlencoded). Server updates user to `accepted`, triggers webhook.
+4. `PUT /hubs/{gatewayID}/users/{userID}` – Update KYC state (internal helper).
 
-**Auto-Approval Logic**:
-- Sandbox mode always approves KYC
-- State: `"accepted"`
-- Risk Level: `"low"`
-- Send webhook: `id.verification.accepted`
+**Approval Logic (Sandbox Emulation)**:
+- Approval happens after user submission (not immediate). Final state is `"accepted"` with default `risk_level: "low"` unless overridden by form.
+- Webhook `id.verification.accepted` is emitted asynchronously.
 
-**KYC Iframe** (`web/kyc-form.html`):
-Simple HTML form with:
-- Personal info (name, DOB)
-- Address fields
-- Submit → Auto-approve → Webhook
+**KYC Iframe** (`web/kyc-iframe.html`):
+- Uses `FormData` to submit as `multipart/form-data` to `/iframe/submit`.
+- Posts a GateHub-compatible message to the parent window on success:
+    - `{ type: 'OnboardingCompleted', value: JSON.stringify({ applicantStatus: 'submitted' }) }`
+- Sends `{ type: 'OnboardingError', value: { message } }` on failure.
+- Contains a gentle fallback: soft parent reload after 2s if the parent ignores the message.
+
+**Token → User Mapping**:
+- `/auth/v1/tokens` stores a mapping of bearer token → managed user UUID. The iframe can omit `user_id`; the submit handler attempts to resolve it from the provided token.
+
+**Form Parsing**:
+- Handlers attempt `ParseMultipartForm` first, and fall back to `ParseForm`. Access values via `r.FormValue()` after successful parsing.
 
 ### 5. Wallet Operations
 
@@ -340,7 +344,7 @@ func TestCreateWallet(t *testing.T) {
 
 Full workflow test (`internal/handler/integration_test.go`):
 1. Create user → Verify storage
-2. Start KYC → Auto-approve → Verify webhook
+2. Start KYC → Submit iframe → Verify `accepted` state and webhook
 3. Create wallet → Verify address format
 4. Create deposit → Verify balance update
 5. Get balance → Verify all 11 currencies present
