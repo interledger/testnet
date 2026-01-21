@@ -2,13 +2,18 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
 
-let NEXT_PUBLIC_FEATURES_ENABLED = 'true'
+// Default to env override; fall back to previous production/sandbox rule, then to 'true'
+let NEXT_PUBLIC_FEATURES_ENABLED = process.env.NEXT_PUBLIC_FEATURES_ENABLED
 
-if (
-  process.env.NODE_ENV === 'production' &&
-  process.env.NEXT_PUBLIC_GATEHUB_ENV === 'sandbox'
-) {
-  NEXT_PUBLIC_FEATURES_ENABLED = 'false'
+if (!NEXT_PUBLIC_FEATURES_ENABLED) {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.NEXT_PUBLIC_GATEHUB_ENV === 'sandbox'
+  ) {
+    NEXT_PUBLIC_FEATURES_ENABLED = 'false'
+  } else {
+    NEXT_PUBLIC_FEATURES_ENABLED = 'true'
+  }
 }
 
 /** @type {import('next').NextConfig} */
