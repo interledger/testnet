@@ -19,6 +19,8 @@ func (h *Handler) CreateToken(w http.ResponseWriter, r *http.Request) {
 		managedUserUuid = r.Header.Get("managedUserUuid")
 	}
 
+	logger.Info.Printf("CreateToken: managedUserUuid = %s, all headers: %v", managedUserUuid, r.Header)
+
 	var token string
 	if managedUserUuid != "" {
 		// Generate a unique token for this user's iframe session
@@ -31,6 +33,7 @@ func (h *Handler) CreateToken(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Regular access token (backward compatibility)
 		token = "mock-access-token-" + consts.TestUser1ID
+		logger.Warn.Println("CreateToken: No managedUserUuid header found, using default token")
 	}
 
 	// In sandbox mode, always return a valid token
