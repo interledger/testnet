@@ -91,7 +91,9 @@ export class AuthController implements IAuthController {
   ) => {
     try {
       const token = req.params.token
+
       await this.userService.verifyEmail(token)
+
       res.json({
         success: true,
         message: 'Email was verified successfully'
