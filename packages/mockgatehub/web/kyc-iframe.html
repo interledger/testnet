@@ -69,6 +69,19 @@
         const statusEl = document.getElementById('status');
         const submitBtn = document.getElementById('submitBtn');
 
+        // Extract user_id and token from URL query params since they might not be available in form
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlUserID = urlParams.get('user_id');
+        const urlToken = urlParams.get('token');
+
+        // Update hidden inputs with URL params if available
+        if (urlUserID) {
+            form.querySelector('[name="user_id"]').value = urlUserID;
+        }
+        if (urlToken) {
+            form.querySelector('[name="token"]').value = urlToken;
+        }
+
         function showStatus(type, message) {
             statusEl.className = 'status ' + type;
             statusEl.textContent = message;

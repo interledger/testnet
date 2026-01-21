@@ -30,6 +30,12 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build response with verifications array matching production GateHub API
+	// Verification status should reflect actual KYC state: only status=1 if accepted
+	verificationStatus := 0
+	if user.KYCState == consts.KYCStateAccepted {
+		verificationStatus = 1
+	}
+	
 	response := map[string]interface{}{
 		"id":         user.ID,
 		"email":      user.Email,
@@ -51,7 +57,7 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		"verifications": []map[string]interface{}{
 			{
 				"uuid":          "mock-verification-uuid",
-				"status":        1, // 1 = verified
+				"status":        verificationStatus, // 0 = pending/action_required, 1 = verified/accepted
 				"state":         1,
 				"provider_type": "sumsub",
 			},
@@ -245,14 +251,42 @@ func (h *Handler) KYCIframe(w http.ResponseWriter, r *http.Request) {
 
 // KYCIframeSubmit handles KYC form submission
 func (h *Handler) KYCIframeSubmit(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		h.sendError(w, http.StatusBadRequest, "Invalid form data")
-		return
+	logger.Info.Printf("KYCIframeSubmit called. Method: %s, Content-Type: %s, Content-Length: %d", r.Method, r.Header.Get("Content-Type"), r.ContentLength)
+	
+	// Parse form - for multipart/form-data, ParseForm() should handle it
+	// but we need to make sure we parse it correctly
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		// If multipart parsing fails, try regular form parsing
+		if err := r.ParseForm(); err != nil {
+			logger.Error.Printf("FAILED TO PARSE FORM: %v", err)
+			h.sendError(w, http.StatusBadRequest, "Invalid form data: "+err.Error())
+			return
+		}
+	}
+
+	logger.Info.Printf("Form parsed successfully. PostForm fields count: %d, Fields: %v", len(r.PostForm), r.PostForm)
+	if r.MultipartForm != nil {
+		logger.Info.Printf("Also have MultipartForm.Value count: %d, Fields: %v", len(r.MultipartForm.Value), r.MultipartForm.Value)
 	}
 
 	userID := r.FormValue("user_id")
+	
+	// If user_id is not in form, try to extract from bearer token
 	if userID == "" {
-		h.sendError(w, http.StatusBadRequest, "User ID is required")
+		token := r.FormValue("token")
+		logger.Warn.Printf("User ID missing from form, attempting to extract from token: %s", token[:min(len(token), 20)])
+		// Try to look up user from token in our map
+		if uuid, ok := h.tokenToUser.Load(token); ok {
+			if u, ok := uuid.(string); ok {
+				userID = u
+				logger.Info.Printf("Found user from token mapping: %s", userID)
+			}
+		}
+	}
+	
+	if userID == "" {
+		logger.Error.Printf("User ID could not be determined from form or token. Available form fields: %v", r.PostForm)
+		h.sendError(w, http.StatusBadRequest, "User ID is required (not found in form or token mapping)")
 		return
 	}
 

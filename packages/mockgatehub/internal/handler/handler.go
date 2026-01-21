@@ -86,8 +86,17 @@ func (h *Handler) RootHandler(w http.ResponseWriter, r *http.Request) {
 
 	// If no paymentType is provided, treat this as onboarding and serve the KYC iframe
 	if paymentType == "" || paymentType == "onboarding" {
-		// Map bearer token back to the managed user UUID
+		// Try to extract user UUID from bearer token mapping
 		userUUID := h.extractUserFromBearer(bearer)
+		
+		// If not found in mapping, try to get from query params (user_id might be passed from frontend)
+		if userUUID == "" {
+			userUUID = r.URL.Query().Get("user_id")
+		}
+		
+		if userUUID == "" {
+			logger.Warn.Printf("[HANDLER] Could not extract user from bearer token or query params, will rely on form submission")
+		}
 
 		// Load KYC iframe template
 		kycTemplatePath := filepath.Join("web", "kyc-iframe.html")
@@ -98,7 +107,7 @@ func (h *Handler) RootHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Prepare data for KYC template
+		// Prepare data for KYC template - pass bearer token to be used on submission
 		kycData := map[string]string{
 			"Token":  bearer,
 			"UserID": userUUID,
