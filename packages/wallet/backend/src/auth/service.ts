@@ -60,6 +60,7 @@ export class AuthService implements IAuthService {
         e
       )
     })
+
     return user
   }
 
