@@ -200,17 +200,58 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If user_id not in body, try to get from x-gatehub-managed-user-uuid header
 	if req.UserID == "" {
-		h.sendError(w, http.StatusBadRequest, "user_id is required")
+		req.UserID = r.Header.Get("x-gatehub-managed-user-uuid")
+		logger.Info.Printf("CreateTransaction: attempting to extract user_id from header. Got: %s", req.UserID)
+	}
+
+	// If still no user_id, try to look up from receiving_address (wallet)
+	if req.UserID == "" && req.ReceivingAddress != "" {
+		wallet, err := h.store.GetWallet(req.ReceivingAddress)
+		if err == nil && wallet != nil {
+			req.UserID = wallet.UserID
+			logger.Info.Printf("CreateTransaction: resolved user_id '%s' from receiving_address '%s'", req.UserID, req.ReceivingAddress)
+		}
+	}
+
+	if req.UserID == "" {
+		h.sendError(w, http.StatusBadRequest, "user_id is required (provide in body, x-gatehub-managed-user-uuid header, or use a valid receiving_address)")
 		return
 	}
 	if req.Amount <= 0 {
 		h.sendError(w, http.StatusBadRequest, "amount must be positive")
 		return
 	}
+
+	// Infer currency from vault_uuid if not provided
 	if req.Currency == "" {
-		h.sendError(w, http.StatusBadRequest, "currency is required")
-		return
+		if req.VaultUUID == "" {
+			h.sendError(w, http.StatusBadRequest, "either currency or vault_uuid is required")
+			return
+		}
+		// Look up currency from vault_uuid
+		currency, exists := consts.VaultUUIDToCurrency[req.VaultUUID]
+		if !exists {
+			h.sendError(w, http.StatusBadRequest, "invalid vault_uuid")
+			return
+		}
+		req.Currency = currency
+		logger.Info.Printf("Inferred currency '%s' from vault_uuid '%s'", currency, req.VaultUUID)
+	} else {
+		// If currency is provided, ensure vault_uuid matches (if also provided)
+		if req.VaultUUID != "" {
+			expectedVaultUUID := consts.SandboxVaultIDs[req.Currency]
+			if req.VaultUUID != expectedVaultUUID {
+				logger.Warn.Printf("Vault UUID mismatch: got %s, expected %s for currency %s. Using vault_uuid to determine currency.",
+					req.VaultUUID, expectedVaultUUID, req.Currency)
+				// Trust vault_uuid over currency parameter
+				if inferredCurrency, exists := consts.VaultUUIDToCurrency[req.VaultUUID]; exists {
+					req.Currency = inferredCurrency
+					logger.Info.Printf("Corrected currency to '%s' based on vault_uuid", inferredCurrency)
+				}
+			}
+		}
 	}
 
 	logger.Info.Printf("Creating transaction: user=%s, amount=%.2f %s, type=%d",
@@ -231,6 +272,11 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		} else {
 			req.DepositType = consts.DepositTypeHosted
 		}
+	}
+
+	// Ensure vault_uuid is set based on currency
+	if req.VaultUUID == "" {
+		req.VaultUUID = consts.SandboxVaultIDs[req.Currency]
 	}
 
 	tx := &models.Transaction{
@@ -286,4 +332,59 @@ func (h *Handler) GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.sendJSON(w, http.StatusOK, tx)
+}
+
+// GetUserCurrencies returns the list of currencies the user has accounts for
+func (h *Handler) GetUserCurrencies(w http.ResponseWriter, r *http.Request) {
+	bearer := r.URL.Query().Get("bearer")
+	if bearer == "" {
+		bearer = r.Header.Get("Authorization")
+		if len(bearer) > 7 && bearer[:7] == "Bearer " {
+			bearer = bearer[7:]
+		}
+	}
+
+	if bearer == "" {
+		h.sendError(w, http.StatusBadRequest, "Missing bearer token")
+		return
+	}
+
+	// Extract user UUID from bearer token
+	userUUID := h.extractUserFromBearer(bearer)
+	if userUUID == "" {
+		// Return default currencies if we can't determine user
+		logger.Warn.Println("[HANDLER] Could not extract user from bearer, returning all currencies")
+		h.sendJSON(w, http.StatusOK, map[string]interface{}{
+			"currencies": []string{"USD", "EUR", "CAD", "GBP", "JPY", "AUD", "CHF", "CNY", "INR", "AED", "PEB", "XRP"},
+		})
+		return
+	}
+
+	logger.Info.Printf("[HANDLER] Getting currencies for user: %s", userUUID)
+
+	// Get currencies that have non-zero balances for this user
+	allCurrencies := []string{"USD", "EUR", "CAD", "GBP", "JPY", "AUD", "CHF", "CNY", "INR", "AED", "PEB", "XRP"}
+	userCurrencies := []string{}
+
+	for _, currency := range allCurrencies {
+		balance, err := h.store.GetBalance(userUUID, currency)
+		if err == nil && balance > 0 {
+			userCurrencies = append(userCurrencies, currency)
+		}
+	}
+
+	// If no currencies with balance, return all currencies (user hasn't deposited yet)
+	if len(userCurrencies) == 0 {
+		logger.Info.Printf("[HANDLER] No balances found for user %s, returning all currencies", userUUID)
+		h.sendJSON(w, http.StatusOK, map[string]interface{}{
+			"currencies": allCurrencies,
+		})
+		return
+	}
+
+	logger.Info.Printf("[HANDLER] Found %d currencies with balances for user %s: %v", len(userCurrencies), userUUID, userCurrencies)
+
+	h.sendJSON(w, http.StatusOK, map[string]interface{}{
+		"currencies": userCurrencies,
+	})
 }
