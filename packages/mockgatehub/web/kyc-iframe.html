@@ -105,10 +105,25 @@
 
                 const data = await response.json();
                 showStatus('success', 'Verification completed.');
-                window.parent.postMessage({ type: 'kyc_complete', status: data.status || 'accepted' }, '*');
+                // Notify parent using GateHub-compatible message format
+                const ghMessage = {
+                    type: 'OnboardingCompleted',
+                    value: JSON.stringify({ applicantStatus: 'submitted' })
+                };
+                window.parent.postMessage(ghMessage, '*');
+                // Fallback: if parent doesn't handle message, try soft reload
+                setTimeout(() => {
+                    try { window.parent.location.reload(); } catch (_) {}
+                }, 2000);
             } catch (err) {
                 console.error('KYC submission failed', err);
                 showStatus('error', 'Submission failed. Please retry.');
+                // Send error message in GateHub format
+                const ghErr = {
+                    type: 'OnboardingError',
+                    value: { message: (err && err.message) || 'Unknown error' }
+                };
+                try { window.parent.postMessage(ghErr, '*'); } catch (_) {}
                 submitBtn.disabled = false;
             }
         });

@@ -35,7 +35,7 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	if user.KYCState == consts.KYCStateAccepted {
 		verificationStatus = 1
 	}
-	
+
 	response := map[string]interface{}{
 		"id":         user.ID,
 		"email":      user.Email,
@@ -252,7 +252,7 @@ func (h *Handler) KYCIframe(w http.ResponseWriter, r *http.Request) {
 // KYCIframeSubmit handles KYC form submission
 func (h *Handler) KYCIframeSubmit(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Printf("KYCIframeSubmit called. Method: %s, Content-Type: %s, Content-Length: %d", r.Method, r.Header.Get("Content-Type"), r.ContentLength)
-	
+
 	// Parse form - for multipart/form-data, ParseForm() should handle it
 	// but we need to make sure we parse it correctly
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
@@ -270,7 +270,7 @@ func (h *Handler) KYCIframeSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := r.FormValue("user_id")
-	
+
 	// If user_id is not in form, try to extract from bearer token
 	if userID == "" {
 		token := r.FormValue("token")
@@ -283,7 +283,7 @@ func (h *Handler) KYCIframeSubmit(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	
+
 	if userID == "" {
 		logger.Error.Printf("User ID could not be determined from form or token. Available form fields: %v", r.PostForm)
 		h.sendError(w, http.StatusBadRequest, "User ID is required (not found in form or token mapping)")
