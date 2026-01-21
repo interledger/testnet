@@ -88,28 +88,17 @@ export const getServerSideProps: GetServerSideProps<{
   url: string
   addUserToGatewayUrl: string
 }> = async (ctx) => {
-  console.log('[KYC SSR] getServerSideProps called')
-  console.log('[KYC SSR] cookie header:', ctx.req.headers.cookie ? 'present' : 'missing')
-  
   const response = await userService.getGateHubIframeSrc(
     'onboarding',
     ctx.req.headers.cookie
   )
 
-  console.log('[KYC SSR] getGateHubIframeSrc response:', {
-    success: response.success,
-    hasResult: Boolean((response as any)?.result),
-    message: (response as any)?.message
-  })
-
   if (!response.success || !response.result) {
-    console.log('[KYC SSR] Returning notFound: true')
     return {
       notFound: true
     }
   }
 
-  console.log('[KYC SSR] Returning props with url:', response.result.url)
   return {
     props: {
       url: response.result.url,

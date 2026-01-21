@@ -16,9 +16,7 @@ export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
-  console.log('[MW] path:', req.nextUrl.pathname, 'public:', Boolean(isPublic))
   const cookieVal = req.cookies.get(cookieName)?.value
-  console.log('[MW] cookie check:', cookieName, cookieVal ? 'present' : 'missing')
 
   // Build internal backend URL for middleware
   const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
@@ -31,9 +29,8 @@ export async function middleware(req: NextRequest) {
     })
     const json = await meRes.json()
     response = json
-    console.log('[MW] /me status:', meRes.status, 'success:', json?.success)
   } catch (e) {
-    console.log('[MW] /me fetch error:', (e as any)?.message || String(e))
+    // Ignore connectivity errors; fallback logic below handles unauthenticated state
   }
 
   // Success TRUE - the user is logged in
@@ -44,7 +41,6 @@ export async function middleware(req: NextRequest) {
       req.nextUrl.pathname !== '/kyc'
     ) {
       const url = new URL('/kyc', req.url)
-      console.log('[MW] Redirecting to /kyc')
       return NextResponse.redirect(url)
     }
 
@@ -54,13 +50,11 @@ export async function middleware(req: NextRequest) {
       response.result.needsIDProof === false &&
       req.nextUrl.pathname.startsWith('/kyc')
     ) {
-      console.log('[MW] Redirecting to / from /kyc* (KYC complete)')
       return NextResponse.redirect(new URL('/', req.url))
     }
 
     if (isPublic) {
       const dest = callbackUrl ?? '/'
-      console.log('[MW] Logged in on public path, redirecting to:', dest)
       return NextResponse.redirect(new URL(dest, req.url))
     }
   } else {
@@ -75,7 +69,6 @@ export async function middleware(req: NextRequest) {
           `${req.nextUrl.pathname}${req.nextUrl.search}`
         )
       }
-      console.log('[MW] Not logged in, redirecting to login with callback:', url.toString())
       return NextResponse.redirect(url)
     }
   }

@@ -91,21 +91,12 @@ export class AuthController implements IAuthController {
   ) => {
     try {
       const token = req.params.token
-      console.log('[AUTH] verifyEmail called with token:', token)
-
       await this.userService.verifyEmail(token)
-
-      console.log('[AUTH] Email verified successfully for token:', token)
       res.json({
         success: true,
         message: 'Email was verified successfully'
       })
     } catch (e) {
-      console.error('[AUTH] verifyEmail failed:', {
-        token: req.params.token,
-        error: (e as any)?.message,
-        stack: (e as any)?.stack
-      })
       next(e)
     }
   }
@@ -120,9 +111,7 @@ export class AuthController implements IAuthController {
         body: { email }
       } = await validate(emailBodySchema, req)
 
-      console.log('[AUTH] resendVerifyEmail called for:', email)
       await this.authService.resendVerifyEmail({ email })
-      console.log('[AUTH] Verification email resent successfully for:', email)
 
       res
         .status(201)
@@ -133,10 +122,6 @@ export class AuthController implements IAuthController {
           )
         )
     } catch (e) {
-      console.error('[AUTH] resendVerifyEmail failed:', {
-        email: req.body?.email,
-        error: (e as any)?.message
-      })
       next(e)
     }
   }
