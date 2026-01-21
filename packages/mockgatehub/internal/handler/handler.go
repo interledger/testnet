@@ -84,6 +84,42 @@ func (h *Handler) RootHandler(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info.Printf("[HANDLER] Serving iframe for paymentType=%s with bearer token", paymentType)
 
+	// If no paymentType is provided, treat this as onboarding and serve the KYC iframe
+	if paymentType == "" || paymentType == "onboarding" {
+		// Map bearer token back to the managed user UUID
+		userUUID := h.extractUserFromBearer(bearer)
+
+		// Load KYC iframe template
+		kycTemplatePath := filepath.Join("web", "kyc-iframe.html")
+		kycTmpl, err := template.ParseFiles(kycTemplatePath)
+		if err != nil {
+			logger.Error.Printf("[HANDLER] Failed to parse KYC iframe template: %v", err)
+			http.Error(w, "Template error", http.StatusInternalServerError)
+			return
+		}
+
+		// Prepare data for KYC template
+		kycData := map[string]string{
+			"Token":  bearer,
+			"UserID": userUUID,
+		}
+
+		// Set headers
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Render KYC iframe
+		if err := kycTmpl.Execute(w, kycData); err != nil {
+			logger.Error.Printf("[HANDLER] Failed to execute KYC iframe template: %v", err)
+			http.Error(w, "Template execution error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	// Otherwise, serve the generic payment iframe (deposit/withdrawal/exchange)
 	bearerShort := bearer
 	if len(bearer) > 20 {
 		bearerShort = bearer[:20] + "..."

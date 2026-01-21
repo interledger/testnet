@@ -9,7 +9,9 @@ services:
       - mockgatehub-test
 
   mockgatehub:
-    image: local-mockgatehub
+    build:
+      context: ../../../
+      dockerfile: packages/mockgatehub/Dockerfile
     container_name: mockgatehub-test
     ports:
       - "28080:8080"  # Use different port to avoid conflicts

@@ -15,7 +15,7 @@ func SeedTestUsers(store Storage) error {
 		Managed:   true,
 		Role:      "user",
 		Features:  []string{"wallet", "kyc"},
-		KYCState:  consts.KYCStateAccepted,
+		KYCState:  consts.KYCStateActionRequired,
 		RiskLevel: consts.RiskLevelLow,
 	}
 
@@ -36,7 +36,7 @@ func SeedTestUsers(store Storage) error {
 		Managed:   true,
 		Role:      "user",
 		Features:  []string{"wallet", "kyc"},
-		KYCState:  consts.KYCStateAccepted,
+		KYCState:  consts.KYCStateActionRequired,
 		RiskLevel: consts.RiskLevelLow,
 	}
 
