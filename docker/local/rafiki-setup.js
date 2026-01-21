@@ -168,6 +168,24 @@ const createAssetMutation = /* GraphQL */ `
   }
 `
 
+const getAssetByCodeAndScaleQuery = /* GraphQL */ `
+  query AssetByCodeAndScale($code: String!, $scale: UInt8!) {
+    assetByCodeAndScale(code: $code, scale: $scale) {
+      id
+      code
+      scale
+    }
+  }
+`
+
+const depositAssetLiquidityMutation = /* GraphQL */ `
+  mutation DepositAssetLiquidity($input: DepositAssetLiquidityInput!) {
+    depositAssetLiquidity(input: $input) {
+      success
+    }
+  }
+`
+
 const assetsToEnsure = [
   { code: 'USD', scale: 2 },
   { code: 'EUR', scale: 2 },
@@ -291,12 +309,69 @@ async function ensureAssets(env) {
   }
 }
 
+// Deposit liquidity for all assets (100000 units per asset, converted to minor units by scale)
+async function ensureLiquidity(env) {
+  console.log('Ensuring asset liquidity...')
+
+  for (const asset of assetsToEnsure) {
+    let node
+    try {
+      const res = await graphqlRequest(
+        {
+          query: getAssetByCodeAndScaleQuery,
+          variables: { code: asset.code, scale: asset.scale }
+        },
+        env
+      )
+      node = res?.assetByCodeAndScale
+    } catch (err) {
+      console.log(`Lookup failed for ${asset.code}:`, err.message)
+      continue
+    }
+
+    if (!node?.id) {
+      console.log(`Skipping liquidity for ${asset.code}: asset id not found`)
+      continue
+    }
+
+    // Amount in minor units: 100000 * 10^scale
+    const amount = BigInt(100000) * BigInt(10) ** BigInt(node.scale)
+
+    console.log(`Depositing liquidity for ${asset.code}: ${amount.toString()} (scale ${node.scale})`)
+    try {
+      const res = await graphqlRequest(
+        {
+          query: depositAssetLiquidityMutation,
+          variables: {
+            input: {
+              id: crypto.randomUUID(),
+              assetId: node.id,
+              amount: amount.toString(),
+              idempotencyKey: crypto.randomUUID()
+            }
+          }
+        },
+        env
+      )
+
+      if (!res?.depositAssetLiquidity?.success) {
+        console.log(`Liquidity deposit failed for ${asset.code}`)
+      } else {
+        console.log(`Liquidity deposited for ${asset.code}`)
+      }
+    } catch (err) {
+      console.log(`Liquidity deposit error for ${asset.code}:`, err.message)
+    }
+  }
+}
+
 // ---- main -----------------------------------------------------------------
 ;(async function main() {
   const env = buildEnv()
   console.log('Rafiki admin endpoint:', env.GRAPHQL_ENDPOINT)
   await ensureTenant(env)
   await ensureAssets(env)
+  await ensureLiquidity(env)
   console.log('✅ Rafiki configuration complete')
 })().catch((err) => {
   console.error('Setup failed:', err.message)
