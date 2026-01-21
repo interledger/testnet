@@ -8,14 +8,14 @@ MockGatehub provides a drop-in replacement for Gatehub's sandbox environment, en
 - Develop and test wallet integrations without real Gatehub credentials
 - Run the complete TestNet stack locally
 - Test multi-currency operations (11 supported currencies)
-- Verify KYC flows with auto-approval
+- Verify KYC flows with a realistic iframe + server-side approval
 - Test webhook delivery mechanisms
 
 ## Features
 
 - **Full API Coverage**: Authentication, KYC, wallets, transactions, rates, and cards (stubbed)
 - **Multi-Currency Support**: XRP, USD, EUR, GBP, ZAR, MXN, SGD, CAD, EGG, PEB, PKR
-- **Auto-KYC Approval**: Automatic verification in sandbox mode
+- **Realistic KYC Flow**: Iframe-based form that starts as `action_required` and is accepted server-side upon submit (sandbox behavior emulated)
 - **Webhook Delivery**: Asynchronous webhook events with HMAC signatures
 - **Dual Storage**: In-memory (tests) and Redis (runtime) backends
 - **Pre-seeded Users**: Test users with balances ready to use
@@ -25,8 +25,8 @@ MockGatehub provides a drop-in replacement for Gatehub's sandbox environment, en
 ### Running with Docker Compose
 
 ```bash
-cd docker/local
-docker-compose up mockgatehub
+cd testnet/docker/local
+docker compose up -d mockgatehub
 ```
 
 The service will be available at `http://localhost:8080`
@@ -71,6 +71,10 @@ Two test users are automatically created:
 - `POST /users/{userID}/hubs/{gatewayID}` - Start KYC process
 - `PUT /hubs/{gatewayID}/users/{userID}` - Update KYC state
 
+#### Iframe endpoints (used by the wallet during onboarding)
+- `GET /?paymentType=onboarding&bearer={token}[&user_id={uuid}]` - Serve KYC iframe HTML (from `web/kyc-iframe.html`). The `bearer` token is required. `user_id` is optional and can be inferred from the token mapping if omitted.
+- `POST /iframe/submit` - Iframe form submission. Parses `multipart/form-data` or URL-encoded forms, updates the user KYC state to `accepted`, and triggers the `id.verification.accepted` webhook.
+
 ### Wallets & Transactions (`/core/v1/`)
 - `POST /wallets` - Create new wallet
 - `GET /wallets/{address}` - Get wallet details
@@ -109,7 +113,7 @@ Two test users are automatically created:
 MockGatehub sends the following webhook events:
 
 ### `id.verification.accepted`
-Sent when KYC verification is approved (automatic in sandbox mode)
+Sent when KYC verification is approved (in sandbox, approval occurs after the user submits the iframe form)
 
 ```json
 {
@@ -183,6 +187,7 @@ internal/
   ├── utils/              # Utilities (UUID, address generation)
   └── webhook/            # Webhook delivery system
 web/                      # Static assets (KYC iframe)
+  └── kyc-iframe.html     # Iframe served for onboarding
 ```
 
 ### Storage Backends
@@ -204,6 +209,21 @@ web/                      # Static assets (KYC iframe)
 - **No Authentication**: HMAC signature validation is implemented but not enforced by default
 - **Card Endpoints**: Stubbed with minimal functionality
 - **No Rate Limiting**: Suitable for development only
+
+## KYC Flow Details (updated)
+
+The KYC flow now mirrors GateHub more closely while remaining wallet-compatible without wallet code changes:
+
+- Starting KYC (`POST /id/v1/users/{userID}/hubs/{gatewayID}`) sets the user to `action_required`.
+- The wallet loads the KYC iframe via `GET /?paymentType=onboarding&bearer=...`.
+- The iframe form (HTML in `web/kyc-iframe.html`) is submitted using `FormData` as `multipart/form-data` to `POST /iframe/submit`.
+- On successful server-side processing, the user KYC state becomes `accepted`, a webhook is sent, and the iframe posts a parent window message using GateHub's format:
+  - `{ type: 'OnboardingCompleted', value: JSON.stringify({ applicantStatus: 'submitted' }) }`
+- The wallet listens for this message and redirects the user accordingly (in local sandbox it navigates back to home).
+
+Notes:
+- If `user_id` is not included in the iframe form, the server attempts to map it from the `bearer` token that was created via `/auth/v1/tokens`.
+- The form parser supports both `multipart/form-data` and `application/x-www-form-urlencoded`.
 
 ## Troubleshooting
 
