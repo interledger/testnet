@@ -12,16 +12,25 @@ import (
 func (h *Handler) GetCurrentRates(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("Getting current exchange rates")
 
-	var rates []models.RateItem
-	for currency, rate := range consts.SandboxRates {
-		rates = append(rates, models.RateItem{
-			Currency: currency,
-			Rate:     rate,
-		})
+	// Get counter currency from query param (default USD)
+	counter := r.URL.Query().Get("counter")
+	if counter == "" {
+		counter = "USD"
 	}
 
-	response := models.GetRatesResponse{
-		Rates: rates,
+	// Build response in GateHub format: flat object with counter and currency rates
+	response := map[string]interface{}{
+		"counter": counter,
+	}
+
+	// Add rate for each currency
+	for currency, rate := range consts.SandboxRates {
+		response[currency] = map[string]interface{}{
+			"type":   "ExchangeRate",
+			"rate":   rate,
+			"amount": "1",
+			"change": "0",
+		}
 	}
 
 	h.sendJSON(w, http.StatusOK, response)
