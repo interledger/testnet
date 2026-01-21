@@ -88,12 +88,12 @@ func (h *Handler) RootHandler(w http.ResponseWriter, r *http.Request) {
 	if paymentType == "" || paymentType == "onboarding" {
 		// Try to extract user UUID from bearer token mapping
 		userUUID := h.extractUserFromBearer(bearer)
-		
+
 		// If not found in mapping, try to get from query params (user_id might be passed from frontend)
 		if userUUID == "" {
 			userUUID = r.URL.Query().Get("user_id")
 		}
-		
+
 		if userUUID == "" {
 			logger.Warn.Printf("[HANDLER] Could not extract user from bearer token or query params, will rely on form submission")
 		}
