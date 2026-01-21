@@ -113,9 +113,58 @@
 		const bearer = "{{.Bearer}}";
 		const bearerShort = "{{.BearerShort}}";
 		
+		// Get vault_uuid from URL (only supported method)
+		const urlParams = new URLSearchParams(window.location.search);
+		const vaultUUID = urlParams.get('vault_uuid');
+		
+		// Vault UUID to currency mapping (matches backend consts)
+		const vaultUUIDToCurrency = {
+			"450d2156-132a-4d3f-88c5-74822547658d": "USD",
+			"a09a0a2c-1a3a-44c5-a1b9-603a6eea9341": "EUR",
+			"8c3e4d5f-6a7b-8c9d-0e1f-2a3b4c5d6e7f": "GBP",
+			"9d4f5e6a-7b8c-9d0e-1f2a-3b4c5d6e7f8a": "ZAR",
+			"0e5f6a7b-8c9d-0e1f-2a3b-4c5d6e7f8a9b": "MXN",
+			"1f6a7b8c-9d0e-1f2a-3b4c-5d6e7f8a9b0c": "SGD",
+			"2a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d": "CAD",
+			"3b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e": "EGG",
+			"4c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f": "PEB",
+			"5d0e1f2a-3b4c-5d6e-7f8a-9b0c1d2e3f4a": "PKR",
+			"6e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b": "XRP"
+		};
+		
+		// Infer currency from vault_uuid
+		let currencyFromVault = null;
+		if (vaultUUID && vaultUUIDToCurrency[vaultUUID]) {
+			currencyFromVault = vaultUUIDToCurrency[vaultUUID];
+			console.log("Inferred currency from vault_uuid:", currencyFromVault);
+		}
+		
 		document.getElementById("paymentType").textContent = paymentType;
 		document.getElementById("bearerDisplay").textContent = bearerShort;
-		document.getElementById("debugInfo").innerHTML = "Bearer Token: " + bearer + "<br>Payment Type: " + paymentType;
+		document.getElementById("debugInfo").innerHTML = "Bearer Token: " + bearer + "<br>Payment Type: " + paymentType + (vaultUUID ? "<br>Vault UUID: " + vaultUUID : "") + (currencyFromVault ? "<br>Currency: " + currencyFromVault : "");
+		
+		// Fetch user's currencies from MockGatehub API
+		async function fetchUserCurrencies() {
+			try {
+				const response = await fetch(`/api/user-currencies?bearer=${encodeURIComponent(bearer)}`, {
+					headers: {
+						'Authorization': `Bearer ${bearer}`
+					}
+				});
+				
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
+				
+				const data = await response.json();
+				console.log("User currencies:", data.currencies);
+				return data.currencies || [];
+			} catch (error) {
+				console.error("Error fetching user currencies:", error);
+				// Return default currencies as fallback
+				return ["USD", "EUR", "CAD", "GBP", "JPY", "AUD", "CHF", "CNY", "INR", "AED", "PEB", "XRP"];
+			}
+		}
 		
 		function showMessage(type, message) {
 			const status = document.getElementById("status");
@@ -225,7 +274,50 @@
 		// Display content based on payment type
 		const content = document.getElementById("content");
 		if (paymentType === "deposit") {
-			content.innerHTML = "<h2>Deposit Funds</h2><p>Enter the amount and payment method to deposit funds into your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"100\" step=\"0.01\" min=\"0\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Currency:</label><br><select id=\"currency\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>JPY</option><option>AUD</option><option>CHF</option><option>CNY</option><option>INR</option><option>AED</option><option>PEB</option><option>XRP</option></select></div>";
+			content.innerHTML = "<h2>Deposit Funds</h2><p>Enter the amount and payment method to deposit funds into your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"100\" step=\"0.01\" min=\"0\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Currency:</label><br><select id=\"currency\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><option>Loading...</option></select></div>";
+			
+			// Fetch user's currencies dynamically
+			fetchUserCurrencies().then(currencies => {
+				const currencySelect = document.getElementById("currency");
+				if (!currencySelect) return;
+				
+				// Clear loading option
+				currencySelect.innerHTML = "";
+				
+				// Build dropdown with user's currencies
+				currencies.forEach(currency => {
+					const option = document.createElement("option");
+					option.value = currency;
+					option.textContent = currency;
+					currencySelect.appendChild(option);
+				});
+				
+				// If currency inferred from vault_uuid, select and lock it
+				if (currencyFromVault) {
+					const optionExists = currencies.includes(currencyFromVault.toUpperCase());
+					if (optionExists) {
+						currencySelect.value = currencyFromVault.toUpperCase();
+						currencySelect.disabled = true;
+						currencySelect.style.backgroundColor = "#f0f0f0";
+						currencySelect.style.cursor = "not-allowed";
+						console.log("Currency pre-selected from vault_uuid:", currencyFromVault);
+					}
+				} else if (currencies.length === 1) {
+					// If user only has 1 currency, pre-select and disable
+					currencySelect.value = currencies[0];
+					currencySelect.disabled = true;
+					currencySelect.style.backgroundColor = "#f0f0f0";
+					currencySelect.style.cursor = "not-allowed";
+					console.log("Single currency account detected:", currencies[0]);
+				}
+			}).catch(error => {
+				console.error("Failed to fetch user currencies:", error);
+				// Fallback to default currencies
+				const currencySelect = document.getElementById("currency");
+				if (!currencySelect) return;
+				currencySelect.innerHTML = "<option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option>";
+			});
+			
 		} else if (paymentType === "withdraw") {
 			content.innerHTML = "<h2>Withdraw Funds</h2><p>Enter the amount and destination to withdraw funds from your wallet.</p><div style=\"margin: 20px 0;\"><label>Amount:</label><br><input type=\"number\" id=\"amount\" placeholder=\"0.00\" value=\"50\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br><br><label>Destination Address:</label><br><input type=\"text\" placeholder=\"Wallet address\" style=\"padding: 8px; font-size: 16px; width: 100%;\"><br></div>";
 		} else if (paymentType === "exchange") {

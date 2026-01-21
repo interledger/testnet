@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"mockgatehub/internal/consts"
 	"mockgatehub/internal/logger"
 	"mockgatehub/internal/storage"
 	"mockgatehub/internal/utils"
@@ -183,11 +184,20 @@ func (h *Handler) TransactionCompleteHandler(w http.ResponseWriter, r *http.Requ
 					// Use the first wallet's address
 					walletAddress := wallets[0].Address
 
+					// Get vault_uuid for the currency (from consts)
+					vaultUUID := consts.SandboxVaultIDs[txReq.Currency]
+					if vaultUUID == "" {
+						// Fallback to USD vault if currency not found
+						vaultUUID = consts.SandboxVaultIDs["USD"]
+						logger.Warn.Printf("[HANDLER] Unknown currency %s, using USD vault", txReq.Currency)
+					}
+
 					// Send deposit webhook (matches GateHub webhook spec) with dynamic values
 					h.webhookManager.SendAsync("core.deposit.completed", userUUID, map[string]interface{}{
 						"tx_uuid":      utils.GenerateUUID(),
 						"amount":       txReq.Amount,   // From iframe form
 						"currency":     txReq.Currency, // From iframe form
+						"vault_uuid":   vaultUUID,      // Vault UUID for this currency
 						"address":      walletAddress,  // The wallet address that received the deposit
 						"deposit_type": "external",     // External deposit type (lowercase per spec)
 						"total_fees":   "0",            // Fees charged (matches GateHub spec)
