@@ -43,32 +43,23 @@ export class AuthService implements IAuthService {
     password,
     acceptedCardTerms
   }: SignUpArgs): Promise<User> {
-    console.log('[AUTH-SERVICE] signUp called for:', email)
     const domain = email.split('@')[1]
     await this.emailService.verifyDomain(domain)
 
     const token = getRandomToken()
-    console.log('[AUTH-SERVICE] Generated verification token')
     const user = await this.userService.create({
       email,
       password,
       verifyEmailToken: hashToken(token),
       acceptedCardTerms
     })
-    console.log('[AUTH-SERVICE] User created:', { userId: user.id, email })
 
     await this.emailService.sendVerifyEmail(email, token).catch((e) => {
-      console.error('[AUTH-SERVICE] Error sending verify email:', {
-        email,
-        error: (e as any)?.message
-      })
       this.logger.error(
         `Error on sending verify email for user ${user.email}`,
         e
       )
     })
-
-    console.log('[AUTH-SERVICE] Verification email sent for:', email)
     return user
   }
 

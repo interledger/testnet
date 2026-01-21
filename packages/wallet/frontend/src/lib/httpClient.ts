@@ -20,13 +20,6 @@ const baseUrl = isServer
   ? process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
   : process.env.NEXT_PUBLIC_BACKEND_URL
 
-console.log('[HTTP-CLIENT] Initializing:', {
-  isServer,
-  baseUrl,
-  BACKEND_INTERNAL_URL: process.env.BACKEND_INTERNAL_URL,
-  NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL
-})
-
 export const httpClient = ky.extend({
   prefixUrl: baseUrl,
   credentials: 'include',
@@ -34,9 +27,6 @@ export const httpClient = ky.extend({
   hooks: {
     beforeRequest: [
       (request) => {
-        if (isServer) {
-          console.log('[HTTP-CLIENT] Server-side request to:', request.url)
-        }
         request.headers.set('Content-Type', 'application/json')
       }
     ]

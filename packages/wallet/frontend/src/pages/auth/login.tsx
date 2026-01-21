@@ -23,7 +23,10 @@ const LoginPage: NextPageWithLayout = () => {
   const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
   const [callbackPath, setCallbackPath] = useState<string>('/')
   const router = useRouter()
-  // callbackUrl is derived in an effect once router is ready
+  const callbackUrl =
+    router.asPath.indexOf('callbackUrl') !== -1
+      ? `${router.query?.callbackUrl}`
+      : '/'
   const loginForm = useZodForm({
     schema: loginSchema
   })
@@ -55,15 +58,11 @@ const LoginPage: NextPageWithLayout = () => {
   }
 
   async function submitForm(data: { email: string; password: string }) {
-    console.log('[AUTH-FORM] Login form submitted for:', data.email)
     const response = await userService.login(data)
-    console.log('[AUTH-FORM] Login response:', response)
     if (response.success) {
-      console.log('[AUTH-FORM] Login successful, navigating to:', callbackPath)
       handleNavigation()
       sessionStorage.removeItem(SessionStorageKeys.CallbackUrl)
     } else {
-      console.error('[AUTH-FORM] Login failed:', response)
       const { errors, message } = response
       loginForm.setError('root', { message })
 
@@ -74,26 +73,12 @@ const LoginPage: NextPageWithLayout = () => {
   }
 
   function handleNavigation() {
-    console.log('[AUTH-NAV] handleNavigation called with callbackPath:', callbackPath)
-    const safeTarget =
-      callbackPath &&
-      callbackPath !== 'undefined' &&
-      callbackPath !== 'null'
-        ? callbackPath
-        : '/'
-
     const isIncorrectCallbackUrl =
-      !safeTarget.startsWith('/') &&
-      !safeTarget.startsWith(window.location.origin)
-
-    console.log('[AUTH-NAV] isIncorrectCallbackUrl:', isIncorrectCallbackUrl)
-
-    const destination = isIncorrectCallbackUrl ? '/' : safeTarget
-    console.log('[AUTH-NAV] Redirecting to:', destination)
-    router.push(destination).catch((err) => {
-      console.error('[AUTH-NAV] Failed to redirect to', destination, ':', err)
-      router.push('/')
-    })
+      !callbackPath.startsWith('/') &&
+      !callbackPath.startsWith(window.location.origin)
+    isIncorrectCallbackUrl
+      ? router.push('/')
+      : router.push(callbackPath).catch(() => router.push('/'))
   }
 
   function togglePasswordVisibility() {
@@ -101,39 +86,16 @@ const LoginPage: NextPageWithLayout = () => {
   }
 
   useEffect(() => {
-    if (!router.isReady) {
-      console.log('[AUTH-INIT] Router not ready yet')
-      return
-    }
-
-    // Prefer query param when valid, else fall back to storage, else '/'
-    const raw = router.query?.callbackUrl
-    const fromQuery =
-      typeof raw === 'string' && raw && raw !== 'undefined' && raw !== 'null'
-        ? raw
-        : undefined
-    const fromStorage = sessionStorage.getItem(SessionStorageKeys.CallbackUrl)
-    const storageValid =
-      fromStorage &&
-      fromStorage !== 'undefined' &&
-      fromStorage !== 'null'
-        ? fromStorage
-        : undefined
-
-    const resolved = fromQuery ?? storageValid ?? '/'
-    console.log('[AUTH-INIT] Resolved callbackPath:', resolved, {
-      fromQuery,
-      fromStorage: storageValid
-    })
-
-    setCallbackPath(resolved)
-
-    if (resolved === '/') {
-      sessionStorage.removeItem(SessionStorageKeys.CallbackUrl)
+    if (callbackUrl === '/') {
+      const urlFromStorage = sessionStorage.getItem(
+        SessionStorageKeys.CallbackUrl
+      )
+      setCallbackPath(urlFromStorage ?? '/')
     } else {
-      sessionStorage.setItem(SessionStorageKeys.CallbackUrl, resolved)
+      sessionStorage.setItem(SessionStorageKeys.CallbackUrl, callbackUrl)
+      setCallbackPath(callbackUrl)
     }
-  }, [router.isReady, router.query?.callbackUrl])
+  }, [callbackUrl])
 
   useEffect(() => {
     loginForm.setFocus('email')
