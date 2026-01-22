@@ -17,9 +17,7 @@ services:
   # MockGatehub - Mock Gatehub API service for local development
   mockgatehub:
     container_name: mockgatehub-local
-    build:
-      context: ../..
-      dockerfile: ./packages/mockgatehub/Dockerfile
+    image: ghcr.io/interledger/mockgatehub:1
     ports:
       - '8080:8080'
     environment:
