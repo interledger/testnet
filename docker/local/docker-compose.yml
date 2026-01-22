@@ -1,0 +1,286 @@
+services:
+  postgres:
+    container_name: postgres-local
+    image: 'postgres:15'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5434:5432'
+    restart: unless-stopped
+    networks:
+      - testnet
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ../dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # MockGatehub - Mock Gatehub API service for local development
+  mockgatehub:
+    container_name: mockgatehub-local
+    image: ghcr.io/interledger/mockgatehub:1
+    ports:
+      - '8080:8080'
+    environment:
+      MOCKGATEHUB_REDIS_URL: redis://redis-local:6379
+      MOCKGATEHUB_REDIS_DB: '1'
+      WEBHOOK_URL: http://wallet-backend:3003/gatehub-webhooks
+      WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
+    depends_on:
+      - redis
+    restart: always
+    networks:
+      - testnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Wallet
+  wallet-backend:
+    container_name: wallet-backend-local
+    build:
+      context: ../..
+      args:
+        DEV_MODE: ${DEV_MODE}
+      dockerfile: ./packages/wallet/backend/Dockerfile.dev
+    depends_on:
+      - postgres
+      - rafiki-backend
+      - redis
+      - mockgatehub
+    volumes:
+      - ../../packages/wallet/backend:/home/testnet/packages/wallet/backend
+      - ../../packages/wallet/shared:/home/testnet/packages/wallet/shared
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      DEBUG_PORT: 9229
+      DATABASE_URL: postgres://wallet_backend:wallet_backend@postgres-local/wallet_backend
+      COOKIE_NAME: testnet.cookie
+      COOKIE_PASSWORD: testnet.cookie.password.super.secret.ilp
+      COOKIE_TTL: 2630000
+      OPEN_PAYMENTS_HOST: https://rafiki-backend
+      GRAPHQL_ENDPOINT: http://rafiki-backend:3001/graphql
+      AUTH_GRAPHQL_ENDPOINT: http://rafiki-auth:3008/graphql
+      AUTH_DOMAIN: http://rafiki-auth:3006
+      AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
+      RAFIKI_WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      FROM_EMAIL: ${FROM_EMAIL}
+      SEND_EMAIL: ${SEND_EMAIL:-false}
+      REDIS_URL: redis://redis-local:6379/0
+      GATEHUB_API_BASE_URL: ${GATEHUB_API_BASE_URL}
+      GATEHUB_ENV: sandbox
+      GATEHUB_IFRAME_BASE_URL: http://localhost:8080
+      GATEHUB_ACCESS_KEY: ${GATEHUB_ACCESS_KEY}
+      GATEHUB_SECRET_KEY: ${GATEHUB_SECRET_KEY}
+      GATEHUB_WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
+      GATEHUB_GATEWAY_UUID: ${GATEHUB_GATEWAY_UUID}
+      GATEHUB_SETTLEMENT_WALLET_ADDRESS: ${GATEHUB_SETTLEMENT_WALLET_ADDRESS}
+      GATEHUB_ORG_ID: ${GATEHUB_ORG_ID}
+      GATEHUB_CARD_APP_ID: ${GATEHUB_CARD_APP_ID}
+      RATE_LIMIT: ${RATE_LIMIT}
+      RATE_LIMIT_LEVEL: ${RATE_LIMIT_LEVEL}
+      GATEHUB_ACCOUNT_PRODUCT_CODE: ${GATEHUB_ACCOUNT_PRODUCT_CODE}
+      GATEHUB_CARD_PRODUCT_CODE: ${GATEHUB_CARD_PRODUCT_CODE}
+      GATEHUB_NAME_ON_CARD: ${GATEHUB_NAME_ON_CARD}
+      GATEHUB_CARD_PP_PREFIX: ${GATEHUB_CARD_PP_PREFIX}
+      CARD_DATA_HREF: ${CARD_DATA_HREF}
+      CARD_PIN_HREF: ${CARD_PIN_HREF}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      USE_STRIPE: ${USE_STRIPE}
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      ADMIN_SIGNATURE_VERSION: 1
+      WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3003:3003'
+      - '9229:9229' # Map debugger port to local machine's port 9229
+
+  wallet-frontend:
+    container_name: wallet-frontend-local
+    build:
+      context: ../..
+      args:
+        DEV_MODE: ${DEV_MODE}
+        NEXT_PUBLIC_BACKEND_URL: http://localhost:3003
+        NEXT_PUBLIC_AUTH_HOST: http://localhost:3006
+        NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://localhost:3010
+        NEXT_PUBLIC_GATEHUB_ENV: sandbox
+        NEXT_PUBLIC_THEME: light
+        NEXT_PUBLIC_FEATURES_ENABLED: 'false'
+      dockerfile: ./packages/wallet/frontend/Dockerfile.dev
+    depends_on:
+      - wallet-backend
+    volumes:
+      - ../../packages/wallet/frontend:/home/testnet/packages/wallet/frontend
+      - ../../packages/wallet/shared:/home/testnet/packages/wallet/shared
+    environment:
+      NODE_ENV: development
+      BACKEND_URL: http://wallet-backend:3003
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3003
+      NEXT_PUBLIC_AUTH_HOST: http://localhost:3006
+      NEXT_PUBLIC_OPEN_PAYMENTS_HOST: http://localhost:3010
+      NEXT_PUBLIC_GATEHUB_ENV: sandbox
+      NEXT_PUBLIC_THEME: light
+      NEXT_PUBLIC_FEATURES_ENABLED: 'false'
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '4003:4003'
+
+  # Rafiki
+  rafiki-auth:
+    container_name: rafiki-auth-local
+    image: ghcr.io/interledger/rafiki-auth:v2.2.0-beta
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3006:3006'
+      - '3008:3008'
+    environment:
+      AUTH_PORT: 3006
+      INTROSPECTION_PORT: 3007
+      ADMIN_PORT: 3008
+      NODE_ENV: development
+      AUTH_SERVER_URL: http://rafiki-auth:3006
+      AUTH_DATABASE_URL: postgresql://rafiki_auth:rafiki_auth@postgres-local/rafiki_auth
+      IDENTITY_SERVER_URL: http://wallet-frontend:4003/grant-interactions
+      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
+      COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
+      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
+      WAIT_SECONDS: 1
+      REDIS_URL: redis://redis-local:6379/0
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      ADMIN_SIGNATURE_VERSION: 1
+    depends_on:
+      - postgres
+
+  rafiki-backend:
+    container_name: rafiki-backend-local
+    image: ghcr.io/interledger/rafiki-backend:v2.2.0-beta
+    restart: always
+    privileged: true
+    volumes:
+      - ../temp/:/workspace/temp/
+    ports:
+      - '3010:80'
+      - '3011:3001'
+      - '3005:3005'
+      - '3002:3002'
+    networks:
+      - testnet
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      ADMIN_PORT: 3001
+      CONNECTOR_PORT: 3002
+      OPEN_PAYMENTS_PORT: 80
+      DATABASE_URL: postgresql://rafiki_backend:rafiki_backend@postgres-local/rafiki_backend
+      USE_TIGERBEETLE: 'false'
+      NONCE_REDIS_KEY: test
+      AUTH_SERVER_GRANT_URL: http://rafiki-auth:3006
+      AUTH_SERVER_INTROSPECTION_URL: http://rafiki-auth:3007
+      ILP_ADDRESS: test.net
+      ILP_CONNECTOR_URL: http://127.0.0.1:3002
+      STREAM_SECRET: BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=
+      ADMIN_KEY: admin
+      OPEN_PAYMENTS_URL: https://rafiki-backend
+      REDIS_URL: redis://redis-local:6379/0
+      WALLET_ADDRESS_URL: https://rafiki-backend/.well-known/pay
+      WEBHOOK_URL: http://wallet-backend:3003/webhooks
+      WEBHOOK_TIMEOUT: 60000
+      SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
+      EXCHANGE_RATES_URL: http://wallet-backend:3003/rates
+      ENABLE_AUTO_PEERING: 'true'
+      AUTO_PEERING_SERVER_PORT: 3005
+      INSTANCE_NAME: 'Testnet Wallet'
+      SLIPPAGE: 0.01
+      KEY_ID: rafiki
+      WALLET_ADDRESS_REDIRECT_HTML_PAGE: 'http://localhost:4003/account?walletAddress=%ewa'
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      ADMIN_SIGNATURE_VERSION: 1
+      AUTH_SERVICE_API_URL: http://rafiki-auth:3011
+      CARD_SERVICE_URL: 'http://rafiki-card-service:3007'
+      CARD_WEBHOOK_SERVICE_URL: 'http://rafiki-card-service:3007/webhook'
+      POS_SERVICE_URL: 'http://rafiki-pos-service:3014'
+      POS_WEBHOOK_SERVICE_URL: 'http://rafiki-pos-service:3014/webhook'
+    depends_on:
+      - postgres
+      - redis
+
+  rafiki-frontend:
+    container_name: rafiki-frontend-local
+    image: ghcr.io/interledger/rafiki-frontend:v2.2.0-beta
+    depends_on:
+      - rafiki-backend
+    restart: always
+    privileged: true
+    ports:
+      - '3012:3012'
+    networks:
+      - testnet
+    environment:
+      PORT: 3012
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
+      OPEN_PAYMENTS_URL: https://rafiki-backend/
+      ENABLE_INSECURE_MESSAGE_COOKIE: 'true'
+      AUTH_ENABLED: 'false'
+      SIGNATURE_VERSION: 1
+
+  rafiki-card-service:
+    container_name: rafiki-card-service-local
+    image: ghcr.io/interledger/rafiki-card-service:v2.2.0-beta
+    restart: always
+    privileged: true
+    networks:
+      - testnet
+    ports:
+      - '3007:3007'
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      CARD_SERVICE_PORT: 3007
+      REDIS_URL: redis://redis-local:6379/0
+      GRAPHQL_URL: http://rafiki-backend:3001/graphql
+      TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
+      TENANT_SECRET: ${ADMIN_API_SECRET:-secret-key}
+      TENANT_SIGNATURE_VERSION: 1
+
+  redis:
+    container_name: redis-local
+    image: 'redis:7-alpine'
+    restart: unless-stopped
+    networks:
+      - testnet
+    ports:
+      - '6379:6379'
+
+  mailslurper:
+    container_name: mailslurper-local
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - '4436:4436'
+      - '4437:4437'
+    networks:
+      - testnet
+
+networks:
+  testnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1
+
+volumes:
+  pg-data:
