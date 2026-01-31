@@ -22,6 +22,7 @@ import { FEATURES_ENABLED } from '@/utils/constants'
 import { Button } from '@/ui/Button'
 import { useRouter } from 'next/router'
 import { useRefundContext } from '@/lib/context/refund'
+import { TransE } from '../icons/Cog'
 
 type TransactionDetailsDialogProps = Pick<DialogProps, 'onClose'> & {
   transaction: TransactionListResponse
@@ -64,7 +65,11 @@ export const TransactionDetailsDialog = ({
                       <div className="text-dark-green dark:text-white pr-2">
                         <Card />
                       </div>
-                    ) : null}
+                    ) : (
+                      <div className="text-dark-green dark:text-white pr-2">
+                        <TransE />
+                      </div>
+                    )}
                   </div>
                 </DialogTitle>
                 <div className="flex flex-col gap-y-2">

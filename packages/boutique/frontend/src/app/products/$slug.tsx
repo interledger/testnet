@@ -42,33 +42,63 @@ export function Component() {
   if (data) {
     return (
       <ProductContext.Provider value={{ product: data.result }}>
-        <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
-          <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
-            <img
-              src={`${IMAGES_URL}${theme === 'light' ? data.result.image : data.result.imageDark}`}
-              alt={data.result.name}
-              className="h-full w-full object-scale-down object-center"
-            />
-          </div>
-
-          <div className="col-span-2 mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-            <h1 className="text-3xl font-['DejaVuSansMonoBold'] tracking-tight">
-              {data.result.name}
-            </h1>
-            <div className="mt-3">
-              <p className="text-3xl tracking-tight">
-                {formatPrice(data.result.price)}
-              </p>
-            </div>
-            <div className="prose mt-6 max-w-full">
-              <blockquote
-                className="quote space-y-6"
-                dangerouslySetInnerHTML={{ __html: data.result.description }}
+        {data.result.slug === 'luck' ? (
+          <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
+            <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
+              <img
+                src={`${IMAGES_URL}egg.png`}
+                alt="easter egg"
+                className="h-full w-full object-scale-down object-center"
               />
             </div>
-            <ProductCTA />
+
+            <div className="col-span-2 mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+              <h1 className="text-3xl font-['DejaVuSansMonoBold'] tracking-tight">
+                Easter Egg
+              </h1>
+              <div className="mt-3">
+                <p className="text-3xl tracking-tight">{formatPrice(0.0)}</p>
+              </div>
+              <div className="prose mt-6 max-w-full">
+                <blockquote
+                  className="quote space-y-6"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      '&quot;If an egg is broken by an outside force, life ends. If broken by an inside force, life begins. Great things always begin from inside.&quot; - Jim Kwik'
+                  }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="lg:grid lg:grid-cols-3 lg:gap-x-12">
+            <div className="aspect-h-1 aspect-w-1 mx-auto h-80 w-80 overflow-hidden rounded-md bg-green-light dark:bg-purple-dark lg:w-full">
+              <img
+                src={`${IMAGES_URL}${theme === 'light' ? data.result.image : data.result.imageDark}`}
+                alt={data.result.name}
+                className="h-full w-full object-scale-down object-center"
+              />
+            </div>
+
+            <div className="col-span-2 mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+              <h1 className="text-3xl font-['DejaVuSansMonoBold'] tracking-tight">
+                {data.result.name}
+              </h1>
+              <div className="mt-3">
+                <p className="text-3xl tracking-tight">
+                  {formatPrice(data.result.price)}
+                </p>
+              </div>
+              <div className="prose mt-6 max-w-full">
+                <blockquote
+                  className="quote space-y-6"
+                  dangerouslySetInnerHTML={{ __html: data.result.description }}
+                />
+              </div>
+              <ProductCTA />
+            </div>
+          </div>
+        )}
       </ProductContext.Provider>
     )
   }
