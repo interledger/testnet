@@ -280,7 +280,7 @@ services:
       - testnet
 
   kratos:
-    image: 'oryd/kratos:v1.3.1'
+    image: 'oryd/kratos:v25.4.0'
     privileged: true
     ports:
       - '4433:4433'
