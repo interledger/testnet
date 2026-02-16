@@ -33,6 +33,15 @@ type Access = {
   } | null
 }
 
+type Subject = {
+  sub_ids: [
+    {
+      id: string
+      format: string
+    }
+  ]
+}
+
 export interface GrantResponse {
   id: string
   client: string
@@ -40,6 +49,7 @@ export interface GrantResponse {
   createdAt: string
   access: Access[]
   finalizationReason?: GrantFinalization
+  subject?: Subject
 }
 
 type GrantNode = {

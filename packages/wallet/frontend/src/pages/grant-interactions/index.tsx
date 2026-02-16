@@ -22,7 +22,8 @@ const GrantInteractionPage = ({
   grant,
   interactionId,
   nonce,
-  clientName
+  clientName,
+  grantWalletAddress
 }: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
@@ -66,30 +67,41 @@ const GrantInteractionPage = ({
           width={500}
           height={150}
         />
-        <div className="mt-20 text-base">
-          {grant.access.length === 1 ? (
+        {grantWalletAddress.length > 0 ? (
+          <div className="mt-20 text-base">
             <div>
-              {client} is requesting access to make payments to an amount of{' '}
-              {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+              <span className="font-semibold">{grant.client}</span> is
+              requesting you to confirm ownership of the following wallet
+              address(es):&nbsp;
+              {grantWalletAddress.join(', ')}
             </div>
-          ) : (
-            <div>
-              {client} is requesting access to make payments on the following
-              amounts:{' '}
-              {grant.access
-                .map(
-                  (accessItem) =>
-                    accessItem.limits?.debitAmount?.formattedAmount
-                )
-                .join(', ')}
-              .
-            </div>
-          )}
-          <div>
-            Wallet Address client:{' '}
-            <span className="font-semibold">{grant.client}</span>
           </div>
-        </div>
+        ) : (
+          <div className="mt-20 text-base">
+            {grant.access.length === 1 ? (
+              <div>
+                {client} is requesting access to make payments to an amount of{' '}
+                {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+              </div>
+            ) : (
+              <div>
+                {client} is requesting access to make payments on the following
+                amounts:{' '}
+                {grant.access
+                  .map(
+                    (accessItem) =>
+                      accessItem.limits?.debitAmount?.formattedAmount
+                  )
+                  .join(', ')}
+                .
+              </div>
+            )}
+            <div>
+              Wallet Address client:{' '}
+              <span className="font-semibold">{grant.client}</span>
+            </div>
+          </div>
+        )}
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
             aria-label="accept"
@@ -168,6 +180,7 @@ export const getServerSideProps: GetServerSideProps<{
   interactionId: string
   nonce: string
   clientName: string
+  grantWalletAddress: string[]
 }> = async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
@@ -217,12 +230,18 @@ export const getServerSideProps: GetServerSideProps<{
   })
   grantInteractionResponse.result.client = result.data.clientUri
 
+  const walletAddressList: string[] = []
+  grantInteractionResponse.result.subject?.sub_ids.map((subID) =>
+    walletAddressList.push(subID.id)
+  )
+
   return {
     props: {
       grant: grantInteractionResponse.result,
       interactionId: result.data.interactId,
       nonce: result.data.nonce,
-      clientName: result.data.clientName
+      clientName: result.data.clientName,
+      grantWalletAddress: walletAddressList
     }
   }
 }
