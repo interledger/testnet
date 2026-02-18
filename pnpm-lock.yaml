@@ -69,8 +69,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(winston@3.18.3)
       '@interledger/open-payments':
-        specifier: ^7.1.3
-        version: 7.1.3
+        specifier: ^7.3.0
+        version: 7.3.0
       '@shared/backend':
         specifier: workspace:*
         version: link:../../shared/backend
@@ -1621,8 +1621,8 @@ packages:
   '@interledger/http-signature-utils@2.0.3':
     resolution: {integrity: sha512-/vn6+FxZ3g1A5ZC3vOVivjFns5A6F4lhEmdAGg3W9mD2uADXI575rIBcMdqI3wTOJo7qOXRutPXOG/jXONFs/Q==}
 
-  '@interledger/open-payments@7.1.3':
-    resolution: {integrity: sha512-cItEYzE1vAFa9XpI7vmKPydX1mVYq8ORL3h0B8gxnBOaGYpeuljgt0zc4ImoFni3W/uU8Oz5OlnWpsSXJY9ISw==}
+  '@interledger/open-payments@7.3.0':
+    resolution: {integrity: sha512-TL85W/YN8GKdYZb255tC2u+ZarDXAuWbIVGZX5o27i2hiNuVbi3GTFlm0ZKjgcAVlf9nCwRhR5XS5N4vQ6oBtA==}
 
   '@interledger/openapi@2.0.4':
     resolution: {integrity: sha512-3V6xCk2dKnpBiS6ppBDtQsItZ4r1r/YO9T93Pag2yMxIIAe0NAwUfq5yWPYJtNTQ8j2br+z/AwlgWwenxKffWg==}
@@ -4828,10 +4828,6 @@ packages:
 
   ky@1.11.0:
     resolution: {integrity: sha512-NEyo0ICpS0cqSuyoJFMCnHOZJILqXsKhIZlHJGDYaH8OB5IFrGzuBpEwyoMZG6gUKMPrazH30Ax5XKaujvD8ag==}
-    engines: {node: '>=18'}
-
-  ky@1.8.2:
-    resolution: {integrity: sha512-XybQJ3d4Ea1kI27DoelE5ZCT3bSJlibYTtQuMsyzKox3TMyayw1asgQdl54WroAm+fIA3ZCr8zXW2RpR7qWVpA==}
     engines: {node: '>=18'}
 
   lazystream@1.0.1:
@@ -8166,13 +8162,13 @@ snapshots:
       jose: 4.15.9
       uuid: 9.0.1
 
-  '@interledger/open-payments@7.1.3':
+  '@interledger/open-payments@7.3.0':
     dependencies:
       '@interledger/http-signature-utils': 2.0.3
       '@interledger/openapi': 2.0.4
       base64url: 3.0.1
       http-message-signatures: 0.1.2
-      ky: 1.8.2
+      ky: 1.11.0
       pino: 8.21.0
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -12011,8 +12007,6 @@ snapshots:
   kuler@2.0.0: {}
 
   ky@1.11.0: {}
-
-  ky@1.8.2: {}
 
   lazystream@1.0.1:
     dependencies:
