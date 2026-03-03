@@ -120,7 +120,7 @@ export const CreateWalletAddressDialog = ({
                   <Input
                     required
                     label="Public name"
-                    placeholder="test"
+                    placeholder="easter egg"
                     error={
                       createWalletAddressForm.formState?.errors?.publicName
                         ?.message

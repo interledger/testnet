@@ -66,7 +66,7 @@ export const DepositDialog = ({
             >
               <DialogPanel className="relative w-full max-w-xl space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <DialogTitle as="h3" className="text-center text-2xl font-bold">
-                  Deposit to Account
+                  Deposit to your egg basket
                 </DialogTitle>
                 <p className="text-xs text-center">
                   A small fee might be applied when making a deposit.
