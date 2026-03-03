@@ -31,6 +31,10 @@ export class TokenCache extends InMemoryCache<string> {
         url: this.env.PAYMENT_POINTER
       })
       const grant = await this.getGrant()
+      if (!grant.access_token) {
+        this.logger.error('Grant missing access_token.')
+        throw new InternalServerError()
+      }
       this.cacheToken({ access_token: grant.access_token })
       return grant.access_token.value
     }

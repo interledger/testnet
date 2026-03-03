@@ -323,6 +323,11 @@ export class OpenPayments implements IOpenPayments {
       throw new InternalServerError()
     }
 
+    if (!continuation.access_token) {
+      this.logger.error('Grant missing access_token.')
+      throw new InternalServerError()
+    }
+
     return {
       accessToken: continuation.access_token.value,
       manageUrl: continuation.access_token.manage.replace(
@@ -334,7 +339,9 @@ export class OpenPayments implements IOpenPayments {
 
   private isGrant(
     continuation: GrantContinuation | Grant
-  ): continuation is Grant {
+  ): continuation is Grant & {
+    access_token: NonNullable<Grant['access_token']>
+  } {
     return (continuation as Grant).access_token !== undefined
   }
 
@@ -544,6 +551,11 @@ export class OpenPayments implements IOpenPayments {
       this.logger.error('Could not retrieve quote grant.')
       throw new InternalServerError()
     })
+
+    if (!grant.access_token) {
+      this.logger.error('Grant missing access_token.')
+      throw new InternalServerError()
+    }
 
     return await this.opClient.quote
       .create(
