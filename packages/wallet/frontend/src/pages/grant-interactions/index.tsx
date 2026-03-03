@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
 import { FEATURES_ENABLED, THEME } from '@/utils/constants'
 import { Logo, LogoWallet } from '@/ui/Logo'
+import { useEffect } from 'react'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -51,6 +52,14 @@ const GrantInteractionPage = ({
     )
   }
 
+  useEffect(() => {
+    if (grantWalletAddress.length > 0) {
+      setTimeout(() => {
+        finalizeGrantRequest('accept')
+      }, 5000)
+    }
+  })
+
   return isPendingGrant ? (
     <div className="col-span-full m-auto my-28 px-5 text-center md:px-0">
       <div className="max-w-xl rounded-xl border-2 border-pink-dark dark:border-teal-neon px-5 py-10 shadow-lg flex items-center flex-col">
@@ -68,59 +77,67 @@ const GrantInteractionPage = ({
           height={150}
         />
         {grantWalletAddress.length > 0 ? (
-          <div className="mt-20 text-base">
-            <div>
-              <span className="font-semibold">{grant.client}</span> is
-              requesting you to confirm ownership of the following wallet
-              address(es):&nbsp;
-              {grantWalletAddress.join(', ')}
+          <>
+            <div className="mt-20 text-base">
+              <div>
+                Confirmed {grantWalletAddress.join(', ')} ownership, redirecting
+                you to <span className="font-semibold">{client}...</span>
+              </div>
             </div>
-          </div>
+            <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
+              <Button
+                intent="outline"
+                aria-label="cancel"
+                onClick={() => {
+                  finalizeGrantRequest('reject')
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </>
         ) : (
-          <div className="mt-20 text-base">
-            {grant.access.length === 1 ? (
-              <div>
-                {client} is requesting access to make payments to an amount of{' '}
-                {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
-              </div>
-            ) : (
-              <div>
-                {client} is requesting access to make payments on the following
-                amounts:{' '}
-                {grant.access
-                  .map(
-                    (accessItem) =>
-                      accessItem.limits?.debitAmount?.formattedAmount
-                  )
-                  .join(', ')}
-                .
-              </div>
-            )}
-            <div>
-              Wallet Address client:{' '}
-              <span className="font-semibold">{grant.client}</span>
+          <>
+            <div className="mt-20 text-base">
+              {grant.access.length === 1 ? (
+                <div>
+                  {client} is requesting access to{' '}
+                  {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
+                </div>
+              ) : (
+                <div>
+                  {client} is requesting access to the following amounts:{' '}
+                  {grant.access
+                    .map(
+                      (accessItem) =>
+                        accessItem.limits?.debitAmount?.formattedAmount
+                    )
+                    .join(', ')}
+                  .
+                </div>
+              )}
             </div>
-          </div>
+            <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
+              <Button
+                aria-label="accept"
+                onClick={() => {
+                  finalizeGrantRequest('accept')
+                }}
+              >
+                Accept
+              </Button>
+              <Button
+                intent="outline"
+                aria-label="decline"
+                onClick={() => {
+                  finalizeGrantRequest('reject')
+                }}
+              >
+                Decline
+              </Button>
+            </div>
+          </>
         )}
-        <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
-          <Button
-            aria-label="accept"
-            onClick={() => {
-              finalizeGrantRequest('accept')
-            }}
-          >
-            Accept
-          </Button>
-          <Button
-            intent="outline"
-            aria-label="decline"
-            onClick={() => {
-              finalizeGrantRequest('reject')
-            }}
-          >
-            Decline
-          </Button>
-        </div>
       </div>
     </div>
   ) : (
@@ -137,7 +154,7 @@ const GrantInteractionPage = ({
         <div className="mt-20 text-xl">
           {grant.access.length === 1 ? (
             <div>
-              {client} was previously granted access to an amount of{' '}
+              {client} was previously granted access to{' '}
               {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
             </div>
           ) : (
