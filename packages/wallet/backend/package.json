@@ -16,7 +16,7 @@
     "@wallet/shared": "workspace:*",
     "awilix": "^12.0.5",
     "axios": "^1.12.2",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "disposable-email-domains": "^1.0.62",
