@@ -36,7 +36,7 @@
     "pg": "^8.16.3",
     "randexp": "^0.5.3",
     "rate-limiter-flexible": "^5.0.5",
-    "socket.io": "^4.8.1",
+    "socket.io": "^4.8.3",
     "stripe": "17.7.0",
     "uuid": "^10.0.0",
     "winston": "^3.18.3",
