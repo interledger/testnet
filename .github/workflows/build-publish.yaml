@@ -146,7 +146,7 @@ jobs:
           tag: ${{ github.ref_name }}
           token: ${{ github.token }}
       - name: Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: main
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
