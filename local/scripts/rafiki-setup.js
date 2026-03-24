@@ -47,8 +47,7 @@ function canonicalizeAndStringify(value) {
 function buildEnv() {
   const envPath = path.join(__dirname, '.env')
   const fileEnv = loadDotEnv(envPath)
-  const get = (key, fallback) =>
-    process.env[key] ?? fileEnv[key] ?? fallback
+  const get = (key, fallback) => process.env[key] ?? fileEnv[key] ?? fallback
 
   return {
     GRAPHQL_ENDPOINT: get('GRAPHQL_ENDPOINT', 'http://localhost:3011/graphql'),
@@ -83,7 +82,11 @@ function signRequest({ query, variables, operationName }, env, timestamp) {
 
 async function graphqlRequest({ query, variables, operationName }, env) {
   const timestamp = Date.now()
-  const signature = signRequest({ query, variables, operationName }, env, timestamp)
+  const signature = signRequest(
+    { query, variables, operationName },
+    env,
+    timestamp
+  )
   const body = JSON.stringify({ query, variables, operationName })
 
   const response = await fetch(env.GRAPHQL_ENDPOINT, {
@@ -271,7 +274,10 @@ async function ensureAssets(env) {
       env
     )
   } catch (err) {
-    console.log('Asset list failed, continuing to create assets...', err.message)
+    console.log(
+      'Asset list failed, continuing to create assets...',
+      err.message
+    )
   }
 
   const existingCodes = new Set(
@@ -337,7 +343,9 @@ async function ensureLiquidity(env) {
     // Amount in minor units: 100000 * 10^scale
     const amount = BigInt(100000) * BigInt(10) ** BigInt(node.scale)
 
-    console.log(`Depositing liquidity for ${asset.code}: ${amount.toString()} (scale ${node.scale})`)
+    console.log(
+      `Depositing liquidity for ${asset.code}: ${amount.toString()} (scale ${node.scale})`
+    )
     try {
       const res = await graphqlRequest(
         {

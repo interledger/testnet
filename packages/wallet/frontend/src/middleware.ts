@@ -19,8 +19,13 @@ export async function middleware(req: NextRequest) {
   const cookieVal = req.cookies.get(cookieName)?.value
 
   // Build internal backend URL for middleware
-  const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
-  let response: { success: boolean; result?: any; message?: string } = {
+  const backendUrl =
+    process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
+  let response: {
+    success: boolean
+    result?: Record<string, unknown>
+    message?: string
+  } = {
     success: false
   }
   try {
