@@ -58,6 +58,6 @@
     "testcontainers": "^10.28.0",
     "ts-jest": "^29.4.4",
     "tsc-alias": "^1.8.16",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   }
 }
