@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { userService } from './lib/api/user'
+// Do not use the browser httpClient here; middleware runs in the container.
+// Call backend using the internal Docker hostname to validate the session.
 
 const isPublicPath = (path: string) => {
   return publicPaths.find((x) =>
@@ -15,9 +16,22 @@ export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
-  const response = await userService.me(
-    `${cookieName}=${req.cookies.get(cookieName)?.value}`
-  )
+  const cookieVal = req.cookies.get(cookieName)?.value
+
+  // Build internal backend URL for middleware
+  const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
+  let response: { success: boolean; result?: any; message?: string } = {
+    success: false
+  }
+  try {
+    const meRes = await fetch(`${backendUrl}/me`, {
+      headers: cookieVal ? { Cookie: `${cookieName}=${cookieVal}` } : {}
+    })
+    const json = await meRes.json()
+    response = json
+  } catch (e) {
+    // Ignore connectivity errors; fallback logic below handles unauthenticated state
+  }
 
   // Success TRUE - the user is logged in
   if (response.success && response.result) {
@@ -40,7 +54,8 @@ export async function middleware(req: NextRequest) {
     }
 
     if (isPublic) {
-      return NextResponse.redirect(new URL(callbackUrl ?? '/', req.url))
+      const dest = callbackUrl ?? '/'
+      return NextResponse.redirect(new URL(dest, req.url))
     }
   } else {
     // If the user is not logged in and tries to access a private resource,
