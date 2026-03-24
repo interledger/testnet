@@ -18,6 +18,7 @@ import { withSession } from '@/middleware/withSession'
 import { getRedisClient } from '@/config/redis'
 import { rateLimiterLogin, rateLimiterEmail } from '@/middleware/rateLimit'
 import type { UserService } from '@/user/service'
+import type { EmailService } from '@/email/service'
 import {
   fakeLoginData,
   mockGateHubClient,
@@ -37,6 +38,7 @@ describe('Authentication Controller', (): void => {
   let authService: AuthService
   let authController: AuthController
   let userService: UserService
+  let emailService: EmailService
   let req: MockRequest<Request>
   let res: MockResponse<Response>
 
@@ -50,6 +52,7 @@ describe('Authentication Controller', (): void => {
     authService = await bindings.resolve('authService')
     authController = await bindings.resolve('authController')
     userService = await bindings.resolve('userService')
+    emailService = await bindings.resolve('emailService')
 
     Reflect.set(
       userService,
@@ -77,6 +80,7 @@ describe('Authentication Controller', (): void => {
   describe('Sign Up', (): void => {
     it('should return status 201 if the user is created', async (): Promise<void> => {
       req.body = mockSignUpRequest().body
+      jest.spyOn(emailService, 'verifyDomain').mockResolvedValueOnce(undefined)
       await authController.signUp(req, res, next)
 
       expect(next).toHaveBeenCalledTimes(0)
@@ -107,6 +111,7 @@ describe('Authentication Controller', (): void => {
 
     it('should return status 500 on unexpected error', async (): Promise<void> => {
       req.body = mockSignUpRequest().body
+      jest.spyOn(emailService, 'verifyDomain').mockResolvedValueOnce(undefined)
 
       const createSpy = jest
         .spyOn(userService, 'create')
