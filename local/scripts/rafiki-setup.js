@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * Configure Rafiki (local docker stack) with a tenant + assets.
- * - Reads values from docker/local/.env when present (process.env takes priority)
+ * - Reads values from .env in this directory (local/scripts/.env) when present (process.env takes priority)
  * - Creates the operator tenant (idpConsentUrl + idpSecret)
  * - Ensures assets exist for the Testnet wallet
  *
- * Run after `docker compose up -d` from docker/local:
- *   node rafiki-setup.js
+ * Run after `docker compose up -d` from local/:
+ *   node scripts/rafiki-setup.js
  */
 
 const fs = require('fs')
@@ -280,13 +280,13 @@ async function ensureAssets(env) {
     )
   }
 
-  const existingCodes = new Set(
-    (current?.assets?.edges ?? []).map((e) => e.node.code)
+  const existingAssets = new Set(
+    (current?.assets?.edges ?? []).map((e) => `${e.node.code}:${e.node.scale}`)
   )
 
   for (const asset of assetsToEnsure) {
-    if (existingCodes.has(asset.code)) {
-      console.log(`Asset ${asset.code} already exists`)
+    if (existingAssets.has(`${asset.code}:${asset.scale}`)) {
+      console.log(`Asset ${asset.code} (scale ${asset.scale}) already exists`)
       continue
     }
     console.log(`Creating asset ${asset.code}...`)
