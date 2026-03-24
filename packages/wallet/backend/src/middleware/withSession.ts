@@ -6,10 +6,15 @@ import {
   getIronSession
 } from 'iron-session'
 
-let domain = env.RAFIKI_MONEY_FRONTEND_HOST
-
+// Determine cookie domain. Avoid setting Domain=localhost, browsers ignore it.
+let domain: string | undefined = undefined
 if (env.NODE_ENV === 'production' && env.GATEHUB_ENV === 'production') {
   domain = 'interledger.cards'
+} else if (
+  env.RAFIKI_MONEY_FRONTEND_HOST &&
+  env.RAFIKI_MONEY_FRONTEND_HOST !== 'localhost'
+) {
+  domain = env.RAFIKI_MONEY_FRONTEND_HOST
 }
 
 export const SESSION_OPTIONS: SessionOptions = {

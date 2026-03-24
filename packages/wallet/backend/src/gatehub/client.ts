@@ -97,18 +97,32 @@ export class GateHubClient {
   }
 
   get apiUrl() {
+    // If GATEHUB_API_BASE_URL is set (e.g., for local development with mockgatehub),
+    // use it instead of constructing the URL from mainUrl
+    if (this.env.GATEHUB_API_BASE_URL) {
+      return this.env.GATEHUB_API_BASE_URL
+    }
     return `https://api.${this.mainUrl}`
   }
 
   get rampUrl() {
+    if (this.env.GATEHUB_API_BASE_URL) {
+      return this.apiUrl
+    }
     return `https://managed-ramp.${this.mainUrl}`
   }
 
   get exchangeUrl() {
+    if (this.env.GATEHUB_API_BASE_URL) {
+      return this.apiUrl
+    }
     return `https://exchange.${this.mainUrl}`
   }
 
   get onboardingUrl() {
+    if (this.env.GATEHUB_API_BASE_URL) {
+      return this.apiUrl
+    }
     return `https://onboarding.${this.mainUrl}`
   }
 
