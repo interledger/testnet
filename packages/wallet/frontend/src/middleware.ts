@@ -28,14 +28,16 @@ export async function middleware(req: NextRequest) {
   } = {
     success: false
   }
-  try {
-    const meRes = await fetch(`${backendUrl}/me`, {
-      headers: cookieVal ? { Cookie: `${cookieName}=${cookieVal}` } : {}
-    })
-    const json = await meRes.json()
-    response = json
-  } catch (e) {
-    // Ignore connectivity errors; fallback logic below handles unauthenticated state
+  if (cookieVal) {
+    try {
+      const meRes = await fetch(`${backendUrl}/me`, {
+        headers: { Cookie: `${cookieName}=${cookieVal}` }
+      })
+      const json = await meRes.json()
+      response = json
+    } catch (e) {
+      // Ignore connectivity errors; fallback logic below handles unauthenticated state
+    }
   }
 
   // Success TRUE - the user is logged in
@@ -59,7 +61,12 @@ export async function middleware(req: NextRequest) {
     }
 
     if (isPublic) {
-      const dest = callbackUrl ?? '/'
+      const dest =
+        callbackUrl &&
+        callbackUrl.startsWith('/') &&
+        !callbackUrl.startsWith('//')
+          ? callbackUrl
+          : '/'
       return NextResponse.redirect(new URL(dest, req.url))
     }
   } else {

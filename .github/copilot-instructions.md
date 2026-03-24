@@ -47,9 +47,8 @@ PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm checks
 
 Validated behavior: may fail on existing repo formatting drift (Prettier). In this workspace it failed on:
 
-- `.github/copilot-instructions.md`
-- `docker/local/docker-compose.yml`
-- `docker/local/rafiki-setup.js`
+- `local/docker-compose.yml`
+- `local/scripts/rafiki-setup.js`
 - `packages/wallet/frontend/next.config.js`
 - `packages/wallet/frontend/src/middleware.ts`
 
@@ -109,10 +108,10 @@ No command timeouts were observed in this validation pass. Failing commands exit
 Required precondition before first `pnpm dev`:
 
 ```bash
-cp docker/dev/.env.example docker/dev/.env
+cp local/.env.example local/.env
 ```
 
-GateHub-related variables in `docker/dev/.env` are required for full KYC/funding flows.
+GateHub-related variables in `local/.env` are required for full KYC/funding flows.
 
 Main run modes:
 
@@ -137,7 +136,7 @@ High-signal root files:
 - `pnpm-workspace.yaml`: workspace package patterns.
 - `tsconfig.json`: top-level project references.
 - `eslint.config.mjs`, `.prettierrc.js`: repo-wide code quality rules.
-- `docker/dev/docker-compose.yml`: full local dependency graph (Postgres, Redis, Rafiki, Kratos, app backends).
+- `local/docker-compose.yml`: full local dependency graph (Postgres, Redis, Rafiki, Kratos, app backends).
 
 Key source areas:
 

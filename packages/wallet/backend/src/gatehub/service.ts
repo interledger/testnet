@@ -346,7 +346,19 @@ export class GateHubService {
         `EUR account already exists for user ${userId}, skipping sandbox customer creation`
       )
       const user = await User.query().findById(userId)
-      return user!.customerId || ''
+      if (!user) {
+        this.logger.error(
+          `User ${userId} not found while EUR account exists, cannot retrieve customerId`
+        )
+        throw new NotFound('User not found')
+      }
+      if (!user.customerId) {
+        this.logger.error(
+          `Missing customerId for user ${userId} with existing EUR account`
+        )
+        throw new Error('CustomerId is missing for existing EUR account')
+      }
+      return user.customerId
     }
 
     const { account, walletAddress } =
