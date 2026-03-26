@@ -22,8 +22,7 @@
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint:check": "eslint --max-warnings=0 .",
     "lint:fix": "eslint --max-warnings=0 --fix .",
-    "compose": "docker compose -f ./docker/dev/docker-compose.yml",
-    "compose:prod": "docker compose -f ./docker/prod/docker-compose.yml",
+    "compose": "docker compose -f ./local/docker-compose.yml",
     "localenv:start": "cross-env DEV_MODE=hot-reload pnpm compose up -d --build",
     "localenv:start:debug": "cross-env DEV_MODE=debug pnpm compose up -d --build",
     "localenv:start:lite": "cross-env DEV_MODE=lite pnpm compose up -d --build",
@@ -31,8 +30,6 @@
     "preinstall": "npx only-allow pnpm",
     "prettier:write": "prettier --config \".prettierrc.js\" --write .",
     "prettier:check": "prettier --config \".prettierrc.js\" --check .",
-    "prod": "pnpm compose:prod up -d --build",
-    "prod:down": "pnpm compose:prod down",
     "wallet:backend": "pnpm --filter @wallet/backend --",
     "wallet:frontend": "pnpm --filter @wallet/frontend --"
   },
