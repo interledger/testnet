@@ -16,22 +16,33 @@ const crypto = require('crypto')
 // ---- helpers ---------------------------------------------------------------
 function loadDotEnv(envPath) {
   const result = {}
-  if (!fs.existsSync(envPath)) return result
+  if (!fs.existsSync(envPath)) {
+    return result
+  }
   const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/)
   for (const line of lines) {
-    if (!line || line.trim().startsWith('#')) continue
+    if (!line || line.trim().startsWith('#')) {
+      continue
+    }
     const idx = line.indexOf('=')
-    if (idx === -1) continue
+    if (idx === -1) {
+      continue
+    }
     const key = line.slice(0, idx).trim()
     const value = line.slice(idx + 1).trim()
     result[key] = value
   }
+
   return result
 }
 
 function canonicalize(value) {
-  if (value === null || typeof value !== 'object') return value
-  if (Array.isArray(value)) return value.map(canonicalize)
+  if (value === null || typeof value !== 'object') {
+    return value
+  }
+  if (Array.isArray(value)) {
+    return value.map(canonicalize)
+  }
   const sortedKeys = Object.keys(value).sort()
   const obj = {}
   for (const key of sortedKeys) {

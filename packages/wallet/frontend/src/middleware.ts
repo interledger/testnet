@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-// Do not use the browser httpClient here; middleware runs in the container.
-// Call backend using the internal Docker hostname to validate the session.
+import { userService } from '@/lib/api/user'
+import type { SuccessResponse, ErrorResponse } from '@/lib/httpClient'
+import type { UserResponse } from '@wallet/shared'
 
 const isPublicPath = (path: string) => {
   return publicPaths.find((x) =>
@@ -18,24 +19,14 @@ export async function middleware(req: NextRequest) {
 
   const cookieVal = req.cookies.get(cookieName)?.value
 
-  // Build internal backend URL for middleware
-  const backendUrl =
-    process.env.BACKEND_INTERNAL_URL || 'http://wallet-backend:3003'
-  let response: {
-    success: boolean
-    result?: Record<string, unknown>
-    message?: string
-  } = {
-    success: false
+  let response: SuccessResponse<UserResponse> | ErrorResponse = {
+    success: false,
+    message: ''
   }
   if (cookieVal) {
     try {
-      const meRes = await fetch(`${backendUrl}/me`, {
-        headers: { Cookie: `${cookieName}=${cookieVal}` }
-      })
-      const json = await meRes.json()
-      response = json
-    } catch (e) {
+      response = await userService.me(`${cookieName}=${cookieVal}`)
+    } catch {
       // Ignore connectivity errors; fallback logic below handles unauthenticated state
     }
   }
