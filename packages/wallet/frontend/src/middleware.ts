@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { userService } from './lib/api/user'
+import { userService } from '@/lib/api/user'
+import type { SuccessResponse, ErrorResponse } from '@/lib/httpClient'
+import type { UserResponse } from '@wallet/shared'
 
 const isPublicPath = (path: string) => {
   return publicPaths.find((x) =>
@@ -15,9 +17,19 @@ export async function middleware(req: NextRequest) {
   const isPublic = isPublicPath(req.nextUrl.pathname)
   const cookieName = process.env.COOKIE_NAME || 'testnet.cookie'
 
-  const response = await userService.me(
-    `${cookieName}=${req.cookies.get(cookieName)?.value}`
-  )
+  const cookieVal = req.cookies.get(cookieName)?.value
+
+  let response: SuccessResponse<UserResponse> | ErrorResponse = {
+    success: false,
+    message: ''
+  }
+  if (cookieVal) {
+    try {
+      response = await userService.me(`${cookieName}=${cookieVal}`)
+    } catch {
+      // Ignore connectivity errors; fallback logic below handles unauthenticated state
+    }
+  }
 
   // Success TRUE - the user is logged in
   if (response.success && response.result) {
@@ -40,7 +52,13 @@ export async function middleware(req: NextRequest) {
     }
 
     if (isPublic) {
-      return NextResponse.redirect(new URL(callbackUrl ?? '/', req.url))
+      const dest =
+        callbackUrl &&
+        callbackUrl.startsWith('/') &&
+        !callbackUrl.startsWith('//')
+          ? callbackUrl
+          : '/'
+      return NextResponse.redirect(new URL(dest, req.url))
     }
   } else {
     // If the user is not logged in and tries to access a private resource,
