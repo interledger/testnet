@@ -120,8 +120,8 @@ export class GateHubClient {
   }
 
   get onboardingUrl() {
-    if (this.env.GATEHUB_API_BASE_URL) {
-      return this.apiUrl
+    if (this.env.GATEHUB_IFRAME_BASE_URL) {
+      return this.env.GATEHUB_IFRAME_BASE_URL
     }
     return `https://onboarding.${this.mainUrl}`
   }

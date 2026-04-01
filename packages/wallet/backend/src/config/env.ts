@@ -14,6 +14,7 @@ const envSchema = z.object({
   COOKIE_TTL: z.coerce.number().default(2630000), // 1 month
   GATEHUB_ENV: z.enum(['production', 'sandbox']).default('sandbox'),
   GATEHUB_API_BASE_URL: z.string().optional(),
+  GATEHUB_IFRAME_BASE_URL: z.string().optional(),
   GATEHUB_ACCESS_KEY: z.string().default('GATEHUB_ACCESS_KEY'),
   GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
   GATEHUB_SEPA_ACCESS_KEY: z.string().optional(),
