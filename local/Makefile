@@ -7,28 +7,39 @@ help:
 	@echo "help                    Show this help message"
 	@echo "all                     Start full local stack (with Traefik)"
 	@echo "all-nowatch             Start full local stack in background"
+	@echo "build                   Build docker images for local stack"
+	@echo "rebuild                 Force rebuild docker images (no cache)"
 	@echo "down                    Stop the local stack"
 	@echo "hosts                   Add testnet host aliases to /etc/hosts (requires sudo)"
-	@echo "certs                   Generate self-signed TLS certificate for local domains"
-	@echo "trust                   Trust local TLS certificate (auto-detect OS)"
+	@echo "certs                   Generate TLS cert if missing (set FORCE_CERTS=1 to regenerate)"
+	@echo "trust                   Trust local TLS certificate (auto-detect OS, reloads Traefik)"
 	@echo "trust-macos             Trust certificate on macOS"
-	@echo "trust-linux             Trust certificate on Debian-based Linux"
+	@echo "trust-linux             Trust certificate on Debian-based Linux (reloads Traefik)"
 	@echo ""
 
-.PHONY: help all all-nowatch down hosts certs trust trust-macos trust-linux
+.PHONY: help all all-nowatch build rebuild down hosts certs trust trust-macos trust-linux
 
 all: certs
-	$(COMPOSE) up
-
-all-nowatch: certs
 	$(COMPOSE) up -d
+	@echo ""
+	@echo "Open these URLs in your browser and accept the self-signed certificate:"
+	@echo "  - https://mockgatehub.testnet.test"
+	@echo "  - https://testnet.test"
+
+build:
+	$(COMPOSE) build
+
+rebuild:
+	$(COMPOSE) build --no-cache
 
 down:
 	$(COMPOSE) down
 
 certs:
 	mkdir -p config/certs
-	@if [ "$(HEADLESS)" = "1" ]; then \
+	@if [ -f config/certs/local.crt ] && [ -f config/certs/local.key ] && [ "$(FORCE_CERTS)" != "1" ]; then \
+		echo "TLS cert already exists. Reusing it (set FORCE_CERTS=1 to regenerate)."; \
+	elif [ "$(HEADLESS)" = "1" ]; then \
 		openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
 			-keyout config/certs/local.key -out config/certs/local.crt \
 			-subj "/CN=testnet.test/O=Interledger/C=US" \
@@ -48,6 +59,12 @@ trust: certs
 
 trust-macos: certs
 	sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain config/certs/local.crt
+	@if $(COMPOSE) ps --status running --services traefik 2>/dev/null | grep -q '^traefik$$'; then \
+		echo "Reloading Traefik to pick up trusted cert..."; \
+		$(COMPOSE) restart traefik; \
+	else \
+		echo "Traefik is not running; skipping reload."; \
+	fi
 
 trust-linux: certs
 	sudo cp config/certs/local.crt /usr/local/share/ca-certificates/interledger-testnet-local.crt
@@ -56,6 +73,12 @@ trust-linux: certs
 	mkdir -p $(HOME)/.pki/nssdb
 	certutil -d sql:$(HOME)/.pki/nssdb -N --empty-password
 	certutil -d sql:$(HOME)/.pki/nssdb -A -t "C,," -n "testnet.test" -i config/certs/local.crt
+	@if $(COMPOSE) ps --status running --services traefik 2>/dev/null | grep -q '^traefik$$'; then \
+		echo "Reloading Traefik to pick up trusted cert..."; \
+		$(COMPOSE) restart traefik; \
+	else \
+		echo "Traefik is not running; skipping reload."; \
+	fi
 
 HOSTS := testnet.test \
 	api.testnet.test \

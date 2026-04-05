@@ -13,7 +13,22 @@ const envSchema = z.object({
     .default('testnet.cookie.password.super.secret.ilp'), // min. 32 chars
   COOKIE_TTL: z.coerce.number().default(2630000), // 1 month
   GATEHUB_ENV: z.enum(['production', 'sandbox']).default('sandbox'),
-  GATEHUB_API_BASE_URL: z.string().optional(),
+  // Required GateHub API base URL (fail fast if missing).
+  // Real GateHub examples:
+  // - Sandbox: https://api.sandbox.gatehub.net
+  // - Production: https://api.gatehub.net
+  GATEHUB_API_BASE_URL: z.string().url(),
+  // Required iframe URLs (fail fast if missing).
+  // Real GateHub examples:
+  // - Sandbox: https://managed-ramp.sandbox.gatehub.net
+  //            https://exchange.sandbox.gatehub.net
+  //            https://onboarding.sandbox.gatehub.net
+  // - Production: https://managed-ramp.gatehub.net
+  //               https://exchange.gatehub.net
+  //               https://onboarding.gatehub.net
+  GATEHUB_IFRAME_MANAGED_RAMP_URL: z.string().url(),
+  GATEHUB_IFRAME_EXCHANGE_URL: z.string().url(),
+  GATEHUB_IFRAME_ONBOARDING_URL: z.string().url(),
   GATEHUB_ACCESS_KEY: z.string().default('GATEHUB_ACCESS_KEY'),
   GATEHUB_SECRET_KEY: z.string().default('GATEHUB_SECRET_KEY'),
   GATEHUB_SEPA_ACCESS_KEY: z.string().optional(),

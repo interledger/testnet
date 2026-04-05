@@ -35,7 +35,9 @@ services:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       GATEHUB_API_BASE_URL: ${GATEHUB_API_BASE_URL:-http://mockgatehub:8080}
       GATEHUB_ENV: ${GATEHUB_ENV:-sandbox}
-      GATEHUB_IFRAME_BASE_URL: ${GATEHUB_IFRAME_BASE_URL:-https://mockgatehub.testnet.test}
+      GATEHUB_IFRAME_MANAGED_RAMP_URL: ${GATEHUB_IFRAME_MANAGED_RAMP_URL:-https://mockgatehub.testnet.test}
+      GATEHUB_IFRAME_EXCHANGE_URL: ${GATEHUB_IFRAME_EXCHANGE_URL:-https://mockgatehub.testnet.test}
+      GATEHUB_IFRAME_ONBOARDING_URL: ${GATEHUB_IFRAME_ONBOARDING_URL:-https://mockgatehub.testnet.test}
       GATEHUB_ACCESS_KEY: ${GATEHUB_ACCESS_KEY:-local-test-app-id}
       GATEHUB_SECRET_KEY: ${GATEHUB_SECRET_KEY:-local-test-app-secret}
       GATEHUB_WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
