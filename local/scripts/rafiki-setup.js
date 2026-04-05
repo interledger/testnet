@@ -203,14 +203,14 @@ const depositAssetLiquidityMutation = /* GraphQL */ `
 const assetsToEnsure = [
   { code: 'USD', scale: 2 },
   { code: 'EUR', scale: 2 },
-  { code: 'GBP', scale: 2 },
-  { code: 'ZAR', scale: 2 },
-  { code: 'MXN', scale: 2 },
-  { code: 'SGD', scale: 2 },
-  { code: 'CAD', scale: 2 },
-  { code: 'EGG', scale: 2 },
-  { code: 'PEB', scale: 2 },
-  { code: 'PKR', scale: 2 }
+  // { code: 'GBP', scale: 2 },
+  // { code: 'ZAR', scale: 2 },
+  // { code: 'MXN', scale: 2 },
+  // { code: 'SGD', scale: 2 },
+  // { code: 'CAD', scale: 2 },
+  // { code: 'EGG', scale: 2 },
+  // { code: 'PEB', scale: 2 },
+  // { code: 'PKR', scale: 2 }
 ]
 
 async function ensureTenant(env) {
