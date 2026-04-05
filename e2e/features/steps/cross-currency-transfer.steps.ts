@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test'
-import { setupVerifiedUser } from '../../helpers/local-wallet'
+import { completeLocalMockKyc, setupVerifiedUser } from '../../helpers/local-wallet'
 import { Given, Then, When } from './fixtures'
 
 Given('I am a verified and logged-in wallet user', async ({ page, flow }) => {
@@ -15,6 +15,39 @@ Given('I am a verified and logged-in wallet user', async ({ page, flow }) => {
 
   // Store credentials in flow for later use if needed
   flow.credentials = credentials
+
+  // Validate authenticated access to protected routes; recover by logging in again if needed.
+  await page.goto('/send')
+
+  if (page.url().includes('/auth/login')) {
+    const loginForm = page.locator('form')
+
+    await loginForm
+      .getByLabel('E-mail *', { exact: true })
+      .fill(credentials.email)
+    await loginForm
+      .getByLabel('Password *', { exact: true })
+      .fill(credentials.password)
+
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().endsWith('/login') &&
+          response.request().method() === 'POST' &&
+          response.status() === 200
+      ),
+      loginForm.locator('button[type="submit"]').click()
+    ])
+
+    if (page.url().endsWith('/kyc')) {
+      await completeLocalMockKyc(page, flow.takeScreenshot)
+      await page.goto('/send')
+    } else {
+      await page.waitForURL(/\/send$/, { timeout: 60_000 })
+    }
+  }
+
+  await expect(page).toHaveURL(/\/send$/)
   await flow.takeScreenshot('verified-user-ready')
 })
 

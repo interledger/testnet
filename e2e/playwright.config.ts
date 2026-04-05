@@ -5,6 +5,11 @@ import path from 'path'
 
 dotenv.config({ path: path.resolve(__dirname, '.env') })
 
+const testBaseURL = process.env.TEST_BASE_URL || 'https://testnet.test'
+const ignoreHTTPSErrors =
+  process.env.PLAYWRIGHT_IGNORE_HTTPS_ERRORS === 'true' ||
+  testBaseURL.startsWith('https://')
+
 const testDir = defineBddConfig({
   paths: ['features/**/*.feature'],
   require: ['features/steps/**/*.ts']
@@ -22,7 +27,8 @@ export default defineConfig({
     timeout: 15 * 1000
   },
   use: {
-    baseURL: process.env.TEST_BASE_URL || 'http://localhost:4003',
+    baseURL: testBaseURL,
+    ignoreHTTPSErrors,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure'
   },

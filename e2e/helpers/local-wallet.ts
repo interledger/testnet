@@ -203,7 +203,7 @@ export async function setupVerifiedUser(args: {
   ])
   await ss('012-login-submitted')
 
-  await page.waitForURL(/(\/)?( kyc)?$/, { timeout: 60_000 })
+  await page.waitForURL(/\/(kyc)?$/, { timeout: 60_000 })
   await ss('013-post-login')
 
   // KYC if needed
