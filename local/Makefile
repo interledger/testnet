@@ -41,6 +41,10 @@ rafiki-assets:
 down:
 	$(COMPOSE) down
 
+reset: down
+    # Remove volumes
+	@$(COMPOSE) down -v
+
 certs:
 	mkdir -p config/certs
 	@if [ -f config/certs/local.crt ] && [ -f config/certs/local.key ] && [ "$(FORCE_CERTS)" != "1" ]; then \
