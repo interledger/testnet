@@ -9,6 +9,7 @@ help:
 	@echo "all-nowatch             Start full local stack in background"
 	@echo "build                   Build docker images for local stack"
 	@echo "rebuild                 Force rebuild docker images (no cache)"
+	@echo "rafiki-assets           Run Rafiki asset setup script"
 	@echo "down                    Stop the local stack"
 	@echo "hosts                   Add testnet host aliases to /etc/hosts (requires sudo)"
 	@echo "certs                   Generate TLS cert if missing (set FORCE_CERTS=1 to regenerate)"
@@ -17,13 +18,15 @@ help:
 	@echo "trust-linux             Trust certificate on Debian-based Linux (reloads Traefik)"
 	@echo ""
 
-.PHONY: help all all-nowatch build rebuild down hosts certs trust trust-macos trust-linux
+.PHONY: help all all-nowatch build rebuild rafiki-assets down hosts certs trust trust-macos trust-linux
 
 all: certs
 	$(COMPOSE) up -d
 	@echo ""
-	@echo "Open these URLs in your browser and accept the self-signed certificate:"
-	@echo "  - https://mockgatehub.testnet.test"
+	@echo "Please open these ALL of these URLs in your browser and accept the self-signed certificates:"
+	@echo "  - https://mockgatehub.testnet.test/health"
+	@echo "  - https://api.testnet.test/health"
+	@echo "  - https://rafiki-frontend.testnet.test"
 	@echo "  - https://testnet.test"
 
 build:
@@ -31,6 +34,9 @@ build:
 
 rebuild:
 	$(COMPOSE) build --no-cache
+
+rafiki-assets:
+	node ./scripts/rafiki-setup.js
 
 down:
 	$(COMPOSE) down
