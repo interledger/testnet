@@ -11,6 +11,14 @@ type FlowState = {
   containerName: string
   screenshotCounter: number
   verificationLink?: string
+  accountPath?: string
+  initialBalance?: number
+  postDepositBalance?: number
+  depositAmount?: number
+  initialTransactionRows?: number
+  postDepositTransactionRows?: number
+  delayedRefreshTransactionRows?: number
+  latestTransactionAmount?: number
   featureName: string
   takeScreenshot: (name: string) => Promise<void>
 }
