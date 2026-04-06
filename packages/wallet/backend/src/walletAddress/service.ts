@@ -239,13 +239,14 @@ export class WalletAddressService implements IWalletAddressService {
       const updatedWalletAddress = await walletAddress
         .$query(trx)
         .findById(walletAddressId)
-      updatedWalletAddress &&
-        (await this.cache.set(walletAddressId, updatedWalletAddress, {
+      if (updatedWalletAddress) {
+        await this.cache.set(walletAddressId, updatedWalletAddress, {
           expiry: 60
-        }))
+        })
+      }
 
       await trx.commit()
-    } catch (e) {
+    } catch {
       await trx.rollback()
     }
   }

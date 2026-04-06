@@ -316,7 +316,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
                   type="quote"
                   onAccept={() => {
                     handleAcceptQuote(quoteId)
-                    closeDialog
+                    closeDialog()
                   }}
                   onClose={closeDialog}
                 />

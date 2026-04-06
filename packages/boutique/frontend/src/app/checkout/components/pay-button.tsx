@@ -2,8 +2,7 @@ import { PayWithInterledgerMark } from '@/components/icons.tsx'
 import { Button, ButtonProps } from '@/components/ui/button.tsx'
 import { cn } from '@/lib/utils.ts'
 
-export interface PayButtonProps
-  extends Omit<ButtonProps, 'variant' | 'size' | 'aria-label'> {}
+export type PayButtonProps = Omit<ButtonProps, 'variant' | 'size' | 'aria-label'>
 
 export const PayButton = ({ className, ...props }: PayButtonProps) => {
   return (

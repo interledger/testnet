@@ -78,7 +78,7 @@ async function backfillTrxDetails() {
 
         page++
       }
-    } catch (e) {
+    } catch {
       console.log('Failed to update trx for account: ', account.user.email)
     }
   }
