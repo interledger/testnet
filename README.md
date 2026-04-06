@@ -152,14 +152,13 @@ and:
 pnpm dev:lite #backend containers will build and run the builds, no debug and no hot reload for these containers
 ```
 
-Upon executing the above command, the following will be available
+Upon executing the above command, the following will be available:
 
-- Interledger Test Wallet application
-  - Frontend at [http://localhost:4003](http://localhost:4003)
-  - Backend at [http://localhost:3003](http://localhost:3003)
-  - Admin at [http://localhost:3012](http://localhost:3012)
-
-- Interledger Boutique e-commerce application
-  - Backend at [http://localhost:3004](http://localhost:3004)
-  - [http://localhost:4004](http://localhost:4004)
-  - [https://boutique.testnet.test](https://boutique.testnet.test) (via Traefik when boutique frontend dev server is running on port 4004)
+- [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
+- [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
+- [https://api.boutique.testnet.test](https://api.boutique.testnet.test) - Boutique backend API serving product and checkout functionality.
+- [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
+- [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
+- [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
+- [https://testnet.test](https://testnet.test) - Test Wallet frontend.
+- [https://boutique.testnet.test](https://boutique.testnet.test) - Boutique frontend.
