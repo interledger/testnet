@@ -80,10 +80,10 @@ In order for the Test Wallet and Test e-commerce playground to function, it is n
 Navigate to the project's root directory and enter the following command:
 
 ```sh
-cp ./docker/dev/.env.example ./docker/dev/.env
+cp ./local/.env.example ./local/.env
 ```
 
-Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
+Using your preferred text editor, open the `./local/.env` file and configure the necessary environment variables.
 The `GATEHUB` related environment variables are necessary in order to complete Sandbox KYC, and add play money to your account. In order to have the correct variables, create a `GateHub` Sandbox account. Optionally you could send an email to `timea@interledger.foundation` and request these variables.
 
 To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
@@ -96,6 +96,43 @@ Currencies can be added in the `admin` environment. For example `assetCode` is `
 If you would like to set up e-commerce application, you will need to create a USD Wallet Address (payment pointer), then generate public and private key for the wallet address in the `Developer Keys` found in the `Settings` menu of Interledger Test Wallet. You also need to update the following environment variables: `PRIVATE_KEY` to the generated base64 encoded private key, `KEY_ID` to the wallet address key id and `PAYMENT_POINTER` to the created wallet address (payment pointer) address.
 
 ### Local Playground
+
+For a quick command list:
+
+```sh
+pnpm local:help
+```
+
+Recommended first-run startup order:
+
+```sh
+pnpm local:build         # build the local Docker images first
+pnpm local:hosts         # add the local testnet hostnames to /etc/hosts
+pnpm local:trust         # trust the generated local TLS certificate
+pnpm local:all           # start the full local stack with Traefik enabled
+pnpm local:rafiki-assets # set up the Rafiki assets after the stack is up
+```
+
+Notes:
+- `pnpm local:hosts` and `pnpm local:trust` require `sudo` on most systems.
+- If certs already exist, `pnpm local:trust` reuses them.
+
+Common local infrastructure commands:
+
+```sh
+pnpm local:all           # start full local stack (with Traefik) and print cert acceptance URLs
+pnpm local:build         # build docker images for local stack
+pnpm local:rebuild       # force rebuild docker images (no cache)
+pnpm local:down          # stop the local stack
+pnpm local:reset         # stop stack and remove docker volumes
+pnpm local:logs          # follow docker logs
+pnpm local:certs         # create TLS certs if missing (use FORCE_CERTS=1 to regenerate)
+pnpm local:hosts         # add host aliases to /etc/hosts (requires sudo)
+pnpm local:trust         # trust local TLS cert (auto-detect OS)
+pnpm local:trust:linux   # trust local TLS cert on Linux
+pnpm local:trust:macos   # trust local TLS cert on macOS
+pnpm local:rafiki-assets # run Rafiki asset setup script
+```
 
 Navigate to the project's root directory and execute:
 
