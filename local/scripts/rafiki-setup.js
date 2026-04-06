@@ -74,7 +74,7 @@ function buildEnv() {
     ),
     IDP_CONSENT_URL: get(
       'IDP_CONSENT_URL',
-      'http://wallet-frontend:4003/grant-interactions'
+      'https://testnet.test/grant-interactions'
     )
   }
 }
@@ -223,7 +223,11 @@ async function ensureTenant(env) {
       console.log(
         `Tenant already present: ${existing.tenant.id} (consent URL ${existing.tenant.idpConsentUrl})`
       )
-      if (!existing.tenant.idpConsentUrl || !existing.tenant.idpSecret) {
+      if (
+        !existing.tenant.idpConsentUrl ||
+        !existing.tenant.idpSecret ||
+        existing.tenant.idpConsentUrl !== env.IDP_CONSENT_URL
+      ) {
         console.log('Updating tenant idp fields...')
         await graphqlRequest(
           {

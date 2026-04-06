@@ -1,0 +1,50 @@
+services:
+  # Boutique
+  boutique-backend:
+    container_name: boutique-backend-local
+    build:
+      context: ../
+      args:
+        DEV_MODE: ${DEV_MODE:-true}
+      dockerfile: ./packages/boutique/backend/Dockerfile.dev
+    depends_on:
+      - postgres
+      - rafiki-backend
+      - redis
+    volumes:
+      - ../packages/boutique/backend:/home/testnet/packages/boutique/backend
+      - ../packages/boutique/shared:/home/testnet/packages/boutique/shared
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      NODE_TLS_REJECT_UNAUTHORIZED: ${BOUTIQUE_NODE_TLS_REJECT_UNAUTHORIZED:-0}
+      PORT: ${BOUTIQUE_BACKEND_PORT:-3004}
+      DEBUG_PORT: ${BOUTIQUE_BACKEND_DEBUG_PORT:-9230}
+      FRONTEND_URL: ${BOUTIQUE_BACKEND_FRONTEND_URL:-https://boutique.testnet.test}
+      DATABASE_URL: ${BOUTIQUE_BACKEND_DATABASE_URL:-postgres://boutique_backend:boutique_backend@postgres-local/boutique_backend}
+      PAYMENT_POINTER: ${BOUTIQUE_PAYMENT_POINTER:-replace-me}
+      KEY_ID: ${BOUTIQUE_KEY_ID:-replace-me}
+      PRIVATE_KEY: ${BOUTIQUE_PRIVATE_KEY:-replace-me}
+      REDIS_URL: ${BOUTIQUE_REDIS_URL:-redis://redis:6379/4}
+    extra_hosts:
+      - testnet.test:host-gateway
+      - api.testnet.test:host-gateway
+      - auth.testnet.test:host-gateway
+      - rafiki-backend.testnet.test:host-gateway
+      - rafiki-frontend.testnet.test:host-gateway
+      - rafiki-card-service.testnet.test:host-gateway
+      - mockgatehub.testnet.test:host-gateway
+      - boutique.testnet.test:host-gateway
+      - api.boutique.testnet.test:host-gateway
+    restart: always
+    networks:
+      - testnet
+    ports:
+      - '3004:3004'
+      - '9230:9230'
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.boutique-backend.rule=Host(`api.boutique.testnet.test`)
+      - traefik.http.routers.boutique-backend.entrypoints=websecure
+      - traefik.http.routers.boutique-backend.tls=true
+      - traefik.http.services.boutique-backend.loadbalancer.server.port=3004
