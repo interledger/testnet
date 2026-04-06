@@ -287,9 +287,11 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
               {
                 header: 'Date',
                 sortFn: () => {
-                  pagination.orderByDate === 'DESC'
-                    ? redirect({ orderByDate: 'ASC' })
-                    : redirect({ orderByDate: 'DESC' })
+                  if (pagination.orderByDate === 'DESC') {
+                    redirect({ orderByDate: 'ASC' })
+                  } else {
+                    redirect({ orderByDate: 'DESC' })
+                  }
                 },
                 getDirection: () => {
                   return pagination.orderByDate === 'DESC' ? 'down' : 'up'

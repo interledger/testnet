@@ -13,8 +13,8 @@ export function deleteProperty<T, K extends keyof T>(
   return newObj
 }
 
-interface SuccessResponse extends Omit<TypedResponseBody, 'errors'> {}
-interface ErrorResponse extends Omit<TypedResponseBody, 'data'> {}
+type SuccessResponse = Omit<TypedResponseBody, 'errors'>
+type ErrorResponse = Omit<TypedResponseBody, 'data'>
 
 export function toSuccessResponse<T>(
   result?: T,

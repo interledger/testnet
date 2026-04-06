@@ -26,7 +26,7 @@ function createSignedClient(endpoint: string, env: Env) {
         try {
           const body: GraphQLRequestBody = JSON.parse(request.body)
           query = body.query || ''
-        } catch (e) {
+        } catch {
           // Body is not valid JSON - this shouldn't happen with GraphQL requests
           // but we'll handle it gracefully
           query = ''
@@ -55,7 +55,7 @@ function createSignedClient(endpoint: string, env: Env) {
           'tenant-id': env.OPERATOR_TENANT_ID
         }
       }
-    } catch (e) {
+    } catch {
       return request
     }
   }
