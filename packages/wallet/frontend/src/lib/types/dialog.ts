@@ -6,16 +6,11 @@ export type DialogProps = {
   onClose: () => void
 }
 
-const DIALOG_ACTIONS = {
-  OPEN: 'OPEN',
-  CLOSE: 'CLOSE'
-} as const
-
 export type DialogState = {
   isOpen: boolean
   dialog: JSX.Element | null
 }
-export type DialogActions = keyof typeof DIALOG_ACTIONS
+export type DialogActions = 'OPEN' | 'CLOSE'
 export type OpenDialogAction = {
   type: DialogActions
   data: {

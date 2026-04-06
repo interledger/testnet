@@ -192,7 +192,7 @@ export class OpenPayments implements IOpenPayments {
           )
           throw new InternalServerError()
         })
-    } catch (err) {
+    } catch {
       throw new InternalServerError()
     }
   }
