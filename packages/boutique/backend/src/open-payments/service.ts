@@ -423,6 +423,10 @@ export class OpenPayments implements IOpenPayments {
       finishUrl ??
       `${this.env.FRONTEND_URL}/checkout/confirmation?orderId=${identifier}`
 
+    this.logger.debug(
+      `[DEBUG-GRANT] createOutgoingPaymentGrant: authServer=${authServer}, walletAddress=${walletAddress}, identifier=${identifier}, finishUrl=${finish}`
+    )
+
     const grant = await this.opClient.grant
       .request(
         { url: authServer },
@@ -447,8 +451,12 @@ export class OpenPayments implements IOpenPayments {
           }
         }
       )
-      .catch(() => {
+      .catch((err: unknown) => {
         this.logger.error('Could not retrieve outgoing payment grant.')
+        this.logger.error(`[DEBUG-GRANT] Grant request error: ${err instanceof Error ? err.message : String(err)}`)
+        if (err instanceof Error && 'status' in err) {
+          this.logger.error(`[DEBUG-GRANT] HTTP status: ${(err as { status: number }).status}`)
+        }
         throw new InternalServerError()
       })
 
@@ -485,12 +493,14 @@ export class OpenPayments implements IOpenPayments {
   }
 
   private async getWalletAddress(url: string) {
+    this.logger.debug(`[DEBUG-GRANT] getWalletAddress: fetching ${url}`)
     const walletAddress = await this.opClient.walletAddress
       .get({
         url
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         this.logger.error(`Could not fetch wallet address "${url}".`)
+        this.logger.error(`[DEBUG-GRANT] walletAddress fetch error: ${err instanceof Error ? err.message : String(err)}`)
         throw new BadRequest('Invalid wallet address.')
       })
 

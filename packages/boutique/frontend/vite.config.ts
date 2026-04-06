@@ -17,6 +17,8 @@ export default defineConfig({
     }
   ],
   server: {
+    host: '0.0.0.0',
+    allowedHosts: ['boutique.testnet.test'],
     port: 4004
   },
   resolve: {

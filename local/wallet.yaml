@@ -17,17 +17,18 @@ services:
       - ../packages/wallet/shared:/home/testnet/packages/wallet/shared
     environment:
       NODE_ENV: ${NODE_ENV:-development}
+      NODE_TLS_REJECT_UNAUTHORIZED: ${WALLET_NODE_TLS_REJECT_UNAUTHORIZED:-0}
       PORT: ${WALLET_BACKEND_PORT:-3003}
       DEBUG_PORT: ${WALLET_BACKEND_DEBUG_PORT:-9229}
       DATABASE_URL: ${WALLET_BACKEND_DATABASE_URL:-postgres://wallet_backend:wallet_backend@postgres-local/wallet_backend}
       COOKIE_NAME: ${WALLET_BACKEND_COOKIE_NAME:-testnet.cookie}
       COOKIE_PASSWORD: ${WALLET_BACKEND_COOKIE_PASSWORD:-testnet.cookie.password.super.secret.ilp}
       COOKIE_TTL: ${WALLET_BACKEND_COOKIE_TTL:-2630000}
-      OPEN_PAYMENTS_HOST: ${WALLET_BACKEND_OPEN_PAYMENTS_HOST:-https://rafiki-backend}
+      OPEN_PAYMENTS_HOST: ${WALLET_BACKEND_OPEN_PAYMENTS_HOST:-https://rafiki-backend.testnet.test}
       RAFIKI_MONEY_FRONTEND_HOST: ${RAFIKI_MONEY_FRONTEND_HOST:-testnet.test}
       GRAPHQL_ENDPOINT: ${WALLET_BACKEND_GRAPHQL_ENDPOINT:-http://rafiki-backend:3001/graphql}
       AUTH_GRAPHQL_ENDPOINT: ${WALLET_BACKEND_AUTH_GRAPHQL_ENDPOINT:-http://rafiki-auth:3008/graphql}
-      AUTH_DOMAIN: ${WALLET_BACKEND_AUTH_DOMAIN:-http://rafiki-auth:3006}
+      AUTH_DOMAIN: ${WALLET_BACKEND_AUTH_DOMAIN:-http://rafiki-auth:3009}
       AUTH_IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-auth-secret-key-12345}
       RAFIKI_WEBHOOK_SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
@@ -61,6 +62,16 @@ services:
       ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
       ADMIN_SIGNATURE_VERSION: ${ADMIN_SIGNATURE_VERSION:-1}
       WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
+    extra_hosts:
+      - testnet.test:host-gateway
+      - api.testnet.test:host-gateway
+      - auth.testnet.test:host-gateway
+      - rafiki-backend.testnet.test:host-gateway
+      - rafiki-frontend.testnet.test:host-gateway
+      - rafiki-card-service.testnet.test:host-gateway
+      - mockgatehub.testnet.test:host-gateway
+      - boutique.testnet.test:host-gateway
+      - api.boutique.testnet.test:host-gateway
     restart: always
     networks:
       - testnet
