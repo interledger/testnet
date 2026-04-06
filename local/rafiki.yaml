@@ -14,9 +14,12 @@ services:
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT:-3007}
       ADMIN_PORT: ${RAFIKI_AUTH_ADMIN_PORT:-3008}
       NODE_ENV: ${NODE_ENV:-development}
-      AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_URL:-http://rafiki-auth:3006}
+      LOG_LEVEL: ${RAFIKI_AUTH_LOG_LEVEL:-debug}
+      TRUST_PROXY: ${RAFIKI_AUTH_TRUST_PROXY:-true}
+      NODE_TLS_REJECT_UNAUTHORIZED: ${RAFIKI_AUTH_NODE_TLS_REJECT_UNAUTHORIZED:-0}
+      AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_URL:-https://auth.testnet.test}
       AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL:-postgresql://rafiki_auth:rafiki_auth@postgres-local/rafiki_auth}
-      IDENTITY_SERVER_URL: ${RAFIKI_AUTH_IDENTITY_SERVER_URL:-http://wallet-frontend:4003/grant-interactions}
+      IDENTITY_SERVER_URL: ${RAFIKI_AUTH_IDENTITY_SERVER_URL:-https://testnet.test/grant-interactions}
       IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-auth-secret-key-12345}
       COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
       INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
@@ -25,12 +28,22 @@ services:
       OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
       ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
       ADMIN_SIGNATURE_VERSION: ${ADMIN_SIGNATURE_VERSION:-1}
+    extra_hosts:
+      - testnet.test:host-gateway
+      - api.testnet.test:host-gateway
+      - auth.testnet.test:host-gateway
+      - rafiki-backend.testnet.test:host-gateway
+      - rafiki-frontend.testnet.test:host-gateway
+      - rafiki-card-service.testnet.test:host-gateway
+      - mockgatehub.testnet.test:host-gateway
+      - boutique.testnet.test:host-gateway
+      - api.boutique.testnet.test:host-gateway
     depends_on:
       - postgres
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
-      - traefik.http.routers.rafiki-auth.rule=Host(`auth.testnet.test`) || Host(`rafiki-auth.testnet.test`)
+      - traefik.http.routers.rafiki-auth.rule=Host(`auth.testnet.test`)
       - traefik.http.routers.rafiki-auth.entrypoints=websecure
       - traefik.http.routers.rafiki-auth.tls=true
       - traefik.http.services.rafiki-auth.loadbalancer.server.port=3006
@@ -52,21 +65,22 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       LOG_LEVEL: ${LOG_LEVEL:-debug}
+      TRUST_PROXY: ${RAFIKI_BACKEND_TRUST_PROXY:-true}
       ADMIN_PORT: ${RAFIKI_BACKEND_ADMIN_PORT:-3001}
       CONNECTOR_PORT: ${RAFIKI_BACKEND_CONNECTOR_PORT:-3002}
       OPEN_PAYMENTS_PORT: ${RAFIKI_BACKEND_OPEN_PAYMENTS_PORT:-80}
       DATABASE_URL: ${RAFIKI_BACKEND_DATABASE_URL:-postgresql://rafiki_backend:rafiki_backend@postgres-local/rafiki_backend}
       USE_TIGERBEETLE: ${RAFIKI_BACKEND_USE_TIGERBEETLE:-false}
       NONCE_REDIS_KEY: ${RAFIKI_BACKEND_NONCE_REDIS_KEY:-test}
-      AUTH_SERVER_GRANT_URL: ${RAFIKI_BACKEND_AUTH_SERVER_GRANT_URL:-http://rafiki-auth:3006}
+      AUTH_SERVER_GRANT_URL: ${RAFIKI_BACKEND_AUTH_SERVER_GRANT_URL:-https://auth.testnet.test}
       AUTH_SERVER_INTROSPECTION_URL: ${RAFIKI_BACKEND_AUTH_SERVER_INTROSPECTION_URL:-http://rafiki-auth:3007}
       ILP_ADDRESS: ${RAFIKI_BACKEND_ILP_ADDRESS:-test.net}
       ILP_CONNECTOR_URL: ${RAFIKI_BACKEND_ILP_CONNECTOR_URL:-http://127.0.0.1:3002}
       STREAM_SECRET: ${RAFIKI_BACKEND_STREAM_SECRET:-BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=}
       ADMIN_KEY: ${RAFIKI_BACKEND_ADMIN_KEY:-admin}
-      OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL:-https://rafiki-backend}
+      OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL:-https://rafiki-backend.testnet.test}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      WALLET_ADDRESS_URL: ${RAFIKI_BACKEND_WALLET_ADDRESS_URL:-https://rafiki-backend/.well-known/pay}
+      WALLET_ADDRESS_URL: ${RAFIKI_BACKEND_WALLET_ADDRESS_URL:-https://rafiki-backend.testnet.test/.well-known/pay}
       WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL:-http://wallet-backend:3003/webhooks}
       WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT:-60000}
       SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
@@ -110,7 +124,7 @@ services:
     environment:
       PORT: ${RAFIKI_FRONTEND_PORT:-3012}
       GRAPHQL_URL: ${GRAPHQL_URL:-http://rafiki-backend:3001/graphql}
-      OPEN_PAYMENTS_URL: ${RAFIKI_FRONTEND_OPEN_PAYMENTS_URL:-https://rafiki-backend/}
+      OPEN_PAYMENTS_URL: ${RAFIKI_FRONTEND_OPEN_PAYMENTS_URL:-https://rafiki-backend.testnet.test/}
       ENABLE_INSECURE_MESSAGE_COOKIE: ${RAFIKI_FRONTEND_ENABLE_INSECURE_MESSAGE_COOKIE:-true}
       AUTH_ENABLED: ${RAFIKI_FRONTEND_AUTH_ENABLED:-false}
       SIGNATURE_VERSION: ${RAFIKI_FRONTEND_SIGNATURE_VERSION:-1}

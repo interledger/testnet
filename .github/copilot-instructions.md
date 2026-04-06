@@ -118,7 +118,8 @@ Main run modes:
 - `pnpm dev` -> hot-reload backend containers + frontend dev servers.
 - `pnpm dev:debug` -> backend debug mode (`9229`, `9230`).
 - `pnpm dev:lite` -> run built backend (no hot reload).
-- `pnpm localenv:stop` -> stop local docker environment.
+- `pnpm local:down` -> stop local docker environment.
+- `pnpm local:logs` -> follow container logs.
 
 Service endpoints:
 

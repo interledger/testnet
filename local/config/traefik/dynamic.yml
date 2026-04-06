@@ -4,3 +4,18 @@ tls:
       defaultCertificate:
         certFile: /certs/local.crt
         keyFile: /certs/local.key
+
+http:
+  routers:
+    boutique-frontend:
+      rule: Host(`boutique.testnet.test`)
+      entryPoints:
+        - websecure
+      tls: true
+      service: boutique-frontend
+
+  services:
+    boutique-frontend:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:4004

@@ -123,4 +123,6 @@ Upon executing the above command, the following will be available
   - Admin at [http://localhost:3012](http://localhost:3012)
 
 - Interledger Boutique e-commerce application
+  - Backend at [http://localhost:3004](http://localhost:3004)
   - [http://localhost:4004](http://localhost:4004)
+  - [https://boutique.testnet.test](https://boutique.testnet.test) (via Traefik when boutique frontend dev server is running on port 4004)

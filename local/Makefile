@@ -26,8 +26,12 @@ all: certs
 	@echo "Please open these ALL of these URLs in your browser and accept the self-signed certificates:"
 	@echo "  - https://mockgatehub.testnet.test/health"
 	@echo "  - https://api.testnet.test/health"
+	@echo "  - https://api.boutique.testnet.test/products"
 	@echo "  - https://rafiki-frontend.testnet.test"
+	@echo "  - https://rafiki-backend.testnet.test/healthz"
+	@echo "  - https://auth.testnet.test/healthz"
 	@echo "  - https://testnet.test"
+	@echo "  - https://boutique.testnet.test"
 
 build:
 	$(COMPOSE) build
@@ -93,9 +97,10 @@ trust-linux: certs
 HOSTS := testnet.test \
 	api.testnet.test \
 	auth.testnet.test \
-	rafiki-auth.testnet.test \
 	rafiki-backend.testnet.test \
 	rafiki-frontend.testnet.test \
+	boutique.testnet.test \
+	api.boutique.testnet.test \
 	rafiki-card-service.testnet.test \
 	mockgatehub.testnet.test
 

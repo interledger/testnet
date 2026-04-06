@@ -1,16 +1,26 @@
 import { z } from 'zod'
 
+const requiredString = z.string().trim().min(1)
+const nonPlaceholderString = requiredString.refine(
+  (value) => value !== 'replace-me',
+  {
+    message: 'Environment variable must be configured with a non-placeholder value'
+  }
+)
+
 const envSchema = z.object({
-  PORT: z.coerce.number().default(3004),
-  NODE_ENV: z.string().default('development'),
-  FRONTEND_URL: z.string().default('http://localhost:4004'),
-  DATABASE_URL: z
-    .string()
-    .default('postgres://postgres:password@localhost:5433/boutique_backend'),
-  PAYMENT_POINTER: z.string().default('replace-me'),
-  KEY_ID: z.string().default('replace-me'),
-  PRIVATE_KEY: z.string().default('replace-me'),
-  REDIS_URL: z.string().default('redis://redis:6379/0')
+  PORT: z.coerce.number(),
+  NODE_ENV: z.string().min(1),
+  FRONTEND_URL: z.string().url(),
+  DATABASE_URL: z.string().url(),
+  PAYMENT_POINTER: nonPlaceholderString,
+  KEY_ID: nonPlaceholderString,
+  PRIVATE_KEY: nonPlaceholderString,
+  REDIS_URL: z.string().url(),
+  OPEN_PAYMENTS_USE_HTTP: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true')
 })
 
 export type Env = z.infer<typeof envSchema>
