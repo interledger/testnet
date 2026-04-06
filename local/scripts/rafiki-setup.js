@@ -202,7 +202,7 @@ const depositAssetLiquidityMutation = /* GraphQL */ `
 
 const assetsToEnsure = [
   { code: 'USD', scale: 2 },
-  { code: 'EUR', scale: 2 },
+  { code: 'EUR', scale: 2 }
   // { code: 'GBP', scale: 2 },
   // { code: 'ZAR', scale: 2 },
   // { code: 'MXN', scale: 2 },
