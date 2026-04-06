@@ -4,7 +4,8 @@ const requiredString = z.string().trim().min(1)
 const nonPlaceholderString = requiredString.refine(
   (value) => value !== 'replace-me',
   {
-    message: 'Environment variable must be configured with a non-placeholder value'
+    message:
+      'Environment variable must be configured with a non-placeholder value'
   }
 )
 

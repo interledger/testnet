@@ -114,6 +114,7 @@ pnpm local:rafiki-assets # set up the Rafiki assets after the stack is up
 ```
 
 Notes:
+
 - `pnpm local:hosts` and `pnpm local:trust` require `sudo` on most systems.
 - If certs already exist, `pnpm local:trust` reuses them.
 
