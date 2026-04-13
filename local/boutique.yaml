@@ -19,7 +19,7 @@ services:
       NODE_TLS_REJECT_UNAUTHORIZED: ${BOUTIQUE_NODE_TLS_REJECT_UNAUTHORIZED:-0}
       PORT: ${BOUTIQUE_BACKEND_PORT:-3004}
       DEBUG_PORT: ${BOUTIQUE_BACKEND_DEBUG_PORT:-9230}
-      FRONTEND_URL: ${BOUTIQUE_BACKEND_FRONTEND_URL:-https://boutique.testnet.test}
+      FRONTEND_URL: ${BOUTIQUE_BACKEND_FRONTEND_URL:-https://boutique.test}
       DATABASE_URL: ${BOUTIQUE_BACKEND_DATABASE_URL:-postgres://boutique_backend:boutique_backend@postgres-local/boutique_backend}
       PAYMENT_POINTER: ${BOUTIQUE_PAYMENT_POINTER:-replace-me}
       KEY_ID: ${BOUTIQUE_KEY_ID:-replace-me}
@@ -33,8 +33,8 @@ services:
       - rafiki-frontend.testnet.test:host-gateway
       - rafiki-card-service.testnet.test:host-gateway
       - mockgatehub.testnet.test:host-gateway
-      - boutique.testnet.test:host-gateway
-      - boutique-api.testnet.test:host-gateway
+      - boutique.test:host-gateway
+      - api.boutique.test:host-gateway
     restart: always
     networks:
       - testnet
@@ -44,7 +44,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
-      - traefik.http.routers.boutique-backend.rule=Host(`boutique-api.testnet.test`)
+      - traefik.http.routers.boutique-backend.rule=Host(`api.boutique.test`)
       - traefik.http.routers.boutique-backend.entrypoints=websecure
       - traefik.http.routers.boutique-backend.tls=true
       - traefik.http.services.boutique-backend.loadbalancer.server.port=3004

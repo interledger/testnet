@@ -9,7 +9,7 @@
     "url": "https://github.com/interledger/testnet"
   },
   "scripts": {
-    "boutique:backend": "pnpm --filter @boutique/backend --",
+    "boutique:backend": "bash ./local/scripts/run-package-with-local-stop.sh @boutique/backend boutique-backend",
     "boutique:frontend": "pnpm --filter @boutique/frontend --",
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
@@ -26,7 +26,6 @@
     "compose": "docker compose -f ./local/docker-compose.yml",
     "local:help": "bash ./local/scripts/local-tools.sh help",
     "local:all": "bash ./local/scripts/local-tools.sh all",
-    "local:all-nowatch": "pnpm local:all",
     "local:build": "pnpm compose build",
     "local:rebuild": "pnpm compose build --no-cache",
     "local:up": "pnpm compose up -d --build",
@@ -38,14 +37,15 @@
     "local:certs": "bash ./local/scripts/local-tools.sh certs",
     "local:hosts": "bash ./local/scripts/local-tools.sh hosts",
     "local:trust": "bash ./local/scripts/local-tools.sh trust",
+    "local:setup": "pnpm local:hosts && pnpm local:trust && pnpm local:all && pnpm local:rafiki-assets",
     "local:trust:macos": "bash ./local/scripts/local-tools.sh trust-macos",
     "local:trust:linux": "bash ./local/scripts/local-tools.sh trust-linux",
     "local:rafiki-assets": "node ./local/scripts/rafiki-setup.js",
     "preinstall": "npx only-allow pnpm",
     "prettier:write": "prettier --config \".prettierrc.js\" --write .",
     "prettier:check": "prettier --config \".prettierrc.js\" --check .",
-    "wallet:backend": "pnpm --filter @wallet/backend --",
-    "wallet:frontend": "pnpm --filter @wallet/frontend --"
+    "wallet:backend": "bash ./local/scripts/run-package-with-local-stop.sh @wallet/backend wallet-backend",
+    "wallet:frontend": "bash ./local/scripts/run-package-with-local-stop.sh @wallet/frontend wallet-frontend"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
