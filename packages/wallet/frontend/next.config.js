@@ -20,6 +20,9 @@ if (!NEXT_PUBLIC_FEATURES_ENABLED) {
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  // ESLint 9.x removed options (useEslintrc, extensions) that Next.js 14
+  // passes internally. Linting is handled separately via `pnpm lint:check`.
+  eslint: { ignoreDuringBuilds: true },
   env: {
     NEXT_PUBLIC_BACKEND_URL:
       process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3003',

@@ -37,7 +37,7 @@ services:
       - rafiki-card-service.testnet.test:host-gateway
       - mockgatehub.testnet.test:host-gateway
       - boutique.testnet.test:host-gateway
-      - api.boutique.testnet.test:host-gateway
+      - boutique-api.testnet.test:host-gateway
     depends_on:
       - postgres
     labels:

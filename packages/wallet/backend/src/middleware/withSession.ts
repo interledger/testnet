@@ -6,7 +6,12 @@ import {
   getIronSession
 } from 'iron-session'
 
-// Determine cookie domain. Avoid setting Domain=localhost, browsers ignore it.
+// Determine cookie domain. Avoid setting Domain=localhost — browsers ignore it.
+// The wallet frontend is served on the bare RAFIKI_MONEY_FRONTEND_HOST domain
+// (e.g. testnet.test) while the backend sits on a subdomain (api.testnet.test).
+// A server is allowed to set cookies for any ancestor domain, so
+// api.testnet.test can legitimately issue Domain=testnet.test and the browser
+// will send it back to both testnet.test and api.testnet.test.
 let domain: string | undefined = undefined
 if (env.NODE_ENV === 'production' && env.GATEHUB_ENV === 'production') {
   domain = 'interledger.cards'
