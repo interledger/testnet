@@ -18,10 +18,7 @@ const envSchema = z.object({
   KEY_ID: nonPlaceholderString,
   PRIVATE_KEY: nonPlaceholderString,
   REDIS_URL: z.string().url(),
-  OPEN_PAYMENTS_USE_HTTP: z
-    .enum(['true', 'false'])
-    .default('false')
-    .transform((v) => v === 'true')
+  USE_HTTP_FOR_OPEN_PAYMENTS: z.boolean().optional()
 })
 
 export type Env = z.infer<typeof envSchema>

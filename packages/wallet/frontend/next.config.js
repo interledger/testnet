@@ -25,16 +25,17 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   env: {
     NEXT_PUBLIC_BACKEND_URL:
-      process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3003',
-    // Internal URL for server-side (middleware) to reach backend in Docker
+      process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.testnet.test',
+    // Internal URL for server-side (middleware) to reach the host backend.
     BACKEND_INTERNAL_URL:
       process.env.BACKEND_INTERNAL_URL ||
       process.env.BACKEND_URL ||
-      'http://wallet-backend:3003',
+      'http://localhost:3003',
     NEXT_PUBLIC_OPEN_PAYMENTS_HOST:
-      process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST || '$rafiki-backend/',
+      process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST ||
+      'https://rafiki-backend.testnet.test',
     NEXT_PUBLIC_AUTH_HOST:
-      process.env.NEXT_PUBLIC_AUTH_HOST || 'http://localhost:3006',
+      process.env.NEXT_PUBLIC_AUTH_HOST || 'https://auth.testnet.test',
     NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
     NEXT_PUBLIC_GATEHUB_ENV: process.env.NEXT_PUBLIC_GATEHUB_ENV || 'sandbox',
     NEXT_PUBLIC_FEATURES_ENABLED

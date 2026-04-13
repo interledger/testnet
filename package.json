@@ -9,16 +9,16 @@
     "url": "https://github.com/interledger/testnet"
   },
   "scripts": {
-    "boutique:backend": "bash ./local/scripts/run-package-with-local-stop.sh @boutique/backend boutique-backend",
+    "boutique:backend": "pnpm --filter @boutique/backend --",
     "boutique:frontend": "pnpm --filter @boutique/frontend --",
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "dev": "pnpm local:up && concurrently -n \"WALLET,BOUTIQUE\" -c blue.bold,red.bold \"pnpm wallet:frontend dev\" \"pnpm boutique:frontend dev\"",
-    "dev:debug": "pnpm local:up:debug && concurrently -n \"WALLET,BOUTIQUE\" -c blue.bold,red.bold \"pnpm wallet:frontend dev\" \"pnpm boutique:frontend dev\"",
-    "dev:lite": "pnpm local:up:lite && concurrently -n \"WALLET,BOUTIQUE\" -c blue.bold,red.bold \"pnpm wallet:frontend dev\" \"pnpm boutique:frontend dev\"",
+    "dev": "pnpm local:up && concurrently -n \"WALLET-BE,WALLET-FE,BOUTIQUE-BE,BOUTIQUE-FE\" -c blue.bold,blue,red.bold,red \"pnpm wallet:backend dev\" \"pnpm wallet:frontend dev\" \"pnpm boutique:backend dev\" \"pnpm boutique:frontend dev\"",
+    "dev:debug": "pnpm local:up:debug && concurrently -n \"WALLET-BE,WALLET-FE,BOUTIQUE-BE,BOUTIQUE-FE\" -c blue.bold,blue,red.bold,red \"pnpm wallet:backend dev\" \"pnpm wallet:frontend dev\" \"pnpm boutique:backend dev\" \"pnpm boutique:frontend dev\"",
+    "dev:lite": "pnpm local:up:lite && concurrently -n \"WALLET-BE,WALLET-FE,BOUTIQUE-BE,BOUTIQUE-FE\" -c blue.bold,blue,red.bold,red \"pnpm wallet:backend dev\" \"pnpm wallet:frontend dev\" \"pnpm boutique:backend dev\" \"pnpm boutique:frontend dev\"",
     "format": "pnpm prettier:write && pnpm lint:fix",
     "lint": "pnpm lint:check",
     "lint:check": "eslint --max-warnings=0 .",
@@ -44,8 +44,8 @@
     "preinstall": "npx only-allow pnpm",
     "prettier:write": "prettier --config \".prettierrc.js\" --write .",
     "prettier:check": "prettier --config \".prettierrc.js\" --check .",
-    "wallet:backend": "bash ./local/scripts/run-package-with-local-stop.sh @wallet/backend wallet-backend",
-    "wallet:frontend": "bash ./local/scripts/run-package-with-local-stop.sh @wallet/frontend wallet-frontend"
+    "wallet:backend": "pnpm --filter @wallet/backend --",
+    "wallet:frontend": "pnpm --filter @wallet/frontend --"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

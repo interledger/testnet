@@ -138,20 +138,31 @@ pnpm local:rafiki-assets # run Rafiki asset setup script
 Navigate to the project's root directory and execute:
 
 ```sh
-pnpm dev #this will start the project in hot reload mode for backend containers. Frontend containers have hot reload functionality enabled on all dev commads
+pnpm dev # starts core infra in Docker and runs wallet/boutique apps on your machine with local hot reload
 ```
 
 other options to start the local env are:
 
 ```sh
-pnpm dev:debug #backend containers will not have hot reload feature enabled but will expose and have node `--inspect` option set with wallet container debug port set to 9229 and boutique port set to 9230. Once the containers are running, you can connect your debugger (e.g., Chrome DevTools, VS Code)
+pnpm dev:debug # same app workflow as pnpm dev, but starts the core Docker stack with the debug profile
 ```
 
 and:
 
 ```sh
-pnpm dev:lite #backend containers will build and run the builds, no debug and no hot reload for these containers
+pnpm dev:lite # same app workflow as pnpm dev, but starts the core Docker stack with the lite profile
 ```
+
+Application env files are package-local:
+
+```sh
+packages/wallet/backend/.env
+packages/wallet/frontend/.env.local
+packages/boutique/backend/.env
+packages/boutique/frontend/.env.local
+```
+
+Example files are committed next to each app as `.env.example`.
 
 Upon executing the above command, the following will be available:
 
@@ -161,5 +172,5 @@ Upon executing the above command, the following will be available:
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
 - [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
-- [https://wallet.testnet.test](https://wallet.testnet.test) - Test Wallet frontend.
+- [https://testnet.test](https://testnet.test) - Test Wallet frontend.
 - [https://boutique.test](https://boutique.test) - Boutique frontend.
