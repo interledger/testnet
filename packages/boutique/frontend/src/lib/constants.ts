@@ -6,7 +6,7 @@
 const getDefaultApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     if (window.location.hostname === 'boutique.testnet.test') {
-      return 'https://api.boutique.testnet.test'
+      return 'https://boutique-api.testnet.test'
     }
   }
 

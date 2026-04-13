@@ -157,9 +157,9 @@ Upon executing the above command, the following will be available:
 
 - [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
 - [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
-- [https://api.boutique.testnet.test](https://api.boutique.testnet.test) - Boutique backend API serving product and checkout functionality.
+- [https://boutique-api.testnet.test](https://boutique-api.testnet.test) - Boutique backend API serving product and checkout functionality.
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
 - [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
-- [https://testnet.test](https://testnet.test) - Test Wallet frontend.
+- [https://wallet.testnet.test](https://wallet.testnet.test) - Test Wallet frontend.
 - [https://boutique.testnet.test](https://boutique.testnet.test) - Boutique frontend.
