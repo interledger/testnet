@@ -9,13 +9,15 @@ services:
       MOCKGATEHUB_REDIS_URL: ${MOCKGATEHUB_REDIS_URL:-redis://redis:6379/1}
       MOCKGATEHUB_REDIS_DB: ${MOCKGATEHUB_REDIS_DB:-1}
       MOCKGATEHUB_VALID_CREDENTIALS: ${GATEHUB_ACCESS_KEY:-local-test-app-id}:${GATEHUB_SECRET_KEY:-local-test-app-secret}
-      WEBHOOK_URL: ${MOCKGATEHUB_WEBHOOK_URL:-http://wallet-backend:3003/gatehub-webhooks}
+      WEBHOOK_URL: ${MOCKGATEHUB_WEBHOOK_URL:-http://host.docker.internal:3003/gatehub-webhooks}
       WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
     depends_on:
       - redis
     restart: always
     networks:
       - testnet
+    extra_hosts:
+      - host.docker.internal:host-gateway
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
       interval: 10s

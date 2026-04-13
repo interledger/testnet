@@ -4,8 +4,6 @@ include:
   - redis.yaml
   - mockgatehub.yaml
   - rafiki.yaml
-  - wallet.yaml
-  - boutique.yaml
   - mailslurper.yaml
 
 networks:

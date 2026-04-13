@@ -50,11 +50,12 @@ export async function createContainer(
   })
 
   const logger = generateLogger(env)
+
   const client = await createAuthenticatedClient({
     keyId: env.KEY_ID,
     privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
     walletAddressUrl: env.PAYMENT_POINTER,
-    useHttp: env.OPEN_PAYMENTS_USE_HTTP
+    useHttp: env.USE_HTTP_FOR_OPEN_PAYMENTS || false
   })
 
   container.register({
