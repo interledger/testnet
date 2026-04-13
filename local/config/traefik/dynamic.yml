@@ -1,4 +1,9 @@
 tls:
+  certificates:
+    - certFile: /certs/local.crt
+      keyFile: /certs/local.key
+    - certFile: /certs/boutique.crt
+      keyFile: /certs/boutique.key
   stores:
     default:
       defaultCertificate:
@@ -8,7 +13,7 @@ tls:
 http:
   routers:
     boutique-frontend:
-      rule: Host(`boutique.testnet.test`)
+      rule: Host(`boutique.test`)
       entryPoints:
         - websecure
       tls: true
