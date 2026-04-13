@@ -9,6 +9,7 @@ services:
     ports:
       - '3006:3006'
       - '3008:3008'
+      - '3009:3009'
     environment:
       AUTH_PORT: ${RAFIKI_AUTH_PORT:-3006}
       INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT:-3007}
@@ -43,9 +44,16 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
+      - traefik.http.routers.rafiki-auth-grant.rule=Host(`auth.testnet.test`) && PathPrefix(`/grant`)
+      - traefik.http.routers.rafiki-auth-grant.entrypoints=websecure
+      - traefik.http.routers.rafiki-auth-grant.tls=true
+      - traefik.http.routers.rafiki-auth-grant.priority=100
+      - traefik.http.routers.rafiki-auth-grant.service=rafiki-auth-grant
+      - traefik.http.services.rafiki-auth-grant.loadbalancer.server.port=3009
       - traefik.http.routers.rafiki-auth.rule=Host(`auth.testnet.test`)
       - traefik.http.routers.rafiki-auth.entrypoints=websecure
       - traefik.http.routers.rafiki-auth.tls=true
+      - traefik.http.routers.rafiki-auth.service=rafiki-auth
       - traefik.http.services.rafiki-auth.loadbalancer.server.port=3006
 
   rafiki-backend:
@@ -81,10 +89,10 @@ services:
       OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL:-https://rafiki-backend.testnet.test}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       WALLET_ADDRESS_URL: ${RAFIKI_BACKEND_WALLET_ADDRESS_URL:-https://rafiki-backend.testnet.test/.well-known/pay}
-      WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL:-http://wallet-backend:3003/webhooks}
+      WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL:-http://host.docker.internal:3003/webhooks}
       WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT:-60000}
       SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
-      EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL:-http://wallet-backend:3003/rates}
+      EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
       ENABLE_AUTO_PEERING: ${RAFIKI_BACKEND_ENABLE_AUTO_PEERING:-true}
       AUTO_PEERING_SERVER_PORT: ${RAFIKI_BACKEND_AUTO_PEERING_SERVER_PORT:-3005}
       INSTANCE_NAME: ${RAFIKI_BACKEND_INSTANCE_NAME:-Testnet Wallet}
@@ -102,6 +110,8 @@ services:
     depends_on:
       - postgres
       - redis
+    extra_hosts:
+      - host.docker.internal:host-gateway
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
