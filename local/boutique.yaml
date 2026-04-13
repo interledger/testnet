@@ -34,7 +34,7 @@ services:
       - rafiki-card-service.testnet.test:host-gateway
       - mockgatehub.testnet.test:host-gateway
       - boutique.testnet.test:host-gateway
-      - api.boutique.testnet.test:host-gateway
+      - boutique-api.testnet.test:host-gateway
     restart: always
     networks:
       - testnet
@@ -44,7 +44,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
-      - traefik.http.routers.boutique-backend.rule=Host(`api.boutique.testnet.test`)
+      - traefik.http.routers.boutique-backend.rule=Host(`boutique-api.testnet.test`)
       - traefik.http.routers.boutique-backend.entrypoints=websecure
       - traefik.http.routers.boutique-backend.tls=true
       - traefik.http.services.boutique-backend.loadbalancer.server.port=3004
