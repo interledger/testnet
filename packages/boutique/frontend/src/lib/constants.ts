@@ -1,18 +1,18 @@
 // Resolve the boutique API base URL at runtime based on the current hostname.
 // In the local Docker environment the frontend is served behind Traefik at
-// "boutique.testnet.test", so we route API calls to its TLS-proxied backend.
+// "boutique.test", so we route API calls to its TLS-proxied backend.
 // Outside that environment (plain localhost dev) we fall back to the default
 // local backend port.
 const getDefaultApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
-    if (window.location.hostname === 'boutique.testnet.test') {
-      return 'https://boutique-api.testnet.test'
+    if (window.location.hostname === 'boutique.test') {
+      return 'https://api.boutique.test'
     }
   }
 
   console.warn(
     'Boutique API: falling back to http://localhost:3004. ' +
-      'Set VITE_API_BASE_URL or access via boutique.testnet.test for the Docker environment.'
+      'Set VITE_API_BASE_URL or access via boutique.test for the Docker environment.'
   )
   return 'http://localhost:3004'
 }

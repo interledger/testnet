@@ -62,6 +62,10 @@ function buildEnv() {
 
   return {
     GRAPHQL_ENDPOINT: get('GRAPHQL_ENDPOINT', 'http://localhost:3011/graphql'),
+    RAFIKI_HEALTH_ENDPOINT: get(
+      'RAFIKI_HEALTH_ENDPOINT',
+      'http://localhost:3011/healthz'
+    ),
     ADMIN_API_SECRET: get('ADMIN_API_SECRET', 'secret-key'),
     ADMIN_SIGNATURE_VERSION: get('ADMIN_SIGNATURE_VERSION', '1'),
     OPERATOR_TENANT_ID: get(
@@ -77,6 +81,49 @@ function buildEnv() {
       'https://testnet.test/grant-interactions'
     )
   }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function waitForRafikiHealth(env) {
+  const maxAttempts = 30
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    console.log(
+      `Checking Rafiki health (${attempt}/${maxAttempts}): ${env.RAFIKI_HEALTH_ENDPOINT}`
+    )
+
+    try {
+      const response = await fetch(env.RAFIKI_HEALTH_ENDPOINT, {
+        method: 'GET',
+        signal: AbortSignal.timeout(1000)
+      })
+
+      if (!response.ok) {
+        console.log(`Health check returned HTTP ${response.status}, retrying...`)
+      } else {
+        const body = (await response.text()).trim()
+        if (body.toUpperCase() === 'OK') {
+          console.log('Rafiki health check passed')
+          return
+        }
+        console.log(`Health check returned '${body}', waiting for 'OK'...`)
+      }
+    } catch (err) {
+      console.log(`Health check failed: ${err.message}`)
+    }
+
+    if (attempt < maxAttempts) {
+      console.log('Rafiki not ready yet, retrying in 1 second...')
+      await sleep(1000)
+    }
+  }
+
+  throw new Error(
+    `Rafiki health endpoint did not return OK within ${maxAttempts} seconds`
+  )
 }
 
 function signRequest({ query, variables, operationName }, env, timestamp) {
@@ -392,6 +439,7 @@ async function ensureLiquidity(env) {
 ;(async function main() {
   const env = buildEnv()
   console.log('Rafiki admin endpoint:', env.GRAPHQL_ENDPOINT)
+  await waitForRafikiHealth(env)
   await ensureTenant(env)
   await ensureAssets(env)
   await ensureLiquidity(env)
