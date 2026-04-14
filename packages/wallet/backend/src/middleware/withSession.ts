@@ -13,14 +13,16 @@ import {
 // api.testnet.test can legitimately issue Domain=testnet.test and the browser
 // will send it back to both testnet.test and api.testnet.test.
 let domain: string | undefined = undefined
-if (env.NODE_ENV === 'production' && env.GATEHUB_ENV === 'production') {
-  domain = 'interledger.cards'
-} else if (
-  env.RAFIKI_MONEY_FRONTEND_HOST &&
-  env.RAFIKI_MONEY_FRONTEND_HOST !== 'localhost'
-) {
-  domain = env.RAFIKI_MONEY_FRONTEND_HOST
+domain = env.RAFIKI_MONEY_FRONTEND_HOST
+// Fail fast if domain is not set or empty
+if (!domain || domain.trim() === '') {
+  console.error(
+    'RAFIKI_MONEY_FRONTEND_HOST environment variable is not set or empty'
+  )
+  process.exit(1)
 }
+// Remove protocol and trailing slashes if present
+domain = domain.replace(/^https?:\/\//, '').replace(/\/+$/, '')
 
 export const SESSION_OPTIONS: SessionOptions = {
   password: env.COOKIE_PASSWORD,
