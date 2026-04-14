@@ -1,12 +1,14 @@
 import { z } from 'zod'
 
 const requiredString = z.string().trim().min(1)
-const httpsUrlString = z.string().trim().url().refine(
-  (value) => value.startsWith('https://'),
-  {
-    message: 'PAYMENT_POINTER must be a URL starting with https:// instead of tje classic "$" format'
-  }
-)
+const httpsUrlString = z
+  .string()
+  .trim()
+  .url()
+  .refine((value) => value.startsWith('https://'), {
+    message:
+      'PAYMENT_POINTER must be a URL starting with https:// instead of tje classic "$" format'
+  })
 const base64String = requiredString.refine(
   (value) => {
     if (!/^[A-Za-z0-9+/]+={0,2}$/.test(value) || value.length % 4 !== 0) {
