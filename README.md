@@ -166,11 +166,11 @@ Example files are committed next to each app as `.env.example`.
 
 Upon executing the above command, the following will be available:
 
-- [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
-- [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
-- [https://api.boutique.test](https://api.boutique.test) - Boutique backend API serving product and checkout functionality.
-- [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
-- [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
 - [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
 - [https://testnet.test](https://testnet.test) - Test Wallet frontend.
+- [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
 - [https://boutique.test](https://boutique.test) - Boutique frontend.
+- [https://api.boutique.test](https://api.boutique.test) - Boutique backend API serving product and checkout functionality.
+- [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
+- [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
+- [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
