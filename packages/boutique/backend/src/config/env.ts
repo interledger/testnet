@@ -1,11 +1,26 @@
 import { z } from 'zod'
 
 const requiredString = z.string().trim().min(1)
-const nonPlaceholderString = requiredString.refine(
-  (value) => value !== 'replace-me',
+const httpsUrlString = z.string().trim().url().refine(
+  (value) => value.startsWith('https://'),
   {
-    message:
-      'Environment variable must be configured with a non-placeholder value'
+    message: 'PAYMENT_POINTER must be a URL starting with https:// instead of tje classic "$" format'
+  }
+)
+const base64String = requiredString.refine(
+  (value) => {
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(value) || value.length % 4 !== 0) {
+      return false
+    }
+
+    try {
+      return Buffer.from(value, 'base64').toString('base64') === value
+    } catch {
+      return false
+    }
+  },
+  {
+    message: 'PRIVATE_KEY must be a valid base64-encoded string'
   }
 )
 
@@ -14,9 +29,9 @@ const envSchema = z.object({
   NODE_ENV: z.string().min(1),
   FRONTEND_URL: z.string().url(),
   DATABASE_URL: z.string().url(),
-  PAYMENT_POINTER: nonPlaceholderString,
-  KEY_ID: nonPlaceholderString,
-  PRIVATE_KEY: nonPlaceholderString,
+  PAYMENT_POINTER: httpsUrlString,
+  KEY_ID: requiredString,
+  PRIVATE_KEY: base64String,
   REDIS_URL: z.string().url(),
   USE_HTTP_FOR_OPEN_PAYMENTS: z.boolean().optional()
 })
