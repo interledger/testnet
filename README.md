@@ -125,7 +125,6 @@ Notes:
 - See `.env.example` files for available environment overrides. Values placed in `.env` will override local environment.
 - Boutique will not be able to transact until you set up developer keys against the TestNet Wallet and configure the `.env` file
 
-
 Upon executing the above commands the following will be available:
 
 - [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
@@ -136,7 +135,6 @@ Upon executing the above commands the following will be available:
 - [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
-
 
 Common local infrastructure commands:
 
