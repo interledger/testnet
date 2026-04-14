@@ -106,17 +106,37 @@ pnpm local:help
 Recommended first-run startup order:
 
 ```sh
-pnpm local:build         # build the local Docker images first
-pnpm local:hosts         # add the local testnet hostnames to /etc/hosts
-pnpm local:trust         # trust the generated local TLS certificate
-pnpm local:all           # start the full local stack with Traefik enabled
-pnpm local:rafiki-assets # set up the Rafiki assets after the stack is up
+# Setup will do the following tasks in one go
+# - Add custom hostnames to /etc/hosts (needs admin password)
+# - Generate self signed certificates for local env SSL
+# - Add self signed certificates to OS cert store
+# - Build and docker launch containers required
+pnpm run local:setup
+
+# Starts TestNet Wallet and Boutique in development mode
+pnpm run dev
 ```
 
 Notes:
 
-- `pnpm local:hosts` and `pnpm local:trust` require `sudo` on most systems.
-- If certs already exist, `pnpm local:trust` reuses them.
+- `pnpm local:setup` will ask for sudo password
+- Setup can be re-run safely without concerns
+- Configurations can be found in the `.env.local` files.
+- See `.env.example` files for available environment overrides. Values placed in `.env` will override local environment.
+- Boutique will not be able to transact until you set up developer keys against the TestNet Wallet and configure the `.env` file
+
+
+Upon executing the above commands the following will be available:
+
+- [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
+- [https://testnet.test](https://testnet.test) - Test Wallet frontend.
+- [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
+- [https://boutique.test](https://boutique.test) - Boutique frontend.
+- [https://api.boutique.test](https://api.boutique.test) - Boutique backend API serving product and checkout functionality.
+- [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
+- [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
+- [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
+
 
 Common local infrastructure commands:
 
@@ -134,43 +154,3 @@ pnpm local:trust:linux   # trust local TLS cert on Linux
 pnpm local:trust:macos   # trust local TLS cert on macOS
 pnpm local:rafiki-assets # run Rafiki asset setup script
 ```
-
-Navigate to the project's root directory and execute:
-
-```sh
-pnpm dev # starts core infra in Docker and runs wallet/boutique apps on your machine with local hot reload
-```
-
-other options to start the local env are:
-
-```sh
-pnpm dev:debug # same app workflow as pnpm dev, but starts the core Docker stack with the debug profile
-```
-
-and:
-
-```sh
-pnpm dev:lite # same app workflow as pnpm dev, but starts the core Docker stack with the lite profile
-```
-
-Application env files are package-local:
-
-```sh
-packages/wallet/backend/.env
-packages/wallet/frontend/.env.local
-packages/boutique/backend/.env
-packages/boutique/frontend/.env.local
-```
-
-Example files are committed next to each app as `.env.example`.
-
-Upon executing the above command, the following will be available:
-
-- [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
-- [https://testnet.test](https://testnet.test) - Test Wallet frontend.
-- [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
-- [https://boutique.test](https://boutique.test) - Boutique frontend.
-- [https://api.boutique.test](https://api.boutique.test) - Boutique backend API serving product and checkout functionality.
-- [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
-- [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
-- [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
