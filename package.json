@@ -13,6 +13,8 @@
     "boutique:frontend": "pnpm --filter @boutique/frontend --",
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
+    "test": "pnpm test:unit",
+    "test:unit": "pnpm boutique:backend test && pnpm wallet:backend test",
     "clean": "pnpm clean:modules && pnpm clean:builds",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
