@@ -102,7 +102,9 @@ async function waitForRafikiHealth(env) {
       })
 
       if (!response.ok) {
-        console.log(`Health check returned HTTP ${response.status}, retrying...`)
+        console.log(
+          `Health check returned HTTP ${response.status}, retrying...`
+        )
       } else {
         const body = (await response.text()).trim()
         if (body.toUpperCase() === 'OK') {
