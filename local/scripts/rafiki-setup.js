@@ -14,11 +14,43 @@ const path = require('path')
 const crypto = require('crypto')
 
 // ---- helpers ---------------------------------------------------------------
+function nowIso() {
+  return new Date().toISOString()
+}
+
+function logInfo(message, details) {
+  if (details === undefined) {
+    console.log(`[${nowIso()}] ${message}`)
+    return
+  }
+  console.log(`[${nowIso()}] ${message}`, details)
+}
+
+function maskSecret(value) {
+  if (!value) {
+    return '<empty>'
+  }
+  if (value.length <= 4) {
+    return '*'.repeat(value.length)
+  }
+  return `${value.slice(0, 2)}***${value.slice(-2)}`
+}
+
+function inferOperationName(query, operationName) {
+  if (operationName) {
+    return operationName
+  }
+  const match = query.match(/\b(query|mutation)\s+([A-Za-z0-9_]+)/)
+  return match?.[2] ?? 'anonymousOperation'
+}
+
 function loadDotEnv(envPath) {
   const result = {}
   if (!fs.existsSync(envPath)) {
+    logInfo(`No .env file found at ${envPath}, using process env/defaults`)
     return result
   }
+  logInfo(`Loading .env from ${envPath}`)
   const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/)
   for (const line of lines) {
     if (!line || line.trim().startsWith('#')) {
@@ -60,7 +92,7 @@ function buildEnv() {
   const fileEnv = loadDotEnv(envPath)
   const get = (key, fallback) => process.env[key] ?? fileEnv[key] ?? fallback
 
-  return {
+  const env = {
     GRAPHQL_ENDPOINT: get('GRAPHQL_ENDPOINT', 'http://localhost:3011/graphql'),
     RAFIKI_HEALTH_ENDPOINT: get(
       'RAFIKI_HEALTH_ENDPOINT',
@@ -81,6 +113,18 @@ function buildEnv() {
       'https://testnet.test/grant-interactions'
     )
   }
+
+  logInfo('Resolved configuration (sensitive values masked):', {
+    GRAPHQL_ENDPOINT: env.GRAPHQL_ENDPOINT,
+    RAFIKI_HEALTH_ENDPOINT: env.RAFIKI_HEALTH_ENDPOINT,
+    ADMIN_SIGNATURE_VERSION: env.ADMIN_SIGNATURE_VERSION,
+    OPERATOR_TENANT_ID: env.OPERATOR_TENANT_ID,
+    IDP_CONSENT_URL: env.IDP_CONSENT_URL,
+    ADMIN_API_SECRET: maskSecret(env.ADMIN_API_SECRET),
+    AUTH_IDENTITY_SERVER_SECRET: maskSecret(env.AUTH_IDENTITY_SERVER_SECRET)
+  })
+
+  return env
 }
 
 function sleep(ms) {
@@ -89,9 +133,10 @@ function sleep(ms) {
 
 async function waitForRafikiHealth(env) {
   const maxAttempts = 30
+  logInfo('Waiting for Rafiki health endpoint to report OK')
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    console.log(
+    logInfo(
       `Checking Rafiki health (${attempt}/${maxAttempts}): ${env.RAFIKI_HEALTH_ENDPOINT}`
     )
 
@@ -102,23 +147,23 @@ async function waitForRafikiHealth(env) {
       })
 
       if (!response.ok) {
-        console.log(
+        logInfo(
           `Health check returned HTTP ${response.status}, retrying...`
         )
       } else {
         const body = (await response.text()).trim()
         if (body.toUpperCase() === 'OK') {
-          console.log('Rafiki health check passed')
+          logInfo('Rafiki health check passed')
           return
         }
-        console.log(`Health check returned '${body}', waiting for 'OK'...`)
+        logInfo(`Health check returned '${body}', waiting for 'OK'...`)
       }
     } catch (err) {
-      console.log(`Health check failed: ${err.message}`)
+      logInfo(`Health check failed: ${err.message}`)
     }
 
     if (attempt < maxAttempts) {
-      console.log('Rafiki not ready yet, retrying in 1 second...')
+      logInfo('Rafiki not ready yet, retrying in 1 second...')
       await sleep(1000)
     }
   }
@@ -142,6 +187,8 @@ function signRequest({ query, variables, operationName }, env, timestamp) {
 
 async function graphqlRequest({ query, variables, operationName }, env) {
   const timestamp = Date.now()
+  const opName = inferOperationName(query, operationName)
+  logInfo(`GraphQL -> ${opName} (request signing + dispatch)`)
   const signature = signRequest(
     { query, variables, operationName },
     env,
@@ -159,11 +206,15 @@ async function graphqlRequest({ query, variables, operationName }, env) {
     body
   })
 
+  logInfo(`GraphQL <- ${opName} HTTP ${response.status}`)
+
   const data = await response.json()
   if (data.errors && data.errors.length) {
     const message = data.errors.map((e) => e.message).join('\n')
+    logInfo(`GraphQL !! ${opName} returned ${data.errors.length} error(s)`)
     throw new Error(message)
   }
+  logInfo(`GraphQL ok ${opName}`)
   return data.data
 }
 
@@ -263,13 +314,14 @@ const assetsToEnsure = [
 ]
 
 async function ensureTenant(env) {
+  logInfo('Step 1/3: Ensuring operator tenant exists and has correct IdP settings')
   try {
     const existing = await graphqlRequest(
       { query: getTenantQuery, variables: { id: env.OPERATOR_TENANT_ID } },
       env
     )
     if (existing?.tenant) {
-      console.log(
+      logInfo(
         `Tenant already present: ${existing.tenant.id} (consent URL ${existing.tenant.idpConsentUrl})`
       )
       if (
@@ -277,7 +329,7 @@ async function ensureTenant(env) {
         !existing.tenant.idpSecret ||
         existing.tenant.idpConsentUrl !== env.IDP_CONSENT_URL
       ) {
-        console.log('Updating tenant idp fields...')
+        logInfo('Tenant IdP fields are missing/stale, updating tenant...')
         await graphqlRequest(
           {
             query: updateTenantMutation,
@@ -291,16 +343,18 @@ async function ensureTenant(env) {
           },
           env
         )
-        console.log('Tenant idp fields updated')
+        logInfo('Tenant IdP fields updated')
+      } else {
+        logInfo('Tenant IdP fields already match desired configuration')
       }
       return
     }
   } catch (err) {
     // continue and try to create
-    console.log('Tenant lookup failed, attempting to create...', err.message)
+    logInfo('Tenant lookup failed, attempting to create...', err.message)
   }
 
-  console.log('Creating tenant...')
+  logInfo('Creating tenant...')
   try {
     const created = await graphqlRequest(
       {
@@ -317,13 +371,13 @@ async function ensureTenant(env) {
       },
       env
     )
-    console.log('Tenant created:', created.createTenant.tenant)
+    logInfo('Tenant created:', created.createTenant.tenant)
   } catch (err) {
     if (
       typeof err.message === 'string' &&
       err.message.toLowerCase().includes('duplicate')
     ) {
-      console.log('Tenant already exists (duplicate key), continuing...')
+      logInfo('Tenant already exists (duplicate key), continuing...')
       return
     }
     throw err
@@ -331,14 +385,19 @@ async function ensureTenant(env) {
 }
 
 async function ensureAssets(env) {
+  logInfo('Step 2/3: Ensuring required assets exist')
+  logInfo('Target assets:', assetsToEnsure)
   let current = { assets: { edges: [] } }
   try {
     current = await graphqlRequest(
       { query: listAssetsQuery, variables: { first: 200 } },
       env
     )
+    logInfo(
+      `Fetched ${(current?.assets?.edges ?? []).length} existing asset(s) from Rafiki`
+    )
   } catch (err) {
-    console.log(
+    logInfo(
       'Asset list failed, continuing to create assets...',
       err.message
     )
@@ -350,10 +409,10 @@ async function ensureAssets(env) {
 
   for (const asset of assetsToEnsure) {
     if (existingAssets.has(`${asset.code}:${asset.scale}`)) {
-      console.log(`Asset ${asset.code} (scale ${asset.scale}) already exists`)
+      logInfo(`Asset ${asset.code} (scale ${asset.scale}) already exists`)
       continue
     }
-    console.log(`Creating asset ${asset.code}...`)
+    logInfo(`Creating asset ${asset.code}...`)
     try {
       await graphqlRequest(
         {
@@ -367,11 +426,11 @@ async function ensureAssets(env) {
         },
         env
       )
-      console.log(`Asset ${asset.code} created`)
+      logInfo(`Asset ${asset.code} created`)
     } catch (err) {
       const msg = (err.message || '').toLowerCase()
       if (msg.includes('already exists') || msg.includes('duplicate')) {
-        console.log(`Asset ${asset.code} already exists (api), continuing...`)
+        logInfo(`Asset ${asset.code} already exists (api), continuing...`)
         continue
       }
       throw err
@@ -381,7 +440,7 @@ async function ensureAssets(env) {
 
 // Deposit liquidity for all assets (100000 units per asset, converted to minor units by scale)
 async function ensureLiquidity(env) {
-  console.log('Ensuring asset liquidity...')
+  logInfo('Step 3/3: Ensuring asset liquidity is deposited')
 
   for (const asset of assetsToEnsure) {
     let node
@@ -395,19 +454,19 @@ async function ensureLiquidity(env) {
       )
       node = res?.assetByCodeAndScale
     } catch (err) {
-      console.log(`Lookup failed for ${asset.code}:`, err.message)
+      logInfo(`Lookup failed for ${asset.code}:`, err.message)
       continue
     }
 
     if (!node?.id) {
-      console.log(`Skipping liquidity for ${asset.code}: asset id not found`)
+      logInfo(`Skipping liquidity for ${asset.code}: asset id not found`)
       continue
     }
 
     // Amount in minor units: 100000 * 10^scale
     const amount = BigInt(100000) * BigInt(10) ** BigInt(node.scale)
 
-    console.log(
+    logInfo(
       `Depositing liquidity for ${asset.code}: ${amount.toString()} (scale ${node.scale})`
     )
     try {
@@ -427,12 +486,12 @@ async function ensureLiquidity(env) {
       )
 
       if (!res?.depositAssetLiquidity?.success) {
-        console.log(`Liquidity deposit failed for ${asset.code}`)
+        logInfo(`Liquidity deposit failed for ${asset.code}`)
       } else {
-        console.log(`Liquidity deposited for ${asset.code}`)
+        logInfo(`Liquidity deposited for ${asset.code}`)
       }
     } catch (err) {
-      console.log(`Liquidity deposit error for ${asset.code}:`, err.message)
+      logInfo(`Liquidity deposit error for ${asset.code}:`, err.message)
     }
   }
 }
@@ -440,13 +499,14 @@ async function ensureLiquidity(env) {
 // ---- main -----------------------------------------------------------------
 ;(async function main() {
   const env = buildEnv()
-  console.log('Rafiki admin endpoint:', env.GRAPHQL_ENDPOINT)
+  logInfo('Starting Rafiki setup script')
+  logInfo('Rafiki admin endpoint:', env.GRAPHQL_ENDPOINT)
   await waitForRafikiHealth(env)
   await ensureTenant(env)
   await ensureAssets(env)
   await ensureLiquidity(env)
-  console.log('✅ Rafiki configuration complete')
+  logInfo('Rafiki configuration complete')
 })().catch((err) => {
-  console.error('Setup failed:', err.message)
+  console.error(`[${nowIso()}] Setup failed:`, err.message)
   process.exit(1)
 })
