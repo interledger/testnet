@@ -147,9 +147,7 @@ async function waitForRafikiHealth(env) {
       })
 
       if (!response.ok) {
-        logInfo(
-          `Health check returned HTTP ${response.status}, retrying...`
-        )
+        logInfo(`Health check returned HTTP ${response.status}, retrying...`)
       } else {
         const body = (await response.text()).trim()
         if (body.toUpperCase() === 'OK') {
@@ -314,7 +312,9 @@ const assetsToEnsure = [
 ]
 
 async function ensureTenant(env) {
-  logInfo('Step 1/3: Ensuring operator tenant exists and has correct IdP settings')
+  logInfo(
+    'Step 1/3: Ensuring operator tenant exists and has correct IdP settings'
+  )
   try {
     const existing = await graphqlRequest(
       { query: getTenantQuery, variables: { id: env.OPERATOR_TENANT_ID } },
@@ -397,10 +397,7 @@ async function ensureAssets(env) {
       `Fetched ${(current?.assets?.edges ?? []).length} existing asset(s) from Rafiki`
     )
   } catch (err) {
-    logInfo(
-      'Asset list failed, continuing to create assets...',
-      err.message
-    )
+    logInfo('Asset list failed, continuing to create assets...', err.message)
   }
 
   const existingAssets = new Set(
