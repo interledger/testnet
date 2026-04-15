@@ -110,10 +110,6 @@ run_all() {
   run_certs
   echo "Bringing up docker compose services from: $COMPOSE_FILE"
   compose up -d
-
-  echo
-  echo "Please open the following local testnet domains in your browser (with HTTPS):"
-  echo "  - https://testnet.test"
 }
 
 run_hosts() {
