@@ -11,8 +11,8 @@ if (!process.env.NEXT_PUBLIC_BACKEND_URL) {
 // Default to env override; fall back to previous production/sandbox rule, then to 'true'
 let NEXT_PUBLIC_FEATURES_ENABLED = process.env.NEXT_PUBLIC_FEATURES_ENABLED
 
-// This is a gaurdrail to prevent accidentally enabling features in production when the 
-// env variable is not set. 
+// This is a gaurdrail to prevent accidentally enabling features in production when the
+// env variable is not set.
 if (!NEXT_PUBLIC_FEATURES_ENABLED) {
   if (
     process.env.NODE_ENV === 'production' &&
