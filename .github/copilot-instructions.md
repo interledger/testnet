@@ -3,6 +3,7 @@
 ## Project Summary
 
 **Interledger TestNet** is an open-source, full-stack Node.js/TypeScript monorepo demonstrating Interledger Protocol integration. It consists of:
+
 - **Wallet Backend** (NestJS) — Account management, KYC, payment rails
 - **Wallet Frontend** (Next.js) — User-facing web UI for accounts and transactions
 - **Boutique Backend** (Express) — E-commerce demo server
@@ -52,12 +53,12 @@ pnpm local:setup
 
 ### Core Commands (Work Immediately After Setup)
 
-| Command | Purpose | Time | Notes |
-|---------|---------|------|-------|
-| `pnpm checks` | ESLint (--max-warnings=0) + Prettier check | ~3s | **Always run before PR** — catches formatting and linting issues |
-| `pnpm test` | Jest unit tests (wallet + boutique backends) | ~80s | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
-| `pnpm format` | Auto-fix ESLint + Prettier | ~5s | Mutates files in place; safe to run |
-| `pnpm build` | Compile all packages to `dist/` and `.next/` | ~30s | Requires correct Node version; builds dependencies first |
+| Command       | Purpose                                      | Time | Notes                                                                                |
+| ------------- | -------------------------------------------- | ---- | ------------------------------------------------------------------------------------ |
+| `pnpm checks` | ESLint (--max-warnings=0) + Prettier check   | ~3s  | **Always run before PR** — catches formatting and linting issues                     |
+| `pnpm test`   | Jest unit tests (wallet + boutique backends) | ~80s | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
+| `pnpm format` | Auto-fix ESLint + Prettier                   | ~5s  | Mutates files in place; safe to run                                                  |
+| `pnpm build`  | Compile all packages to `dist/` and `.next/` | ~30s | Requires correct Node version; builds dependencies first                             |
 
 ### Per-Package Commands
 
@@ -67,7 +68,7 @@ pnpm wallet:backend build     # Compile wallet backend (NestJS)
 pnpm wallet:backend test      # Unit tests (Jest)
 pnpm wallet:backend dev       # Watch mode (Requires local services up)
 
-# Wallet frontend  
+# Wallet frontend
 pnpm wallet:frontend build    # Next.js production build
 pnpm wallet:frontend dev      # Dev server (Requires backend services)
 
@@ -97,11 +98,13 @@ pnpm lint:fix          # Auto-fix eslint issues
 Every PR automatically runs:
 
 1. **Checks** (runs on all PRs)
+
    ```bash
    pnpm checks  # ESLint --max-warnings=0 + prettier --check
    ```
 
 2. **Conditional Builds** (based on PR labels: `package: wallet/frontend`, `package: wallet/backend`, etc.)
+
    ```bash
    pnpm wallet:frontend build
    pnpm wallet:backend build
@@ -116,6 +119,7 @@ Every PR automatically runs:
    ```
 
 **To replicate locally** (before pushing):
+
 ```bash
 pnpm checks && pnpm test
 ```
@@ -171,47 +175,58 @@ testnet/
 ## Common Scenarios & Troubleshooting
 
 ### Scenario: Node Version Mismatch
+
 **Symptom**: `ERR_PNPM_UNSUPPORTED_ENGINE Expected version: ^20.12.1`
 
 **Fix**:
+
 ```bash
 nvm install lts/iron && nvm use lts/iron && pnpm install --frozen-lockfile
 ```
 
 ### Scenario: Stale Dependencies
+
 **Symptom**: Tests or build fail with module resolution errors
 
 **Fix**:
+
 ```bash
 pnpm clean && pnpm install --frozen-lockfile && pnpm test
 ```
 
 ### Scenario: One Pre-Existing Test Failure
+
 **File**: `packages/wallet/backend/tests/walletAddressKeys/controller.test.ts` line 175  
 **Status**: Known issue; not blocking CI (Jest uses `--passWithNoTests`)  
 **Result**: `215 tests passed, 1 failed` (expected)
 
 ### Scenario: Linting Fails Before Tests Run
+
 **Symptom**: `pnpm checks` fails; `pnpm test` doesn't run
 
 **Fix**:
+
 ```bash
 pnpm format  # Auto-fixes 90% of issues
 pnpm checks  # Re-run validation
 ```
 
 ### Scenario: Tests Hang or Timeout
+
 **Symptom**: Jest stalls during test run
 
 **Workaround**: (Pre-applied in CI) Use `--detectOpenHandles --forceExit` flags:
+
 ```bash
 pnpm wallet:backend test --detectOpenHandles --forceExit
 ```
 
 ### Scenario: Build Fails on Initial `pnpm build`
+
 **Cause**: Likely missing Node 20 or missing deps
 
 **Fix**:
+
 ```bash
 node --version  # Verify v20.x.x
 pnpm install --frozen-lockfile
