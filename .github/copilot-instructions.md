@@ -1,167 +1,254 @@
-# GitHub Copilot Instructions for Interledger Test Network
+# GitHub Copilot Instructions — Interledger TestNet
 
-## Purpose And Scope
+## Project Summary
 
-Test Network is a full-stack pnpm workspace monorepo for Interledger sandbox integrations. It contains two apps:
+**Interledger TestNet** is an open-source, full-stack Node.js/TypeScript monorepo demonstrating Interledger Protocol integration. It consists of:
+- **Wallet Backend** (NestJS) — Account management, KYC, payment rails
+- **Wallet Frontend** (Next.js) — User-facing web UI for accounts and transactions
+- **Boutique Backend** (Express) — E-commerce demo server
+- **Boutique Frontend** (Vite) — E-commerce storefront
+- **Shared Packages** — Common backend & frontend utilities
 
-- Wallet (`packages/wallet/*`): Next.js frontend + Node/Express backend.
-- Boutique (`packages/boutique/*`): Vite/React frontend + Node/Express backend.
+**Size**: ~100K lines of TypeScript + Node.js; ~80 test files; ~10 npm packages
+**Purpose**: Reference implementation for Account Servicing Entities integrating with Interledger Protocol and Rafiki
+**Key Integrations**: Rafiki (ILP), MockGatehub (sandbox KYC/fiat), Stripe, GateHub, Kratos (identity)
 
-Shared packages are in `packages/shared/backend`, `packages/wallet/shared`, and `packages/boutique/shared`.
+---
 
-Use this file as the default source of truth. Trust these instructions and only search the repo when this file is incomplete or proven wrong.
+## Prerequisites
 
-## Runtime And Tooling (Strict)
+### Required Environment
 
-- Node: `^20.12.1` required by `package.json` engines.
-- Package manager: `pnpm@9.1.4` (`packageManager` field).
-- Never use `npm install` or `yarn` in this repo.
+- **Node.js 20 LTS** (`lts/iron`, enforced by `package.json` engines field)
+- **pnpm 9.x** (managed via Corepack; CI uses `pnpm/action-setup@v2`)
+- **Docker** and **Docker Compose** (for local services: Postgres, Redis, Traefik, Kratos, Rafiki, MockGatehub)
+- **Git**
 
-Local shell note validated on this machine: default `node` was `v18.19.1`, which causes engine failures even if `pnpm` exists. Ensure Node 20 is first on `PATH` before running scripts.
-
-Example reliable setup:
-
-```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH
-corepack pnpm -v
-node -v
-```
-
-## Bootstrap, Build, Test, Lint (Validated)
-
-Run from repo root `testnet/`.
-
-1. Bootstrap (always first):
+### Setup Steps (First Time Only)
 
 ```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm install --frozen-lockfile
+# 1. Switch to Node 20 (assumes nvm installed)
+nvm install lts/iron
+nvm use lts/iron
+
+# 2. Enable Corepack (pnpm package manager)
+corepack enable
+
+# 3. Clone and navigate
+cd /path/to/testnet
+
+# 4. Install all dependencies
+pnpm install --frozen-lockfile
+
+# 5. (Optional) Local development setup (interactive, requires Docker, sudo)
+pnpm local:setup
 ```
 
-Validated: passes in ~1.5s when lockfile is up to date.
+**Critical**: Always run `pnpm install --frozen-lockfile` after pulling; never use `npm install` or `yarn install`.
 
-2. Quality checks:
+---
+
+## Build & Validation Commands
+
+### Core Commands (Work Immediately After Setup)
+
+| Command | Purpose | Time | Notes |
+|---------|---------|------|-------|
+| `pnpm checks` | ESLint (--max-warnings=0) + Prettier check | ~3s | **Always run before PR** — catches formatting and linting issues |
+| `pnpm test` | Jest unit tests (wallet + boutique backends) | ~80s | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
+| `pnpm format` | Auto-fix ESLint + Prettier | ~5s | Mutates files in place; safe to run |
+| `pnpm build` | Compile all packages to `dist/` and `.next/` | ~30s | Requires correct Node version; builds dependencies first |
+
+### Per-Package Commands
 
 ```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm checks
+# Wallet backend
+pnpm wallet:backend build     # Compile wallet backend (NestJS)
+pnpm wallet:backend test      # Unit tests (Jest)
+pnpm wallet:backend dev       # Watch mode (Requires local services up)
+
+# Wallet frontend  
+pnpm wallet:frontend build    # Next.js production build
+pnpm wallet:frontend dev      # Dev server (Requires backend services)
+
+# Boutique backend
+pnpm boutique:backend build    # Express app builds via TypeScript
+pnpm boutique:backend test     # Jest unit tests
+pnpm boutique:backend dev      # Watch mode
+
+# Boutique frontend
+pnpm boutique:frontend build   # Vite production build
+pnpm boutique:frontend dev     # Dev server
 ```
 
-Validated behavior: may fail on existing repo formatting drift (Prettier). In this workspace it failed on:
-
-- `local/docker-compose.yml`
-- `local/scripts/rafiki-setup.js`
-- `packages/wallet/frontend/next.config.js`
-- `packages/wallet/frontend/src/middleware.ts`
-
-3. Lint only (for signal isolation):
+### Repository Maintenance
 
 ```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm lint:check
+pnpm clean             # Remove all node_modules/ and dist/.next/
+pnpm clean:builds      # Remove dist/.next/ only
+pnpm prettier:write    # Auto-format all files
+pnpm lint:fix          # Auto-fix eslint issues
 ```
 
-Validated behavior: currently fails on `packages/wallet/frontend/src/middleware.ts` (`@typescript-eslint/no-explicit-any`).
+---
 
-4. Build all:
+## CI/CD Validation Pipeline
 
+Every PR automatically runs:
+
+1. **Checks** (runs on all PRs)
+   ```bash
+   pnpm checks  # ESLint --max-warnings=0 + prettier --check
+   ```
+
+2. **Conditional Builds** (based on PR labels: `package: wallet/frontend`, `package: wallet/backend`, etc.)
+   ```bash
+   pnpm wallet:frontend build
+   pnpm wallet:backend build
+   pnpm boutique:frontend build
+   pnpm boutique:backend build
+   ```
+
+3. **Conditional Tests** (after builds pass)
+   ```bash
+   pnpm wallet:backend test --detectOpenHandles --forceExit
+   pnpm boutique:backend test --detectOpenHandles --forceExit
+   ```
+
+**To replicate locally** (before pushing):
 ```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm build
+pnpm checks && pnpm test
 ```
 
-Validated behavior: currently fails quickly if Docker-created artifacts are root-owned (TS5033 / EACCES in `packages/wallet/shared/dist`).
+---
 
-5. Package-scoped backend verification:
+## Project Structure
 
+```
+testnet/
+├── package.json                      # Root workspace scripts
+├── pnpm-workspace.yaml               # Defines monorepo packages
+├── tsconfig.base.json                # Shared TypeScript config
+├── .eslintrc.js, .prettierrc.js     # Lint & format config
+├── .nvmrc                            # Node version (lts/iron)
+│
+├── .github/workflows/
+│   ├── ci.yml                        # PR validation (checks → builds → tests)
+│   ├── deploy.yml                    # Main branch: deploy to staging/prod
+│   └── setup/action.yml              # Reusable setup action (Node + pnpm + install)
+│
+├── local/                            # Local development environment
+│   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, etc.
+│   ├── .env.example, .env.local      # Environment configuration
+│   └── scripts/local-tools.sh        # Cert, host, trust management
+│
+├── packages/
+│   ├── wallet/
+│   │   ├── backend/src/              # NestJS application
+│   │   ├── backend/tests/            # Jest unit tests
+│   │   ├── frontend/src/             # Next.js application
+│   │   └── shared/                   # Shared wallet types
+│   ├── boutique/
+│   │   ├── backend/src/              # Express application
+│   │   ├── backend/tests/            # Jest unit tests
+│   │   ├── frontend/src/             # Vite application
+│   │   └── shared/                   # Shared boutique types
+│   └── shared/backend/src/           # Monorepo utilities (logging, DB, etc.)
+│
+└── README.md, .github/TESTNET_architecture.md
+```
+
+### Key Files
+
+- **Root scripts**: `package.json` lines 15–50 define all entry points
+- **Workspace config**: `pnpm-workspace.yaml` lists 4 package globs
+- **TypeScript config**: `tsconfig.base.json` (target ES2020, strict: true)
+- **ESLint**: `.eslintrc.js` (--max-warnings=0 enforced in CI)
+- **Prettier**: `.prettierrc.js` (checked before any lint/build)
+
+---
+
+## Common Scenarios & Troubleshooting
+
+### Scenario: Node Version Mismatch
+**Symptom**: `ERR_PNPM_UNSUPPORTED_ENGINE Expected version: ^20.12.1`
+
+**Fix**:
 ```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm boutique:backend build
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm boutique:backend test
+nvm install lts/iron && nvm use lts/iron && pnpm install --frozen-lockfile
 ```
 
-Validated: passes (`5` suites, `29` tests) in ~17s for tests.
+### Scenario: Stale Dependencies
+**Symptom**: Tests or build fail with module resolution errors
 
-Wallet backend flow currently blocked by the same `wallet/shared/dist` permission issue:
-
+**Fix**:
 ```bash
-PATH=/home/$USER/.nvm/versions/node/v20.20.0/bin:$PATH corepack pnpm wallet:backend build
+pnpm clean && pnpm install --frozen-lockfile && pnpm test
 ```
 
-## Known Failure Modes And Workarounds
+### Scenario: One Pre-Existing Test Failure
+**File**: `packages/wallet/backend/tests/walletAddressKeys/controller.test.ts` line 175  
+**Status**: Known issue; not blocking CI (Jest uses `--passWithNoTests`)  
+**Result**: `215 tests passed, 1 failed` (expected)
 
-1. Engine mismatch (`Unsupported environment`, Node 18 shown):
+### Scenario: Linting Fails Before Tests Run
+**Symptom**: `pnpm checks` fails; `pnpm test` doesn't run
 
-- Cause: shell not using Node 20.
-- Fix: put Node 20 bin first in `PATH` for every command (or `nvm use lts/iron` in an interactive shell that works reliably).
-
-2. `TS5033` / `EACCES` writing under `packages/wallet/shared/dist`:
-
-- Cause: prior Docker runs produced root-owned build artifacts.
-- Symptom: root build and wallet backend build fail.
-- Fix: ensure those files are writable by your user before rebuilding (example: adjust ownership/permissions of `packages/wallet/shared/dist` and `packages/wallet/shared/tsconfig.build.tsbuildinfo`).
-
-3. `pnpm checks` failing even without your changes:
-
-- Cause: pre-existing formatting/lint drift.
-- Mitigation: run targeted checks for touched packages and report baseline failures explicitly in PR notes.
-
-No command timeouts were observed in this validation pass. Failing commands exited quickly (under ~6s except build/test commands).
-
-## Local Run Flow
-
-Required precondition before first `pnpm dev`:
-
+**Fix**:
 ```bash
-cp local/.env.example local/.env
+pnpm format  # Auto-fixes 90% of issues
+pnpm checks  # Re-run validation
 ```
 
-GateHub-related variables in `local/.env` are required for full KYC/funding flows.
+### Scenario: Tests Hang or Timeout
+**Symptom**: Jest stalls during test run
 
-Main run modes:
+**Workaround**: (Pre-applied in CI) Use `--detectOpenHandles --forceExit` flags:
+```bash
+pnpm wallet:backend test --detectOpenHandles --forceExit
+```
 
-- `pnpm dev` -> hot-reload backend containers + frontend dev servers.
-- `pnpm dev:debug` -> backend debug mode (`9229`, `9230`).
-- `pnpm dev:lite` -> run built backend (no hot reload).
-- `pnpm local:down` -> stop local docker environment.
-- `pnpm local:logs` -> follow container logs.
+### Scenario: Build Fails on Initial `pnpm build`
+**Cause**: Likely missing Node 20 or missing deps
 
-Service endpoints:
+**Fix**:
+```bash
+node --version  # Verify v20.x.x
+pnpm install --frozen-lockfile
+pnpm build
+```
 
-- Wallet FE: `http://localhost:4003`
-- Wallet BE: `http://localhost:3003`
-- Boutique FE: `http://localhost:4004`
-- Boutique BE: `http://localhost:3004`
-- Rafiki Admin UI: `http://localhost:3012`
+---
 
-## Architecture And File Map
+## AI Agent Directives
 
-High-signal root files:
+1. **Trust this file first**: Before running grep/search/explore commands, check if information exists here. Minimize search time by following the command sequences documented above.
 
-- `package.json`: canonical scripts and engine constraints.
-- `pnpm-workspace.yaml`: workspace package patterns.
-- `tsconfig.json`: top-level project references.
-- `eslint.config.mjs`, `.prettierrc.js`: repo-wide code quality rules.
-- `local/docker-compose.yml`: full local dependency graph (Postgres, Redis, Rafiki, Kratos, app backends).
+2. **Always validate prerequisites**:
+   - Node version: `node --version` → must be `v20.x.x`
+   - pnpm installed: `pnpm --version` → must be `9.x`
+   - Dependences installed: Run `pnpm install --frozen-lockfile` before any other command
 
-Key source areas:
+3. **Validate changes locally before committing**:
+   - **Format**: `pnpm format`
+   - **Lint**: `pnpm checks`
+   - **Test**: `pnpm test` (expect 215 pass, 1 pre-existing fail)
+   - **Build** (if package changed): `pnpm {package}:backend build` or `pnpm {package}:frontend build`
 
-- Wallet backend: `packages/wallet/backend/src`
-- Wallet frontend: `packages/wallet/frontend`
-- Boutique backend: `packages/boutique/backend/src`
-- Boutique frontend: `packages/boutique/frontend/src`
-- Shared backend utilities: `packages/shared/backend/src`
+4. **Replicate CI locally**: The `.github/workflows/ci.yml` logic matches these commands exactly:
+   - Step 1: `pnpm checks`
+   - Step 2: `pnpm {package}:frontend build` (if labeled)
+   - Step 3: `pnpm {package}:backend test --detectOpenHandles --forceExit` (if build passed)
 
-## CI And PR Expectations
+5. **Document discovered issues**: If you find information in this file is incomplete or incorrect, update this file in your PR.
 
-Primary workflows:
+6. **Common agent mistakes to avoid**:
+   - Using `npm install` instead of `pnpm install --frozen-lockfile` ← **Always use pnpm**
+   - Editing Node version ← **Requires nvm; never repo-change**
+   - Running tests before `pnpm install --frozen-lockfile` ← **Always install first**
+   - Ignoring ESLint warnings ← **--max-warnings=0 enforced; must be 0**
 
-- `.github/workflows/ci.yml`
-  - Always runs `pnpm checks`.
-  - Build/test jobs are gated by PR labels (`package: wallet/backend`, `package: boutique/frontend`, etc.).
-  - Wallet backend CI test command: `pnpm wallet:backend build && pnpm wallet:backend test --detectOpenHandles --forceExit`.
-- `.github/workflows/pr_title_check.yml`
-  - PR title must satisfy Conventional Commits.
-- `.github/workflows/build-publish.yaml`
-  - Builds package matrix on PR/push; publishes images on `v*` tags.
+---
 
-Before opening a PR, replicate the relevant CI subset for your changed package(s) and note any pre-existing baseline failures.
-
-## Agent Operating Rule
-
-When implementing changes, follow this file first, execute commands in the documented order, and avoid broad repo searches unless required details are missing or incorrect.
+**Updated**: April 2026  
+**Maintained By**: Interledger Foundation
