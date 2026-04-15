@@ -1,5 +1,4 @@
 packages:
-  - 'e2e'
   - 'packages/wallet/*'
   - 'packages/boutique/*'
   - 'packages/shared/*'
