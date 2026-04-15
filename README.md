@@ -110,7 +110,7 @@ Recommended first-run startup order:
 # - Add custom hostnames to /etc/hosts (needs admin password)
 # - Generate self signed certificates for local env SSL
 # - Add self signed certificates to OS cert store
-# - Build and docker launch containers required
+# - Build and launch containers required to run environment
 pnpm run local:setup
 
 # Starts TestNet Wallet and Boutique in development mode
