@@ -132,8 +132,16 @@ function sleep(ms) {
 }
 
 async function waitForRafikiHealth(env) {
+  const initialDelayMs = 3000
   const maxAttempts = 30
-  logInfo('Waiting for Rafiki health endpoint to report OK')
+  const retryIntervalMs = 2000
+
+  logInfo(
+    `Waiting ${initialDelayMs / 1000}s for containers to initialise before polling health`
+  )
+  await sleep(initialDelayMs)
+
+  logInfo('Polling Rafiki health endpoint for OK')
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     logInfo(
@@ -143,7 +151,7 @@ async function waitForRafikiHealth(env) {
     try {
       const response = await fetch(env.RAFIKI_HEALTH_ENDPOINT, {
         method: 'GET',
-        signal: AbortSignal.timeout(1000)
+        signal: AbortSignal.timeout(2000)
       })
 
       if (!response.ok) {
@@ -161,13 +169,13 @@ async function waitForRafikiHealth(env) {
     }
 
     if (attempt < maxAttempts) {
-      logInfo('Rafiki not ready yet, retrying in 1 second...')
-      await sleep(1000)
+      logInfo(`Rafiki not ready yet, retrying in ${retryIntervalMs / 1000}s...`)
+      await sleep(retryIntervalMs)
     }
   }
 
   throw new Error(
-    `Rafiki health endpoint did not return OK within ${maxAttempts} seconds`
+    `Rafiki health endpoint did not return OK after ${initialDelayMs / 1000}s initial wait + ${maxAttempts} attempts`
   )
 }
 
