@@ -25,8 +25,16 @@ HOSTS=(
   "mockgatehub.testnet.test"
 )
 
+# If .env does not exist then create it with touch
+if [[ ! -f "$LOCAL_DIR/.env" ]]; then
+  touch "$LOCAL_DIR/.env"
+fi
+
 compose() {
-  docker compose -f "$COMPOSE_FILE" "$@"
+  docker compose -f "$COMPOSE_FILE" \
+    --env-file "$LOCAL_DIR/.env.local" \
+    --env-file "$LOCAL_DIR/.env" \
+    "$@"
 }
 
 reload_traefik_if_running() {

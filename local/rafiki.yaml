@@ -11,24 +11,24 @@ services:
       - '3008:3008'
       - '3009:3009'
     environment:
-      AUTH_PORT: ${RAFIKI_AUTH_PORT:-3006}
-      INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT:-3007}
-      ADMIN_PORT: ${RAFIKI_AUTH_ADMIN_PORT:-3008}
-      NODE_ENV: ${NODE_ENV:-development}
-      LOG_LEVEL: ${RAFIKI_AUTH_LOG_LEVEL:-debug}
-      TRUST_PROXY: ${RAFIKI_AUTH_TRUST_PROXY:-true}
-      NODE_TLS_REJECT_UNAUTHORIZED: ${RAFIKI_AUTH_NODE_TLS_REJECT_UNAUTHORIZED:-0}
-      AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_URL:-https://auth.testnet.test}
-      AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL:-postgresql://rafiki_auth:rafiki_auth@postgres-local/rafiki_auth}
-      IDENTITY_SERVER_URL: ${RAFIKI_AUTH_IDENTITY_SERVER_URL:-https://testnet.test/grant-interactions}
-      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-auth-secret-key-12345}
-      COOKIE_KEY: ${AUTH_COOKIE_KEY:-8fd398393c47dd27a3167d9c081c094f}
-      INTERACTION_COOKIE_SAME_SITE: ${AUTH_INTERACTION_COOKIE_SAME_SITE:-lax}
-      WAIT_SECONDS: ${RAFIKI_AUTH_WAIT_SECONDS:-1}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
-      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
-      ADMIN_SIGNATURE_VERSION: ${ADMIN_SIGNATURE_VERSION:-1}
+      AUTH_PORT: ${RAFIKI_AUTH_PORT}
+      INTROSPECTION_PORT: ${RAFIKI_AUTH_INTROSPECTION_PORT}
+      ADMIN_PORT: ${RAFIKI_AUTH_ADMIN_PORT}
+      NODE_ENV: ${NODE_ENV}
+      LOG_LEVEL: ${RAFIKI_AUTH_LOG_LEVEL}
+      TRUST_PROXY: ${RAFIKI_AUTH_TRUST_PROXY}
+      NODE_TLS_REJECT_UNAUTHORIZED: ${RAFIKI_AUTH_NODE_TLS_REJECT_UNAUTHORIZED}
+      AUTH_SERVER_URL: ${RAFIKI_AUTH_SERVER_URL}
+      AUTH_DATABASE_URL: ${RAFIKI_AUTH_DATABASE_URL}
+      IDENTITY_SERVER_URL: ${AUTH_IDENTITY_SERVER_URL}
+      IDENTITY_SERVER_SECRET: ${AUTH_IDENTITY_SERVER_SECRET}
+      COOKIE_KEY: ${AUTH_COOKIE_KEY}
+      INTERACTION_COOKIE_SAME_SITE: ${RAFIKI_AUTH_INTERACTION_COOKIE_SAME_SITE}
+      WAIT_SECONDS: ${RAFIKI_AUTH_WAIT_SECONDS}
+      OPERATOR_TENANT_ID: ${RAFIKI_OPERATOR_TENANT_ID}
+      ADMIN_API_SECRET: ${RAFIKI_ADMIN_API_SECRET}
+      ADMIN_SIGNATURE_VERSION: ${RAFIKI_ADMIN_SIGNATURE_VERSION}
+      REDIS_URL: ${REDIS_URL}
     extra_hosts:
       - testnet.test:host-gateway
       - api.testnet.test:host-gateway
@@ -64,49 +64,49 @@ services:
     volumes:
       - ../temp/:/workspace/temp/
     ports:
-      - '3010:80'
       - '3011:3001'
+      - '3010:3003'
       - '3005:3005'
       - '3002:3002'
     networks:
       - testnet
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
+      NODE_ENV: ${NODE_ENV}
       LOG_LEVEL: ${LOG_LEVEL:-debug}
-      TRUST_PROXY: ${RAFIKI_BACKEND_TRUST_PROXY:-true}
-      ADMIN_PORT: ${RAFIKI_BACKEND_ADMIN_PORT:-3001}
-      CONNECTOR_PORT: ${RAFIKI_BACKEND_CONNECTOR_PORT:-3002}
-      OPEN_PAYMENTS_PORT: ${RAFIKI_BACKEND_OPEN_PAYMENTS_PORT:-80}
-      DATABASE_URL: ${RAFIKI_BACKEND_DATABASE_URL:-postgresql://rafiki_backend:rafiki_backend@postgres-local/rafiki_backend}
-      USE_TIGERBEETLE: ${RAFIKI_BACKEND_USE_TIGERBEETLE:-false}
-      NONCE_REDIS_KEY: ${RAFIKI_BACKEND_NONCE_REDIS_KEY:-test}
-      AUTH_SERVER_GRANT_URL: ${RAFIKI_BACKEND_AUTH_SERVER_GRANT_URL:-https://auth.testnet.test}
-      AUTH_SERVER_INTROSPECTION_URL: ${RAFIKI_BACKEND_AUTH_SERVER_INTROSPECTION_URL:-http://rafiki-auth:3007}
-      ILP_ADDRESS: ${RAFIKI_BACKEND_ILP_ADDRESS:-test.net}
-      ILP_CONNECTOR_URL: ${RAFIKI_BACKEND_ILP_CONNECTOR_URL:-http://127.0.0.1:3002}
-      STREAM_SECRET: ${RAFIKI_BACKEND_STREAM_SECRET:-BjPXtnd00G2mRQwP/8ZpwyZASOch5sUXT5o0iR5b5wU=}
-      ADMIN_KEY: ${RAFIKI_BACKEND_ADMIN_KEY:-admin}
-      OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL:-https://rafiki-backend.testnet.test}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      WALLET_ADDRESS_URL: ${RAFIKI_BACKEND_WALLET_ADDRESS_URL:-https://rafiki-backend.testnet.test/.well-known/pay}
-      WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL:-http://host.docker.internal:3003/webhooks}
-      WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT:-60000}
-      SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET:-327132b5-99e9-4eb8-8a25-2b7d7738ece1}
-      EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
-      ENABLE_AUTO_PEERING: ${RAFIKI_BACKEND_ENABLE_AUTO_PEERING:-true}
-      AUTO_PEERING_SERVER_PORT: ${RAFIKI_BACKEND_AUTO_PEERING_SERVER_PORT:-3005}
-      INSTANCE_NAME: ${RAFIKI_BACKEND_INSTANCE_NAME:-Testnet Wallet}
-      SLIPPAGE: ${RAFIKI_BACKEND_SLIPPAGE:-0.01}
-      KEY_ID: ${RAFIKI_BACKEND_KEY_ID:-rafiki}
-      WALLET_ADDRESS_REDIRECT_HTML_PAGE: ${RAFIKI_BACKEND_WALLET_ADDRESS_REDIRECT_HTML_PAGE:-https://testnet.test/account?walletAddress=%ewa}
-      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
-      ADMIN_API_SECRET: ${ADMIN_API_SECRET:-secret-key}
-      ADMIN_SIGNATURE_VERSION: ${ADMIN_SIGNATURE_VERSION:-1}
-      AUTH_SERVICE_API_URL: ${RAFIKI_BACKEND_AUTH_SERVICE_API_URL:-http://rafiki-auth:3011}
-      CARD_SERVICE_URL: ${RAFIKI_BACKEND_CARD_SERVICE_URL:-http://rafiki-card-service:3007}
-      CARD_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_CARD_WEBHOOK_SERVICE_URL:-http://rafiki-card-service:3007/webhook}
-      POS_SERVICE_URL: ${RAFIKI_BACKEND_POS_SERVICE_URL:-http://rafiki-pos-service:3014}
-      POS_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_POS_WEBHOOK_SERVICE_URL:-http://rafiki-pos-service:3014/webhook}
+      TRUST_PROXY: ${RAFIKI_BACKEND_TRUST_PROXY}
+      ADMIN_PORT: ${RAFIKI_BACKEND_ADMIN_PORT}
+      CONNECTOR_PORT: ${RAFIKI_BACKEND_CONNECTOR_PORT}
+      OPEN_PAYMENTS_PORT: ${RAFIKI_BACKEND_OPEN_PAYMENTS_PORT}
+      DATABASE_URL: ${RAFIKI_BACKEND_DATABASE_URL}
+      USE_TIGERBEETLE: ${RAFIKI_BACKEND_USE_TIGERBEETLE}
+      NONCE_REDIS_KEY: ${RAFIKI_BACKEND_NONCE_REDIS_KEY}
+      AUTH_SERVER_GRANT_URL: ${RAFIKI_BACKEND_AUTH_SERVER_GRANT_URL}
+      AUTH_SERVER_INTROSPECTION_URL: ${RAFIKI_BACKEND_AUTH_SERVER_INTROSPECTION_URL}
+      ILP_ADDRESS: ${RAFIKI_BACKEND_ILP_ADDRESS}
+      ILP_CONNECTOR_URL: ${RAFIKI_BACKEND_ILP_CONNECTOR_URL}
+      STREAM_SECRET: ${RAFIKI_BACKEND_STREAM_SECRET}
+      ADMIN_KEY: ${RAFIKI_BACKEND_ADMIN_KEY}
+      OPEN_PAYMENTS_URL: ${RAFIKI_BACKEND_OPEN_PAYMENTS_URL}
+      REDIS_URL: ${REDIS_URL}
+      WALLET_ADDRESS_URL: ${RAFIKI_BACKEND_WALLET_ADDRESS_URL}
+      WEBHOOK_URL: ${RAFIKI_BACKEND_WEBHOOK_URL}
+      WEBHOOK_TIMEOUT: ${RAFIKI_BACKEND_WEBHOOK_TIMEOUT}
+      SIGNATURE_SECRET: ${RAFIKI_SIGNATURE_SECRET}
+      EXCHANGE_RATES_URL: ${RAFIKI_BACKEND_EXCHANGE_RATES_URL}
+      ENABLE_AUTO_PEERING: ${RAFIKI_BACKEND_ENABLE_AUTO_PEERING}
+      AUTO_PEERING_SERVER_PORT: ${RAFIKI_BACKEND_AUTO_PEERING_SERVER_PORT}
+      INSTANCE_NAME: ${RAFIKI_BACKEND_INSTANCE_NAME}
+      SLIPPAGE: ${RAFIKI_BACKEND_SLIPPAGE}
+      KEY_ID: ${RAFIKI_BACKEND_KEY_ID}
+      WALLET_ADDRESS_REDIRECT_HTML_PAGE: ${RAFIKI_BACKEND_WALLET_ADDRESS_REDIRECT_HTML_PAGE}
+      OPERATOR_TENANT_ID: ${OPERATOR_TENANT_ID}
+      ADMIN_API_SECRET: ${RAFIKI_ADMIN_API_SECRET}
+      ADMIN_SIGNATURE_VERSION: ${ADMIN_SIGNATURE_VERSION}
+      AUTH_SERVICE_API_URL: ${RAFIKI_BACKEND_AUTH_SERVICE_API_URL}
+      CARD_SERVICE_URL: ${RAFIKI_BACKEND_CARD_SERVICE_URL}
+      CARD_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_CARD_WEBHOOK_SERVICE_URL}
+      POS_SERVICE_URL: ${RAFIKI_BACKEND_POS_SERVICE_URL}
+      POS_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_POS_WEBHOOK_SERVICE_URL}
     depends_on:
       - postgres
       - redis
@@ -115,10 +115,19 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
+      # Admin GraphQL API (port 3001) — higher priority path match
+      - traefik.http.routers.rafiki-backend-admin.rule=Host(`rafiki-backend.testnet.test`) && PathPrefix(`/graphql`)
+      - traefik.http.routers.rafiki-backend-admin.entrypoints=websecure
+      - traefik.http.routers.rafiki-backend-admin.tls=true
+      - traefik.http.routers.rafiki-backend-admin.priority=100
+      - traefik.http.routers.rafiki-backend-admin.service=rafiki-backend-admin
+      - traefik.http.services.rafiki-backend-admin.loadbalancer.server.port=3001
+      # Open Payments API (port 3003) — catch-all for everything else
       - traefik.http.routers.rafiki-backend.rule=Host(`rafiki-backend.testnet.test`)
       - traefik.http.routers.rafiki-backend.entrypoints=websecure
       - traefik.http.routers.rafiki-backend.tls=true
-      - traefik.http.services.rafiki-backend.loadbalancer.server.port=80
+      - traefik.http.routers.rafiki-backend.service=rafiki-backend
+      - traefik.http.services.rafiki-backend.loadbalancer.server.port=3003
 
   rafiki-frontend:
     container_name: rafiki-frontend-local
@@ -132,12 +141,12 @@ services:
     networks:
       - testnet
     environment:
-      PORT: ${RAFIKI_FRONTEND_PORT:-3012}
-      GRAPHQL_URL: ${GRAPHQL_URL:-http://rafiki-backend:3001/graphql}
-      OPEN_PAYMENTS_URL: ${RAFIKI_FRONTEND_OPEN_PAYMENTS_URL:-https://rafiki-backend.testnet.test/}
-      ENABLE_INSECURE_MESSAGE_COOKIE: ${RAFIKI_FRONTEND_ENABLE_INSECURE_MESSAGE_COOKIE:-true}
-      AUTH_ENABLED: ${RAFIKI_FRONTEND_AUTH_ENABLED:-false}
-      SIGNATURE_VERSION: ${RAFIKI_FRONTEND_SIGNATURE_VERSION:-1}
+      PORT: ${RAFIKI_FRONTEND_PORT}
+      GRAPHQL_URL: ${RAFIKI_GRAPHQL_URL}
+      OPEN_PAYMENTS_URL: ${RAFIKI_FRONTEND_OPEN_PAYMENTS_URL}
+      ENABLE_INSECURE_MESSAGE_COOKIE: ${RAFIKI_FRONTEND_ENABLE_INSECURE_MESSAGE_COOKIE}
+      AUTH_ENABLED: ${RAFIKI_FRONTEND_AUTH_ENABLED}
+      SIGNATURE_VERSION: ${RAFIKI_FRONTEND_SIGNATURE_VERSION}
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
@@ -160,7 +169,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-debug}
       CARD_SERVICE_PORT: ${RAFIKI_CARD_SERVICE_PORT:-3007}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      GRAPHQL_URL: ${GRAPHQL_URL:-http://rafiki-backend:3001/graphql}
+      GRAPHQL_URL: ${RAFIKI_GRAPHQL_URL:-http://rafiki-backend:3001/graphql}
       TENANT_ID: ${OPERATOR_TENANT_ID:-f829c064-762a-4430-ac5d-7af5df198551}
       TENANT_SECRET: ${ADMIN_API_SECRET:-secret-key}
       TENANT_SIGNATURE_VERSION: ${RAFIKI_CARD_SERVICE_TENANT_SIGNATURE_VERSION:-1}
