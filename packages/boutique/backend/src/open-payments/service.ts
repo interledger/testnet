@@ -384,7 +384,7 @@ export class OpenPayments implements IOpenPayments {
     await this.opClient.outgoingPayment
       .create(
         {
-          url: new URL(payment.walletAddress).origin,
+          url: customerWalletAddress.resourceServer,
           accessToken: grant.access_token.value
         },
         {
@@ -397,9 +397,10 @@ export class OpenPayments implements IOpenPayments {
           }
         }
       )
-      .catch(() => {
+      .catch((err) => {
         this.logger.error(
-          `Error while creating outgoing payment for order ${order.id}.`
+          `Error while creating outgoing payment for order ${order.id}.`,
+          err
         )
         throw new BadRequest(
           'One click buy spending limit exceeded. Please setup one click buy again.'
