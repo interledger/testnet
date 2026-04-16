@@ -106,7 +106,7 @@ function buildEnv() {
     ),
     AUTH_IDENTITY_SERVER_SECRET: get(
       'AUTH_IDENTITY_SERVER_SECRET',
-      'auth-secret-key-12345'
+      'dev_identity_server_secret'
     ),
     IDP_CONSENT_URL: get(
       'IDP_CONSENT_URL',
