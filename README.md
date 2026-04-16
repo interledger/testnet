@@ -106,6 +106,15 @@ pnpm local:help
 Recommended first-run startup order:
 
 ```sh
+# Clean environment
+pnpm clean
+
+# Install dependencies
+pnpm i
+
+# Build all packages (required before first run)
+pnpm build
+
 # Setup will do the following tasks in one go
 # - Add custom hostnames to /etc/hosts (needs admin password)
 # - Generate self signed certificates for local env SSL
@@ -135,20 +144,3 @@ Upon executing the above commands the following will be available:
 - [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
-
-Common local infrastructure commands:
-
-```sh
-pnpm local:all           # start full local stack (with Traefik) and print cert acceptance URLs
-pnpm local:build         # build docker images for local stack
-pnpm local:rebuild       # force rebuild docker images (no cache)
-pnpm local:down          # stop the local stack
-pnpm local:reset         # stop stack and remove docker volumes
-pnpm local:logs          # follow docker logs
-pnpm local:certs         # create TLS certs if missing (use FORCE_CERTS=1 to regenerate)
-pnpm local:hosts         # add host aliases to /etc/hosts (requires sudo)
-pnpm local:trust         # trust local TLS cert (auto-detect OS)
-pnpm local:trust:linux   # trust local TLS cert on Linux
-pnpm local:trust:macos   # trust local TLS cert on macOS
-pnpm local:rafiki-assets # run Rafiki asset setup script
-```
