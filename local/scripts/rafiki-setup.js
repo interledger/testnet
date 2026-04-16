@@ -214,6 +214,13 @@ async function graphqlRequest({ query, variables, operationName }, env) {
 
   logInfo(`GraphQL <- ${opName} HTTP ${response.status}`)
 
+  if (!response.ok) {
+    const text = await response.text().catch(() => '<unreadable body>')
+    throw new Error(
+      `${opName} HTTP ${response.status}: ${text.slice(0, 500)}`
+    )
+  }
+
   const data = await response.json()
   if (data.errors && data.errors.length) {
     const message = data.errors.map((e) => e.message).join('\n')
@@ -294,6 +301,7 @@ const getAssetByCodeAndScaleQuery = /* GraphQL */ `
       id
       code
       scale
+      liquidity
     }
   }
 `
@@ -446,6 +454,7 @@ async function ensureAssets(env) {
 // Deposit liquidity for all assets (100000 units per asset, converted to minor units by scale)
 async function ensureLiquidity(env) {
   logInfo('Step 3/3: Ensuring asset liquidity is deposited')
+  const failures = []
 
   for (const asset of assetsToEnsure) {
     let node
@@ -460,11 +469,21 @@ async function ensureLiquidity(env) {
       node = res?.assetByCodeAndScale
     } catch (err) {
       logInfo(`Lookup failed for ${asset.code}:`, err.message)
+      failures.push(asset.code)
       continue
     }
 
     if (!node?.id) {
-      logInfo(`Skipping liquidity for ${asset.code}: asset id not found`)
+      logInfo(`Asset ${asset.code} not found, cannot deposit liquidity`)
+      failures.push(asset.code)
+      continue
+    }
+
+    // Skip if asset already has liquidity
+    if (node.liquidity && BigInt(node.liquidity) > 0n) {
+      logInfo(
+        `Asset ${asset.code} already has liquidity (${node.liquidity}), skipping`
+      )
       continue
     }
 
@@ -491,13 +510,21 @@ async function ensureLiquidity(env) {
       )
 
       if (!res?.depositAssetLiquidity?.success) {
-        logInfo(`Liquidity deposit failed for ${asset.code}`)
+        logInfo(`Liquidity deposit returned success=false for ${asset.code}`)
+        failures.push(asset.code)
       } else {
         logInfo(`Liquidity deposited for ${asset.code}`)
       }
     } catch (err) {
       logInfo(`Liquidity deposit error for ${asset.code}:`, err.message)
+      failures.push(asset.code)
     }
+  }
+
+  if (failures.length) {
+    throw new Error(
+      `Liquidity deposit failed for asset(s): ${failures.join(', ')}`
+    )
   }
 }
 
