@@ -216,9 +216,7 @@ async function graphqlRequest({ query, variables, operationName }, env) {
 
   if (!response.ok) {
     const text = await response.text().catch(() => '<unreadable body>')
-    throw new Error(
-      `${opName} HTTP ${response.status}: ${text.slice(0, 500)}`
-    )
+    throw new Error(`${opName} HTTP ${response.status}: ${text.slice(0, 500)}`)
   }
 
   const data = await response.json()
