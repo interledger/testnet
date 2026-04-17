@@ -1,16 +1,6 @@
-enum TRANSACTION_TYPE {
-  INCOMING = 'INCOMING',
-  OUTGOING = 'OUTGOING'
-}
-export type TransactionType = keyof typeof TRANSACTION_TYPE
+export type TransactionType = 'INCOMING' | 'OUTGOING'
 
-enum TRANSACTION_STATUS {
-  PENDING = 'PENDING',
-  COMPLETED = 'COMPLETED',
-  EXPIRED = 'EXPIRED',
-  FAILED = 'FAILED'
-}
-type TransactionStatus = keyof typeof TRANSACTION_STATUS
+type TransactionStatus = 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'FAILED'
 
 export enum CardTrxTypeEnum {
   Purchase = 0,

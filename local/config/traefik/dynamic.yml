@@ -1,0 +1,62 @@
+tls:
+  certificates:
+    - certFile: /certs/local.crt
+      keyFile: /certs/local.key
+    - certFile: /certs/boutique.crt
+      keyFile: /certs/boutique.key
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/local.crt
+        keyFile: /certs/local.key
+
+http:
+  routers:
+    wallet-frontend:
+      rule: Host(`testnet.test`)
+      entryPoints:
+        - websecure
+      tls: true
+      service: wallet-frontend
+
+    wallet-backend:
+      rule: Host(`api.testnet.test`)
+      entryPoints:
+        - websecure
+      tls: true
+      service: wallet-backend
+
+    boutique-frontend:
+      rule: Host(`boutique.test`)
+      entryPoints:
+        - websecure
+      tls: true
+      service: boutique-frontend
+
+    boutique-backend:
+      rule: Host(`api.boutique.test`)
+      entryPoints:
+        - websecure
+      tls: true
+      service: boutique-backend
+
+  services:
+    wallet-frontend:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:4003
+
+    wallet-backend:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3003
+
+    boutique-frontend:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:4004
+
+    boutique-backend:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3004

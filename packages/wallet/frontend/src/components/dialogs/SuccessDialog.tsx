@@ -38,7 +38,7 @@ export const SuccessDialog = ({
   } = {
     href: redirect ?? '/',
     onClick: () => {
-      onSuccess ? onSuccess() : undefined
+      if (onSuccess) onSuccess()
       onClose()
     }
   }

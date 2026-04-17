@@ -4,7 +4,7 @@ import { TransactionOrKnex } from 'objection'
 import { Logger } from 'winston'
 import { InternalServerError, NotFound } from '@shared/backend'
 
-interface OrderItemParams extends Pick<OrderItem, 'productId' | 'quantity'> {}
+type OrderItemParams = Pick<OrderItem, 'productId' | 'quantity'>
 
 interface CreateParams {
   userId?: string

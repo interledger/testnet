@@ -80,10 +80,10 @@ In order for the Test Wallet and Test e-commerce playground to function, it is n
 Navigate to the project's root directory and enter the following command:
 
 ```sh
-cp ./docker/dev/.env.example ./docker/dev/.env
+cp ./local/.env.example ./local/.env
 ```
 
-Using your preferred text editor, open the `./docker/dev/.env` file and configure the necessary environment variables.
+Using your preferred text editor, open the `./local/.env` file and configure the necessary environment variables.
 The `GATEHUB` related environment variables are necessary in order to complete Sandbox KYC, and add play money to your account. In order to have the correct variables, create a `GateHub` Sandbox account. Optionally you could send an email to `timea@interledger.foundation` and request these variables.
 
 To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
@@ -97,30 +97,50 @@ If you would like to set up e-commerce application, you will need to create a US
 
 ### Local Playground
 
-Navigate to the project's root directory and execute:
+For a quick command list:
 
 ```sh
-pnpm dev #this will start the project in hot reload mode for backend containers. Frontend containers have hot reload functionality enabled on all dev commads
+pnpm local:help
 ```
 
-other options to start the local env are:
+Recommended first-run startup order:
 
 ```sh
-pnpm dev:debug #backend containers will not have hot reload feature enabled but will expose and have node `--inspect` option set with wallet container debug port set to 9229 and boutique port set to 9230. Once the containers are running, you can connect your debugger (e.g., Chrome DevTools, VS Code)
+# Clean environment
+pnpm clean
+
+# Install dependencies
+pnpm i
+
+# Build all packages (required before first run)
+pnpm build
+
+# Setup will do the following tasks in one go
+# - Add custom hostnames to /etc/hosts (needs admin password)
+# - Generate self signed certificates for local env SSL
+# - Add self signed certificates to OS cert store
+# - Build and launch containers required to run environment
+pnpm run local:setup
+
+# Starts TestNet Wallet and Boutique in development mode
+pnpm run dev
 ```
 
-and:
+Notes:
 
-```sh
-pnpm dev:lite #backend containers will build and run the builds, no debug and no hot reload for these containers
-```
+- `pnpm local:setup` will ask for sudo password
+- Setup can be re-run safely without concerns
+- Configurations can be found in the `.env.local` files.
+- See `.env.example` files for available environment overrides. Values placed in `.env` will override local environment.
+- Boutique will not be able to transact until you set up developer keys against the TestNet Wallet and configure the `.env` file
 
-Upon executing the above command, the following will be available
+Upon executing the above commands the following will be available:
 
-- Interledger Test Wallet application
-  - Frontend at [http://localhost:4003](http://localhost:4003)
-  - Backend at [http://localhost:3003](http://localhost:3003)
-  - Admin at [http://localhost:3012](http://localhost:3012)
-
-- Interledger Boutique e-commerce application
-  - [http://localhost:4004](http://localhost:4004)
+- [https://auth.testnet.test](https://auth.testnet.test) - Local authentication service.
+- [https://testnet.test](https://testnet.test) - Test Wallet frontend.
+- [https://api.testnet.test](https://api.testnet.test) - Wallet backend API for the local Test Wallet environment.
+- [https://boutique.test](https://boutique.test) - Boutique frontend.
+- [https://api.boutique.test](https://api.boutique.test) - Boutique backend API serving product and checkout functionality.
+- [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
+- [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
+- [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.

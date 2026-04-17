@@ -68,7 +68,6 @@ export class GateHubClient {
   private supportedAssetCodes: string[]
   private clientIds = SANDBOX_CLIENT_IDS
   private vaultIds = SANDBOX_VAULT_IDS
-  private mainUrl = 'sandbox.gatehub.net'
 
   private iframeMappings: Record<
     IFRAME_TYPE,
@@ -86,7 +85,6 @@ export class GateHubClient {
     if (this.isProduction) {
       this.clientIds = PRODUCTION_CLIENT_IDS
       this.vaultIds = PRODUCTION_VAULT_IDS
-      this.mainUrl = 'gatehub.net'
     }
 
     this.supportedAssetCodes = Object.keys(this.vaultIds)
@@ -97,19 +95,19 @@ export class GateHubClient {
   }
 
   get apiUrl() {
-    return `https://api.${this.mainUrl}`
+    return this.env.GATEHUB_API_BASE_URL
   }
 
   get rampUrl() {
-    return `https://managed-ramp.${this.mainUrl}`
+    return this.env.GATEHUB_IFRAME_MANAGED_RAMP_URL
   }
 
   get exchangeUrl() {
-    return `https://exchange.${this.mainUrl}`
+    return this.env.GATEHUB_IFRAME_EXCHANGE_URL
   }
 
   get onboardingUrl() {
-    return `https://onboarding.${this.mainUrl}`
+    return this.env.GATEHUB_IFRAME_ONBOARDING_URL
   }
 
   async getWithdrawalUrl(managedUserUuid: string): Promise<string> {

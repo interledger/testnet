@@ -192,7 +192,7 @@ export class OpenPayments implements IOpenPayments {
           )
           throw new InternalServerError()
         })
-    } catch (err) {
+    } catch {
       throw new InternalServerError()
     }
   }
@@ -526,8 +526,8 @@ export class OpenPayments implements IOpenPayments {
           }
         }
       )
-      .catch(() => {
-        this.logger.error('Unable to create incoming payment.')
+      .catch((err) => {
+        this.logger.error('Unable to create incoming payment.', err)
         throw new InternalServerError()
       })
   }

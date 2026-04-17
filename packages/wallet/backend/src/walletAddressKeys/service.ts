@@ -196,7 +196,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
         this.rafikiClient.revokeWalletAddressKey(walletAddressKey.rafikiId)
       ])
       await trx.commit()
-    } catch (e) {
+    } catch {
       await trx.rollback()
     }
   }
@@ -230,7 +230,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
         })
       )
       await trx.commit()
-    } catch (e) {
+    } catch {
       await trx.rollback()
     }
   }
