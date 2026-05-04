@@ -44,12 +44,21 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
+
+      - traefik.http.routers.rafiki-auth-admin.rule=Host(`auth.testnet.test`) && PathPrefix(`/graphql`)
+      - traefik.http.routers.rafiki-auth-admin.entrypoints=websecure
+      - traefik.http.routers.rafiki-auth-admin.tls=true
+      - traefik.http.routers.rafiki-auth-admin.priority=110
+      - traefik.http.routers.rafiki-auth-admin.service=rafiki-auth-admin
+      - traefik.http.services.rafiki-auth-admin.loadbalancer.server.port=3008
+
       - traefik.http.routers.rafiki-auth-grant.rule=Host(`auth.testnet.test`) && PathPrefix(`/grant`)
       - traefik.http.routers.rafiki-auth-grant.entrypoints=websecure
       - traefik.http.routers.rafiki-auth-grant.tls=true
       - traefik.http.routers.rafiki-auth-grant.priority=100
       - traefik.http.routers.rafiki-auth-grant.service=rafiki-auth-grant
       - traefik.http.services.rafiki-auth-grant.loadbalancer.server.port=3009
+
       - traefik.http.routers.rafiki-auth.rule=Host(`auth.testnet.test`)
       - traefik.http.routers.rafiki-auth.entrypoints=websecure
       - traefik.http.routers.rafiki-auth.tls=true
