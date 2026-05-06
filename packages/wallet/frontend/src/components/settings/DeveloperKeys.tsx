@@ -649,7 +649,7 @@ const PublicKeyContainer = ({ publicKey }: PublicKeyContainerProps) => {
           aria-label="show or hide public key"
           onClick={() => setIsVisible((prev) => !prev)}
         >
-          {isVisible ? 'Eggs' : 'Show'}
+          {isVisible ? 'Hide' : 'Show'}
         </Button>
       </div>
       {isVisible ? (
