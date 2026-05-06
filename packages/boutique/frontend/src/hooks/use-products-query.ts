@@ -2,6 +2,18 @@ import { UseQueryResult, useQuery } from '@tanstack/react-query'
 import { fetcher, APIError } from '@/lib/fetcher.ts'
 import { SuccessResponse } from '@/lib/types.ts'
 
+export enum ProductType {
+  ONE_TIME = 'ONE_TIME',
+  SUBSCRIPTION = 'SUBSCRIPTION'
+}
+
+export enum BillingInterval {
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  YEAR = 'YEAR'
+}
+
 export interface Product {
   id: string
   slug: string
@@ -10,6 +22,9 @@ export interface Product {
   price: number
   image: string
   imageDark: string
+  productType: ProductType
+  billingInterval?: BillingInterval
+  billingIntervalCount?: number
 }
 
 export function useProductsQuery(): UseQueryResult<

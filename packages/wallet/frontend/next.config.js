@@ -2,7 +2,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
 
-let NEXT_PUBLIC_FEATURES_ENABLED = 'true'
+let NEXT_PUBLIC_FEATURES_ENABLED = 'false'
 
 if (
   process.env.NODE_ENV === 'production' &&

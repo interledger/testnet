@@ -53,7 +53,7 @@ describe('Application', (): void => {
       expect(res._getJSONData()).toMatchObject({
         success: true
       })
-      expect(res._getJSONData().result.length).toBe(6)
+      expect(res._getJSONData().result.length).toBe(7)
     })
 
     it('should return an empty array if there are no products', async (): Promise<void> => {

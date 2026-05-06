@@ -60,6 +60,12 @@ export const getStatusBadgeIntent = (
     case 'PENDING':
     case 'PROCESSING':
       return 'orange'
+    case 'ACTIVE':
+      return 'green'
+    case 'PAST_DUE':
+      return 'orange'
+    case 'CANCELED':
+      return 'pink'
     case 'FUNDING':
     case 'SENDING':
     case 'REVOKED':

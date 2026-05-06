@@ -16,6 +16,9 @@ export class Order extends BaseModel {
 
   public id!: string
   public userId!: string
+  public subscriptionId?: string
+  public paymentNumber?: number
+  public totalPayments?: number
   public quoteId!: string
   public total!: number
   public walletAddressUrl?: string

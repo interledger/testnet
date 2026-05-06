@@ -1,6 +1,9 @@
 import { BirdError } from '@/components/bird.tsx'
 import { useProductQuery } from '@/hooks/use-product-query.ts'
-import { Product } from '@/hooks/use-products-query.ts'
+import {
+  Product,
+  ProductType
+} from '@/hooks/use-products-query.ts'
 import { IMAGES_URL } from '@/lib/constants.ts'
 import { formatPrice } from '@/lib/utils.ts'
 import { createContext } from 'react'
@@ -16,6 +19,23 @@ interface ProductContextValue {
 export const ProductContext = createContext<ProductContextValue>(
   {} as ProductContextValue
 )
+
+function getSubscriptionLabel(product: Product): string {
+  if (
+    product.productType !== ProductType.SUBSCRIPTION ||
+    !product.billingInterval ||
+    !product.billingIntervalCount
+  ) {
+    return ''
+  }
+
+  const unit = product.billingInterval.toLowerCase()
+  if (product.billingIntervalCount === 1) {
+    return ` / ${unit}`
+  }
+
+  return ` every ${product.billingIntervalCount} ${unit.toLowerCase()}s`
+}
 
 export function Component() {
   const { data, error } = useProductQuery()
@@ -87,6 +107,7 @@ export function Component() {
               <div className="mt-3">
                 <p className="text-3xl tracking-tight">
                   {formatPrice(data.result.price)}
+                  {getSubscriptionLabel(data.result)}
                 </p>
               </div>
               <div className="prose mt-6 max-w-full">

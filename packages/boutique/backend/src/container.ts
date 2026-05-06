@@ -25,6 +25,18 @@ import { type OneClickCache, OneClickCacheData } from './cache/one-click'
 import { generateLogger } from '@/config/logger'
 import { generateKnex } from '@/config/knex'
 import { asClassSingletonWithLogger, InMemoryCache } from '@shared/backend'
+import {
+  ISubscriptionService,
+  SubscriptionService
+} from './subscription/service'
+import {
+  ISubscriptionController,
+  SubscriptionController
+} from './subscription/controller'
+import {
+  ISubscriptionProcessor,
+  SubscriptionProcessor
+} from './subscription/processor'
 
 export interface Cradle {
   env: Env
@@ -40,6 +52,9 @@ export interface Cradle {
   productController: IProductController
   orderController: IOrderController
   paymentService: IPaymentService
+  subscriptionService: ISubscriptionService
+  subscriptionController: ISubscriptionController
+  subscriptionProcessor: ISubscriptionProcessor
 }
 
 export async function createContainer(
@@ -71,7 +86,16 @@ export async function createContainer(
     orderService: asClassSingletonWithLogger(OrderService, logger),
     productController: asClassSingletonWithLogger(ProductController, logger),
     orderController: asClassSingletonWithLogger(OrderController, logger),
-    paymentService: asClassSingletonWithLogger(PaymentService, logger)
+    subscriptionController: asClassSingletonWithLogger(
+      SubscriptionController,
+      logger
+    ),
+    paymentService: asClassSingletonWithLogger(PaymentService, logger),
+    subscriptionService: asClassSingletonWithLogger(SubscriptionService, logger),
+    subscriptionProcessor: asClassSingletonWithLogger(
+      SubscriptionProcessor,
+      logger
+    )
   })
 
   return container

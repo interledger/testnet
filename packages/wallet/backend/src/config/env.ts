@@ -46,6 +46,10 @@ const envSchema = z.object({
   ADMIN_API_SECRET: z.string().default('replace-me'),
   OPERATOR_TENANT_ID: z.string().default('tenant'),
   OPEN_PAYMENTS_HOST: z.string().url().default('https://backend:80'),
+  BOUTIQUE_BACKEND_URL: z
+    .string()
+    .url()
+    .default('http://localhost:3004'),
   RAFIKI_MONEY_FRONTEND_HOST: z.string().default('localhost'),
   SENDGRID_API_KEY: z.string().default('SG.API_KEY'),
   FROM_EMAIL: z.string().default('tech@interledger.org'),

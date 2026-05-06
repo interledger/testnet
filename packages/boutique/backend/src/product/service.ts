@@ -5,8 +5,8 @@ import { NotFound } from '@shared/backend'
 type GetColumns = 'id' | 'slug'
 
 export interface IProductService {
-  getById: (id: string) => Promise<Product | undefined>
-  getBySlug: (slug: string) => Promise<Product | undefined>
+  getById: (id: string) => Promise<Product>
+  getBySlug: (slug: string) => Promise<Product>
   list: () => Promise<Product[]>
 }
 

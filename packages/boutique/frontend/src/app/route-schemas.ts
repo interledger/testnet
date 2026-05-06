@@ -18,3 +18,12 @@ export const oneClickConfirmationSearchParamsSchema =
     .extend({
       identifier: z.string().uuid()
     })
+
+export const subscriptionConfirmationSearchParamsSchema =
+  checkoutConfirmationSearchParamsSchema
+    .omit({
+      orderId: true
+    })
+    .extend({
+      subscriptionId: z.string().uuid()
+    })

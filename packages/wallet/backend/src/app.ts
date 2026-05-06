@@ -51,6 +51,8 @@ import { CardController } from './card/controller'
 import { CardService } from './card/service'
 import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
+import { ISubscriptionController } from '@/subscription/controller'
+import { ISubscriptionService } from '@/subscription/service'
 
 export interface Bindings {
   env: Env
@@ -89,6 +91,8 @@ export interface Bindings {
   gateHubService: GateHubService
   cardService: CardService
   cardController: CardController
+  subscriptionService: ISubscriptionService
+  subscriptionController: ISubscriptionController
 }
 
 export class App {
@@ -163,6 +167,9 @@ export class App {
     const cardController = this.container.resolve('cardController')
     const interledgerCardController = this.container.resolve(
       'interledgerCardController'
+    )
+    const subscriptionController = this.container.resolve(
+      'subscriptionController'
     )
 
     app.use(
@@ -453,6 +460,35 @@ export class App {
       isAuth,
       interledgerCardController.terminate
     )
+
+    router.get('/subscriptions', isAuth, subscriptionController.list)
+    router.get(
+      '/subscriptions/merchant',
+      isAuth,
+      subscriptionController.listForMerchant
+    )
+    router.get(
+      '/subscriptions/merchant/orders',
+      isAuth,
+      subscriptionController.listOneTimeOrdersForMerchant
+    )
+    router.get(
+      '/subscriptions/merchant/:id',
+      isAuth,
+      subscriptionController.getByIdForMerchant
+    )
+    router.post(
+      '/subscriptions/:id/reauthorize',
+      isAuth,
+      subscriptionController.startReauthorization
+    )
+    router.patch(
+      '/subscriptions/:id/reauthorize',
+      isAuth,
+      subscriptionController.finishReauthorization
+    )
+    router.post('/subscriptions/:id/retry', isAuth, subscriptionController.retry)
+    router.get('/subscriptions/:id', isAuth, subscriptionController.getById)
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

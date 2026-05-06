@@ -13,6 +13,7 @@ import { Toaster } from '@/components/ui/toaster.tsx'
 import { cartRoutes } from './cart/routes.tsx'
 import { ThemeProvider } from '@/components/theme-provider.tsx'
 import { checkoutRoutes } from './checkout/routes.tsx'
+import { subscriptionsRoutes } from './subscriptions/routes.tsx'
 
 const Index = () => {
   return <Navigate to={`/products`} replace />
@@ -41,6 +42,10 @@ export const routes = [
       {
         path: '/checkout',
         children: checkoutRoutes
+      },
+      {
+        path: '/subscriptions',
+        children: subscriptionsRoutes
       }
     ]
   }

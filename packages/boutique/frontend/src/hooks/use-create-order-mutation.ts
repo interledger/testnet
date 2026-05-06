@@ -1,6 +1,7 @@
 import { APIError } from '@/lib/fetcher.ts'
 import { SuccessResponse } from '@/lib/types.ts'
 import { UseMutationOptions } from '@tanstack/react-query'
+import { paymentPlanSchema } from '@boutique/shared'
 import { z } from 'zod'
 import { useCustomMutation } from './use-custom-mutation.ts'
 
@@ -12,6 +13,7 @@ export interface OrderItem {
 interface CreateOrderMutationParams {
   walletAddressUrl: string
   products: OrderItem[]
+  paymentPlan?: z.infer<typeof paymentPlanSchema>
 }
 
 interface CreateOrderMutationResponse {
@@ -19,7 +21,8 @@ interface CreateOrderMutationResponse {
 }
 
 export const createOrderSchema = z.object({
-  walletAddressUrl: z.string()
+  walletAddressUrl: z.string(),
+  paymentPlan: paymentPlanSchema.default('PAY_IN_FULL')
 })
 
 export function useCreateOrderMutation(

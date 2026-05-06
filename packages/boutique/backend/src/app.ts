@@ -49,6 +49,9 @@ export class App {
     const logger = this.container.resolve('logger')
     const productController = this.container.resolve('productController')
     const orderController = this.container.resolve('orderController')
+    const subscriptionController = this.container.resolve(
+      'subscriptionController'
+    )
 
     app.use(
       cors({
@@ -74,12 +77,25 @@ export class App {
     router.get('/products', productController.list)
     router.get('/products/:slug', productController.get)
 
+    router.get('/orders', orderController.list)
     router.post('/orders', orderController.create)
     router.post('/orders/instant-buy', orderController.instantBuy)
     router.post('/orders/setup-one-click', orderController.setup)
     router.post('/orders/setup-one-click/finish', orderController.setupFinish)
     router.patch('/orders/:id', orderController.finish)
     router.get('/orders/:id', orderController.get)
+
+    router.post('/subscriptions', subscriptionController.create)
+    router.patch('/subscriptions/:id', subscriptionController.finish)
+    router.post('/subscriptions/:id/reauthorize', subscriptionController.reauthorize)
+    router.patch(
+      '/subscriptions/:id/reauthorize',
+      subscriptionController.finishReauthorization
+    )
+    router.get('/subscriptions/:id', subscriptionController.get)
+    router.get('/subscriptions', subscriptionController.list)
+    router.post('/subscriptions/:id/cancel', subscriptionController.cancel)
+    router.post('/subscriptions/:id/retry', subscriptionController.retry)
 
     router.use('*', (req: Request, res: TypedResponse) => {
       const e = Error(`Requested path ${req.path} was not found.`)
@@ -117,6 +133,25 @@ export class App {
       })
   }
 
+  private async processDueSubscriptions() {
+    const subscriptionProcessor = this.container.resolve('subscriptionProcessor')
+    const logger = this.container.resolve('logger')
+    return subscriptionProcessor
+      .processDueSubscriptions()
+      .catch((err) => {
+        logger.error('Error while trying to process due subscriptions')
+        logger.error(err)
+        return false
+      })
+      .then((id) => {
+        if (id) {
+          process.nextTick(() => this.processDueSubscriptions())
+        } else {
+          setTimeout(() => this.processDueSubscriptions(), 5000).unref()
+        }
+      })
+  }
+
   private async processOneClickCache() {
     const oneClickCache = this.container.resolve('oneClickCache')
     oneClickCache.processExpired()
@@ -125,6 +160,7 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingPayments())
+    process.nextTick(() => this.processDueSubscriptions())
     process.nextTick(() => this.processOneClickCache())
   }
 }

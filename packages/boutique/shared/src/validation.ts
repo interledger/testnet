@@ -1,5 +1,13 @@
 import { z } from 'zod'
 
+export const paymentPlanSchema = z.enum([
+  'PAY_IN_FULL',
+  'INSTALLMENTS_3',
+  'INSTALLMENTS_6',
+  'INSTALLMENTS_9',
+  'INSTALLMENTS_12_DAILY'
+])
+
 export const walletAddressUrlSchema = z
   .string()
   .transform((val) => val.replace('$', 'https://'))
@@ -7,6 +15,7 @@ export const walletAddressUrlSchema = z
 
 export const createOrderSchema = z.object({
   walletAddressUrl: walletAddressUrlSchema,
+  paymentPlan: paymentPlanSchema.default('PAY_IN_FULL'),
   products: z
     .array(
       z.object({
@@ -40,3 +49,10 @@ export const oneClickSetupSchema = z.object({
       message: 'Must be a valid number'
     })
 })
+
+export const createSubscriptionSchema = z.object({
+  walletAddressUrl: walletAddressUrlSchema,
+  productId: z.string().uuid()
+})
+
+export const finishSubscriptionSchema = finishOrderSchema

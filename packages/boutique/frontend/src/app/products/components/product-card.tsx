@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card.tsx'
-import type { Product } from '@/hooks/use-products-query'
+import { ProductType, type Product } from '@/hooks/use-products-query'
 import { IMAGES_URL } from '@/lib/constants.ts'
 import { fetcher } from '@/lib/fetcher.ts'
 import { useThemeContext } from '@/lib/theme'
@@ -20,9 +20,28 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  const { name, price, image, imageDark, slug } = product
+  const {
+    name,
+    price,
+    image,
+    imageDark,
+    slug,
+    productType,
+    billingInterval,
+    billingIntervalCount
+  } = product
   const { theme } = useThemeContext()
   const imageUrl = `${IMAGES_URL}${theme === 'light' ? image : imageDark}`
+
+  let priceLabel = formatPrice(price)
+  if (productType === ProductType.SUBSCRIPTION && billingInterval) {
+    if (billingIntervalCount === 1) {
+      priceLabel = `${priceLabel} / ${billingInterval.toLowerCase()}`
+    } else {
+      priceLabel = `${priceLabel} every ${billingIntervalCount} ${billingInterval.toLowerCase()}s`
+    }
+  }
+
   return (
     <Link
       onMouseEnter={async () => {
@@ -55,9 +74,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <Card className="relative border-none text-[--accent]">
         <CardHeader>
           <CardTitle className="text-xl">{name}</CardTitle>
-          <CardDescription className="text-lg">
-            {formatPrice(price)}
-          </CardDescription>
+          <CardDescription className="text-lg">{priceLabel}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <img

@@ -17,6 +17,9 @@ import {
 import { Bars } from './icons/Bars'
 import { Cog } from './icons/Cog'
 import { Grant } from './icons/Grant'
+
+import { TransactionCircle } from './icons/TransactionCircle'
+import { Banknotes } from './icons/Banknotes'
 import { Home } from './icons/Home'
 import { Logout } from './icons/Logout'
 import { X } from './icons/X'
@@ -66,6 +69,18 @@ export const menuItems: MenuItemProps[] = [
     href: '/grants',
     id: 'grants',
     Icon: Grant
+  },
+  {
+    name: 'Subscriptions',
+    href: '/subscriptions',
+    id: 'subscriptions',
+    Icon: TransactionCircle
+  },
+  {
+    name: 'Merchant',
+    href: '/merchant',
+    id: 'merchant',
+    Icon: Banknotes
   },
   {
     name: 'Cards',

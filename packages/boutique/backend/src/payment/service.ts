@@ -53,6 +53,21 @@ export class PaymentService implements IPaymentService {
     ])
   }
 
+  private async retryOrFail(
+    payment: Payment,
+    trx: TransactionOrKnex
+  ): Promise<void> {
+    if (payment.attempts >= this.MAX_ATTEMPTS) {
+      await this.fail(payment, trx)
+      return
+    }
+
+    await payment.$query(trx).patch({
+      attempts: payment.attempts + 1,
+      processAt: new Date(Date.now() + this.TRESHOLD_MS)
+    })
+  }
+
   private ensurePaymentIsCompleted(
     incomingPayment: IncomingPayment,
     orderTotal: number
@@ -91,16 +106,23 @@ export class PaymentService implements IPaymentService {
         .where({ status: PaymentStatus.PENDING })
         .whereNotNull('processAt')
         .andWhere('processAt', '<=', now)
+        .orderBy('processAt', 'asc')
+        .orderBy('createdAt', 'asc')
         .withGraphFetched('order')
 
       if (!payment) return
 
-      const incomingPayment = await this.openPayments.getIncomingPayment(
-        payment.incomingPaymentUrl
-      )
-
-      if (payment.attempts === this.MAX_ATTEMPTS) {
-        await this.fail(payment, trx)
+      let incomingPayment: IncomingPayment
+      try {
+        incomingPayment = await this.openPayments.getIncomingPayment(
+          payment.incomingPaymentUrl
+        )
+      } catch (err) {
+        this.logger.error(
+          `Could not process payment "${payment.id}" because incoming payment "${payment.incomingPaymentUrl}" could not be fetched.`
+        )
+        this.logger.error(err)
+        await this.retryOrFail(payment, trx)
         return payment.id
       }
 
@@ -110,10 +132,7 @@ export class PaymentService implements IPaymentService {
           payment.$query(trx).patch({ processAt: null })
         ])
       } else {
-        await payment.$query(trx).patch({
-          attempts: payment.attempts + 1,
-          processAt: new Date(Date.now() + this.TRESHOLD_MS)
-        })
+        await this.retryOrFail(payment, trx)
       }
       return payment.id
     })

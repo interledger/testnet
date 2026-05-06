@@ -57,6 +57,14 @@ import { StripeController } from './stripe-integration/controller'
 import { StripeService } from './stripe-integration/service'
 import { InterledgerCardController } from '@/interledgerCard/controller'
 import { InterledgerCardService } from '@/interledgerCard/service'
+import {
+  ISubscriptionService,
+  SubscriptionService
+} from '@/subscription/service'
+import {
+  ISubscriptionController,
+  SubscriptionController
+} from '@/subscription/controller'
 
 export interface Cradle {
   env: Env
@@ -104,6 +112,8 @@ export interface Cradle {
   cardController: CardController
   interledgerCardService: InterledgerCardService
   interledgerCardController: InterledgerCardController
+  subscriptionService: ISubscriptionService
+  subscriptionController: ISubscriptionController
 }
 
 export async function createContainer(
@@ -166,7 +176,9 @@ export async function createContainer(
     gateHubService: asClass(GateHubService).singleton(),
     cardController: asClass(CardController).singleton(),
     interledgerCardService: asClass(InterledgerCardService).singleton(),
-    interledgerCardController: asClass(InterledgerCardController).singleton()
+    interledgerCardController: asClass(InterledgerCardController).singleton(),
+    subscriptionService: asClass(SubscriptionService).singleton(),
+    subscriptionController: asClass(SubscriptionController).singleton()
   })
 
   return container

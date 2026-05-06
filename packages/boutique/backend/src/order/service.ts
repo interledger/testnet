@@ -8,6 +8,9 @@ interface OrderItemParams extends Pick<OrderItem, 'productId' | 'quantity'> {}
 
 interface CreateParams {
   userId?: string
+  subscriptionId?: string
+  paymentNumber?: number
+  totalPayments?: number
   orderItems: OrderItemParams[]
 }
 
@@ -17,6 +20,7 @@ export interface IOrderService {
   get: (id: string, userId?: string) => Promise<Order>
   ensurePendingState: (id: string) => Promise<Order>
   list: (userId: string) => Promise<Order[]>
+  listStandalone: () => Promise<Order[]>
   complete: (id: string, trx?: TransactionOrKnex) => Promise<Order | undefined>
   reject: (id: string, trx?: TransactionOrKnex) => Promise<Order | undefined>
   fail: (id: string, trx?: TransactionOrKnex) => Promise<Order | undefined>
@@ -68,6 +72,13 @@ export class OrderService implements IOrderService {
 
   public async list(userId: string): Promise<Order[]> {
     return await Order.query().where('userId', '=', userId)
+  }
+
+  public async listStandalone(): Promise<Order[]> {
+    return await Order.query()
+      .whereNull('subscriptionId')
+      .withGraphFetched('[orderItems.product, payments]')
+      .orderBy('createdAt', 'desc')
   }
 
   public async complete(
