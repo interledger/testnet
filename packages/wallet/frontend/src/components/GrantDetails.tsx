@@ -14,7 +14,7 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
         <span className="font-light">{grant.createdAt}</span>
       </div>
       <div className="flex items-center">
-        <span className="mr-4">State: </span>
+        <span className="mr-4">Status: </span>
         {!grant.finalizationReason ? (
           <Badge
             intent={getStatusBadgeIntent(grant.state)}
