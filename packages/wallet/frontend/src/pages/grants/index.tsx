@@ -59,7 +59,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
       ) : (
         <div className="w-full" id="grantsList">
           <Table>
-            <Table.Head columns={['', 'Client', 'Status', 'Date']} />
+            <Table.Head columns={['', 'Date', 'Client', 'Status']} />
             <Table.Body>
               {grants.edges.length ? (
                 grants.edges.map((grant) => (
@@ -69,6 +69,9 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                     className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
                   >
                     <Table.Cell className="w-1">{''}</Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">
+                      {formatDate({ date: grant.node.createdAt })}
+                    </Table.Cell>
                     <Table.Cell className="whitespace-nowrap">
                       {replaceWalletAddressProtocol(grant.node.client)}
                     </Table.Cell>
@@ -95,9 +98,6 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                           }
                         />
                       ) : null}
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {formatDate({ date: grant.node.createdAt })}
                     </Table.Cell>
                   </Table.Row>
                 ))
