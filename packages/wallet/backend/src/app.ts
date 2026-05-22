@@ -489,8 +489,12 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
+    setInterval(()=>{
+      const transactionService = this.container.resolve('transactionService')
+      transactionService.approveTransactions();
+    }, 1*60*1000).unref()
   }
-
+  
   ensureGateHubProductionEnv = async (
     _req: Request,
     _res: CustomResponse,

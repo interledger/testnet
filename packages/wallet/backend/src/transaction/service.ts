@@ -202,6 +202,27 @@ export class TransactionService implements ITransactionService {
       await Transaction.query().insert(transactionsToSave)
     }
   }
+  
+  async approveTransactions(){
+    try{
+      const transactions = await this.gateHubClient.getPendingTransactions();
+      const pendingTransactions = transactions.filter(transaction =>transaction.state === 3);
+      if(!pendingTransactions.length)
+        {
+          console.log("No pending Transactions!")
+          return 
+        }
+        for(const transaction of pendingTransactions){
+          try{
+            await this.gateHubClient.approvePendingTransactions(transaction.uuid);
+          }catch(err){
+            console.error(`Error: ${err}`)
+          }
+        }
+    }catch(err){
+      console.error(`Automatic approval failed - ${err}`)
+    }   
+  }
 
   async processPendingIncomingPayments(): Promise<string | undefined> {
     return this.knex.transaction(async (trx) => {
