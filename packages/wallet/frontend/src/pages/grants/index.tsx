@@ -59,7 +59,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
       ) : (
         <div className="w-full" id="grantsList">
           <Table>
-            <Table.Head columns={['', 'Date', 'Client', 'Status']} />
+            <Table.Head columns={['', 'Date', 'Client', 'Status']} hideForMobile={['Status']}/>
             <Table.Body>
               {grants.edges.length ? (
                 grants.edges.map((grant) => (
@@ -75,7 +75,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                     <Table.Cell className="whitespace-nowrap">
                       {replaceWalletAddressProtocol(grant.node.client)}
                     </Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell className='hidden sm:table-cell'>
                       {!grant.node.finalizationReason ? (
                         <Badge
                           intent={getStatusBadgeIntent(grant.node.state)}
