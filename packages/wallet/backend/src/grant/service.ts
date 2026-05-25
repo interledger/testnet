@@ -45,16 +45,15 @@ export class GrantService implements IGrantService {
     const identifiers = [accessIdentifier, subjectIdentifier].filter(
       (identifier): identifier is string => !!identifier
     )
-    const url = accessIdentifier ?? subjectIdentifier
     const ownershipChecks = await Promise.all(
       identifiers.map((identifier) =>
         this.walletAddressService.belongsToUser(userId, identifier)
       )
     )
     const belongsToUser =
-      identifiers.length > 0 && ownershipChecks.every((belongs) => belongs)
+      identifiers.length && ownershipChecks.every((belongs) => belongs)
 
-    if (!url || !belongsToUser) {
+    if (!belongsToUser) {
       // reject the grant if the user does not have access
       await this.rafikiAuthService.setInteractionResponse(
         interactionId,
