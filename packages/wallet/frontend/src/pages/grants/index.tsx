@@ -7,7 +7,7 @@ import { GRANTS_DISPLAY_NR } from '@/utils/constants'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { GrantListArgs } from '@/lib/api/grants'
 import { Table } from '@/ui/Table'
-import { formatDate, replaceWalletAddressProtocol } from '@/utils/helpers'
+import { formatDate, formatDateNoTime, formatDateOnlyTime, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { useState } from 'react'
 import { grantsService } from '@/lib/api/grants'
@@ -37,6 +37,8 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
     }
   }
 
+  let groupByDate = '';
+
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
@@ -59,48 +61,67 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
       ) : (
         <div className="w-full" id="grantsList">
           <Table>
-            <Table.Head columns={['', 'Date', 'Client', 'Status']} hideForMobile={['Status']}/>
+            <Table.Head columns={['Date', 'Client', 'Status']} hideForMobile={['Status']}/>
             <Table.Body>
               {grants.edges.length ? (
-                grants.edges.map((grant) => (
-                  <Table.Row
-                    key={grant.node.id}
-                    onClick={() => handleRowClick(grant.node.id)}
-                    className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
-                  >
-                    <Table.Cell className="w-1">{''}</Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {formatDate({ date: grant.node.createdAt })}
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">
-                      {replaceWalletAddressProtocol(grant.node.client)}
-                    </Table.Cell>
-                    <Table.Cell className='hidden sm:table-cell'>
-                      {!grant.node.finalizationReason ? (
-                        <Badge
-                          intent={getStatusBadgeIntent(grant.node.state)}
-                          size="md"
-                          text={grant.node.state}
-                        />
-                      ) : null}
-                      {grant.node.finalizationReason ? (
-                        <Badge
-                          intent={getStatusBadgeIntent(
-                            grant.node.finalizationReason
-                          )}
-                          size="md"
-                          text={
-                            grant.node.finalizationReason === 'REVOKED'
-                              ? 'REVOKED'
-                              : grant.node.finalizationReason === 'ISSUED'
-                                ? 'APPROVED'
-                                : 'REJECTED'
-                          }
-                        />
-                      ) : null}
-                    </Table.Cell>
-                  </Table.Row>
-                ))
+                grants.edges.map((grant) => {
+                  let showDateHeader = false;
+                  if (groupByDate !== formatDateNoTime({ date: grant.node.createdAt,  })) {
+                    groupByDate = formatDateNoTime({ date: grant.node.createdAt,  });
+                    showDateHeader = true;
+                  }
+                  return(
+                    <>
+                      {showDateHeader ? (
+                        <Table.Row>
+                          <Table.Cell className="bg-green-dark dark:bg-pink-dark text-white text-center text-sm rounded-xl !p-1">
+                            {groupByDate}
+                          </Table.Cell>
+                          <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                          <Table.Cell className="!p-1 hidden sm:table-cell">
+                            &nbsp;
+                          </Table.Cell>
+                        </Table.Row>
+                        ) : null}
+                      <Table.Row
+                      key={grant.node.id}
+                      onClick={() => handleRowClick(grant.node.id)}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
+                      >
+                        <Table.Cell className="whitespace-nowrap">
+                          {formatDateOnlyTime({ date: grant.node.createdAt })}
+                        </Table.Cell>
+                        <Table.Cell className="whitespace-nowrap">
+                          {replaceWalletAddressProtocol(grant.node.client)}
+                        </Table.Cell>
+                        <Table.Cell className='hidden sm:table-cell'>
+                          {!grant.node.finalizationReason ? (
+                            <Badge
+                              intent={getStatusBadgeIntent(grant.node.state)}
+                              size="md"
+                              text={grant.node.state}
+                            />
+                          ) : null}
+                          {grant.node.finalizationReason ? (
+                            <Badge
+                              intent={getStatusBadgeIntent(
+                                grant.node.finalizationReason
+                              )}
+                              size="md"
+                              text={
+                                grant.node.finalizationReason === 'REVOKED'
+                                  ? 'REVOKED'
+                                  : grant.node.finalizationReason === 'ISSUED'
+                                    ? 'APPROVED'
+                                    : 'REJECTED'
+                              }
+                            />
+                          ) : null}
+                        </Table.Cell>
+                      </Table.Row>
+                    </>
+                  )
+                })
               ) : (
                 <Table.Row>
                   <Table.Cell colSpan={4} className="text-center">
