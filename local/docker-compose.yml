@@ -1,0 +1,19 @@
+include:
+  - traefik.yaml
+  - postgres.yaml
+  - redis.yaml
+  - mockgatehub.yaml
+  - rafiki.yaml
+  - mailslurper.yaml
+
+networks:
+  testnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1
+
+volumes:
+  pg-data:
+  redis-data:

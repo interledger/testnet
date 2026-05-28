@@ -1,0 +1,15 @@
+services:
+  postgres:
+    container_name: postgres-local
+    image: 'postgres:15'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    ports:
+      - '15434:5432'
+    restart: unless-stopped
+    networks:
+      - testnet
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./init/dbinit.sql:/docker-entrypoint-initdb.d/init.sql

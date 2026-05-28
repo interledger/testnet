@@ -2,10 +2,9 @@ import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react'
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { cn } from '@/lib/utils'
 
-export interface LabelRefType extends ElementRef<typeof LabelPrimitive.Root> {}
+export type LabelRefType = ElementRef<typeof LabelPrimitive.Root>
 
-export interface LabelProps
-  extends ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {}
+export type LabelProps = ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 
 export const Label = forwardRef<LabelRefType, LabelProps>(
   ({ className, ...props }, ref) => (

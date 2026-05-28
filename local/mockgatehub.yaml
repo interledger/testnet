@@ -1,0 +1,36 @@
+services:
+  # MockGatehub - Mock Gatehub API service for local development
+  mockgatehub:
+    container_name: mockgatehub-local
+    image: ghcr.io/interledger/mockgatehub:1.13
+    ports:
+      - '8080:8080'
+    environment:
+      LOG_LEVEL: ${MOCKGATEHUB_LOG_LEVEL:-debug}
+      MOCKGATEHUB_REDIS_URL: ${MOCKGATEHUB_REDIS_URL:-redis://redis:6379}
+      MOCKGATEHUB_REDIS_DB: ${MOCKGATEHUB_REDIS_DB:-3}
+      MOCKGATEHUB_VALID_CREDENTIALS: ${GATEHUB_ACCESS_KEY:-mock_access_key}:${GATEHUB_SECRET_KEY:-mock_secret_key}
+      WEBHOOK_URL: ${MOCKGATEHUB_WEBHOOK_URL:-http://host.docker.internal:3003/gatehub-webhooks}
+      WEBHOOK_SECRET: ${GATEHUB_WEBHOOK_SECRET:-6d6f636b5f776562686f6f6b5f736563726574}
+      WEBHOOK_MIN_DELAY_SEC: ${WEBHOOK_MIN_DELAY_SEC:-0.05}
+    depends_on:
+      - redis
+    restart: always
+    networks:
+      - testnet
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_interval: 1s
+      start_period: 15s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.mockgatehub.rule=Host(`mockgatehub.testnet.test`)
+      - traefik.http.routers.mockgatehub.entrypoints=websecure
+      - traefik.http.routers.mockgatehub.tls=true
+      - traefik.http.services.mockgatehub.loadbalancer.server.port=8080

@@ -39,7 +39,7 @@ export const TogglePayment = ({
   const handleOnChange = () => {
     if (!disabled) {
       setEnabled(!enabled)
-      onChange && onChange(!enabled)
+      if (onChange) onChange(!enabled)
     }
   }
 
