@@ -99,9 +99,9 @@ export interface IFundAccountRequest {
   absolute_fee?: number
 }
 
-export interface ICreateTransactionResponse {}
+export type ICreateTransactionResponse = Record<string, unknown>
 
-export interface IGetVaultsResponse {}
+export type IGetVaultsResponse = Record<string, unknown>
 
 export interface IRatesResponse {
   counter: string
@@ -130,19 +130,19 @@ interface IVault {
   updated_at: string
 }
 
-export interface IConnectUserToGatewayResponse {}
+export type IConnectUserToGatewayResponse = Record<string, unknown>
 export interface IApproveUserToGatewayRequest {
   verified: number
   reasons: string[]
   customMessage: boolean
 }
-export interface IApproveUserToGatewayResponse {}
+export type IApproveUserToGatewayResponse = Record<string, unknown>
 
 export interface IOverrideUserRiskLevelRequest {
   risk_level: string
   reason: string
 }
-export interface IOverrideUserRiskLevelResponse {}
+export type IOverrideUserRiskLevelResponse = Record<string, unknown>
 
 export type WebhookEventType =
   | 'core.deposit.completed'

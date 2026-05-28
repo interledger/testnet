@@ -1,0 +1,27 @@
+services:
+  traefik:
+    container_name: traefik-local
+    image: traefik:v3.6
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8081:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/certs:/certs:ro
+      - ./config/traefik/dynamic.yml:/etc/traefik/dynamic/dynamic.yml:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - testnet

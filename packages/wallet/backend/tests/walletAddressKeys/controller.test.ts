@@ -132,7 +132,7 @@ describe('Wallet Address Keys Controller', () => {
       }
 
       req.body = {
-        nickname: faker.lorem.word()
+        nickname: faker.lorem.word({ length: { min: 3, max: 10 } })
       }
 
       await walletAddressKeyController.patchKey(req, res, next)
@@ -168,7 +168,7 @@ describe('Wallet Address Keys Controller', () => {
       }
 
       req.body = {
-        nickname: faker.lorem.word()
+        nickname: faker.lorem.word({ length: { min: 3, max: 10 } })
       }
 
       await walletAddressKeyController.registerKey(req, res, next)
@@ -205,7 +205,7 @@ describe('Wallet Address Keys Controller', () => {
       }
 
       req.body = {
-        nickname: faker.lorem.word(),
+        nickname: faker.lorem.word({ length: { min: 3, max: 10 } }),
         base64Key: faker.lorem.word()
       }
 

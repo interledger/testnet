@@ -260,6 +260,15 @@ export class GateHubService {
     }
 
     let customerId
+    // Check if customer already exists to prevent race condition between
+    // direct addUserToGateway call and webhook handler
+    if (user.customerId) {
+      this.logger.debug(
+        `Customer already exists for user ${userId}, skipping customer creation`
+      )
+      return { isApproved, customerId: user.customerId }
+    }
+
     if (
       this.env.NODE_ENV === 'development' &&
       this.env.GATEHUB_ENV === 'sandbox'
@@ -325,6 +334,33 @@ export class GateHubService {
     firstName: string,
     lastName: string
   ): Promise<string> {
+    // Check if customer setup already in progress or completed
+    // to prevent race condition between concurrent calls
+    const existingAccount = await Account.query().findOne({
+      userId,
+      assetCode: 'EUR'
+    })
+
+    if (existingAccount) {
+      this.logger.warn(
+        `EUR account already exists for user ${userId}, skipping sandbox customer creation`
+      )
+      const user = await User.query().findById(userId)
+      if (!user) {
+        this.logger.error(
+          `User ${userId} not found while EUR account exists, cannot retrieve customerId`
+        )
+        throw new NotFound('User not found')
+      }
+      if (!user.customerId) {
+        this.logger.error(
+          `Missing customerId for user ${userId} with existing EUR account`
+        )
+        throw new Error('CustomerId is missing for existing EUR account')
+      }
+      return user.customerId
+    }
+
     const { account, walletAddress } =
       await this.createDefaultAccountAndWAForManagedUser(userId, true)
 

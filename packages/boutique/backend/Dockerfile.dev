@@ -21,7 +21,7 @@ RUN pnpm fetch
 ADD . ./
 
 # Install packages from virtual store
-RUN pnpm install -r --offline
+RUN pnpm install --filter @boutique/backend... --offline
 
 RUN pnpm boutique:backend build
 

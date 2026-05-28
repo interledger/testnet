@@ -8,3 +8,6 @@ Dockerfile
 .gitignore
 .prettierignore
 coverage
+e2e/.features-gen
+e2e/playwright-report
+e2e/test-results
