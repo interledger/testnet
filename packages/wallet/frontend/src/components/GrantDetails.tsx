@@ -12,7 +12,9 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
       </div>
       <div>
         <span>Created at: </span>
-        <span className="font-light">{formatDate({date: grant.createdAt})}</span>
+        <span className="font-light">
+          {formatDate({ date: grant.createdAt })}
+        </span>
       </div>
       <div className="flex items-center">
         <span className="mr-4">Status: </span>

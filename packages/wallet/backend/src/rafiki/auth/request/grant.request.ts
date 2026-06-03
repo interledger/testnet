@@ -1,14 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const getGrantsQuery = gql`
-  query GetGrantsQuery(
-    $filter: GrantFilter
-    $sortOrder: SortOrder
-  ) {
-    grants(
-      filter: $filter
-      sortOrder: $sortOrder
-    ) {
+  query GetGrantsQuery($filter: GrantFilter, $sortOrder: SortOrder) {
+    grants(filter: $filter, sortOrder: $sortOrder) {
       edges {
         cursor
         node {

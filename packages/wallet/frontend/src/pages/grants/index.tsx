@@ -6,7 +6,11 @@ import { useGrants } from '@/lib/hooks/useGrants'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { GrantListArgs } from '@/lib/api/grants'
 import { Table } from '@/ui/Table'
-import { formatDateNoTime, formatDateOnlyTime, replaceWalletAddressProtocol } from '@/utils/helpers'
+import {
+  formatDateNoTime,
+  formatDateOnlyTime,
+  replaceWalletAddressProtocol
+} from '@/utils/helpers'
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { IconButton } from '@/ui/IconButton'
 import { Play } from '@/components/icons/Play'
@@ -40,9 +44,9 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
   }
 
   const totalPages = useMemo<number>(
-  () => Math.ceil(grants.pageInfo.totalCount / Number(pagination.pageSize)),
-  [grants.pageInfo.totalCount, pagination.pageSize]
-)
+    () => Math.ceil(grants.pageInfo.totalCount / Number(pagination.pageSize)),
+    [grants.pageInfo.totalCount, pagination.pageSize]
+  )
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
 
@@ -53,7 +57,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
       <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
     </>
   )
-  let groupByDate = '';
+  let groupByDate = ''
 
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
@@ -77,30 +81,37 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
       ) : (
         <div className="w-full" id="grantsList">
           <Table>
-            <Table.Head columns={['Date', 'Client', 'Status']} 
-            sort={[
-              {
-                header: 'Date',
-                sortFn: () => {
-                  pagination.sortOrder === 'DESC'
-                    ? redirect({ sortOrder: 'ASC' })
-                    : redirect({ sortOrder: 'DESC' })
-                },
-                getDirection: () => {
-                  return pagination.sortOrder === 'DESC' ? 'down' : 'up'
+            <Table.Head
+              columns={['Date', 'Client', 'Status']}
+              sort={[
+                {
+                  header: 'Date',
+                  sortFn: () => {
+                    pagination.sortOrder === 'DESC'
+                      ? redirect({ sortOrder: 'ASC' })
+                      : redirect({ sortOrder: 'DESC' })
+                  },
+                  getDirection: () => {
+                    return pagination.sortOrder === 'DESC' ? 'down' : 'up'
+                  }
                 }
-              }
-            ]}
-            hideForMobile={['Status']}/>
+              ]}
+              hideForMobile={['Status']}
+            />
             <Table.Body>
               {grants.edges.length ? (
                 grants.edges.map((grant) => {
-                  let showDateHeader = false;
-                  if (groupByDate !== formatDateNoTime({ date: grant.node.createdAt,  })) {
-                    groupByDate = formatDateNoTime({ date: grant.node.createdAt,  });
-                    showDateHeader = true;
+                  let showDateHeader = false
+                  if (
+                    groupByDate !==
+                    formatDateNoTime({ date: grant.node.createdAt })
+                  ) {
+                    groupByDate = formatDateNoTime({
+                      date: grant.node.createdAt
+                    })
+                    showDateHeader = true
                   }
-                  return(
+                  return (
                     <>
                       {showDateHeader ? (
                         <Table.Row>
@@ -112,11 +123,11 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                             &nbsp;
                           </Table.Cell>
                         </Table.Row>
-                        ) : null}
+                      ) : null}
                       <Table.Row
-                      key={grant.node.id}
-                      onClick={() => handleRowClick(grant.node.id)}
-                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
+                        key={grant.node.id}
+                        onClick={() => handleRowClick(grant.node.id)}
+                        className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
                       >
                         <Table.Cell className="whitespace-nowrap">
                           {formatDateOnlyTime({ date: grant.node.createdAt })}
@@ -124,7 +135,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                         <Table.Cell className="whitespace-nowrap">
                           {replaceWalletAddressProtocol(grant.node.client)}
                         </Table.Cell>
-                        <Table.Cell className='hidden sm:table-cell'>
+                        <Table.Cell className="hidden sm:table-cell">
                           {!grant.node.finalizationReason ? (
                             <Badge
                               intent={getStatusBadgeIntent(grant.node.state)}
@@ -166,103 +177,102 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
 
       {!error && !loading ? (
         <>
-        <div className="mt-5 flex w-full items-center justify-between">
-          <Button
-            className="hidden md:flex"
-            aria-label="go to previous page"
-            disabled={Number(pagination.page) - 1 < 0}
-            onClick={() => {
-              const previousPage = Number(pagination.page) - 1
+          <div className="mt-5 flex w-full items-center justify-between">
+            <Button
+              className="hidden md:flex"
+              aria-label="go to previous page"
+              disabled={Number(pagination.page) - 1 < 0}
+              onClick={() => {
+                const previousPage = Number(pagination.page) - 1
                 if (isNaN(previousPage) || previousPage < 0) return
                 redirect({
                   page: previousPage.toString(),
                   sortOrder: pagination.sortOrder
                 })
-            }}
-          >
-            Previous
-          </Button>
-          {totalPages !== 1 && (
-            <div className="flex w-full justify-center">
-              <IconButton
-                className="mx-3 md:hidden"
-                aria-label="go back"
-                onClick={() => {
-                  const previousPage = Number(pagination.page) - 1
-                  if (isNaN(previousPage) || previousPage < 0) return
-                  redirect({
-                    page: previousPage.toString(),
-                    sortOrder: pagination.sortOrder
-                  })
-                }}
-              >
-                <Play className="h-4 w-4 rotate-180 text-green dark:text-pink-neon" />
-              </IconButton>
-              {pages.map((page) => {
-                if (
-                  Math.abs(page - 1 - Number(pagination.page)) <= 1 ||
-                  page === 1 ||
-                  page === totalPages
-                ) {
-                  return (
-                    <li key={page} className="list-none p-1">
-                      <Button
-                        intent="outline"
-                        className={cx(
-                          page - 1 === Number(pagination.page) &&
-                            'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
-                        )}
-                        aria-label={`go to page ${page}`}
-                        onClick={() => {
-                          redirect({
-                            page: page - 1,
-                            sortOrder: pagination.sortOrder
-                          })
-                        }}
-                      >
-                        {page}
-                      </Button>
-                    </li>
-                  )
-                } else if (page === 2 || page === totalPages - 1) {
-                  return morePagesDisplay
-                } else return null
-              })}
-              <IconButton
-                className="mx-3 md:hidden"
-                aria-label="go forward"
-                onClick={() => {
-                  const nextPage = Number(pagination.page) + 1
-                  if (isNaN(nextPage) || nextPage > totalPages - 1) return
-                  redirect({
-                    page: nextPage.toString(),
-                    sortOrder: pagination.sortOrder
-                  })
-                }}
-              >
-                <Play className="h-4 w-4 text-green dark:text-pink-neon" />
-              </IconButton>
-            </div>
-          )}
-          <Button
-            className="hidden md:flex"
-            aria-label="go to next page"
-            disabled={Number(pagination.page) + 1 > totalPages - 1}
-            onClick={() => {
-              const nextPage = Number(pagination.page) + 1
+              }}
+            >
+              Previous
+            </Button>
+            {totalPages !== 1 && (
+              <div className="flex w-full justify-center">
+                <IconButton
+                  className="mx-3 md:hidden"
+                  aria-label="go back"
+                  onClick={() => {
+                    const previousPage = Number(pagination.page) - 1
+                    if (isNaN(previousPage) || previousPage < 0) return
+                    redirect({
+                      page: previousPage.toString(),
+                      sortOrder: pagination.sortOrder
+                    })
+                  }}
+                >
+                  <Play className="h-4 w-4 rotate-180 text-green dark:text-pink-neon" />
+                </IconButton>
+                {pages.map((page) => {
+                  if (
+                    Math.abs(page - 1 - Number(pagination.page)) <= 1 ||
+                    page === 1 ||
+                    page === totalPages
+                  ) {
+                    return (
+                      <li key={page} className="list-none p-1">
+                        <Button
+                          intent="outline"
+                          className={cx(
+                            page - 1 === Number(pagination.page) &&
+                              'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
+                          )}
+                          aria-label={`go to page ${page}`}
+                          onClick={() => {
+                            redirect({
+                              page: page - 1,
+                              sortOrder: pagination.sortOrder
+                            })
+                          }}
+                        >
+                          {page}
+                        </Button>
+                      </li>
+                    )
+                  } else if (page === 2 || page === totalPages - 1) {
+                    return morePagesDisplay
+                  } else return null
+                })}
+                <IconButton
+                  className="mx-3 md:hidden"
+                  aria-label="go forward"
+                  onClick={() => {
+                    const nextPage = Number(pagination.page) + 1
+                    if (isNaN(nextPage) || nextPage > totalPages - 1) return
+                    redirect({
+                      page: nextPage.toString(),
+                      sortOrder: pagination.sortOrder
+                    })
+                  }}
+                >
+                  <Play className="h-4 w-4 text-green dark:text-pink-neon" />
+                </IconButton>
+              </div>
+            )}
+            <Button
+              className="hidden md:flex"
+              aria-label="go to next page"
+              disabled={Number(pagination.page) + 1 > totalPages - 1}
+              onClick={() => {
+                const nextPage = Number(pagination.page) + 1
                 if (isNaN(nextPage) || nextPage > totalPages - 1) return
                 redirect({
                   page: nextPage.toString(),
                   sortOrder: pagination.sortOrder
                 })
-            }}
-          >
-            Next
-          </Button>
-        </div>
+              }}
+            >
+              Next
+            </Button>
+          </div>
         </>
-        ) : null
-      }
+      ) : null}
 
       {isDialogOpen && selectedGrant && (
         <GrantDetailsDialog

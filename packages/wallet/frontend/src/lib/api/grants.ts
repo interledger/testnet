@@ -30,7 +30,7 @@ export type GrantsList = {
 export const grantsListSchema = z.object({
   sortOrder: z.enum(['ASC', 'DESC']).default('DESC').optional(),
   page: z.coerce.number().int().nonnegative().optional(),
-  pageSize: z.coerce.number().int().positive().optional(),
+  pageSize: z.coerce.number().int().positive().optional()
 })
 
 export type GrantListArgs = z.infer<typeof grantsListSchema>
