@@ -138,6 +138,31 @@ export class GateHubService {
     }
   }
 
+    async approveTransactions(){
+    try{
+      const transactions = await this.gateHubClient.getPendingTransactions();
+      transactions.forEach((trx)=>{
+       console.log(`${trx.uuid} - ${trx.state} - ${trx.uid} - ${trx.created_at}`)
+      })
+      console.log("TransactionsLength: ", transactions.length)
+      if(!transactions.length)
+        {
+          this.logger.info("No pending Transactions!")
+          return 
+        }
+        for(const transaction of transactions){
+          try{
+            await this.gateHubClient.approvePendingTransactions(transaction.uuid);
+          }catch(err){
+            this.logger.error(`Error: ${err}`)
+          }
+        }
+        console.log("END")
+    }catch(err){
+      this.logger.error(`Automatic approval failed - ${err}`)
+    }   
+  }
+
   private async handleCardTransactionWebhook(
     user: Partial<User>,
     data: ICardTransactionWebhookData

@@ -97,6 +97,7 @@ interface IGateway{
 }
 export interface IPendingTransaction{
   uuid:string,
+  uid:string,
   state:number,
   created_at:string,
   completed_at:string,

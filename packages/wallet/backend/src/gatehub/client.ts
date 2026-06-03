@@ -337,48 +337,51 @@ export class GateHubClient {
     return response
   }
 
-  async approvePendingTransactions(transactionUuid:string):Promise<IApprovePendingTransaction>{
+  async approvePendingTransactions(
+    transactionUuid: string
+  ): Promise<IApprovePendingTransaction> {
     const url = `${this.apiUrl}/core/v1/transactions/${transactionUuid}/serviceStatus`
     const body = {
-      "serviceStatus":3,
-      "substatus":0,
-      "reason":"test"
+      serviceStatus: 3,
+      substatus: 0,
+      reason: 'test'
     }
     const response = await this.request<IApprovePendingTransaction>(
       'PUT',
       url,
-      JSON.stringify(body),
+      JSON.stringify(body)
     )
-    if(response.state !==4){
+    if (response.state !== 4) {
       throw new Error(`Approval failed, transactionUuid: ${transactionUuid}`)
     }
     return response
   }
 
-  async getPendingTransactions():Promise<IPendingTransaction[]>{
+  async getPendingTransactions(): Promise<IPendingTransaction[]> {
     const url = `${this.apiUrl}/core/v1/gateways/${this.env.GATEHUB_GATEWAY_UUID}/transactions`
     const payload = {
       filters: {
         state: {
-          value: 3,
+          value: 3
         },
         created_at: {},
         amount: {},
         define_range: {
           offset: 0,
-          limit: 20,
+          limit: 20
         },
         order: {
-          field: "id",
-          direction: "desc",
-        },
-      },
-    };
+          field: 'created_at',
+          direction: 'desc'
+        }
+      }
+    }
     const response = await this.request<IPendingTransaction[]>(
-      'GET',
+      'POST',
       url,
       JSON.stringify(payload)
     )
+
     return response
   }
 
