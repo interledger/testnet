@@ -87,9 +87,10 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                 {
                   header: 'Date',
                   sortFn: () => {
-                    pagination.sortOrder === 'DESC'
-                      ? redirect({ sortOrder: 'ASC' })
-                      : redirect({ sortOrder: 'DESC' })
+                    redirect({
+                      sortOrder:
+                        pagination.sortOrder === 'DESC' ? 'ASC' : 'DESC'
+                    })
                   },
                   getDirection: () => {
                     return pagination.sortOrder === 'DESC' ? 'down' : 'up'
