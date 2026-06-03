@@ -62,6 +62,7 @@ type GrantsPageInfo = {
   startCursor: string
   hasNextPage: boolean
   hasPreviousPage: boolean
+  totalCount: number
 }
 export interface GrantsListResponse {
   grants: {

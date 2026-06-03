@@ -100,9 +100,26 @@ export class GrantService implements IGrantService {
     }
 
     const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
-    grants.grants.edges.forEach((edge) => {
+
+    const totalCount = grants.grants.edges.length
+    const page = args.page ?? 0
+    const pageSize = args.pageSize ?? 10
+    const pageStart = page * pageSize
+    const pageEnd = pageStart + pageSize
+    const pageEdges = grants.grants.edges.slice(pageStart, pageEnd)
+
+    pageEdges.forEach((edge) => {
       edge.node.access = this.parseIntervals(edge.node.access)
     })
+
+    grants.grants.edges = pageEdges
+    grants.grants.pageInfo = {
+      ...grants.grants.pageInfo,
+      hasPreviousPage: page > 0,
+      hasNextPage: totalCount > pageEnd,
+      totalCount: totalCount
+    }
+
     return grants
   }
 

@@ -17,6 +17,7 @@ export type GrantsPageInfo = {
   startCursor: string
   hasNextPage: boolean
   hasPreviousPage: boolean
+  totalCount: number
 }
 
 export type GrantsList = {
@@ -27,10 +28,9 @@ export type GrantsList = {
 }
 
 export const grantsListSchema = z.object({
-  after: z.string().optional(),
-  before: z.string().optional(),
-  first: z.coerce.number().int().nonnegative().optional(),
-  last: z.coerce.number().int().nonnegative().optional()
+  sortOrder: z.enum(['ASC', 'DESC']).default('DESC').optional(),
+  page: z.coerce.number().int().nonnegative().optional(),
+  pageSize: z.coerce.number().int().positive().optional(),
 })
 
 export type GrantListArgs = z.infer<typeof grantsListSchema>
