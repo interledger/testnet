@@ -27,7 +27,7 @@ type GrantsPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
   const redirect = useRedirect<GrantListArgs>({
     path: '/grants',
-    persistQuery: false
+    persistQuery: true
   })
   const [grantsList, pagination, fetch, loading, error] = useGrants()
   const grants = grantsList.grants
