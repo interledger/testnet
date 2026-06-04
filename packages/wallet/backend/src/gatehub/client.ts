@@ -366,7 +366,7 @@ export class GateHubClient {
         amount: {},
         define_range: {
           offset: 0,
-          limit: 20
+          limit: 5
         },
         order: {
           field: 'created_at',
