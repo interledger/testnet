@@ -1,17 +1,6 @@
-const GRANT_STATE = {
-  APPROVED: 'APPROVED',
-  FINALIZED: 'FINALIZED',
-  PENDING: 'PENDING',
-  PROCESSING: 'PROCESSING'
-} as const
-type GrantState = keyof typeof GRANT_STATE
+type GrantState = 'APPROVED' | 'FINALIZED' | 'PENDING' | 'PROCESSING'
 
-const GRANT_FINALIZATION = {
-  ISSUED: 'ISSUED',
-  REJECTED: 'REJECTED',
-  REVOKED: 'REVOKED'
-}
-type GrantFinalization = keyof typeof GRANT_FINALIZATION
+type GrantFinalization = 'ISSUED' | 'REJECTED' | 'REVOKED'
 
 type PaymentAmount = {
   value: string

@@ -55,7 +55,7 @@ export async function createContainer(
     keyId: env.KEY_ID,
     privateKey: Buffer.from(env.PRIVATE_KEY, 'base64'),
     walletAddressUrl: env.PAYMENT_POINTER,
-    useHttp: env.NODE_ENV === 'development'
+    useHttp: env.USE_HTTP_FOR_OPEN_PAYMENTS || false
   })
 
   container.register({

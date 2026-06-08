@@ -19,7 +19,7 @@ const NAV_LINKS = [
   }
 ]
 
-interface MainNavLinkProps extends Omit<NavLinkProps, 'className'> {}
+type MainNavLinkProps = Omit<NavLinkProps, 'className'>
 
 export const MainNavLink = (props: MainNavLinkProps) => {
   return (

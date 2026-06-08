@@ -76,9 +76,11 @@ const LoginPage: NextPageWithLayout = () => {
     const isIncorrectCallbackUrl =
       !callbackPath.startsWith('/') &&
       !callbackPath.startsWith(window.location.origin)
-    isIncorrectCallbackUrl
-      ? router.push('/')
-      : router.push(callbackPath).catch(() => router.push('/'))
+    if (isIncorrectCallbackUrl) {
+      router.push('/')
+    } else {
+      router.push(callbackPath).catch(() => router.push('/'))
+    }
   }
 
   function togglePasswordVisibility() {
