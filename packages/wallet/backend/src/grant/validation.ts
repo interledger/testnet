@@ -10,7 +10,7 @@ export const grantResponseSchema = z.object({
 export const grantListRequestSchema = z.object({
   body: z.object({
     page: z.coerce.number().int().nonnegative().default(0),
-    pageSize: z.coerce.number().int().positive().default(10),
+    pageSize: z.coerce.number().int().positive().max(100).default(10),
     sortOrder: z
       .enum(['ASC', 'DESC'])
       .transform((val) => val as SortOrder)
