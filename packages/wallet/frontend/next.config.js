@@ -39,11 +39,8 @@ const nextConfig = {
     NEXT_PUBLIC_GATEHUB_ENV: process.env.NEXT_PUBLIC_GATEHUB_ENV || 'sandbox',
     NEXT_PUBLIC_FEATURES_ENABLED
   }
-  // NOTE: `BACKEND_INTERNAL_URL` is deliberately NOT listed here. Listing it
-  // would inline its build-time value into the server bundle (including the
-  // edge middleware), making it impossible to configure per deployment. It is
-  // instead read from the runtime container environment in `lib/httpClient.ts`,
-  // which only runs in the Node.js runtime (server data fetching).
+  // Intentionally do not expose `BACKEND_INTERNAL_URL` via Next env inlining.
+  // Runtime resolution happens in `src/lib/httpClient.ts` (see serverAuth note).
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

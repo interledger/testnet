@@ -14,12 +14,7 @@ export type ErrorResponse<T = undefined> = {
   errors?: T extends FieldValues ? Record<FieldPath<T>, string> : undefined
 }
 
-// When running on the server we talk to the backend over the in-cluster URL.
-// `BACKEND_INTERNAL_URL` is intentionally NOT exposed via next.config's `env`
-// block, so it is read from the real container environment at runtime instead
-// of being inlined at build time. This lets the same image be configured per
-// deployment. (Server data fetching runs in the Node.js runtime, where runtime
-// `process.env` lookups are available.)
+// Server-side requests use runtime `BACKEND_INTERNAL_URL` (not build-inlined).
 const isServer = typeof window === 'undefined'
 const baseUrl = isServer
   ? process.env.BACKEND_INTERNAL_URL || 'http://localhost:3003'
