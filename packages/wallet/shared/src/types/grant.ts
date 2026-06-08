@@ -47,8 +47,6 @@ type GrantNode = {
 }
 
 type GrantsPageInfo = {
-  endCursor: string
-  startCursor: string
   hasNextPage: boolean
   hasPreviousPage: boolean
   totalCount: number
