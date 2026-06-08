@@ -1,10 +1,8 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType
-} from 'next/types'
+import type { InferGetServerSidePropsType } from 'next/types'
+import { withAuth } from '@/lib/serverAuth'
 import { z } from 'zod'
 import {
   formatAmount,
@@ -22,7 +20,6 @@ import Image from 'next/image'
 import { GrantDetails } from '@/components/GrantDetails'
 import { GrantResponse } from '@wallet/shared'
 import { THEME } from '@/utils/constants'
-import { userService } from '@/lib/api/user'
 
 type GrantPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -91,10 +88,10 @@ const querySchema = z.object({
   grantId: z.string().uuid()
 })
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   grant: GrantResponse
   user: { isCardsVisible: boolean }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
   if (!result.success) {
@@ -106,9 +103,8 @@ export const getServerSideProps: GetServerSideProps<{
     result.data.grantId,
     ctx.req.headers.cookie
   )
-  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!grantResponse.success || !grantResponse.result || !user.success) {
+  if (!grantResponse.success || !grantResponse.result) {
     return {
       notFound: true
     }
@@ -151,10 +147,10 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       grant: grantResponse.result,
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 GrantPage.getLayout = function (page) {
   return (

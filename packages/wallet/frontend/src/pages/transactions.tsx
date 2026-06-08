@@ -5,7 +5,7 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { accountService } from '@/lib/api/account'
 import { walletAddressService } from '@/lib/api/walletAddress'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import { InferGetServerSidePropsType } from 'next/types'
 import { Select, SelectOption } from '@/ui/forms/Select'
 import {
   TransactionsFilters,
@@ -36,7 +36,7 @@ import { Card } from '@/components/icons/CardButtons'
 import { FEATURES_ENABLED } from '@/utils/constants'
 import { TransactionDetailsDialog } from '@/components/dialogs/TransactionDetailsDialog'
 import { useDialog } from '@/lib/hooks/useDialog'
-import { userService } from '@/lib/api/user'
+import { withAuth } from '@/lib/serverAuth'
 
 type WalletAddressSelectOption = SelectOption & {
   accountId: string
@@ -535,21 +535,19 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<
+export const getServerSideProps = withAuth<
   TransactionsFilterProps & { user: { isCardsVisible: boolean } }
-> = async (ctx) => {
+>(async (ctx) => {
   const [accountsResponse, walletAddressesResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie),
     walletAddressService.listAll(ctx.req.headers.cookie)
   ])
-  const user = await userService.me(ctx.req.headers.cookie)
 
   if (
     !accountsResponse.success ||
     !walletAddressesResponse.success ||
     !walletAddressesResponse.result ||
-    !accountsResponse.result ||
-    !user.success
+    !accountsResponse.result
   ) {
     return {
       notFound: true
@@ -585,10 +583,10 @@ export const getServerSideProps: GetServerSideProps<
     props: {
       accounts,
       walletAddresses,
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 TransactionsPage.getLayout = function (page) {
   return (

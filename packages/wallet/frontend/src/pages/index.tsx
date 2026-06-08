@@ -5,11 +5,8 @@ import { PageHeader } from '@/components/PageHeader'
 import { accountService } from '@/lib/api/account'
 import { Link } from '@/ui/Link'
 import { type Account } from '@/lib/api/account'
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType
-} from 'next/types'
-import { userService } from '@/lib/api/user'
+import type { InferGetServerSidePropsType } from 'next/types'
+import { withAuth } from '@/lib/serverAuth'
 import type { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
@@ -67,7 +64,7 @@ const HomePage: NextPageWithLayout<HomeProps> = ({ accounts, user }) => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   accounts: Account[]
   user: {
     firstName: string
@@ -75,11 +72,10 @@ export const getServerSideProps: GetServerSideProps<{
     email: string
     isCardsVisible: boolean
   }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie)
-  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !user.success) {
+  if (!response.success) {
     return {
       notFound: true
     }
@@ -89,14 +85,14 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       accounts: response.result ?? [],
       user: {
-        firstName: user.result?.firstName ?? '',
-        lastName: user.result?.lastName ?? '',
-        email: user.result?.email ?? '',
-        isCardsVisible: user.result?.isCardsVisible ?? false
+        firstName: ctx.user.firstName,
+        lastName: ctx.user.lastName,
+        email: ctx.user.email,
+        isCardsVisible: ctx.user.isCardsVisible
       }
     }
   }
-}
+})
 
 HomePage.getLayout = function (page) {
   return (

@@ -7,20 +7,17 @@ import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { Select, type SelectOption } from '@/ui/forms/Select'
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType
-} from 'next/types'
+import type { InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { getObjectKeys } from '@/utils/helpers'
 import { assetService } from '@/lib/api/asset'
+import { withAuth } from '@/lib/serverAuth'
 import { Controller } from 'react-hook-form'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { useEffect } from 'react'
 import { createAccountSchema } from '@wallet/shared'
 import { BASE_ASSET_SCALE } from '@/utils/constants'
-import { userService } from '@/lib/api/user'
 
 type CreateAccountProps = InferGetServerSidePropsType<typeof getServerSideProps>
 const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
@@ -124,15 +121,14 @@ const CreateAccountPage: NextPageWithLayout<CreateAccountProps> = ({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   assets: SelectOption[]
   user: { isCardsVisible: boolean }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const response = await assetService.list(ctx.req.headers.cookie)
-  const user = await userService.me(ctx.req.headers.cookie)
 
   // TODO: https://nextjs.org/docs/advanced-features/custom-error-page#more-advanced-error-page-customizing
-  if (!response.success || !user.success) {
+  if (!response.success) {
     return {
       notFound: true
     }
@@ -148,10 +144,10 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       assets: assets ?? [],
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 CreateAccountPage.getLayout = function (page) {
   return (

@@ -2,7 +2,8 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import { InferGetServerSidePropsType } from 'next/types'
+import { withAuth } from '@/lib/serverAuth'
 import { useEffect } from 'react'
 
 type WithdrawPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
@@ -33,17 +34,16 @@ const WithdrawPage: NextPageWithLayout<WithdrawPageProps> = ({ url }) => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   url: string
   user: { isCardsVisible: boolean }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
     'withdrawal',
     ctx.req.headers.cookie
   )
-  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !response.result || !user.success) {
+  if (!response.success || !response.result) {
     return {
       notFound: true
     }
@@ -55,10 +55,10 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       url: url.href,
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 WithdrawPage.getLayout = function (page) {
   return (

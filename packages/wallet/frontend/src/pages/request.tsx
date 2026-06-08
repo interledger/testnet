@@ -17,7 +17,7 @@ import {
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
 import { Select, type SelectOption } from '@/ui/forms/Select'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
 import { walletAddressService } from '@/lib/api/walletAddress'
 import { useEffect, useMemo, useState } from 'react'
@@ -31,7 +31,7 @@ import { balanceState } from '@/lib/balance'
 import { AssetOP } from '@wallet/shared'
 import { useOnboardingContext } from '@/lib/context/onboarding'
 import { THEME } from '@/utils/constants'
-import { userService } from '@/lib/api/user'
+import { withAuth } from '@/lib/serverAuth'
 
 type SelectTimeUnitOption = Omit<SelectOption, 'value'> & {
   value: TimeUnit
@@ -310,16 +310,15 @@ type SelectAccountOption = SelectOption &
   AssetOP & {
     balance: string
   }
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   accounts: SelectAccountOption[]
   user: { isCardsVisible: boolean }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
   ])
-  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!accountsResponse.success || !accountsResponse.result || !user.success) {
+  if (!accountsResponse.success || !accountsResponse.result) {
     return {
       notFound: true
     }
@@ -336,10 +335,10 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       accounts,
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 RequestPage.getLayout = function (page) {
   return (

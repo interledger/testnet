@@ -1,7 +1,5 @@
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType
-} from 'next/types'
+import type { InferGetServerSidePropsType } from 'next/types'
+import { withAuth } from '@/lib/serverAuth'
 import { z } from 'zod'
 import { formatAmount, replaceWalletAddressProtocol } from '@/utils/helpers'
 import { grantsService } from '@/lib/api/grants'
@@ -192,13 +190,13 @@ const querySchema = z.object({
   clientName: z.string()
 })
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   grant: GrantResponse
   interactionId: string
   nonce: string
   clientName: string
   grantWalletAddress: string[]
-}> = async (ctx) => {
+}>(async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
     return {
@@ -261,6 +259,6 @@ export const getServerSideProps: GetServerSideProps<{
       grantWalletAddress: walletAddressList
     }
   }
-}
+})
 
 export default GrantInteractionPage

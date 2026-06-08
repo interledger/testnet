@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { THEME } from '@/utils/constants'
 import { useRouter } from 'next/router'
+import { withAuth } from '@/lib/serverAuth'
 
 const NoAccessPage = () => {
   const router = useRouter()
@@ -31,5 +32,7 @@ const NoAccessPage = () => {
     </div>
   )
 }
+
+export const getServerSideProps = withAuth()
 
 export default NoAccessPage
