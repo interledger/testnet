@@ -20,6 +20,10 @@ const baseUrl = isServer
   ? process.env.BACKEND_INTERNAL_URL || 'http://localhost:3003'
   : process.env.NEXT_PUBLIC_BACKEND_URL
 
+if (isServer) {
+  console.log('[httpClient] server baseUrl:', baseUrl)
+}
+
 export const httpClient = ky.extend({
   prefixUrl: baseUrl,
   credentials: 'include',
@@ -28,6 +32,18 @@ export const httpClient = ky.extend({
     beforeRequest: [
       (request) => {
         request.headers.set('Content-Type', 'application/json')
+      }
+    ],
+    beforeError: [
+      (error) => {
+        const { request, response } = error
+        console.error(
+          '[httpClient] request failed:',
+          request.method,
+          request.url,
+          response ? `→ HTTP ${response.status}` : '→ no response'
+        )
+        return error
       }
     ]
   }

@@ -39,6 +39,9 @@ async function resolveUser(
   ctx: GetServerSidePropsContext
 ): Promise<UserResponse | null> {
   const me = await userService.me(ctx.req.headers.cookie)
+  if (!me.success) {
+    console.error('[serverAuth] resolveUser failed:', me.message)
+  }
   return me.success && me.result ? me.result : null
 }
 
