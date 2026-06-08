@@ -1,5 +1,6 @@
 import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { GrantResponse } from '@wallet/shared'
+import { formatDate } from '@/utils/helpers'
 type GrantDetailsProps = { grant: GrantResponse }
 
 export const GrantDetails = ({ grant }: GrantDetailsProps) => {
@@ -11,10 +12,12 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
       </div>
       <div>
         <span>Created at: </span>
-        <span className="font-light">{grant.createdAt}</span>
+        <span className="font-light">
+          {formatDate({ date: grant.createdAt })}
+        </span>
       </div>
       <div className="flex items-center">
-        <span className="mr-4">State: </span>
+        <span className="mr-4">Status: </span>
         {!grant.finalizationReason ? (
           <Badge
             intent={getStatusBadgeIntent(grant.state)}
