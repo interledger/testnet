@@ -14,7 +14,7 @@ export type ErrorResponse<T = undefined> = {
   errors?: T extends FieldValues ? Record<FieldPath<T>, string> : undefined
 }
 
-// Use internal backend URL when running on the server (SSR/middleware)
+// Server-side requests use runtime `BACKEND_INTERNAL_URL` (not build-inlined).
 const isServer = typeof window === 'undefined'
 const baseUrl = isServer
   ? process.env.BACKEND_INTERNAL_URL || 'http://localhost:3003'
