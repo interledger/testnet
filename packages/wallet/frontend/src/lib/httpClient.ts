@@ -77,9 +77,17 @@ export async function getError<T = undefined>(
   if (e instanceof HTTPError) {
     const response = await e.response.json()
     if (isErrorResponse<ErrorResponse<T>>(response)) {
+      console.error(
+        `[httpClient] ${e.request.method} ${e.response.status} ${e.request.url}: ${response.message}`
+      )
       return response
     }
+    console.error(
+      `[httpClient] ${e.request.method} ${e.response.status} ${e.request.url}: unexpected error shape`,
+      response
+    )
     return generateBaseError(e.message)
   }
+  console.error('[httpClient] Unexpected error:', e)
   return generateBaseError(fallback)
 }

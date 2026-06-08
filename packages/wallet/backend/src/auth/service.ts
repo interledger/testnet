@@ -95,15 +95,18 @@ export class AuthService implements IAuthService {
 
     // TODO: Prevent timing attacks
     if (!user) {
+      this.logger.info(`Login rejected: no account found for ${args.email}`)
       throw new Unauthorized('Invalid credentials.')
     }
 
     const isValid = await user.verifyPassword(args.password)
     if (!isValid) {
+      this.logger.info(`Login rejected: invalid password for ${args.email}`)
       throw new Unauthorized('Invalid credentials.')
     }
 
     if (!user.isEmailVerified) {
+      this.logger.info(`Login rejected: email not verified for ${args.email}`)
       throw new NotVerified('Email address is not verified.')
     }
 
