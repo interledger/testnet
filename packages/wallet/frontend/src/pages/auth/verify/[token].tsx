@@ -4,7 +4,8 @@ import { Link } from '@/ui/Link'
 import Image from 'next/image'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import type { InferGetServerSidePropsType } from 'next'
+import { withGuest } from '@/lib/serverAuth'
 import { z } from 'zod'
 import { userService } from '@/lib/api/user'
 import { FEATURES_ENABLED, THEME } from '@/utils/constants'
@@ -61,10 +62,10 @@ const querySchema = z.object({
   token: z.string()
 })
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withGuest<{
   verified: boolean
   message: string
-}> = async (ctx) => {
+}>(async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
   if (!result.success) {
@@ -81,7 +82,7 @@ export const getServerSideProps: GetServerSideProps<{
       message: verifyEmailResponse.message
     }
   }
-}
+})
 
 VerifyEmailPage.getLayout = function (page) {
   return <AuthLayout image="Park">{page}</AuthLayout>

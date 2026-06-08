@@ -7,7 +7,8 @@ import {
 } from '@/lib/types/windowMessages'
 import { FEATURES_ENABLED, GATEHUB_ENV } from '@/utils/constants'
 import { useRouter } from 'next/router'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import { InferGetServerSidePropsType } from 'next/types'
+import { withKyc } from '@/lib/serverAuth'
 import { useEffect } from 'react'
 
 type KYCPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
@@ -84,10 +85,10 @@ const KYCPage: NextPageWithLayout<KYCPageProps> = ({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withKyc<{
   url: string
   addUserToGatewayUrl: string
-}> = async (ctx) => {
+}>(async (ctx) => {
   const response = await userService.getGateHubIframeSrc(
     'onboarding',
     ctx.req.headers.cookie
@@ -105,7 +106,7 @@ export const getServerSideProps: GetServerSideProps<{
       addUserToGatewayUrl: `${process.env.NEXT_PUBLIC_BACKEND_URL}/gatehub/add-user-to-gateway`
     }
   }
-}
+})
 
 KYCPage.getLayout = function (page) {
   return <AuthLayout image="People">{page}</AuthLayout>

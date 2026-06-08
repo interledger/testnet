@@ -1,4 +1,5 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
+import { withGuest } from '@/lib/serverAuth'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -104,5 +105,7 @@ const ForgotPasswordPage: NextPageWithLayout = () => {
 ForgotPasswordPage.getLayout = function (page) {
   return <AuthLayout image="Park">{page}</AuthLayout>
 }
+
+export const getServerSideProps = withGuest()
 
 export default ForgotPasswordPage

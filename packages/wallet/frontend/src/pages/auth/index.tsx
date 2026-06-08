@@ -1,4 +1,5 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
+import { withGuest } from '@/lib/serverAuth'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
@@ -52,5 +53,7 @@ const WelcomePage: NextPageWithLayout = () => {
 WelcomePage.getLayout = function (page) {
   return <AuthLayout image="Park">{page}</AuthLayout>
 }
+
+export const getServerSideProps = withGuest()
 
 export default WelcomePage

@@ -2,9 +2,9 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { PersonalSettingsForm } from '@/components/settings/PersonalSettingsForm'
 import { SettingsTabs } from '@/components/SettingsTabs'
-import { userService } from '@/lib/api/user'
+import { withAuth } from '@/lib/serverAuth'
 import { NextPageWithLayout } from '@/lib/types/app'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
 import { UserResponse } from '@wallet/shared'
 import { THEME } from '@/utils/constants'
@@ -39,20 +39,13 @@ const AccountSettingsPage: NextPageWithLayout<AccountSettingsProps> = ({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   user: UserResponse
   accounts: Account[]
-}> = async (ctx) => {
-  const response = await userService.me(ctx.req.headers.cookie)
+}>(async (ctx) => {
   const accounts = await accountService.list(ctx.req.headers.cookie)
 
-  if (!response.success || !accounts.success) {
-    return {
-      notFound: true
-    }
-  }
-
-  if (!response.result) {
+  if (!accounts.success) {
     return {
       notFound: true
     }
@@ -60,11 +53,11 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      user: response.result,
+      user: ctx.user,
       accounts: accounts.result ?? []
     }
   }
-}
+})
 
 AccountSettingsPage.getLayout = function (page) {
   return (

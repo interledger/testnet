@@ -13,7 +13,8 @@ import { NextPageWithLayout } from '@/lib/types/app'
 import { Button } from '@/ui/Button'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import type { InferGetServerSidePropsType } from 'next'
+import { withGuest } from '@/lib/serverAuth'
 import { z } from 'zod'
 import { useState } from 'react'
 import { FEATURES_ENABLED, THEME } from '@/utils/constants'
@@ -168,10 +169,10 @@ const querySchema = z.object({
   token: z.string()
 })
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withGuest<{
   token: string
   isValid: boolean
-}> = async (ctx) => {
+}>(async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
 
   if (!result.success) {
@@ -197,7 +198,7 @@ export const getServerSideProps: GetServerSideProps<{
       isValid: checkTokenResponse.result.isValid
     }
   }
-}
+})
 
 ResetPasswordPage.getLayout = function (page) {
   return <AuthLayout image="Park">{page}</AuthLayout>

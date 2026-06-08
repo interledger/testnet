@@ -1,4 +1,5 @@
 import { HeaderLogo } from '@/components/HeaderLogo'
+import { withGuest } from '@/lib/serverAuth'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
@@ -175,5 +176,7 @@ const SignUpPage: NextPageWithLayout = () => {
 SignUpPage.getLayout = function (page) {
   return <AuthLayout image="Register">{page}</AuthLayout>
 }
+
+export const getServerSideProps = withGuest()
 
 export default SignUpPage

@@ -1,4 +1,5 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import type { InferGetServerSidePropsType } from 'next'
+import { withAuth } from '@/lib/serverAuth'
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { NextPageWithLayout } from '@/lib/types/app'
@@ -231,10 +232,10 @@ const UserCardPage: NextPageWithLayout<UserCardPageProps> = ({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   card: ICardResponse | null
   accounts: SelectOption[]
-}> = async (ctx) => {
+}>(async (ctx) => {
   const response = await cardService.getDetails(ctx.req.headers.cookie)
   const [accountsResponse] = await Promise.all([
     accountService.list(ctx.req.headers.cookie)
@@ -271,7 +272,7 @@ export const getServerSideProps: GetServerSideProps<{
       accounts
     }
   }
-}
+})
 
 UserCardPage.getLayout = function (page) {
   return <AppLayout isCardsVisible={true}>{page}</AppLayout>

@@ -19,8 +19,8 @@ import { useMemo, useState, Fragment } from 'react'
 import { grantsService } from '@/lib/api/grants'
 import { GrantResponse } from '@wallet/shared'
 import { GrantDetailsDialog } from '@/components/dialogs/GrantDetailsDialog'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
-import { userService } from '@/lib/api/user'
+import { InferGetServerSidePropsType } from 'next/types'
+import { withAuth } from '@/lib/serverAuth'
 
 type GrantsPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -285,27 +285,19 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   user: {
     isCardsVisible: boolean
   }
-}> = async (ctx) => {
-  const user = await userService.me(ctx.req.headers.cookie)
-
-  if (!user.success) {
-    return {
-      notFound: true
-    }
-  }
-
+}>(async (ctx) => {
   return {
     props: {
       user: {
-        isCardsVisible: user.result?.isCardsVisible ?? false
+        isCardsVisible: ctx.user.isCardsVisible
       }
     }
   }
-}
+})
 
 GrantsPage.getLayout = function (page) {
   return (

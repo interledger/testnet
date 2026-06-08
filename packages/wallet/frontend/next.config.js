@@ -33,15 +33,17 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   env: {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    // Internal URL for server-side (middleware) to reach the host backend.
-    BACKEND_INTERNAL_URL:
-      process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL,
     NEXT_PUBLIC_OPEN_PAYMENTS_HOST: process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST,
     NEXT_PUBLIC_AUTH_HOST: process.env.NEXT_PUBLIC_AUTH_HOST,
     NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
     NEXT_PUBLIC_GATEHUB_ENV: process.env.NEXT_PUBLIC_GATEHUB_ENV || 'sandbox',
     NEXT_PUBLIC_FEATURES_ENABLED
   }
+  // NOTE: `BACKEND_INTERNAL_URL` is deliberately NOT listed here. Listing it
+  // would inline its build-time value into the server bundle (including the
+  // edge middleware), making it impossible to configure per deployment. It is
+  // instead read from the runtime container environment in `lib/httpClient.ts`,
+  // which only runs in the Node.js runtime (server data fetching).
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

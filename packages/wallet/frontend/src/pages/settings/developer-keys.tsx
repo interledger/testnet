@@ -3,14 +3,14 @@ import { PageHeader } from '@/components/PageHeader'
 import { DeveloperKeys } from '@/components/settings/DeveloperKeys'
 import { SettingsTabs } from '@/components/SettingsTabs'
 import { Account, accountService } from '@/lib/api/account'
-import { userService } from '@/lib/api/user'
+import { withAuth } from '@/lib/serverAuth'
 import { NextPageWithLayout } from '@/lib/types/app'
 import {
   formatDate,
   replaceCardWalletAddressDomain,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
+import { InferGetServerSidePropsType } from 'next/types'
 
 type DeveloperKeysPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -31,17 +31,16 @@ const DeveloperKeysPage: NextPageWithLayout<DeveloperKeysPageProps> = ({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   accounts: Account[]
   user: { isCardsVisible: boolean }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const response = await accountService.list(ctx.req.headers.cookie, [
     'walletAddresses',
     'walletAddressKeys'
   ])
-  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !response.result || !user.success) {
+  if (!response.success || !response.result) {
     return {
       notFound: true
     }
@@ -72,10 +71,10 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       accounts,
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 DeveloperKeysPage.getLayout = function (page) {
   return (
