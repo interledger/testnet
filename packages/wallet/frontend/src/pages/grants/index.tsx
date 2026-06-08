@@ -15,7 +15,7 @@ import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { IconButton } from '@/ui/IconButton'
 import { Play } from '@/components/icons/Play'
 import { cx } from 'class-variance-authority'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, Fragment } from 'react'
 import { grantsService } from '@/lib/api/grants'
 import { GrantResponse } from '@wallet/shared'
 import { GrantDetailsDialog } from '@/components/dialogs/GrantDetailsDialog'
@@ -113,7 +113,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                     showDateHeader = true
                   }
                   return (
-                    <>
+                    <Fragment key={grant.node.id}>
                       {showDateHeader ? (
                         <Table.Row>
                           <Table.Cell className="bg-green-dark dark:bg-pink-dark text-white text-center text-sm rounded-xl !p-1">
@@ -161,7 +161,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                           ) : null}
                         </Table.Cell>
                       </Table.Row>
-                    </>
+                    </Fragment>
                   )
                 })
               ) : (
