@@ -13,10 +13,8 @@ import {
   replaceCardWalletAddressDomain,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType
-} from 'next/types'
+import type { InferGetServerSidePropsType } from 'next/types'
+import { withAuth } from '@/lib/serverAuth'
 import { useMemo } from 'react'
 import { useEffect } from 'react'
 import { z } from 'zod'
@@ -28,7 +26,6 @@ import { WalletAddressesTable } from '@/components/WalletAddressesTable'
 import { Link } from '@/ui/Link'
 import { DepositDialog } from '@/components/dialogs/DepositDialog'
 import { FEATURES_ENABLED } from '@/utils/constants'
-import { userService } from '@/lib/api/user'
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -150,11 +147,11 @@ const querySchema = z.object({
   accountId: z.string().uuid()
 })
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps = withAuth<{
   account: Account
   walletAddresses: WalletAddressResponse[]
   user: { isCardsVisible: boolean }
-}> = async (ctx) => {
+}>(async (ctx) => {
   const result = querySchema.safeParse(ctx.query)
   if (!result.success) {
     return {
@@ -166,14 +163,12 @@ export const getServerSideProps: GetServerSideProps<{
     accountService.get(result.data.accountId, ctx.req.headers.cookie),
     walletAddressService.list(result.data.accountId, ctx.req.headers.cookie)
   ])
-  const user = await userService.me(ctx.req.headers.cookie)
 
   if (
     !accountResponse.success ||
     !walletAddressesResponse.success ||
     !accountResponse.result ||
-    !walletAddressesResponse.result ||
-    !user.success
+    !walletAddressesResponse.result
   ) {
     return {
       notFound: true
@@ -190,10 +185,10 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       account: accountResponse.result,
       walletAddresses: walletAddressesResponse.result,
-      user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      user: { isCardsVisible: ctx.user.isCardsVisible }
     }
   }
-}
+})
 
 AccountPage.getLayout = function (page) {
   return (
