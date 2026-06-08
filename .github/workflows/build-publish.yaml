@@ -97,12 +97,13 @@ jobs:
         shell: bash
         run: |
           git fetch --no-tags origin main
+          main_head_sha="$(git rev-parse origin/main)"
 
-          if git merge-base --is-ancestor "$GITHUB_SHA" "origin/main"; then
+          if [ "$GITHUB_SHA" = "$main_head_sha" ]; then
             image_tag="${GITHUB_REF_NAME}"
             publish_latest="true"
           else
-            image_tag="${GITHUB_REF_NAME}-unstable"
+            image_tag="${GITHUB_REF_NAME}-dev.${GITHUB_RUN_NUMBER}"
             publish_latest="false"
           fi
 
@@ -156,8 +157,9 @@ jobs:
         shell: bash
         run: |
           git fetch --no-tags origin main
+          main_head_sha="$(git rev-parse origin/main)"
 
-          if git merge-base --is-ancestor "$GITHUB_SHA" "origin/main"; then
+          if [ "$GITHUB_SHA" = "$main_head_sha" ]; then
             echo "is_stable=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_stable=false" >> "$GITHUB_OUTPUT"
