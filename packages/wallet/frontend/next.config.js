@@ -33,9 +33,6 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   env: {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    // Internal URL for server-side (middleware) to reach the host backend.
-    BACKEND_INTERNAL_URL:
-      process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL,
     NEXT_PUBLIC_OPEN_PAYMENTS_HOST: process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST,
     NEXT_PUBLIC_AUTH_HOST: process.env.NEXT_PUBLIC_AUTH_HOST,
     NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
