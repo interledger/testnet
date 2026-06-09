@@ -30,6 +30,20 @@ interface IAuthService {
   signUp(args: SignUpArgs): Promise<User>
 }
 
+const maskEmail = (email: string): string => {
+  const [localPart, domain] = email.split('@')
+
+  if (!localPart || !domain) {
+    return '***'
+  }
+
+  if (localPart.length <= 2) {
+    return `${localPart[0]}***@${domain}`
+  }
+
+  return `${localPart.slice(0, 2)}***@${domain}`
+}
+
 export class AuthService implements IAuthService {
   constructor(
     private userService: UserService,
@@ -56,7 +70,7 @@ export class AuthService implements IAuthService {
 
     await this.emailService.sendVerifyEmail(email, token).catch((e) => {
       this.logger.error(
-        `Error on sending verify email for user ${user.email}`,
+        `Error on sending verify email for user ${maskEmail(user.email)}`,
         e
       )
     })
@@ -72,7 +86,7 @@ export class AuthService implements IAuthService {
     // TODO: Prevent timing attacks
     if (!user) {
       this.logger.info(
-        `Invalid account on resend verify account email: ${email}`
+        `Invalid account on resend verify account email: ${maskEmail(email)}`
       )
       return
     }
@@ -84,7 +98,7 @@ export class AuthService implements IAuthService {
 
     await this.emailService.sendVerifyEmail(email, token).catch((e) => {
       this.logger.error(
-        `Error on sending verify email for user ${user.email}`,
+        `Error on sending verify email for user ${maskEmail(user.email)}`,
         e
       )
     })
@@ -95,18 +109,24 @@ export class AuthService implements IAuthService {
 
     // TODO: Prevent timing attacks
     if (!user) {
-      this.logger.info(`Login rejected: no account found for ${args.email}`)
+      this.logger.info(
+        `Login rejected: no account found for ${maskEmail(args.email)}`
+      )
       throw new Unauthorized('Invalid credentials.')
     }
 
     const isValid = await user.verifyPassword(args.password)
     if (!isValid) {
-      this.logger.info(`Login rejected: invalid password for ${args.email}`)
+      this.logger.info(
+        `Login rejected: invalid password for ${maskEmail(args.email)}`
+      )
       throw new Unauthorized('Invalid credentials.')
     }
 
     if (!user.isEmailVerified) {
-      this.logger.info(`Login rejected: email not verified for ${args.email}`)
+      this.logger.info(
+        `Login rejected: email not verified for ${maskEmail(args.email)}`
+      )
       throw new NotVerified('Email address is not verified.')
     }
 

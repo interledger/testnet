@@ -2,6 +2,26 @@ import ky, { HTTPError } from 'ky'
 
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
+const requestStartTimes = new WeakMap<Request, number>()
+
+const getRequestPath = (url: string): string => {
+  try {
+    return new URL(url).pathname
+  } catch {
+    return url.split('?')[0]
+  }
+}
+
+const getRequestDurationMs = (request: Request): number | undefined => {
+  const startTime = requestStartTimes.get(request)
+  if (!startTime) {
+    return undefined
+  }
+
+  requestStartTimes.delete(request)
+  return Date.now() - startTime
+}
+
 export type SuccessResponse<T = undefined> = {
   message: string
   success: true
@@ -27,6 +47,7 @@ export const httpClient = ky.extend({
   hooks: {
     beforeRequest: [
       (request) => {
+        requestStartTimes.set(request, Date.now())
         request.headers.set('Content-Type', 'application/json')
       }
     ]
@@ -76,14 +97,18 @@ export async function getError<T = undefined>(
 ): Promise<ErrorResponse<T | undefined>> {
   if (e instanceof HTTPError) {
     const response = await e.response.json()
+    const path = getRequestPath(e.request.url)
+    const durationMs = getRequestDurationMs(e.request)
+    const timing = typeof durationMs === 'number' ? ` ${durationMs}ms` : ''
+
     if (isErrorResponse<ErrorResponse<T>>(response)) {
       console.error(
-        `[httpClient] ${e.request.method} ${e.response.status} ${e.request.url}: ${response.message}`
+        `[httpClient] ${e.request.method} ${e.response.status} ${path}${timing}: ${response.message}`
       )
       return response
     }
     console.error(
-      `[httpClient] ${e.request.method} ${e.response.status} ${e.request.url}: unexpected error shape`,
+      `[httpClient] ${e.request.method} ${e.response.status} ${path}${timing}: unexpected error shape`,
       response
     )
     return generateBaseError(e.message)
