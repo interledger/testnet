@@ -37,10 +37,17 @@ export const getCurrencySymbol = (assetCode: string): string => {
 type FormatAmountArgs = AssetOP & {
   value: string
   displayScale?: number
+  abbreviateAmount?: boolean
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
-  const { value, displayScale = BASE_ASSET_SCALE, assetCode, assetScale } = args
+  const {
+    value,
+    displayScale = BASE_ASSET_SCALE,
+    assetCode,
+    assetScale,
+    abbreviateAmount
+  } = args
 
   const scaledValue = Number(`${value}e-${assetScale}`)
   const flooredValue =
@@ -53,7 +60,7 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   const absValue = Math.abs(flooredValue)
 
   // Check if number is too large to display normally (>= 1 trillion)
-  if (absValue >= 1e9) {
+  if (abbreviateAmount && absValue >= 1e3) {
     const sign = flooredValue < 0 ? '-' : ''
     let abbreviated: string
 

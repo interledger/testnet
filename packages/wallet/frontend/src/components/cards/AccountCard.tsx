@@ -22,7 +22,8 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
     return formatAmount({
       value: snapshotAccount?.balance || account.balance,
       assetCode: account.assetCode,
-      assetScale: account.assetScale
+      assetScale: account.assetScale,
+      abbreviateAmount:true
     })
   }, [account, accountsSnapshot])
 
