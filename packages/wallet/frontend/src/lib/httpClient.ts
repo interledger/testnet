@@ -39,7 +39,7 @@ const isServer = typeof window === 'undefined'
 const baseUrl = isServer
   ? process.env.BACKEND_INTERNAL_URL ||
     process.env.BACKEND_URL ||
-    'http://localhost:3003'
+    process.env.NEXT_PUBLIC_BACKEND_URL
   : process.env.NEXT_PUBLIC_BACKEND_URL
 
 export const httpClient = ky.extend({
