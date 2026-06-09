@@ -37,7 +37,9 @@ export type ErrorResponse<T = undefined> = {
 // Use internal backend URL when running on the server (SSR/middleware)
 const isServer = typeof window === 'undefined'
 const baseUrl = isServer
-  ? process.env.BACKEND_INTERNAL_URL || 'http://localhost:3003'
+  ? process.env.BACKEND_INTERNAL_URL ||
+    process.env.BACKEND_URL ||
+    'http://localhost:3003'
   : process.env.NEXT_PUBLIC_BACKEND_URL
 
 export const httpClient = ky.extend({
