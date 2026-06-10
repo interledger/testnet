@@ -20,7 +20,7 @@
 
 ### Required Environment
 
-- **Node.js 20 LTS** (`lts/iron`, enforced by `package.json` engines field)
+- **Node.js 24 LTS** (enforced by `package.json` engines field)
 - **pnpm 9.x** (managed via Corepack; CI uses `pnpm/action-setup@v2`)
 - **Docker** and **Docker Compose** (for local services: Postgres, Redis, Traefik, Kratos, Rafiki, MockGatehub)
 - **Git**
@@ -28,9 +28,9 @@
 ### Setup Steps (First Time Only)
 
 ```bash
-# 1. Switch to Node 20 (assumes nvm installed)
-nvm install lts/iron
-nvm use lts/iron
+# 1. Switch to Node 24 (assumes nvm installed)
+nvm install 24
+nvm use 24
 
 # 2. Enable Corepack (pnpm package manager)
 corepack enable
@@ -134,7 +134,7 @@ testnet/
 ├── pnpm-workspace.yaml               # Defines monorepo packages
 ├── tsconfig.base.json                # Shared TypeScript config
 ├── .eslintrc.js, .prettierrc.js     # Lint & format config
-├── .nvmrc                            # Node version (lts/iron)
+├── .nvmrc                            # Node version (24)
 │
 ├── .github/workflows/
 │   ├── ci.yml                        # PR validation (checks → builds → tests)
@@ -176,12 +176,12 @@ testnet/
 
 ### Scenario: Node Version Mismatch
 
-**Symptom**: `ERR_PNPM_UNSUPPORTED_ENGINE Expected version: ^20.12.1`
+**Symptom**: `ERR_PNPM_UNSUPPORTED_ENGINE Expected version: ^24.13.1`
 
 **Fix**:
 
 ```bash
-nvm install lts/iron && nvm use lts/iron && pnpm install --frozen-lockfile
+nvm install 24 && nvm use 24 && pnpm install --frozen-lockfile
 ```
 
 ### Scenario: Stale Dependencies
@@ -228,7 +228,7 @@ pnpm wallet:backend test --detectOpenHandles --forceExit
 **Fix**:
 
 ```bash
-node --version  # Verify v20.x.x
+node --version  # Verify v24.x.x
 pnpm install --frozen-lockfile
 pnpm build
 ```
@@ -240,7 +240,7 @@ pnpm build
 1. **Trust this file first**: Before running grep/search/explore commands, check if information exists here. Minimize search time by following the command sequences documented above.
 
 2. **Always validate prerequisites**:
-   - Node version: `node --version` → must be `v20.x.x`
+   - Node version: `node --version` → must be `v24.x.x`
    - pnpm installed: `pnpm --version` → must be `9.x`
    - Dependences installed: Run `pnpm install --frozen-lockfile` before any other command
 
