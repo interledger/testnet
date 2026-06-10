@@ -3,7 +3,7 @@ FROM node:24-alpine AS base
 WORKDIR /testnet
 
 RUN corepack enable
-RUN corepack prepare pnpm@9.1.1 --activate
+RUN corepack prepare pnpm@9.1.4 --activate
 
 RUN apk add --no-cache \
     libc6-compat \
