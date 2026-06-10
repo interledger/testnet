@@ -176,7 +176,7 @@ testnet/
 
 ### Scenario: Node Version Mismatch
 
-**Symptom**: `ERR_PNPM_UNSUPPORTED_ENGINE Expected version: ^24.0.0`
+**Symptom**: `ERR_PNPM_UNSUPPORTED_ENGINE Expected version: ^24.13.1`
 
 **Fix**:
 

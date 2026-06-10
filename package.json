@@ -71,7 +71,7 @@
     "pnpm": "^9.1.4",
     "npm": "pnpm",
     "yarn": "pnpm",
-    "node": "^24.0.0"
+    "node": "^24.13.1"
   },
   "private": true,
   "packageManager": "pnpm@9.1.4"
