@@ -23,7 +23,7 @@
 
 - **Node.js 20 LTS** (`lts/iron`, enforced by `package.json` engines field)
 - **pnpm 9.x** (managed via Corepack; CI uses `pnpm/action-setup@v2`)
-- **Docker** and **Docker Compose** (for local services: Postgres, Redis, Traefik, Kratos, Rafiki, MockGatehub, Mailslurper)
+- **Docker** and **Docker Compose** (for local services: Postgres, Redis, Traefik, Kratos, Rafiki, MockGatehub)
 - **Git**
 
 ### Setup Steps (First Time Only)
@@ -176,14 +176,13 @@ testnet/
 │   └── setup/action.yml              # Reusable setup action (Node + pnpm + install)
 │
 ├── local/                            # Local development environment
-│   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, Mailslurper, etc.
-│   ├── mailslurper.yaml              # Mailslurper Docker Compose override
+│   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, etc.
 │   ├── .env.example, .env.local      # Environment configuration
 │   └── scripts/local-tools.sh        # Cert, host, trust management
 │
 ├── e2e/                              # Playwright e2e test suite
 │   ├── features/                     # Gherkin .feature files + step definitions
-│   ├── helpers/                      # Shared test utilities (auth, mailslurper polling)
+│   ├── helpers/                      # Shared test utilities (auth, email verification bypass)
 │   ├── playwright.config.ts          # Playwright configuration
 │   └── .env.example                  # E2E environment overrides
 │
@@ -239,8 +238,7 @@ pnpm clean && pnpm install --frozen-lockfile && pnpm test
 
 **Context**: The wallet sends a verification email on signup. With `SEND_EMAIL=false` (the default in `.env.local`), emails are not sent — the verification link is logged to the backend console instead.
 
-**View the link**: Check the wallet backend logs for `Send email is disabled. Verify email link is: ...`  
-**Mailslurper** is still available for manual testing: open [http://localhost:4436](http://localhost:4436). It listens on ports 4436 (web UI) and 4437 (REST API), but is not used by automated e2e tests.
+**View the link**: Check the wallet backend logs for `Send email is disabled. Verify email link is: ...` and open it in the browser manually. E2E tests bypass this entirely — see `e2e/README.md`.
 
 ### Scenario: One Pre-Existing Test Failure
 
