@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from 'crypto'
 import { expect, Page } from '@playwright/test'
 import { Client } from 'pg'
 
@@ -17,24 +18,46 @@ export function createUniqueCredentials(): Credentials {
   }
 }
 
+/**
+ * Bypasses email delivery by injecting a known token into the DB, then calling
+ * the real /auth/verify/:token endpoint. This ensures gateHubUserId is created
+ * via the normal verify flow (which calls MockGatehub createManagedUser).
+ */
 export async function verifyUserDirectly(
   email: string,
-  dbUrl?: string
+  options?: { dbUrl?: string; apiUrl?: string }
 ): Promise<void> {
   const connectionString =
-    dbUrl ||
+    options?.dbUrl ||
     process.env.TEST_DB_URL ||
     'postgres://wallet_backend:wallet_backend@localhost:15434/wallet_backend'
+  // Use the direct HTTP port to avoid TLS cert issues in Node.js fetch (Traefik proxy uses a self-signed cert).
+  const apiBase =
+    options?.apiUrl || process.env.TEST_API_URL || 'http://localhost:3003'
+
+  // Generate a fresh token and store its hash so the verify endpoint can find the user
+  const token = randomBytes(32).toString('hex')
+  const tokenHash = createHash('sha256').update(token).digest('hex')
 
   const client = new Client({ connectionString })
   await client.connect()
   try {
     await client.query(
-      'UPDATE users SET "isEmailVerified" = true, "verifyEmailToken" = null WHERE email = $1',
-      [email]
+      'UPDATE users SET "verifyEmailToken" = $1 WHERE email = $2',
+      [tokenHash, email]
     )
   } finally {
     await client.end()
+  }
+
+  // Call the real verify endpoint — this creates the GateHub managed user and sets gateHubUserId
+  const response = await fetch(`${apiBase}/verify-email/${token}`, {
+    method: 'POST',
+    headers: { Accept: 'application/json' }
+  })
+  if (!response.ok) {
+    const body = await response.text().catch(() => '')
+    throw new Error(`Email verification failed (${response.status}): ${body}`)
   }
 }
 
