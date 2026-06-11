@@ -62,7 +62,6 @@ describe('Authentication Controller', (): void => {
   })
 
   beforeEach(async (): Promise<void> => {
-    jest.clearAllMocks()
     res = createResponse()
     req = createRequest()
   })
