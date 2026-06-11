@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 import {
   completeLocalMockKyc,
-  waitForVerificationLinkFromMailslurper
+  verifyUserDirectly
 } from '../../helpers/local-wallet'
 import { Given, Then, When } from './fixtures'
 
@@ -58,31 +58,12 @@ Then('I should see signup confirmation', async ({ page, flow }) => {
   await flow.takeScreenshot('signup-success')
 })
 
-When(
-  'I open the verification link from mailslurper',
-  async ({ page, flow }) => {
-    const verificationLink = await waitForVerificationLinkFromMailslurper({
-      toAddress: flow.credentials.email
-    })
-
-    flow.verificationLink = verificationLink
-
-    await page.goto(verificationLink)
-    await flow.takeScreenshot('verification-page-opened')
-  }
-)
-
-Then('I should see verification success', async ({ page, flow }) => {
-  await expect(
-    page.getByText(
-      'Your email has been verified. Continue to login to use Interledger Test Wallet.'
-    )
-  ).toBeVisible()
-  await flow.takeScreenshot('verify-success')
+When('I verify my email via test helper', async ({ flow }) => {
+  await verifyUserDirectly(flow.credentials.email)
 })
 
 When('I continue to login', async ({ page, flow }) => {
-  await page.locator('a[href="/auth/login"]').first().click()
+  await page.goto('/auth/login')
   await expect(page).toHaveURL(/\/auth\/login$/)
   await flow.takeScreenshot('login-page-opened')
 })

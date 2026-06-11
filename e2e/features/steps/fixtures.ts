@@ -8,7 +8,6 @@ import { mkdir } from 'node:fs/promises'
 type FlowState = {
   credentials: Credentials
   screenshotCounter: number
-  verificationLink?: string
   accountPath?: string
   initialBalance?: number
   postDepositBalance?: number

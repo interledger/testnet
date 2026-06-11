@@ -69,8 +69,6 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().optional(),
   CARD_DATA_HREF: z.string().default('UPDATEME'),
   CARD_PIN_HREF: z.string().default('UPDATEME'),
   STRIPE_SECRET_KEY: z.string().default('STRIPE_SECRET_KEY'),

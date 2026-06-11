@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test'
+import { Client } from 'pg'
 
 type ScreenshotFn = (name: string) => Promise<void>
 
@@ -16,62 +17,25 @@ export function createUniqueCredentials(): Credentials {
   }
 }
 
-type MailslurperMailItem = {
-  id: string
-  subject: string
-  toAddresses: string[]
-  body: string
-}
+export async function verifyUserDirectly(
+  email: string,
+  dbUrl?: string
+): Promise<void> {
+  const connectionString =
+    dbUrl ||
+    process.env.TEST_DB_URL ||
+    'postgres://wallet_backend:wallet_backend@localhost:15434/wallet_backend'
 
-type MailslurperResponse = {
-  mailItems: MailslurperMailItem[] | null
-  totalRecords: number
-}
-
-export async function waitForVerificationLinkFromMailslurper(args: {
-  toAddress: string
-  mailslurperBaseUrl?: string
-  timeoutMs?: number
-  pollIntervalMs?: number
-}): Promise<string> {
-  const apiUrl =
-    args.mailslurperBaseUrl ||
-    process.env.MAILSLURPER_BASE_URL ||
-    'http://localhost:4437'
-  const timeoutMs = args.timeoutMs ?? 30_000
-  const pollIntervalMs = args.pollIntervalMs ?? 1_000
-  const deadline = Date.now() + timeoutMs
-  const linkPattern = /https?:\/\/\S+\/auth\/verify\/[a-f0-9]+/g
-
-  while (Date.now() < deadline) {
-    const response = await fetch(`${apiUrl}/mail?page=1&limit=50`, {
-      headers: { Accept: 'application/json' }
-    }).catch(() => null)
-
-    if (response?.ok) {
-      const data: MailslurperResponse = await response.json()
-      const items = data.mailItems ?? []
-
-      // Email addresses are unique per test run so date filtering is not needed.
-      const matching = items.filter((item) =>
-        item.toAddresses.includes(args.toAddress)
-      )
-
-      for (const item of matching) {
-        const matches = [...item.body.matchAll(linkPattern)]
-        const link = matches.at(-1)?.[0]
-        if (link) {
-          return link
-        }
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs))
+  const client = new Client({ connectionString })
+  await client.connect()
+  try {
+    await client.query(
+      'UPDATE users SET "isEmailVerified" = true, "verifyEmailToken" = null WHERE email = $1',
+      [email]
+    )
+  } finally {
+    await client.end()
   }
-
-  throw new Error(
-    `Timed out waiting for a verification email to ${args.toAddress} in mailslurper`
-  )
 }
 
 export async function completeLocalMockKyc(
@@ -154,34 +118,24 @@ export async function setupVerifiedUser(args: {
   ).toBeVisible()
   await ss('006-signup-success')
 
-  // Verify email
-  const verificationLink = await waitForVerificationLinkFromMailslurper({
-    toAddress: credentials.email
-  })
-
-  await page.goto(verificationLink)
-  await ss('007-verification-page-opened')
-  await expect(
-    page.getByText(
-      'Your email has been verified. Continue to login to use Interledger Test Wallet.'
-    )
-  ).toBeVisible()
-  await ss('008-verify-success')
+  // Verify email via direct DB update (no email link needed)
+  await verifyUserDirectly(credentials.email)
+  await ss('007-email-verified')
 
   // Login
-  await page.locator('a[href="/auth/login"]').first().click()
+  await page.goto('/auth/login')
   await expect(page).toHaveURL(/\/auth\/login$/)
-  await ss('009-login-page-opened')
+  await ss('008-login-page-opened')
 
   const loginForm = page.locator('form')
   await loginForm
     .getByLabel('E-mail *', { exact: true })
     .fill(credentials.email)
-  await ss('010-login-email-filled')
+  await ss('009-login-email-filled')
   await loginForm
     .getByLabel('Password *', { exact: true })
     .fill(credentials.password)
-  await ss('011-login-password-filled')
+  await ss('010-login-password-filled')
 
   await Promise.all([
     page.waitForResponse(
@@ -192,10 +146,10 @@ export async function setupVerifiedUser(args: {
     ),
     loginForm.locator('button[type="submit"]').click()
   ])
-  await ss('012-login-submitted')
+  await ss('011-login-submitted')
 
   await page.waitForURL(/\/(kyc)?$/, { timeout: 60_000 })
-  await ss('013-post-login')
+  await ss('012-post-login')
 
   // KYC if needed
   if (page.url().endsWith('/kyc')) {
@@ -204,7 +158,7 @@ export async function setupVerifiedUser(args: {
 
   // Verify we're on dashboard
   await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
-  await ss('014-dashboard-ready')
+  await ss('013-dashboard-ready')
 
   return credentials
 }

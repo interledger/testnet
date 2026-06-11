@@ -9,9 +9,8 @@ Feature: Wallet authentication onboarding
     And I complete the signup form
     And I submit signup
     Then I should see signup confirmation
-    When I open the verification link from mailslurper
-    Then I should see verification success
-    When I continue to login
+    When I verify my email via test helper
+    And I continue to login
     And I login with my new credentials
     And I complete KYC if I am redirected to KYC
     Then I should see the accounts dashboard

@@ -12,7 +12,9 @@
   "devDependencies": {
     "@playwright/test": "^1.56.0",
     "@types/node": "^20.17.30",
+    "@types/pg": "^8.11.14",
     "dotenv": "^17.2.3",
+    "pg": "^8.16.3",
     "playwright-bdd": "^8.0.0",
     "typescript": "^5.9.3"
   }

@@ -113,7 +113,7 @@ pnpm e2e:test:headed
 cd e2e && pnpm exec playwright test --grep "auth"
 ```
 
-**Email verification** in tests works through **mailslurper** — an SMTP server (SMTPS on port 1025) bundled in Docker. The wallet backend routes emails to mailslurper when `SMTP_HOST=localhost` is set in `packages/wallet/backend/.env.local` (already configured). Tests poll `http://localhost:4437/mail` to retrieve verification links automatically. No Sendgrid account or manual link retrieval is needed.
+**Email verification** in tests uses a **direct Postgres bypass** — instead of following a real email link, tests call `verifyUserDirectly()` in `e2e/helpers/local-wallet.ts`, which connects to Postgres and sets `"isEmailVerified" = true` for the test user. No email infrastructure or Sendgrid account is needed. The DB URL defaults to `postgres://wallet_backend:wallet_backend@localhost:15434/wallet_backend` and can be overridden via `TEST_DB_URL` in `e2e/.env`.
 
 **Feature files**: `e2e/features/*.feature`  
 **Step definitions**: `e2e/features/steps/`  
@@ -232,10 +232,10 @@ pnpm clean && pnpm install --frozen-lockfile && pnpm test
 
 ### Scenario: Email Verification During Local Development
 
-**Context**: The wallet sends a verification email on signup. In the local environment this goes to mailslurper (not a real inbox).
+**Context**: The wallet sends a verification email on signup. With `SEND_EMAIL=false` (the default in `.env.local`), emails are not sent — the verification link is logged to the backend console instead.
 
-**View emails**: Open [http://localhost:4436](http://localhost:4436) in your browser.  
-**How it works**: `packages/wallet/backend/.env.local` sets `SMTP_HOST=localhost` and `SMTP_PORT=1025`, routing all emails to the mailslurper SMTPS container. E2e tests poll `http://localhost:4437/mail` via REST API to retrieve verification links automatically.
+**View the link**: Check the wallet backend logs for `Send email is disabled. Verify email link is: ...`  
+**Mailslurper** is still available for manual testing: open [http://localhost:4436](http://localhost:4436). It listens on ports 4436 (web UI) and 4437 (REST API), but is not used by automated e2e tests.
 
 ### Scenario: One Pre-Existing Test Failure
 
