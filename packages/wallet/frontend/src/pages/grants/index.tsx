@@ -49,20 +49,20 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
     grant.access.map((access) => {
       if (access.limits !== null) {
         if (access.limits.debitAmount !== null) {
-        access.limits.debitAmount.formattedAmount = formatAmount({
-          value: access.limits.debitAmount.value ?? 0,
-          assetCode: access.limits.debitAmount.assetCode,
-          assetScale: access.limits.debitAmount.assetScale
-        }).amount
-      }
+          access.limits.debitAmount.formattedAmount = formatAmount({
+            value: access.limits.debitAmount.value ?? 0,
+            assetCode: access.limits.debitAmount.assetCode,
+            assetScale: access.limits.debitAmount.assetScale
+          }).amount
+        }
 
-      if (access.limits.receiveAmount !== null) {
-        access.limits.receiveAmount.formattedAmount = formatAmount({
-          value: access.limits.receiveAmount.value ?? 0,
-          assetCode: access.limits.receiveAmount.assetCode,
-          assetScale: access.limits.receiveAmount.assetScale
-        }).amount
-      }
+        if (access.limits.receiveAmount !== null) {
+          access.limits.receiveAmount.formattedAmount = formatAmount({
+            value: access.limits.receiveAmount.value ?? 0,
+            assetCode: access.limits.receiveAmount.assetCode,
+            assetScale: access.limits.receiveAmount.assetScale
+          }).amount
+        }
       }
     })
   }
