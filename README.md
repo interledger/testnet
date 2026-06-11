@@ -153,7 +153,7 @@ End-to-end tests use [Playwright](https://playwright.dev/) with [playwright-bdd]
 
 ```sh
 # Install Playwright browsers (first time only)
-pnpm e2e install
+pnpm e2e:install
 
 # Run all e2e tests (headless)
 pnpm e2e:test

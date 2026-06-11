@@ -101,7 +101,7 @@ End-to-end tests use **Playwright** + **playwright-bdd** (Gherkin `.feature` fil
 
 ```bash
 # Install Playwright browsers (once per machine)
-pnpm e2e install
+pnpm e2e:install
 
 # Run all scenarios headless
 pnpm e2e:test
@@ -109,8 +109,8 @@ pnpm e2e:test
 # Run all scenarios with visible browser
 pnpm e2e:test:headed
 
-# Run a specific scenario by name
-pnpm e2e test --grep "auth"
+# Run a specific scenario by grep (run from e2e/ directory)
+cd e2e && pnpm exec playwright test --grep "auth"
 ```
 
 **Email verification** in tests works through **mailslurper** — an SMTP server (SMTPS on port 1025) bundled in Docker. The wallet backend routes emails to mailslurper when `SMTP_HOST=localhost` is set in `packages/wallet/backend/.env.local` (already configured). Tests poll `http://localhost:4437/mail` to retrieve verification links automatically. No Sendgrid account or manual link retrieval is needed.

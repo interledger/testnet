@@ -6,9 +6,7 @@ import path from 'path'
 dotenv.config({ path: path.resolve(__dirname, '.env') })
 
 const testBaseURL = process.env.TEST_BASE_URL || 'https://testnet.test'
-const ignoreHTTPSErrors =
-  process.env.PLAYWRIGHT_IGNORE_HTTPS_ERRORS === 'true' ||
-  testBaseURL.startsWith('https://')
+const ignoreHTTPSErrors = process.env.PLAYWRIGHT_IGNORE_HTTPS_ERRORS === 'true'
 
 const testDir = defineBddConfig({
   paths: ['features/**/*.feature'],

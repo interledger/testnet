@@ -4,6 +4,7 @@
   "packageManager": "pnpm@9.1.4",
   "scripts": {
     "generate": "bddgen",
+    "playwright:install": "playwright install",
     "test": "bddgen && playwright test",
     "test:headed": "bddgen && playwright test --headed",
     "test:debug": "bddgen && playwright test --debug"

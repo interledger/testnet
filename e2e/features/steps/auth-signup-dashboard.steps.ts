@@ -59,7 +59,7 @@ Then('I should see signup confirmation', async ({ page, flow }) => {
 })
 
 When(
-  'I open the verification link from backend logs',
+  'I open the verification link from mailslurper',
   async ({ page, flow }) => {
     const verificationLink = await waitForVerificationLinkFromMailslurper({
       toAddress: flow.credentials.email

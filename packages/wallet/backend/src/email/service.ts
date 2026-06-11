@@ -42,7 +42,12 @@ export class EmailService implements IEmailService {
         host: this.env.SMTP_HOST,
         port: this.env.SMTP_PORT ?? 1025,
         secure: true,
-        tls: { rejectUnauthorized: false }
+        tls: {
+          // Only skip cert validation for loopback hosts (local mailslurper uses a self-signed cert).
+          rejectUnauthorized:
+            this.env.SMTP_HOST !== 'localhost' &&
+            !this.env.SMTP_HOST?.startsWith('127.')
+        }
       })
     } else if (this.env.SEND_EMAIL) {
       sendgrid.setApiKey(this.env.SENDGRID_API_KEY)
