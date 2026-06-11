@@ -475,13 +475,17 @@ export class App {
 
   private async approvePendingTransactions() {
     const transactionService = this.container.resolve('gateHubService')
+    const approvalInterval = 300000 // 5 Minutes
     const logger = this.container.resolve('logger')
     try {
       await transactionService.approveTransactions()
     } catch (e) {
       logger.error(e)
     } finally {
-      setTimeout(() => this.approvePendingTransactions(), 5 * 60 * 1000).unref()
+      setTimeout(
+        () => this.approvePendingTransactions(),
+        approvalInterval
+      ).unref()
     }
   }
 
