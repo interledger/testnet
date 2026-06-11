@@ -14,14 +14,15 @@ const defaultState = {
       endCursor: '',
       startCursor: '',
       hasNextPage: false,
-      hasPreviousPage: false
+      hasPreviousPage: false,
+      totalCount: 0
     }
   }
 }
 
 export const useGrants = () => {
   const router = useTypedRouter(grantsListSchema)
-  const { after, before, first, last } = router.query as GrantQueryParams
+  const { page, pageSize, sortOrder } = router.query as GrantQueryParams
   const [request, loading, error] = useHttpRequest()
   const [grantsList, setGrantsList] = useState<GrantsListResponse>(defaultState)
 
@@ -37,16 +38,19 @@ export const useGrants = () => {
 
   useEffect(() => {
     fetch({
-      after,
-      before,
-      first: first ?? GRANTS_DISPLAY_NR,
-      last
+      page: page ?? 0,
+      pageSize: pageSize ?? GRANTS_DISPLAY_NR,
+      sortOrder: sortOrder ?? 'DESC'
     })
-  }, [fetch, after, before, first, last])
+  }, [fetch, page, pageSize, sortOrder])
 
   return [
     grantsList,
-    { after, before, first, last },
+    {
+      page: page ?? 0,
+      pageSize: pageSize ?? GRANTS_DISPLAY_NR,
+      sortOrder: sortOrder ?? 'DESC'
+    },
     fetch,
     loading,
     error
