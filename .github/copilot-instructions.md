@@ -9,6 +9,7 @@
 - **Boutique Backend** (Express) — E-commerce demo server
 - **Boutique Frontend** (Vite) — E-commerce storefront
 - **Shared Packages** — Common backend & frontend utilities
+- **E2E Tests** (`e2e/`) — Playwright + playwright-bdd (Gherkin) end-to-end tests against the local environment
 
 **Size**: ~100K lines of TypeScript + Node.js; ~80 test files; ~10 npm packages
 **Purpose**: Reference implementation for Account Servicing Entities integrating with Interledger Protocol and Rafiki
@@ -22,7 +23,7 @@
 
 - **Node.js 20 LTS** (`lts/iron`, enforced by `package.json` engines field)
 - **pnpm 9.x** (managed via Corepack; CI uses `pnpm/action-setup@v2`)
-- **Docker** and **Docker Compose** (for local services: Postgres, Redis, Traefik, Kratos, Rafiki, MockGatehub)
+- **Docker** and **Docker Compose** (for local services: Postgres, Redis, Traefik, Kratos, Rafiki, MockGatehub, Mailslurper)
 - **Git**
 
 ### Setup Steps (First Time Only)
@@ -55,10 +56,11 @@ pnpm local:setup
 
 | Command       | Purpose                                      | Time | Notes                                                                                |
 | ------------- | -------------------------------------------- | ---- | ------------------------------------------------------------------------------------ |
-| `pnpm checks` | ESLint (--max-warnings=0) + Prettier check   | ~3s  | **Always run before PR** — catches formatting and linting issues                     |
-| `pnpm test`   | Jest unit tests (wallet + boutique backends) | ~80s | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
-| `pnpm format` | Auto-fix ESLint + Prettier                   | ~5s  | Mutates files in place; safe to run                                                  |
-| `pnpm build`  | Compile all packages to `dist/` and `.next/` | ~30s | Requires correct Node version; builds dependencies first                             |
+| `pnpm checks`    | ESLint (--max-warnings=0) + Prettier check   | ~3s   | **Always run before PR** — catches formatting and linting issues                     |
+| `pnpm test`      | Jest unit tests (wallet + boutique backends) | ~80s  | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
+| `pnpm format`    | Auto-fix ESLint + Prettier                   | ~5s   | Mutates files in place; safe to run                                                  |
+| `pnpm build`     | Compile all packages to `dist/` and `.next/` | ~30s  | Requires correct Node version; builds dependencies first                             |
+| `pnpm e2e:test`  | Playwright e2e tests (headless)              | ~2min | Requires full local stack running; see E2E Tests section below                       |
 
 ### Per-Package Commands
 
@@ -90,6 +92,33 @@ pnpm clean:builds      # Remove dist/.next/ only
 pnpm prettier:write    # Auto-format all files
 pnpm lint:fix          # Auto-fix eslint issues
 ```
+
+### E2E Tests
+
+End-to-end tests use **Playwright** + **playwright-bdd** (Gherkin `.feature` files). They run against the local environment at `https://testnet.test`.
+
+**Prerequisites**: Full local stack must be running (`pnpm local:setup && pnpm dev`).
+
+```bash
+# Install Playwright browsers (once per machine)
+pnpm e2e install
+
+# Run all scenarios headless
+pnpm e2e:test
+
+# Run all scenarios with visible browser
+pnpm e2e:test:headed
+
+# Run a specific scenario by name
+pnpm e2e test --grep "auth"
+```
+
+**Email verification** in tests works through **mailslurper** — an SMTP server (SMTPS on port 1025) bundled in Docker. The wallet backend routes emails to mailslurper when `SMTP_HOST=localhost` is set in `packages/wallet/backend/.env.local` (already configured). Tests poll `http://localhost:4437/mail` to retrieve verification links automatically. No Sendgrid account or manual link retrieval is needed.
+
+**Feature files**: `e2e/features/*.feature`  
+**Step definitions**: `e2e/features/steps/`  
+**Helpers**: `e2e/helpers/local-wallet.ts`  
+**Config**: `e2e/playwright.config.ts`; env overrides in `e2e/.env` (see `e2e/.env.example`)
 
 ---
 
@@ -142,9 +171,16 @@ testnet/
 │   └── setup/action.yml              # Reusable setup action (Node + pnpm + install)
 │
 ├── local/                            # Local development environment
-│   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, etc.
+│   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, Mailslurper, etc.
+│   ├── mailslurper.yaml              # Mailslurper Docker Compose override
 │   ├── .env.example, .env.local      # Environment configuration
 │   └── scripts/local-tools.sh        # Cert, host, trust management
+│
+├── e2e/                              # Playwright e2e test suite
+│   ├── features/                     # Gherkin .feature files + step definitions
+│   ├── helpers/                      # Shared test utilities (auth, mailslurper polling)
+│   ├── playwright.config.ts          # Playwright configuration
+│   └── .env.example                  # E2E environment overrides
 │
 ├── packages/
 │   ├── wallet/
@@ -165,7 +201,7 @@ testnet/
 ### Key Files
 
 - **Root scripts**: `package.json` lines 15–50 define all entry points
-- **Workspace config**: `pnpm-workspace.yaml` lists 4 package globs
+- **Workspace config**: `pnpm-workspace.yaml` lists 5 package globs (includes `e2e`)
 - **TypeScript config**: `tsconfig.base.json` (target ES2020, strict: true)
 - **ESLint**: `.eslintrc.js` (--max-warnings=0 enforced in CI)
 - **Prettier**: `.prettierrc.js` (checked before any lint/build)
@@ -193,6 +229,13 @@ nvm install lts/iron && nvm use lts/iron && pnpm install --frozen-lockfile
 ```bash
 pnpm clean && pnpm install --frozen-lockfile && pnpm test
 ```
+
+### Scenario: Email Verification During Local Development
+
+**Context**: The wallet sends a verification email on signup. In the local environment this goes to mailslurper (not a real inbox).
+
+**View emails**: Open [http://localhost:4436](http://localhost:4436) in your browser.  
+**How it works**: `packages/wallet/backend/.env.local` sets `SMTP_HOST=localhost` and `SMTP_PORT=1025`, routing all emails to the mailslurper SMTPS container. E2e tests poll `http://localhost:4437/mail` via REST API to retrieve verification links automatically.
 
 ### Scenario: One Pre-Existing Test Failure
 
@@ -249,6 +292,7 @@ pnpm build
    - **Lint**: `pnpm checks`
    - **Test**: `pnpm test` (expect 215 pass, 1 pre-existing fail)
    - **Build** (if package changed): `pnpm {package}:backend build` or `pnpm {package}:frontend build`
+   - **E2E** (if e2e/ or wallet changed): `pnpm e2e:test` (requires full local stack)
 
 4. **Replicate CI locally**: The `.github/workflows/ci.yml` logic matches these commands exactly:
    - Step 1: `pnpm checks`
@@ -265,5 +309,5 @@ pnpm build
 
 ---
 
-**Updated**: April 2026  
+**Updated**: June 2026  
 **Maintained By**: Interledger Foundation
