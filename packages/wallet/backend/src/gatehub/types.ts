@@ -80,51 +80,50 @@ export interface IGetWalletResponse {
   address: string
 }
 
-interface IWalletInfo{
-    uuid:string,
-    created_at:string,
-    address:string,
-    name:string
+interface IWalletInfo {
+  uuid: string
+  created_at: string
+  address: string
+  name: string
 }
-interface IGateway{
-  uuid:string,
-  created_at:string,
-  updated_at:string,
-  status:number,
-  name:string,
-  terms:string,
-  insurance:number
+interface IGateway {
+  uuid: string
+  created_at: string
+  updated_at: string
+  status: number
+  name: string
+  terms: string
+  insurance: number
 }
-export interface IPendingTransaction{
-  uuid:string,
-  uid:string,
-  state:number,
-  created_at:string,
-  completed_at:string,
-  amount:string,
-  total_amount:string,
-  fee:string,
-  type:number,
-  status:number,
-  substatus:number,
-  sending_wallet: IWalletInfo,
-  receiving_wallet:IWalletInfo,
-  vault:IVault,
-  message:string,
-  reason:string,
-  gateway:IGateway,
-  announcement_uuid:string
+export interface IPendingTransaction {
+  uuid: string
+  uid: string
+  state: number
+  created_at: string
+  completed_at: string
+  amount: string
+  total_amount: string
+  fee: string
+  type: number
+  status: number
+  substatus: number
+  sending_wallet: IWalletInfo
+  receiving_wallet: IWalletInfo
+  vault: IVault
+  message: string
+  reason: string
+  gateway: IGateway
+  announcement_uuid: string
 }
 
-export interface IApprovePendingTransaction extends IPendingTransaction{
-  receiving_user:{
-    uuid:string,
-    email:string,
-    created_at:string,
-    updated_at:string
+export interface IApprovePendingTransaction extends IPendingTransaction {
+  receiving_user: {
+    uuid: string
+    email: string
+    created_at: string
+    updated_at: string
   }
 }
-
 
 export interface ICreateTransactionRequest {
   amount: number
