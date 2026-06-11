@@ -113,12 +113,17 @@ pnpm e2e:test:headed
 cd e2e && pnpm exec playwright test --grep "auth"
 ```
 
-**Email verification** in tests uses a **direct Postgres bypass** — instead of following a real email link, tests call `verifyUserDirectly()` in `e2e/helpers/local-wallet.ts`, which connects to Postgres and sets `"isEmailVerified" = true` for the test user. No email infrastructure or Sendgrid account is needed. The DB URL defaults to `postgres://wallet_backend:wallet_backend@localhost:15434/wallet_backend` and can be overridden via `TEST_DB_URL` in `e2e/.env`.
+**Email verification** in tests uses a **DB-token + real-endpoint bypass**: `verifyUserDirectly()` in `e2e/helpers/local-wallet.ts` writes a fresh token hash to Postgres and then calls `POST /verify-email/:token` on the wallet backend directly (`http://localhost:3003`, not the Traefik proxy). This runs the real verification code path — setting `isEmailVerified`, clearing the token, and calling MockGatehub `createManagedUser` so `gateHubUserId` is populated. Without `gateHubUserId` the KYC page returns 404. No email infrastructure or Sendgrid account is needed. The DB URL and API URL can be overridden via `TEST_DB_URL` and `TEST_API_URL` in `e2e/.env`.
+
+**Account isolation**: every test run creates a unique user via `createUniqueCredentials()` (timestamped email). Tests are fully independent and safe to run in parallel.
+
+> **AI agent guidance — race condition check**: When adding or modifying e2e tests, warn the developer if the change introduces a potential race condition. Common causes: sharing a single account across parallel tests, assertions on aggregate counts (total transactions, balance sums) that could be affected by other concurrent tests, or test setup that depends on the order of prior tests. Each scenario must create its own isolated user and assert only on state scoped to that user.
 
 **Feature files**: `e2e/features/*.feature`  
 **Step definitions**: `e2e/features/steps/`  
 **Helpers**: `e2e/helpers/local-wallet.ts`  
-**Config**: `e2e/playwright.config.ts`; env overrides in `e2e/.env` (see `e2e/.env.example`)
+**Config**: `e2e/playwright.config.ts`; env overrides in `e2e/.env` (see `e2e/.env.example`)  
+**Detailed guide**: `e2e/README.md`
 
 ---
 
