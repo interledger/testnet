@@ -357,19 +357,23 @@ export class GateHubClient {
 
   async getPendingTransactions(): Promise<IPendingTransaction[]> {
     const url = `${this.apiUrl}/core/v1/gateways/${this.env.GATEHUB_GATEWAY_UUID}/transactions`
+    const currentDay = new Date().toISOString().split('T')[0]
+    const nextDay = new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0]
     const payload = {
       filters: {
         state: {
           value: 3
         },
-        created_at: {},
+        created_at: { from: currentDay, to: nextDay },
         amount: {},
         define_range: {
           offset: 0,
-          limit: 5
+          limit: 20
         },
         order: {
-          field: 'created_at',
+          field: 'id',
           direction: 'desc'
         }
       }

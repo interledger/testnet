@@ -141,24 +141,28 @@ export class GateHubService {
   async approveTransactions() {
     try {
       const transactions = await this.gateHubClient.getPendingTransactions()
-      transactions.forEach((trx) => {
-        console.log(
-          `${trx.uuid} - ${trx.state} - ${trx.uid} - ${trx.created_at}`
-        )
-      })
-      console.log('TransactionsLength: ', transactions.length)
-      // if (!transactions.length) {
-      //   this.logger.info('No pending Transactions!')
-      //   return
-      // }
-      // for (const transaction of transactions) {
-      //   try {
-      //     await this.gateHubClient.approvePendingTransactions(transaction.uuid)
-      //   } catch (err) {
-      //     this.logger.error(`Error: ${err}`)
-      //   }
-      // }
-      console.log('END')
+      const walletIds = await this.accountService.checkGatehubWalletIds(
+        transactions.map((trx) => trx.receiving_wallet.address)
+      )
+
+      if (!walletIds.length) {
+        return
+      }
+
+      const filteredTransactions = transactions.filter((trx) =>
+        walletIds.includes(trx.receiving_wallet.address)
+      )
+      this.logger.info(
+        `Found ${filteredTransactions.length} transactions to process.`
+      )
+
+      for (const transaction of filteredTransactions) {
+        try {
+          await this.gateHubClient.approvePendingTransactions(transaction.uuid)
+        } catch (err) {
+          this.logger.error(`Error: ${err}`)
+        }
+      }
     } catch (err) {
       this.logger.error(`Automatic approval failed - ${err}`)
     }
