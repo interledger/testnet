@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { Given, Then, When } from './fixtures'
+import { Then, When } from './fixtures'
 
 const EPSILON = 0.01
 
@@ -25,29 +25,29 @@ async function readAccountBalance(page: Page) {
   return parseAmountFromText(balanceText)
 }
 
-When('I open the EUR default account for deposit checks', async ({
-  page,
-  flow
-}) => {
-  await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
+When(
+  'I open the EUR default account for deposit checks',
+  async ({ page, flow }) => {
+    await page.goto('/')
+    await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
 
-  const defaultAccount = page
-    .locator('a[href*="/account/"]')
-    .filter({ hasText: 'EUR Account' })
-    .first()
+    const defaultAccount = page
+      .locator('a[href*="/account/"]')
+      .filter({ hasText: 'EUR Account' })
+      .first()
 
-  await expect(defaultAccount).toBeVisible()
-  await defaultAccount.click()
+    await expect(defaultAccount).toBeVisible()
+    await defaultAccount.click()
 
-  await expect(page).toHaveURL(/\/account\/.+/)
-  await expect(page.getByRole('heading', { name: 'Balance' })).toBeVisible()
+    await expect(page).toHaveURL(/\/account\/.+/)
+    await expect(page.getByRole('heading', { name: 'Balance' })).toBeVisible()
 
-  const url = new URL(page.url())
-  flow.accountPath = `${url.pathname}${url.search}`
+    const url = new URL(page.url())
+    flow.accountPath = `${url.pathname}${url.search}`
 
-  await flow.takeScreenshot('deposit-check-account-opened')
-})
+    await flow.takeScreenshot('deposit-check-account-opened')
+  }
+)
 
 When('I record the current account balance', async ({ page, flow }) => {
   flow.initialBalance = await readAccountBalance(page)
@@ -154,80 +154,88 @@ When(
   }
 )
 
-When('I open the transactions page for deposit checks', async ({ page, flow }) => {
-  await page.goto('/transactions')
-  await expect(page).toHaveURL(/\/transactions/)
-  await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible()
+When(
+  'I open the transactions page for deposit checks',
+  async ({ page, flow }) => {
+    await page.goto('/transactions')
+    await expect(page).toHaveURL(/\/transactions/)
+    await expect(
+      page.getByRole('heading', { name: 'Transactions' })
+    ).toBeVisible()
 
-  if (flow.initialTransactionRows === undefined) {
-    throw new Error('Missing initial transactions count in flow state')
-  }
-
-  const expectedMinimumRows = flow.initialTransactionRows + 1
-  let currentRows = 0
-
-  for (let attempt = 0; attempt < 6; attempt++) {
-    const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
-    currentRows = await rows.count()
-
-    if (currentRows >= expectedMinimumRows) {
-      break
+    if (flow.initialTransactionRows === undefined) {
+      throw new Error('Missing initial transactions count in flow state')
     }
 
-    await page.waitForTimeout(2000)
-    await page.reload()
-    await expect(page).toHaveURL(/\/transactions/)
+    const expectedMinimumRows = flow.initialTransactionRows + 1
+    let currentRows = 0
+
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
+      currentRows = await rows.count()
+
+      if (currentRows >= expectedMinimumRows) {
+        break
+      }
+
+      await page.waitForTimeout(2000)
+      await page.reload()
+      await expect(page).toHaveURL(/\/transactions/)
+    }
+
+    flow.postDepositTransactionRows = currentRows
+
+    expect(flow.postDepositTransactionRows).toBeGreaterThanOrEqual(
+      expectedMinimumRows
+    )
+
+    const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
+
+    await expect(rows.first()).toBeVisible()
+
+    const amountCellText = await rows.first().locator('td').nth(2).innerText()
+
+    flow.latestTransactionAmount = Math.abs(parseAmountFromText(amountCellText))
+
+    await flow.takeScreenshot('deposit-check-post-transactions')
   }
-
-  flow.postDepositTransactionRows = currentRows
-
-  expect(flow.postDepositTransactionRows).toBeGreaterThanOrEqual(
-    expectedMinimumRows
-  )
-
-  const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
-
-  await expect(rows.first()).toBeVisible()
-
-  const amountCellText = await rows
-    .first()
-    .locator('td')
-    .nth(2)
-    .innerText()
-
-  flow.latestTransactionAmount = Math.abs(parseAmountFromText(amountCellText))
-
-  await flow.takeScreenshot('deposit-check-post-transactions')
-})
+)
 
 Then('the transaction count should increase by exactly 1', async ({ flow }) => {
   expect(flow.initialTransactionRows).toBeDefined()
   expect(flow.postDepositTransactionRows).toBeDefined()
 
-  expect(flow.postDepositTransactionRows! - flow.initialTransactionRows!).toBe(1)
+  expect(flow.postDepositTransactionRows! - flow.initialTransactionRows!).toBe(
+    1
+  )
 })
 
-When('I wait {int} seconds and refresh transactions', async ({ page, flow }, seconds: number) => {
-  await page.waitForTimeout(seconds * 1000)
-  await page.reload()
+When(
+  'I wait {int} seconds and refresh transactions',
+  async ({ page, flow }, seconds: number) => {
+    await page.waitForTimeout(seconds * 1000)
+    await page.reload()
 
-  await expect(page).toHaveURL(/\/transactions/)
-  await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible()
+    await expect(page).toHaveURL(/\/transactions/)
+    await expect(
+      page.getByRole('heading', { name: 'Transactions' })
+    ).toBeVisible()
 
-  const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
-  // Wait for table data to load after page hydration; heading visible ≠ rows rendered.
-  try {
-    await rows.first().waitFor({ state: 'visible', timeout: 8000 })
-  } catch {
-    // Table may genuinely be empty — proceed with count of 0.
+    const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
+    // Wait for table data to load after page hydration; heading visible ≠ rows rendered.
+    try {
+      await rows.first().waitFor({ state: 'visible', timeout: 8000 })
+    } catch {
+      // Table may genuinely be empty — proceed with count of 0.
+    }
+    flow.delayedRefreshTransactionRows = await rows.count()
+
+    if (flow.delayedRefreshTransactionRows > 0) {
+      await expect(rows.first()).toBeVisible()
+    }
+    await flow.takeScreenshot('deposit-check-post-transactions-delayed-refresh')
   }
-  flow.delayedRefreshTransactionRows = await rows.count()
-
-  if (flow.delayedRefreshTransactionRows > 0) {
-    await expect(rows.first()).toBeVisible()
-  }
-  await flow.takeScreenshot('deposit-check-post-transactions-delayed-refresh')
-})
+)
 
 Then(
   'the transaction count should still increase by exactly 1',
@@ -260,6 +268,8 @@ Then(
     expect(flow.depositAmount).toBeDefined()
 
     const increase = flow.postDepositBalance! - flow.initialBalance!
-    expect(Math.abs(increase - flow.depositAmount!)).toBeLessThanOrEqual(EPSILON)
+    expect(Math.abs(increase - flow.depositAmount!)).toBeLessThanOrEqual(
+      EPSILON
+    )
   }
 )

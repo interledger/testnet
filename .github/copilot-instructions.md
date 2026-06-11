@@ -54,13 +54,13 @@ pnpm local:setup
 
 ### Core Commands (Work Immediately After Setup)
 
-| Command       | Purpose                                      | Time | Notes                                                                                |
-| ------------- | -------------------------------------------- | ---- | ------------------------------------------------------------------------------------ |
-| `pnpm checks`    | ESLint (--max-warnings=0) + Prettier check   | ~3s   | **Always run before PR** — catches formatting and linting issues                     |
-| `pnpm test`      | Jest unit tests (wallet + boutique backends) | ~80s  | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
-| `pnpm format`    | Auto-fix ESLint + Prettier                   | ~5s   | Mutates files in place; safe to run                                                  |
-| `pnpm build`     | Compile all packages to `dist/` and `.next/` | ~30s  | Requires correct Node version; builds dependencies first                             |
-| `pnpm e2e:test`  | Playwright e2e tests (headless)              | ~2min | Requires full local stack running; see E2E Tests section below                       |
+| Command         | Purpose                                      | Time  | Notes                                                                                |
+| --------------- | -------------------------------------------- | ----- | ------------------------------------------------------------------------------------ |
+| `pnpm checks`   | ESLint (--max-warnings=0) + Prettier check   | ~3s   | **Always run before PR** — catches formatting and linting issues                     |
+| `pnpm test`     | Jest unit tests (wallet + boutique backends) | ~80s  | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
+| `pnpm format`   | Auto-fix ESLint + Prettier                   | ~5s   | Mutates files in place; safe to run                                                  |
+| `pnpm build`    | Compile all packages to `dist/` and `.next/` | ~30s  | Requires correct Node version; builds dependencies first                             |
+| `pnpm e2e:test` | Playwright e2e tests (headless)              | ~2min | Requires full local stack running; see E2E Tests section below                       |
 
 ### Per-Package Commands
 

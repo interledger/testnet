@@ -1,5 +1,8 @@
 import { expect } from '@playwright/test'
-import { completeLocalMockKyc, setupVerifiedUser } from '../../helpers/local-wallet'
+import {
+  completeLocalMockKyc,
+  setupVerifiedUser
+} from '../../helpers/local-wallet'
 import { Given, Then, When } from './fixtures'
 
 Given('I am a verified and logged-in wallet user', async ({ page, flow }) => {
