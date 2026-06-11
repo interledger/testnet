@@ -21,6 +21,7 @@ Rather than parsing backend logs or running an SMTP capture server, tests bypass
 Step 3 runs the real verification code path — it sets `isEmailVerified = true`, clears the token, and calls MockGatehub `createManagedUser` to obtain a `gateHubUserId`. This is necessary: without `gateHubUserId` the KYC page returns 404.
 
 This approach was chosen because:
+
 - It requires no changes to the wallet backend or email service.
 - It does not depend on an SMTP server being available in CI or locally.
 - It exercises the actual verification endpoint rather than faking the DB state directly.
