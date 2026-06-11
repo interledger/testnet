@@ -21,6 +21,7 @@ import { GrantResponse } from '@wallet/shared'
 import { GrantDetailsDialog } from '@/components/dialogs/GrantDetailsDialog'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { userService } from '@/lib/api/user'
+import { formatAmount } from '@/utils/helpers'
 
 type GrantsPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -38,9 +39,32 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
   const handleRowClick = async (grantId: string) => {
     const res = await grantsService.get(grantId)
     if (res.success && res.result) {
+      formattedAmount(res.result)
       setSelectedGrant(res.result)
       setIsDialogOpen(true)
     }
+  }
+
+  const formattedAmount = (grant: GrantResponse) => {
+    grant.access.map((access) => {
+      if (access.limits !== null) {
+        if (access.limits.debitAmount !== null) {
+        access.limits.debitAmount.formattedAmount = formatAmount({
+          value: access.limits.debitAmount.value ?? 0,
+          assetCode: access.limits.debitAmount.assetCode,
+          assetScale: access.limits.debitAmount.assetScale
+        }).amount
+      }
+
+      if (access.limits.receiveAmount !== null) {
+        access.limits.receiveAmount.formattedAmount = formatAmount({
+          value: access.limits.receiveAmount.value ?? 0,
+          assetCode: access.limits.receiveAmount.assetCode,
+          assetScale: access.limits.receiveAmount.assetScale
+        }).amount
+      }
+      }
+    })
   }
 
   const totalPages = useMemo<number>(
