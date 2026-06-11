@@ -8,7 +8,6 @@ import { mkdir } from 'node:fs/promises'
 type FlowState = {
   credentials: Credentials
   logMarker: Date
-  containerName: string
   screenshotCounter: number
   verificationLink?: string
   accountPath?: string
@@ -38,8 +37,6 @@ export const test = base.extend<{ flow: FlowState }>({
     const state: FlowState = {
       credentials: createUniqueCredentials(),
       logMarker: new Date(),
-      containerName:
-        process.env.WALLET_BACKEND_CONTAINER || 'wallet-backend-local',
       screenshotCounter: 0,
       featureName,
       takeScreenshot: async (name: string) => {

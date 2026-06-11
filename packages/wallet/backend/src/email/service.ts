@@ -9,6 +9,7 @@ import { BadRequest } from '@shared/backend'
 import { getRejectEmailTemplate } from '@/email/templates/rejectEmail'
 import { getActionRequiredEmailTemplate } from './templates/actionRequiredEmail'
 import { getKYCVerificationEmailTemplate } from './templates/kycVerifiedEmail'
+import nodemailer from 'nodemailer'
 
 interface EmailArgs {
   to: string
@@ -29,12 +30,21 @@ export class EmailService implements IEmailService {
     'https://raw.githubusercontent.com/interledger/testnet/main/packages/wallet/backend/src/email/templates/images/InterledgerTestWallet.png'
   private subjectPrefix: string = 'Test.Wallet'
   private appName: string = 'Interledger Test Wallet'
+  private smtpTransport: ReturnType<typeof nodemailer.createTransport> | null =
+    null
 
   constructor(
     private env: Env,
     private logger: Logger
   ) {
-    if (this.env.SEND_EMAIL) {
+    if (this.env.SMTP_HOST) {
+      this.smtpTransport = nodemailer.createTransport({
+        host: this.env.SMTP_HOST,
+        port: this.env.SMTP_PORT ?? 1025,
+        secure: false,
+        ignoreTLS: true
+      })
+    } else if (this.env.SEND_EMAIL) {
       sendgrid.setApiKey(this.env.SENDGRID_API_KEY)
     }
 
@@ -56,13 +66,24 @@ export class EmailService implements IEmailService {
   }
 
   private async send(email: EmailArgs): Promise<void> {
+    if (this.smtpTransport) {
+      await this.smtpTransport.sendMail({
+        from: typeof this.from === 'string' ? this.from : this.from.email,
+        ...email
+      })
+      return
+    }
     await sendgrid.send({ from: this.from, ...email })
+  }
+
+  private shouldSend(): boolean {
+    return this.env.SEND_EMAIL || this.smtpTransport !== null
   }
 
   async sendForgotPassword(to: string, token: string): Promise<void> {
     const url = `${this.baseUrl}/auth/reset/${token}`
 
-    if (this.env.SEND_EMAIL) {
+    if (this.shouldSend()) {
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] Reset your password`,
@@ -76,7 +97,7 @@ export class EmailService implements IEmailService {
   async sendVerifyEmail(to: string, token: string): Promise<void> {
     const url = `${this.baseUrl}/auth/verify/${token}`
 
-    if (this.env.SEND_EMAIL) {
+    if (this.shouldSend()) {
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] Verify your account`,
@@ -88,7 +109,7 @@ export class EmailService implements IEmailService {
   }
 
   async sendUserRejectedEmail(to: string, textHtml: string): Promise<void> {
-    if (this.env.SEND_EMAIL) {
+    if (this.shouldSend()) {
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] Account rejected`,
@@ -100,7 +121,7 @@ export class EmailService implements IEmailService {
   }
 
   async sendActionRequiredEmail(to: string, textHtml: string): Promise<void> {
-    if (this.env.SEND_EMAIL) {
+    if (this.shouldSend()) {
       return this.send({
         to,
         subject: `[${this.subjectPrefix}] Action required`,
@@ -114,7 +135,7 @@ export class EmailService implements IEmailService {
   }
 
   async sendKYCVerifiedEmail(to: string): Promise<void> {
-    if (this.env.SEND_EMAIL) {
+    if (this.shouldSend()) {
       const loginUrl = `${this.baseUrl}/auth/login`
       return this.send({
         to,

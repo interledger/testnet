@@ -3,6 +3,7 @@ services:
     container_name: mailslurper-local
     image: oryd/mailslurper:latest-smtps
     ports:
+      - '1025:1025'
       - '4436:4436'
       - '4437:4437'
     networks:

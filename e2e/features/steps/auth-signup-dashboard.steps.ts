@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 import {
   completeLocalMockKyc,
-  waitForVerificationLinkFromLogs
+  waitForVerificationLinkFromMailslurper
 } from '../../helpers/local-wallet'
 import { Given, Then, When } from './fixtures'
 
@@ -61,9 +61,9 @@ Then('I should see signup confirmation', async ({ page, flow }) => {
 When(
   'I open the verification link from backend logs',
   async ({ page, flow }) => {
-    const verificationLink = await waitForVerificationLinkFromLogs({
-      since: flow.logMarker,
-      containerName: flow.containerName
+    const verificationLink = await waitForVerificationLinkFromMailslurper({
+      toAddress: flow.credentials.email,
+      since: flow.logMarker
     })
 
     flow.verificationLink = verificationLink

@@ -1,8 +1,4 @@
 import { expect, Page } from '@playwright/test'
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
-
-const execFileAsync = promisify(execFile)
 
 type ScreenshotFn = (name: string) => Promise<void>
 
@@ -20,63 +16,65 @@ export function createUniqueCredentials(): Credentials {
   }
 }
 
-export async function waitForVerificationLinkFromLogs(args: {
+type MailslurperMailItem = {
+  id: string
+  subject: string
+  dateReceived: string
+  fromAddress: string
+  toAddresses: string[]
+  body: string
+}
+
+type MailslurperResponse = {
+  mailItems: MailslurperMailItem[] | null
+  totalRecords: number
+}
+
+export async function waitForVerificationLinkFromMailslurper(args: {
+  toAddress: string
   since: Date
-  containerName?: string
+  mailslurperApiUrl?: string
   timeoutMs?: number
   pollIntervalMs?: number
 }): Promise<string> {
-  const containerName = args.containerName || 'wallet-backend-local'
+  const apiUrl =
+    args.mailslurperApiUrl ||
+    process.env.MAILSLURPER_API_URL ||
+    'http://localhost:4437'
   const timeoutMs = args.timeoutMs ?? 30_000
   const pollIntervalMs = args.pollIntervalMs ?? 1_000
   const deadline = Date.now() + timeoutMs
-  const linkPattern =
-    /Verify email link is:\s+(https?:\/\/\S+\/auth\/verify\/[a-f0-9]+)/g
+  const linkPattern = /https?:\/\/\S+\/auth\/verify\/[a-f0-9]+/g
 
   while (Date.now() < deadline) {
-    let output = ''
+    const response = await fetch(`${apiUrl}/api/v1/mail?page=1&limit=50`, {
+      headers: { Accept: 'application/json' }
+    }).catch(() => null)
 
-    try {
-      const result = await execFileAsync(
-        'docker',
-        [
-          'logs',
-          '--since',
-          args.since.toISOString(),
-          '--timestamps',
-          containerName
-        ],
-        { maxBuffer: 1024 * 1024 }
+    if (response?.ok) {
+      const data: MailslurperResponse = await response.json()
+      const items = data.mailItems ?? []
+
+      const matching = items.filter(
+        (item) =>
+          item.toAddresses.includes(args.toAddress) &&
+          new Date(item.dateReceived) >= args.since
       )
 
-      output = `${result.stdout}\n${result.stderr}`
-    } catch (error) {
-      const execError = error as NodeJS.ErrnoException & {
-        stdout?: string
-        stderr?: string
+      for (const item of matching) {
+        const matches = [...item.body.matchAll(linkPattern)]
+        const link = matches.at(-1)?.[0]
+        if (link) {
+          return link
+        }
       }
-
-      if (execError.code === 'ENOENT') {
-        throw new Error(
-          'docker CLI is required to retrieve local verification links'
-        )
-      }
-
-      output = `${execError.stdout ?? ''}\n${execError.stderr ?? ''}`
-    }
-
-    const matches = [...output.matchAll(linkPattern)]
-    const latestMatch = matches.at(-1)?.[1]
-
-    if (latestMatch) {
-      return latestMatch
     }
 
     await new Promise((resolve) => setTimeout(resolve, pollIntervalMs))
   }
 
   throw new Error(
-    `Timed out waiting for a verification link in docker logs for container ${containerName}`
+    `Timed out waiting for a verification email to ${args.toAddress} in mailslurper`
   )
 }
 
@@ -120,10 +118,9 @@ export async function completeLocalMockKyc(
 export async function setupVerifiedUser(args: {
   page: Page
   takeScreenshot: (name: string) => Promise<void>
-  containerName: string
   skipScreenshots?: boolean
 }): Promise<Credentials> {
-  const { page, takeScreenshot, containerName, skipScreenshots = false } = args
+  const { page, takeScreenshot, skipScreenshots = false } = args
   const credentials = createUniqueCredentials()
   const logMarker = new Date()
 
@@ -163,9 +160,9 @@ export async function setupVerifiedUser(args: {
   await ss('006-signup-success')
 
   // Verify email
-  const verificationLink = await waitForVerificationLinkFromLogs({
-    since: logMarker,
-    containerName
+  const verificationLink = await waitForVerificationLinkFromMailslurper({
+    toAddress: credentials.email,
+    since: logMarker
   })
 
   await page.goto(verificationLink)

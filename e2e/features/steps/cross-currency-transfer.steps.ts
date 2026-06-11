@@ -3,13 +3,10 @@ import { completeLocalMockKyc, setupVerifiedUser } from '../../helpers/local-wal
 import { Given, Then, When } from './fixtures'
 
 Given('I am a verified and logged-in wallet user', async ({ page, flow }) => {
-  const containerName = flow.containerName
-
   // Use the helper to quickly set up a verified user
   const credentials = await setupVerifiedUser({
     page,
     takeScreenshot: flow.takeScreenshot,
-    containerName,
     skipScreenshots: false
   })
 

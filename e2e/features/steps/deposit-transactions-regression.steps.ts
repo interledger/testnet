@@ -77,13 +77,8 @@ When(
     flow.depositAmount = amount
 
     await page.goto('/deposit')
-    await expect(page).toHaveURL(/\/deposit/, {
-      message:
-        'Expected /deposit page — ensure MockGatehub is running and GATEHUB_IFRAME_MANAGED_RAMP_URL is configured'
-    })
-    await expect(page.locator('iframe')).toBeVisible({
-      message: 'Expected deposit iframe on /deposit page'
-    })
+    await expect(page).toHaveURL(/\/deposit/)
+    await expect(page.locator('iframe')).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Deposit' })).toBeVisible()
     await flow.takeScreenshot('deposit-iframe-page-opened')
