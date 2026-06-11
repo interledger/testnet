@@ -339,19 +339,23 @@ export class GateHubClient {
     transactionUuid: string
   ): Promise<IApprovePendingTransaction> {
     const url = `${this.apiUrl}/core/v1/transactions/${transactionUuid}/serviceStatus`
+
     const body = {
       serviceStatus: 3,
       substatus: 0,
       reason: 'test'
     }
+
     const response = await this.request<IApprovePendingTransaction>(
       'PUT',
       url,
       JSON.stringify(body)
     )
+
     if (response.state !== 4) {
       throw new Error(`Approval failed, transactionUuid: ${transactionUuid}`)
     }
+
     return response
   }
 
