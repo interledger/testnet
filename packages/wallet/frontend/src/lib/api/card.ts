@@ -82,7 +82,7 @@ type MonthlySpendingLimitError = ErrorResponse<
 >
 type MonthlySpendingLimitResult = SuccessResponse | MonthlySpendingLimitError
 
-const getCardDataSchema = z.object({
+export const getCardDataSchema = z.object({
   password: z.string(),
   publicKeyBase64: z.string()
 })

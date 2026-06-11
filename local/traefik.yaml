@@ -1,7 +1,7 @@
 services:
   traefik:
     container_name: traefik-local
-    image: traefik:v3.2
+    image: traefik:v3.6
     command:
       - --api.dashboard=true
       - --providers.docker=true
@@ -20,6 +20,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/certs:/certs:ro
       - ./config/traefik/dynamic.yml:/etc/traefik/dynamic/dynamic.yml:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
     restart: unless-stopped
     networks:
       - testnet

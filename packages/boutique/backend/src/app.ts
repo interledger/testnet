@@ -49,10 +49,11 @@ export class App {
     const logger = this.container.resolve('logger')
     const productController = this.container.resolve('productController')
     const orderController = this.container.resolve('orderController')
+    const frontendOrigin = new URL(env.FRONTEND_URL).origin
 
     app.use(
       cors({
-        origin: [env.FRONTEND_URL],
+        origin: [frontendOrigin],
         credentials: true
       })
     )

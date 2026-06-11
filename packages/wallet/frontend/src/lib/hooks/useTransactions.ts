@@ -12,11 +12,7 @@ type TransactionsQueryParams = Record<
   keyof TransactionsFilters,
   string | number
 >
-const ORDER_DIRECTION = {
-  ASC: 'ASC',
-  DESC: 'DESC'
-}
-export type OrderByDirection = keyof typeof ORDER_DIRECTION
+export type OrderByDirection = 'ASC' | 'DESC'
 
 export type TransactionsFilters = {
   page: string

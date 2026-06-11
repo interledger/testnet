@@ -38,9 +38,22 @@ export class GrantService implements IGrantService {
       nonce
     )
 
-    const url = grant.access.find(({ identifier }) => identifier)?.identifier
+    const accessIdentifier = grant.access.find(
+      ({ identifier }) => identifier
+    )?.identifier
+    const subjectIdentifier = grant.subject?.sub_ids?.[0]?.id
+    const identifiers = [accessIdentifier, subjectIdentifier].filter(
+      (identifier): identifier is string => !!identifier
+    )
+    const ownershipChecks = await Promise.all(
+      identifiers.map((identifier) =>
+        this.walletAddressService.belongsToUser(userId, identifier)
+      )
+    )
+    const belongsToUser =
+      identifiers.length && ownershipChecks.every((belongs) => belongs)
 
-    if (!url || !(await this.walletAddressService.belongsToUser(userId, url))) {
+    if (!belongsToUser) {
       // reject the grant if the user does not have access
       await this.rafikiAuthService.setInteractionResponse(
         interactionId,
@@ -100,9 +113,26 @@ export class GrantService implements IGrantService {
     }
 
     const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
-    grants.grants.edges.forEach((edge) => {
+
+    const totalCount = grants.grants.edges.length
+    const page = args.page ?? 0
+    const pageSize = args.pageSize ?? 10
+    const pageStart = page * pageSize
+    const pageEnd = pageStart + pageSize
+    const pageEdges = grants.grants.edges.slice(pageStart, pageEnd)
+
+    pageEdges.forEach((edge) => {
       edge.node.access = this.parseIntervals(edge.node.access)
     })
+
+    grants.grants.edges = pageEdges
+    grants.grants.pageInfo = {
+      ...grants.grants.pageInfo,
+      hasPreviousPage: page > 0,
+      hasNextPage: totalCount > pageEnd,
+      totalCount: totalCount
+    }
+
     return grants
   }
 

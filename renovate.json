@@ -3,16 +3,24 @@
   "branchConcurrentLimit": 0,
   "branchPrefix": "renovate-",
   "enabled": true,
-  "extends": ["config:base"],
+  "extends": ["config:base", "security:all"],
   "packageRules": [
     {
       "matchPackageNames": ["@types/node", "node"],
-      "allowedVersions": "<=18.14.0"
+      "allowedVersions": ">=20.12.0"
+    },
+    {
+      "matchDatasources": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "rangeStrategy": "auto"
     }
   ],
   "prConcurrentLimit": 10,
   "prCreation": "not-pending",
   "prHourlyLimit": 2,
   "rangeStrategy": "bump",
-  "rebaseWhen": "conflicted"
+  "rebaseWhen": "conflicted",
+  "vulnerabilityAlerts": {
+    "enabled": true
+  }
 }

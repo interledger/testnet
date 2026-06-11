@@ -106,6 +106,15 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Consume refund wallet address from context in an effect rather than
+  // during render to avoid updating RefundProvider state while rendering.
+  useEffect(() => {
+    if (receiverWalletAddress !== '') {
+      sendForm.setValue('receiver', receiverWalletAddress)
+      setReceiverWalletAddress('')
+    }
+  }, [receiverWalletAddress, sendForm, setReceiverWalletAddress])
+
   const onAccountChange = async (accountId: string) => {
     const selectedAccount = accounts.find(
       (account) => account.value === accountId
@@ -316,7 +325,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
                   type="quote"
                   onAccept={() => {
                     handleAcceptQuote(quoteId)
-                    closeDialog
+                    closeDialog()
                   }}
                   onClose={closeDialog}
                 />
@@ -407,21 +416,16 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
           <Controller
             name="receiver"
             control={sendForm.control}
-            render={({ field: { value } }) => {
-              value =
-                receiverWalletAddress !== '' ? receiverWalletAddress : value
-              setReceiverWalletAddress('')
-              return (
-                <DebouncedInput
-                  required
-                  error={sendForm.formState.errors.receiver?.message}
-                  label="Wallet address or Incoming payment URL"
-                  value={value}
-                  id="addRecipientWalletAddress"
-                  onChange={onWalletAddressChange}
-                />
-              )
-            }}
+            render={({ field: { value } }) => (
+              <DebouncedInput
+                required
+                error={sendForm.formState.errors.receiver?.message}
+                label="Wallet address or Incoming payment URL"
+                value={value}
+                id="addRecipientWalletAddress"
+                onChange={onWalletAddressChange}
+              />
+            )}
           />
           <div>
             {isSepa ? (

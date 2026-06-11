@@ -89,7 +89,12 @@ export class WalletAddressService implements IWalletAddressService {
       args.accountId,
       args.userId
     )
-    const url = `${this.env.OPEN_PAYMENTS_HOST}/${args.walletAddressName}`
+    // Rafiki validates wallet-address identifiers as HTTPS URLs.
+    const openPaymentsIdentifierHost = this.env.OPEN_PAYMENTS_HOST.replace(
+      /^http:\/\//,
+      'https://'
+    )
+    const url = `${openPaymentsIdentifierHost}/${args.walletAddressName}`
     let walletAddress = await WalletAddress.query().findOne({ url })
 
     if (walletAddress) {
@@ -239,13 +244,14 @@ export class WalletAddressService implements IWalletAddressService {
       const updatedWalletAddress = await walletAddress
         .$query(trx)
         .findById(walletAddressId)
-      updatedWalletAddress &&
-        (await this.cache.set(walletAddressId, updatedWalletAddress, {
+      if (updatedWalletAddress) {
+        await this.cache.set(walletAddressId, updatedWalletAddress, {
           expiry: 60
-        }))
+        })
+      }
 
       await trx.commit()
-    } catch (e) {
+    } catch {
       await trx.rollback()
     }
   }

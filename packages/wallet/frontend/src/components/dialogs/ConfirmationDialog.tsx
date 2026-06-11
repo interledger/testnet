@@ -7,7 +7,7 @@ import {
 } from '@headlessui/react'
 import { Fragment } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
-import { WarningE } from '../icons/Warning'
+import { Warning } from '../icons/Warning'
 
 type ConfirmationDialogProps = Pick<DialogProps, 'onClose'> & {
   onConfirm: () => void
@@ -50,7 +50,7 @@ export const ConfirmationDialog = ({
             >
               <DialogPanel className="relative w-full max-w-md space-y-4 overflow-hidden rounded-lg bg-white p-8 shadow-xl dark:bg-purple">
                 <div className="flex flex-col px-4 text-center">
-                  <WarningE strokeWidth={2} className="mx-auto h-16 w-16" />
+                  <Warning strokeWidth={2} className="mx-auto h-16 w-16" />
                   <p className="text-center font-semibold text-pink-dark dark:text-pink-neon">
                     {message ?? (
                       <>
@@ -65,7 +65,7 @@ export const ConfirmationDialog = ({
                       aria-label="close dialog"
                       onClick={() => onClose()}
                     >
-                      Cancel
+                      Close
                     </Button>
                     <Button
                       aria-label={confirmText ?? 'continue'}

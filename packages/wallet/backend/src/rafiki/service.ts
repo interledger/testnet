@@ -447,9 +447,14 @@ export class RafikiService implements IRafikiService {
     id: string
   ): Promise<ISecondParty | undefined> {
     try {
+      // Incoming payment identifiers are expected to use HTTPS URLs.
+      const openPaymentsIdentifierHost = this.env.OPEN_PAYMENTS_HOST.replace(
+        /^http:\/\//,
+        'https://'
+      )
       const outgoingPayments =
         await this.rafikiClient.getOutgoingPaymentsByReceiver(
-          `${this.env.OPEN_PAYMENTS_HOST}/incoming-payments/${id}`
+          `${openPaymentsIdentifierHost}/incoming-payments/${id}`
         )
 
       const walletAddressIds = outgoingPayments.map(
