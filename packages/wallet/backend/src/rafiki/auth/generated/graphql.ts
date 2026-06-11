@@ -185,11 +185,7 @@ export type QueryGrantArgs = {
 
 
 export type QueryGrantsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
   filter?: InputMaybe<GrantFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
   sortOrder?: InputMaybe<SortOrder>;
   tenantId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -230,15 +226,14 @@ export type SubjectItem = Model & {
 };
 
 export type GetGrantsQueryVariables = Exact<{
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
   filter?: InputMaybe<GrantFilter>;
+  sortOrder?: InputMaybe<SortOrder>;
+  page?: InputMaybe<number>;
+  pageSize?: InputMaybe<number>;
 }>;
 
 
-export type GetGrantsQuery = { __typename?: 'Query', grants: { __typename?: 'GrantsConnection', edges: Array<{ __typename?: 'GrantEdge', cursor: string, node: { __typename?: 'Grant', id: string, client: string, state: GrantState, finalizationReason?: GrantFinalization | null, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, debitAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null } | null }> } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type GetGrantsQuery = { __typename?: 'Query', grants: { __typename?: 'GrantsConnection', edges: Array<{ __typename?: 'GrantEdge', cursor: string, node: { __typename?: 'Grant', id: string, client: string, state: GrantState, finalizationReason?: GrantFinalization | null, createdAt: string, access: Array<{ __typename?: 'Access', id: string, identifier?: string | null, createdAt: string, actions: Array<string | null>, type: string, limits?: { __typename?: 'LimitData', receiver?: string | null, interval?: string | null, debitAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null, receiveAmount?: { __typename?: 'PaymentAmount', value: any, assetCode: string, assetScale: number } | null } | null }> } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, totalCount: number | null } } };
 
 export type GetGrantQueryVariables = Exact<{
   grantId: Scalars['ID']['input'];

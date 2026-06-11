@@ -47,10 +47,9 @@ type GrantNode = {
 }
 
 type GrantsPageInfo = {
-  endCursor: string
-  startCursor: string
   hasNextPage: boolean
   hasPreviousPage: boolean
+  totalCount: number
 }
 export interface GrantsListResponse {
   grants: {

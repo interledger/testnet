@@ -2,7 +2,7 @@ import { NextFunction, Request } from 'express'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { Grant } from '@/rafiki/auth/generated/graphql'
 import { validate } from '@/shared/validate'
-import { grantResponseSchema } from '@/grant/validation'
+import { grantResponseSchema, grantListRequestSchema } from '@/grant/validation'
 import { GrantService } from '@/grant/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { GrantResponse, GrantsListResponse } from '@wallet/shared'
@@ -40,9 +40,13 @@ export class GrantController implements IGrantController {
     next: NextFunction
   ) => {
     try {
+      const {
+        body: { page, pageSize, sortOrder }
+      } = await validate(grantListRequestSchema, req)
+
       const grants = await this.grantService.listWithPagination(
         req.session.user.id,
-        req.body
+        { page, pageSize, sortOrder }
       )
       res.json(toSuccessResponse(grants))
     } catch (e) {
