@@ -62,8 +62,7 @@ When(
   'I open the verification link from backend logs',
   async ({ page, flow }) => {
     const verificationLink = await waitForVerificationLinkFromMailslurper({
-      toAddress: flow.credentials.email,
-      since: flow.logMarker
+      toAddress: flow.credentials.email
     })
 
     flow.verificationLink = verificationLink

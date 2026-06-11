@@ -124,7 +124,7 @@ When(
     await expect(page.locator('#fund')).toBeVisible()
     await page.locator('#fund').click()
 
-    await expect(page.getByText('Deposit to your egg basket')).toBeVisible()
+    await expect(page.getByText('Deposit to Account')).toBeVisible()
 
     await page.getByLabel('Amount').fill(amount.toFixed(2))
     await flow.takeScreenshot('deposit-dialog-filled')
@@ -215,6 +215,12 @@ When('I wait {int} seconds and refresh transactions', async ({ page, flow }, sec
   await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible()
 
   const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
+  // Wait for table data to load after page hydration; heading visible ≠ rows rendered.
+  try {
+    await rows.first().waitFor({ state: 'visible', timeout: 8000 })
+  } catch {
+    // Table may genuinely be empty — proceed with count of 0.
+  }
   flow.delayedRefreshTransactionRows = await rows.count()
 
   if (flow.delayedRefreshTransactionRows > 0) {

@@ -19,8 +19,6 @@ export function createUniqueCredentials(): Credentials {
 type MailslurperMailItem = {
   id: string
   subject: string
-  dateReceived: string
-  fromAddress: string
   toAddresses: string[]
   body: string
 }
@@ -32,14 +30,13 @@ type MailslurperResponse = {
 
 export async function waitForVerificationLinkFromMailslurper(args: {
   toAddress: string
-  since: Date
-  mailslurperApiUrl?: string
+  mailslurperBaseUrl?: string
   timeoutMs?: number
   pollIntervalMs?: number
 }): Promise<string> {
   const apiUrl =
-    args.mailslurperApiUrl ||
-    process.env.MAILSLURPER_API_URL ||
+    args.mailslurperBaseUrl ||
+    process.env.MAILSLURPER_BASE_URL ||
     'http://localhost:4437'
   const timeoutMs = args.timeoutMs ?? 30_000
   const pollIntervalMs = args.pollIntervalMs ?? 1_000
@@ -47,7 +44,7 @@ export async function waitForVerificationLinkFromMailslurper(args: {
   const linkPattern = /https?:\/\/\S+\/auth\/verify\/[a-f0-9]+/g
 
   while (Date.now() < deadline) {
-    const response = await fetch(`${apiUrl}/api/v1/mail?page=1&limit=50`, {
+    const response = await fetch(`${apiUrl}/mail?page=1&limit=50`, {
       headers: { Accept: 'application/json' }
     }).catch(() => null)
 
@@ -55,10 +52,9 @@ export async function waitForVerificationLinkFromMailslurper(args: {
       const data: MailslurperResponse = await response.json()
       const items = data.mailItems ?? []
 
-      const matching = items.filter(
-        (item) =>
-          item.toAddresses.includes(args.toAddress) &&
-          new Date(item.dateReceived) >= args.since
+      // Email addresses are unique per test run so date filtering is not needed.
+      const matching = items.filter((item) =>
+        item.toAddresses.includes(args.toAddress)
       )
 
       for (const item of matching) {
@@ -122,7 +118,6 @@ export async function setupVerifiedUser(args: {
 }): Promise<Credentials> {
   const { page, takeScreenshot, skipScreenshots = false } = args
   const credentials = createUniqueCredentials()
-  const logMarker = new Date()
 
   const ss = skipScreenshots ? async () => {} : takeScreenshot
 
@@ -161,8 +156,7 @@ export async function setupVerifiedUser(args: {
 
   // Verify email
   const verificationLink = await waitForVerificationLinkFromMailslurper({
-    toAddress: credentials.email,
-    since: logMarker
+    toAddress: credentials.email
   })
 
   await page.goto(verificationLink)

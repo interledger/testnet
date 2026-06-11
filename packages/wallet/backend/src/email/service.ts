@@ -41,8 +41,8 @@ export class EmailService implements IEmailService {
       this.smtpTransport = nodemailer.createTransport({
         host: this.env.SMTP_HOST,
         port: this.env.SMTP_PORT ?? 1025,
-        secure: false,
-        ignoreTLS: true
+        secure: true,
+        tls: { rejectUnauthorized: false }
       })
     } else if (this.env.SEND_EMAIL) {
       sendgrid.setApiKey(this.env.SENDGRID_API_KEY)

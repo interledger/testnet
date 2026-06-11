@@ -7,7 +7,6 @@ import { mkdir } from 'node:fs/promises'
 
 type FlowState = {
   credentials: Credentials
-  logMarker: Date
   screenshotCounter: number
   verificationLink?: string
   accountPath?: string
@@ -36,7 +35,6 @@ export const test = base.extend<{ flow: FlowState }>({
 
     const state: FlowState = {
       credentials: createUniqueCredentials(),
-      logMarker: new Date(),
       screenshotCounter: 0,
       featureName,
       takeScreenshot: async (name: string) => {
