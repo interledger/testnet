@@ -38,12 +38,18 @@ jobs:
 
           LAST_TAG=$(git tag -l "v${MAJOR}.${MINOR}.*" | sort -V | tail -1)
           if [ -z "$LAST_TAG" ]; then
-            echo "No existing tags for v${MAJOR}.${MINOR}.x — this will be the first patch in this maintenance series."
-            RANGE="HEAD"
+            # No prior patch in this series — fall back to the ancestor tag the branch was cut from.
+            # Without this fallback RANGE="HEAD" would scan all history and trip on historical feat: commits.
+            LAST_TAG=$(git describe --tags --abbrev=0 HEAD 2>/dev/null)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No tags found in repository — skipping commit range validation."
+              exit 0
+            fi
+            echo "No existing v${MAJOR}.${MINOR}.x tags — validating commits since $LAST_TAG"
           else
             echo "Last tag in maintenance series: $LAST_TAG"
-            RANGE="${LAST_TAG}..HEAD"
           fi
+          RANGE="${LAST_TAG}..HEAD"
 
           SUBJECTS=$(git log --format="%s" $RANGE)
           BODIES=$(git log --format="%B" $RANGE)

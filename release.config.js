@@ -11,7 +11,7 @@ if (maintenanceMatch) {
     name: branch,
     range: `${major}.${minor}.x`,
     channel: 'maintenance',
-    prerelease: false,
+    prerelease: false
   })
 }
 
@@ -38,11 +38,11 @@ module.exports = {
           { type: 'refactor', release: 'patch' },
           { type: 'test', release: 'patch' },
           { type: 'build', release: 'patch' },
-          { type: 'ci', release: 'patch' },
-        ],
-      },
+          { type: 'ci', release: 'patch' }
+        ]
+      }
     ],
     '@semantic-release/release-notes-generator',
-    '@semantic-release/github',
-  ],
+    '@semantic-release/github'
+  ]
 }

@@ -144,10 +144,10 @@ All commit types (`chore:`, `docs:`, `ci:`, etc.) trigger at least a patch bump 
 
 ### Releasable branches
 
-| Branch | Release type | Notes |
-|---|---|---|
-| `main` | patch / minor / major | Determined by commit types |
-| `release/vX.Y` | patch only | `feat:` or breaking commits cause the workflow to fail |
+| Branch         | Release type          | Notes                                                  |
+| -------------- | --------------------- | ------------------------------------------------------ |
+| `main`         | patch / minor / major | Determined by commit types                             |
+| `release/vX.Y` | patch only            | `feat:` or breaking commits cause the workflow to fail |
 
 ### Maintenance branches (`release/vX.Y`)
 
@@ -165,11 +165,11 @@ The workflow validates that no `feat:` or `BREAKING CHANGE` commits are present 
 
 ### Conventional Commit quick reference
 
-| Prefix | Effect |
-|---|---|
-| `fix:` | Patch bump |
-| `feat:` | Minor bump |
-| `feat!:` / `BREAKING CHANGE:` | Major bump |
+| Prefix                                                             | Effect     |
+| ------------------------------------------------------------------ | ---------- |
+| `fix:`                                                             | Patch bump |
+| `feat:`                                                            | Minor bump |
+| `feat!:` / `BREAKING CHANGE:`                                      | Major bump |
 | `chore:`, `docs:`, `ci:`, `refactor:`, `test:`, `style:`, `build:` | Patch bump |
 
 ---
