@@ -99,7 +99,7 @@ cp ./local/.env.example ./local/.env
 Using your preferred text editor, open the `./local/.env` file and configure the necessary environment variables.
 The `GATEHUB` related environment variables are necessary in order to complete Sandbox KYC, and add play money to your account. In order to have the correct variables, create a `GateHub` Sandbox account. Optionally you could send an email to `timea@interledger.foundation` and request these variables.
 
-To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. If you want to send emails within the development environment, you will need to have a personal Sendgrid account and update the following environment variables: `SEND_EMAIL` to `true`, `SENDGRID_API_KEY` and `FROM_EMAIL`. If you prefer not to send emails in the development environment, simply set `SEND_EMAIL` to `false` and use the verification link found in the Docker `wallet-backend` container logs to finalize the registration process for a new user.
+To create a new Interledger Test Wallet account, a verification email will be sent to the provided email address. In the local environment, `SEND_EMAIL` defaults to `false` so no email is actually sent — the verification link is printed to the backend log instead. If you want to use Sendgrid, set `SEND_EMAIL=true` and `SENDGRID_API_KEY` in `packages/wallet/backend/.env`.
 
 To enable rate limiter on the wallet for security purposes you can set these environment variables: `RATE_LIMIT` to `true` and `RATE_LIMIT_LEVEL`. `RATE_LIMIT_LEVEL` has three possible values: `LAX|NORMAL|STRICT`, default is `LAX`.
 
@@ -157,3 +157,20 @@ Upon executing the above commands the following will be available:
 - [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
+
+## E2E Tests
+
+End-to-end tests use [Playwright](https://playwright.dev/) with [playwright-bdd](https://vitalets.github.io/playwright-bdd/) (Gherkin feature files). They run against the local environment and require the full stack to be up (`pnpm run local:setup && pnpm run dev`).
+
+```sh
+# Install Playwright browsers (first time only)
+pnpm e2e:install
+
+# Run all e2e tests (headless)
+pnpm e2e:test
+
+# Run all e2e tests (headed — watch the browser)
+pnpm e2e:test:headed
+```
+
+Feature files are in `e2e/features/`. No `.env` file is required — the tests default to `https://testnet.test`. Override via `e2e/.env` if needed (see `e2e/.env.example`). See [e2e/README.md](e2e/README.md) for details on how email verification and account isolation work.
