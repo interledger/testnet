@@ -189,7 +189,7 @@ export class AccountService implements IAccountService {
     return account
   }
 
-  public async checkGatehubWalletIds(
+  public async checkGateHubWalletIds(
     gateHubWalletIds: string[]
   ): Promise<string[]> {
     const accounts = await Account.query().whereIn(

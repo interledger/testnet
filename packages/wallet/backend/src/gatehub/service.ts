@@ -144,7 +144,7 @@ export class GateHubService {
       const recevivingWalletAddresses = transactions.map(
         (trx) => trx.receiving_wallet.address
       )
-      const walletIds = await this.accountService.checkGatehubWalletIds(
+      const walletIds = await this.accountService.checkGateHubWalletIds(
         recevivingWalletAddresses
       )
 
