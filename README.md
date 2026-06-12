@@ -35,6 +35,19 @@ Never heard of Interledger before, or you would like to learn more? Here are som
 
 Please read the [contribution guidelines](.github/contributing.md) before submitting contributions. All contributions must adhere to our [code of conduct](.github/CODE_OF_CONDUCT.md).
 
+## Releases
+
+This project uses [semantic-release](https://github.com/semantic-release/semantic-release) with [Conventional Commits](https://www.conventionalcommits.org/). PR titles are automatically validated to follow the `type(scope): description` format.
+
+Releases are created manually by running the **Create Release** workflow from the GitHub Actions UI. Selecting `main` cuts a regular release; selecting a `release/vX.Y` branch cuts a patch-only maintenance release.
+
+| Commit prefix | Version bump |
+|---|---|
+| `fix:` | Patch (`1.0.x`) |
+| `feat:` | Minor (`1.x.0`) |
+| `feat!:` / `BREAKING CHANGE:` | Major (`x.0.0`) |
+| `chore:`, `docs:`, `ci:`, etc. | Patch |
+
 ## Local Development Environment
 
 ### Prerequisites

@@ -1,9 +1,7 @@
-name: Release
+name: Create Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,9 +10,72 @@ permissions:
   packages: write
 
 jobs:
+  validate:
+    name: Validate branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check branch is releasable
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          if [ "$BRANCH" != "main" ] && ! echo "$BRANCH" | grep -qE '^release/v[0-9]+\.[0-9]+$'; then
+            echo "::error::Releases can only be created from 'main' or 'release/vX.Y' branches. Current branch: $BRANCH"
+            exit 1
+          fi
+          echo "Branch '$BRANCH' is valid for release."
+
+      - name: Enforce patch-only on maintenance branch
+        if: startsWith(github.ref_name, 'release/v')
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          MAJOR_MINOR="${BRANCH#release/v}"
+          MAJOR="${MAJOR_MINOR%%.*}"
+          MINOR="${MAJOR_MINOR##*.}"
+
+          LAST_TAG=$(git tag -l "v${MAJOR}.${MINOR}.*" | sort -V | tail -1)
+          if [ -z "$LAST_TAG" ]; then
+            echo "No existing tags for v${MAJOR}.${MINOR}.x — this will be the first patch in this maintenance series."
+            RANGE="HEAD"
+          else
+            echo "Last tag in maintenance series: $LAST_TAG"
+            RANGE="${LAST_TAG}..HEAD"
+          fi
+
+          SUBJECTS=$(git log --format="%s" $RANGE)
+          BODIES=$(git log --format="%B" $RANGE)
+
+          ERRORS=""
+
+          if echo "$SUBJECTS" | grep -qE '^feat(\(.+\))?[!:]'; then
+            ERRORS="${ERRORS}feat commits are not allowed on maintenance branches (only patch releases permitted).\n"
+            ERRORS="${ERRORS}Offending commits:\n$(echo "$SUBJECTS" | grep -E '^feat(\(.+\))?[!:]')\n"
+          fi
+
+          if echo "$SUBJECTS" | grep -qE '^[a-z]+(\(.+\))?!:'; then
+            ERRORS="${ERRORS}Breaking change commits (! notation) are not allowed on maintenance branches.\n"
+            ERRORS="${ERRORS}Offending commits:\n$(echo "$SUBJECTS" | grep -E '^[a-z]+(\(.+\))?!:')\n"
+          fi
+
+          if echo "$BODIES" | grep -qE '^BREAKING[- ]CHANGE:'; then
+            ERRORS="${ERRORS}BREAKING CHANGE footer is not allowed on maintenance branches.\n"
+          fi
+
+          if [ -n "$ERRORS" ]; then
+            echo "::error::Maintenance branch validation failed for '$BRANCH':"
+            printf "$ERRORS"
+            exit 1
+          fi
+
+          echo "Validation passed — no major or minor commits found on '$BRANCH'."
+
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
+    needs: validate
     timeout-minutes: 10
     outputs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
@@ -25,17 +86,31 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Semantic Release
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.5'
+      - name: Install semantic-release
+        run: |
+          npm install -g \
+            semantic-release@24 \
+            @semantic-release/commit-analyzer@13 \
+            @semantic-release/release-notes-generator@14 \
+            @semantic-release/github@11
+      - name: Run semantic-release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v4
+        run: |
+          BEFORE=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -1)
+          semantic-release
+          AFTER=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -1)
+          if [ -n "$AFTER" ] && [ "$AFTER" != "$BEFORE" ]; then
+            echo "new_release_published=true" >> $GITHUB_OUTPUT
+            echo "new_release_version=${AFTER#v}" >> $GITHUB_OUTPUT
+          else
+            echo "new_release_published=false" >> $GITHUB_OUTPUT
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          semantic_version: 24
-          extra_plugins: |
-            @semantic-release/commit-analyzer
-            @semantic-release/release-notes-generator
-            @semantic-release/github
 
   publish:
     name: Publish Docker images
