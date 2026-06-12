@@ -141,8 +141,11 @@ export class GateHubService {
   async approveTransactions() {
     try {
       const transactions = await this.gateHubClient.getPendingTransactions()
+      const recevivingWalletAddresses = transactions.map(
+        (trx) => trx.receiving_wallet.address
+      )
       const walletIds = await this.accountService.checkGatehubWalletIds(
-        transactions.map((trx) => trx.receiving_wallet.address)
+        recevivingWalletAddresses
       )
 
       if (!walletIds.length) {
@@ -156,13 +159,17 @@ export class GateHubService {
         `Found ${filteredTransactions.length} transactions to process.`
       )
 
-      for (const transaction of filteredTransactions) {
-        try {
-          await this.gateHubClient.approvePendingTransactions(transaction.uuid)
-        } catch (err) {
-          this.logger.error(`Error: ${err}`)
-        }
-      }
+      await Promise.all(
+        filteredTransactions.map(async (transaction) => {
+          try {
+            await this.gateHubClient.approvePendingTransactions(
+              transaction.uuid
+            )
+          } catch (err) {
+            this.logger.error(`Error: ${err}`)
+          }
+        })
+      )
     } catch (err) {
       this.logger.error(`Automatic approval failed - ${err}`)
     }

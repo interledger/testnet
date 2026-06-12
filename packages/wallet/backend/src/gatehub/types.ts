@@ -86,6 +86,7 @@ interface IWalletInfo {
   address: string
   name: string
 }
+
 interface IGateway {
   uuid: string
   created_at: string
@@ -95,9 +96,10 @@ interface IGateway {
   terms: string
   insurance: number
 }
+
 export interface IPendingTransaction {
-  uuid: string
-  uid: string
+  uuid: string //assigned by GateHub
+  uid: string //network identifier (xrpl, bitcoin, eth..)
   state: number
   created_at: string
   completed_at: string
