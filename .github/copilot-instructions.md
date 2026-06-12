@@ -126,6 +126,54 @@ pnpm checks && pnpm test
 
 ---
 
+## Release Process
+
+Releases are created manually via the **"Create Release"** GitHub Actions workflow (`release.yml`). There is no automatic release on merge to `main`.
+
+### How it works
+
+1. Developers write PRs with [Conventional Commit](https://www.conventionalcommits.org/) titles (enforced by `pr_title_check.yml`).
+2. When ready to release, run the **Create Release** workflow from the GitHub Actions UI and select the target branch.
+3. The workflow runs [semantic-release](https://github.com/semantic-release/semantic-release) which:
+   - Analyses commit history since the last tag
+   - Determines the version bump (`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` → major)
+   - Creates a git tag (`vX.Y.Z`) and a GitHub Release with auto-generated notes
+   - Publishes Docker images to GHCR tagged `vX.Y.Z` and `latest`
+
+All commit types (`chore:`, `docs:`, `ci:`, etc.) trigger at least a patch bump — running "Create Release" always produces a new version.
+
+### Releasable branches
+
+| Branch         | Release type          | Notes                                                  |
+| -------------- | --------------------- | ------------------------------------------------------ |
+| `main`         | patch / minor / major | Determined by commit types                             |
+| `release/vX.Y` | patch only            | `feat:` or breaking commits cause the workflow to fail |
+
+### Maintenance branches (`release/vX.Y`)
+
+A maintenance branch is used to backport fixes to an older minor version:
+
+```bash
+# Create a maintenance branch from the last patch tag of that minor
+git checkout -b release/v1.0 v1.0.44
+# Cherry-pick fix commits onto it
+git cherry-pick <sha>
+# Then run "Create Release" against release/v1.0 in the GitHub UI
+```
+
+The workflow validates that no `feat:` or `BREAKING CHANGE` commits are present before releasing.
+
+### Conventional Commit quick reference
+
+| Prefix                                                             | Effect     |
+| ------------------------------------------------------------------ | ---------- |
+| `fix:`                                                             | Patch bump |
+| `feat:`                                                            | Minor bump |
+| `feat!:` / `BREAKING CHANGE:`                                      | Major bump |
+| `chore:`, `docs:`, `ci:`, `refactor:`, `test:`, `style:`, `build:` | Patch bump |
+
+---
+
 ## Project Structure
 
 ```
@@ -137,9 +185,14 @@ testnet/
 ├── .nvmrc                            # Node version (lts/iron)
 │
 ├── .github/workflows/
-│   ├── ci.yml                        # PR validation (checks → builds → tests)
-│   ├── deploy.yml                    # Main branch: deploy to staging/prod
+│   ├── ci.yml                        # PR validation (ESLint + Prettier)
+│   ├── build-publish.yaml            # Build validation on PRs and main
+│   ├── release.yml                   # Manual "Create Release" workflow (semantic-release)
+│   ├── deploy.yml                    # Manual deploy to staging/prod (workflow_dispatch)
+│   ├── pr_title_check.yml            # Enforces conventional commit format on PR titles
+│   ├── pr_labeler.yml                # Auto-labels PRs by changed paths
 │   └── setup/action.yml              # Reusable setup action (Node + pnpm + install)
+├── release.config.js                 # semantic-release config (supports main + release/vX.Y branches)
 │
 ├── local/                            # Local development environment
 │   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, etc.
@@ -250,10 +303,11 @@ pnpm build
    - **Test**: `pnpm test` (expect 215 pass, 1 pre-existing fail)
    - **Build** (if package changed): `pnpm {package}:backend build` or `pnpm {package}:frontend build`
 
-4. **Replicate CI locally**: The `.github/workflows/ci.yml` logic matches these commands exactly:
+4. **Replicate CI locally**: The `ci.yml` + `build-publish.yaml` logic matches these commands exactly:
    - Step 1: `pnpm checks`
    - Step 2: `pnpm {package}:frontend build` (if labeled)
    - Step 3: `pnpm {package}:backend test --detectOpenHandles --forceExit` (if build passed)
+   - Releases are **not** created automatically — use the "Create Release" workflow in GitHub Actions
 
 5. **Document discovered issues**: If you find information in this file is incomplete or incorrect, update this file in your PR.
 
@@ -265,5 +319,5 @@ pnpm build
 
 ---
 
-**Updated**: April 2026  
+**Updated**: June 2026  
 **Maintained By**: Interledger Foundation
