@@ -1,4 +1,4 @@
-  declare global {
+declare global {
   interface Window {
     __env__?: {
       API_BASE_URL?: string
