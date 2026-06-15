@@ -30,14 +30,8 @@ COPY --from=base /testnet/packages/boutique/frontend/node_modules ./packages/bou
 COPY --from=base /testnet/packages/boutique/shared/node_modules ./packages/boutique/shared/node_modules
 
 ARG PORT
-ARG VITE_API_BASE_URL
-ARG VITE_CURRENCY
-ARG VITE_THEME
 
 ENV NODE_ENV=production
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-ENV VITE_CURRENCY=$VITE_CURRENCY
-ENV VITE_THEME=$VITE_THEME
 
 RUN pnpm boutique:frontend build
 
@@ -46,7 +40,9 @@ FROM nginx:stable-alpine AS runner
 COPY --from=builder /testnet/packages/boutique/frontend/dist /usr/share/nginx/html
 COPY --from=builder /testnet/packages/boutique/shared/package.json ./packages/boutique/shared/package.json
 COPY packages/boutique/frontend/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY packages/boutique/frontend/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE ${PORT}
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -1,5 +1,6 @@
 import { type CxOptions, cx } from 'class-variance-authority'
 import { twMerge } from 'tailwind-merge'
+import { CURRENCY } from '@/lib/constants'
 
 export function cn(...inputs: CxOptions) {
   return twMerge(cx(inputs))
@@ -8,7 +9,7 @@ export function cn(...inputs: CxOptions) {
 export function formatPrice(price: number): string {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: import.meta.env.VITE_CURRENCY || 'USD',
+    currency: CURRENCY,
     maximumFractionDigits: 2,
     minimumFractionDigits: 2
   })

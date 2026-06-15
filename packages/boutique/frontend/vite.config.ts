@@ -3,19 +3,7 @@ import react from '@vitejs/plugin-react-swc'
 import { resolve } from 'node:path'
 
 export default defineConfig({
-  plugins: [
-    react(),
-    {
-      name: 'html-transform',
-      transformIndexHtml(html) {
-        // Read the theme from the environment variable
-        return html.replace(
-          '<html class="',
-          `<html class="${process.env.VITE_THEME ?? 'light'} `
-        )
-      }
-    }
-  ],
+  plugins: [react()],
   server: {
     host: '0.0.0.0',
     allowedHosts: ['boutique.test'],
