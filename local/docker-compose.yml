@@ -4,7 +4,6 @@ include:
   - redis.yaml
   - mockgatehub.yaml
   - rafiki.yaml
-  - mailslurper.yaml
 
 networks:
   testnet:

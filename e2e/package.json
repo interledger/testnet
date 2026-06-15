@@ -1,0 +1,21 @@
+{
+  "name": "@interledger/testnet-e2e",
+  "private": true,
+  "packageManager": "pnpm@9.1.4",
+  "scripts": {
+    "generate": "bddgen",
+    "playwright:install": "playwright install",
+    "test": "bddgen && playwright test",
+    "test:headed": "bddgen && playwright test --headed",
+    "test:debug": "bddgen && playwright test --debug"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^20.17.30",
+    "@types/pg": "^8.11.14",
+    "dotenv": "^17.2.3",
+    "pg": "^8.16.3",
+    "playwright-bdd": "^8.0.0",
+    "typescript": "^5.9.3"
+  }
+}

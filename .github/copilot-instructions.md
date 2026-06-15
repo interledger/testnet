@@ -9,6 +9,7 @@
 - **Boutique Backend** (Express) — E-commerce demo server
 - **Boutique Frontend** (Vite) — E-commerce storefront
 - **Shared Packages** — Common backend & frontend utilities
+- **E2E Tests** (`e2e/`) — Playwright + playwright-bdd (Gherkin) end-to-end tests against the local environment
 
 **Size**: ~100K lines of TypeScript + Node.js; ~80 test files; ~10 npm packages
 **Purpose**: Reference implementation for Account Servicing Entities integrating with Interledger Protocol and Rafiki
@@ -53,12 +54,13 @@ pnpm local:setup
 
 ### Core Commands (Work Immediately After Setup)
 
-| Command       | Purpose                                      | Time | Notes                                                                                |
-| ------------- | -------------------------------------------- | ---- | ------------------------------------------------------------------------------------ |
-| `pnpm checks` | ESLint (--max-warnings=0) + Prettier check   | ~3s  | **Always run before PR** — catches formatting and linting issues                     |
-| `pnpm test`   | Jest unit tests (wallet + boutique backends) | ~80s | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
-| `pnpm format` | Auto-fix ESLint + Prettier                   | ~5s  | Mutates files in place; safe to run                                                  |
-| `pnpm build`  | Compile all packages to `dist/` and `.next/` | ~30s | Requires correct Node version; builds dependencies first                             |
+| Command         | Purpose                                      | Time  | Notes                                                                                |
+| --------------- | -------------------------------------------- | ----- | ------------------------------------------------------------------------------------ |
+| `pnpm checks`   | ESLint (--max-warnings=0) + Prettier check   | ~3s   | **Always run before PR** — catches formatting and linting issues                     |
+| `pnpm test`     | Jest unit tests (wallet + boutique backends) | ~80s  | Runs `jest --passWithNoTests --maxWorkers` per package; uses experimental VM modules |
+| `pnpm format`   | Auto-fix ESLint + Prettier                   | ~5s   | Mutates files in place; safe to run                                                  |
+| `pnpm build`    | Compile all packages to `dist/` and `.next/` | ~30s  | Requires correct Node version; builds dependencies first                             |
+| `pnpm e2e:test` | Playwright e2e tests (headless)              | ~2min | Requires full local stack running; see E2E Tests section below                       |
 
 ### Per-Package Commands
 
@@ -90,6 +92,38 @@ pnpm clean:builds      # Remove dist/.next/ only
 pnpm prettier:write    # Auto-format all files
 pnpm lint:fix          # Auto-fix eslint issues
 ```
+
+### E2E Tests
+
+End-to-end tests use **Playwright** + **playwright-bdd** (Gherkin `.feature` files). They run against the local environment at `https://testnet.test`.
+
+**Prerequisites**: Full local stack must be running (`pnpm local:setup && pnpm dev`).
+
+```bash
+# Install Playwright browsers (once per machine)
+pnpm e2e:install
+
+# Run all scenarios headless
+pnpm e2e:test
+
+# Run all scenarios with visible browser
+pnpm e2e:test:headed
+
+# Run a specific scenario by grep (run from e2e/ directory)
+cd e2e && pnpm exec playwright test --grep "auth"
+```
+
+**Email verification** in tests uses a **DB-token + real-endpoint bypass**: `verifyUserDirectly()` in `e2e/helpers/local-wallet.ts` writes a fresh token hash to Postgres and then calls `POST /verify-email/:token` on the wallet backend directly (`http://localhost:3003`, not the Traefik proxy). This runs the real verification code path — setting `isEmailVerified`, clearing the token, and calling MockGatehub `createManagedUser` so `gateHubUserId` is populated. Without `gateHubUserId` the KYC page returns 404. No email infrastructure or Sendgrid account is needed. The DB URL and API URL can be overridden via `TEST_DB_URL` and `TEST_API_URL` in `e2e/.env`.
+
+**Account isolation**: every test run creates a unique user via `createUniqueCredentials()` (timestamped email). Tests are fully independent and safe to run in parallel.
+
+> **AI agent guidance — race condition check**: When adding or modifying e2e tests, warn the developer if the change introduces a potential race condition. Common causes: sharing a single account across parallel tests, assertions on aggregate counts (total transactions, balance sums) that could be affected by other concurrent tests, or test setup that depends on the order of prior tests. Each scenario must create its own isolated user and assert only on state scoped to that user.
+
+**Feature files**: `e2e/features/*.feature`  
+**Step definitions**: `e2e/features/steps/`  
+**Helpers**: `e2e/helpers/local-wallet.ts`  
+**Config**: `e2e/playwright.config.ts`; env overrides in `e2e/.env` (see `e2e/.env.example`)  
+**Detailed guide**: `e2e/README.md`
 
 ---
 
@@ -126,6 +160,54 @@ pnpm checks && pnpm test
 
 ---
 
+## Release Process
+
+Releases are created manually via the **"Create Release"** GitHub Actions workflow (`release.yml`). There is no automatic release on merge to `main`.
+
+### How it works
+
+1. Developers write PRs with [Conventional Commit](https://www.conventionalcommits.org/) titles (enforced by `pr_title_check.yml`).
+2. When ready to release, run the **Create Release** workflow from the GitHub Actions UI and select the target branch.
+3. The workflow runs [semantic-release](https://github.com/semantic-release/semantic-release) which:
+   - Analyses commit history since the last tag
+   - Determines the version bump (`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` → major)
+   - Creates a git tag (`vX.Y.Z`) and a GitHub Release with auto-generated notes
+   - Publishes Docker images to GHCR tagged `vX.Y.Z` and `latest`
+
+All commit types (`chore:`, `docs:`, `ci:`, etc.) trigger at least a patch bump — running "Create Release" always produces a new version.
+
+### Releasable branches
+
+| Branch         | Release type          | Notes                                                  |
+| -------------- | --------------------- | ------------------------------------------------------ |
+| `main`         | patch / minor / major | Determined by commit types                             |
+| `release/vX.Y` | patch only            | `feat:` or breaking commits cause the workflow to fail |
+
+### Maintenance branches (`release/vX.Y`)
+
+A maintenance branch is used to backport fixes to an older minor version:
+
+```bash
+# Create a maintenance branch from the last patch tag of that minor
+git checkout -b release/v1.0 v1.0.44
+# Cherry-pick fix commits onto it
+git cherry-pick <sha>
+# Then run "Create Release" against release/v1.0 in the GitHub UI
+```
+
+The workflow validates that no `feat:` or `BREAKING CHANGE` commits are present before releasing.
+
+### Conventional Commit quick reference
+
+| Prefix                                                             | Effect     |
+| ------------------------------------------------------------------ | ---------- |
+| `fix:`                                                             | Patch bump |
+| `feat:`                                                            | Minor bump |
+| `feat!:` / `BREAKING CHANGE:`                                      | Major bump |
+| `chore:`, `docs:`, `ci:`, `refactor:`, `test:`, `style:`, `build:` | Patch bump |
+
+---
+
 ## Project Structure
 
 ```
@@ -137,14 +219,25 @@ testnet/
 ├── .nvmrc                            # Node version (lts/iron)
 │
 ├── .github/workflows/
-│   ├── ci.yml                        # PR validation (checks → builds → tests)
-│   ├── deploy.yml                    # Main branch: deploy to staging/prod
+│   ├── ci.yml                        # PR validation (ESLint + Prettier)
+│   ├── build-publish.yaml            # Build validation on PRs and main
+│   ├── release.yml                   # Manual "Create Release" workflow (semantic-release)
+│   ├── deploy.yml                    # Manual deploy to staging/prod (workflow_dispatch)
+│   ├── pr_title_check.yml            # Enforces conventional commit format on PR titles
+│   ├── pr_labeler.yml                # Auto-labels PRs by changed paths
 │   └── setup/action.yml              # Reusable setup action (Node + pnpm + install)
+├── release.config.js                 # semantic-release config (supports main + release/vX.Y branches)
 │
 ├── local/                            # Local development environment
 │   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, etc.
 │   ├── .env.example, .env.local      # Environment configuration
 │   └── scripts/local-tools.sh        # Cert, host, trust management
+│
+├── e2e/                              # Playwright e2e test suite
+│   ├── features/                     # Gherkin .feature files + step definitions
+│   ├── helpers/                      # Shared test utilities (auth, email verification bypass)
+│   ├── playwright.config.ts          # Playwright configuration
+│   └── .env.example                  # E2E environment overrides
 │
 ├── packages/
 │   ├── wallet/
@@ -165,7 +258,7 @@ testnet/
 ### Key Files
 
 - **Root scripts**: `package.json` lines 15–50 define all entry points
-- **Workspace config**: `pnpm-workspace.yaml` lists 4 package globs
+- **Workspace config**: `pnpm-workspace.yaml` lists 5 package globs (includes `e2e`)
 - **TypeScript config**: `tsconfig.base.json` (target ES2020, strict: true)
 - **ESLint**: `.eslintrc.js` (--max-warnings=0 enforced in CI)
 - **Prettier**: `.prettierrc.js` (checked before any lint/build)
@@ -193,6 +286,12 @@ nvm install lts/iron && nvm use lts/iron && pnpm install --frozen-lockfile
 ```bash
 pnpm clean && pnpm install --frozen-lockfile && pnpm test
 ```
+
+### Scenario: Email Verification During Local Development
+
+**Context**: The wallet sends a verification email on signup. With `SEND_EMAIL=false` (the default in `.env.local`), emails are not sent — the verification link is logged to the backend console instead.
+
+**View the link**: Check the wallet backend logs for `Send email is disabled. Verify email link is: ...` and open it in the browser manually. E2E tests bypass this entirely — see `e2e/README.md`.
 
 ### Scenario: One Pre-Existing Test Failure
 
@@ -249,11 +348,13 @@ pnpm build
    - **Lint**: `pnpm checks`
    - **Test**: `pnpm test` (expect 215 pass, 1 pre-existing fail)
    - **Build** (if package changed): `pnpm {package}:backend build` or `pnpm {package}:frontend build`
+   - **E2E** (if e2e/ or wallet changed): `pnpm e2e:test` (requires full local stack)
 
-4. **Replicate CI locally**: The `.github/workflows/ci.yml` logic matches these commands exactly:
+4. **Replicate CI locally**: The `ci.yml` + `build-publish.yaml` logic matches these commands exactly:
    - Step 1: `pnpm checks`
    - Step 2: `pnpm {package}:frontend build` (if labeled)
    - Step 3: `pnpm {package}:backend test --detectOpenHandles --forceExit` (if build passed)
+   - Releases are **not** created automatically — use the "Create Release" workflow in GitHub Actions
 
 5. **Document discovered issues**: If you find information in this file is incomplete or incorrect, update this file in your PR.
 
@@ -265,5 +366,5 @@ pnpm build
 
 ---
 
-**Updated**: April 2026  
+**Updated**: June 2026  
 **Maintained By**: Interledger Foundation
