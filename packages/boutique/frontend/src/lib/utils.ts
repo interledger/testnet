@@ -7,14 +7,19 @@ export function cn(...inputs: CxOptions) {
 }
 
 export function formatPrice(price: number): string {
-  const formatter = new Intl.NumberFormat('en-US', {
+  let currency = CURRENCY
+  try {
+    new Intl.NumberFormat('en-US', { style: 'currency', currency })
+  } catch {
+    currency = 'USD'
+  }
+
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: CURRENCY,
+    currency,
     maximumFractionDigits: 2,
     minimumFractionDigits: 2
-  })
-
-  return formatter.format(price)
+  }).format(price)
 }
 
 export const getObjectKeys = Object.keys as <T extends object>(
