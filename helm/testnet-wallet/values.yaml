@@ -110,7 +110,7 @@ config:
       secretSepaKey:
         # value: ""
         secretKeyRef:
-          key: "gatehub.webhookSecret"
+          key: "gatehub.secretSepaKey"
       gatewayUuid: "9358542e-9bd1-48bc-b869-8661f1a1827c"
       organizationId: ""
       sepaOrganizationId: ""
