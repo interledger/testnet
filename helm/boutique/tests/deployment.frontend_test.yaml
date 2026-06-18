@@ -40,7 +40,7 @@ tests:
           value: test-rafiki-boutique-frontend
       - equal:
           path: data.API_BASE_URL
-          value: "rafiki-boutique-backend"
+          value: "https://boutique.example.com"
       - equal:
           path: data.PORT
           value: "4004"
