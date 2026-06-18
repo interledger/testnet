@@ -147,8 +147,6 @@ configMaps:
   frontend:
     name: "frontend"
     contentMap:
-      - key: PORT
-        valueRef: config.frontend.port
       - key: API_BASE_URL
         valueRef: config.frontend.apiBaseUrl
       - key: THEME

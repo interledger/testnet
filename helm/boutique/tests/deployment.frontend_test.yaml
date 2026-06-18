@@ -41,6 +41,3 @@ tests:
       - equal:
           path: data.API_BASE_URL
           value: "https://boutique.example.com"
-      - equal:
-          path: data.PORT
-          value: "4004"
