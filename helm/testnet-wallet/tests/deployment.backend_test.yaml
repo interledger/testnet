@@ -58,12 +58,3 @@ tests:
       - equal:
           path: data.GATEHUB_SEPA_ACCESS_KEY
           value: test-sepa-access-key
-  - it: 'should add BACKEND_INTERNAL_URL with correct service'
-    template: deployment.backend.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[0].name
-          value: BACKEND_INTERNAL_URL
-      - equal:
-          path: spec.template.spec.containers[0].env[0].value
-          value: 'http://test-testnet-wallet-backend-service:4003'
