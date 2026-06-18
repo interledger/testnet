@@ -169,9 +169,6 @@ deployments:
           name: '{{ include "common.fullname" . }}-backend'
 
     env:
-      # Backend internal URL (in-cluster)
-      - name: BACKEND_INTERNAL_URL
-        value: 'http://{{ include "common.fullname" . }}-{{ .Values.services.backend.name }}:{{ (index .Values.services.backend.ports 0).port }}'
       - name: DATABASE_URL
         valueFrom:
           secretKeyRef:
