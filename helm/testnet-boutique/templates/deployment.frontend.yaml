@@ -1,6 +1,6 @@
 {{- define "frontend.deployment" -}}
 {{- $top := first . }}
-{{- $cfgObj := include "common.configMapper" (list $top $top.Values.configMaps.frontend "rafiki-boutique.frontend.ConfigMap") | fromYaml -}}
+{{- $cfgObj := include "common.configMapper" (list $top $top.Values.configMaps.frontend "testnet-boutique.frontend.ConfigMap") | fromYaml -}}
 {{- $dataHash := $cfgObj.data | toJson | sha256sum -}}
 spec:
   template:

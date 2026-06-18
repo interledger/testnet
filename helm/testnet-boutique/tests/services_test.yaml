@@ -1,18 +1,18 @@
-suite: rafiki-boutique services - Services
+suite: testnet-boutique services - Services
 templates:
   - service.backend.yaml
   - service.frontend.yaml
 set:
-  fullnameOverride: test-rafiki-boutique
+  fullnameOverride: test-testnet-boutique
 release:
-  name: test-rafiki-boutique
+  name: test-testnet-boutique
 tests:
   - it: 'backend service should be created with correct name'
     template: service.backend.yaml
     asserts:
       - equal:
           path: metadata.name
-          value: test-rafiki-boutique-backend-service
+          value: test-testnet-boutique-backend-service
       - equal:
           path: spec.type
           value: ClusterIP
@@ -27,7 +27,7 @@ tests:
     asserts:
       - equal:
           path: metadata.name
-          value: test-rafiki-boutique-frontend-service
+          value: test-testnet-boutique-frontend-service
       - equal:
           path: spec.type
           value: ClusterIP

@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         chart:
-          - boutique
+          - testnet-boutique
           - testnet-wallet
     steps:
       - uses: actions/checkout@v5

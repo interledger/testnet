@@ -1,5 +1,5 @@
 apiVersion: v2
-name: boutique
+name: testnet-boutique
 description: Boutique Helm chart for Kubernetes
 home: https://github.com/interledger/testnet
 

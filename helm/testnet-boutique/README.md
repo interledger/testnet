@@ -1,4 +1,4 @@
-# Boutique Helm Chart
+# Testnet Boutique Helm Chart
 
 Deploys the Interledger TestNet Boutique demo application to Kubernetes. The chart manages two workloads:
 
@@ -60,7 +60,7 @@ deployments:
 helm repo add testnet https://interledger.github.io/testnet
 helm repo update
 
-helm install boutique testnet/boutique \
+helm install testnet-boutique testnet/testnet-boutique \
   --set config.backend.database.url="postgres://user:pass@host/db" \
   --set config.backend.privateKey="<base64-encoded-key>" \
   --set config.frontend.apiBaseUrl="https://api.boutique.example.com"
@@ -68,7 +68,7 @@ helm install boutique testnet/boutique \
 
 ## CI/CD
 
-- **On PR** (`helm/boutique/**` changed): `helm-charts.yml` runs lint, unit tests (`helm unittest`), and a default-values render.
+- **On PR** (`helm/testnet-boutique/**` changed): `helm-charts.yml` runs lint, unit tests (`helm unittest`), and a default-values render.
 - **On release**: `helm-publish.yml` stamps the version, packages the chart, and pushes it to the `charts` branch (served via GitHub Pages).
 
 ## Compatibility

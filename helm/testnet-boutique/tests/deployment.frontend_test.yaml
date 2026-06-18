@@ -1,17 +1,17 @@
-suite: rafiki-boutique frontend - Frontend Deployment
+suite: testnet-boutique frontend - Frontend Deployment
 templates:
   - configMap.frontend.yaml
   - deployment.frontend.yaml
 set:
-  fullnameOverride: test-rafiki-boutique
+  fullnameOverride: test-testnet-boutique
 release:
-  name: test-rafiki-boutique
+  name: test-testnet-boutique
 tests:
-  - it: 'deployment name should be test-rafiki-boutique-frontend'
+  - it: 'deployment name should be test-testnet-boutique-frontend'
     asserts:
       - equal:
           path: metadata.name
-          value: test-rafiki-boutique-frontend
+          value: test-testnet-boutique-frontend
   - it: 'when overriding tag on the deployment, the container should use that tag'
     template: deployment.frontend.yaml
     set:
@@ -37,7 +37,7 @@ tests:
     asserts:
       - equal:
           path: metadata.name
-          value: test-rafiki-boutique-frontend
+          value: test-testnet-boutique-frontend
       - equal:
           path: data.API_BASE_URL
           value: "https://boutique.example.com"

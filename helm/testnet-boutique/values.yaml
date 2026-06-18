@@ -1,4 +1,4 @@
-# fullnameOverride: "rafiki-boutique"
+# fullnameOverride: "testnet-boutique"
 
 imageOverride:
   repository: ghcr.io/interledger
@@ -19,13 +19,12 @@ config:
     nodeEnv: production
     port: 3004
     
-    frontendUrl: "https://rafiki.boutique"
-    keyId: "2f789ecd-8845-4ff0-a1c4-16b7a1ef06c2"
-    paymentPointer: "https://ilp.rafiki.money/boutique"
-    
     database:
       url: "postgres://username:password@postgres-host/database_name"
-      
+
+    frontendUrl: "https://rafiki.boutique"
+    keyId: "2f789ecd-8845-4ff0-a1c4-16b7a1ef06c2"
+    paymentPointer: "https://ilp.rafiki.money/boutique"  
     privateKey: "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K"
 
 deployments:

@@ -24,7 +24,7 @@ jobs:
           VERSION="${TAG#v}"
           APP_VERSION="$TAG"
           mkdir -p /tmp/helm-package
-          for chart in helm/boutique helm/testnet-wallet; do
+          for chart in helm/testnet-boutique helm/testnet-wallet; do
             sed -i "s/^version:.*/version: ${VERSION}/" $chart/Chart.yaml
             sed -i "s/^appVersion:.*/appVersion: \"${APP_VERSION}\"/" $chart/Chart.yaml
             helm dependency update $chart
