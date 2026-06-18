@@ -1,15 +1,13 @@
 name: Helm Publish
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'helm/boutique/**'
+  release:
+    types:
+      - published
 
 jobs:
   publish:
-    name: Package and publish chart
+    name: Package and publish charts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -20,15 +18,18 @@ jobs:
       - name: Add chart dependencies
         run: helm repo add interledger https://interledger.github.io/charts/interledger
 
-      - name: Update chart dependencies
-        run: helm dependency update helm/boutique
-
-      - name: Package chart
-        id: package
+      - name: Update and package all charts
         run: |
-          VERSION=$(grep '^version:' helm/boutique/Chart.yaml | awk '{print $2}')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          helm package helm/boutique --destination /tmp/helm-package
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          APP_VERSION="$TAG"
+          mkdir -p /tmp/helm-package
+          for chart in helm/boutique helm/testnet-wallet; do
+            sed -i "s/^version:.*/version: ${VERSION}/" $chart/Chart.yaml
+            sed -i "s/^appVersion:.*/appVersion: \"${APP_VERSION}\"/" $chart/Chart.yaml
+            helm dependency update $chart
+            helm package $chart --destination /tmp/helm-package
+          done
 
       - name: Checkout charts branch
         uses: actions/checkout@v5
@@ -36,7 +37,7 @@ jobs:
           ref: charts
           path: charts-branch
 
-      - name: Copy package and update index
+      - name: Copy packages and update index
         run: |
           cp /tmp/helm-package/*.tgz charts-branch/
           cd charts-branch
@@ -50,5 +51,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git diff --cached --quiet || git commit -m "chore: publish boutique chart v${{ steps.package.outputs.version }}"
+          git diff --cached --quiet || git commit -m "chore: publish helm charts"
           git push

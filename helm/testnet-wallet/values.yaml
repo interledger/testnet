@@ -1,0 +1,454 @@
+# fullnameOverride: "testnet-wallet"
+
+imageOverride:
+  repository: ghcr.io/interledger
+
+config:
+  frontend:
+    logLevel: info
+    nodeEnv: production
+    port: 4003
+    theme: "dark"
+
+    urls:
+      backend: "https://api.interledger-test.dev"
+      openPaymentsHost: "https://ilp.interledger-test.dev"
+      authHost: "https://auth.interledger-test.dev"
+
+    cookie:
+      name: "testnet.cookie"
+
+    features:
+      useTestKycData: true
+      # Public features are intended for the production interledger.cards
+      # environment only
+      enabled: false
+
+    gatehub:
+      env: "sandbox"
+
+  backend:
+    # If true, the chart will create the secrets defined in the secretsMaps section.
+    # If false, the chart will not create the secrets and it is assumed that they
+    # already exist.
+    shouldCreateSecrets: false
+
+    nodeEnv: production
+    logLevel: info
+    port: 4003
+
+    cookie:
+      name: "testnet.cookie"
+      ttl: 2630000
+      password: # value: "a-very-secure-random-password"
+        secretKeyRef:
+          name: '{{ include "common.fullname" . }}-backend'
+          key: cookiePassword
+
+    hosts:
+      openPayments: "https://ilp.interledger-test.dev"
+      graphqlEndpoint: "http://rafiki-backend-test.interledger-test:3001/graphql"
+      authGraphqlEndpoint: "http://rafiki-auth-test-service.interledger-test:3003/graphql"
+      frontend: "https://wallet.interledger-test.dev"
+      auth: "http://rafiki-auth-test-service.interledger-test:3009"
+
+    database:
+      url:
+        # value: "postgres://username:password@postgres-host/database_name"
+        secretKeyRef:
+          key: "databaseUrl"
+
+    redis:
+      url: 
+        # value: "redis://redis-test.interledger-test:6379"
+        secretKeyRef:
+          key: "redis.url"
+
+    identity:
+      serverSecret: 
+        # value: "00000000-0000-0000-0000-000000000000"
+        secretKeyRef:
+          key: "identity.serverSecret"
+
+    webhook:
+      signatureSecret: 
+        # value: "00000000-0000-0000-0000-000000000000"
+        secretKeyRef:
+          key: "webhook.signatureSecret"
+
+    interaction:
+      cookieSameSite: "lax"
+
+    email:
+      send: true
+      from: "tech@interledger.org"
+      sendgridKey:
+        # value: "SG.xxxxxxxx"
+        secretKeyRef:
+          key: "email.sendgridKey"
+
+    stripe:
+      enabled: false
+      webhookSecret:
+        # value: ""
+        secretKeyRef:
+          key: "stripe.webhookSecret"
+      secretKey:
+        # value: ""
+        secretKeyRef:
+          key: "stripe.secretKey"
+
+    gatehub:
+      env: "sandbox"
+      accessKey: "00000000-0000-0000-0000-000000000000"
+      secretKey:
+        # value: ""
+        secretKeyRef:
+          key: "gatehub.secretKey"
+      apiBaseUrl: "https://api.sandbox.gatehub.net"
+      accessSepaKey: "00000000-0000-0000-0000-000000000000"
+      secretSepaKey:
+        # value: ""
+        secretKeyRef:
+          key: "gatehub.webhookSecret"
+      gatewayUuid: "9358542e-9bd1-48bc-b869-8661f1a1827c"
+      organizationId: ""
+      sepaOrganizationId: ""
+      webhookSecret:
+        # value: ""
+        secretKeyRef:
+          key: "gatehub.webhookSecret"
+      settlementWalletAddress: ""
+      vault:
+        eur: "a09a0a2c-1a3a-44c5-a1b9-603a6eea9341"
+        usd: "450d2156-132a-4d3f-88c5-74822547658d"
+      cards:
+        appId: "713d6b92-afce-4797-8100-43877167784b"
+        accountProductCode: "PWSR_DEBP_2404"
+        productCode: "PMDSGWEEA"
+        nameOnCard: "INTERLEDGER"
+        paymentPointerPrefix: "ilp.dev"
+      iframe:
+        managedRampUrl: "https://managed-ramp.sandbox.gatehub.net"
+        exchangeUrl: "https://exchange.sandbox.gatehub.net"
+        onboardingUrl: "https://onboarding.sandbox.gatehub.net"
+
+    rate:
+      apiKey:
+        # value: ""
+        secretKeyRef:
+          key: "rate.apiKey"
+      limit: false
+      limitLevel: "LAX"
+
+    card:
+      pinUrl: "https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin"
+      dataUrl: "https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData"
+
+    paymentPointer: ""
+
+    rafiki: # variables for rafiki configurations
+      operatorId: ""
+      apiSignatureVersion: "1"
+      adminApiSecret:
+        # value: ""
+        secretKeyRef:
+          key: "rafiki.adminApiSecret"
+
+deployments:
+  backend:
+    name: backend
+    enabled: true
+    replicaCount: 1
+    image:
+      name: test-wallet-backend
+      # tag: "v0.1.66"   # Use this to override the image tag for just this image
+    imagePullPolicy: IfNotPresent
+    envFrom:
+      - configMapRef:
+          name: '{{ include "common.fullname" . }}-backend'
+
+    env:
+      # Backend internal URL (in-cluster)
+      - name: BACKEND_INTERNAL_URL
+        value: 'http://{{ include "common.fullname" . }}-{{ .Values.services.backend.name }}:{{ (index .Values.services.backend.ports 0).port }}'
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.database.url.secretKeyRef.key }}"
+      - name: COOKIE_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.cookie.password.secretKeyRef.key }}"
+      - name: AUTH_IDENTITY_SERVER_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.identity.serverSecret.secretKeyRef.key }}"
+      - name: REDIS_URL
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.redis.url.secretKeyRef.key }}"
+      - name: RAFIKI_WEBHOOK_SIGNATURE_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.webhook.signatureSecret.secretKeyRef.key }}"
+      - name: GATEHUB_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.gatehub.secretKey.secretKeyRef.key }}"
+      - name: GATEHUB_SEPA_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.gatehub.secretSepaKey.secretKeyRef.key }}"
+      - name: GATEHUB_WEBHOOK_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.gatehub.webhookSecret.secretKeyRef.key }}"
+      - name: SENDGRID_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.email.sendgridKey.secretKeyRef.key }}"
+      - name: RATE_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.rate.apiKey.secretKeyRef.key }}"
+      - name: STRIPE_WEBHOOK_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.stripe.webhookSecret.secretKeyRef.key }}"
+      - name: STRIPE_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.stripe.secretKey.secretKeyRef.key }}"
+      - name: ADMIN_API_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: "{{ .Values.config.backend.rafiki.adminApiSecret.secretKeyRef.key }}"
+
+    ports:
+      - name: http
+        containerPort: 4003
+        protocol: TCP
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 1
+      limits:
+        memory: 2048Mi
+        cpu: 4
+    securityContext: {}
+    nodeSelector: {}
+    serviceAccount: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      cpuUtilizationPercentage: 80
+      memoryUtilizationPercentage: 80
+
+  frontend:
+    name: frontend
+    enabled: true
+    replicaCount: 1
+    image:
+      name: test-wallet-frontend
+      # tag: "v0.1.66"   # Use this to override the image tag for just this image
+    imagePullPolicy: IfNotPresent
+    envFrom:
+      - configMapRef:
+          name: '{{ include "common.fullname" . }}-frontend'
+    ports:
+      - name: http
+        containerPort: 4003
+        protocol: TCP
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 500m
+      limits:
+        memory: 512Mi
+        cpu: 1
+    securityContext: {}
+    nodeSelector: {}
+    serviceAccount: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      cpuUtilizationPercentage: 80
+      memoryUtilizationPercentage: 80
+
+services:
+  backend:
+    name: backend-service
+    enabled: true
+    type: ClusterIP
+    annotations: {}
+    ports:
+      - port: 4003
+        targetPort: 4003
+        protocol: TCP
+        name: http
+
+  frontend:
+    name: frontend-service
+    enabled: true
+    annotations: {}
+    type: ClusterIP
+    ports:
+      - port: 4003
+        targetPort: 4003
+        protocol: TCP
+        name: http
+
+# This section of the values file defines Kubernetes config maps that will be created
+# for each service (backend and frontend).
+configMaps:
+  frontend:
+    name: "frontend"
+    contentMap:
+      - key: NODE_ENV
+        valueRef: config.frontend.nodeEnv
+      - key: PORT
+        valueRef: config.frontend.port
+      - key: COOKIE_NAME
+        valueRef: config.frontend.cookie.name
+      - key: NEXT_PUBLIC_USE_TEST_KYC_DATA
+        valueRef: config.frontend.features.useTestKycData
+      - key: NEXT_PUBLIC_BACKEND_URL
+        valueRef: config.frontend.urls.backend
+      - key: NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+        valueRef: config.frontend.urls.openPaymentsHost
+      - key: NEXT_PUBLIC_AUTH_HOST
+        valueRef: config.frontend.urls.authHost
+      - key: NEXT_PUBLIC_THEME
+        valueRef: config.frontend.theme
+      - key: NEXT_PUBLIC_GATEHUB_ENV
+        valueRef: config.frontend.gatehub.env
+      - key: NEXT_PUBLIC_FEATURES_ENABLED
+        valueRef: config.frontend.features.enabled
+  backend:
+    name: "backend"
+    contentMap:
+      - key: NODE_ENV
+        valueRef: config.backend.nodeEnv
+      - key: PORT
+        valueRef: config.backend.port
+      - key: COOKIE_NAME
+        valueRef: config.backend.cookie.name
+      - key: COOKIE_TTL
+        valueRef: config.backend.cookie.ttl
+      - key: OPEN_PAYMENTS_HOST
+        valueRef: config.backend.hosts.openPayments
+      - key: GRAPHQL_ENDPOINT
+        valueRef: config.backend.hosts.graphqlEndpoint
+      - key: AUTH_GRAPHQL_ENDPOINT
+        valueRef: config.backend.hosts.authGraphqlEndpoint
+      - key: RAFIKI_MONEY_FRONTEND_HOST
+        valueRef: config.backend.hosts.frontend
+      - key: AUTH_DOMAIN
+        valueRef: config.backend.hosts.auth
+      - key: SEND_EMAIL
+        valueRef: config.backend.email.send
+      - key: FROM_EMAIL
+        valueRef: config.backend.email.from
+      - key: AUTH_INTERACTION_COOKIE_SAME_SITE
+        valueRef: config.backend.interaction.cookieSameSite
+      - key: GATEHUB_ENV
+        valueRef: config.backend.gatehub.env
+      - key: GATEHUB_ACCESS_KEY
+        valueRef: config.backend.gatehub.accessKey
+      - key: GATEHUB_SEPA_ACCESS_KEY
+        valueRef: config.backend.gatehub.accessSepaKey
+      - key: GATEHUB_API_BASE_URL
+        valueRef: config.backend.gatehub.apiBaseUrl
+      - key: GATEHUB_IFRAME_MANAGED_RAMP_URL
+        valueRef: config.backend.gatehub.iframe.managedRampUrl
+      - key: GATEHUB_IFRAME_EXCHANGE_URL
+        valueRef: config.backend.gatehub.iframe.exchangeUrl
+      - key: GATEHUB_IFRAME_ONBOARDING_URL
+        valueRef: config.backend.gatehub.iframe.onboardingUrl
+      - key: GATEHUB_GATEWAY_UUID
+        valueRef: config.backend.gatehub.gatewayUuid
+      - key: GATEHUB_VAULT_UUID_EUR
+        valueRef: config.backend.gatehub.vault.eur
+      - key: GATEHUB_VAULT_UUID_USD
+        valueRef: config.backend.gatehub.vault.usd
+      - key: GATEHUB_ORG_ID
+        valueRef: config.backend.gatehub.organizationId
+      - key: GATEHUB_SEPA_ORG_ID
+        valueRef: config.backend.gatehub.sepaOrganizationId
+      - key: GATEHUB_SETTLEMENT_WALLET_ADDRESS
+        valueRef: config.backend.gatehub.settlementWalletAddress
+      - key: GATEHUB_CARD_APP_ID
+        valueRef: config.backend.gatehub.cards.appId
+      - key: GATEHUB_ACCOUNT_PRODUCT_CODE
+        valueRef: config.backend.gatehub.cards.accountProductCode
+      - key: GATEHUB_CARD_PRODUCT_CODE
+        valueRef: config.backend.gatehub.cards.productCode
+      - key: GATEHUB_NAME_ON_CARD
+        valueRef: config.backend.gatehub.cards.nameOnCard
+      - key: GATEHUB_CARD_PP_PREFIX
+        valueRef: config.backend.gatehub.cards.paymentPointerPrefix
+      - key: PAYMENT_POINTER
+        valueRef: config.backend.paymentPointer
+      - key: CARD_PIN_HREF
+        valueRef: config.backend.card.pinUrl
+      - key: CARD_DATA_HREF
+        valueRef: config.backend.card.dataUrl
+      - key: USE_STRIPE
+        valueRef: config.backend.stripe.enabled
+      - key: OPERATOR_TENANT_ID
+        valueRef: config.backend.rafiki.operatorId
+      - key: ADMIN_SIGNATURE_VERSION
+        valueRef: config.backend.rafiki.apiSignatureVersion
+      - key: RATE_LIMIT
+        valueRef: config.backend.rate.limit
+      - key: RATE_LIMIT_LEVEL
+        valueRef: config.backend.rate.limitLevel
+
+
+# This section of the values file defines Kubernetes secrets that will be created
+# when the shouldCreateSecrets value is true for the backend service.
+# If you are creating the secrets manually, you can infer the keys and values from here
+secretsMaps:
+  backend:
+    name: backend
+    contentMap:
+      - key: databaseUrl
+        valueRef: config.backend.database.url.value
+      - key: cookiePassword
+        valueRef: config.backend.cookie.password.value
+      - key: identity.serverSecret
+        valueRef: config.backend.identity.serverSecret.value
+      - key: redis.url
+        valueRef: config.backend.redis.url.value
+      - key: webhook.signatureSecret
+        valueRef: config.backend.webhook.signatureSecret.value
+      - key: gatehub.secretKey
+        valueRef: config.backend.gatehub.secretKey.value
+      - key: gatehub.webhookSecret
+        valueRef: config.backend.gatehub.webhookSecret.value
+      - key: email.sendgridKey
+        valueRef: config.backend.email.sendgridKey.value
+      - key: rate.apiKey
+        valueRef: config.backend.rate.apiKey.value
+      - key: stripe.webhookSecret
+        valueRef: config.backend.stripe.webhookSecret.value
+      - key: stripe.secretKey
+        valueRef: config.backend.stripe.secretKey.value
+      - key: rafiki.adminApiSecret
+        valueRef: config.backend.rafiki.adminApiSecret.value

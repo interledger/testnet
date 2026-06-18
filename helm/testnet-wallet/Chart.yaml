@@ -1,6 +1,6 @@
 apiVersion: v2
-name: boutique
-description: Boutique Helm chart for Kubernetes
+name: testnet-wallet
+description: TestNet Wallet Helm chart for Kubernetes
 home: https://github.com/interledger/testnet
 
 type: application

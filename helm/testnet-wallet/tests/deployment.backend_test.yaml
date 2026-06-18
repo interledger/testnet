@@ -1,0 +1,69 @@
+suite: testnet-wallet backend - Backend Deployment
+templates:
+  - configMap.backend.yaml
+  - deployment.backend.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+tests:
+  - it: 'deployment name should be test-testnet-wallet-backend'
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-backend
+  - it: 'when overriding tag on the deployment, the container should use that tag'
+    template: deployment.backend.yaml
+    set:
+      deployments:
+        backend:
+          image:
+            tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-wallet-backend:2.0.0
+  - it: 'given that no tag is on the deployment definition, when overriding the tag globally, the container should use that tag'
+    template: deployment.backend.yaml  
+    set:
+      imageOverride:
+        tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-wallet-backend:2.0.0
+  - it: 'should create configmap with correct environment variables'
+    template: configMap.backend.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-backend
+      - equal:
+          path: data.NODE_ENV
+          value: production
+      - equal:
+          path: data.PORT
+          value: "4003"
+      - equal:
+          path: data.COOKIE_NAME
+          value: testnet.cookie
+  - it: 'should handle accessSepaKey as a config'
+    template: configMap.backend.yaml
+    set:
+      config:
+        backend:
+          gatehub:
+            accessSepaKey: test-sepa-access-key
+    asserts:
+      - equal:
+          path: data.GATEHUB_SEPA_ACCESS_KEY
+          value: test-sepa-access-key
+  - it: 'should add BACKEND_INTERNAL_URL with correct service'
+    template: deployment.backend.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: BACKEND_INTERNAL_URL
+      - equal:
+          path: spec.template.spec.containers[0].env[0].value
+          value: 'http://test-testnet-wallet-backend-service:4003'

@@ -3,7 +3,7 @@ name: Helm Charts
 on:
   pull_request:
     paths:
-      - 'helm/boutique/**'
+      - 'helm/**'
     types:
       - opened
       - synchronize
@@ -15,8 +15,13 @@ concurrency:
 
 jobs:
   test-and-render:
-    name: Lint, Test, and Render
+    name: Lint, Test, and Render (${{ matrix.chart }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chart:
+          - boutique
+          - testnet-wallet
     steps:
       - uses: actions/checkout@v5
 
@@ -27,16 +32,16 @@ jobs:
         run: helm repo add interledger https://interledger.github.io/charts/interledger
 
       - name: Update chart dependencies
-        run: helm dependency update helm/boutique
+        run: helm dependency update helm/${{ matrix.chart }}
 
       - name: Lint chart
-        run: helm lint helm/boutique
+        run: helm lint helm/${{ matrix.chart }}
 
       - name: Install helm-unittest plugin
         run: helm plugin install https://github.com/helm-unittest/helm-unittest.git
 
       - name: Run unit tests
-        run: helm unittest helm/boutique
+        run: helm unittest helm/${{ matrix.chart }}
 
       - name: Render chart with default values
-        run: helm template boutique helm/boutique
+        run: helm template ${{ matrix.chart }} helm/${{ matrix.chart }}

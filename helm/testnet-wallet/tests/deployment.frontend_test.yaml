@@ -1,0 +1,40 @@
+suite: testnet-wallet frontend - Frontend Deployment
+templates:
+  - configMap.frontend.yaml
+  - deployment.frontend.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+tests:
+  - it: 'deployment name should be test-testnet-wallet-frontend'
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-frontend
+  - it: 'when overriding tag on the deployment, the container should use that tag'
+    template: deployment.frontend.yaml
+    set:
+      deployments:
+        frontend:
+          image:
+            tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-wallet-frontend:2.0.0
+  - it: 'given that no tag is on the deployment definition, when overriding the tag globally, the container should use that tag'
+    template: deployment.frontend.yaml  
+    set:
+      imageOverride:
+        tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-wallet-frontend:2.0.0
+  - it: 'should correctly envFrom for configMap'
+    template: deployment.frontend.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[0].configMapRef.name
+          value: test-testnet-wallet-frontend
