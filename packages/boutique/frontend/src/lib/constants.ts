@@ -30,7 +30,10 @@ const getDefaultApiBaseUrl = () => {
 }
 
 export const API_BASE_URL =
-  windowEnv?.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || getDefaultApiBaseUrl()
+  windowEnv?.API_BASE_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  getDefaultApiBaseUrl()
 export const IMAGES_URL = API_BASE_URL + '/images/'
 export const THEME = windowEnv?.THEME || import.meta.env.VITE_THEME || 'light'
-export const CURRENCY = windowEnv?.CURRENCY || import.meta.env.VITE_CURRENCY || 'USD'
+export const CURRENCY =
+  windowEnv?.CURRENCY || import.meta.env.VITE_CURRENCY || 'USD'
