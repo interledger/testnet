@@ -267,6 +267,9 @@ deployments:
       name: test-wallet-frontend
       # tag: "v0.1.66"   # Use this to override the image tag for just this image
     imagePullPolicy: IfNotPresent
+    env:
+      - name: BACKEND_INTERNAL_URL
+        value: 'http://{{ include "common.fullname" . }}-{{ .Values.services.backend.name }}:{{ (index .Values.services.backend.ports 0).port }}'
     envFrom:
       - configMapRef:
           name: '{{ include "common.fullname" . }}-frontend'
