@@ -43,8 +43,7 @@ jobs:
           cp /tmp/helm-package/*.tgz charts-branch/
           cd charts-branch
           helm repo index . \
-            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }} \
-            --merge index.yaml
+            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
 
       - name: Commit and push to charts branch
         run: |
