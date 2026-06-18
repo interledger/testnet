@@ -24,7 +24,7 @@ tests:
           path: spec.template.spec.containers[0].image
           value: ghcr.io/interledger/test-wallet-frontend:2.0.0
   - it: 'given that no tag is on the deployment definition, when overriding the tag globally, the container should use that tag'
-    template: deployment.frontend.yaml  
+    template: deployment.frontend.yaml
     set:
       imageOverride:
         tag: 2.0.0

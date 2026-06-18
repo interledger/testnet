@@ -148,6 +148,7 @@ Every PR automatically runs:
    ```
 
 3. **Conditional Tests** (after builds pass)
+
    ```bash
    pnpm wallet:backend test --detectOpenHandles --forceExit
    pnpm boutique:backend test --detectOpenHandles --forceExit
@@ -156,6 +157,7 @@ Every PR automatically runs:
 4. **Helm chart validation** (runs on all PRs touching `helm/**`)
 
    `helm-charts.yml` runs for both charts in parallel (matrix):
+
    ```bash
    helm dependency update helm/<chart>
    helm lint helm/<chart>
@@ -364,14 +366,15 @@ pnpm build
 
 The `helm/` directory contains two Kubernetes charts that ship alongside the application code. Both charts depend on the `common` chart from `https://interledger.github.io/charts/interledger`.
 
-| Chart | Directory | Images deployed |
-|-------|-----------|-----------------|
-| `boutique` | `helm/boutique/` | `test-boutique-backend`, `test-boutique-frontend` |
-| `testnet-wallet` | `helm/testnet-wallet/` | `test-wallet-backend`, `test-wallet-frontend` |
+| Chart            | Directory              | Images deployed                                   |
+| ---------------- | ---------------------- | ------------------------------------------------- |
+| `boutique`       | `helm/boutique/`       | `test-boutique-backend`, `test-boutique-frontend` |
+| `testnet-wallet` | `helm/testnet-wallet/` | `test-wallet-backend`, `test-wallet-frontend`     |
 
 ### Chart structure
 
 Each chart follows the same pattern:
+
 - **`values.yaml`** — all configuration lives here: `config.*` (app settings), `configMaps.*` (env var keys → value references), `secretsMaps.*` (secret keys → value references), `deployments.*`, `services.*`
 - **`templates/`** — delegates to `common` helpers (`common.configMapper`, `common.secretMapper`, `common.deployment`)
 - **`tests/`** — `helm-unittest` test suite
@@ -444,11 +447,11 @@ helm repo update
 
 7. **Alert on Helm chart compatibility breaks**: When a PR modifies any of the following, cross-check against the Helm charts and **warn the developer explicitly** if a mismatch is found:
 
-   | Change type | Files to check | Chart locations to verify |
-   |-------------|---------------|--------------------------|
+   | Change type                                      | Files to check                                                             | Chart locations to verify                                                                                         |
+   | ------------------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
    | Dockerfile `ENV`, `ARG`, or exposed port changes | `packages/boutique/*/Dockerfile.prod`, `packages/wallet/*/Dockerfile.prod` | `helm/boutique/values.yaml`, `helm/testnet-wallet/values.yaml` — `deployments.*.ports`, `configMaps.*.contentMap` |
-   | New or renamed env var in application code | `packages/boutique/backend/src/`, `packages/boutique/frontend/src/` | `helm/boutique/values.yaml` — `configMaps.*.contentMap` and `secretsMaps.*.contentMap` |
-   | New or renamed env var in application code | `packages/wallet/backend/src/`, `packages/wallet/frontend/src/` | `helm/testnet-wallet/values.yaml` — `configMaps.*.contentMap` and `secretsMaps.*.contentMap` |
+   | New or renamed env var in application code       | `packages/boutique/backend/src/`, `packages/boutique/frontend/src/`        | `helm/boutique/values.yaml` — `configMaps.*.contentMap` and `secretsMaps.*.contentMap`                            |
+   | New or renamed env var in application code       | `packages/wallet/backend/src/`, `packages/wallet/frontend/src/`            | `helm/testnet-wallet/values.yaml` — `configMaps.*.contentMap` and `secretsMaps.*.contentMap`                      |
 
    **What to check**: The `configMaps.*.contentMap[].key` entries are the exact environment variable names injected into the container. The `secretsMaps.*.contentMap[].key` entries are Kubernetes secret keys referenced by name in the deployment `env` block. If the app reads an env var that has no corresponding `key` in the chart (or vice versa), the deployed pod will start with missing or unused configuration.
 

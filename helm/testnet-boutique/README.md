@@ -21,25 +21,25 @@ All application configuration is driven through `values.yaml`. Environment varia
 
 Defined under `configMaps.backend.contentMap` and `configMaps.frontend.contentMap`. Keys map directly to environment variable names injected into each container via `envFrom`.
 
-| Service  | Key               | `values.yaml` path                    |
-|----------|-------------------|---------------------------------------|
-| backend  | `NODE_ENV`        | `config.backend.nodeEnv`             |
-| backend  | `PORT`            | `config.backend.port`                |
-| backend  | `FRONTEND_URL`    | `config.backend.frontendUrl`         |
-| backend  | `KEY_ID`          | `config.backend.keyId`               |
-| backend  | `PAYMENT_POINTER` | `config.backend.paymentPointer`      |
-| frontend | `API_BASE_URL`    | `config.frontend.apiBaseUrl`         |
-| frontend | `THEME`           | `config.frontend.theme`              |
-| frontend | `CURRENCY`        | `config.frontend.currency`           |
+| Service  | Key               | `values.yaml` path              |
+| -------- | ----------------- | ------------------------------- |
+| backend  | `NODE_ENV`        | `config.backend.nodeEnv`        |
+| backend  | `PORT`            | `config.backend.port`           |
+| backend  | `FRONTEND_URL`    | `config.backend.frontendUrl`    |
+| backend  | `KEY_ID`          | `config.backend.keyId`          |
+| backend  | `PAYMENT_POINTER` | `config.backend.paymentPointer` |
+| frontend | `API_BASE_URL`    | `config.frontend.apiBaseUrl`    |
+| frontend | `THEME`           | `config.frontend.theme`         |
+| frontend | `CURRENCY`        | `config.frontend.currency`      |
 
 ### Secrets
 
 Defined under `secretsMaps.backend.contentMap`. Secrets are only created by the chart when `config.backend.shouldCreateSecrets: true`. When `false`, the secret must exist in the cluster before deployment.
 
-| Secret key      | `values.yaml` path                  |
-|-----------------|-------------------------------------|
-| `database.url`  | `config.backend.database.url`      |
-| `privateKey`    | `config.backend.privateKey`        |
+| Secret key     | `values.yaml` path            |
+| -------------- | ----------------------------- |
+| `database.url` | `config.backend.database.url` |
+| `privateKey`   | `config.backend.privateKey`   |
 
 Secrets are mounted into the backend container via individual `env[].valueFrom.secretKeyRef` entries.
 
@@ -51,7 +51,7 @@ By default both deployments use the chart's `appVersion` as the image tag. To pi
 deployments:
   backend:
     image:
-      tag: "v0.1.65"
+      tag: 'v0.1.65'
 ```
 
 ## Installing the Chart

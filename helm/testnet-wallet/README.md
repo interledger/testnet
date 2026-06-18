@@ -23,18 +23,18 @@ Defined under `configMaps.backend.contentMap` and `configMaps.frontend.contentMa
 
 **Frontend ConfigMap keys** (`NEXT_PUBLIC_*` vars + runtime config):
 
-| Key                            | `values.yaml` path                          |
-|-------------------------------|---------------------------------------------|
-| `NODE_ENV`                    | `config.frontend.nodeEnv`                  |
-| `PORT`                        | `config.frontend.port`                     |
-| `COOKIE_NAME`                 | `config.frontend.cookie.name`              |
-| `NEXT_PUBLIC_USE_TEST_KYC_DATA` | `config.frontend.features.useTestKycData` |
-| `NEXT_PUBLIC_BACKEND_URL`     | `config.frontend.urls.backend`             |
-| `NEXT_PUBLIC_OPEN_PAYMENTS_HOST` | `config.frontend.urls.openPaymentsHost`  |
-| `NEXT_PUBLIC_AUTH_HOST`       | `config.frontend.urls.authHost`            |
-| `NEXT_PUBLIC_THEME`           | `config.frontend.theme`                    |
-| `NEXT_PUBLIC_GATEHUB_ENV`     | `config.frontend.gatehub.env`              |
-| `NEXT_PUBLIC_FEATURES_ENABLED` | `config.frontend.features.enabled`        |
+| Key                              | `values.yaml` path                        |
+| -------------------------------- | ----------------------------------------- |
+| `NODE_ENV`                       | `config.frontend.nodeEnv`                 |
+| `PORT`                           | `config.frontend.port`                    |
+| `COOKIE_NAME`                    | `config.frontend.cookie.name`             |
+| `NEXT_PUBLIC_USE_TEST_KYC_DATA`  | `config.frontend.features.useTestKycData` |
+| `NEXT_PUBLIC_BACKEND_URL`        | `config.frontend.urls.backend`            |
+| `NEXT_PUBLIC_OPEN_PAYMENTS_HOST` | `config.frontend.urls.openPaymentsHost`   |
+| `NEXT_PUBLIC_AUTH_HOST`          | `config.frontend.urls.authHost`           |
+| `NEXT_PUBLIC_THEME`              | `config.frontend.theme`                   |
+| `NEXT_PUBLIC_GATEHUB_ENV`        | `config.frontend.gatehub.env`             |
+| `NEXT_PUBLIC_FEATURES_ENABLED`   | `config.frontend.features.enabled`        |
 
 **Backend ConfigMap keys** (see `configMaps.backend.contentMap` in `values.yaml` for the full list — covers `NODE_ENV`, `PORT`, cookie settings, GateHub config, Rafiki endpoints, Stripe flags, rate limiting, card URLs, and more).
 
@@ -42,20 +42,20 @@ Defined under `configMaps.backend.contentMap` and `configMaps.frontend.contentMa
 
 Defined under `secretsMaps.backend.contentMap`. Secrets are only created by the chart when `config.backend.shouldCreateSecrets: true` (defaults to `false` — secrets must pre-exist in the cluster).
 
-| Secret key                | Description                        |
-|---------------------------|------------------------------------|
-| `databaseUrl`             | PostgreSQL connection string       |
-| `cookiePassword`          | Session cookie signing secret      |
-| `identity.serverSecret`   | Kratos identity server secret      |
-| `redis.url`               | Redis connection URL               |
-| `webhook.signatureSecret` | Rafiki webhook HMAC secret         |
-| `gatehub.secretKey`       | GateHub API secret key             |
-| `gatehub.webhookSecret`   | GateHub webhook secret             |
-| `email.sendgridKey`       | Sendgrid API key                   |
-| `rate.apiKey`             | Exchange rate API key              |
-| `stripe.webhookSecret`    | Stripe webhook secret              |
-| `stripe.secretKey`        | Stripe secret key                  |
-| `rafiki.adminApiSecret`   | Rafiki admin API secret            |
+| Secret key                | Description                   |
+| ------------------------- | ----------------------------- |
+| `databaseUrl`             | PostgreSQL connection string  |
+| `cookiePassword`          | Session cookie signing secret |
+| `identity.serverSecret`   | Kratos identity server secret |
+| `redis.url`               | Redis connection URL          |
+| `webhook.signatureSecret` | Rafiki webhook HMAC secret    |
+| `gatehub.secretKey`       | GateHub API secret key        |
+| `gatehub.webhookSecret`   | GateHub webhook secret        |
+| `email.sendgridKey`       | Sendgrid API key              |
+| `rate.apiKey`             | Exchange rate API key         |
+| `stripe.webhookSecret`    | Stripe webhook secret         |
+| `stripe.secretKey`        | Stripe secret key             |
+| `rafiki.adminApiSecret`   | Rafiki admin API secret       |
 
 Secrets are mounted into the backend container via individual `env[].valueFrom.secretKeyRef` entries (not `envFrom`).
 
@@ -67,7 +67,7 @@ By default both deployments use the chart's `appVersion` as the image tag. To pi
 deployments:
   backend:
     image:
-      tag: "v0.1.66"
+      tag: 'v0.1.66'
 ```
 
 ## Installing the Chart

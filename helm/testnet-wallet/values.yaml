@@ -8,15 +8,15 @@ config:
     logLevel: info
     nodeEnv: production
     port: 4003
-    theme: "dark"
+    theme: 'dark'
 
     urls:
-      backend: "https://api.interledger-test.dev"
-      openPaymentsHost: "https://ilp.interledger-test.dev"
-      authHost: "https://auth.interledger-test.dev"
+      backend: 'https://api.interledger-test.dev'
+      openPaymentsHost: 'https://ilp.interledger-test.dev'
+      authHost: 'https://auth.interledger-test.dev'
 
     cookie:
-      name: "testnet.cookie"
+      name: 'testnet.cookie'
 
     features:
       useTestKycData: true
@@ -25,7 +25,7 @@ config:
       enabled: false
 
     gatehub:
-      env: "sandbox"
+      env: 'sandbox'
 
   backend:
     # If true, the chart will create the secrets defined in the secretsMaps section.
@@ -38,7 +38,7 @@ config:
     port: 4003
 
     cookie:
-      name: "testnet.cookie"
+      name: 'testnet.cookie'
       ttl: 2630000
       password: # value: "a-very-secure-random-password"
         secretKeyRef:
@@ -46,114 +46,114 @@ config:
           key: cookiePassword
 
     hosts:
-      openPayments: "https://ilp.interledger-test.dev"
-      graphqlEndpoint: "http://rafiki-backend-test.interledger-test:3001/graphql"
-      authGraphqlEndpoint: "http://rafiki-auth-test-service.interledger-test:3003/graphql"
-      frontend: "https://wallet.interledger-test.dev"
-      auth: "http://rafiki-auth-test-service.interledger-test:3009"
+      openPayments: 'https://ilp.interledger-test.dev'
+      graphqlEndpoint: 'http://rafiki-backend-test.interledger-test:3001/graphql'
+      authGraphqlEndpoint: 'http://rafiki-auth-test-service.interledger-test:3003/graphql'
+      frontend: 'https://wallet.interledger-test.dev'
+      auth: 'http://rafiki-auth-test-service.interledger-test:3009'
 
     database:
       url:
         # value: "postgres://username:password@postgres-host/database_name"
         secretKeyRef:
-          key: "databaseUrl"
+          key: 'databaseUrl'
 
     redis:
-      url: 
+      url:
         # value: "redis://redis-test.interledger-test:6379"
         secretKeyRef:
-          key: "redis.url"
+          key: 'redis.url'
 
     identity:
-      serverSecret: 
+      serverSecret:
         # value: "00000000-0000-0000-0000-000000000000"
         secretKeyRef:
-          key: "identity.serverSecret"
+          key: 'identity.serverSecret'
 
     webhook:
-      signatureSecret: 
+      signatureSecret:
         # value: "00000000-0000-0000-0000-000000000000"
         secretKeyRef:
-          key: "webhook.signatureSecret"
+          key: 'webhook.signatureSecret'
 
     interaction:
-      cookieSameSite: "lax"
+      cookieSameSite: 'lax'
 
     email:
       send: true
-      from: "tech@interledger.org"
+      from: 'tech@interledger.org'
       sendgridKey:
         # value: "SG.xxxxxxxx"
         secretKeyRef:
-          key: "email.sendgridKey"
+          key: 'email.sendgridKey'
 
     stripe:
       enabled: false
       webhookSecret:
         # value: ""
         secretKeyRef:
-          key: "stripe.webhookSecret"
+          key: 'stripe.webhookSecret'
       secretKey:
         # value: ""
         secretKeyRef:
-          key: "stripe.secretKey"
+          key: 'stripe.secretKey'
 
     gatehub:
-      env: "sandbox"
-      accessKey: "00000000-0000-0000-0000-000000000000"
+      env: 'sandbox'
+      accessKey: '00000000-0000-0000-0000-000000000000'
       secretKey:
         # value: ""
         secretKeyRef:
-          key: "gatehub.secretKey"
-      apiBaseUrl: "https://api.sandbox.gatehub.net"
-      accessSepaKey: "00000000-0000-0000-0000-000000000000"
+          key: 'gatehub.secretKey'
+      apiBaseUrl: 'https://api.sandbox.gatehub.net'
+      accessSepaKey: '00000000-0000-0000-0000-000000000000'
       secretSepaKey:
         # value: ""
         secretKeyRef:
-          key: "gatehub.secretSepaKey"
-      gatewayUuid: "9358542e-9bd1-48bc-b869-8661f1a1827c"
-      organizationId: ""
-      sepaOrganizationId: ""
+          key: 'gatehub.secretSepaKey'
+      gatewayUuid: '9358542e-9bd1-48bc-b869-8661f1a1827c'
+      organizationId: ''
+      sepaOrganizationId: ''
       webhookSecret:
         # value: ""
         secretKeyRef:
-          key: "gatehub.webhookSecret"
-      settlementWalletAddress: ""
+          key: 'gatehub.webhookSecret'
+      settlementWalletAddress: ''
       vault:
-        eur: "a09a0a2c-1a3a-44c5-a1b9-603a6eea9341"
-        usd: "450d2156-132a-4d3f-88c5-74822547658d"
+        eur: 'a09a0a2c-1a3a-44c5-a1b9-603a6eea9341'
+        usd: '450d2156-132a-4d3f-88c5-74822547658d'
       cards:
-        appId: "713d6b92-afce-4797-8100-43877167784b"
-        accountProductCode: "PWSR_DEBP_2404"
-        productCode: "PMDSGWEEA"
-        nameOnCard: "INTERLEDGER"
-        paymentPointerPrefix: "ilp.dev"
+        appId: '713d6b92-afce-4797-8100-43877167784b'
+        accountProductCode: 'PWSR_DEBP_2404'
+        productCode: 'PMDSGWEEA'
+        nameOnCard: 'INTERLEDGER'
+        paymentPointerPrefix: 'ilp.dev'
       iframe:
-        managedRampUrl: "https://managed-ramp.sandbox.gatehub.net"
-        exchangeUrl: "https://exchange.sandbox.gatehub.net"
-        onboardingUrl: "https://onboarding.sandbox.gatehub.net"
+        managedRampUrl: 'https://managed-ramp.sandbox.gatehub.net'
+        exchangeUrl: 'https://exchange.sandbox.gatehub.net'
+        onboardingUrl: 'https://onboarding.sandbox.gatehub.net'
 
     rate:
       apiKey:
         # value: ""
         secretKeyRef:
-          key: "rate.apiKey"
+          key: 'rate.apiKey'
       limit: false
-      limitLevel: "LAX"
+      limitLevel: 'LAX'
 
     card:
-      pinUrl: "https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin"
-      dataUrl: "https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData"
+      pinUrl: 'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/pin'
+      dataUrl: 'https://lab.dinitcs.com/uat/Stargate.Paywiser.Server/api/v3/ClientDevice/cardData'
 
-    paymentPointer: ""
+    paymentPointer: ''
 
     rafiki: # variables for rafiki configurations
-      operatorId: ""
-      apiSignatureVersion: "1"
+      operatorId: ''
+      apiSignatureVersion: '1'
       adminApiSecret:
         # value: ""
         secretKeyRef:
-          key: "rafiki.adminApiSecret"
+          key: 'rafiki.adminApiSecret'
 
 deployments:
   backend:
@@ -173,67 +173,67 @@ deployments:
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.database.url.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.database.url.secretKeyRef.key }}'
       - name: COOKIE_PASSWORD
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.cookie.password.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.cookie.password.secretKeyRef.key }}'
       - name: AUTH_IDENTITY_SERVER_SECRET
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.identity.serverSecret.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.identity.serverSecret.secretKeyRef.key }}'
       - name: REDIS_URL
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.redis.url.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.redis.url.secretKeyRef.key }}'
       - name: RAFIKI_WEBHOOK_SIGNATURE_SECRET
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.webhook.signatureSecret.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.webhook.signatureSecret.secretKeyRef.key }}'
       - name: GATEHUB_SECRET_KEY
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.gatehub.secretKey.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.gatehub.secretKey.secretKeyRef.key }}'
       - name: GATEHUB_SEPA_SECRET_KEY
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.gatehub.secretSepaKey.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.gatehub.secretSepaKey.secretKeyRef.key }}'
       - name: GATEHUB_WEBHOOK_SECRET
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.gatehub.webhookSecret.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.gatehub.webhookSecret.secretKeyRef.key }}'
       - name: SENDGRID_API_KEY
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.email.sendgridKey.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.email.sendgridKey.secretKeyRef.key }}'
       - name: RATE_API_KEY
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.rate.apiKey.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.rate.apiKey.secretKeyRef.key }}'
       - name: STRIPE_WEBHOOK_SECRET
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.stripe.webhookSecret.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.stripe.webhookSecret.secretKeyRef.key }}'
       - name: STRIPE_SECRET_KEY
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.stripe.secretKey.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.stripe.secretKey.secretKeyRef.key }}'
       - name: ADMIN_API_SECRET
         valueFrom:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
-            key: "{{ .Values.config.backend.rafiki.adminApiSecret.secretKeyRef.key }}"
+            key: '{{ .Values.config.backend.rafiki.adminApiSecret.secretKeyRef.key }}'
 
     ports:
       - name: http
@@ -318,7 +318,7 @@ services:
 # for each service (backend and frontend).
 configMaps:
   frontend:
-    name: "frontend"
+    name: 'frontend'
     contentMap:
       - key: NODE_ENV
         valueRef: config.frontend.nodeEnv
@@ -341,7 +341,7 @@ configMaps:
       - key: NEXT_PUBLIC_FEATURES_ENABLED
         valueRef: config.frontend.features.enabled
   backend:
-    name: "backend"
+    name: 'backend'
     contentMap:
       - key: NODE_ENV
         valueRef: config.backend.nodeEnv
@@ -419,7 +419,6 @@ configMaps:
         valueRef: config.backend.rate.limit
       - key: RATE_LIMIT_LEVEL
         valueRef: config.backend.rate.limitLevel
-
 
 # This section of the values file defines Kubernetes secrets that will be created
 # when the shouldCreateSecrets value is true for the backend service.

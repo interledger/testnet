@@ -24,7 +24,7 @@ tests:
           path: spec.template.spec.containers[0].image
           value: ghcr.io/interledger/test-wallet-backend:2.0.0
   - it: 'given that no tag is on the deployment definition, when overriding the tag globally, the container should use that tag'
-    template: deployment.backend.yaml  
+    template: deployment.backend.yaml
     set:
       imageOverride:
         tag: 2.0.0
@@ -43,7 +43,7 @@ tests:
           value: production
       - equal:
           path: data.PORT
-          value: "4003"
+          value: '4003'
       - equal:
           path: data.COOKIE_NAME
           value: testnet.cookie
