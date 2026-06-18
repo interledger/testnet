@@ -1,0 +1,13 @@
+{{- define "backend.deployment" -}}
+{{- $top := first . }}
+{{- $cfgObj := include "common.configMapper" (list $top $top.Values.configMaps.backend "rafiki-boutique.backend.ConfigMap") | fromYaml -}}
+{{- $dataHash := $cfgObj.data | toJson | sha256sum -}}
+spec:
+  template:
+    metadata:
+      annotations:
+        ilf-configmap-backend-sha256: {{ $dataHash | quote }}
+{{- end }}
+{{- if .Values.deployments.backend.enabled }}
+{{- include "common.deployment" (list . .Values.deployments.backend .Values.deployments.backend.autoscaling .Values.deployments.backend.serviceAccount "backend.deployment") }}
+{{- end }}

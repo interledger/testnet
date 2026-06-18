@@ -1,0 +1,3 @@
+{{- define "rafiki-boutique.backend.ConfigMap" -}}
+{{- end }}
+{{- include "common.configMapper" (list . .Values.configMaps.backend "rafiki-boutique.backend.ConfigMap") }}

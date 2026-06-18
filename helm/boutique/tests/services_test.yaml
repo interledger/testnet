@@ -1,0 +1,39 @@
+suite: rafiki-boutique services - Services
+templates:
+  - service.backend.yaml
+  - service.frontend.yaml
+set:
+  fullnameOverride: test-rafiki-boutique
+release:
+  name: test-rafiki-boutique
+tests:
+  - it: 'backend service should be created with correct name'
+    template: service.backend.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-rafiki-boutique-backend-service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 3004
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 3004
+  - it: 'frontend service should be created with correct name'
+    template: service.frontend.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-rafiki-boutique-frontend-service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 4004
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 4004

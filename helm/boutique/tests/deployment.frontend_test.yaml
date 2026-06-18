@@ -1,0 +1,46 @@
+suite: rafiki-boutique frontend - Frontend Deployment
+templates:
+  - configMap.frontend.yaml
+  - deployment.frontend.yaml
+set:
+  fullnameOverride: test-rafiki-boutique
+release:
+  name: test-rafiki-boutique
+tests:
+  - it: 'deployment name should be test-rafiki-boutique-frontend'
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-rafiki-boutique-frontend
+  - it: 'when overriding tag on the deployment, the container should use that tag'
+    template: deployment.frontend.yaml
+    set:
+      deployments:
+        frontend:
+          image:
+            tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-boutique-frontend:2.0.0
+  - it: 'given that no tag is on the deployment definition, when overriding the tag globally, the container should use that tag'
+    template: deployment.frontend.yaml  
+    set:
+      imageOverride:
+        tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-boutique-frontend:2.0.0
+  - it: 'should create configmap with correct environment variables'
+    template: configMap.frontend.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-rafiki-boutique-frontend
+      - equal:
+          path: data.API_BASE_URL
+          value: "rafiki-boutique-backend"
+      - equal:
+          path: data.PORT
+          value: "4004"

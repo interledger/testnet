@@ -1,0 +1,55 @@
+suite: rafiki-boutique backend - Backend Deployment
+templates:
+  - configMap.backend.yaml
+  - deployment.backend.yaml
+set:
+  fullnameOverride: test-rafiki-boutique
+release:
+  name: test-rafiki-boutique
+tests:
+  - it: 'deployment name should be test-rafiki-boutique-backend'
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-rafiki-boutique-backend
+  - it: 'when overriding tag on the deployment, the container should use that tag'
+    template: deployment.backend.yaml
+    set:
+      deployments:
+        backend:
+          image:
+            tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-boutique-backend:2.0.0
+  - it: 'given that no tag is on the deployment definition, when overriding the tag globally, the container should use that tag'
+    template: deployment.backend.yaml  
+    set:
+      imageOverride:
+        tag: 2.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-boutique-backend:2.0.0
+  - it: 'should create configmap with correct environment variables'
+    template: configMap.backend.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-rafiki-boutique-backend
+      - equal:
+          path: data.NODE_ENV
+          value: production
+      - equal:
+          path: data.PORT
+          value: "3004"
+      - equal:
+          path: data.FRONTEND_URL
+          value: "https://rafiki.boutique"
+      - equal:
+          path: data.KEY_ID
+          value: "2f789ecd-8845-4ff0-a1c4-16b7a1ef06c2"
+      - equal:
+          path: data.PAYMENT_POINTER
+          value: "https://ilp.rafiki.money/boutique"
