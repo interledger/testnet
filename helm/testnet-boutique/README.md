@@ -36,10 +36,12 @@ Defined under `configMaps.backend.contentMap` and `configMaps.frontend.contentMa
 
 Defined under `secretsMaps.backend.contentMap`. Secrets are only created by the chart when `config.backend.shouldCreateSecrets: true`. When `false`, the secret must exist in the cluster before deployment.
 
-| Secret key     | `values.yaml` path            |
-| -------------- | ----------------------------- |
-| `database.url` | `config.backend.database.url` |
-| `privateKey`   | `config.backend.privateKey`   |
+For safety, this chart defaults `config.backend.shouldCreateSecrets` to `false` and leaves secret values empty. If you want the chart to create secrets, explicitly set `config.backend.shouldCreateSecrets=true` and provide both secret values.
+
+| Secret key     | `values.yaml` path                  |
+| -------------- | ----------------------------------- |
+| `database.url` | `config.backend.database.url.value` |
+| `privateKey`   | `config.backend.privateKey.value`   |
 
 Secrets are mounted into the backend container via individual `env[].valueFrom.secretKeyRef` entries.
 
@@ -61,8 +63,9 @@ helm repo add testnet https://interledger.github.io/testnet
 helm repo update
 
 helm install testnet-boutique testnet/testnet-boutique \
-  --set config.backend.database.url="postgres://user:pass@host/db" \
-  --set config.backend.privateKey="<base64-encoded-key>" \
+  --set config.backend.shouldCreateSecrets=true \
+  --set config.backend.database.url.value="postgres://user:pass@host/db" \
+  --set config.backend.privateKey.value="<base64-encoded-key>" \
   --set config.frontend.apiBaseUrl="https://api.boutique.example.com"
 ```
 
