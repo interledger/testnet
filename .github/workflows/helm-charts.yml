@@ -1,0 +1,42 @@
+name: Helm Charts
+
+on:
+  pull_request:
+    paths:
+      - 'helm/boutique/**'
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-render:
+    name: Lint, Test, and Render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Add chart dependencies
+        run: helm repo add interledger https://interledger.github.io/charts/interledger
+
+      - name: Update chart dependencies
+        run: helm dependency update helm/boutique
+
+      - name: Lint chart
+        run: helm lint helm/boutique
+
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git
+
+      - name: Run unit tests
+        run: helm unittest helm/boutique
+
+      - name: Render chart with default values
+        run: helm template boutique helm/boutique

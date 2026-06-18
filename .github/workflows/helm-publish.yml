@@ -1,0 +1,54 @@
+name: Helm Publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'helm/boutique/**'
+
+jobs:
+  publish:
+    name: Package and publish chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Add chart dependencies
+        run: helm repo add interledger https://interledger.github.io/charts/interledger
+
+      - name: Update chart dependencies
+        run: helm dependency update helm/boutique
+
+      - name: Package chart
+        id: package
+        run: |
+          VERSION=$(grep '^version:' helm/boutique/Chart.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          helm package helm/boutique --destination /tmp/helm-package
+
+      - name: Checkout charts branch
+        uses: actions/checkout@v5
+        with:
+          ref: charts
+          path: charts-branch
+
+      - name: Copy package and update index
+        run: |
+          cp /tmp/helm-package/*.tgz charts-branch/
+          cd charts-branch
+          helm repo index . \
+            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }} \
+            --merge index.yaml
+
+      - name: Commit and push to charts branch
+        run: |
+          cd charts-branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "chore: publish boutique chart v${{ steps.package.outputs.version }}"
+          git push
