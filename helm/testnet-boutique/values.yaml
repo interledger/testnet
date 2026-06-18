@@ -11,21 +11,30 @@ config:
     currency: "USD"
 
   backend:
-    # If true, the chart will create the secrets defined in the secretsMaps section.
-    # If false, the chart will not create the secrets and it is assumed that they
-    # already exist.
+    # If true, the chart will create the secrets using the `values` provided by rendering the secretsMaps section.
+    # If false, the chart will not create the secrets and it is assumed that they already exist. Use this if you
+    # are using an external secret management system like HashiCorp Vault or AWS Secrets Manager.
     shouldCreateSecrets: true
 
     nodeEnv: production
     port: 3004
     
     database:
-      url: "postgres://username:password@postgres-host/database_name"
+      url:
+        value: "postgres://username:password@postgres-host/database_name"
+        secretKeyRef:
+          name: '{{ include "common.fullname" . }}-backend'
+          key: database.url
 
     frontendUrl: "https://rafiki.boutique"
     keyId: "2f789ecd-8845-4ff0-a1c4-16b7a1ef06c2"
-    paymentPointer: "https://ilp.rafiki.money/boutique"  
-    privateKey: "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K"
+    paymentPointer: "https://ilp.rafiki.money/boutique"
+
+    privateKey:
+      value: "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K"
+      secretKeyRef:
+        name: '{{ include "common.fullname" . }}-backend'
+        key: privateKey     
 
 deployments:
   backend:
@@ -160,7 +169,7 @@ secretsMaps:
     name: backend
     contentMap:
       - key: database.url
-        valueRef: config.backend.database.url
+        valueRef: config.backend.database.url.value
       - key: privateKey
-        valueRef: config.backend.privateKey
+        valueRef: config.backend.privateKey.value
 
