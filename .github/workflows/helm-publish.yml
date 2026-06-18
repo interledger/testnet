@@ -36,6 +36,7 @@ jobs:
         with:
           ref: charts
           path: charts-branch
+          token: ${{ secrets.HELM_PUBLISH_TOKEN }}
 
       - name: Copy packages and update index
         run: |
