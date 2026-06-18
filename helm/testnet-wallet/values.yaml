@@ -440,6 +440,8 @@ secretsMaps:
         valueRef: config.backend.webhook.signatureSecret.value
       - key: gatehub.secretKey
         valueRef: config.backend.gatehub.secretKey.value
+      - key: gatehub.secretSepaKey
+        valueRef: config.backend.gatehub.secretSepaKey.value
       - key: gatehub.webhookSecret
         valueRef: config.backend.gatehub.webhookSecret.value
       - key: email.sendgridKey
