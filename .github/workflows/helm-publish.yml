@@ -4,6 +4,14 @@ on:
   release:
     types:
       - published
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+    secrets:
+      HELM_PUBLISH_TOKEN:
+        required: true
 
 jobs:
   publish:
@@ -20,7 +28,7 @@ jobs:
 
       - name: Update and package all charts
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${{ inputs.tag_name || github.event.release.tag_name }}"
           VERSION="${TAG#v}"
           APP_VERSION="$TAG"
           mkdir -p /tmp/helm-package
@@ -43,7 +51,7 @@ jobs:
           cp /tmp/helm-package/*.tgz charts-branch/
           cd charts-branch
           helm repo index . \
-            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name || 'testnet' }}
 
       - name: Commit and push to charts branch
         run: |
