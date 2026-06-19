@@ -125,7 +125,8 @@ jobs:
     uses: ./.github/workflows/helm-publish.yml
     with:
       tag_name: v${{ needs.release.outputs.new_release_version }}
-    secrets: inherit
+    secrets:
+      HELM_PUBLISH_TOKEN: ${{ secrets.HELM_PUBLISH_TOKEN }}
 
   publish:
     name: Publish Docker images
