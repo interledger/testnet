@@ -1,0 +1,49 @@
+apiVersion: v1
+entries:
+  testnet-boutique:
+  - apiVersion: v2
+    appVersion: v0.4.1
+    created: "2026-06-19T10:50:39.444092678Z"
+    dependencies:
+    - name: common
+      repository: https://interledger.github.io/charts/interledger
+      version: 0.9.0
+    description: Boutique Helm chart for Kubernetes
+    digest: 29dcf21e7abfb857c42dd7e72af1334692b59950db9ea2e910a134cfd96cff2d
+    home: https://github.com/interledger/testnet
+    maintainers:
+    - email: tadej.golobic@gatehub.net
+      name: golobitch
+    - email: beniamin@interledger.foundation
+      name: beniaminmunteanu
+    - email: stephan@interledger.foundation
+      name: Stephan Butler
+    name: testnet-boutique
+    type: application
+    urls:
+    - https://interledger.github.io/testnet/testnet-boutique-0.4.1.tgz
+    version: 0.4.1
+  testnet-wallet:
+  - apiVersion: v2
+    appVersion: v0.4.1
+    created: "2026-06-19T10:50:39.445779176Z"
+    dependencies:
+    - name: common
+      repository: https://interledger.github.io/charts/interledger
+      version: 0.9.0
+    description: TestNet Wallet Helm chart for Kubernetes
+    digest: 00c1dc35a9afd50f5323bf1f52edaf689e51980e5bb3af6cc474b0ef5ce01d32
+    home: https://github.com/interledger/testnet
+    maintainers:
+    - email: tadej.golobic@gatehub.net
+      name: golobitch
+    - email: beniamin@interledger.foundation
+      name: beniaminmunteanu
+    - email: stephan@interledger.foundation
+      name: Stephan Butler
+    name: testnet-wallet
+    type: application
+    urls:
+    - https://interledger.github.io/testnet/testnet-wallet-0.4.1.tgz
+    version: 0.4.1
+generated: "2026-06-19T10:50:39.44286027Z"
