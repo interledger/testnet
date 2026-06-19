@@ -60,6 +60,7 @@ jobs:
           cd charts-branch
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
+          git add -f *.tgz
+          git add index.yaml
           git diff --cached --quiet || git commit -m "chore: publish helm charts"
           git push
