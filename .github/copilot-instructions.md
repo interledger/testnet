@@ -10,6 +10,7 @@
 - **Boutique Frontend** (Vite) — E-commerce storefront
 - **Shared Packages** — Common backend & frontend utilities
 - **E2E Tests** (`e2e/`) — Playwright + playwright-bdd (Gherkin) end-to-end tests against the local environment
+- **Helm Charts** (`helm/`) — Kubernetes charts for `boutique` and `testnet-wallet`, published to the `charts` branch via GitHub Pages
 
 **Size**: ~100K lines of TypeScript + Node.js; ~80 test files; ~10 npm packages
 **Purpose**: Reference implementation for Account Servicing Entities integrating with Interledger Protocol and Rafiki
@@ -147,9 +148,21 @@ Every PR automatically runs:
    ```
 
 3. **Conditional Tests** (after builds pass)
+
    ```bash
    pnpm wallet:backend test --detectOpenHandles --forceExit
    pnpm boutique:backend test --detectOpenHandles --forceExit
+   ```
+
+4. **Helm chart validation** (runs on all PRs touching `helm/**`)
+
+   `helm-charts.yml` runs for both charts in parallel (matrix):
+
+   ```bash
+   helm dependency update helm/<chart>
+   helm lint helm/<chart>
+   helm unittest helm/<chart>
+   helm template <chart> helm/<chart>
    ```
 
 **To replicate locally** (before pushing):
@@ -173,6 +186,7 @@ Releases are created manually via the **"Create Release"** GitHub Actions workfl
    - Determines the version bump (`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` → major)
    - Creates a git tag (`vX.Y.Z`) and a GitHub Release with auto-generated notes
    - Publishes Docker images to GHCR tagged `vX.Y.Z` and `latest`
+   - Triggers `helm-publish.yml` (via `release: published` event), which stamps both Helm charts with the release version, packages them, and pushes the tarballs + updated `index.yaml` to the `charts` branch (served by GitHub Pages at `https://interledger.github.io/testnet`)
 
 All commit types (`chore:`, `docs:`, `ci:`, etc.) trigger at least a patch bump — running "Create Release" always produces a new version.
 
@@ -221,12 +235,26 @@ testnet/
 ├── .github/workflows/
 │   ├── ci.yml                        # PR validation (ESLint + Prettier)
 │   ├── build-publish.yaml            # Build validation on PRs and main
+│   ├── helm-charts.yml               # PR validation for Helm charts (lint + unittest + template render)
+│   ├── helm-publish.yml              # Publishes Helm charts to `charts` branch on GitHub release
 │   ├── release.yml                   # Manual "Create Release" workflow (semantic-release)
 │   ├── deploy.yml                    # Manual deploy to staging/prod (workflow_dispatch)
 │   ├── pr_title_check.yml            # Enforces conventional commit format on PR titles
 │   ├── pr_labeler.yml                # Auto-labels PRs by changed paths
 │   └── setup/action.yml              # Reusable setup action (Node + pnpm + install)
 ├── release.config.js                 # semantic-release config (supports main + release/vX.Y branches)
+│
+├── helm/
+│   ├── testnet-boutique/             # Helm chart for Boutique (backend + frontend)
+│   │   ├── Chart.yaml                # Chart metadata — version stamped automatically on release
+│   │   ├── values.yaml               # Default values (configMaps, secretsMaps, deployments, services)
+│   │   ├── templates/                # Kubernetes manifests (Deployments, Services, ConfigMaps, Secrets)
+│   │   └── tests/                    # helm-unittest test suite
+│   └── testnet-wallet/               # Helm chart for TestNet Wallet (backend + frontend)
+│       ├── Chart.yaml                # Chart metadata — version stamped automatically on release
+│       ├── values.yaml               # Default values (configMaps, secretsMaps, deployments, services)
+│       ├── templates/                # Kubernetes manifests
+│       └── tests/                    # helm-unittest test suite
 │
 ├── local/                            # Local development environment
 │   ├── docker-compose.yml            # Services: Postgres, Redis, Traefik, etc.
@@ -334,6 +362,59 @@ pnpm build
 
 ---
 
+## Helm Charts
+
+The `helm/` directory contains two Kubernetes charts that ship alongside the application code. Both charts depend on the `common` chart from `https://interledger.github.io/charts/interledger`.
+
+| Chart              | Directory                | Images deployed                                   |
+| ------------------ | ------------------------ | ------------------------------------------------- |
+| `testnet-boutique` | `helm/testnet-boutique/` | `test-boutique-backend`, `test-boutique-frontend` |
+| `testnet-wallet`   | `helm/testnet-wallet/`   | `test-wallet-backend`, `test-wallet-frontend`     |
+
+### Chart structure
+
+Each chart follows the same pattern:
+
+- **`values.yaml`** — all configuration lives here: `config.*` (app settings), `configMaps.*` (env var keys → value references), `secretsMaps.*` (secret keys → value references), `deployments.*`, `services.*`
+- **`templates/`** — delegates to `common` helpers (`common.configMapper`, `common.secretMapper`, `common.deployment`)
+- **`tests/`** — `helm-unittest` test suite
+
+### Versioning
+
+`Chart.yaml` contains placeholder versions (`0.0.1`). The `helm-publish.yml` workflow stamps the real version from the GitHub release tag before packaging. **Never edit versions in `Chart.yaml` manually.**
+
+### Local chart testing
+
+```bash
+# Add the common dependency repository
+helm repo add interledger https://interledger.github.io/charts/interledger
+
+# Update dependencies (required before lint/template/unittest)
+helm dependency update helm/testnet-boutique
+helm dependency update helm/testnet-wallet
+
+# Lint
+helm lint helm/testnet-boutique
+
+# Unit tests (requires helm-unittest plugin)
+helm plugin install https://github.com/helm-unittest/helm-unittest.git
+helm unittest helm/testnet-boutique
+
+# Render with default values
+helm template testnet-boutique helm/testnet-boutique
+```
+
+### Chart repository
+
+Charts are published to the `charts` branch of this repository and served via GitHub Pages at `https://interledger.github.io/testnet`. To add the repo:
+
+```bash
+helm repo add testnet https://interledger.github.io/testnet
+helm repo update
+```
+
+---
+
 ## AI Agent Directives
 
 1. **Trust this file first**: Before running grep/search/explore commands, check if information exists here. Minimize search time by following the command sequences documented above.
@@ -363,6 +444,18 @@ pnpm build
    - Editing Node version ← **Requires nvm; never repo-change**
    - Running tests before `pnpm install --frozen-lockfile` ← **Always install first**
    - Ignoring ESLint warnings ← **--max-warnings=0 enforced; must be 0**
+
+7. **Alert on Helm chart compatibility breaks**: When a PR modifies any of the following, cross-check against the Helm charts and **warn the developer explicitly** if a mismatch is found:
+
+   | Change type                                      | Files to check                                                             | Chart locations to verify                                                                                                 |
+   | ------------------------------------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+   | Dockerfile `ENV`, `ARG`, or exposed port changes | `packages/boutique/*/Dockerfile.prod`, `packages/wallet/*/Dockerfile.prod` | `helm/testnet-boutique/values.yaml`, `helm/testnet-wallet/values.yaml` — `deployments.*.ports`, `configMaps.*.contentMap` |
+   | New or renamed env var in application code       | `packages/boutique/backend/src/`, `packages/boutique/frontend/src/`        | `helm/testnet-boutique/values.yaml` — `configMaps.*.contentMap` and `secretsMaps.*.contentMap`                            |
+   | New or renamed env var in application code       | `packages/wallet/backend/src/`, `packages/wallet/frontend/src/`            | `helm/testnet-wallet/values.yaml` — `configMaps.*.contentMap` and `secretsMaps.*.contentMap`                              |
+
+   **What to check**: The `configMaps.*.contentMap[].key` entries are the exact environment variable names injected into the container. The `secretsMaps.*.contentMap[].key` entries are Kubernetes secret keys referenced by name in the deployment `env` block. If the app reads an env var that has no corresponding `key` in the chart (or vice versa), the deployed pod will start with missing or unused configuration.
+
+   **Alert format**: Add a comment to your response such as: _"Warning: `NEW_ENV_VAR` is read by the boutique backend but is not present in `helm/testnet-boutique/values.yaml` configMaps. Add it to `configMaps.backend.contentMap` and a corresponding entry under `config.backend` in `values.yaml`."_
 
 ---
 

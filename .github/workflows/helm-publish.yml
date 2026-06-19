@@ -1,0 +1,55 @@
+name: Helm Publish
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  publish:
+    name: Package and publish charts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Add chart dependencies
+        run: helm repo add interledger https://interledger.github.io/charts/interledger
+
+      - name: Update and package all charts
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          APP_VERSION="$TAG"
+          mkdir -p /tmp/helm-package
+          for chart in helm/testnet-boutique helm/testnet-wallet; do
+            sed -i "s/^version:.*/version: ${VERSION}/" $chart/Chart.yaml
+            sed -i "s/^appVersion:.*/appVersion: \"${APP_VERSION}\"/" $chart/Chart.yaml
+            helm dependency update $chart
+            helm package $chart --destination /tmp/helm-package
+          done
+
+      - name: Checkout charts branch
+        uses: actions/checkout@v5
+        with:
+          ref: charts
+          path: charts-branch
+          token: ${{ secrets.HELM_PUBLISH_TOKEN }}
+
+      - name: Copy packages and update index
+        run: |
+          cp /tmp/helm-package/*.tgz charts-branch/
+          cd charts-branch
+          helm repo index . \
+            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+
+      - name: Commit and push to charts branch
+        run: |
+          cd charts-branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "chore: publish helm charts"
+          git push
