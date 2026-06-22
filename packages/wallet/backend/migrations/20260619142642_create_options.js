@@ -1,18 +1,18 @@
 const options = [
-  { 
-    fieldId: "1acf7723-e1cd-44e7-a5db-3f614ce045ac",
-    value: "5411",
-    label: "Grocery stores / supermarkets" 
+  {
+    fieldId: '1acf7723-e1cd-44e7-a5db-3f614ce045ac',
+    value: '5411',
+    label: 'Grocery stores / supermarkets'
   },
-  { 
-    fieldId: "1acf7723-e1cd-44e7-a5db-3f614ce045ac",
-    value: "5812", 
-    label: "Eating places / restaurants" 
+  {
+    fieldId: '1acf7723-e1cd-44e7-a5db-3f614ce045ac',
+    value: '5812',
+    label: 'Eating places / restaurants'
   },
-  { 
-    fieldId: "1acf7723-e1cd-44e7-a5db-3f614ce045ac",
-    value: "5999",
-    label: "Miscellaneous retail" 
+  {
+    fieldId: '1acf7723-e1cd-44e7-a5db-3f614ce045ac',
+    value: '5999',
+    label: 'Miscellaneous retail'
   }
 ]
 /**

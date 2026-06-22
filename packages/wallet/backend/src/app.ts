@@ -458,7 +458,10 @@ export class App {
     )
 
     // Terminal
-    router.get('/terminals/onboarding', terminalController.getOnboardingFormDefinition)
+    router.get(
+      '/terminals/onboarding',
+      terminalController.getOnboardingFormDefinition
+    )
 
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {

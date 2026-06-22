@@ -10,7 +10,8 @@ export class TerminalController {
     next: NextFunction
   ) => {
     try {
-      const formDefinition = await this.terminalService.getOnboardingFormDefinition()
+      const formDefinition =
+        await this.terminalService.getOnboardingFormDefinition()
       res.status(200).json(formDefinition)
     } catch (error) {
       next(error)

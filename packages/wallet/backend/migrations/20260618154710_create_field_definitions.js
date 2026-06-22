@@ -10,7 +10,7 @@ const fields = [
     format: 'email',
     maxLength: 255
   },
-  { 
+  {
     id: '1acf7723-e1cd-44e7-a5db-3f614ce045ac',
     key: 'merchantCategoryCode',
     label: 'Merchant category',
@@ -31,14 +31,24 @@ exports.up = async function (knex) {
     table.string('key').notNullable()
     table.string('label').notNullable()
     table.string('description').nullable()
-    table.enum('type', ['text', 'email', 'tel', 'number', 'select', 'checkbox', 'date']).notNullable()
+    table
+      .enum('type', [
+        'text',
+        'email',
+        'tel',
+        'number',
+        'select',
+        'checkbox',
+        'date'
+      ])
+      .notNullable()
     table.boolean('required').notNullable().defaultTo(false)
     table.string('placeholder').nullable()
     table.integer('order').notNullable()
 
     table.integer('maxLength').nullable()
     table.string('format').nullable()
-    
+
     table.timestamp('createdAt').notNullable().defaultTo(knex.fn.now())
     table.timestamp('updatedAt').notNullable().defaultTo(knex.fn.now())
   })
