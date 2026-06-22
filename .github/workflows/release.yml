@@ -1,0 +1,210 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  validate:
+    name: Validate branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check branch is releasable
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          if [ "$BRANCH" != "main" ] && ! echo "$BRANCH" | grep -qE '^release/v[0-9]+\.[0-9]+$'; then
+            echo "::error::Releases can only be created from 'main' or 'release/vX.Y' branches. Current branch: $BRANCH"
+            exit 1
+          fi
+          echo "Branch '$BRANCH' is valid for release."
+
+      - name: Enforce patch-only on maintenance branch
+        if: startsWith(github.ref_name, 'release/v')
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          MAJOR_MINOR="${BRANCH#release/v}"
+          MAJOR="${MAJOR_MINOR%%.*}"
+          MINOR="${MAJOR_MINOR##*.}"
+
+          LAST_TAG=$(git tag -l "v${MAJOR}.${MINOR}.*" | sort -V | tail -1)
+          if [ -z "$LAST_TAG" ]; then
+            # No prior patch in this series — fall back to the ancestor tag the branch was cut from.
+            # Without this fallback RANGE="HEAD" would scan all history and trip on historical feat: commits.
+            LAST_TAG=$(git describe --tags --abbrev=0 HEAD 2>/dev/null)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No tags found in repository — skipping commit range validation."
+              exit 0
+            fi
+            echo "No existing v${MAJOR}.${MINOR}.x tags — validating commits since $LAST_TAG"
+          else
+            echo "Last tag in maintenance series: $LAST_TAG"
+          fi
+          RANGE="${LAST_TAG}..HEAD"
+
+          SUBJECTS=$(git log --format="%s" $RANGE)
+          BODIES=$(git log --format="%B" $RANGE)
+
+          ERRORS=""
+
+          if echo "$SUBJECTS" | grep -qE '^feat(\(.+\))?[!:]'; then
+            ERRORS="${ERRORS}feat commits are not allowed on maintenance branches (only patch releases permitted).\n"
+            ERRORS="${ERRORS}Offending commits:\n$(echo "$SUBJECTS" | grep -E '^feat(\(.+\))?[!:]')\n"
+          fi
+
+          if echo "$SUBJECTS" | grep -qE '^[a-z]+(\(.+\))?!:'; then
+            ERRORS="${ERRORS}Breaking change commits (! notation) are not allowed on maintenance branches.\n"
+            ERRORS="${ERRORS}Offending commits:\n$(echo "$SUBJECTS" | grep -E '^[a-z]+(\(.+\))?!:')\n"
+          fi
+
+          if echo "$BODIES" | grep -qE '^BREAKING[- ]CHANGE:'; then
+            ERRORS="${ERRORS}BREAKING CHANGE footer is not allowed on maintenance branches.\n"
+          fi
+
+          if [ -n "$ERRORS" ]; then
+            echo "::error::Maintenance branch validation failed for '$BRANCH':"
+            printf "$ERRORS"
+            exit 1
+          fi
+
+          echo "Validation passed — no major or minor commits found on '$BRANCH'."
+
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    needs: validate
+    timeout-minutes: 10
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.5'
+      - name: Install semantic-release
+        run: |
+          npm install -g \
+            semantic-release@24 \
+            @semantic-release/commit-analyzer@13 \
+            @semantic-release/release-notes-generator@14 \
+            @semantic-release/github@11
+      - name: Run semantic-release
+        id: semantic
+        run: |
+          BEFORE=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -1)
+          semantic-release
+          AFTER=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -1)
+          if [ -n "$AFTER" ] && [ "$AFTER" != "$BEFORE" ]; then
+            echo "new_release_published=true" >> $GITHUB_OUTPUT
+            echo "new_release_version=${AFTER#v}" >> $GITHUB_OUTPUT
+          else
+            echo "new_release_published=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  helm-publish:
+    name: Publish Helm charts
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    uses: ./.github/workflows/helm-publish.yml
+    with:
+      tag_name: v${{ needs.release.outputs.new_release_version }}
+    secrets:
+      HELM_PUBLISH_TOKEN: ${{ secrets.HELM_PUBLISH_TOKEN }}
+
+  publish:
+    name: Publish Docker images
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        package:
+          - name: test-wallet-backend
+            identifier: 'wallet:backend'
+            path: packages/wallet/backend
+          - name: test-wallet-frontend
+            identifier: 'wallet:frontend'
+            path: packages/wallet/frontend
+            port: 4003
+            cookie_name: testnet.cookie
+            backend_url: https://api.wallet.interledger-test.dev
+            open_payments_host: $ilp.interledger-test.dev/
+            auth_host: https://auth.interledger-test.dev
+            gatehub_env: sandbox
+            theme: dark
+          - name: test-wallet-frontend-cards
+            identifier: 'wallet:frontend'
+            path: packages/wallet/frontend
+            port: 4003
+            cookie_name: interledgercards.cookie
+            backend_url: https://api.interledger.cards
+            open_payments_host: $ilp.dev/
+            auth_host: https://auth.interledger.cards
+            gatehub_env: production
+            theme: light
+          - name: test-boutique-frontend
+            identifier: 'boutique:frontend'
+            path: packages/boutique/frontend
+            api_base_url: 'https://api.boutique.interledger-test.dev'
+            currency: 'USD'
+            theme: light
+          - name: test-boutique-frontend-jopacc
+            identifier: 'boutique:frontend'
+            path: packages/boutique/frontend
+            api_base_url: 'https://api-boutique.jopacc.openpayments.directory'
+            currency: 'JOD'
+            theme: light
+          - name: test-boutique-backend
+            identifier: 'boutique:backend'
+            path: packages/boutique/backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          push: true
+          file: ${{ matrix.package.path }}/Dockerfile.prod
+          build-args: |
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_API_BASE_URL={0}', matrix.package.api_base_url) || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_CURRENCY={0}', matrix.package.currency) || '' }}
+            ${{ matrix.package.identifier == 'boutique:frontend' && format('VITE_THEME={0}', matrix.package.theme) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('PORT={0}', matrix.package.port) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('COOKIE_NAME={0}', matrix.package.cookie_name) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_BACKEND_URL={0}', matrix.package.backend_url) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_OPEN_PAYMENTS_HOST={0}', matrix.package.open_payments_host) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:v${{ needs.release.outputs.new_release_version }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest

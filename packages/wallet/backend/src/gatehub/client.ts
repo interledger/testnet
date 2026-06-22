@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto'
 import {
   HTTP_METHODS,
+  IApprovePendingTransaction,
   IApproveUserToGatewayRequest,
   IApproveUserToGatewayResponse,
   IConnectUserToGatewayResponse,
@@ -17,6 +18,7 @@ import {
   IGetWalletResponse,
   IOverrideUserRiskLevelRequest,
   IOverrideUserRiskLevelResponse,
+  IPendingTransaction,
   IRatesResponse,
   ITokenRequest,
   ITokenResponse,
@@ -328,6 +330,65 @@ export class GateHubClient {
       {
         managedUserUuid
       }
+    )
+
+    return response
+  }
+
+  async approvePendingTransactions(
+    transactionUuid: string
+  ): Promise<IApprovePendingTransaction> {
+    const url = `${this.apiUrl}/core/v1/transactions/${transactionUuid}/serviceStatus`
+
+    const body = {
+      serviceStatus: 3,
+      substatus: 0,
+      reason: 'test'
+    }
+
+    const response = await this.request<IApprovePendingTransaction>(
+      'PUT',
+      url,
+      JSON.stringify(body)
+    )
+
+    if (response.state !== 4) {
+      throw new Error(`Approval failed, transactionUuid: ${transactionUuid}`)
+    }
+
+    return response
+  }
+
+  async getPendingTransactions(): Promise<IPendingTransaction[]> {
+    const url = `${this.apiUrl}/core/v1/gateways/${this.env.GATEHUB_GATEWAY_UUID}/transactions`
+
+    const date = new Date()
+    const currentDay = date.toISOString().split('T')[0]
+    date.setDate(date.getDate() + 1)
+    const nextDay = date.toISOString().split('T')[0]
+
+    const payload = {
+      filters: {
+        state: {
+          value: 3
+        },
+        created_at: { from: currentDay, to: nextDay },
+        amount: {},
+        define_range: {
+          offset: 0,
+          limit: 20
+        },
+        order: {
+          field: 'id',
+          direction: 'desc'
+        }
+      }
+    }
+
+    const response = await this.request<IPendingTransaction[]>(
+      'POST',
+      url,
+      JSON.stringify(payload)
     )
 
     return response

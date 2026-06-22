@@ -34,7 +34,6 @@ const envSchema = z.object({
   PAYMENT_POINTER: httpsUrlString,
   KEY_ID: requiredString,
   PRIVATE_KEY: base64String,
-  REDIS_URL: z.string().url(),
   USE_HTTP_FOR_OPEN_PAYMENTS: z.boolean().optional()
 })
 

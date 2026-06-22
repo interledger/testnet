@@ -1,6 +1,9 @@
 import ReactDOM from 'react-dom/client'
 import { App } from './app/index.tsx'
 import './main.css'
+import { THEME } from '@/lib/constants'
+
+document.documentElement.classList.add(THEME)
 
 // fonts
 import './fonts/DejaVuSansMono.ttf'

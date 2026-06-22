@@ -479,6 +479,22 @@ export class App {
     return app
   }
 
+  private async approvePendingTransactions() {
+    const transactionService = this.container.resolve('gateHubService')
+    const approvalInterval = 300000 // 5 Minutes
+    const logger = this.container.resolve('logger')
+    try {
+      await transactionService.approveTransactions()
+    } catch (e) {
+      logger.error(e)
+    } finally {
+      setTimeout(
+        () => this.approvePendingTransactions(),
+        approvalInterval
+      ).unref()
+    }
+  }
+
   private async processPendingTransactions() {
     const transactionService = this.container.resolve('transactionService')
     return transactionService
@@ -495,6 +511,7 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
+    process.nextTick(() => this.approvePendingTransactions())
   }
 
   ensureGateHubProductionEnv = async (
