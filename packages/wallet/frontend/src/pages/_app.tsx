@@ -11,6 +11,7 @@ import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
 import { FEATURES_ENABLED } from '@/utils/constants'
 import { toast } from '@/lib/hooks/useToast'
+
 const font = localFont({
   src: [
     {
