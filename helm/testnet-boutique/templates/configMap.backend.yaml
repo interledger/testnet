@@ -1,0 +1,3 @@
+{{- define "testnet-boutique.backend.ConfigMap" -}}
+{{- end }}
+{{- include "common.configMapper" (list . .Values.configMaps.backend "testnet-boutique.backend.ConfigMap") }}

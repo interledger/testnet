@@ -1,0 +1,23 @@
+apiVersion: v2
+name: testnet-boutique
+description: Boutique Helm chart for Kubernetes
+home: https://github.com/interledger/testnet
+
+type: application
+
+# Versions are automatically set during publishing pipeline
+version: 0.0.1
+appVersion: 'v0.0.1'
+
+dependencies:
+  - name: common
+    version: 0.9.0
+    repository: https://interledger.github.io/charts/interledger
+
+maintainers:
+  - name: golobitch
+    email: tadej.golobic@gatehub.net
+  - name: beniaminmunteanu
+    email: beniamin@interledger.foundation
+  - name: Stephan Butler
+    email: stephan@interledger.foundation

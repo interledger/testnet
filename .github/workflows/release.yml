@@ -118,6 +118,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  helm-publish:
+    name: Publish Helm charts
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    uses: ./.github/workflows/helm-publish.yml
+    with:
+      tag_name: v${{ needs.release.outputs.new_release_version }}
+    secrets:
+      HELM_PUBLISH_TOKEN: ${{ secrets.HELM_PUBLISH_TOKEN }}
+
   publish:
     name: Publish Docker images
     runs-on: ubuntu-latest

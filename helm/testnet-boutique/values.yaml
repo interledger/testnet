@@ -1,0 +1,174 @@
+# fullnameOverride: "testnet-boutique"
+
+imageOverride:
+  repository: ghcr.io/interledger
+
+config:
+  frontend:
+    port: 4004
+    apiBaseUrl: 'https://boutique.example.com'
+    theme: 'dark'
+    currency: 'USD'
+
+  backend:
+    # If true, the chart will create the secrets using the `values` provided by rendering the secretsMaps section.
+    # If false, the chart will not create the secrets and it is assumed that they already exist. Use this if you
+    # are using an external secret management system like HashiCorp Vault or AWS Secrets Manager.
+    shouldCreateSecrets: false
+
+    nodeEnv: production
+    port: 3004
+
+    database:
+      url:
+        value: ''
+        secretKeyRef:
+          name: '{{ include "common.fullname" . }}-backend'
+          key: database.url
+
+    frontendUrl: 'https://rafiki.boutique'
+    keyId: '2f789ecd-8845-4ff0-a1c4-16b7a1ef06c2'
+    paymentPointer: 'https://ilp.rafiki.money/boutique'
+
+    privateKey:
+      value: ''
+      secretKeyRef:
+        name: '{{ include "common.fullname" . }}-backend'
+        key: privateKey
+
+deployments:
+  backend:
+    name: backend
+    enabled: true
+    replicaCount: 1
+    image:
+      name: test-boutique-backend
+      # tag: "v0.1.65"   # Use this to override the image tag for just this image
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: database.url
+      - name: PRIVATE_KEY
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: privateKey
+    envFrom:
+      - configMapRef:
+          name: '{{ include "common.fullname" . }}-backend'
+    ports:
+      - name: http
+        containerPort: 3004
+        protocol: TCP
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 1
+    securityContext: {}
+    nodeSelector: {}
+    serviceAccount: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      cpuUtilizationPercentage: 80
+      memoryUtilizationPercentage: 80
+
+  frontend:
+    name: frontend
+    enabled: true
+    replicaCount: 1
+    image:
+      name: test-boutique-frontend
+      # tag: "v0.1.65"   # Use this to override the image tag for just this image
+    imagePullPolicy: IfNotPresent
+    envFrom:
+      - configMapRef:
+          name: '{{ include "common.fullname" . }}-frontend'
+    ports:
+      - name: http
+        containerPort: 4004
+        protocol: TCP
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 500m
+      limits:
+        memory: 512Mi
+        cpu: 1000m
+    securityContext: {}
+    nodeSelector: {}
+    serviceAccount: {}
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      cpuUtilizationPercentage: 80
+      memoryUtilizationPercentage: 80
+
+services:
+  backend:
+    name: backend-service
+    enabled: true
+    type: ClusterIP
+    annotations: {}
+    ports:
+      - port: 3004
+        targetPort: 3004
+        protocol: TCP
+        name: http
+
+  frontend:
+    name: frontend-service
+    enabled: true
+    annotations: {}
+    type: ClusterIP
+    ports:
+      - port: 4004
+        targetPort: 4004
+        protocol: TCP
+        name: http
+
+# This section of the values file defines Kubernetes config maps that will be created
+# for each service (backend and frontend).
+configMaps:
+  backend:
+    name: 'backend'
+    contentMap:
+      - key: NODE_ENV
+        valueRef: config.backend.nodeEnv
+      - key: PORT
+        valueRef: config.backend.port
+      - key: FRONTEND_URL
+        valueRef: config.backend.frontendUrl
+      - key: KEY_ID
+        valueRef: config.backend.keyId
+      - key: PAYMENT_POINTER
+        valueRef: config.backend.paymentPointer
+
+  frontend:
+    name: 'frontend'
+    contentMap:
+      - key: API_BASE_URL
+        valueRef: config.frontend.apiBaseUrl
+      - key: THEME
+        valueRef: config.frontend.theme
+      - key: CURRENCY
+        valueRef: config.frontend.currency
+
+# This section of the values file defines Kubernetes secrets that will be created
+# when the shouldCreateSecrets value is true for the backend service.
+secretsMaps:
+  backend:
+    name: backend
+    contentMap:
+      - key: database.url
+        valueRef: config.backend.database.url.value
+      - key: privateKey
+        valueRef: config.backend.privateKey.value
