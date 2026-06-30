@@ -21,6 +21,22 @@ import { transformBalance, applyScale } from '../utils/helpers'
 import { Account } from '../account/model'
 import { UniqueViolationError } from 'objection'
 
+interface RefundValidationResult {
+  refund: StripeRefundObject
+  paymentIntentId: string
+  originalTx: Transaction
+  account: Account
+  scaledAmount: number
+  refundValue: bigint
+  currency: string
+  description: string
+}
+
+interface RefundGateHubWalletDetails {
+  gateHubWalletId: string
+  gateHubUserId: string
+}
+
 export enum EventType {
   payment_intent_canceled = 'payment_intent.canceled',
   payment_intent_payment_failed = 'payment_intent.payment_failed',
@@ -209,19 +225,45 @@ export class StripeService implements IStripeService {
   }
 
   private async processSucceededRefund(refund: StripeRefundObject) {
+    if (await this.isRefundAlreadyProcessed(refund.id)) {
+      return
+    }
+
+    const validated = await this.validateRefund(refund)
+    if (!validated) {
+      return
+    }
+
+    const gateHubWallet = await this.getRefundGateHubWallet(validated)
+    if (!gateHubWallet) {
+      return
+    }
+
+    if (!(await this.hasSufficientBalanceForRefund(validated))) {
+      return
+    }
+
+    await this.reverseAndRecordRefund(validated, gateHubWallet)
+  }
+
+  private async isRefundAlreadyProcessed(refundId: string): Promise<boolean> {
     const existingRefund = await Transaction.query().findOne({
-      paymentId: refund.id,
+      paymentId: refundId,
       source: 'Stripe'
     })
 
     if (existingRefund) {
-      this.logRefundAlreadyProcessed(refund.id)
-      return
+      this.logRefundAlreadyProcessed(refundId)
+      return true
     }
 
-    const paymentIntentId = refund.payment_intent
-    const description = this.refundDescription(paymentIntentId)
+    return false
+  }
 
+  private async validateRefund(
+    refund: StripeRefundObject
+  ): Promise<RefundValidationResult | undefined> {
+    const paymentIntentId = refund.payment_intent
     const originalTx = await Transaction.query().findOne({
       paymentId: paymentIntentId,
       source: 'Stripe',
@@ -269,18 +311,36 @@ export class StripeService implements IStripeService {
       return
     }
 
-    let gateHubWalletId: string
-    let gateHubUserId: string
+    return {
+      refund,
+      paymentIntentId,
+      originalTx,
+      account,
+      scaledAmount,
+      refundValue,
+      currency,
+      description: this.refundDescription(paymentIntentId)
+    }
+  }
+
+  private async getRefundGateHubWallet(
+    validated: RefundValidationResult
+  ): Promise<RefundGateHubWalletDetails | undefined> {
+    const { refund, paymentIntentId, originalTx, account } = validated
+
     try {
       const walletAddress = await this.walletAddressService.getById({
-        walletAddressId: originalTx.walletAddressId,
+        walletAddressId: originalTx.walletAddressId!,
         accountId: originalTx.accountId,
         userId: account.userId
       })
       const gateHubWallet =
         await this.accountService.getGateHubWalletAddress(walletAddress)
-      gateHubWalletId = gateHubWallet.gateHubWalletId
-      gateHubUserId = gateHubWallet.gateHubUserId
+
+      return {
+        gateHubWalletId: gateHubWallet.gateHubWalletId,
+        gateHubUserId: gateHubWallet.gateHubUserId
+      }
     } catch (error) {
       this.logger.error(
         'Wallet address not found or inactive for original payment',
@@ -293,6 +353,13 @@ export class StripeService implements IStripeService {
       )
       return
     }
+  }
+
+  private async hasSufficientBalanceForRefund(
+    validated: RefundValidationResult
+  ): Promise<boolean> {
+    const { refund, paymentIntentId, account, refundValue, scaledAmount } =
+      validated
 
     const availableBalance =
       await this.accountService.getAccountBalance(account)
@@ -307,20 +374,37 @@ export class StripeService implements IStripeService {
         required_value: refundValue.toString(),
         available_value: availableValue.toString()
       })
-      return
+      return false
     }
+
+    return true
+  }
+
+  private async reverseAndRecordRefund(
+    validated: RefundValidationResult,
+    gateHubWallet: RefundGateHubWalletDetails
+  ): Promise<void> {
+    const {
+      refund,
+      paymentIntentId,
+      originalTx,
+      scaledAmount,
+      refundValue,
+      currency,
+      description
+    } = validated
 
     try {
       await this.gateHubClient.createTransaction(
         {
           amount: scaledAmount,
           vault_uuid: this.gateHubClient.getVaultUuid(currency),
-          sending_address: gateHubWalletId,
+          sending_address: gateHubWallet.gateHubWalletId,
           receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
           type: TransactionTypeEnum.HOSTED,
           message: 'Stripe Refund'
         },
-        gateHubUserId
+        gateHubWallet.gateHubUserId
       )
 
       await Transaction.query().insert({
