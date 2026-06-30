@@ -150,6 +150,26 @@ describe('Stripe Service', (): void => {
     })
   }
 
+  const spyOnTransactionWithOutgoingRefundInsertFailure = (
+    rejectInsert: () => Promise<unknown>
+  ): jest.SpyInstance => {
+    const originalQuery = Transaction.query.bind(Transaction)
+
+    return jest.spyOn(Transaction, 'query').mockImplementation(() => {
+      const qb = originalQuery()
+      const originalInsert = qb.insert.bind(qb)
+
+      return Object.assign(qb, {
+        insert: (data: Partial<Transaction>) => {
+          if (data.paymentId === 're_123456' && data.type === 'OUTGOING') {
+            return rejectInsert()
+          }
+          return originalInsert(data)
+        }
+      })
+    })
+  }
+
   beforeAll(async (): Promise<void> => {
     const testEnv = { ...env, USE_STRIPE: true }
     bindings = await createContainer(testEnv)
@@ -714,30 +734,15 @@ describe('Stripe Service', (): void => {
       await insertOriginalStripePayment()
       const webhook = createMockRefundWebhook(EventType.refund_updated)
 
-      const { Transaction: TransactionModel } = jest.requireActual<
-        typeof import('@/transaction/model')
-      >('@/transaction/model')
-      const originalQuery = TransactionModel.query.bind(TransactionModel)
-      const querySpy = jest
-        .spyOn(Transaction, 'query')
-        .mockImplementation(() => {
-          const qb = originalQuery()
-          const originalInsert = qb.insert.bind(qb)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(qb as any).insert = (data: Partial<Transaction>) => {
-            if (data.paymentId === 're_123456' && data.type === 'OUTGOING') {
-              // db-errors constructor shape; objection types only expose string overload
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const error = new (UniqueViolationError as any)({
-                nativeError: new Error('duplicate'),
-                client: 'postgres'
-              })
-              return Promise.reject(error)
-            }
-            return originalInsert(data)
-          }
-          return qb
+      const querySpy = spyOnTransactionWithOutgoingRefundInsertFailure(() => {
+        // db-errors constructor shape; objection types only expose string overload
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error = new (UniqueViolationError as any)({
+          nativeError: new Error('duplicate'),
+          client: 'postgres'
         })
+        return Promise.reject(error)
+      })
 
       try {
         await expect(stripeService.onWebHook(webhook)).resolves.toBeUndefined()
@@ -782,24 +787,9 @@ describe('Stripe Service', (): void => {
       await insertOriginalStripePayment()
       const webhook = createMockRefundWebhook(EventType.refund_updated)
 
-      const { Transaction: TransactionModel } = jest.requireActual<
-        typeof import('@/transaction/model')
-      >('@/transaction/model')
-      const originalQuery = TransactionModel.query.bind(TransactionModel)
-      const querySpy = jest
-        .spyOn(Transaction, 'query')
-        .mockImplementation(() => {
-          const qb = originalQuery()
-          const originalInsert = qb.insert.bind(qb)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(qb as any).insert = (data: Partial<Transaction>) => {
-            if (data.paymentId === 're_123456' && data.type === 'OUTGOING') {
-              return Promise.reject(new Error('DB error'))
-            }
-            return originalInsert(data)
-          }
-          return qb
-        })
+      const querySpy = spyOnTransactionWithOutgoingRefundInsertFailure(() =>
+        Promise.reject(new Error('DB error'))
+      )
 
       try {
         await expect(stripeService.onWebHook(webhook)).rejects.toThrow(
