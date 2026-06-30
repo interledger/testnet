@@ -257,5 +257,151 @@ describe('Stripe Controller', () => {
       expect(res.statusCode).toBe(400)
       expect(mockDeps.stripeService.onWebHook).not.toHaveBeenCalled()
     })
+
+    it('should verify and process refund.updated webhook successfully', async () => {
+      const mockDeps = createMockStripeControllerDeps()
+
+      mockConstructEvent.mockReturnValue({})
+
+      req.body = Buffer.from(
+        JSON.stringify({
+          id: 'webhookId123',
+          type: EventType.refund_updated,
+          data: {
+            object: {
+              id: 're_123456',
+              amount: 500,
+              currency: 'usd',
+              status: 'succeeded',
+              payment_intent: 'pi_123456',
+              charge: 'ch_123456'
+            }
+          }
+        })
+      )
+
+      await stripeController.onWebHook(req, res, next)
+
+      expect(mockDeps.stripeService.onWebHook).toHaveBeenCalledWith({
+        id: 'webhookId123',
+        type: EventType.refund_updated,
+        data: {
+          object: {
+            id: 're_123456',
+            amount: 500,
+            currency: 'usd',
+            status: 'succeeded',
+            payment_intent: 'pi_123456',
+            charge: 'ch_123456'
+          }
+        }
+      })
+      expect(res.statusCode).toBe(200)
+    })
+
+    it('should verify and process refund.created webhook successfully', async () => {
+      const mockDeps = createMockStripeControllerDeps()
+
+      mockConstructEvent.mockReturnValue({})
+
+      req.body = Buffer.from(
+        JSON.stringify({
+          id: 'webhookId123',
+          type: EventType.refund_created,
+          data: {
+            object: {
+              id: 're_123456',
+              amount: 500,
+              currency: 'usd',
+              status: 'pending',
+              payment_intent: 'pi_123456',
+              charge: 'ch_123456'
+            }
+          }
+        })
+      )
+
+      await stripeController.onWebHook(req, res, next)
+
+      expect(mockDeps.stripeService.onWebHook).toHaveBeenCalledWith({
+        id: 'webhookId123',
+        type: EventType.refund_created,
+        data: {
+          object: {
+            id: 're_123456',
+            amount: 500,
+            currency: 'usd',
+            status: 'pending',
+            payment_intent: 'pi_123456',
+            charge: 'ch_123456'
+          }
+        }
+      })
+      expect(res.statusCode).toBe(200)
+    })
+
+    it('should fail if refund webhook is missing required fields', async () => {
+      const mockDeps = createMockStripeControllerDeps()
+
+      mockConstructEvent.mockReturnValue({})
+
+      req.body = Buffer.from(
+        JSON.stringify({
+          id: 'webhookId123',
+          type: EventType.refund_updated,
+          data: {
+            object: {
+              id: 're_123456',
+              status: 'succeeded',
+              payment_intent: 'pi_123456'
+            }
+          }
+        })
+      )
+
+      await stripeController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(mockConstructEvent).toHaveBeenCalled()
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(mockDeps.logger.error).toHaveBeenCalled()
+      expect(res.statusCode).toBe(400)
+      expect(mockDeps.stripeService.onWebHook).not.toHaveBeenCalled()
+    })
+
+    it('should fail if refund webhook is missing payment_intent', async () => {
+      const mockDeps = createMockStripeControllerDeps()
+
+      mockConstructEvent.mockReturnValue({})
+
+      req.body = Buffer.from(
+        JSON.stringify({
+          id: 'webhookId123',
+          type: EventType.refund_updated,
+          data: {
+            object: {
+              id: 're_123456',
+              amount: 500,
+              currency: 'usd',
+              status: 'succeeded',
+              charge: 'ch_123456'
+            }
+          }
+        })
+      )
+
+      await stripeController.onWebHook(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+
+      expect(mockConstructEvent).toHaveBeenCalled()
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(mockDeps.logger.error).toHaveBeenCalled()
+      expect(res.statusCode).toBe(400)
+      expect(mockDeps.stripeService.onWebHook).not.toHaveBeenCalled()
+    })
   })
 })
