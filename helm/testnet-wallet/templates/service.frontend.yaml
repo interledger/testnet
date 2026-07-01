@@ -1,0 +1,5 @@
+{{- define "testnet-wallet.frontend.service" -}}
+{{- end }}
+{{- if .Values.services.frontend.enabled }}
+{{- include "common.svc" (list . .Values.services.frontend .Values.deployments.frontend "testnet-wallet.frontend.service") }}
+{{- end }}
