@@ -80,7 +80,6 @@ export const DepositDialog = ({
                   After hitting the ~$10,000 USD daily deposit limit,
                   you&apos;ll receive your funds in about 5 minutes.
                 </p>
-
                 <Form
                   form={depositForm}
                   onSubmit={async (data) => {
