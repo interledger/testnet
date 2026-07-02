@@ -92,11 +92,23 @@ function buildEnv() {
   const fileEnv = loadDotEnv(envPath)
   const get = (key, fallback) => process.env[key] ?? fileEnv[key] ?? fallback
 
+  // Default to 127.0.0.1 (not "localhost"): Node 18+ resolves "localhost"
+  // verbatim and may prefer IPv6 (::1), which fails against Docker's
+  // IPv4-only published ports and makes every request hang/ECONNREFUSED.
   const env = {
-    GRAPHQL_ENDPOINT: get('GRAPHQL_ENDPOINT', 'http://localhost:3011/graphql'),
+    GRAPHQL_ENDPOINT: get('GRAPHQL_ENDPOINT', 'http://127.0.0.1:3011/graphql'),
     RAFIKI_HEALTH_ENDPOINT: get(
       'RAFIKI_HEALTH_ENDPOINT',
-      'http://localhost:3011/healthz'
+      'http://127.0.0.1:3011/healthz'
+    ),
+    // Readiness gating (tunable for slow first-runs, e.g. macOS/Docker Desktop
+    // where a fresh Postgres volume takes a while to initialise).
+    READINESS_INITIAL_DELAY_MS: Number(
+      get('RAFIKI_SETUP_INITIAL_DELAY_MS', '3000')
+    ),
+    READINESS_MAX_ATTEMPTS: Number(get('RAFIKI_SETUP_MAX_ATTEMPTS', '90')),
+    READINESS_RETRY_INTERVAL_MS: Number(
+      get('RAFIKI_SETUP_RETRY_INTERVAL_MS', '2000')
     ),
     ADMIN_API_SECRET: get('ADMIN_API_SECRET', 'secret-key'),
     ADMIN_SIGNATURE_VERSION: get('ADMIN_SIGNATURE_VERSION', '1'),
@@ -132,9 +144,9 @@ function sleep(ms) {
 }
 
 async function waitForRafikiHealth(env) {
-  const initialDelayMs = 3000
-  const maxAttempts = 30
-  const retryIntervalMs = 2000
+  const initialDelayMs = env.READINESS_INITIAL_DELAY_MS
+  const maxAttempts = env.READINESS_MAX_ATTEMPTS
+  const retryIntervalMs = env.READINESS_RETRY_INTERVAL_MS
 
   logInfo(
     `Waiting ${initialDelayMs / 1000}s for containers to initialise before polling health`
@@ -176,6 +188,39 @@ async function waitForRafikiHealth(env) {
 
   throw new Error(
     `Rafiki health endpoint did not return OK after ${initialDelayMs / 1000}s initial wait + ${maxAttempts} attempts`
+  )
+}
+
+// /healthz only proves Postgres/Redis are reachable — not that the admin
+// GraphQL API is answering authenticated (signed) requests yet. Probe a real
+// signed query so subsequent mutations don't fail on a transient 401/5xx.
+async function waitForAdminApiReady(env) {
+  const maxAttempts = env.READINESS_MAX_ATTEMPTS
+  const retryIntervalMs = env.READINESS_RETRY_INTERVAL_MS
+
+  logInfo('Probing Rafiki admin GraphQL API for readiness')
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await graphqlRequest(
+        { query: getTenantQuery, variables: { id: env.OPERATOR_TENANT_ID } },
+        env
+      )
+      logInfo('Rafiki admin GraphQL API is ready')
+      return
+    } catch (err) {
+      logInfo(
+        `Admin API not ready yet (${attempt}/${maxAttempts}): ${err.message}`
+      )
+    }
+
+    if (attempt < maxAttempts) {
+      await sleep(retryIntervalMs)
+    }
+  }
+
+  throw new Error(
+    `Rafiki admin GraphQL API did not become ready after ${maxAttempts} attempts`
   )
 }
 
@@ -403,8 +448,10 @@ async function ensureAssets(env) {
   logInfo('Target assets:', assetsToEnsure)
   let current = { assets: { edges: [] } }
   try {
+    // Rafiki caps pagination `first` at 100 (baseModel.ts throws
+    // "Pagination index error" above that). We only ensure a couple of assets.
     current = await graphqlRequest(
-      { query: listAssetsQuery, variables: { first: 200 } },
+      { query: listAssetsQuery, variables: { first: 100 } },
       env
     )
     logInfo(
@@ -532,6 +579,7 @@ async function ensureLiquidity(env) {
   logInfo('Starting Rafiki setup script')
   logInfo('Rafiki admin endpoint:', env.GRAPHQL_ENDPOINT)
   await waitForRafikiHealth(env)
+  await waitForAdminApiReady(env)
   await ensureTenant(env)
   await ensureAssets(env)
   await ensureLiquidity(env)
