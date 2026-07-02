@@ -16,6 +16,7 @@ import { getCurrencySymbol } from '@/utils/helpers'
 import { accountService, depositSchema } from '@/lib/api/account'
 import { useToast } from '@/lib/hooks/useToast'
 import { MoneyBird } from '../icons/MoneyBird'
+import { Warning } from '../icons/Warning'
 
 type DepositDialogProps = Pick<DialogProps, 'onClose'> & {
   accountId: string
@@ -70,6 +71,14 @@ export const DepositDialog = ({
                 </DialogTitle>
                 <p className="text-xs text-center">
                   A small fee might be applied when making a deposit.
+                </p>
+                <p className=" text-xs text-center">
+                  <Warning
+                    strokeWidth={2}
+                    className="mr-2 inline-flex h-7 w-7 items-center justify-center"
+                  />
+                  After hitting the ~$10,000 USD daily deposit limit,
+                  you&apos;ll receive your funds in about 5 minutes.
                 </p>
                 <Form
                   form={depositForm}
