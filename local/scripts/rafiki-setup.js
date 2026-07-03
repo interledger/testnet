@@ -103,13 +103,18 @@ function buildEnv() {
     ),
     // Readiness gating (tunable for slow first-runs, e.g. macOS/Docker Desktop
     // where a fresh Postgres volume takes a while to initialise).
-    READINESS_INITIAL_DELAY_MS: Number(
-      get('RAFIKI_SETUP_INITIAL_DELAY_MS', '3000')
-    ),
-    READINESS_MAX_ATTEMPTS: Number(get('RAFIKI_SETUP_MAX_ATTEMPTS', '90')),
-    READINESS_RETRY_INTERVAL_MS: Number(
-      get('RAFIKI_SETUP_RETRY_INTERVAL_MS', '2000')
-    ),
+    READINESS_INITIAL_DELAY_MS: (() => {
+      const n = Number.parseInt(get('RAFIKI_SETUP_INITIAL_DELAY_MS', '3000'), 10)
+      return Number.isFinite(n) && n >= 0 ? n : 3000
+    })(),
+    READINESS_MAX_ATTEMPTS: (() => {
+      const n = Number.parseInt(get('RAFIKI_SETUP_MAX_ATTEMPTS', '90'), 10)
+      return Number.isFinite(n) && n > 0 ? n : 90
+    })(),
+    READINESS_RETRY_INTERVAL_MS: (() => {
+      const n = Number.parseInt(get('RAFIKI_SETUP_RETRY_INTERVAL_MS', '2000'), 10)
+      return Number.isFinite(n) && n >= 0 ? n : 2000
+    })(),
     ADMIN_API_SECRET: get('ADMIN_API_SECRET', 'secret-key'),
     ADMIN_SIGNATURE_VERSION: get('ADMIN_SIGNATURE_VERSION', '1'),
     OPERATOR_TENANT_ID: get(
