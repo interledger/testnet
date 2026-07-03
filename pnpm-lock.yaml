@@ -1704,7 +1704,7 @@ packages:
 
   '@interledger/tlv-kit@1.0.3':
     resolution: {integrity: sha512-wOzYIsOCrFlUFtfEnacwYXxcMYYIYewQPycUm7GlXXKSobJziq1l4yGsw1zBWt4VVMfqLoLLsyeyVSsoLIZZ5g==}
-    engines: {node: '20', npm: pnpm, pnpm: ^9.15.4, yarn: pnpm}
+    engines: {node: '^20', npm: pnpm, pnpm: ^9.15.4, yarn: pnpm}
 
   '@ioredis/commands@1.4.0':
     resolution: {integrity: sha512-aFT2yemJJo+TZCmieA7qnYGQooOS7QfNmYrzGtsYd3g9j5iDP8AimYYAesf79ohjbLG12XxC4nG5DyEnC88AsQ==}
