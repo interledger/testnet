@@ -27,8 +27,10 @@ jobs:
       # into the browser trust store, so tell Playwright to ignore HTTPS errors
       # (honoured by e2e/playwright.config.ts).
       PLAYWRIGHT_IGNORE_HTTPS_ERRORS: 'true'
-      # Allow Node (host apps + e2e helpers) to talk to the self-signed stack.
-      NODE_TLS_REJECT_UNAUTHORIZED: '0'
+      # NODE_TLS_REJECT_UNAUTHORIZED=0 is intentionally NOT set here: at job
+      # scope it would also disable TLS verification for dependency downloads in
+      # `pnpm install` / `pnpm build`. It is set per-step only where Node must
+      # talk to the self-signed local stack.
     steps:
       - uses: actions/checkout@v5
 
@@ -38,27 +40,42 @@ jobs:
       - name: Build all packages
         run: pnpm build
 
-      # docker compose is invoked with `--env-file ./local/.env` (see the
-      # `compose` script in package.json). That file is untracked, so create an
-      # empty one — every service default is baked in as ${VAR:-default} and
-      # points at the in-stack MockGatehub, so no secrets are required.
+      # docker compose is invoked with `--env-file ./local/.env.local
+      # --env-file ./local/.env` (see the `compose` script in package.json).
+      # .env.local is committed but .env is untracked, so create an empty one —
+      # every service default is baked in as ${VAR:-default} and points at the
+      # in-stack MockGatehub, so no secrets are required.
       - name: Create local docker env file
         run: touch local/.env
 
       # Brings up the full Docker stack (Postgres, Redis, Traefik, Rafiki,
       # MockGatehub), adds /etc/hosts aliases, generates + trusts the TLS certs,
-      # and runs the Rafiki asset setup script.
+      # and runs the Rafiki asset setup script. The Rafiki asset step
+      # (local/scripts/rafiki-setup.js) calls the self-signed HTTPS stack, so it
+      # needs TLS verification disabled.
       - name: Bring up local stack
         run: pnpm local:setup
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: '0'
 
       # The wallet + boutique apps run on the host (not in Docker) and are what
-      # Traefik proxies testnet.test / api.testnet.test to. `pnpm dev` reads the
-      # committed packages/*/.env.local files. Run it detached — the job teardown
-      # kills it when the runner is torn down.
+      # Traefik proxies testnet.test / api.testnet.test to. This mirrors the
+      # `dev` script minus its `pnpm local:up` step — the Docker stack is already
+      # up from local:setup, so we start only the four host processes. They read
+      # the committed packages/*/.env.local files. Run detached — the job
+      # teardown kills them when the runner is torn down.
       - name: Start wallet and boutique apps
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: '0'
         run: |
           mkdir -p "$RUNNER_TEMP/testnet-logs"
-          nohup pnpm dev > "$RUNNER_TEMP/testnet-logs/dev.log" 2>&1 &
+          nohup pnpm exec concurrently \
+            -n "WALLET-BE,WALLET-FE,BOUTIQUE-BE,BOUTIQUE-FE" \
+            "pnpm wallet:backend dev" \
+            "pnpm wallet:frontend dev" \
+            "pnpm boutique:backend dev" \
+            "pnpm boutique:frontend dev" \
+            > "$RUNNER_TEMP/testnet-logs/dev.log" 2>&1 &
           echo "Started host apps (pid $!)"
 
       - name: Wait for the stack to be ready
@@ -91,8 +108,13 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter @interledger/testnet-e2e exec playwright install --with-deps chromium
 
+      # NODE_TLS_REJECT_UNAUTHORIZED=0 lets any Node-based test helpers reach the
+      # self-signed https://testnet.test endpoints (the browser itself is covered
+      # by PLAYWRIGHT_IGNORE_HTTPS_ERRORS).
       - name: Run E2E tests
         run: pnpm e2e:test
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: '0'
 
       - name: Dump service logs on failure
         if: failure()
