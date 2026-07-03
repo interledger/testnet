@@ -138,6 +138,43 @@ export class GateHubService {
     }
   }
 
+  async approveTransactions() {
+    try {
+      const transactions = await this.gateHubClient.getPendingTransactions()
+      const recevivingWalletAddresses = transactions.map(
+        (trx) => trx.receiving_wallet.address
+      )
+      const walletIds = await this.accountService.checkGateHubWalletIds(
+        recevivingWalletAddresses
+      )
+
+      if (!walletIds.length) {
+        return
+      }
+
+      const filteredTransactions = transactions.filter((trx) =>
+        walletIds.includes(trx.receiving_wallet.address)
+      )
+      this.logger.info(
+        `Found ${filteredTransactions.length} transactions to process.`
+      )
+
+      await Promise.all(
+        filteredTransactions.map(async (transaction) => {
+          try {
+            await this.gateHubClient.approvePendingTransactions(
+              transaction.uuid
+            )
+          } catch (err) {
+            this.logger.error(`Error: ${err}`)
+          }
+        })
+      )
+    } catch (err) {
+      this.logger.error(`Automatic approval failed - ${err}`)
+    }
+  }
+
   private async handleCardTransactionWebhook(
     user: Partial<User>,
     data: ICardTransactionWebhookData
