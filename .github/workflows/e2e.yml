@@ -1,0 +1,116 @@
+name: E2E
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright E2E (local stack)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Non-interactive OpenSSL subject values when local:certs generates the
+      # self-signed TLS certificates (see local/scripts/local-tools.sh).
+      HEADLESS: '1'
+      # The Traefik proxy serves a self-signed cert. In CI we don't wire the cert
+      # into the browser trust store, so tell Playwright to ignore HTTPS errors
+      # (honoured by e2e/playwright.config.ts).
+      PLAYWRIGHT_IGNORE_HTTPS_ERRORS: 'true'
+      # Allow Node (host apps + e2e helpers) to talk to the self-signed stack.
+      NODE_TLS_REJECT_UNAUTHORIZED: '0'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node, PNPM and dependencies
+        uses: ./.github/workflows/setup
+
+      - name: Build all packages
+        run: pnpm build
+
+      # docker compose is invoked with `--env-file ./local/.env` (see the
+      # `compose` script in package.json). That file is untracked, so create an
+      # empty one — every service default is baked in as ${VAR:-default} and
+      # points at the in-stack MockGatehub, so no secrets are required.
+      - name: Create local docker env file
+        run: touch local/.env
+
+      # Brings up the full Docker stack (Postgres, Redis, Traefik, Rafiki,
+      # MockGatehub), adds /etc/hosts aliases, generates + trusts the TLS certs,
+      # and runs the Rafiki asset setup script.
+      - name: Bring up local stack
+        run: pnpm local:setup
+
+      # The wallet + boutique apps run on the host (not in Docker) and are what
+      # Traefik proxies testnet.test / api.testnet.test to. `pnpm dev` reads the
+      # committed packages/*/.env.local files. Run it detached — the job teardown
+      # kills it when the runner is torn down.
+      - name: Start wallet and boutique apps
+        run: |
+          mkdir -p "$RUNNER_TEMP/testnet-logs"
+          nohup pnpm dev > "$RUNNER_TEMP/testnet-logs/dev.log" 2>&1 &
+          echo "Started host apps (pid $!)"
+
+      - name: Wait for the stack to be ready
+        run: |
+          set -euo pipefail
+
+          wait_for() {
+            local name="$1" cmd="$2" attempts="${3:-60}"
+            echo "Waiting for $name ..."
+            for i in $(seq 1 "$attempts"); do
+              if eval "$cmd" >/dev/null 2>&1; then
+                echo "  $name is ready (after $((i * 5))s)"
+                return 0
+              fi
+              sleep 5
+            done
+            echo "::error::Timed out waiting for $name"
+            return 1
+          }
+
+          # Wallet backend listening on the host (direct HTTP port).
+          wait_for "wallet backend (localhost:3003)" \
+            'curl -s -o /dev/null http://localhost:3003' 60
+
+          # Wallet frontend served through Traefik at the e2e base URL. Next.js
+          # compiles the first requested page lazily, so poll for a 200.
+          wait_for "wallet frontend (https://testnet.test)" \
+            '[ "$(curl -ks -o /dev/null -w "%{http_code}" https://testnet.test/auth/login)" = "200" ]' 60
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @interledger/testnet-e2e exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm e2e:test
+
+      - name: Dump service logs on failure
+        if: failure()
+        run: |
+          echo "===== docker compose ps ====="
+          pnpm compose ps || true
+          echo "===== host apps (dev.log tail) ====="
+          tail -n 300 "$RUNNER_TEMP/testnet-logs/dev.log" || true
+          echo "===== docker compose logs (tail) ====="
+          pnpm compose logs --no-color --tail=200 || true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7
+          if-no-files-found: ignore
