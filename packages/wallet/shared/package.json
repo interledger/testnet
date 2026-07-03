@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.17.30"
+    "@types/node": "^24.13.1"
   },
   "dependencies": {
     "zod": "^3.25.76"
