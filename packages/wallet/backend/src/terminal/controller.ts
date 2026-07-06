@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { TerminalService } from './service'
+import { toSuccessResponse } from '@shared/backend'
 
 export class TerminalController {
   constructor(private terminalService: TerminalService) {}
