@@ -12,7 +12,7 @@ export class TerminalController {
     try {
       const formDefinition =
         await this.terminalService.getOnboardingFormDefinition()
-      res.status(200).json(formDefinition)
+      res.status(200).json(toSuccessResponse(formDefinition))
     } catch (error) {
       next(error)
     }
