@@ -274,179 +274,183 @@ const TransactionsPage: NextPageWithLayout<TransactionsPageProps> = ({
       ) : loading ? (
         <Table.Shimmer />
       ) : (
-        <Table id="transactionsList" className="sm:min-w-[57rem]">
-          <Table.Head
-            columns={[
-              'Date',
-              'Details',
-              'Amount',
-              'Status',
-              'Wallet Address name'
-            ]}
-            sort={[
-              {
-                header: 'Date',
-                sortFn: () => {
-                  if (pagination.orderByDate === 'DESC') {
-                    redirect({ orderByDate: 'ASC' })
-                  } else {
-                    redirect({ orderByDate: 'DESC' })
+        <div className="w-full">
+          <Table className="sm:min-w-[57rem]" id="transactionsList">
+            <Table.Head
+              columns={[
+                'Date',
+                'Details',
+                'Amount',
+                'Status',
+                'Wallet Address name'
+              ]}
+              sort={[
+                {
+                  header: 'Date',
+                  sortFn: () => {
+                    if (pagination.orderByDate === 'DESC') {
+                      redirect({ orderByDate: 'ASC' })
+                    } else {
+                      redirect({ orderByDate: 'DESC' })
+                    }
+                  },
+                  getDirection: () => {
+                    return pagination.orderByDate === 'DESC' ? 'down' : 'up'
                   }
-                },
-                getDirection: () => {
-                  return pagination.orderByDate === 'DESC' ? 'down' : 'up'
                 }
-              }
-            ]}
-            hideForMobile={['Status', 'Wallet Address name']}
-          />
-          <Table.Body>
-            {transactions.results.length ? (
-              transactions.results.map((trx) => {
-                let showDateHeader = false
-                if (
-                  groupByDate !==
-                  formatDateNoTime({ date: trx.createdAt.toString() })
-                ) {
-                  groupByDate = formatDateNoTime({
-                    date: trx.createdAt.toString()
-                  })
-                  showDateHeader = true
-                }
+              ]}
+              hideForMobile={['Status', 'Wallet Address name']}
+            />
+            <Table.Body>
+              {transactions.results.length ? (
+                transactions.results.map((trx) => {
+                  let showDateHeader = false
+                  if (
+                    groupByDate !==
+                    formatDateNoTime({ date: trx.createdAt.toString() })
+                  ) {
+                    groupByDate = formatDateNoTime({
+                      date: trx.createdAt.toString()
+                    })
+                    showDateHeader = true
+                  }
 
-                return (
-                  <>
-                    {showDateHeader ? (
-                      <Table.Row>
-                        <Table.Cell className="bg-green-dark dark:bg-pink-dark text-white text-center text-sm rounded-xl !p-1">
-                          {groupByDate}
+                  return (
+                    <>
+                      {showDateHeader ? (
+                        <Table.Row>
+                          <Table.Cell className="bg-green-dark dark:bg-pink-dark text-white text-center text-sm rounded-xl !p-1">
+                            {groupByDate}
+                          </Table.Cell>
+                          <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                          <Table.Cell className="!p-1">&nbsp;</Table.Cell>
+                          <Table.Cell className="!p-1 hidden sm:table-cell">
+                            &nbsp;
+                          </Table.Cell>
+                          <Table.Cell className="!p-1 hidden sm:table-cell">
+                            &nbsp;
+                          </Table.Cell>
+                        </Table.Row>
+                      ) : null}
+                      <Table.Row
+                        key={trx.id}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          const isCardWalletAddress =
+                            walletAddresses.find(
+                              (pp) => trx.walletAddressId === pp.walletId
+                            )?.isCard || false
+                          openDialog(
+                            <TransactionDetailsDialog
+                              transaction={trx}
+                              isCardWalletAddress={isCardWalletAddress}
+                              onClose={closeDialog}
+                            />
+                          )
+                        }}
+                      >
+                        <Table.Cell className="whitespace-nowrap">
+                          {formatDateOnlyTime({
+                            date: trx.createdAt.toString()
+                          })}
                         </Table.Cell>
-                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
-                        <Table.Cell className="!p-1">&nbsp;</Table.Cell>
-                        <Table.Cell className="!p-1 hidden sm:table-cell">
-                          &nbsp;
-                        </Table.Cell>
-                        <Table.Cell className="!p-1 hidden sm:table-cell">
-                          &nbsp;
-                        </Table.Cell>
-                      </Table.Row>
-                    ) : null}
-                    <Table.Row
-                      key={trx.id}
-                      className="cursor-pointer"
-                      onClick={() => {
-                        const isCardWalletAddress =
-                          walletAddresses.find(
-                            (pp) => trx.walletAddressId === pp.walletId
-                          )?.isCard || false
-                        openDialog(
-                          <TransactionDetailsDialog
-                            transaction={trx}
-                            isCardWalletAddress={isCardWalletAddress}
-                            onClose={closeDialog}
-                          />
-                        )
-                      }}
-                    >
-                      <Table.Cell className="whitespace-nowrap">
-                        {formatDateOnlyTime({ date: trx.createdAt.toString() })}
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
-                        <div className="flex flex-row items-center">
-                          {trx.isCard && FEATURES_ENABLED ? (
-                            <div className="text-dark-green dark:text-white pr-2">
-                              <Card />
-                            </div>
-                          ) : null}
-                          <div className="flex flex-col justify-start">
-                            {trx.secondParty ? (
-                              <span>{trx.secondParty}</span>
+                        <Table.Cell className="whitespace-nowrap">
+                          <div className="flex flex-row items-center">
+                            {trx.isCard && FEATURES_ENABLED ? (
+                              <div className="text-dark-green dark:text-white pr-2">
+                                <Card />
+                              </div>
                             ) : null}
-                            <span
-                              className={cx(trx.secondParty ? 'text-xs' : '')}
-                            >
-                              {trx.description ? (
-                                trx.description
+                            <div className="flex flex-col justify-start">
+                              {trx.secondParty ? (
+                                <span>{trx.secondParty}</span>
+                              ) : null}
+                              <span
+                                className={cx(trx.secondParty ? 'text-xs' : '')}
+                              >
+                                {trx.description ? (
+                                  trx.description
+                                ) : (
+                                  <p
+                                    className={cx(
+                                      'font-thin',
+                                      trx.secondParty ? 'text-xs' : 'text-sm'
+                                    )}
+                                  >
+                                    No description
+                                  </p>
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell
+                          className={cx(
+                            'whitespace-nowrap',
+                            trx.type === 'INCOMING' &&
+                              'text-green-dark dark:text-green-neon',
+                            trx.type === 'OUTGOING' &&
+                              'text-pink-dark dark:text-yellow-neon'
+                          )}
+                        >
+                          {trx.type === 'INCOMING' ? '+' : '-'}
+                          {
+                            formatAmount({
+                              value: String(trx.value) || '0',
+                              assetCode: trx.assetCode,
+                              assetScale: trx.assetScale
+                            }).amount
+                          }
+                        </Table.Cell>
+                        <Table.Cell className="hidden sm:table-cell">
+                          <Badge
+                            intent={getStatusBadgeIntent(trx.status)}
+                            size="md"
+                            text={trx.status}
+                          />
+                        </Table.Cell>
+                        <Table.Cell className="whitespace-nowrap hidden sm:table-cell">
+                          <div className="flex flex-col justify-start">
+                            <span>
+                              {trx.walletAddressUrl &&
+                              trx.walletAddressPublicName ? (
+                                <TooltipProvider delayDuration={100}>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      {trx.walletAddressPublicName}
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      className="max-w-80"
+                                      side="top"
+                                      onPointerDownOutside={(e) =>
+                                        e.preventDefault()
+                                      }
+                                    >
+                                      {trx.walletAddressUrl}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               ) : (
-                                <p
-                                  className={cx(
-                                    'font-thin',
-                                    trx.secondParty ? 'text-xs' : 'text-sm'
-                                  )}
-                                >
-                                  No description
-                                </p>
+                                <>{trx.walletAddressUrl ?? ''}</>
                               )}
                             </span>
+                            <span className="text-xs">{trx.accountName}</span>
                           </div>
-                        </div>
-                      </Table.Cell>
-                      <Table.Cell
-                        className={cx(
-                          'whitespace-nowrap',
-                          trx.type === 'INCOMING' &&
-                            'text-green-dark dark:text-green-neon',
-                          trx.type === 'OUTGOING' &&
-                            'text-pink-dark dark:text-yellow-neon'
-                        )}
-                      >
-                        {trx.type === 'INCOMING' ? '+' : '-'}
-                        {
-                          formatAmount({
-                            value: String(trx.value) || '0',
-                            assetCode: trx.assetCode,
-                            assetScale: trx.assetScale
-                          }).amount
-                        }
-                      </Table.Cell>
-                      <Table.Cell className="hidden sm:table-cell">
-                        <Badge
-                          intent={getStatusBadgeIntent(trx.status)}
-                          size="md"
-                          text={trx.status}
-                        />
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap hidden sm:table-cell">
-                        <div className="flex flex-col justify-start">
-                          <span>
-                            {trx.walletAddressUrl &&
-                            trx.walletAddressPublicName ? (
-                              <TooltipProvider delayDuration={100}>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    {trx.walletAddressPublicName}
-                                  </TooltipTrigger>
-                                  <TooltipContent
-                                    className="max-w-80"
-                                    side="top"
-                                    onPointerDownOutside={(e) =>
-                                      e.preventDefault()
-                                    }
-                                  >
-                                    {trx.walletAddressUrl}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              <>{trx.walletAddressUrl ?? ''}</>
-                            )}
-                          </span>
-                          <span className="text-xs">{trx.accountName}</span>
-                        </div>
-                      </Table.Cell>
-                    </Table.Row>
-                  </>
-                )
-              })
-            ) : (
-              <Table.Row>
-                <Table.Cell colSpan={4} className="text-center">
-                  No transactions found.
-                </Table.Cell>
-              </Table.Row>
-            )}
-          </Table.Body>
-        </Table>
+                        </Table.Cell>
+                      </Table.Row>
+                    </>
+                  )
+                })
+              ) : (
+                <Table.Row>
+                  <Table.Cell colSpan={4} className="text-center">
+                    No transactions found.
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table>
+        </div>
       )}
       {!error && !loading ? (
         <>

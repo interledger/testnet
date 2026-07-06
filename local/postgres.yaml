@@ -13,3 +13,13 @@ services:
     volumes:
       - pg-data:/var/lib/postgresql/data
       - ./init/dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+    # Gate dependents (rafiki-*) on real readiness. On a fresh volume Postgres
+    # runs initdb + dbinit.sql (5 DBs) before accepting TCP connections, which
+    # can take tens of seconds — especially on macOS/Docker Desktop.
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
