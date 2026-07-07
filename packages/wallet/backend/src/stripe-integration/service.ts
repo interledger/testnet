@@ -144,7 +144,7 @@ export class StripeService implements IStripeService {
         source: 'Stripe'
       })
     } catch (error) {
-      this.logger.error('Error creating gatehub transaction', {
+      this.logger.error('Error creating GateHub transaction', {
         payment_intent_id: paymentIntent.id,
         receiving_address,
         error
@@ -424,7 +424,7 @@ export class StripeService implements IStripeService {
         return
       }
 
-      this.logger.error('Error reversing gatehub transaction for refund', {
+      this.logger.error('Error reversing GateHub transaction for refund', {
         error,
         refund_id: refund.id,
         payment_intent_id: paymentIntentId
