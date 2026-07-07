@@ -373,7 +373,7 @@ describe('Stripe Service', (): void => {
       ).rejects.toThrow('Failed to create transaction')
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error creating gatehub transaction',
+        'Error creating GateHub transaction',
         expect.objectContaining({
           error: expect.any(Error)
         })
@@ -769,7 +769,7 @@ describe('Stripe Service', (): void => {
       )
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error reversing gatehub transaction for refund',
+        'Error reversing GateHub transaction for refund',
         expect.objectContaining({
           refund_id: 're_123456',
           payment_intent_id: paymentIntentId
