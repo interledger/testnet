@@ -59,10 +59,9 @@ Releases are created manually by running the **Create Release** workflow from th
 ### Environment Setup
 
 ```sh
-# Install Node 20
-nvm install lts/iron
-nvm use lts/iron
-
+# Install Node 24
+nvm install 24
+nvm use 24
 # Install pnpm using Corepack
 corepack enable
 ```
