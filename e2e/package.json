@@ -5,14 +5,16 @@
   "scripts": {
     "generate": "bddgen",
     "playwright:install": "playwright install",
-    "test": "bddgen && playwright test",
-    "test:headed": "bddgen && playwright test --headed",
-    "test:debug": "bddgen && playwright test --debug"
+    "test": "bddgen && cross-env NODE_EXTRA_CA_CERTS=../local/config/certs/local.crt playwright test",
+    "test:headed": "bddgen && cross-env NODE_EXTRA_CA_CERTS=../local/config/certs/local.crt playwright test --headed",
+    "test:debug": "bddgen && cross-env NODE_EXTRA_CA_CERTS=../local/config/certs/local.crt playwright test --debug"
   },
   "devDependencies": {
+    "@interledger/open-payments": "^7.3.0",
     "@playwright/test": "^1.56.0",
     "@types/node": "^20.17.30",
     "@types/pg": "^8.11.14",
+    "cross-env": "^7.0.3",
     "dotenv": "^17.2.3",
     "pg": "^8.16.3",
     "playwright-bdd": "^8.0.0",
