@@ -40,6 +40,10 @@ type FormatAmountArgs = AssetOP & {
   abbreviateAmount?: boolean
 }
 
+function floorScaledAmount(value: number, scale: number) {
+  return (Math.floor((value / scale) * 100) / 100).toFixed(2)
+}
+
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   const {
     value,
@@ -66,19 +70,19 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
 
     if (absValue >= 1e15) {
       // Quadrillion
-      abbreviated = `${sign}${symbol}${(absValue / 1e15).toFixed(2)}Q`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e15)}Q`
     } else if (absValue >= 1e12) {
       // Trillion
-      abbreviated = `${sign}${symbol}${(absValue / 1e12).toFixed(2)}T`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e12)}T`
     } else if (absValue >= 1e9) {
       // Billion
-      abbreviated = `${sign}${symbol}${(absValue / 1e9).toFixed(2)}B`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e9)}B`
     } else if (absValue >= 1e6) {
       // Million
-      abbreviated = `${sign}${symbol}${(absValue / 1e6).toFixed(2)}M`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e6)}M`
     } else {
       // Thousand
-      abbreviated = `${sign}${symbol}${(absValue / 1e3).toFixed(2)}K`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e3)}K`
     }
 
     return {

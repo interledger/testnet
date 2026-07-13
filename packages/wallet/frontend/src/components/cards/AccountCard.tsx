@@ -23,7 +23,7 @@ export const AccountCard = ({ account, idOnboarding }: AccountCardProps) => {
       value: snapshotAccount?.balance || account.balance,
       assetCode: account.assetCode,
       assetScale: account.assetScale,
-      abbreviateAmount:true
+      abbreviateAmount: true
     })
   }, [account, accountsSnapshot])
 
