@@ -2,7 +2,7 @@ services:
   # Rafiki
   rafiki-auth:
     container_name: rafiki-auth-local
-    image: ghcr.io/interledger/rafiki-auth:v2.2.0-beta
+    image: ghcr.io/interledger/rafiki-auth:v2.4.1-beta
     restart: unless-stopped
     networks:
       - testnet
@@ -29,6 +29,7 @@ services:
       ADMIN_API_SECRET: ${RAFIKI_ADMIN_API_SECRET:-secret-key}
       ADMIN_SIGNATURE_VERSION: ${RAFIKI_ADMIN_SIGNATURE_VERSION:-1}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      
     extra_hosts:
       - testnet.test:host-gateway
       - api.testnet.test:host-gateway
@@ -71,7 +72,10 @@ services:
 
   rafiki-backend:
     container_name: rafiki-backend-local
-    image: ghcr.io/interledger/rafiki-backend:v2.2.0-beta
+    # image: ghcr.io/interledger/rafiki-backend:v2.4.1-beta
+    build:
+      context: ..//../rafiki
+      dockerfile: packages/backend/Dockerfile.prod
     restart: always
     privileged: true
     volumes:
@@ -121,6 +125,10 @@ services:
       CARD_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_CARD_WEBHOOK_SERVICE_URL:-http://rafiki-card-service:3007/webhook}
       POS_SERVICE_URL: ${RAFIKI_BACKEND_POS_SERVICE_URL:-http://rafiki-pos-service:3014}
       POS_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_POS_WEBHOOK_SERVICE_URL:-http://rafiki-pos-service:3014/web}
+      OUTGOING_PAYMENT_WORKERS: 1
+      WEBHOOK_WORKERS: 1
+      OUTGOING_PAYMENT_WORKER_BATCH_SIZE: 150
+      OUTGOING_PAYMENT_PROCESSING_INTERVAL_MS: 500
     depends_on:
       # Wait for Postgres/Redis readiness before booting. Otherwise the startup
       # migration + operator-tenant seed fails, start() throws (only logged),
@@ -155,7 +163,7 @@ services:
 
   rafiki-frontend:
     container_name: rafiki-frontend-local
-    image: ghcr.io/interledger/rafiki-frontend:v2.2.0-beta
+    image: ghcr.io/interledger/rafiki-frontend:v2.4.1-beta
     depends_on:
       - rafiki-backend
     restart: always
@@ -181,7 +189,7 @@ services:
 
   rafiki-card-service:
     container_name: rafiki-card-service-local
-    image: ghcr.io/interledger/rafiki-card-service:v2.2.0-beta
+    image: ghcr.io/interledger/rafiki-card-service:v2.4.1-beta
     restart: always
     privileged: true
     networks:

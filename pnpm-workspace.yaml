@@ -3,3 +3,4 @@ packages:
   - 'packages/wallet/*'
   - 'packages/boutique/*'
   - 'packages/shared/*'
+  - 'packages/benchmark'

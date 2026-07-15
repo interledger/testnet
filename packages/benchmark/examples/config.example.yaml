@@ -1,0 +1,33 @@
+# Example Open Payments benchmark configuration.
+#
+#   pnpm --filter @benchmark/open-payments build
+#   node packages/benchmark/dist/cli.js packages/benchmark/examples/config.example.yaml
+#
+# Prerequisites (configured at the ASE, not by this tool): the wallet addresses
+# exist, the payer is funded >= amount, and the asset has no sending fee.
+
+client:
+  # A dedicated benchmark wallet address with a generated developer key.
+  walletAddressUrl: https://rafiki-backend.testnet.test/accounts/benchmark
+  keyId: replace-with-key-id
+  privateKey: ./benchmark.key # PKCS8 PEM: path (relative to this file) or inline
+
+output: ./results/run.json # optional; JSON metrics (console is always printed)
+sequential: false # optional; run scenarios concurrently (default) or one-at-a-time
+verbose: false # optional; log per-slice request timing (quote + create latency)
+settleLatency: false # optional; measure per-payment submit→settle latency (extra read load)
+
+payments:
+  # Pay $10,000 as 10,000 x $1 slices with 10 workers.
+  - amount: 1000000 # total, minor units at amountScale
+    amountScale: 2
+    paymentSize: 100 # per slice, minor units ($1.00)
+    fromWalletAddress: https://rafiki-backend.testnet.test/accounts/alice
+    toWalletAddress: https://rafiki-backend.testnet.test/accounts/bob
+    workers: 10
+  - amount: 10000 # total, minor units at amountScale
+    amountScale: 2
+    paymentSize: 100 # per slice, minor units ($1.00)
+    fromWalletAddress: https://rafiki-backend.testnet.test/accounts/alice
+    toWalletAddress: https://rafiki-backend.testnet.test/accounts/bob
+    workers: 10

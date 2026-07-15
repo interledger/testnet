@@ -1,0 +1,34 @@
+{
+  "startedAt": "2026-07-15T09:41:27.383Z",
+  "finishedAt": "2026-07-15T09:41:45.216Z",
+  "scenarios": [
+    {
+      "label": "https://ilp.interledger-test.dev/140d27e0 → https://ilp.interledger-test.dev/ca16f466",
+      "fromWalletAddress": "https://ilp.interledger-test.dev/140d27e0",
+      "toWalletAddress": "https://ilp.interledger-test.dev/ca16f466",
+      "targetSlices": 10,
+      "assetCode": "EUR",
+      "assetScale": 2,
+      "succeeded": 10,
+      "failures": {},
+      "concluded": true,
+      "settledValue": "1000",
+      "submitMs": 3097,
+      "settleMs": 16302,
+      "createsPerSecond": 3.23,
+      "settledPerSecond": 61.34,
+      "quoteLatencyMs": {
+        "count": 10,
+        "p50": 601,
+        "p95": 1010,
+        "max": 1010
+      },
+      "createLatencyMs": {
+        "count": 10,
+        "p50": 711,
+        "p95": 1211,
+        "max": 1211
+      }
+    }
+  ]
+}
