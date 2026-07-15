@@ -161,15 +161,27 @@ export class BenchmarkClient {
    */
   async requestOutgoingPaymentGrant(args: {
     payer: WalletAddress
-    debitAmount: Amount
+    /**
+     * Per-interval (or one-shot) debit cap. Omit for a limitless grant: no
+     * `limits` are requested, so the grant never exhausts and Rafiki skips the
+     * per-grant row lock (higher create throughput).
+     */
+    debitAmount?: Amount
     /**
      * Optional ISO8601 repeating interval (e.g. `R/2026-01-01T00:00:00Z/P1D`).
-     * When set, the grant is recurring: `debitAmount` becomes a per-interval
-     * maximum that resets every period, so the grant stays usable across runs
-     * instead of being spent once. When omitted the grant is single-use.
+     * When set alongside `debitAmount`, the grant is recurring: the cap becomes
+     * a per-interval maximum that resets every period, so the grant stays usable
+     * across runs instead of being spent once. Ignored when `debitAmount` is
+     * omitted (a limitless grant has nothing to reset).
      */
     interval?: string
   }): Promise<PendingGrantHandle> {
+    const limits = args.debitAmount
+      ? {
+          debitAmount: args.debitAmount,
+          ...(args.interval ? { interval: args.interval } : {})
+        }
+      : undefined
     const grant: PendingGrant | Grant = await this.client.grant.request(
       { url: args.payer.authServer },
       {
@@ -179,10 +191,7 @@ export class BenchmarkClient {
               type: 'outgoing-payment',
               actions: ['create', 'read', 'list'],
               identifier: args.payer.id,
-              limits: {
-                debitAmount: args.debitAmount,
-                ...(args.interval ? { interval: args.interval } : {})
-              }
+              ...(limits ? { limits } : {})
             }
           ]
         },

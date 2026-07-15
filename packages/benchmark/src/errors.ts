@@ -20,7 +20,12 @@ export function classifyError(err: unknown): FailureReason {
   if (
     err.status === 401 ||
     code === 'invalid_token' ||
-    description.includes('expired')
+    description.includes('expired') ||
+    // Rafiki returns 403 "Inactive Token" (not 401) once an access token has
+    // expired or been revoked; treat it as expiry so the runner rotates. Match
+    // the specific phrase so a generic 403 "unauthorized" (grant limit) or an
+    // "inactive wallet address" (400) is NOT mistaken for a token issue.
+    description.includes('inactive token')
   ) {
     return 'token_expired'
   }

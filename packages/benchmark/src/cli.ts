@@ -14,6 +14,7 @@ import {
 import { runBenchmark, type GrantResolver } from '@/runner'
 import { formatResult } from '@/report'
 import type {
+  Amount,
   BenchmarkConfig,
   CachedGrant,
   PaymentScenarioConfig
@@ -133,6 +134,8 @@ async function preResolveGrants(
   let cache: GrantCacheData = await readGrantCache(grantsPath)
   const resolved = new Map<string, CachedGrant>()
   const interval = grantIntervalFor(config)
+  // Default to a limitless grant unless explicitly disabled.
+  const limitless = config.limitlessGrant ?? true
 
   // Group scenarios by payer so one grant covers every scenario that payer runs.
   interface PayerGroup {
@@ -162,50 +165,93 @@ async function preResolveGrants(
       continue
     }
 
-    if (cache[payerId]) {
-      console.log(`Using cached grant for ${payerId}`)
-      resolved.set(payerId, cache[payerId])
-      continue
+    const cached = cache[payerId]
+    if (cached) {
+      // A cached access token expires (10 min on Rafiki) and is dead between
+      // sessions. Rotate it up front — the manage endpoint authenticates by the
+      // client's signature, not the token's active state, so an expired token
+      // still rotates into a fresh one with NO re-approval. Persist the result
+      // so the cache never holds a stale token. Only if rotation truly fails
+      // (grant revoked/finalized) do we drop the entry and re-request.
+      if (cached.manageUrl) {
+        try {
+          const rotated = await client.rotateToken(
+            cached.manageUrl,
+            cached.accessToken
+          )
+          const fresh: CachedGrant = {
+            accessToken: rotated.accessToken,
+            manageUrl: rotated.manageUrl,
+            continueUri: cached.continueUri
+          }
+          resolved.set(payerId, fresh)
+          cache = upsertGrant(cache, payerId, fresh)
+          await writeGrantCache(grantsPath, cache)
+          console.log(`Using cached grant for ${payerId} (token refreshed).`)
+          continue
+        } catch {
+          console.log(
+            `Cached grant for ${payerId} could not be refreshed (likely revoked); requesting a new one.`
+          )
+          delete cache[payerId]
+          await writeGrantCache(grantsPath, cache)
+        }
+      } else {
+        // No manage URL to rotate with; use it as-is and hope it is still live.
+        console.log(`Using cached grant for ${payerId}`)
+        resolved.set(payerId, cached)
+        continue
+      }
     }
 
-    // Size the debit limit by probing each scenario's exchange rate.
-    let debit = 0n
-    let crossCurrency = false
-    for (const scenario of group.scenarios) {
-      const receiver = await client.getWalletAddress(scenario.toWalletAddress)
-      crossCurrency ||= group.payer.assetCode !== receiver.assetCode
-      const perSlice = await probeSliceDebit(
-        client,
-        group.payer,
-        receiver,
-        scenario
-      )
-      debit += perSlice * BigInt(scenario.amount / scenario.paymentSize)
-    }
-    const limit = crossCurrency
-      ? (debit * (10_000n + CROSS_CURRENCY_DEBIT_BUFFER_BPS)) / 10_000n + 1n
-      : debit
-    const debitAmount = {
-      value: limit.toString(),
-      assetCode: group.payer.assetCode,
-      assetScale: group.payer.assetScale
-    }
-    if (crossCurrency) {
+    // A limitless grant needs no probing: request it with no debit limit, so it
+    // never exhausts across runs and Rafiki skips the per-grant row lock.
+    let debitAmount: Amount | undefined
+    if (limitless) {
+      debitAmount = undefined
       console.log(
-        `Cross-currency payer ${payerId}: sizing grant debit limit to ${debitAmount.value} ${debitAmount.assetCode} (asset scale ${debitAmount.assetScale}, incl. ${CROSS_CURRENCY_DEBIT_BUFFER_BPS / 100n}% buffer).`
+        `Requesting a limitless grant for ${payerId} (no debit limit; reusable across runs and no per-grant row lock).`
+      )
+    } else {
+      // Size the debit limit by probing each scenario's exchange rate.
+      let debit = 0n
+      let crossCurrency = false
+      for (const scenario of group.scenarios) {
+        const receiver = await client.getWalletAddress(scenario.toWalletAddress)
+        crossCurrency ||= group.payer.assetCode !== receiver.assetCode
+        const perSlice = await probeSliceDebit(
+          client,
+          group.payer,
+          receiver,
+          scenario
+        )
+        debit += perSlice * BigInt(scenario.amount / scenario.paymentSize)
+      }
+      const limit = crossCurrency
+        ? (debit * (10_000n + CROSS_CURRENCY_DEBIT_BUFFER_BPS)) / 10_000n + 1n
+        : debit
+      debitAmount = {
+        value: limit.toString(),
+        assetCode: group.payer.assetCode,
+        assetScale: group.payer.assetScale
+      }
+      if (crossCurrency) {
+        console.log(
+          `Cross-currency payer ${payerId}: sizing grant debit limit to ${debitAmount.value} ${debitAmount.assetCode} (asset scale ${debitAmount.assetScale}, incl. ${CROSS_CURRENCY_DEBIT_BUFFER_BPS / 100n}% buffer).`
+        )
+      }
+      console.log(
+        interval
+          ? `Requesting a recurring grant for ${payerId} (interval ${interval}); the ${debitAmount.value} ${debitAmount.assetCode} allowance resets each period, so the cached grant is reusable across runs.`
+          : `Requesting a single-use grant for ${payerId}.`
       )
     }
-    console.log(
-      interval
-        ? `Requesting a recurring grant for ${payerId} (interval ${interval}); the ${debitAmount.value} ${debitAmount.assetCode} allowance resets each period, so the cached grant is reusable across runs.`
-        : `Requesting a single-use grant for ${payerId}.`
-    )
 
     const grant = await obtainGrant({
       client,
       payer: group.payer,
       debitAmount,
-      interval,
+      interval: limitless ? undefined : interval,
       prompt: (url) => {
         console.log(
           `\nApprove the outgoing-payment grant for ${payerId}:\n  ${url}\n(waiting for approval…)`

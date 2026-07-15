@@ -52,6 +52,7 @@ const configSchema = z.object({
   verbose: z.boolean().optional(),
   settleLatency: z.boolean().optional(),
   skipQuote: z.boolean().optional(),
+  limitlessGrant: z.boolean().optional(),
   grantInterval: z.string().optional(),
   incomingExpiryMs: z.number().int().positive().optional(),
   payments: z.array(scenarioSchema).min(1)

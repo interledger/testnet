@@ -212,6 +212,19 @@ describe('BenchmarkClient', () => {
       })
     })
 
+    it('omits limits entirely for a limitless grant', async () => {
+      const { client, mocks } = makeClient()
+      mocks.grantRequest.mockResolvedValue({
+        interact: { redirect: 'r' },
+        continue: { uri: 'u', access_token: { value: 't' }, wait: 0 }
+      })
+      const bc = new BenchmarkClient(client)
+      await bc.requestOutgoingPaymentGrant({ payer })
+      const access = mocks.grantRequest.mock.calls[0][1].access_token.access[0]
+      expect(access.type).toBe('outgoing-payment')
+      expect(access).not.toHaveProperty('limits')
+    })
+
     it('defaults wait to 0 and rejects a non-pending grant', async () => {
       const { client, mocks } = makeClient()
       mocks.grantRequest.mockResolvedValueOnce({

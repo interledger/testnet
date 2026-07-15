@@ -59,7 +59,8 @@ client: # one developer key signs every request (a dedicated benchmark wallet ad
 output: ./results/run.json # optional; JSON metrics (console output is always printed)
 sequential: false # optional; run scenarios one-at-a-time instead of concurrently
 skipQuote: false # optional; create payments directly from the incoming payment, no per-slice quote
-grantInterval: P1D # optional; ISO8601 period for the recurring grant (default P1D; "" = single-use)
+limitlessGrant: true # optional; request the grant with NO debit limit (default true) — see Validity notes
+grantInterval: P1D # optional; ISO8601 period for the recurring grant when limitlessGrant is false
 incomingExpiryMs: 2588400000 # optional; incoming-payment lifetime (default: just under Rafiki's 30-day max)
 payments:
   - amount: 1000000 # total, minor units at amountScale ($10,000.00)
@@ -122,19 +123,22 @@ The tool asks for the longest-lived grant and incoming payment the protocol
 allows, so an approved grant survives across runs and the fill target does not
 expire under you. What each lever can and cannot do:
 
-- **Grant — recurring, so it is not single-use.** The grant is requested with a
-  `limits.debitAmount` sized to the run's total debit (see Design notes) **plus
-  an ISO8601 repeating `interval`** (`R/{start}/{period}`, default period
-  `P1D`). The interval makes `debitAmount` a *per-interval* maximum that resets
-  every period, so the cached grant is reusable across runs — approve once, then
-  rerun without re-approval. Previously the grant had no interval and was
-  single-use: one run spent the entire allowance and rerunning failed every
-  create with `403 unauthorized` (`Aborting scenario after N consecutive
-  failures`). Tune with `grantInterval`: a **shorter** period refreshes the
-  allowance more often (good for rapid back-to-back reruns); set it to `""` to
-  request a single-use grant. Note the allowance is per period, so more than one
-  full run within a single period still exhausts it — either shorten the period
-  or delete `grants.json` and re-approve:
+- **Grant — limitless by default, so it never exhausts.** The grant is
+  requested with **no debit limit** (`limitlessGrant: true`, the default). It
+  can fund any number of runs, and on Rafiki a limit-less grant also skips the
+  per-grant row lock that serialises concurrent creates — so create throughput
+  is higher. Approve once, then rerun freely against the cached grant. The
+  trade-off is that the approved grant authorises **unbounded debit** on the
+  payer, which is why it is meant for a dedicated benchmark wallet.
+
+  To cap the authorised spend instead, set `limitlessGrant: false`. The grant is
+  then sized to the run's total debit (see Design notes) **plus an ISO8601
+  repeating `interval`** (`grantInterval`, default `P1D`) that makes the
+  `debitAmount` a *per-interval* maximum which resets each period — reusable, but
+  **one run's worth of budget per period**. More than one full run inside a
+  single period exhausts it and further creates fail with `403 unauthorized`
+  (`Aborting scenario after N consecutive failures`); shorten `grantInterval`,
+  set it to `""` for a single-use grant, or delete `grants.json` and re-approve:
 
   ```bash
   rm -f ./grants.json && NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm run bench ./config.yaml --grants ./grants.json
@@ -172,19 +176,19 @@ paymentSize` slots before paying, so concurrency can never over-issue past the
   incoming payment's fixed amount; failed attempts release their slot for retry.
 - **Failure budget** — a scenario aborts after N consecutive non-recoverable
   failures (e.g. a dry payer), preventing infinite retry loops.
-- **Grant limit note** — the grant is requested with a `limits.debitAmount`
-  sized to the run's total debit: `perSliceDebit × slices` summed across the
-  payer's scenarios, where `perSliceDebit` comes from a probe quote (so it
-  reflects FX and any fee). For a same-asset pair this is exactly `amount`;
-  cross-currency adds a small buffer for rounding and rate drift. The
+- **Grant limit note** — by default (`limitlessGrant: true`) the grant carries
+  **no `limits`**: it never exhausts, and Rafiki skips the per-grant row lock
+  that serialises concurrent creates, so create throughput is highest. When
+  `limitlessGrant: false`, the grant is instead requested with a
+  `limits.debitAmount` sized to the run's total debit: `perSliceDebit × slices`
+  summed across the payer's scenarios, where `perSliceDebit` comes from a probe
+  quote (so it reflects FX and any fee). For a same-asset pair this is exactly
+  `amount`; cross-currency adds a small buffer for rounding and rate drift. That
   `debitAmount` is paired with a repeating `interval` (`grantInterval`, default
   `P1D`) so it is a *per-interval* cap that resets each period rather than a
-  one-shot total — the same sized allowance, but replenished, which is what
-  makes the cached grant reusable across runs. On Rafiki a non-empty
-  `debitAmount` re-enables a per-grant row lock that serialises concurrent
-  creates, which caps create throughput; the interval does not change that
-  (the limit is still non-empty), and local raw-throughput runs can still be
-  extended with a limitless grant.
+  one-shot total. Note a non-empty `debitAmount` re-enables the per-grant row
+  lock, capping create throughput — another reason the limitless grant is the
+  default for throughput runs.
 
 ## Tests
 

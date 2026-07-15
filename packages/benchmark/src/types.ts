@@ -74,11 +74,19 @@ export interface BenchmarkConfig {
    */
   skipQuote?: boolean
   /**
+   * Request the outgoing-payment grant with NO debit limit. The grant never
+   * exhausts across any number of runs, and Rafiki skips the per-grant row lock
+   * (higher create throughput). Trade-off: the approved grant authorizes
+   * unbounded debit on the payer — intended for a dedicated benchmark wallet.
+   * Defaults to `true`; set `false` to request a sized, recurring grant.
+   */
+  limitlessGrant?: boolean
+  /**
    * ISO8601 period (e.g. `P1D`, `PT1H`) for the recurring outgoing-payment
-   * grant. The grant is requested as `R/{start}/{period}`, so its debit
-   * allowance resets every period and the cached grant is reusable across runs
-   * instead of single-use. Set to an empty string to request a single-use
-   * grant. Defaults to `P1D`.
+   * grant. Only applies when `limitlessGrant` is false. The grant is requested
+   * as `R/{start}/{period}`, so its debit allowance resets every period and the
+   * cached grant is reusable across runs instead of single-use. Set to an empty
+   * string to request a single-use grant. Defaults to `P1D`.
    */
   grantInterval?: string
   /**

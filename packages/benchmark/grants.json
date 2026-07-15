@@ -1,7 +1,0 @@
-{
-  "https://rafiki-backend.testnet.test/519e48a": {
-    "accessToken": "A3847BDBC8BDFEE675A9",
-    "manageUrl": "https://auth.testnet.test/token/220862f2-8f8d-4d4a-9ebd-b82730b8ab5a",
-    "continueUri": "https://auth.testnet.test/continue/ba93ab1f-8719-413e-bced-5675276d2170"
-  }
-}

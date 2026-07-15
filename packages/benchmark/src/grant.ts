@@ -7,7 +7,8 @@ import { sleep as realSleep, type Sleep } from '@/util'
 export interface ObtainGrantDeps {
   client: BenchmarkClient
   payer: WalletAddress
-  debitAmount: Amount
+  /** Debit cap for the grant; omit for a limitless grant (no `limits`). */
+  debitAmount?: Amount
   /**
    * Optional ISO8601 repeating interval making the grant recurring, so its
    * `debitAmount` allowance resets each period and the grant is reusable across

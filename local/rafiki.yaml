@@ -127,7 +127,7 @@ services:
       POS_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_POS_WEBHOOK_SERVICE_URL:-http://rafiki-pos-service:3014/web}
       OUTGOING_PAYMENT_WORKERS: 1
       WEBHOOK_WORKERS: 1
-      OUTGOING_PAYMENT_WORKER_BATCH_SIZE: 150
+      OUTGOING_PAYMENT_WORKER_BATCH_SIZE: 50
       OUTGOING_PAYMENT_PROCESSING_INTERVAL_MS: 500
     depends_on:
       # Wait for Postgres/Redis readiness before booting. Otherwise the startup

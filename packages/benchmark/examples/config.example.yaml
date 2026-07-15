@@ -16,6 +16,8 @@ output: ./results/run.json # optional; JSON metrics (console is always printed)
 sequential: false # optional; run scenarios concurrently (default) or one-at-a-time
 verbose: false # optional; log per-slice request timing (quote + create latency)
 settleLatency: false # optional; measure per-payment submit→settle latency (extra read load)
+skipQuote: false # optional; create payments directly from the incoming payment, no per-slice quote
+limitlessGrant: true # optional; request the grant with NO debit limit (default) — reusable across runs, higher throughput
 
 payments:
   # Pay $10,000 as 10,000 x $1 slices with 10 workers.

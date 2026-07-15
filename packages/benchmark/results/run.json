@@ -1,33 +1,33 @@
 {
-  "startedAt": "2026-07-15T09:41:27.383Z",
-  "finishedAt": "2026-07-15T09:41:45.216Z",
+  "startedAt": "2026-07-15T19:53:46.831Z",
+  "finishedAt": "2026-07-15T19:56:09.028Z",
   "scenarios": [
     {
-      "label": "https://ilp.interledger-test.dev/140d27e0 → https://ilp.interledger-test.dev/ca16f466",
-      "fromWalletAddress": "https://ilp.interledger-test.dev/140d27e0",
-      "toWalletAddress": "https://ilp.interledger-test.dev/ca16f466",
-      "targetSlices": 10,
-      "assetCode": "EUR",
+      "label": "https://rafiki-backend.testnet.test/d413b5a5 → https://rafiki-backend.testnet.test/usd",
+      "fromWalletAddress": "https://rafiki-backend.testnet.test/d413b5a5",
+      "toWalletAddress": "https://rafiki-backend.testnet.test/usd",
+      "targetSlices": 1000,
+      "assetCode": "USD",
       "assetScale": 2,
-      "succeeded": 10,
+      "succeeded": 1000,
       "failures": {},
-      "concluded": true,
-      "settledValue": "1000",
-      "submitMs": 3097,
-      "settleMs": 16302,
-      "createsPerSecond": 3.23,
-      "settledPerSecond": 61.34,
+      "concluded": false,
+      "settledValue": "33000",
+      "submitMs": 21412,
+      "settleMs": 142058,
+      "createsPerSecond": 46.7,
+      "settledPerSecond": 232.3,
       "quoteLatencyMs": {
-        "count": 10,
-        "p50": 601,
-        "p95": 1010,
-        "max": 1010
+        "count": 1000,
+        "p50": 47,
+        "p95": 69,
+        "max": 89
       },
       "createLatencyMs": {
-        "count": 10,
-        "p50": 711,
-        "p95": 1211,
-        "max": 1211
+        "count": 1000,
+        "p50": 55,
+        "p95": 75,
+        "max": 108
       }
     }
   ]

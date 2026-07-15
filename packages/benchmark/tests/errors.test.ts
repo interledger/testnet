@@ -27,6 +27,19 @@ describe('classifyError', () => {
     expect(classifyError(opError({ description: 'token has expired' }))).toBe(
       'token_expired'
     )
+    // Rafiki returns 403 "Inactive Token" (not 401) for an expired/revoked token.
+    expect(
+      classifyError(opError({ status: 403, description: 'Inactive Token' }))
+    ).toBe('token_expired')
+  })
+
+  it('does not treat a generic 403 or inactive wallet address as token expiry', () => {
+    expect(
+      classifyError(opError({ status: 403, description: 'unauthorized' }))
+    ).toBe('other')
+    expect(
+      classifyError(opError({ status: 400, description: 'inactive wallet address' }))
+    ).toBe('other')
   })
 
   it('detects a locked grant', () => {
