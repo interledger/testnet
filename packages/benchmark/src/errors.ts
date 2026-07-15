@@ -45,3 +45,23 @@ export function classifyError(err: unknown): FailureReason {
 export function isTooFast(err: unknown): boolean {
   return err instanceof OpenPaymentsClientError && err.code === 'too_fast'
 }
+
+/**
+ * Render an error into a single diagnostic line, pulling the status, GNAP code,
+ * description and any validation errors out of an {@link OpenPaymentsClientError}
+ * (whose default `message` is just "Error making Open Payments POST request").
+ */
+export function describeError(err: unknown): string {
+  if (err instanceof OpenPaymentsClientError) {
+    const parts = [
+      err.status !== undefined ? `status=${err.status}` : undefined,
+      err.code ? `code=${err.code}` : undefined,
+      err.description ? `description=${err.description}` : undefined,
+      err.validationErrors?.length
+        ? `validation=${err.validationErrors.join('; ')}`
+        : undefined
+    ].filter(Boolean)
+    return parts.length ? parts.join(' ') : err.message
+  }
+  return err instanceof Error ? err.message : String(err)
+}

@@ -11,7 +11,7 @@ import { ScenarioMetrics } from '@/metrics'
 import { Dispenser } from '@/dispenser'
 import { runPool } from '@/pool'
 import { RotatingToken } from '@/rotating-token'
-import { classifyError } from '@/errors'
+import { classifyError, describeError } from '@/errors'
 import { sleep as realSleep, type Clock, type Sleep } from '@/util'
 
 /** Resolves an approved outgoing-payment grant token for a payer. */
@@ -213,7 +213,7 @@ export async function runScenario(
     if (control.consecutiveFailures >= cfg.maxConsecutiveFailures) {
       control.abort = true
       control.abortError = new Error(
-        `Aborting scenario after ${control.consecutiveFailures} consecutive failures: ${err.message}`
+        `Aborting scenario after ${control.consecutiveFailures} consecutive failures: ${describeError(err)}`
       )
     }
   }
@@ -345,7 +345,7 @@ export async function runScenario(
         const reason = classifyError(err)
         if (verbose) {
           log(
-            `[${label}] slice #${slice} create FAILED (${reason}) — quote ${quotedAt - startedAt}ms, create ${now() - quotedAt}ms`
+            `[${label}] slice #${slice} create FAILED (${reason}) — quote ${quotedAt - startedAt}ms, create ${now() - quotedAt}ms — ${describeError(err)}`
           )
         }
         if (reason === 'token_expired') {
