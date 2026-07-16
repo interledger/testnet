@@ -11,7 +11,7 @@ import { IWalletAddressResponse } from '@wallet/shared'
 import { Button } from '@/ui/Button'
 import { Input } from '@/ui/forms/Input'
 import { useQRCode } from 'next-qrcode'
-import jsPDF, { GState } from 'jspdf'
+import jsPDF from 'jspdf'
 
 const loadImageAsCanvas = (src: string): Promise<HTMLCanvasElement> => {
   return new Promise((resolve, reject) => {
@@ -112,26 +112,19 @@ export const GenerateQRForWADialog = ({
     const cardY = qrY - qrBorderThickness
     const cardSize = qrSize + qrBorderThickness * 2
 
-    const shadowOffset = 1.5
-    const shadowLayers = 16
-    doc.setFillColor(0, 0, 0)
-    for (let i = shadowLayers; i > 0; i--) {
-      const spread = i * 0.5
-      doc.setGState(new GState({ opacity: 0.012 }))
-      doc.roundedRect(
-        cardX - spread + shadowOffset,
-        cardY - spread + shadowOffset,
-        cardSize + spread * 2,
-        cardSize + spread * 2,
-        8 + spread,
-        8 + spread,
-        'F'
-      )
-    }
-    doc.setGState(new GState({ opacity: 1 }))
-
-    doc.setFillColor(255, 255, 255)
-    doc.roundedRect(cardX, cardY, cardSize, cardSize, 8, 8, 'F')
+    const shadowCanvas = await loadImageAsCanvas('/shadow.png')
+    const cardFracLeft = 268 / 2184
+    const cardFracTop = 204 / 2184
+    const cardFracSize = 1646 / 2184
+    const shadowImageSize = cardSize / cardFracSize
+    doc.addImage(
+      shadowCanvas,
+      'PNG',
+      cardX - cardFracLeft * shadowImageSize,
+      cardY - cardFracTop * shadowImageSize,
+      shadowImageSize,
+      shadowImageSize
+    )
 
     doc.addImage(qrImg.src, 'JPEG', contentLeft, qrY, qrSize, qrSize)
 
