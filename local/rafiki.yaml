@@ -125,10 +125,20 @@ services:
       CARD_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_CARD_WEBHOOK_SERVICE_URL:-http://rafiki-card-service:3007/webhook}
       POS_SERVICE_URL: ${RAFIKI_BACKEND_POS_SERVICE_URL:-http://rafiki-pos-service:3014}
       POS_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_POS_WEBHOOK_SERVICE_URL:-http://rafiki-pos-service:3014/web}
-      OUTGOING_PAYMENT_WORKERS: 1
-      WEBHOOK_WORKERS: 1
+      OUTGOING_PAYMENT_WORKERS: 4
+      WEBHOOK_WORKERS: 4
+      WEBHOOK_WORKER_BATCH_SIZE: 50
       OUTGOING_PAYMENT_WORKER_BATCH_SIZE: 50
-      OUTGOING_PAYMENT_PROCESSING_INTERVAL_MS: 500
+      OUTGOING_PAYMENT_PROCESSING_INTERVAL_MS: 300
+      # Bound how many payments in a batch process concurrently. Each in-flight
+      # payment can check out its own DB connection for Postgres accounting, so
+      # keep this well below DATABASE_POOL_MAX to leave headroom for the API and
+      # webhook-driven liquidity deposits — otherwise the pool starves and
+      # create/quote requests time out (the connection-pool incident).
+      OUTGOING_PAYMENT_WORKER_CONCURRENCY: 40
+      # Connection pool ceiling (previously hardcoded to 10). Sized for OP worker
+      # concurrency (~11 conns) + webhook worker + API + liquidity callbacks.
+      DATABASE_POOL_MAX: 50
     depends_on:
       # Wait for Postgres/Redis readiness before booting. Otherwise the startup
       # migration + operator-tenant seed fails, start() throws (only logged),
