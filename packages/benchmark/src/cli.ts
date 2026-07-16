@@ -13,10 +13,14 @@ import {
 } from '@/grant-cache'
 import { runBenchmark, type GrantResolver } from '@/runner'
 import { formatResult } from '@/report'
+import { describeError } from '@/errors'
+import { formatCsv } from '@/csv'
+import { runProvision } from '@/provision'
 import type {
   Amount,
   BenchmarkConfig,
   CachedGrant,
+  PaymentSample,
   PaymentScenarioConfig
 } from '@/types'
 
@@ -281,6 +285,7 @@ async function main(): Promise<void> {
     return grant
   }
 
+  const samples: PaymentSample[] = []
   const result = await runBenchmark(config, {
     client,
     resolveGrant,
@@ -288,6 +293,7 @@ async function main(): Promise<void> {
     settleLatency: config.settleLatency,
     skipQuote: config.skipQuote,
     incomingExpiryMs: config.incomingExpiryMs,
+    onSamples: (batch) => samples.push(...batch),
     log: (m) => console.log(m)
   })
 
@@ -298,9 +304,30 @@ async function main(): Promise<void> {
   await mkdir(dirname(outputPath), { recursive: true })
   await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8')
   console.log(`Results written to ${outputPath}`)
+
+  const csvPath = config.csvOutput ?? csvPathFor(outputPath)
+  await mkdir(dirname(csvPath), { recursive: true })
+  await writeFile(csvPath, formatCsv(result, samples), 'utf8')
+  console.log(`Per-payment CSV (${samples.length} row(s)) written to ${csvPath}`)
 }
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.message : err)
+/** Derive the CSV path from the JSON output path (swap `.json` → `.csv`). */
+function csvPathFor(outputPath: string): string {
+  return outputPath.endsWith('.json')
+    ? `${outputPath.slice(0, -'.json'.length)}.csv`
+    : `${outputPath}.csv`
+}
+
+// Subcommand dispatch. Default (no/other subcommand) runs the benchmark, so the
+// existing `op-benchmark <config.yaml>` invocation is unchanged.
+const [subcommand, ...rest] = process.argv.slice(2)
+const entry =
+  subcommand === 'provision' ? () => runProvision(rest) : () => main()
+
+entry().catch((err) => {
+  // `describeError` unpacks an OpenPaymentsClientError's status/code/description
+  // (and, for a timeout, the failing method+URL) — the bare `.message` is just
+  // the useless "Error making Open Payments <VERB> request".
+  console.error(describeError(err))
   process.exitCode = 1
 })

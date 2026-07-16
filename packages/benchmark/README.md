@@ -49,6 +49,73 @@ Two things that commonly trip people up:
 NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm run bench ./config.yaml --grants ./grants.json
 ```
 
+## Provisioning a local fleet (`provision` subcommand)
+
+To benchmark against **local**, you need wallets to send from and to. The
+`provision` subcommand drives the local wallet UI with Playwright to create a
+fleet of fully initialised wallets and writes everything a benchmark run needs
+into an output folder.
+
+Per run it creates **N sender/receiver pairs** — `sender-one`/`receiver-one`,
+`sender-two`/`receiver-two`, … (spelled out because wallet-address slugs may not
+contain the digit `0`), all in one asset (USD by default). Each **sender** pays
+its **own dedicated receiver**, so the credit side never serializes on a single
+incoming-payment account. For each wallet it: signs up a user, verifies the email
+via a direct DB write (no SMTP), completes the mock KYC, creates the account +
+wallet address, and generates an Open Payments developer key. Each **sender** is
+then funded via the deposit dialog (100,000 USD by default); **receivers are not
+funded**.
+
+**Prerequisites:** the local stack is running — `pnpm dev` (wallet FE/BE) and
+`pnpm local:rafiki-assets` (seeds the USD asset) in the testnet repo — so
+`https://testnet.test`, the wallet backend on `:3003`, and Postgres on `:15434`
+are reachable.
+
+```bash
+# 10 pairs (10 senders + 10 receivers), 100k USD/sender, into ./runs/local-fleet
+NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm run provision
+
+# equivalently, with the CLI directly
+node dist/cli.js provision --senders 10 --deposit 100000 --out ./runs/local-fleet
+```
+
+Flags (all optional): `--senders <n>` (number of pairs; default 10, max 20),
+`--deposit <major>` (per sender, default 100000), `--asset <CODE>` (default USD),
+`--out <dir>` (default `./runs/local-fleet`), `--prefix <p>` (namespaces
+labels/slugs, e.g. `smoke-`, so a fleet won't collide with an existing one —
+slugs are global in Rafiki), `--headed` (show the browser), and `--base-url` /
+`--db-url` / `--api-url` / `--op-host` / `--nickname` to override local defaults.
+
+**Re-runs are idempotent.** For each wallet the command reuses the prior
+`fleet.json` entry when its key file is still present and its wallet address
+still exists (logged `↺ … reusing`); it provisions only what's missing. A slug
+that exists in Rafiki but has no key in the manifest (e.g. after deleting
+`fleet.json`, or a partial earlier run) is **skipped** with a warning — a wallet
+address's private key is shown only once at creation and can't be recovered, so
+reset the local env or use `--prefix` for a fresh fleet.
+
+Output folder:
+
+```
+runs/local-fleet/
+  fleet.json        # manifest: { pairs: [{ sender, receiver }, …] }, each wallet
+                    # with walletAddressUrl, accountId, keyId, privateKeyFile,
+                    # email/password (+ depositedMajor on senders)
+  keys/
+    sender-one.key    # PKCS8 PEM (one per wallet), mode 0600
+    receiver-one.key
+    …
+```
+
+Wallets are provisioned **sequentially** (the wallet app isn't built for
+concurrent signups) and `fleet.json` is rewritten after each one, so partial
+progress survives a mid-run failure. The `runs/` folder is git-ignored, so the
+generated keys are never committed.
+
+> A later step will consume `fleet.json` to build a multi-sender benchmark config
+> — one scenario per pair (`sender-N` → `receiver-N`), each with its own key +
+> grant. This subcommand only provisions and persists the fleet.
+
 ## Configuration
 
 ```yaml
@@ -57,6 +124,7 @@ client: # one developer key signs every request (a dedicated benchmark wallet ad
   keyId: 0e0e...
   privateKey: ./benchmark.key # PKCS8 PEM: path (resolved relative to the config) or inline
 output: ./results/run.json # optional; JSON metrics (console output is always printed)
+csvOutput: ./results/run.csv # optional; per-payment CSV (default: `output` with a .csv extension)
 sequential: false # optional; run scenarios one-at-a-time instead of concurrently
 skipQuote: false # optional; create payments directly from the incoming payment, no per-slice quote
 limitlessGrant: true # optional; request the grant with NO debit limit (default true) — see Validity notes
@@ -77,20 +145,60 @@ Constraints enforced by config validation: `amount` must be an exact multiple of
 
 `amount` and `paymentSize` are denominated in the **receiver's** asset (the tool
 fills a fixed incoming payment on the receiver), so `amountScale` must match the
-**receiver's** asset scale. The payer may use a **different asset** — each slice
-is a fixed-delivery quote, so cross-currency pairs settle via the quote's FX
-conversion. For a cross-currency run the outgoing-payment grant's `debitAmount`
-limit can't be assumed equal to `amount`; the CLI sizes it by probing the
-exchange rate (quoting one slice) and summing `perSliceDebit × slices` across the
-payer's scenarios, plus a small buffer for rounding and rate drift.
+**receiver's** asset scale. The payer may use a **different asset**: each slice
+**quotes** the cost of delivering `paymentSize`, then creates the outgoing
+payment **debit-fixed** for the debit the quote returned — it spends exactly that
+and delivers whatever it buys. Paying the debit (rather than committing to an
+exact delivery target) is robust to any FX/fee spread on the path, which a
+delivery-fixed create can otherwise fail to satisfy. For a cross-currency run the
+outgoing-payment grant's `debitAmount` limit can't be assumed equal to `amount`;
+the CLI sizes it by probing the exchange rate (quoting one slice) and summing
+`perSliceDebit × slices` across the payer's scenarios, plus a small buffer for
+rounding and rate drift.
+
+## Per-payment CSV (for graphing)
+
+Alongside the aggregate JSON, every run writes a **per-payment CSV** — one row
+per payment _attempt_ (a single quote+create cycle) as the client observed it.
+It goes to `csvOutput`, defaulting to the `output` path with a `.csv` extension
+(`results/run.json` → `results/run.csv`).
+
+The file opens with a commented legend (lines starting with `#`) documenting the
+run and every column, so it is self-describing. Columns:
+
+| Column | Meaning |
+|---|---|
+| `scenario` | 1-based scenario id; the legend maps each id to its `from → to` addresses |
+| `attempt` | monotonic attempt number within the scenario (unique; retries included) |
+| `worker` | zero-based worker that made the attempt |
+| `offset_ms` | ms from the scenario start to when the attempt began — the **time axis** |
+| `quote_ms` | ms spent in the **quote** state (≈0 when `skipQuote` is on) |
+| `create_ms` | ms spent in the **create** state (outgoing-payment create) |
+| `settle_ms` | ms from create to fully sent (blank unless `settleLatency` is on) |
+| `total_ms` | `quote_ms + create_ms` — client time to the end state |
+| `outcome` | `success` or `failure` |
+| `failed_state` | on failure, the state it failed in (`quote` / `create`); blank on success |
+| `error_reason` | on failure, classified reason (`token_expired`, `already_full`, `other`, …) |
+| `error_detail` | on failure, HTTP status / GNAP code / description (a request timeout shows here) |
+
+Which duration column is populated shows where a failed attempt died: a
+`create` failure has both `quote_ms` and `create_ms` set; a `quote` failure has
+`create_ms` empty. Timeouts (the shared-testnet saturation symptom) appear as
+`error_reason=other` with `error_detail` containing `Request timed out`.
+
+Skip the legend when plotting, e.g. `pandas.read_csv(path, comment='#')`, or in a
+spreadsheet drop the leading `#` lines. Good first charts: `offset_ms` vs
+`total_ms` scatter (watch latency climb under load) and a stacked
+`quote_ms`/`create_ms` bar per attempt.
 
 ## Skipping the quote (`skipQuote`)
 
-Each slice normally does two calls: a `receiveAmount`-fixed quote, then an
-outgoing-payment create against that quote. With `skipQuote: true` the tool
-creates each payment **directly from the incoming payment** with a fixed
-`debitAmount` — Open Payments allows `incomingPayment` + `debitAmount` in place
-of a `quoteId` — removing one round-trip per slice from the hot path.
+Each slice normally does two calls: a `receiveAmount`-fixed quote to price
+delivering `paymentSize`, then an outgoing-payment create for the debit that
+quote returned (`incomingPayment` + `debitAmount`). With `skipQuote: true` the
+per-slice quote is dropped and a debit resolved **once** at scenario start is
+reused — the create is the same shape either way — removing one round-trip per
+slice from the hot path.
 
 The per-slice debit is resolved **once** at scenario start, so workers never
 quote:

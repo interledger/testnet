@@ -58,6 +58,12 @@ export interface BenchmarkConfig {
   client: ClientConfig
   /** Path to write the machine-readable JSON results to. */
   output?: string
+  /**
+   * Path to write the per-payment CSV to (one row per payment attempt; see
+   * {@link PaymentSample}). Defaults to `output` with its extension swapped to
+   * `.csv` (e.g. `results/run.json` → `results/run.csv`).
+   */
+  csvOutput?: string
   /** Run scenarios one-at-a-time instead of concurrently. */
   sequential?: boolean
   /** Log per-slice request timing (quote + create latency) as slices complete. */
@@ -112,6 +118,53 @@ export type FailureReason =
   | 'insufficient_liquidity'
   | 'already_full'
   | 'other'
+
+/** The end state of a payment attempt from the benchmark client's perspective. */
+export type PaymentOutcome = 'success' | 'failure'
+
+/** A client-observed state a payment attempt passes through. */
+export type PaymentState = 'quote' | 'create'
+
+/**
+ * One payment attempt — a single quote+create cycle — as the benchmark client
+ * observed it, captured for the per-payment CSV. Each retry (after a token
+ * refresh or a timeout re-queue) is recorded as its own attempt/row. Durations
+ * are wall-clock milliseconds the client spent in each state; `settleMs` is
+ * filled in asynchronously once the created payment is seen fully sent (only
+ * when `settleLatency` measurement is enabled).
+ */
+export interface PaymentSample {
+  /** 1-based scenario index; scenario N corresponds to `config.payments[N-1]`. */
+  scenario: number
+  /** Monotonic attempt number within the scenario (unique per attempt). */
+  attempt: number
+  /** Zero-based id of the worker that performed the attempt. */
+  worker: number
+  /** Ms from the scenario's timed start to when this attempt began (time axis). */
+  offsetMs: number
+  /** Ms spent in the quote state (≈0 when skip-quote is enabled). */
+  quoteMs: number
+  /** Ms spent in the create state. */
+  createMs: number
+  /**
+   * Ms from create returning to the payment being fully sent. Present only when
+   * `settleLatency` is on and the attempt succeeded and then settled.
+   */
+  settleMs?: number
+  /** `quoteMs + createMs` — client time to the attempt's end state. */
+  totalMs: number
+  /** The attempt's end state. */
+  outcome: PaymentOutcome
+  /** On failure, the state the attempt failed in; absent on success. */
+  failedState?: PaymentState
+  /** On failure, the classified reason; absent on success. */
+  errorReason?: FailureReason
+  /**
+   * On failure, a diagnostic string (HTTP status / GNAP code / description, e.g.
+   * a request timeout surfaces here); absent on success.
+   */
+  errorDetail?: string
+}
 
 /** Immutable summary of a single scenario's run, safe to serialise to JSON. */
 export interface ScenarioSummary {

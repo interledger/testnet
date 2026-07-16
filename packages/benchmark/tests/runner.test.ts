@@ -1,7 +1,7 @@
 import { OpenPaymentsClientError } from '@interledger/open-payments'
 import { runScenario, runBenchmark, type GrantResolver } from '@/runner'
 import type { BenchmarkClient } from '@/open-payments'
-import type { PaymentScenarioConfig } from '@/types'
+import type { PaymentSample, PaymentScenarioConfig } from '@/types'
 
 const immediateSleep = jest.fn().mockResolvedValue(undefined)
 const grant: GrantResolver = async () => ({
@@ -62,7 +62,16 @@ function makeFake(opts: FakeOpts): {
     getIncomingPayment: jest.fn(async () => ({
       receivedAmount: { value: getReceived(state.delivered) }
     })),
-    createQuote: opts.quoteCreate ?? jest.fn(async () => ({ id: 'q' })),
+    createQuote:
+      opts.quoteCreate ??
+      jest.fn(async () => ({
+        id: 'q',
+        debitAmount: {
+          value: String(opts.paymentSize),
+          assetCode: 'EUR',
+          assetScale: 2
+        }
+      })),
     createOutgoingPayment: outgoingCreate,
     // A created payment always reports as fully sent when polled.
     getOutgoingPayment: jest.fn(async () => ({
@@ -120,6 +129,17 @@ describe('runScenario', () => {
     expect(summary.settledValue).toBe('1000')
     expect(summary.failures).toEqual({})
     expect(mocks.createOutgoingPayment).toHaveBeenCalledTimes(10)
+    // Each payment is created debit-fixed, spending exactly the debit the quote
+    // returned — never delivery-fixed via a quoteId.
+    expect(mocks.createOutgoingPayment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        incomingPayment: 'https://ip/1',
+        debitAmount: { value: '100', assetCode: 'EUR', assetScale: 2 }
+      })
+    )
+    expect(mocks.createOutgoingPayment).not.toHaveBeenCalledWith(
+      expect.objectContaining({ quoteId: expect.anything() })
+    )
   })
 
   it('rotates the token on expiry and still concludes', async () => {
@@ -253,7 +273,7 @@ describe('runScenario', () => {
     )
   })
 
-  it('skips quoting for a same-asset pair and creates directly from the incoming payment', async () => {
+  it('skip-quote probes exactly once for a same-asset pair, then reuses the debit', async () => {
     const { client, mocks } = makeFake({ paymentSize: 100 })
     const summary = await runScenario(scenario(), {
       client,
@@ -265,14 +285,19 @@ describe('runScenario', () => {
 
     expect(summary.succeeded).toBe(10)
     expect(summary.concluded).toBe(true)
-    // No quote is ever created for a same-asset skip-quote run.
-    expect(mocks.createQuote).not.toHaveBeenCalled()
+    // Even same-asset skip-quote probes once up front (the debit only equals the
+    // delivered amount when the ASE charges no fee) — one quote, not per slice.
+    expect(mocks.createQuote).toHaveBeenCalledTimes(1)
     expect(mocks.createOutgoingPayment).toHaveBeenCalledTimes(10)
+    // Every create reuses the probe's debit and never delivery-fixes via a quote.
     expect(mocks.createOutgoingPayment).toHaveBeenCalledWith(
       expect.objectContaining({
         incomingPayment: 'https://ip/1',
         debitAmount: { value: '100', assetCode: 'EUR', assetScale: 2 }
       })
+    )
+    expect(mocks.createOutgoingPayment).not.toHaveBeenCalledWith(
+      expect.objectContaining({ quoteId: expect.anything() })
     )
   })
 
@@ -320,6 +345,27 @@ describe('runScenario', () => {
     expect(summary.settleLatencyMs?.count).toBe(3)
   })
 
+  it('records settle latency for every payment (round-robin watcher)', async () => {
+    const { client, mocks } = makeFake({ paymentSize: 100 })
+    const samples: PaymentSample[] = []
+    const summary = await runScenario(scenario({ amount: 500, workers: 2 }), {
+      client,
+      resolveGrant: grant,
+      sleep: immediateSleep,
+      now: () => 0,
+      settleLatency: true,
+      onSamples: (batch) => samples.push(...batch)
+    })
+
+    expect(mocks.getOutgoingPayment).toHaveBeenCalled()
+    // Every one of the 5 created payments is observed and timed, not just a
+    // subset — the watcher polls the whole in-flight set each tick.
+    expect(summary.settleLatencyMs?.count).toBe(5)
+    const successes = samples.filter((s) => s.outcome === 'success')
+    expect(successes).toHaveLength(5)
+    expect(successes.every((s) => s.settleMs !== undefined)).toBe(true)
+  })
+
   it('omits settle latency when not enabled', async () => {
     const { client, mocks } = makeFake({ paymentSize: 100 })
     const summary = await runScenario(scenario({ amount: 100, workers: 1 }), {
@@ -331,6 +377,64 @@ describe('runScenario', () => {
 
     expect(mocks.getOutgoingPayment).not.toHaveBeenCalled()
     expect(summary.settleLatencyMs).toBeUndefined()
+  })
+
+  it('emits one per-attempt sample per successful slice via onSamples', async () => {
+    const { client } = makeFake({ paymentSize: 100 })
+    const samples: PaymentSample[] = []
+    const summary = await runScenario(scenario({ amount: 300, workers: 1 }), {
+      client,
+      resolveGrant: grant,
+      sleep: immediateSleep,
+      now: () => 0,
+      scenarioIndex: 2,
+      onSamples: (batch) => samples.push(...batch)
+    })
+
+    expect(summary.succeeded).toBe(3)
+    expect(samples).toHaveLength(3)
+    for (const s of samples) {
+      expect(s.scenario).toBe(2)
+      expect(s.outcome).toBe('success')
+      expect(s.worker).toBe(0)
+      expect(s.failedState).toBeUndefined()
+      expect(s.errorReason).toBeUndefined()
+    }
+    // Attempts are numbered monotonically.
+    expect(samples.map((s) => s.attempt).sort((a, b) => a - b)).toEqual([
+      1, 2, 3
+    ])
+  })
+
+  it('records a failure sample with the failed state and error detail', async () => {
+    const outgoingCreate = jest.fn().mockRejectedValue(
+      new OpenPaymentsClientError('boom', {
+        description: 'Request timed out',
+        status: 504
+      })
+    )
+    const { client } = makeFake({ paymentSize: 100, outgoingCreate })
+    const samples: PaymentSample[] = []
+
+    await expect(
+      runScenario(scenario({ workers: 1 }), {
+        client,
+        resolveGrant: grant,
+        sleep: immediateSleep,
+        now: () => 0,
+        maxConsecutiveFailures: 2,
+        onSamples: (batch) => samples.push(...batch)
+      })
+    ).rejects.toThrow(/consecutive failures/)
+
+    // Samples are flushed even on the abort path.
+    expect(samples.length).toBeGreaterThanOrEqual(2)
+    const failed = samples[0]
+    expect(failed.outcome).toBe('failure')
+    expect(failed.failedState).toBe('create')
+    expect(failed.errorReason).toBe('other')
+    expect(failed.errorDetail).toContain('Request timed out')
+    expect(failed.errorDetail).toContain('status=504')
   })
 
   it('rejects an asset-scale mismatch with the receiver', async () => {

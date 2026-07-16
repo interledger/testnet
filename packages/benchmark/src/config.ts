@@ -48,6 +48,7 @@ const scenarioSchema = z
 const configSchema = z.object({
   client: clientSchema,
   output: z.string().min(1).optional(),
+  csvOutput: z.string().min(1).optional(),
   sequential: z.boolean().optional(),
   verbose: z.boolean().optional(),
   settleLatency: z.boolean().optional(),

@@ -3,6 +3,9 @@ import type {
   Amount,
   BenchmarkConfig,
   BenchmarkResult,
+  PaymentOutcome,
+  PaymentSample,
+  PaymentState,
   PaymentScenarioConfig,
   ScenarioSummary
 } from '@/types'
@@ -26,6 +29,18 @@ export interface RunScenarioDeps {
   now?: Clock
   sleep?: Sleep
   log?: (message: string) => void
+  /**
+   * 1-based index of this scenario within the run; stamped onto every
+   * {@link PaymentSample} so a combined CSV can distinguish scenarios. Defaults
+   * to 1. {@link runBenchmark} sets it per scenario.
+   */
+  scenarioIndex?: number
+  /**
+   * Receives every per-attempt {@link PaymentSample} for the scenario, flushed
+   * once as a batch when the scenario ends — after the settlement watchers have
+   * attached any async `settleMs`, so each sample is complete.
+   */
+  onSamples?: (samples: PaymentSample[]) => void
   /** Log per-slice request timing (quote + create latency) as slices complete. */
   verbose?: boolean
   /**
@@ -51,7 +66,11 @@ export interface RunScenarioDeps {
    * payment to full settlement, concurrently with submission.
    */
   settleLatency?: boolean
-  /** Concurrent settlement watchers (defaults to the scenario's worker count). */
+  /**
+   * Max concurrent outgoing-payment polls per settlement tick (defaults to the
+   * scenario's worker count). Raise it to observe a large settlement backlog
+   * faster, at the cost of more read load on the ASE.
+   */
   settleWatchers?: number
   /** Interval between polls of an individual outgoing payment awaiting settlement. */
   settleWatchPollMs?: number
@@ -154,40 +173,37 @@ export async function runScenario(
     }
   )
 
-  // Fixed-delivery quote: the slice delivers `paymentSize` in the receiver's
-  // asset; the quote determines the payer-side debit (identity for same-asset,
-  // an FX conversion across assets).
+  // The quote prices delivering `paymentSize` in the receiver's asset; its
+  // returned `debitAmount` (identity for same-asset, an FX/fee conversion across
+  // assets, or a spread on this ASE) is what we then spend per slice. We pay
+  // that debit directly rather than the quote, so a path spread never turns into
+  // a delivery-target the payment can fail to hit.
   const receiveAmount: Amount = {
     value: String(scenario.paymentSize),
     assetCode,
     assetScale
   }
 
-  // When quoting is skipped, resolve the fixed per-slice debit once. For a
-  // same-asset pair the debit equals the delivered `paymentSize`; across assets
-  // we quote a single slice to learn the payer-side debit (FX + any fee) and
-  // reuse it for every create, so no worker ever quotes.
+  // When quoting is skipped, resolve the fixed per-slice debit ONCE by quoting a
+  // single slice up front, then reuse it for every create so no worker quotes.
+  // We must probe even for a same-asset pair: debit only equals the delivered
+  // `paymentSize` when the ASE charges no sending fee/spread — otherwise a
+  // debit == paymentSize create delivers less than paymentSize, and when the fee
+  // meets or exceeds it the create is rejected with "negative receive amount".
   const skipQuote = cfg.skipQuote ?? false
   let directDebit: Amount | undefined
   if (skipQuote) {
-    if (payer.assetCode === receiver.assetCode) {
-      directDebit = {
-        value: String(scenario.paymentSize),
-        assetCode: payer.assetCode,
-        assetScale: payer.assetScale
-      }
-    } else {
-      const probe = await deps.client.createQuote({
-        payer,
-        receiver: incomingPayment.id,
-        receiveAmount,
-        accessToken: quoteToken
-      })
-      directDebit = probe.debitAmount
-      log(
-        `[${label}] skip-quote: fixed per-slice debit ${directDebit.value} ${directDebit.assetCode} (asset scale ${directDebit.assetScale}) from an upfront FX probe.`
-      )
-    }
+    const probe = await deps.client.createQuote({
+      payer,
+      receiver: incomingPayment.id,
+      receiveAmount,
+      accessToken: quoteToken
+    })
+    directDebit = probe.debitAmount
+    const sameAsset = payer.assetCode === receiver.assetCode
+    log(
+      `[${label}] skip-quote: fixed per-slice debit ${directDebit.value} ${directDebit.assetCode} (asset scale ${directDebit.assetScale}) from an upfront ${sameAsset ? 'fee' : 'FX'} probe.`
+    )
   }
 
   const dispenser = new Dispenser(target)
@@ -219,9 +235,44 @@ export async function runScenario(
   }
 
   metrics.start()
+  // Base instant for each sample's `offsetMs`; aligned with the metrics clock.
+  const scenarioStart = now()
+  const scenarioIndex = deps.scenarioIndex ?? 1
   log(
     `[${label}] submitting ${target} slice(s) with ${scenario.workers} worker(s)`
   )
+
+  // Per-attempt lifecycle samples for the CSV, buffered and flushed once at the
+  // end so async settlement timings can be attached before they are emitted.
+  const samples: PaymentSample[] = []
+  const recordSample = (fields: {
+    attempt: number
+    worker: number
+    startedAt: number
+    quoteMs: number
+    createMs: number
+    outcome: PaymentOutcome
+    failedState?: PaymentState
+    err?: unknown
+  }): PaymentSample => {
+    const sample: PaymentSample = {
+      scenario: scenarioIndex,
+      attempt: fields.attempt,
+      worker: fields.worker,
+      offsetMs: Math.max(0, fields.startedAt - scenarioStart),
+      quoteMs: fields.quoteMs,
+      createMs: fields.createMs,
+      totalMs: fields.quoteMs + fields.createMs,
+      outcome: fields.outcome,
+      failedState: fields.failedState,
+      errorReason:
+        fields.err !== undefined ? classifyError(fields.err) : undefined,
+      errorDetail:
+        fields.err !== undefined ? describeError(fields.err) : undefined
+    }
+    samples.push(sample)
+    return sample
+  }
 
   // Monotonically-increasing slice number for per-request verbose logging. JS is
   // single-threaded between awaits, so this needs no synchronisation.
@@ -233,52 +284,100 @@ export async function runScenario(
   // settlement to measure end-to-end submit→settle latency, running alongside
   // the submit workers so it doesn't distort create throughput.
   const settleLatencyEnabled = cfg.settleLatency ?? false
-  const settleQueue: Array<{ url: string; submitTs: number }> = []
+  const settleQueue: Array<{
+    url: string
+    submitTs: number
+    sample: PaymentSample
+  }> = []
   let submitDone = false
 
+  // Round-robin settlement watcher: every `settleWatchPollMs` it polls each
+  // in-flight payment exactly once (with bounded concurrency), rather than tying
+  // up a worker per payment until it settles. This bounds the observation lag to
+  // ~one poll interval regardless of how deep the backlog gets, so `settleMs`
+  // measures real submit→settle time instead of time a payment spent waiting in
+  // a queue for a free watcher (which made the old measurement climb under load).
   const watchSettlements = async (): Promise<void> => {
-    await runPool(deps.settleWatchers ?? scenario.workers, async () => {
-      while (!control.abort) {
-        const item = settleQueue.shift()
-        if (!item) {
-          if (submitDone) {
+    const pollConcurrency = deps.settleWatchers ?? scenario.workers
+    // Payments created but not yet observed settled / failed / timed out.
+    const inFlight: Array<{
+      url: string
+      submitTs: number
+      sample: PaymentSample
+    }> = []
+
+    while (!control.abort) {
+      // Absorb everything created since the last tick.
+      for (let next = settleQueue.shift(); next; next = settleQueue.shift()) {
+        inFlight.push(next)
+      }
+      if (inFlight.length === 0) {
+        if (submitDone) {
+          return
+        }
+        await sleep(cfg.settleWatchPollMs)
+        continue
+      }
+
+      // Poll a stable snapshot of the in-flight set once this tick. `retire`
+      // collects indices to drop (fully sent, failed, timed out, or a hard
+      // error); a `token_expired` leaves the item in-flight to retry next tick.
+      const retire = new Set<number>()
+      let cursor = 0
+      const pollWorker = async (): Promise<void> => {
+        while (!control.abort) {
+          const i = cursor++
+          if (i >= inFlight.length) {
             return
           }
-          await sleep(cfg.settleWatchPollMs)
-          continue
-        }
-        const deadline = item.submitTs + cfg.settleTimeoutMs
-        while (!control.abort) {
+          const item = inFlight[i]
           try {
             const op = await deps.client.getOutgoingPayment(
               item.url,
               outgoingToken.current()
             )
             if (op.failed) {
-              break
-            }
-            if (BigInt(op.sentAmount.value) >= BigInt(op.debitAmount.value)) {
-              metrics.recordSettleLatency(now() - item.submitTs)
-              break
+              retire.add(i)
+            } else if (
+              BigInt(op.sentAmount.value) >= BigInt(op.debitAmount.value)
+            ) {
+              const settledMs = now() - item.submitTs
+              metrics.recordSettleLatency(settledMs)
+              item.sample.settleMs = settledMs
+              retire.add(i)
+            } else if (now() >= item.submitTs + cfg.settleTimeoutMs) {
+              retire.add(i) // never settled within the timeout; drop, no sample
             }
           } catch (err) {
             if (classifyError(err) === 'token_expired') {
               await outgoingToken.rotate(outgoingToken.current()).catch(() => {})
             } else {
-              break // give up this sample; don't let it block the watcher
+              retire.add(i) // give up this one sample; keep watching the rest
             }
           }
-          if (now() >= deadline) {
-            break
-          }
-          await sleep(cfg.settleWatchPollMs)
         }
       }
-    })
+      await Promise.all(
+        Array.from({ length: Math.min(pollConcurrency, inFlight.length) }, () =>
+          pollWorker()
+        )
+      )
+
+      if (retire.size > 0) {
+        const remaining = inFlight.filter((_, i) => !retire.has(i))
+        inFlight.length = 0
+        inFlight.push(...remaining)
+      }
+      // Done only once nothing is in flight and no more will be created.
+      if (inFlight.length === 0 && submitDone && settleQueue.length === 0) {
+        return
+      }
+      await sleep(cfg.settleWatchPollMs)
+    }
   }
   const settleWatch = settleLatencyEnabled ? watchSettlements() : null
 
-  await runPool(scenario.workers, async () => {
+  await runPool(scenario.workers, async (workerId) => {
     while (!control.abort && !control.complete) {
       if (!dispenser.claim()) {
         if (dispenser.done) {
@@ -290,7 +389,10 @@ export async function runScenario(
 
       const slice = ++sliceNo
       const startedAt = now()
-      let quoteId: string | undefined
+      // The debit we will actually spend on this slice: for skip-quote it was
+      // resolved once up front; otherwise the quote tells us what delivering
+      // `paymentSize` costs the payer, and we pay exactly that.
+      let sliceDebit: Amount | undefined = directDebit
       if (!skipQuote) {
         try {
           const quote = await deps.client.createQuote({
@@ -299,13 +401,24 @@ export async function runScenario(
             receiveAmount,
             accessToken: quoteToken
           })
-          quoteId = quote.id
+          sliceDebit = quote.debitAmount
         } catch (err) {
           const reason = classifyError(err)
+          const quoteMs = now() - startedAt
           dispenser.release()
+          recordSample({
+            attempt: slice,
+            worker: workerId,
+            startedAt,
+            quoteMs,
+            createMs: 0,
+            outcome: 'failure',
+            failedState: 'quote',
+            err
+          })
           if (verbose) {
             log(
-              `[${label}] slice #${slice} quote FAILED (${reason}) in ${now() - startedAt}ms`
+              `[${label}] slice #${slice} quote FAILED (${reason}) in ${quoteMs}ms`
             )
           }
           if (reason === 'token_expired') {
@@ -320,21 +433,33 @@ export async function runScenario(
 
       const quotedAt = now()
       const usedToken = outgoingToken.current()
+      const quoteMs = quotedAt - startedAt
       try {
+        // Pay the exact debit the quote returned (debit-fixed), created directly
+        // from the incoming payment. A debit-fixed send just spends `sliceDebit`
+        // and delivers whatever it buys — more robust than a delivery-fixed
+        // create, which must hit an exact delivery target and can fail to send
+        // when the path carries a spread/fee.
         const op = await deps.client.createOutgoingPayment({
           payer,
           accessToken: usedToken,
-          ...(quoteId !== undefined
-            ? { quoteId }
-            : { incomingPayment: incomingPayment.id, debitAmount: directDebit! })
+          incomingPayment: incomingPayment.id,
+          debitAmount: sliceDebit!
         })
         const createMs = now() - quotedAt
-        const quoteMs = quotedAt - startedAt
         metrics.recordSuccess(quoteMs, createMs, BigInt(scenario.paymentSize))
         dispenser.confirm()
         control.consecutiveFailures = 0
+        const sample = recordSample({
+          attempt: slice,
+          worker: workerId,
+          startedAt,
+          quoteMs,
+          createMs,
+          outcome: 'success'
+        })
         if (settleLatencyEnabled) {
-          settleQueue.push({ url: op.id, submitTs: now() })
+          settleQueue.push({ url: op.id, submitTs: now(), sample })
         }
         if (verbose) {
           log(
@@ -343,9 +468,20 @@ export async function runScenario(
         }
       } catch (err) {
         const reason = classifyError(err)
+        const createMs = now() - quotedAt
+        recordSample({
+          attempt: slice,
+          worker: workerId,
+          startedAt,
+          quoteMs,
+          createMs,
+          outcome: 'failure',
+          failedState: 'create',
+          err
+        })
         if (verbose) {
           log(
-            `[${label}] slice #${slice} create FAILED (${reason}) — quote ${quotedAt - startedAt}ms, create ${now() - quotedAt}ms — ${describeError(err)}`
+            `[${label}] slice #${slice} create FAILED (${reason}) — quote ${quoteMs}ms, create ${createMs}ms — ${describeError(err)}`
           )
         }
         if (reason === 'token_expired') {
@@ -374,6 +510,7 @@ export async function runScenario(
     if (settleWatch) {
       await settleWatch
     }
+    deps.onSamples?.(samples)
     throw control.abortError
   }
 
@@ -397,6 +534,7 @@ export async function runScenario(
   }
 
   metrics.markSettled(settled.received)
+  deps.onSamples?.(samples)
   log(
     `[${label}] ${settled.concluded ? 'concluded' : 'INCOMPLETE'} — received ${settled.received}/${scenario.amount}`
   )
@@ -480,12 +618,16 @@ export async function runBenchmark(
 
   if (config.sequential) {
     scenarios = []
-    for (const scenario of config.payments) {
-      scenarios.push(await runScenario(scenario, deps))
+    for (const [i, scenario] of config.payments.entries()) {
+      scenarios.push(
+        await runScenario(scenario, { ...deps, scenarioIndex: i + 1 })
+      )
     }
   } else {
     scenarios = await Promise.all(
-      config.payments.map((scenario) => runScenario(scenario, deps))
+      config.payments.map((scenario, i) =>
+        runScenario(scenario, { ...deps, scenarioIndex: i + 1 })
+      )
     )
   }
 
