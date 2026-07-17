@@ -11,6 +11,22 @@ import { IWalletAddressResponse } from '@wallet/shared'
 import { Button } from '@/ui/Button'
 import { Input } from '@/ui/forms/Input'
 import { useQRCode } from 'next-qrcode'
+import jsPDF from 'jspdf'
+
+const loadImageAsCanvas = (src: string): Promise<HTMLCanvasElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+      canvas.getContext('2d')?.drawImage(img, 0, 0)
+      resolve(canvas)
+    }
+    img.onerror = () => reject(new Error(`Could not load image: ${src}`))
+    img.src = src
+  })
+}
 
 type GenerateQRForWADialogProps = Pick<DialogProps, 'onClose'> & {
   walletAddress: IWalletAddressResponse
@@ -31,14 +47,88 @@ export const GenerateQRForWADialog = ({
   }
   const qrPayload = qrUrl.toString()
 
-  const handleDownload = () => {
-    const img = qrContainerRef.current?.querySelector('img')
-    if (!img?.src) return
+  const handleDownload = async () => {
+    const qrImg = qrContainerRef.current?.querySelector('img')
+    if (!qrImg?.src) return
 
-    const link = document.createElement('a')
-    link.href = img.src
-    link.download = `Merchant-qr-code.jpeg`
-    link.click()
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+
+    doc.setFillColor(235, 233, 230)
+    doc.rect(0, 0, pageWidth, pageHeight, 'F')
+
+    const bottomLogoCanvas = await loadImageAsCanvas(
+      '/interledger-big-half-logo.png'
+    )
+    const bottomLogoHeight =
+      pageWidth * (bottomLogoCanvas.height / bottomLogoCanvas.width)
+    doc.addImage(
+      bottomLogoCanvas,
+      'PNG',
+      0,
+      pageHeight - bottomLogoHeight,
+      pageWidth,
+      bottomLogoHeight
+    )
+
+    const qrSize = 90
+    const contentLeft = (pageWidth - qrSize) / 2
+
+    const pxToMm = 25.4 / 96
+    const qrBorderThickness = 60 * pxToMm
+    const qrBottomOffset = 130 * pxToMm
+    const qrY = pageHeight - qrBottomOffset - qrSize - qrBorderThickness
+
+    const topLogoCanvas = await loadImageAsCanvas('/interledger-technology.png')
+    const topLogoWidth = qrSize + qrBorderThickness * 2
+    const topLogoHeight =
+      topLogoWidth * (topLogoCanvas.height / topLogoCanvas.width)
+    const topLogoY = 20
+    doc.addImage(
+      topLogoCanvas,
+      'PNG',
+      contentLeft - qrBorderThickness,
+      topLogoY,
+      topLogoWidth,
+      topLogoHeight
+    )
+
+    const scanToPayCanvas = await loadImageAsCanvas('/scan-to-pay.png')
+    const scanToPayWidth = qrSize + qrBorderThickness * 2
+    const scanToPayHeight =
+      scanToPayWidth * (scanToPayCanvas.height / scanToPayCanvas.width)
+    const scanToPayY = qrY - qrBorderThickness - 20 - scanToPayHeight
+    doc.addImage(
+      scanToPayCanvas,
+      'PNG',
+      contentLeft - qrBorderThickness,
+      scanToPayY,
+      scanToPayWidth,
+      scanToPayHeight
+    )
+
+    const cardX = contentLeft - qrBorderThickness
+    const cardY = qrY - qrBorderThickness
+    const cardSize = qrSize + qrBorderThickness * 2
+
+    const shadowCanvas = await loadImageAsCanvas('/shadow.png')
+    const cardFracLeft = 268 / 2184
+    const cardFracTop = 204 / 2184
+    const cardFracSize = 1646 / 2184
+    const shadowImageSize = cardSize / cardFracSize
+    doc.addImage(
+      shadowCanvas,
+      'PNG',
+      cardX - cardFracLeft * shadowImageSize,
+      cardY - cardFracTop * shadowImageSize,
+      shadowImageSize,
+      shadowImageSize
+    )
+
+    doc.addImage(qrImg.src, 'JPEG', contentLeft, qrY, qrSize, qrSize)
+
+    doc.save(`Interledger-qr-code.pdf`)
   }
 
   return (
