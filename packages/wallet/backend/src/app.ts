@@ -514,7 +514,11 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-    process.nextTick(() => this.approvePendingTransactions())
+    const env = this.container.resolve('env')
+
+    if (env.GATEHUB_ENV === 'sandbox') {
+      process.nextTick(() => this.approvePendingTransactions())
+    }
   }
 
   ensureGateHubProductionEnv = async (

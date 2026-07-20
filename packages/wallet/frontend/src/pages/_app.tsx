@@ -5,12 +5,12 @@ import { AppProvider } from '@/components/providers'
 import { Progress } from '@/ui/Progress'
 import type { AppPropsWithLayout } from '@/lib/types/app'
 import { MoneyBird } from '@/components/icons/MoneyBird'
-import { useToast } from '@/lib/hooks/useToast'
 import { io, Socket } from 'socket.io-client'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
 import { FEATURES_ENABLED } from '@/utils/constants'
+import { toast } from '@/lib/hooks/useToast'
 
 const font = localFont({
   src: [
@@ -31,7 +31,6 @@ const font = localFont({
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
-  const { toast } = useToast()
 
   useEffect(() => {
     let socket: Socket | null = null
@@ -126,7 +125,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     return () => {
       socket?.disconnect()
     }
-  }, [toast])
+  }, [])
 
   return (
     <>

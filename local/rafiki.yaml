@@ -40,7 +40,11 @@ services:
       - boutique.test:host-gateway
       - api.boutique.test:host-gateway
     depends_on:
-      - postgres
+      # Wait for Postgres to accept connections before booting. Otherwise the
+      # startup migration fails, start() throws (only logged, not fatal) and the
+      # admin server never starts while the container restart-loops.
+      postgres:
+        condition: service_healthy
     labels:
       - traefik.enable=true
       - traefik.docker.network=testnet
@@ -118,8 +122,15 @@ services:
       POS_SERVICE_URL: ${RAFIKI_BACKEND_POS_SERVICE_URL:-http://rafiki-pos-service:3014}
       POS_WEBHOOK_SERVICE_URL: ${RAFIKI_BACKEND_POS_WEBHOOK_SERVICE_URL:-http://rafiki-pos-service:3014/web}
     depends_on:
-      - postgres
-      - redis
+      # Wait for Postgres/Redis readiness before booting. Otherwise the startup
+      # migration + operator-tenant seed fails, start() throws (only logged),
+      # the admin server never comes up and the container restart-loops — which
+      # makes the rafiki-assets setup step time out and silently skip creating
+      # the default USD/EUR assets.
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     extra_hosts:
       - host.docker.internal:host-gateway
       - testnet.test:host-gateway

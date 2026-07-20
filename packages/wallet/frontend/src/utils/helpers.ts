@@ -37,10 +37,21 @@ export const getCurrencySymbol = (assetCode: string): string => {
 type FormatAmountArgs = AssetOP & {
   value: string
   displayScale?: number
+  abbreviateAmount?: boolean
+}
+
+function floorScaledAmount(value: number, scale: number) {
+  return (Math.floor((value / scale) * 100) / 100).toFixed(2)
 }
 
 export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
-  const { value, displayScale = BASE_ASSET_SCALE, assetCode, assetScale } = args
+  const {
+    value,
+    displayScale = BASE_ASSET_SCALE,
+    assetCode,
+    assetScale,
+    abbreviateAmount
+  } = args
 
   const scaledValue = Number(`${value}e-${assetScale}`)
   const flooredValue =
@@ -53,25 +64,25 @@ export const formatAmount = (args: FormatAmountArgs): FormattedAmount => {
   const absValue = Math.abs(flooredValue)
 
   // Check if number is too large to display normally (>= 1 trillion)
-  if (absValue >= 1e9) {
+  if (abbreviateAmount && absValue >= 1e3) {
     const sign = flooredValue < 0 ? '-' : ''
     let abbreviated: string
 
     if (absValue >= 1e15) {
       // Quadrillion
-      abbreviated = `${sign}${symbol}${(absValue / 1e15).toFixed(2)}Q`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e15)}Q`
     } else if (absValue >= 1e12) {
       // Trillion
-      abbreviated = `${sign}${symbol}${(absValue / 1e12).toFixed(2)}T`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e12)}T`
     } else if (absValue >= 1e9) {
       // Billion
-      abbreviated = `${sign}${symbol}${(absValue / 1e9).toFixed(2)}B`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e9)}B`
     } else if (absValue >= 1e6) {
       // Million
-      abbreviated = `${sign}${symbol}${(absValue / 1e6).toFixed(2)}M`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e6)}M`
     } else {
       // Thousand
-      abbreviated = `${sign}${symbol}${(absValue / 1e3).toFixed(2)}K`
+      abbreviated = `${sign}${symbol} ${floorScaledAmount(absValue, 1e3)}K`
     }
 
     return {

@@ -1,6 +1,7 @@
 import { AppLayout } from '@/components/layouts/AppLayout'
 import { Button } from '@/ui/Button'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { DebouncedInput, Input } from '@/ui/forms/Input'
@@ -51,6 +52,15 @@ type SepaDetails = {
 }
 
 const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
+  const router = useRouter()
+  const merchantWA =
+    typeof router.query.merchantWA === 'string'
+      ? router.query.merchantWA
+      : undefined
+  const merchantDescription =
+    typeof router.query.merchantDescription === 'string'
+      ? router.query.merchantDescription
+      : undefined
   const [openDialog, closeDialog] = useDialog()
   const { isUserFirstTime, setRunOnboarding, stepIndex, setStepIndex } =
     useOnboardingContext()
@@ -114,6 +124,25 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
       setReceiverWalletAddress('')
     }
   }, [receiverWalletAddress, sendForm, setReceiverWalletAddress])
+
+  useEffect(() => {
+    if (merchantWA) {
+      sendForm.setValue('receiver', merchantWA)
+      if (accounts.length > 0) {
+        onAccountChange(accounts[0].value)
+      }
+    }
+    if (merchantDescription) {
+      sendForm.setValue('description', merchantDescription)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [merchantWA, sendForm])
+
+  useEffect(() => {
+    if (merchantWA && walletAddresses.length > 0) {
+      sendForm.setValue('walletAddressId', walletAddresses[0])
+    }
+  }, [merchantWA, walletAddresses, sendForm])
 
   const onAccountChange = async (accountId: string) => {
     const selectedAccount = accounts.find(
@@ -361,6 +390,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
             label="Account"
             placeholder="Select account..."
             options={accounts}
+            value={selectedAccount}
             isSearchable={false}
             id="selectAccount"
             onMenuOpen={() => {
@@ -419,6 +449,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
             render={({ field: { value } }) => (
               <DebouncedInput
                 required
+                disabled={Boolean(merchantWA)}
                 error={sendForm.formState.errors.receiver?.message}
                 label="Wallet address or Incoming payment URL"
                 value={value}
@@ -493,7 +524,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
           <Input
             {...sendForm.register('description')}
             label="Description"
-            disabled={readOnlyNotes}
+            disabled={readOnlyNotes || Boolean(merchantDescription)}
           />
         </div>
         <div className="flex justify-center py-5">
