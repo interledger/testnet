@@ -15,7 +15,7 @@ services:
       WEBHOOK_MIN_DELAY_SEC: ${WEBHOOK_MIN_DELAY_SEC:-0.05}
     depends_on:
       - redis
-    restart: always
+    restart: unless-stopped
     networks:
       - testnet
     extra_hosts:

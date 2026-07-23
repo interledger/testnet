@@ -12,6 +12,7 @@
   "include": [
     "helpers/**/*.ts",
     "features/**/*.ts",
+    "mopca/**/*.ts",
     "tests/**/*.ts",
     "playwright.config.ts"
   ]

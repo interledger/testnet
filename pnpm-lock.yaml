@@ -62,6 +62,9 @@ importers:
 
   e2e:
     devDependencies:
+      '@interledger/open-payments':
+        specifier: ^7.3.0
+        version: 7.3.0
       '@playwright/test':
         specifier: ^1.56.0
         version: 1.58.2
@@ -71,6 +74,9 @@ importers:
       '@types/pg':
         specifier: ^8.11.14
         version: 8.20.0
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       dotenv:
         specifier: ^17.2.3
         version: 17.4.2
