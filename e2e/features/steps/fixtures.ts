@@ -16,6 +16,14 @@ type FlowState = {
   postDepositTransactionRows?: number
   delayedRefreshTransactionRows?: number
   latestTransactionAmount?: number
+  // Cross-currency transfer state
+  eurAccountId?: string
+  eurAccountPath?: string
+  usdAccountId?: string
+  usdAccountPath?: string
+  usdWalletAddressUrl?: string
+  expectedDebitAmount?: number
+  expectedReceiveAmount?: number
   featureName: string
   takeScreenshot: (name: string) => Promise<void>
 }

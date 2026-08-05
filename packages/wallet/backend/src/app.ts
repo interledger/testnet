@@ -49,6 +49,7 @@ import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
+import { TerminalController } from './terminal/controller'
 import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 
@@ -89,6 +90,7 @@ export interface Bindings {
   gateHubService: GateHubService
   cardService: CardService
   cardController: CardController
+  terminalController: TerminalController
 }
 
 export class App {
@@ -164,6 +166,7 @@ export class App {
     const interledgerCardController = this.container.resolve(
       'interledgerCardController'
     )
+    const terminalController = this.container.resolve('terminalController')
 
     app.use(
       cors({
@@ -454,6 +457,12 @@ export class App {
       interledgerCardController.terminate
     )
 
+    // Terminal
+    router.get(
+      '/terminals/onboarding',
+      terminalController.getOnboardingFormDefinition
+    )
+
     // Return an error for invalid routes
     router.use('*', (req: Request, res: CustomResponse) => {
       const e = Error(`Requested path ${req.path} was not found`)
@@ -505,7 +514,11 @@ export class App {
 
   async processResources() {
     process.nextTick(() => this.processPendingTransactions())
-    process.nextTick(() => this.approvePendingTransactions())
+    const env = this.container.resolve('env')
+
+    if (env.GATEHUB_ENV === 'sandbox') {
+      process.nextTick(() => this.approvePendingTransactions())
+    }
   }
 
   ensureGateHubProductionEnv = async (

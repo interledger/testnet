@@ -24,11 +24,11 @@ export type GetPaymentDetailsByUrl = z.infer<typeof paymentDetailsSchema>
 export const fakeLoginData = () => {
   return {
     email: faker.internet.email(),
-    password: faker.internet.password({
+    password: `${faker.internet.password({
       length: 20,
       // eslint-disable-next-line no-useless-escape
       pattern: /[0-9a-zA-Z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
-    })
+    })}aA1!`
   }
 }
 

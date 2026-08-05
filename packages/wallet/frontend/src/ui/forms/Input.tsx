@@ -110,6 +110,13 @@ export const DebouncedInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue])
 
+  useEffect(() => {
+    if (value !== debouncedValue) {
+      setInputValue(value)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
   const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value.trim())
   }

@@ -21,6 +21,7 @@ import {
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
 import { RegisterPOSDialog } from './dialogs/RegisterPOSDialog'
+import { GenerateQRForWADialog } from './dialogs/GenerateQRForWADialog'
 
 interface WalletAddressesTableProps {
   account: Account
@@ -123,6 +124,27 @@ const RegisterPOSforWA = () => {
   )
 }
 
+const GenerateQRForWA = () => {
+  const { walletAddress } = useContext(WalletAddressRowContext)
+  const [openDialog, closeDialog] = useDialog()
+
+  return (
+    <Link
+      aria-label="generate QR for wallet address as merchant"
+      onClick={() =>
+        openDialog(
+          <GenerateQRForWADialog
+            walletAddress={walletAddress}
+            onClose={closeDialog}
+          />
+        )
+      }
+    >
+      QR
+    </Link>
+  )
+}
+
 export const CopyWalletAddress = () => {
   const { walletAddress } = useContext(WalletAddressRowContext)
   const [isCopied, setIsCopied] = useState(false)
@@ -190,6 +212,9 @@ export const WalletAddressRow = ({
         <td>{walletAddress.isCard ? null : <DeleteWalletAddress />}</td>
         <td>
           <RegisterPOSforWA />
+        </td>
+        <td>
+          <GenerateQRForWA />
         </td>
       </tr>
     </WalletAddressRowContext.Provider>
