@@ -42,6 +42,51 @@ Every test run creates a unique user with a timestamped email address (`e2e-<tim
 - Avoid assertions that depend on the total count of accounts, transactions, or other global state that may accumulate across runs.
 - If a test needs a pre-funded account, fund it programmatically within the test rather than relying on prior state.
 
+## Open Payments purchase (MOPCA)
+
+`open-payments-purchase.feature` exercises a full [Open Payments](https://openpayments.dev/)
+workflow end to end using a **Mock Open Payments Client App (MOPCA)** — a
+minimal, in-process Open Payments _client_ that plays the role of a merchant's
+checkout server ([`mopca/server.ts`](mopca/server.ts)).
+
+The scenario:
+
+1. Creates a fresh **merchant** (EUR) user and generates developer keys via
+   _Settings → Developer Keys → Generate_ (nickname `e2e`). The private key is
+   captured from the success dialog; the keyId/public key are read from the
+   `walletAddressKeys` table.
+2. Creates a fresh **customer** (EUR) user and deposits 100 EUR.
+3. Starts a MOPCA instance authenticated with the merchant's keys. On startup it
+   verifies it can reach the ASE with those credentials.
+4. The customer browses to the MOPCA storefront and buys "testing stuff" for
+   9.99 EUR. MOPCA creates an incoming payment (merchant), a quote (customer) and
+   an interactive outgoing-payment grant, then redirects the customer to the ASE
+   consent screen.
+5. The customer approves; the ASE redirects back to MOPCA, which continues the
+   grant, creates the outgoing payment and polls the incoming payment until the
+   funds are received.
+6. The merchant's transactions are checked for the incoming 9.99 EUR credit.
+
+### `mopca.testnet.test` host + TLS
+
+MOPCA is served over HTTPS using the local `*.testnet.test` wildcard cert on an
+OS-assigned free port, reachable at `https://mopca.testnet.test:<port>`. Multiple
+instances can therefore run concurrently.
+
+`mopca.testnet.test` must resolve to loopback. The Playwright config maps it at
+the browser level via a Chromium `--host-resolver-rules` launch arg, so **no
+`/etc/hosts` change is required** to run the test. `mopca.testnet.test` is also
+included in `pnpm local:hosts` (useful for manual `curl`/browser debugging
+outside the test) — re-run that once (with sudo) if you want the host entry too:
+
+```bash
+pnpm local:hosts
+```
+
+The Node-side Open Payments client must trust the self-signed cert. The `test`
+scripts set `NODE_EXTRA_CA_CERTS=../local/config/certs/local.crt` for this; no
+extra configuration is needed when running via `pnpm e2e:test`.
+
 ## Running the tests
 
 **Prerequisites**: full local stack running (`pnpm local:setup && pnpm dev`).
