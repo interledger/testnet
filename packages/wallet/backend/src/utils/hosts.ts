@@ -16,12 +16,27 @@
  *     prefixing the bare domain below.
  */
 
-/** Strip protocol, trailing slashes and surrounding whitespace from a host. */
+/**
+ * Strip protocol, trailing slashes and surrounding whitespace from a host, and
+ * lower-case it. Hostnames are case-insensitive, but every consumer here
+ * compares them as plain strings — CORS and socket.io match the `Origin` header
+ * literally, and browsers send it lower-cased — so a mixed-case env value would
+ * otherwise reject the very origin it was meant to allow.
+ */
 export const normalizeHost = (host: string): string =>
   host
     .trim()
     .replace(/^https?:\/\//, '')
     .replace(/\/+$/, '')
+    .toLowerCase()
+
+/**
+ * Normalize a `Host` request header for comparison against a cookie domain or
+ * for use as a map key: as `normalizeHost`, plus the port, which `Host` carries
+ * and cookie domains never do.
+ */
+export const normalizeRequestHost = (requestHost: string): string =>
+  normalizeHost(requestHost).split(':')[0]
 
 /**
  * Browser origins allowed to call this backend with credentials. Kept in one
@@ -43,10 +58,9 @@ export const isCookieDomainUsableFrom = (
   requestHost: string,
   cookieDomain: string
 ): boolean => {
-  // Host headers carry a port, cookie domains never do.
-  const host = normalizeHost(requestHost).split(':')[0].toLowerCase()
+  const host = normalizeRequestHost(requestHost)
   // A leading dot is legal in a cookie domain and is ignored by browsers.
-  const domain = normalizeHost(cookieDomain).replace(/^\./, '').toLowerCase()
+  const domain = normalizeHost(cookieDomain).replace(/^\./, '')
 
   if (!host || !domain) {
     return false

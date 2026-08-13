@@ -1,5 +1,9 @@
 import { env } from '@/config/env'
-import { isCookieDomainUsableFrom, normalizeHost } from '@/utils/hosts'
+import {
+  isCookieDomainUsableFrom,
+  normalizeHost,
+  normalizeRequestHost
+} from '@/utils/hosts'
 import type { NextFunction, Request, Response } from 'express'
 import {
   type SessionOptions,
@@ -52,15 +56,25 @@ export const SESSION_OPTIONS: SessionOptions = {
  * else in the stack reports it, so log it loudly here. Warned hosts are
  * remembered so a broken deployment logs once per host rather than per
  * request.
+ *
+ * `Host` is client-controlled, so the set of remembered hosts is normalized
+ * (case and port cannot produce duplicate entries for one host) and hard
+ * capped. Once the cap is hit the deployment is unambiguously misconfigured and
+ * further logging would add nothing, so we stop — an attacker sending a stream
+ * of junk hosts can neither grow this memory nor flood the log.
  */
+const MAX_WARNED_HOSTS = 16
+
 export const warnOnUnusableCookieDomain = (logger: Logger) => {
   const warnedHosts = new Set<string>()
 
   return (req: Request, _res: Response, next: NextFunction): void => {
-    const host = req.headers.host
+    const rawHost = req.headers.host
+    const host = rawHost ? normalizeRequestHost(rawHost) : ''
 
     if (
       host &&
+      warnedHosts.size < MAX_WARNED_HOSTS &&
       !warnedHosts.has(host) &&
       !isCookieDomainUsableFrom(host, COOKIE_DOMAIN)
     ) {
