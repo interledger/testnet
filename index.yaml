@@ -2,8 +2,30 @@ apiVersion: v1
 entries:
   testnet-boutique:
   - apiVersion: v2
+    appVersion: v0.8.1
+    created: "2026-08-28T09:27:16.694517655Z"
+    dependencies:
+    - name: common
+      repository: https://interledger.github.io/charts/interledger
+      version: 0.9.0
+    description: Boutique Helm chart for Kubernetes
+    digest: 31b14ae1b88996a52bbef6916436065f68c40352469a971bd3976b5b5b57e20d
+    home: https://github.com/interledger/testnet
+    maintainers:
+    - email: tadej.golobic@gatehub.net
+      name: golobitch
+    - email: beniamin@interledger.foundation
+      name: beniaminmunteanu
+    - email: stephan@interledger.foundation
+      name: Stephan Butler
+    name: testnet-boutique
+    type: application
+    urls:
+    - https://interledger.github.io/testnet/testnet-boutique-0.8.1.tgz
+    version: 0.8.1
+  - apiVersion: v2
     appVersion: v0.8.0
-    created: "2026-08-13T08:25:38.302157365Z"
+    created: "2026-08-28T09:27:16.693543213Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -25,7 +47,7 @@ entries:
     version: 0.8.0
   - apiVersion: v2
     appVersion: v0.7.0
-    created: "2026-08-13T08:25:38.301194431Z"
+    created: "2026-08-28T09:27:16.692564684Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -47,7 +69,7 @@ entries:
     version: 0.7.0
   - apiVersion: v2
     appVersion: v0.6.0
-    created: "2026-08-13T08:25:38.300248323Z"
+    created: "2026-08-28T09:27:16.691513517Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -69,7 +91,7 @@ entries:
     version: 0.6.0
   - apiVersion: v2
     appVersion: v0.5.1
-    created: "2026-08-13T08:25:38.299270187Z"
+    created: "2026-08-28T09:27:16.690493035Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -91,7 +113,7 @@ entries:
     version: 0.5.1
   - apiVersion: v2
     appVersion: v0.5.0
-    created: "2026-08-13T08:25:38.297317375Z"
+    created: "2026-08-28T09:27:16.689443791Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -113,7 +135,7 @@ entries:
     version: 0.5.0
   - apiVersion: v2
     appVersion: v0.4.3
-    created: "2026-08-13T08:25:38.296405456Z"
+    created: "2026-08-28T09:27:16.688160798Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -135,7 +157,7 @@ entries:
     version: 0.4.3
   - apiVersion: v2
     appVersion: v0.4.2
-    created: "2026-08-13T08:25:38.295402174Z"
+    created: "2026-08-28T09:27:16.686346303Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -157,8 +179,30 @@ entries:
     version: 0.4.2
   testnet-wallet:
   - apiVersion: v2
+    appVersion: v0.8.1
+    created: "2026-08-28T09:27:16.71171881Z"
+    dependencies:
+    - name: common
+      repository: https://interledger.github.io/charts/interledger
+      version: 0.9.0
+    description: TestNet Wallet Helm chart for Kubernetes
+    digest: b2d303dbf7fadec094acf09190ac31910c1e9b80da195b22284d0665220794c8
+    home: https://github.com/interledger/testnet
+    maintainers:
+    - email: tadej.golobic@gatehub.net
+      name: golobitch
+    - email: beniamin@interledger.foundation
+      name: beniaminmunteanu
+    - email: stephan@interledger.foundation
+      name: Stephan Butler
+    name: testnet-wallet
+    type: application
+    urls:
+    - https://interledger.github.io/testnet/testnet-wallet-0.8.1.tgz
+    version: 0.8.1
+  - apiVersion: v2
     appVersion: v0.8.0
-    created: "2026-08-13T08:25:38.316802681Z"
+    created: "2026-08-28T09:27:16.708872511Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -180,7 +224,7 @@ entries:
     version: 0.8.0
   - apiVersion: v2
     appVersion: v0.7.0
-    created: "2026-08-13T08:25:38.315060654Z"
+    created: "2026-08-28T09:27:16.707058527Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -202,7 +246,7 @@ entries:
     version: 0.7.0
   - apiVersion: v2
     appVersion: v0.6.0
-    created: "2026-08-13T08:25:38.312560244Z"
+    created: "2026-08-28T09:27:16.705286015Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -224,7 +268,7 @@ entries:
     version: 0.6.0
   - apiVersion: v2
     appVersion: v0.5.1
-    created: "2026-08-13T08:25:38.310551716Z"
+    created: "2026-08-28T09:27:16.703032395Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -246,7 +290,7 @@ entries:
     version: 0.5.1
   - apiVersion: v2
     appVersion: v0.5.0
-    created: "2026-08-13T08:25:38.308434739Z"
+    created: "2026-08-28T09:27:16.700830732Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -268,7 +312,7 @@ entries:
     version: 0.5.0
   - apiVersion: v2
     appVersion: v0.4.3
-    created: "2026-08-13T08:25:38.30650728Z"
+    created: "2026-08-28T09:27:16.699134804Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -290,7 +334,7 @@ entries:
     version: 0.4.3
   - apiVersion: v2
     appVersion: v0.4.2
-    created: "2026-08-13T08:25:38.303825163Z"
+    created: "2026-08-28T09:27:16.697340058Z"
     dependencies:
     - name: common
       repository: https://interledger.github.io/charts/interledger
@@ -310,4 +354,4 @@ entries:
     urls:
     - https://interledger.github.io/testnet/testnet-wallet-0.4.2.tgz
     version: 0.4.2
-generated: "2026-08-13T08:25:38.29422089Z"
+generated: "2026-08-28T09:27:16.685099434Z"
