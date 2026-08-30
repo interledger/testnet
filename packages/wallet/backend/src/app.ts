@@ -445,6 +445,9 @@ export class App {
       cardController.closeCard
     )
 
+    //Terminal
+    router.post('/terminals/validation', terminalController.validation)
+
     // Interledger cards
     router.get('/cards', isAuth, interledgerCardController.list)
 
