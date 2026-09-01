@@ -36,6 +36,7 @@ config:
     nodeEnv: production
     logLevel: info
     port: 4003
+    metricsPort: 9464
 
     cookie:
       name: 'testnet.cookie'
@@ -239,6 +240,9 @@ deployments:
       - name: http
         containerPort: 4003
         protocol: TCP
+      - name: metrics
+        containerPort: 9464
+        protocol: TCP
     resources:
       requests:
         memory: 256Mi
@@ -302,6 +306,10 @@ services:
         targetPort: 4003
         protocol: TCP
         name: http
+      - port: 9464
+        targetPort: 9464
+        protocol: TCP
+        name: metrics
 
   frontend:
     name: frontend-service
@@ -347,6 +355,8 @@ configMaps:
         valueRef: config.backend.nodeEnv
       - key: PORT
         valueRef: config.backend.port
+      - key: METRICS_PORT
+        valueRef: config.backend.metricsPort
       - key: COOKIE_NAME
         valueRef: config.backend.cookie.name
       - key: COOKIE_TTL

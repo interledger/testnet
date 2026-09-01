@@ -18,6 +18,7 @@ config:
 
     nodeEnv: production
     port: 3004
+    metricsPort: 9464
 
     database:
       url:
@@ -62,6 +63,9 @@ deployments:
     ports:
       - name: http
         containerPort: 3004
+        protocol: TCP
+      - name: metrics
+        containerPort: 9464
         protocol: TCP
     resources:
       requests:
@@ -123,6 +127,10 @@ services:
         targetPort: 3004
         protocol: TCP
         name: http
+      - port: 9464
+        targetPort: 9464
+        protocol: TCP
+        name: metrics
 
   frontend:
     name: frontend-service
@@ -145,6 +153,8 @@ configMaps:
         valueRef: config.backend.nodeEnv
       - key: PORT
         valueRef: config.backend.port
+      - key: METRICS_PORT
+        valueRef: config.backend.metricsPort
       - key: FRONTEND_URL
         valueRef: config.backend.frontendUrl
       - key: KEY_ID
