@@ -22,6 +22,15 @@ tests:
       - equal:
           path: spec.ports[0].targetPort
           value: 3004
+      - equal:
+          path: spec.ports[1].name
+          value: metrics
+      - equal:
+          path: spec.ports[1].port
+          value: 9464
+      - equal:
+          path: spec.ports[1].targetPort
+          value: 9464
   - it: 'frontend service should be created with correct name'
     template: service.frontend.yaml
     asserts:

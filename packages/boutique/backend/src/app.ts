@@ -5,11 +5,16 @@ import helmet from 'helmet'
 import type { Server } from 'http'
 import type { Cradle } from './container'
 import { Model } from 'objection'
-import { initErrorHandler } from '@shared/backend'
+import {
+  initErrorHandler,
+  createHttpMetrics,
+  startMetricsServer
+} from '@shared/backend'
 import path from 'path'
 
 export class App {
   private server!: Server
+  private metricsServer!: Server
 
   constructor(private container: AwilixContainer<Cradle>) {}
 
@@ -18,6 +23,7 @@ export class App {
     const env = this.container.resolve('env')
     const logger = this.container.resolve('logger')
     const knex = this.container.resolve('knex')
+    const metricsRegistry = this.container.resolve('metricsRegistry')
 
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
@@ -27,10 +33,14 @@ export class App {
 
     this.server = express.listen(env.PORT)
     logger.info(`Boutique server started on port ${env.PORT}`)
+
+    this.metricsServer = startMetricsServer(metricsRegistry, env.METRICS_PORT)
+    logger.info(`Metrics server started on port ${env.METRICS_PORT}`)
   }
 
   public stop = async (): Promise<void> => {
     this.server.close()
+    this.metricsServer?.close()
   }
 
   public getPort(): number {
@@ -47,9 +57,13 @@ export class App {
 
     const env = this.container.resolve('env')
     const logger = this.container.resolve('logger')
+    const metricsRegistry = this.container.resolve('metricsRegistry')
     const productController = this.container.resolve('productController')
     const orderController = this.container.resolve('orderController')
     const frontendOrigin = new URL(env.FRONTEND_URL).origin
+
+    const { httpMetricsMiddleware } = createHttpMetrics(metricsRegistry)
+    app.use(httpMetricsMiddleware)
 
     app.use(
       cors({
@@ -63,6 +77,7 @@ export class App {
         crossOriginResourcePolicy: false
       })
     )
+
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(
