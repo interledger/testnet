@@ -13,6 +13,24 @@ import {
 const createMockResponse = () =>
   createResponse<Response>({ eventEmitter: EventEmitter })
 
+// server.address() is null until the socket has actually bound (.listen()
+// only schedules that async) and can also be a string (unix socket) rather
+// than an AddressInfo — wait for 'listening' and check the shape before
+// reading .port, instead of assuming it's already there.
+function getListeningPort(server: http.Server): Promise<number> {
+  return new Promise((resolve, reject) => {
+    server.once('error', reject)
+    server.once('listening', () => {
+      const address = server.address()
+      if (address === null || typeof address === 'string') {
+        reject(new Error('Expected server to be listening on a port'))
+        return
+      }
+      resolve(address.port)
+    })
+  })
+}
+
 function get(
   port: number,
   path: string
@@ -33,7 +51,7 @@ describe('metrics middleware', (): void => {
     const register = createMetricsRegistry()
     // port 0 lets the OS assign a free ephemeral port
     const server = startMetricsServer(register, 0)
-    const port = (server.address() as { port: number }).port
+    const port = await getListeningPort(server)
 
     try {
       const { status, body } = await get(port, '/metrics')
@@ -47,7 +65,7 @@ describe('metrics middleware', (): void => {
   it('startMetricsServer 404s on any other path', async (): Promise<void> => {
     const register = createMetricsRegistry()
     const server = startMetricsServer(register, 0)
-    const port = (server.address() as { port: number }).port
+    const port = await getListeningPort(server)
 
     try {
       const { status } = await get(port, '/does-not-exist')

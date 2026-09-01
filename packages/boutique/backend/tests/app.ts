@@ -25,6 +25,7 @@ export const createApp = async (
   const knex = container.resolve('knex')
 
   env.PORT = 0
+  env.METRICS_PORT = 0
   const app = new App(container)
   await start(app)
 

@@ -36,7 +36,14 @@ export function createHttpMetrics(register: Registry) {
   ) => {
     const end = httpRequestDuration.startTimer()
     httpRequestsInFlight.inc({ method: req.method })
-    res.on('finish', () => {
+
+    // 'finish' doesn't fire if the client disconnects early (aborted request,
+    // timeout) — 'close' covers that case, but also fires after a normal
+    // 'finish'. Guard so the gauge/histogram are finalized exactly once.
+    let finalized = false
+    const finalize = () => {
+      if (finalized) return
+      finalized = true
       httpRequestsInFlight.dec({ method: req.method })
       // req.route is unset for router.use('*', ...) catch-alls (used for 404s
       // in both apps), so without this fallback every unmatched/scanned path
@@ -45,7 +52,9 @@ export function createHttpMetrics(register: Registry) {
         ? `${req.baseUrl}${req.route.path}`
         : 'unmatched'
       end({ method: req.method, route, status_code: String(res.statusCode) })
-    })
+    }
+    res.once('finish', finalize)
+    res.once('close', finalize)
     next()
   }
 

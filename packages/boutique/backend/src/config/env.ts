@@ -28,7 +28,12 @@ const base64String = requiredString.refine(
 
 const envSchema = z.object({
   PORT: z.coerce.number(),
-  METRICS_PORT: z.coerce.number().default(9464),
+  // Different default than wallet-backend's (9464): the root `pnpm dev` runs
+  // both backends concurrently on one machine, and identical defaults would
+  // collide (EADDRINUSE) unless METRICS_PORT is manually overridden. Each
+  // Helm chart still sets this explicitly per pod, so the two defaults never
+  // need to match in deployed environments.
+  METRICS_PORT: z.coerce.number().default(9465),
   NODE_ENV: z.string().min(1),
   FRONTEND_URL: z.string().url(),
   DATABASE_URL: z.string().url(),
