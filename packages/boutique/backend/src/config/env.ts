@@ -28,6 +28,7 @@ const base64String = requiredString.refine(
 
 const envSchema = z.object({
   PORT: z.coerce.number(),
+  METRICS_PORT: z.coerce.number().default(9464),
   NODE_ENV: z.string().min(1),
   FRONTEND_URL: z.string().url(),
   DATABASE_URL: z.string().url(),

@@ -24,12 +24,18 @@ import { IPaymentService, PaymentService } from './payment/service'
 import { type OneClickCache, OneClickCacheData } from './cache/one-click'
 import { generateLogger } from '@/config/logger'
 import { generateKnex } from '@/config/knex'
-import { asClassSingletonWithLogger, InMemoryCache } from '@shared/backend'
+import {
+  asClassSingletonWithLogger,
+  InMemoryCache,
+  createMetricsRegistry,
+  type Registry
+} from '@shared/backend'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
+  metricsRegistry: Registry
   opClient: AuthenticatedClient
   oneClickCache: OneClickCache
   tokenCache: TokenCache
@@ -61,6 +67,7 @@ export async function createContainer(
   container.register({
     env: asValue(env),
     logger: asValue(logger),
+    metricsRegistry: asFunction(createMetricsRegistry).singleton(),
     opClient: asValue(client),
     openPayments: asClassSingletonWithLogger(OpenPayments, logger),
     tokenCache: asClassSingletonWithLogger(TokenCache, logger),

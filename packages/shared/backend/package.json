@@ -9,18 +9,23 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --passWithNoTests --maxWorkers=75%"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.23",
+    "@types/jest": "^29.5.14",
     "@types/node": "^24.13.1",
     "ioredis": "^5.8.0",
+    "jest": "^29.7.0",
+    "node-mocks-http": "^1.17.2",
+    "ts-jest": "^29.4.4",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@prometheus-io/client": "^0.16.1",
     "awilix": "^12.0.5",
     "axios": "^1.12.2",
     "express": "^4.21.2",
