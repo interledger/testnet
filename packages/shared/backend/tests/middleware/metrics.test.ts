@@ -10,17 +10,19 @@ import {
 
 // httpMetricsMiddleware relies on the real 'finish' event; node-mocks-http's
 // default response stubs out EventEmitter, so it must be opted back in.
-const createMockResponse = () => createResponse<Response>({ eventEmitter: EventEmitter })
+const createMockResponse = () =>
+  createResponse<Response>({ eventEmitter: EventEmitter })
 
-function get(port: number, path: string): Promise<{ status: number; body: string }> {
+function get(
+  port: number,
+  path: string
+): Promise<{ status: number; body: string }> {
   return new Promise((resolve, reject) => {
     http
       .get(`http://localhost:${port}${path}`, (res) => {
         let body = ''
         res.on('data', (chunk) => (body += chunk))
-        res.on('end', () =>
-          resolve({ status: res.statusCode ?? 0, body })
-        )
+        res.on('end', () => resolve({ status: res.statusCode ?? 0, body }))
       })
       .on('error', reject)
   })
