@@ -52,6 +52,14 @@ export class UserService implements IUserService {
     return User.query().findById(id)
   }
 
+  public async getVerifiedUserEmails(): Promise<string[]> {
+    const users = await User.query()
+      .where({ isEmailVerified: true })
+      .select('email')
+
+    return users.map((user) => user.email)
+  }
+
   public async requestResetPassword(email: string): Promise<void> {
     const user = await this.getByEmail(email)
 
