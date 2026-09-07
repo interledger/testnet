@@ -2,7 +2,7 @@
   "name": "@wallet/backend",
   "scripts": {
     "start": "sh -c 'set --; [ -f .env.local ] && set -- \"$@\" --env-file=.env.local; [ -f .env ] && set -- \"$@\" --env-file=.env; node \"$@\" -r tsconfig-paths/register dist/index.js'",
-    "build:deps": "pnpm --filter @shared/backend build && pnpm --filter @wallet/shared build",
+    "build:deps": "pnpm --filter @shared/backend build && pnpm --filter @wallet/shared build && pnpm --filter @interledger/hsm-atalla-issuer... build && pnpm --filter @interledger/hsm-atalla-merchant... build",
     "build": "pnpm build:deps && tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "nodemon --watch ./src --watch ../shared/src --ext ts,json --delay 1 --exec \"sh -c 'set --; [ -f .env.local ] && set -- \\$@ --env-file=.env.local; [ -f .env ] && set -- \\$@ --env-file=.env; pnpm run build && node \\$@ ./dist/index.js'\"",
     "test": "jest --passWithNoTests --maxWorkers=75%",
@@ -11,6 +11,9 @@
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
     "@interledger/tlv-kit": "^1.1.0",
+    "@interledger/hsm-atalla-issuer": "workspace:*",
+    "@interledger/hsm-atalla-merchant": "workspace:*",
+    "@interledger/hsm-atalla-transport": "workspace:*",
     "@sendgrid/mail": "^8.1.6",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",

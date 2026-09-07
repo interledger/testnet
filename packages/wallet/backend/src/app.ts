@@ -57,6 +57,7 @@ import { CardService } from './card/service'
 import { TerminalController } from './terminal/controller'
 import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
+import { HsmAtallaService } from '@/hsm/atalla/service'
 
 export interface Bindings {
   env: Env
@@ -96,6 +97,7 @@ export interface Bindings {
   cardService: CardService
   cardController: CardController
   terminalController: TerminalController
+  hsmAtallaService: HsmAtallaService
 }
 
 export class App {
@@ -109,6 +111,7 @@ export class App {
     const logger = this.container.resolve('logger')
     const knex = this.container.resolve('knex')
     const socketService = this.container.resolve('socketService')
+    const hsmAtallaService = this.container.resolve('hsmAtallaService')
 
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
@@ -131,12 +134,19 @@ export class App {
       cookieTtlSeconds: env.COOKIE_TTL,
       allowedOrigins: getFrontendOrigins(env.RAFIKI_MONEY_FRONTEND_HOST)
     })
+  
+    await hsmAtallaService.start().catch((error) => {
+      this.server.close()
+      throw error
+    })
 
     socketService.init(this.server)
   }
 
   public stop = async (): Promise<void> => {
+    const hsmAtallaService = this.container.resolve('hsmAtallaService')
     this.server.close()
+    await hsmAtallaService.stop()
   }
 
   public getPort(): number {

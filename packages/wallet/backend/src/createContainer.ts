@@ -59,6 +59,7 @@ import { InterledgerCardController } from '@/interledgerCard/controller'
 import { InterledgerCardService } from '@/interledgerCard/service'
 import { TerminalController } from '@/terminal/controller'
 import { TerminalService } from '@/terminal/service'
+import { HsmAtallaService } from '@/hsm/atalla/service'
 
 export interface Cradle {
   env: Env
@@ -108,6 +109,7 @@ export interface Cradle {
   interledgerCardController: InterledgerCardController
   terminalService: TerminalService
   terminalController: TerminalController
+  hsmAtallaService: HsmAtallaService
 }
 
 export async function createContainer(
@@ -172,7 +174,8 @@ export async function createContainer(
     interledgerCardService: asClass(InterledgerCardService).singleton(),
     interledgerCardController: asClass(InterledgerCardController).singleton(),
     terminalService: asClassSingletonWithLogger(TerminalService, logger),
-    terminalController: asClass(TerminalController).singleton()
+    terminalController: asClass(TerminalController).singleton(),
+    hsmAtallaService: asClassSingletonWithLogger(HsmAtallaService, logger)
   })
 
   return container
