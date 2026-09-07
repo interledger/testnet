@@ -46,7 +46,8 @@ describe('Admin Notification Controller', () => {
   }
 
   const mockUserService = {
-    getVerifiedUserEmails: jest.fn()
+    getVerifiedUserEmails: jest.fn(),
+    getByEmail: jest.fn()
   }
 
   beforeAll(async () => {
@@ -62,6 +63,9 @@ describe('Admin Notification Controller', () => {
     jest.clearAllMocks()
     req = createRequest()
     res = createResponse()
+    mockUserService.getByEmail.mockImplementation(async (email: string) => ({
+      email
+    }))
     Reflect.set(
       adminNotificationController,
       'adminNotificationService',
@@ -205,6 +209,21 @@ describe('Admin Notification Controller', () => {
       subject: 'Test',
       bodyHtml: '<p>Test</p>',
       sendToAll: true
+    }
+
+    await adminNotificationController.send(req, res, (e) => {
+      errorHandler(e, req, res, next)
+    })
+
+    expect(res.statusCode).toBe(400)
+  })
+
+  it('returns 400 when recipients are not registered users', async () => {
+    mockUserService.getByEmail.mockResolvedValue(undefined)
+    req.body = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['unknown@example.com']
     }
 
     await adminNotificationController.send(req, res, (e) => {

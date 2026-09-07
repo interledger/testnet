@@ -72,6 +72,17 @@ export class AdminNotificationService {
       )
     }
 
+    const users = await Promise.all(
+      uniqueRecipients.map((email) => this.userService.getByEmail(email))
+    )
+    const unknownEmails = uniqueRecipients.filter((_, index) => !users[index])
+
+    if (unknownEmails.length > 0) {
+      throw new BadRequest('One or more recipients are not registered users', {
+        recipients: unknownEmails.join(', ')
+      })
+    }
+
     return uniqueRecipients
   }
 }

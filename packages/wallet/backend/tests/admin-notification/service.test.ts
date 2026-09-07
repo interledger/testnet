@@ -69,6 +69,11 @@ describe('Admin Notification Service', () => {
   })
 
   it('deduplicates explicit recipients case-insensitively', async () => {
+    await createUser({
+      ...args,
+      email: 'user@example.com',
+      isEmailVerified: true
+    })
     mockEmailService.sendAnnouncementBatch.mockResolvedValue({
       sent: 1,
       failed: 0,
@@ -94,7 +99,36 @@ describe('Admin Notification Service', () => {
     })
   })
 
+  it('rejects recipients that are not registered users', async () => {
+    await createUser({
+      ...args,
+      email: 'known@example.com',
+      isEmailVerified: true
+    })
+
+    await expect(
+      adminNotificationService.sendNotification({
+        subject: 'Test',
+        bodyHtml: '<p>Test</p>',
+        recipients: ['known@example.com', 'unknown@example.com']
+      })
+    ).rejects.toMatchObject({
+      message: 'One or more recipients are not registered users'
+    })
+    expect(mockEmailService.sendAnnouncementBatch).not.toHaveBeenCalled()
+  })
+
   it('returns failed recipients when all sends fail', async () => {
+    await createUser({
+      ...args,
+      email: 'user1@example.com',
+      isEmailVerified: true
+    })
+    await createUser({
+      ...args,
+      email: 'user2@example.com',
+      isEmailVerified: true
+    })
     mockEmailService.sendAnnouncementBatch.mockResolvedValue({
       sent: 0,
       failed: 2,
