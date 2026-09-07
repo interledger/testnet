@@ -5,6 +5,7 @@ import http from 'http'
 import { AccountService } from '@/account/service'
 import MessageType from './messageType'
 import { withSession } from '@/middleware/withSession'
+import { getFrontendOrigins } from '@/utils/hosts'
 import { Amount } from '@/rafiki/backend/generated/graphql'
 
 interface ISocketService {
@@ -29,10 +30,11 @@ export class SocketService implements ISocketService {
   init(server: http.Server) {
     this.io = new socketIo.Server(server, {
       cors: {
-        origin: [
-          'http://localhost:4003',
-          `https://${this.env.RAFIKI_MONEY_FRONTEND_HOST}`
-        ],
+        // Must match the origins allowed for HTTP requests in `app.ts`. These
+        // used to be written out separately here and drifted: the wallet
+        // subdomain was missing, so socket.io rejected the only origin the
+        // frontend is ever served from.
+        origin: getFrontendOrigins(this.env.RAFIKI_MONEY_FRONTEND_HOST),
         credentials: true
       }
     })

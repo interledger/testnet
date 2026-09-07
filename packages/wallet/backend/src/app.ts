@@ -28,7 +28,12 @@ import type { AuthController } from './auth/controller'
 import type { AuthService } from './auth/service'
 import type { Env } from './config/env'
 import { isAuth } from './middleware/isAuth'
-import { withSession } from './middleware/withSession'
+import {
+  COOKIE_DOMAIN,
+  warnOnUnusableCookieDomain,
+  withSession
+} from './middleware/withSession'
+import { getFrontendOrigins } from '@/utils/hosts'
 import { rateLimiterEmail, rateLimiterLogin } from './middleware/rateLimit'
 import { QuoteController } from './quote/controller'
 import { QuoteService } from './quote/service'
@@ -113,6 +118,20 @@ export class App {
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
 
+    // Log the browser-facing auth configuration on every boot. These values
+    // fail silently when wrong — a bad cookie domain or a missing CORS origin
+    // produces no error anywhere, just users who cannot stay logged in — so
+    // make them greppable instead of having to reconstruct them from a chart.
+    logger.info('Auth configuration', {
+      frontendHost: env.RAFIKI_MONEY_FRONTEND_HOST,
+      cookieName: env.COOKIE_NAME,
+      cookieDomain: COOKIE_DOMAIN,
+      cookieSecure: env.NODE_ENV === 'production',
+      cookieSameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+      cookieTtlSeconds: env.COOKIE_TTL,
+      allowedOrigins: getFrontendOrigins(env.RAFIKI_MONEY_FRONTEND_HOST)
+    })
+
     socketService.init(this.server)
   }
 
@@ -170,11 +189,7 @@ export class App {
 
     app.use(
       cors({
-        origin: [
-          'http://localhost:4003',
-          `https://${env.RAFIKI_MONEY_FRONTEND_HOST}`,
-          `https://wallet.${env.RAFIKI_MONEY_FRONTEND_HOST}`
-        ],
+        origin: getFrontendOrigins(env.RAFIKI_MONEY_FRONTEND_HOST),
         credentials: true
       })
     )
@@ -193,6 +208,7 @@ export class App {
     app.use(express.json())
     app.use(express.urlencoded({ extended: true, limit: '25mb' }))
     app.use(withSession)
+    app.use(warnOnUnusableCookieDomain(logger))
 
     // Auth Routes
     if (env.NODE_ENV !== 'production' || env.GATEHUB_ENV !== 'production') {
