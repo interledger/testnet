@@ -190,6 +190,19 @@ Releases are created manually via the **"Create Release"** GitHub Actions workfl
 
 All commit types (`chore:`, `docs:`, `ci:`, etc.) trigger at least a patch bump — running "Create Release" always produces a new version.
 
+### Branch images: `hsm-server`
+
+The `hsm-server` integration branch also publishes images, so it can be deployed without cutting a release. `hsm-server-images.yml` runs on **every push to `hsm-server`** and pushes two images to GHCR:
+
+- `ghcr.io/interledger/test-wallet-backend:<short-sha>`
+- `ghcr.io/interledger/test-wallet-frontend:<short-sha>`
+
+**The commit short hash is the only tag** — 8 characters, and nothing in this workflow writes `latest`, so a branch build can never shadow a released image. Reference a build by its hash; there is no moving tag to follow.
+
+The hash is pinned to 8 characters rather than taken from `git rev-parse --short`, because `core.abbrev` is unset and git scales the abbreviation by object count, which differs between the shallow clone CI makes and a full local clone.
+
+This workflow exists for the HSM adapter integration, whose gRPC servers run in-process inside the wallet backend. Delete it when the branch merges.
+
 ### Releasable branches
 
 | Branch         | Release type          | Notes                                                  |
@@ -238,6 +251,7 @@ testnet/
 │   ├── helm-charts.yml               # PR validation for Helm charts (lint + unittest + template render)
 │   ├── helm-publish.yml              # Publishes Helm charts to `charts` branch on GitHub release
 │   ├── release.yml                   # Manual "Create Release" workflow (semantic-release)
+│   ├── hsm-server-images.yml         # Publishes wallet images from the `hsm-server` branch, tagged with the commit short hash
 │   ├── deploy.yml                    # Manual deploy to staging/prod (workflow_dispatch)
 │   ├── pr_title_check.yml            # Enforces conventional commit format on PR titles
 │   ├── pr_labeler.yml                # Auto-labels PRs by changed paths

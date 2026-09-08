@@ -1,0 +1,97 @@
+name: Build hsm-server images
+
+# Publishes wallet images from the `hsm-server` integration branch so the branch can
+# be deployed and referenced by commit, without cutting a release. Release images
+# still come from release.yml, which is the only place that writes `latest`.
+
+on:
+  push:
+    branches:
+      - hsm-server
+
+permissions:
+  contents: read
+  packages: write
+
+# A rapid series of pushes only needs an image for the newest commit.
+concurrency:
+  group: hsm-server-images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish ${{ matrix.package.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      # One image failing should not withhold the other.
+      fail-fast: false
+      matrix:
+        package:
+          - name: test-wallet-backend
+            identifier: 'wallet:backend'
+            path: packages/wallet/backend
+          - name: test-wallet-frontend
+            identifier: 'wallet:frontend'
+            path: packages/wallet/frontend
+            port: 4003
+            cookie_name: testnet.cookie
+            backend_url: https://api-wallet.interledger-test.dev
+            open_payments_host: $ilp.interledger-test.dev/
+            auth_host: https://auth.interledger-test.dev
+            gatehub_env: sandbox
+            theme: dark
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Resolve image tag
+        id: tag
+        # Pinned to 8 characters instead of `git rev-parse --short`: core.abbrev is
+        # unset, so git auto-scales the abbreviation by object count, and the shallow
+        # clone actions/checkout makes has a different count than a full clone. A
+        # fixed width keeps the tag predictable, and 8 is what `git log --oneline`
+        # prints in this repository today.
+        run: echo "short_sha=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          push: true
+          file: ${{ matrix.package.path }}/Dockerfile.prod
+          build-args: |
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('PORT={0}', matrix.package.port) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('COOKIE_NAME={0}', matrix.package.cookie_name) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_BACKEND_URL={0}', matrix.package.backend_url) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_OPEN_PAYMENTS_HOST={0}', matrix.package.open_payments_host) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
+            ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
+          # The commit hash is the only tag. Nothing here writes `latest`, so these
+          # builds cannot shadow a released image.
+          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ steps.tag.outputs.short_sha }}
+          # Layer cache scoped per image, so the two matrix legs do not evict each other.
+          cache-from: type=gha,scope=${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.package.name }}
+
+      - name: Summarise
+        run: |
+          {
+            echo '```'
+            echo "ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ steps.tag.outputs.short_sha }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
