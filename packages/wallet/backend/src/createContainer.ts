@@ -44,7 +44,12 @@ import {
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { generateKnex } from '@/config/knex'
-import { asClassSingletonWithLogger, RedisClient } from '@shared/backend'
+import {
+  asClassSingletonWithLogger,
+  RedisClient,
+  createMetricsRegistry,
+  type Registry
+} from '@shared/backend'
 import { generateLogger } from '@/config/logger'
 import { GraphQLClient } from 'graphql-request'
 import { KratosService } from './rafiki/kratos.service'
@@ -65,6 +70,7 @@ export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
+  metricsRegistry: Registry
   sessionService: SessionService
   emailService: EmailService
   userService: UserService
@@ -123,6 +129,7 @@ export async function createContainer(
   container.register({
     env: asValue(env),
     logger: asValue(logger),
+    metricsRegistry: asFunction(createMetricsRegistry).singleton(),
     knex: asFunction(generateKnex).singleton(),
     sessionService: asClass(SessionService).singleton(),
     emailService: asClassSingletonWithLogger(EmailService, logger),

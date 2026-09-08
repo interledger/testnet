@@ -1,0 +1,9 @@
+{
+  "preset": "ts-jest",
+  "clearMocks": true,
+  "testEnvironment": "node",
+  "modulePathIgnorePatterns": ["<rootDir>/dist/"],
+  "moduleNameMapper": {
+    "@/(.*)": "<rootDir>/src/$1"
+  }
+}

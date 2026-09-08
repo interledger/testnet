@@ -14,6 +14,7 @@
     "@interledger/hsm-atalla-issuer": "workspace:*",
     "@interledger/hsm-atalla-merchant": "workspace:*",
     "@interledger/hsm-atalla-transport": "workspace:*",
+    "@prometheus-io/client": "^0.16.1",
     "@sendgrid/mail": "^8.1.6",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
