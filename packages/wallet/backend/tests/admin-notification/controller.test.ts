@@ -47,7 +47,7 @@ describe('Admin Notification Controller', () => {
 
   const mockUserService = {
     getVerifiedUserEmails: jest.fn(),
-    getByEmail: jest.fn()
+    getByEmails: jest.fn()
   }
 
   beforeAll(async () => {
@@ -63,9 +63,9 @@ describe('Admin Notification Controller', () => {
     jest.clearAllMocks()
     req = createRequest()
     res = createResponse()
-    mockUserService.getByEmail.mockImplementation(async (email: string) => ({
-      email
-    }))
+    mockUserService.getByEmails.mockImplementation(async (emails: string[]) =>
+      emails.map((email) => ({ email }))
+    )
     Reflect.set(
       adminNotificationController,
       'adminNotificationService',
@@ -137,9 +137,21 @@ describe('Admin Notification Controller', () => {
       expect(res.statusCode).toBe(401)
     })
 
+    it('returns 401 when x-admin-secret header length does not match', async () => {
+      req = createRequest({
+        headers: { 'x-admin-secret': 'short' }
+      })
+
+      await applyMiddleware(adminSecretMiddleware, req, res).catch((e) => {
+        errorHandler(e, req, res, next)
+      })
+
+      expect(res.statusCode).toBe(401)
+    })
+
     it('returns 401 when x-admin-secret header is wrong', async () => {
       req = createRequest({
-        headers: { 'x-admin-secret': 'wrong-secret' }
+        headers: { 'x-admin-secret': 'xxxx-admin-secret' }
       })
 
       await applyMiddleware(adminSecretMiddleware, req, res).catch((e) => {
@@ -219,7 +231,7 @@ describe('Admin Notification Controller', () => {
   })
 
   it('returns 400 when recipients are not registered users', async () => {
-    mockUserService.getByEmail.mockResolvedValue(undefined)
+    mockUserService.getByEmails.mockResolvedValue([])
     req.body = {
       subject: 'Test',
       bodyHtml: '<p>Test</p>',

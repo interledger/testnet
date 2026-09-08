@@ -71,7 +71,7 @@ describe('Admin Notification Service', () => {
   it('deduplicates explicit recipients case-insensitively', async () => {
     await createUser({
       ...args,
-      email: 'user@example.com',
+      email: 'User@example.com',
       isEmailVerified: true
     })
     mockEmailService.sendAnnouncementBatch.mockResolvedValue({
@@ -233,8 +233,9 @@ describe('EmailService sendAnnouncementBatch', () => {
   })
 
   it('returns all sent when SEND_EMAIL is disabled', async () => {
+    const info = jest.fn()
     const emailService = new EmailService({ ...env, SEND_EMAIL: false }, {
-      info: jest.fn(),
+      info,
       error: jest.fn()
     } as never)
 
@@ -246,5 +247,9 @@ describe('EmailService sendAnnouncementBatch', () => {
 
     expect(result).toEqual({ sent: 2, failed: 0, failedRecipients: [] })
     expect(mockedSendgrid.send).not.toHaveBeenCalled()
+    expect(info).toHaveBeenCalledWith(
+      'Send email is disabled. Would send announcement "Subject" to 2 recipients'
+    )
+    expect(JSON.stringify(info.mock.calls)).not.toContain('a@example.com')
   })
 })

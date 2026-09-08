@@ -31,7 +31,7 @@ export const getAnnouncementEmailTemplate = (
                       ${bodyHtml}
                     </td>
                   </tr>
-                  <tr><td><br /><br />If you need further support, contact us on our <a href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack">community slack.</td></tr>
+                  <tr><td><br /><br />If you need further support, contact us on our <a href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack">community slack</a>.</td></tr>
                 </tbody>
               </table>
   

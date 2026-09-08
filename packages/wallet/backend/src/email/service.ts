@@ -141,7 +141,7 @@ export class EmailService implements IEmailService {
 
     if (!this.env.SEND_EMAIL) {
       this.logger.info(
-        `Send email is disabled. Would send announcement "${subject}" to ${recipients.length} recipients: ${recipients.slice(0, 3).join(', ')}${recipients.length > 3 ? '...' : ''}`
+        `Send email is disabled. Would send announcement "${subject}" to ${recipients.length} recipients`
       )
       return { sent: recipients.length, failed: 0, failedRecipients: [] }
     }
