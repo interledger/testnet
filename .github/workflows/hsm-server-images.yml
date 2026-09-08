@@ -38,8 +38,17 @@ jobs:
             path: packages/wallet/frontend
             port: 4003
             cookie_name: cards-playground.cookie
-            backend_url: https://cards-playground-testnet-backend.interledger.tech
-            open_payments_host: $cards-playground-ilp.interledger.tech
+            # Next.js writes every NEXT_PUBLIC_* value into the client bundle at
+            # build time. The browser uses these values, not the Helm chart values.
+            # Keep them equal to env/cards-playground/wallet/testnet-wallet.yaml in
+            # testnet-deploy.
+            #
+            # The backend URL is a path on the frontend host. It is not a separate
+            # host. The backend derives the session cookie Domain and the allowed
+            # CORS origins from one bare domain. A sibling host under
+            # interledger.tech fails both checks.
+            backend_url: https://cards-playground-wallet.interledger.tech/wallet-api
+            open_payments_host: $cards-playground-ilp.interledger.tech/
             auth_host: https://cards-playground-auth.interledger.tech
             gatehub_env: sandbox
             theme: dark
