@@ -1,10 +1,9 @@
 import type { Env } from '@/config/env'
 import { createAtallaServerConfig } from '@/hsm/atalla/config'
-// Type-only, so nothing is required at module load. The adapter packages pull in an
-// ESM-only dependency chain (@buf/* generated code, uint8arrays) that Node 24 can
-// require() but Jest's CommonJS resolver cannot. Importing them eagerly here made
-// every test that touches createContainer fail to load, so the two factories are
-// imported dynamically in start(), which only runs when HSM_ENABLED is true.
+// These imports are types only. They add no `require` call at module load.
+// The adapter packages depend on ESM-only packages. Node 24 can `require` an
+// ESM package. The Jest CommonJS resolver cannot. `start` imports the two
+// factory functions dynamically, and `start` runs only when HSM_ENABLED is true.
 import type { IssuerServer } from '@interledger/hsm-atalla-issuer'
 import type { MerchantServer } from '@interledger/hsm-atalla-merchant'
 import type { Logger } from 'winston'

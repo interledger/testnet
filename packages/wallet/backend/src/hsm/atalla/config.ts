@@ -2,6 +2,7 @@ import type { Env } from '@/config/env'
 import type { IssuerServerConfig } from '@interledger/hsm-atalla-issuer'
 import type { MerchantServerConfig } from '@interledger/hsm-atalla-merchant'
 import type { AtallaTransportConfig } from '@interledger/hsm-atalla-transport'
+import { readTlsFile } from '@/hsm/atalla/tls-files'
 
 export interface AtallaServerConfig {
   role: 'both' | 'issuer' | 'merchant'
@@ -37,11 +38,20 @@ function createAtallaTransportConfig(env: Env): AtallaTransportConfig {
     port: env.ATALLA_PORT as number,
     timeoutMs: env.ATALLA_TIMEOUT_MS,
     poolSize: env.ATALLA_POOL_SIZE,
+    // The HSM service calls this function when it starts. Environment
+    // validation has already checked these paths. A restart reads the files
+    // again, so a new certificate needs no new deployment.
     tls: env.ATALLA_TLS_ENABLED
       ? {
-          ca: env.ATALLA_CA_CERT as string,
-          cert: env.ATALLA_CLIENT_CERT as string,
-          key: env.ATALLA_CLIENT_KEY as string,
+          ca: readTlsFile('ATALLA_CA_CERT_PATH', env.ATALLA_CA_CERT_PATH!),
+          cert: readTlsFile(
+            'ATALLA_CLIENT_CERT_PATH',
+            env.ATALLA_CLIENT_CERT_PATH!
+          ),
+          key: readTlsFile(
+            'ATALLA_CLIENT_KEY_PATH',
+            env.ATALLA_CLIENT_KEY_PATH!
+          ),
           skipServerIdentityCheck: env.ATALLA_SKIP_SERVER_IDENTITY_CHECK
         }
       : false

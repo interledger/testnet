@@ -1,8 +1,10 @@
 name: Build hsm-server images
 
-# Publishes wallet images from the `hsm-server` integration branch so the branch can
-# be deployed and referenced by commit, without cutting a release. Release images
-# still come from release.yml, which is the only place that writes `latest`.
+# This workflow publishes wallet images from the `hsm-server` branch.
+# Each image carries the commit short hash as its tag. You can deploy the branch
+# by hash, and you do not need a release.
+# Note: `release.yml` publishes the release images. It is the only workflow that
+# writes the `latest` tag.
 
 on:
   push:
@@ -13,7 +15,7 @@ permissions:
   contents: read
   packages: write
 
-# A rapid series of pushes only needs an image for the newest commit.
+# Only the newest commit needs an image. This setting cancels an earlier run.
 concurrency:
   group: hsm-server-images-${{ github.ref }}
   cancel-in-progress: true
@@ -24,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
-      # One image failing should not withhold the other.
+      # Each image builds on its own. A failure in one does not stop the other.
       fail-fast: false
       matrix:
         package:
@@ -47,11 +49,11 @@ jobs:
 
       - name: Resolve image tag
         id: tag
-        # Pinned to 8 characters instead of `git rev-parse --short`: core.abbrev is
-        # unset, so git auto-scales the abbreviation by object count, and the shallow
-        # clone actions/checkout makes has a different count than a full clone. A
-        # fixed width keeps the tag predictable, and 8 is what `git log --oneline`
-        # prints in this repository today.
+        # This step takes the first 8 characters of the commit hash.
+        # Do not use `git rev-parse --short` here. `core.abbrev` is not set, so git
+        # scales the length by the number of objects. `actions/checkout` makes a
+        # shallow clone, and that clone has a different number of objects. A fixed
+        # length keeps the tag the same in CI and on a workstation.
         run: echo "short_sha=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
@@ -81,10 +83,10 @@ jobs:
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
-          # The commit hash is the only tag. Nothing here writes `latest`, so these
-          # builds cannot shadow a released image.
+          # The commit hash is the only tag. This workflow does not write the
+          # `latest` tag, so a branch image cannot hide a release image.
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:${{ steps.tag.outputs.short_sha }}
-          # Layer cache scoped per image, so the two matrix legs do not evict each other.
+          # Each image has its own cache scope. One image cannot evict the other.
           cache-from: type=gha,scope=${{ matrix.package.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.package.name }}
 
