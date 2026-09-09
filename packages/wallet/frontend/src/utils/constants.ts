@@ -3,6 +3,7 @@ export const THEME = process.env.NEXT_PUBLIC_THEME
 export const GATEHUB_ENV = process.env.NEXT_PUBLIC_GATEHUB_ENV
 export const FEATURES_ENABLED =
   process.env.NEXT_PUBLIC_FEATURES_ENABLED === 'true' ? true : false
+export const DEPOSITS_ENABLED = GATEHUB_ENV !== 'production'
 /**
  * Default text for Toggle Switch
  */
