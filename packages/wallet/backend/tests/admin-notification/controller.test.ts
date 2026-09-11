@@ -17,7 +17,7 @@ import { EmailService } from '@/email/service'
 import { UserService } from '@/user/service'
 import { isAdminSecret } from '@/middleware/isAdminSecret'
 import { applyMiddleware } from '@/tests/utils'
-import { errorHandler } from '@/tests/helpers'
+import { createFakeRedisClient, errorHandler } from '@/tests/helpers'
 import { MAX_BODY_HTML_LENGTH } from '@/admin-notification/validation'
 
 const ADMIN_SECRET = 'test-admin-secret'
@@ -72,7 +72,8 @@ describe('Admin Notification Controller', () => {
       new AdminNotificationService(
         mockEmailService as unknown as EmailService,
         mockUserService as unknown as UserService,
-        { info: jest.fn(), error: jest.fn() } as never
+        { info: jest.fn(), error: jest.fn() } as never,
+        createFakeRedisClient()
       )
     )
   })
@@ -278,6 +279,7 @@ describe('Admin Notification Controller', () => {
       success: true,
       message: 'SUCCESS',
       result: {
+        dryRun: false,
         sent: 0,
         failed: 2,
         total: 2,
@@ -309,8 +311,64 @@ describe('Admin Notification Controller', () => {
     expect(res._getJSONData()).toEqual({
       success: true,
       message: 'SUCCESS',
-      result: { sent: 2, failed: 0, total: 2, failedRecipients: [] }
+      result: {
+        dryRun: false,
+        sent: 2,
+        failed: 0,
+        total: 2,
+        failedRecipients: []
+      }
     })
+  })
+
+  it('returns the resolved recipients without sending when dryRun is true', async () => {
+    req.body = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['user1@example.com', 'user2@example.com'],
+      dryRun: true
+    }
+
+    await adminNotificationController.send(req, res, next)
+
+    expect(res.statusCode).toBe(200)
+    expect(mockEmailService.sendAnnouncementBatch).not.toHaveBeenCalled()
+    expect(res._getJSONData()).toEqual({
+      success: true,
+      message: 'SUCCESS',
+      result: {
+        dryRun: true,
+        total: 2,
+        recipients: ['user1@example.com', 'user2@example.com'],
+        sent: 0,
+        failed: 0,
+        failedRecipients: []
+      }
+    })
+  })
+
+  it('rejects a repeated idempotency key instead of resending', async () => {
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 2,
+      failed: 0,
+      failedRecipients: []
+    })
+    req.body = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['user1@example.com', 'user2@example.com'],
+      idempotencyKey: 'repeat-key'
+    }
+
+    await adminNotificationController.send(req, res, next)
+
+    res = createResponse()
+    await adminNotificationController.send(req, res, (e) => {
+      errorHandler(e, req, res, next)
+    })
+
+    expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledTimes(1)
+    expect(res.statusCode).toBe(409)
   })
 
   it('sends to all verified users when sendToAll is true', async () => {

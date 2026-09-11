@@ -7,7 +7,9 @@ const sendNotificationBody = z
     subject: z.string().min(1).max(200),
     bodyHtml: z.string().min(1).max(MAX_BODY_HTML_LENGTH),
     sendToAll: z.boolean().optional(),
-    recipients: z.array(z.string().email()).optional()
+    recipients: z.array(z.string().email()).optional(),
+    dryRun: z.boolean().optional(),
+    idempotencyKey: z.string().min(1).max(200).optional()
   })
   .refine(
     (data) => {

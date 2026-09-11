@@ -20,7 +20,7 @@ interface VerifyEmailArgs {
 interface IUserService {
   create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
-  getByEmails(emails: string[]): Promise<User[]>
+  getByEmails(emails: string[]): Promise<Pick<User, 'email'>[]>
   getById(id: string): Promise<User | undefined>
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
@@ -49,7 +49,7 @@ export class UserService implements IUserService {
     return User.query().findOne({ email })
   }
 
-  public async getByEmails(emails: string[]): Promise<User[]> {
+  public async getByEmails(emails: string[]): Promise<Pick<User, 'email'>[]> {
     if (emails.length === 0) {
       return []
     }

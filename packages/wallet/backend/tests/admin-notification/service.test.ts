@@ -7,7 +7,7 @@ import { AwilixContainer } from 'awilix'
 import { AdminNotificationService } from '@/admin-notification/service'
 import { EmailService } from '@/email/service'
 import { UserService } from '@/user/service'
-import { createUser } from '@/tests/helpers'
+import { createFakeRedisClient, createUser } from '@/tests/helpers'
 import { mockLogInRequest } from '@/tests/mocks'
 import sendgrid from '@sendgrid/mail'
 
@@ -37,7 +37,8 @@ describe('Admin Notification Service', () => {
     adminNotificationService = new AdminNotificationService(
       mockEmailService as unknown as EmailService,
       userService,
-      { info: jest.fn(), error: jest.fn() } as never
+      { info: jest.fn(), error: jest.fn() } as never,
+      createFakeRedisClient()
     )
   })
 
@@ -92,6 +93,7 @@ describe('Admin Notification Service', () => {
       '<p>Test</p>'
     )
     expect(result).toEqual({
+      dryRun: false,
       sent: 1,
       failed: 0,
       total: 1,
@@ -142,11 +144,67 @@ describe('Admin Notification Service', () => {
     })
 
     expect(result).toEqual({
+      dryRun: false,
       sent: 0,
       failed: 2,
       total: 2,
       failedRecipients: ['user1@example.com', 'user2@example.com']
     })
+  })
+
+  it('resolves recipients without sending when dryRun is true', async () => {
+    await createUser({
+      ...args,
+      email: 'dryrun@example.com',
+      isEmailVerified: true
+    })
+
+    const result = await adminNotificationService.sendNotification({
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['dryrun@example.com'],
+      dryRun: true
+    })
+
+    expect(mockEmailService.sendAnnouncementBatch).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      dryRun: true,
+      total: 1,
+      recipients: ['dryrun@example.com'],
+      sent: 0,
+      failed: 0,
+      failedRecipients: []
+    })
+  })
+
+  it('rejects a repeated idempotency key instead of resending', async () => {
+    await createUser({
+      ...args,
+      email: 'idempotent@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    const input = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['idempotent@example.com'],
+      idempotencyKey: 'repeat-key'
+    }
+
+    await adminNotificationService.sendNotification(input)
+
+    await expect(
+      adminNotificationService.sendNotification(input)
+    ).rejects.toMatchObject({
+      message:
+        'Idempotency key repeat-key was already used in the last 24 hours'
+    })
+    expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledTimes(1)
   })
 
   it('rejects explicit recipient lists over 500 addresses', async () => {

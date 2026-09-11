@@ -1,32 +1,66 @@
-import { BadRequest } from '@shared/backend'
+import { BadRequest, Cache, Conflict, RedisClient } from '@shared/backend'
 import { EmailService } from '@/email/service'
 import { UserService } from '@/user/service'
 import { Logger } from 'winston'
 import { SendNotificationBody } from '@/admin-notification/validation'
 
 const MAX_EXPLICIT_RECIPIENTS = 500
+const IDEMPOTENCY_TTL_HOURS = 24
+const IDEMPOTENCY_TTL_SECONDS = IDEMPOTENCY_TTL_HOURS * 60 * 60
 
 export interface SendNotificationResult {
+  dryRun: boolean
   sent: number
   failed: number
   total: number
+  recipients?: string[]
   failedRecipients: string[]
 }
 
 export class AdminNotificationService {
+  private idempotencyCache: Cache<true>
+
   constructor(
     private emailService: EmailService,
     private userService: UserService,
-    private logger: Logger
-  ) {}
+    private logger: Logger,
+    redisClient: RedisClient
+  ) {
+    this.idempotencyCache = new Cache<true>(
+      redisClient,
+      'AdminNotificationIdempotency'
+    )
+  }
 
   public async sendNotification(
     input: SendNotificationBody
   ): Promise<SendNotificationResult> {
+    const isDryRun = input.dryRun === true
+
+    if (!isDryRun && input.idempotencyKey) {
+      const alreadyUsed = await this.idempotencyCache.get(input.idempotencyKey)
+      if (alreadyUsed) {
+        throw new Conflict(
+          `Idempotency key ${input.idempotencyKey} was already used in the last ${IDEMPOTENCY_TTL_HOURS} hours`
+        )
+      }
+    }
+
     const recipients = await this.resolveRecipients(input)
 
     if (recipients.length === 0) {
       throw new BadRequest('No recipients found')
+    }
+
+    if (isDryRun) {
+      return {
+        dryRun: true,
+        total: recipients.length,
+        recipients,
+        sent: 0,
+        failed: 0,
+        failedRecipients: []
+      }
     }
 
     const { sent, failed, failedRecipients } =
@@ -46,12 +80,21 @@ export class AdminNotificationService {
       mode
     })
 
-    return {
+    const result: SendNotificationResult = {
+      dryRun: false,
       sent,
       failed,
       total: recipients.length,
       failedRecipients
     }
+
+    if (input.idempotencyKey) {
+      await this.idempotencyCache.set(input.idempotencyKey, true, {
+        expiry: IDEMPOTENCY_TTL_SECONDS
+      })
+    }
+
+    return result
   }
 
   private async resolveRecipients(
