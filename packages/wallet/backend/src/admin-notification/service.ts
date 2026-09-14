@@ -38,12 +38,7 @@ export class AdminNotificationService {
     const isDryRun = input.dryRun === true
 
     if (!isDryRun && input.idempotencyKey) {
-      const alreadyUsed = await this.idempotencyCache.get(input.idempotencyKey)
-      if (alreadyUsed) {
-        throw new Conflict(
-          `Idempotency key ${input.idempotencyKey} was already used in the last ${IDEMPOTENCY_TTL_HOURS} hours`
-        )
-      }
+      await this.assertIdempotencyKeyUnused(input.idempotencyKey)
     }
 
     const recipients = await this.resolveRecipients(input)
@@ -63,38 +58,91 @@ export class AdminNotificationService {
       }
     }
 
-    const { sent, failed, failedRecipients } =
-      await this.emailService.sendAnnouncementBatch(
+    const idempotencyKey = input.idempotencyKey
+    if (idempotencyKey) {
+      await this.reserveIdempotencyKey(idempotencyKey)
+    }
+
+    let batch: Awaited<ReturnType<EmailService['sendAnnouncementBatch']>>
+
+    try {
+      batch = await this.emailService.sendAnnouncementBatch(
         recipients,
         input.subject,
         input.bodyHtml
       )
+    } catch (error) {
+      await this.releaseIdempotencyKey(idempotencyKey)
+      throw error
+    }
 
-    const mode = input.sendToAll === true ? 'all' : 'list'
+    const { sent, failed, failedRecipients } = batch
 
-    this.logger.info('Admin notification sent', {
+    const outcome = {
       subject: input.subject,
       total: recipients.length,
       sent,
       failed,
-      mode
-    })
+      mode: input.sendToAll === true ? 'all' : 'list'
+    }
 
-    const result: SendNotificationResult = {
+    if (sent === 0) {
+      await this.releaseIdempotencyKey(idempotencyKey)
+      this.logger.error(
+        'Admin notification failed for every recipient',
+        outcome
+      )
+    } else {
+      this.logger.info('Admin notification sent', outcome)
+    }
+
+    return {
       dryRun: false,
       sent,
       failed,
       total: recipients.length,
       failedRecipients
     }
+  }
 
-    if (input.idempotencyKey) {
-      await this.idempotencyCache.set(input.idempotencyKey, true, {
-        expiry: IDEMPOTENCY_TTL_SECONDS
-      })
+  // Fast path, so a replay skips resolveRecipients. Not authoritative:
+  // reserveIdempotencyKey is what decides.
+  private async assertIdempotencyKeyUnused(key: string): Promise<void> {
+    if (await this.idempotencyCache.get(key)) {
+      throw this.duplicateIdempotencyKey(key)
+    }
+  }
+
+  private async reserveIdempotencyKey(key: string): Promise<void> {
+    const reserved = await this.idempotencyCache.setIfNotExists(key, true, {
+      expiry: IDEMPOTENCY_TTL_SECONDS
+    })
+
+    if (!reserved) {
+      throw this.duplicateIdempotencyKey(key)
+    }
+  }
+
+  private duplicateIdempotencyKey(key: string): Conflict {
+    return new Conflict(
+      `Idempotency key ${key} was already used in the last ${IDEMPOTENCY_TTL_HOURS} hours`
+    )
+  }
+
+  // Never throws: every caller is already on a failure path.
+  private async releaseIdempotencyKey(key: string | undefined): Promise<void> {
+    if (!key) {
+      return
     }
 
-    return result
+    try {
+      await this.idempotencyCache.delete(key)
+    } catch (error) {
+      this.logger.error(
+        'Failed to release idempotency key after a failed announcement',
+        { idempotencyKey: key, error }
+      )
+    }
   }
 
   private async resolveRecipients(

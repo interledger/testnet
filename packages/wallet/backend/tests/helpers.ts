@@ -19,6 +19,13 @@ export const createFakeRedisClient = (): RedisClient => {
       store.set(key, typeof value === 'string' ? value : JSON.stringify(value))
       return 'OK'
     },
+    async setIfNotExists<T>(key: string, value: T | string): Promise<boolean> {
+      if (store.has(key)) {
+        return false
+      }
+      store.set(key, typeof value === 'string' ? value : JSON.stringify(value))
+      return true
+    },
     async delete(key: string): Promise<number> {
       return store.delete(key) ? 1 : 0
     }

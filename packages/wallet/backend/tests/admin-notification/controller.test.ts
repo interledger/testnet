@@ -371,6 +371,35 @@ describe('Admin Notification Controller', () => {
     expect(res.statusCode).toBe(409)
   })
 
+  it('rejects a replayed idempotency key without re-resolving recipients', async () => {
+    mockUserService.getVerifiedUserEmails.mockResolvedValue([
+      'verified1@example.com',
+      'verified2@example.com'
+    ])
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 2,
+      failed: 0,
+      failedRecipients: []
+    })
+    req.body = {
+      subject: 'Broadcast',
+      bodyHtml: '<p>Broadcast</p>',
+      sendToAll: true,
+      idempotencyKey: 'replayed-broadcast'
+    }
+
+    await adminNotificationController.send(req, res, next)
+
+    res = createResponse()
+    await adminNotificationController.send(req, res, (e) => {
+      errorHandler(e, req, res, next)
+    })
+
+    expect(res.statusCode).toBe(409)
+    // Once, not once per retry: the replay is rejected before resolveRecipients.
+    expect(mockUserService.getVerifiedUserEmails).toHaveBeenCalledTimes(1)
+  })
+
   it('sends to all verified users when sendToAll is true', async () => {
     mockUserService.getVerifiedUserEmails.mockResolvedValue([
       'verified1@example.com',

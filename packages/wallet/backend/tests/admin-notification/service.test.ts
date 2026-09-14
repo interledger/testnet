@@ -27,6 +27,8 @@ describe('Admin Notification Service', () => {
     sendAnnouncementBatch: jest.fn()
   }
 
+  const mockLogger = { info: jest.fn(), error: jest.fn() }
+
   const args = mockLogInRequest().body
 
   beforeAll(async () => {
@@ -34,10 +36,14 @@ describe('Admin Notification Service', () => {
     appContainer = await createApp(bindings)
     knex = appContainer.knex
     userService = await bindings.resolve('userService')
+  })
+
+  // Rebuilt per test so idempotency reservations do not leak between them.
+  beforeEach(() => {
     adminNotificationService = new AdminNotificationService(
       mockEmailService as unknown as EmailService,
       userService,
-      { info: jest.fn(), error: jest.fn() } as never,
+      mockLogger as never,
       createFakeRedisClient()
     )
   })
@@ -205,6 +211,194 @@ describe('Admin Notification Service', () => {
         'Idempotency key repeat-key was already used in the last 24 hours'
     })
     expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects a concurrent request that shares an idempotency key', async () => {
+    await createUser({
+      ...args,
+      email: 'concurrent@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    const input = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['concurrent@example.com'],
+      idempotencyKey: 'concurrent-key'
+    }
+
+    const results = await Promise.allSettled([
+      adminNotificationService.sendNotification(input),
+      adminNotificationService.sendNotification(input)
+    ])
+
+    const fulfilled = results.filter((r) => r.status === 'fulfilled')
+    const rejected = results.filter((r) => r.status === 'rejected')
+
+    expect(fulfilled).toHaveLength(1)
+    expect(rejected).toHaveLength(1)
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({
+      message:
+        'Idempotency key concurrent-key was already used in the last 24 hours'
+    })
+    expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledTimes(1)
+  })
+
+  it('releases the idempotency key when the send throws', async () => {
+    await createUser({
+      ...args,
+      email: 'throws@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockRejectedValueOnce(
+      new Error('SendGrid is unavailable')
+    )
+
+    const input = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['throws@example.com'],
+      idempotencyKey: 'released-on-throw'
+    }
+
+    await expect(
+      adminNotificationService.sendNotification(input)
+    ).rejects.toThrow('SendGrid is unavailable')
+
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    await expect(
+      adminNotificationService.sendNotification(input)
+    ).resolves.toMatchObject({ sent: 1 })
+  })
+
+  it('releases the idempotency key when every send fails', async () => {
+    await createUser({
+      ...args,
+      email: 'allfail@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValueOnce({
+      sent: 0,
+      failed: 1,
+      failedRecipients: ['allfail@example.com']
+    })
+
+    const input = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['allfail@example.com'],
+      idempotencyKey: 'released-on-total-failure'
+    }
+
+    await expect(
+      adminNotificationService.sendNotification(input)
+    ).resolves.toMatchObject({ sent: 0, failed: 1 })
+
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    await expect(
+      adminNotificationService.sendNotification(input)
+    ).resolves.toMatchObject({ sent: 1 })
+  })
+
+  it('does not consume the idempotency key when recipients are invalid', async () => {
+    await createUser({
+      ...args,
+      email: 'valid@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    await expect(
+      adminNotificationService.sendNotification({
+        subject: 'Test',
+        bodyHtml: '<p>Test</p>',
+        recipients: ['valid@example.com', 'unknown@example.com'],
+        idempotencyKey: 'unused-after-validation-error'
+      })
+    ).rejects.toMatchObject({
+      message: 'One or more recipients are not registered users'
+    })
+
+    await expect(
+      adminNotificationService.sendNotification({
+        subject: 'Test',
+        bodyHtml: '<p>Test</p>',
+        recipients: ['valid@example.com'],
+        idempotencyKey: 'unused-after-validation-error'
+      })
+    ).resolves.toMatchObject({ sent: 1 })
+  })
+
+  it('logs a total failure at error level rather than as a sent notification', async () => {
+    await createUser({
+      ...args,
+      email: 'logfail@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 0,
+      failed: 1,
+      failedRecipients: ['logfail@example.com']
+    })
+
+    await adminNotificationService.sendNotification({
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['logfail@example.com']
+    })
+
+    expect(mockLogger.info).not.toHaveBeenCalledWith(
+      'Admin notification sent',
+      expect.anything()
+    )
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Admin notification failed for every recipient',
+      expect.objectContaining({ sent: 0, failed: 1 })
+    )
+  })
+
+  it('logs a successful send at info level', async () => {
+    await createUser({
+      ...args,
+      email: 'logsent@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    await adminNotificationService.sendNotification({
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['logsent@example.com']
+    })
+
+    expect(mockLogger.info).toHaveBeenCalledWith(
+      'Admin notification sent',
+      expect.objectContaining({ sent: 1, failed: 0, mode: 'list' })
+    )
+    expect(mockLogger.error).not.toHaveBeenCalled()
   })
 
   it('rejects explicit recipient lists over 500 addresses', async () => {
