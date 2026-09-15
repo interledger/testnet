@@ -20,6 +20,7 @@ interface VerifyEmailArgs {
 interface IUserService {
   create: (args: CreateUserArgs) => Promise<User>
   getByEmail(email: string): Promise<User | undefined>
+  getByEmails(emails: string[]): Promise<Pick<User, 'email'>[]>
   getById(id: string): Promise<User | undefined>
   requestResetPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
@@ -48,8 +49,28 @@ export class UserService implements IUserService {
     return User.query().findOne({ email })
   }
 
+  public async getByEmails(emails: string[]): Promise<Pick<User, 'email'>[]> {
+    if (emails.length === 0) {
+      return []
+    }
+
+    const normalized = [...new Set(emails.map((email) => email.toLowerCase()))]
+
+    return User.query()
+      .whereIn(User.raw('lower(email)'), normalized)
+      .select('email')
+  }
+
   public async getById(id: string): Promise<User | undefined> {
     return User.query().findById(id)
+  }
+
+  public async getVerifiedUserEmails(): Promise<string[]> {
+    const users = await User.query()
+      .where({ isEmailVerified: true })
+      .select('email')
+
+    return users.map((user) => user.email)
   }
 
   public async requestResetPassword(email: string): Promise<void> {
