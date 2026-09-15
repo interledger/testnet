@@ -1,7 +1,7 @@
 import { BaseModel } from '@shared/backend'
 import { Model } from 'objection'
 
-interface Validation {
+export interface Validation {
   minLength?: number
   maxLength?: number
   pattern?: string
