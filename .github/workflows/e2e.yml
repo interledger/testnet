@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      - v1.x
+      - v1
     types:
       - opened
       - synchronize
