@@ -22,8 +22,8 @@ jobs:
       - name: Check branch is releasable
         run: |
           BRANCH="${{ github.ref_name }}"
-          if [ "$BRANCH" != "main" ] && ! echo "$BRANCH" | grep -qE '^release/v[0-9]+\.[0-9]+$'; then
-            echo "::error::Releases can only be created from 'main' or 'release/vX.Y' branches. Current branch: $BRANCH"
+          if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "v1.x" ] && ! echo "$BRANCH" | grep -qE '^release/v[0-9]+\.[0-9]+$'; then
+            echo "::error::Releases can only be created from 'main', 'v1.x' or 'release/vX.Y' branches. Current branch: $BRANCH"
             exit 1
           fi
           echo "Branch '$BRANCH' is valid for release."
@@ -95,14 +95,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.5'
+          node-version: '24.13.1'
       - name: Install semantic-release
         run: |
           npm install -g \
-            semantic-release@24 \
+            semantic-release@25 \
             @semantic-release/commit-analyzer@13 \
             @semantic-release/release-notes-generator@14 \
-            @semantic-release/github@11
+            @semantic-release/github@12
       - name: Run semantic-release
         id: semantic
         run: |
@@ -188,6 +188,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute image tags
+        id: image_tags
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}
+          VERSION: v${{ needs.release.outputs.new_release_version }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          {
+            echo 'tags<<TAGS_EOF'
+            echo "${IMAGE}:${VERSION}"
+            # Push ":latest" only from `main`. ":latest" points to the
+            # production image. A release from `v1.x` must not move it to the
+            # next-major line.
+            if [ "$BRANCH" = "main" ]; then
+              echo "${IMAGE}:latest"
+            fi
+            echo TAGS_EOF
+          } >> "$GITHUB_OUTPUT"
+
       - name: Docker build and push
         uses: docker/build-push-action@v6
         with:
@@ -205,6 +224,4 @@ jobs:
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_AUTH_HOST={0}', matrix.package.auth_host) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_GATEHUB_ENV={0}', matrix.package.gatehub_env) || '' }}
             ${{ matrix.package.identifier == 'wallet:frontend' && format('NEXT_PUBLIC_THEME={0}', matrix.package.theme) || '' }}
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:v${{ needs.release.outputs.new_release_version }}
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}:latest
+          tags: ${{ steps.image_tags.outputs.tags }}
