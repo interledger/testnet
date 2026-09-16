@@ -149,6 +149,12 @@ jobs:
           # Byte-identical to test-wallet-frontend, still published so the
           # interledger.cards deployments keep resolving the name they
           # reference. Retire once they repoint.
+          #
+          # This image no longer carries baked URLs. Any deployment on either
+          # name must supply BACKEND_URL, OPEN_PAYMENTS_HOST and AUTH_HOST, or
+          # the container exits at start-up naming what is missing. The Helm
+          # chart sets them; a deployment pinned to an older chart, which wrote
+          # `NEXT_PUBLIC_*` keys, must be upgraded with the image.
           - name: test-wallet-frontend-cards
             identifier: 'wallet:frontend'
             path: packages/wallet/frontend

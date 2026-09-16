@@ -30,7 +30,6 @@ config:
       name: 'testnet.cookie'
 
     features:
-      useTestKycData: true
       # Public features are intended for the production interledger.cards
       # environment only
       enabled: false
@@ -440,8 +439,6 @@ configMaps:
         valueRef: config.frontend.port
       - key: COOKIE_NAME
         valueRef: config.frontend.cookie.name
-      - key: USE_TEST_KYC_DATA
-        valueRef: config.frontend.features.useTestKycData
       - key: BACKEND_URL
         valueRef: config.frontend.urls.backend
       - key: BACKEND_INTERNAL_URL

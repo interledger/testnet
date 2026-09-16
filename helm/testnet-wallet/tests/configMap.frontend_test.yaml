@@ -44,6 +44,8 @@ tests:
           value: '4003'
 
   # The build-time names. The container does not look for them.
+  # USE_TEST_KYC_DATA is gone in both spellings: the frontend stopped reading it
+  # in #1643, when GateHub KYC replaced Rapyd.
   - it: 'emits no NEXT_PUBLIC_ key'
     asserts:
       - notExists:
@@ -59,7 +61,7 @@ tests:
       - notExists:
           path: data.NEXT_PUBLIC_FEATURES_ENABLED
       - notExists:
-          path: data.NEXT_PUBLIC_USE_TEST_KYC_DATA
+          path: data.USE_TEST_KYC_DATA
 
   # A path means the page origin, so the server needs the in-cluster address.
   - it: 'carries a path backend address and the in-cluster address together'

@@ -28,19 +28,18 @@ hostname, change the value and restart the pod. The names carry no
 `NEXT_PUBLIC_` prefix because Next.js replaces those with literals at build
 time.
 
-| Key                    | `values.yaml` path                        |
-| ---------------------- | ----------------------------------------- |
-| `NODE_ENV`             | `config.frontend.nodeEnv`                 |
-| `PORT`                 | `config.frontend.port`                    |
-| `COOKIE_NAME`          | `config.frontend.cookie.name`             |
-| `USE_TEST_KYC_DATA`    | `config.frontend.features.useTestKycData` |
-| `BACKEND_URL`          | `config.frontend.urls.backend`            |
-| `BACKEND_INTERNAL_URL` | `config.frontend.urls.backendInternal`    |
-| `OPEN_PAYMENTS_HOST`   | `config.frontend.urls.openPaymentsHost`   |
-| `AUTH_HOST`            | `config.frontend.urls.authHost`           |
-| `THEME`                | `config.frontend.theme`                   |
-| `GATEHUB_ENV`          | `config.frontend.gatehub.env`             |
-| `FEATURES_ENABLED`     | `config.frontend.features.enabled`        |
+| Key                    | `values.yaml` path                      |
+| ---------------------- | --------------------------------------- |
+| `NODE_ENV`             | `config.frontend.nodeEnv`               |
+| `PORT`                 | `config.frontend.port`                  |
+| `COOKIE_NAME`          | `config.frontend.cookie.name`           |
+| `BACKEND_URL`          | `config.frontend.urls.backend`          |
+| `BACKEND_INTERNAL_URL` | `config.frontend.urls.backendInternal`  |
+| `OPEN_PAYMENTS_HOST`   | `config.frontend.urls.openPaymentsHost` |
+| `AUTH_HOST`            | `config.frontend.urls.authHost`         |
+| `THEME`                | `config.frontend.theme`                 |
+| `GATEHUB_ENV`          | `config.frontend.gatehub.env`           |
+| `FEATURES_ENABLED`     | `config.frontend.features.enabled`      |
 
 `BACKEND_URL` may be absolute, or a path such as `/wallet-api` where one
 hostname serves the frontend at `/` and the backend at a prefix — a path needs
@@ -49,7 +48,9 @@ in-cluster Service address: SSR has no origin to resolve against, and the
 container refuses to start without it.
 
 `BACKEND_URL`, `OPEN_PAYMENTS_HOST` and `AUTH_HOST` are required. The container
-checks them before accepting traffic and exits if one is missing.
+checks them before accepting traffic and exits if one is missing. It also
+rejects a `BACKEND_URL` or `BACKEND_INTERNAL_URL` that is neither an absolute
+http(s) URL nor, for `BACKEND_URL`, a path beginning with `/`.
 
 **Backend ConfigMap keys** (see `configMaps.backend.contentMap` in `values.yaml` for the full list — covers `NODE_ENV`, `PORT`, cookie settings, GateHub config, Rafiki endpoints, Stripe flags, rate limiting, card URLs, and more).
 
