@@ -1,3 +1,44 @@
+{{/*
+The override adds the HSM adapter block to the ConfigMap the contentMap builds.
+
+It is not a contentMap entry. The backend validates ATALLA_HOST and ATALLA_PORT
+when HSM_ENABLED is true and rejects an empty string for either, so a contentMap
+entry would emit `ATALLA_HOST: ""` in every environment that leaves it unset and
+stop the backend from starting. Here the whole block appears only when
+config.backend.hsm.enabled is true.
+
+common.utils.merge merges maps deeply, so these keys join the contentMap's
+`data` rather than replacing it.
+*/}}
 {{- define "testnet-wallet.backend.ConfigMap" -}}
+{{- $top := first . }}
+{{- $hsm := $top.Values.config.backend.hsm }}
+{{- if $hsm.enabled }}
+{{- if not $hsm.atalla.host }}
+{{- fail "config.backend.hsm.atalla.host is required when config.backend.hsm.enabled is true" }}
+{{- end }}
+{{- if not $hsm.atalla.port }}
+{{- fail "config.backend.hsm.atalla.port is required when config.backend.hsm.enabled is true" }}
+{{- end }}
+data:
+  HSM_ENABLED: "true"
+  HSM_SERVER_ROLE: {{ $hsm.serverRole | quote }}
+  {{- /* ISSUER_GRPC_HOST and MERCHANT_GRPC_HOST are omitted: the backend falls
+         back to HSM_GRPC_HOST, and one host serves both roles here. */}}
+  HSM_GRPC_HOST: {{ $hsm.grpcHost | quote }}
+  ISSUER_GRPC_PORT: {{ $hsm.issuerPort | quote }}
+  MERCHANT_GRPC_PORT: {{ $hsm.merchantPort | quote }}
+  ATALLA_HOST: {{ $hsm.atalla.host | quote }}
+  ATALLA_PORT: {{ $hsm.atalla.port | quote }}
+  ATALLA_TIMEOUT_MS: {{ $hsm.atalla.timeoutMs | quote }}
+  ATALLA_POOL_SIZE: {{ $hsm.atalla.poolSize | quote }}
+  ATALLA_TLS_ENABLED: {{ $hsm.atalla.tls.enabled | quote }}
+  {{- if $hsm.atalla.tls.enabled }}
+  ATALLA_SKIP_SERVER_IDENTITY_CHECK: {{ $hsm.atalla.tls.skipServerIdentityCheck | quote }}
+  ATALLA_CA_CERT_PATH: {{ $hsm.atalla.tls.caCertPath | quote }}
+  ATALLA_CLIENT_CERT_PATH: {{ $hsm.atalla.tls.clientCertPath | quote }}
+  ATALLA_CLIENT_KEY_PATH: {{ $hsm.atalla.tls.clientKeyPath | quote }}
+  {{- end }}
+{{- end }}
 {{- end }}
 {{- include "common.configMapper" (list . .Values.configMaps.backend "testnet-wallet.backend.ConfigMap") }}
