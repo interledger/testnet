@@ -23,8 +23,7 @@ ADD . ./
 # Install packages from virtual store
 RUN pnpm install --filter @wallet/frontend... --offline
 
-# This image takes no build arguments. The frontend reads every URL, the theme
-# and the feature flags from the environment when it answers a request, so pass
-# them to the container instead. See packages/wallet/frontend/.env.example.
+# No build arguments: configuration is read per request, so pass it to the
+# container instead. See packages/wallet/frontend/.env.example.
 
 CMD ["pnpm", "wallet:frontend", "dev"]

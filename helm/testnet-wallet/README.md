@@ -23,13 +23,10 @@ Defined under `configMaps.backend.contentMap` and `configMaps.frontend.contentMa
 
 **Frontend ConfigMap keys**
 
-The frontend reads all of these when it serves a request. None of them is
-baked into the image. To move the wallet to a different hostname, change the
-value and restart the pod. No rebuild, and no new image tag.
-
-The names carry no `NEXT_PUBLIC_` prefix on purpose. Next.js replaces every
-`process.env.NEXT_PUBLIC_*` expression with a literal when it builds, so a
-prefixed name cannot change afterwards.
+Read per request, never baked into the image: to move the wallet to a different
+hostname, change the value and restart the pod. The names carry no
+`NEXT_PUBLIC_` prefix because Next.js replaces those with literals at build
+time.
 
 | Key                    | `values.yaml` path                        |
 | ---------------------- | ----------------------------------------- |
@@ -45,15 +42,14 @@ prefixed name cannot change afterwards.
 | `GATEHUB_ENV`          | `config.frontend.gatehub.env`             |
 | `FEATURES_ENABLED`     | `config.frontend.features.enabled`        |
 
-`BACKEND_URL` may be an absolute URL, or a path such as `/wallet-api` where one
-hostname serves the frontend at `/` and the backend at a prefix. A path needs no
-edit when DNS changes. Set `BACKEND_INTERNAL_URL` to the in-cluster Service
-address whenever `BACKEND_URL` is a path: server-side rendering has no origin to
-resolve a path against, and the container refuses to start without it.
+`BACKEND_URL` may be absolute, or a path such as `/wallet-api` where one
+hostname serves the frontend at `/` and the backend at a prefix — a path needs
+no edit when DNS changes. When it is a path, set `BACKEND_INTERNAL_URL` to the
+in-cluster Service address: SSR has no origin to resolve against, and the
+container refuses to start without it.
 
 `BACKEND_URL`, `OPEN_PAYMENTS_HOST` and `AUTH_HOST` are required. The container
-checks them before the server accepts traffic and exits with a readable message
-if one is missing.
+checks them before accepting traffic and exits if one is missing.
 
 **Backend ConfigMap keys** (see `configMaps.backend.contentMap` in `values.yaml` for the full list — covers `NODE_ENV`, `PORT`, cookie settings, GateHub config, Rafiki endpoints, Stripe flags, rate limiting, card URLs, and more).
 

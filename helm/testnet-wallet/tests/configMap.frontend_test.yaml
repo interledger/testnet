@@ -1,11 +1,6 @@
-# The frontend reads these keys from its environment when it serves a request,
-# so the key names are a contract between this chart and
+# The key names are a contract with
 # packages/wallet/frontend/src/lib/runtimeConfig.ts. A rename on one side alone
 # leaves the container with nothing to read, and it exits at start-up.
-#
-# None of these names carries a `NEXT_PUBLIC_` prefix. Next.js replaces every
-# `process.env.NEXT_PUBLIC_*` expression with a literal when it builds, so a
-# prefixed name could not be changed by a deployment afterwards.
 suite: testnet-wallet frontend - runtime configuration
 templates:
   - configMap.frontend.yaml
@@ -48,8 +43,7 @@ tests:
           path: data.PORT
           value: '4003'
 
-  # The prefixed names are what the frontend used to read at build time. None
-  # of them may come back: the container does not look for them.
+  # The build-time names. The container does not look for them.
   - it: 'emits no NEXT_PUBLIC_ key'
     asserts:
       - notExists:
@@ -67,9 +61,7 @@ tests:
       - notExists:
           path: data.NEXT_PUBLIC_USE_TEST_KYC_DATA
 
-  # A path means "the same origin as the page", which is what one hostname
-  # serving the frontend at / and the backend at a prefix needs. The server
-  # cannot resolve a path, so it takes the in-cluster address instead.
+  # A path means the page origin, so the server needs the in-cluster address.
   - it: 'carries a path backend address and the in-cluster address together'
     set:
       config:

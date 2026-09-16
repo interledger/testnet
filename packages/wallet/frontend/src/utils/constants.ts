@@ -1,9 +1,7 @@
 import { getRuntimeConfig } from '@/lib/runtimeConfig'
 
-// Read once per bundle. On the server this happens when the module is first
-// imported, and the pod environment does not change while the process runs. In
-// the browser it happens after the inline script in `_document.tsx` has run,
-// because that script is written ahead of every Next.js bundle in the body.
+// Read once per bundle. In the browser that happens after the inline script in
+// `_document.tsx`, which is written ahead of every Next.js bundle.
 const runtimeConfig = getRuntimeConfig()
 
 export const BACKEND_URL = runtimeConfig.backendUrl

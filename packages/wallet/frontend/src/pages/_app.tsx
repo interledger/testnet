@@ -154,14 +154,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 }
 
 /**
- * Defined only for its side effect: a custom App with `getInitialProps` turns
- * off Automatic Static Optimization, so Next.js server renders every page.
- *
- * The runtime configuration depends on this. `_document.tsx` reads the pod
- * environment while it renders, and a page whose HTML came from `next build`
- * would carry the values of the build machine instead. `/404`, `/no-access`
- * and the `/auth/*` pages have no `getServerSideProps`, so they are the ones
- * this protects.
+ * Defined only for its side effect: it turns off Automatic Static Optimization
+ * so every page is server rendered, and `_document.tsx` can read the pod
+ * environment. Protects `/404`, `/no-access` and `/auth/*`, which have no
+ * `getServerSideProps`.
  */
 App.getInitialProps = async (context: AppContext): Promise<AppInitialProps> =>
   await NextApp.getInitialProps(context)

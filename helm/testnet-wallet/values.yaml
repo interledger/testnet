@@ -11,22 +11,16 @@ config:
     theme: 'dark'
 
     urls:
-      # The address the browser uses for the backend.
-      #
-      # Use a path, such as `/wallet-api`, where one hostname serves the
-      # frontend at `/` and the backend at a prefix. A path follows the
-      # hostname the page was served from, so it survives a DNS change and a
-      # new environment without an edit. Set `backendInternal` as well when
-      # you do, because server-side rendering cannot resolve a path.
-      #
-      # Use an absolute URL where the backend has a hostname of its own.
+      # The backend address the browser uses. Absolute where the backend has
+      # its own hostname. Where one hostname serves the frontend at `/` and the
+      # backend at a prefix, use a path (`/wallet-api`): it follows the host
+      # that served the page, so it survives a DNS change. Set
+      # `backendInternal` too, because SSR cannot resolve a path.
       backend: 'https://api.interledger-test.dev'
 
-      # The address the frontend container itself uses for the backend. Leave
-      # it empty to reuse `backend`.
-      #
-      # Point it at the in-cluster Service to keep server-side traffic inside
-      # the cluster. It is required when `backend` is a path.
+      # The backend address the frontend container uses. Point it at the
+      # in-cluster Service to keep SSR traffic inside the cluster. Required
+      # when `backend` is a path; empty reuses `backend`.
       backendInternal: ''
 
       openPaymentsHost: 'https://ilp.interledger-test.dev'
@@ -433,13 +427,9 @@ services:
 # This section of the values file defines Kubernetes config maps that will be created
 # for each service (backend and frontend).
 configMaps:
-  # The frontend reads every one of these when it serves a request. None of
-  # them is baked into the image, so a change here plus a pod restart is the
-  # whole procedure for moving the wallet to a different hostname.
-  #
-  # The names carry no `NEXT_PUBLIC_` prefix on purpose. Next.js replaces every
-  # `process.env.NEXT_PUBLIC_*` expression with a literal at build time, so a
-  # prefixed name can never be changed afterwards. See
+  # Read per request, never baked into the image: change one, restart the pod.
+  # The names carry no `NEXT_PUBLIC_` prefix because Next.js replaces those with
+  # literals at build time. See
   # packages/wallet/frontend/src/lib/runtimeConfig.ts.
   frontend:
     name: 'frontend'

@@ -2,17 +2,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
 
-// This file deliberately declares no `env` and no `publicRuntimeConfig`.
-//
-// Both are resolved when the image is built. `env` is inlined into the bundles
-// by webpack, and with `output: 'standalone'` the whole resolved config —
-// `publicRuntimeConfig` included — is serialised into the generated
-// `server.js`. Either one would tie a URL to an image tag again.
-//
-// The frontend reads its configuration from `process.env` while it serves a
-// request instead. See `src/lib/runtimeConfig.ts`, and
-// `scripts/start.js` for the check that runs before the server accepts
-// traffic.
+// No `env` and no `publicRuntimeConfig` on purpose: both resolve at build time,
+// which is what tied a deployment URL to an image tag. The frontend reads
+// `process.env` per request instead — see src/lib/runtimeConfig.ts, and
+// scripts/start.js for the start-up check.
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

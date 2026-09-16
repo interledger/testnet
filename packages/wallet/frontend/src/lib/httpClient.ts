@@ -36,10 +36,8 @@ export type ErrorResponse<T = undefined> = {
   errors?: T extends FieldValues ? Record<FieldPath<T>, string> : undefined
 }
 
-// The server and the browser reach the backend at different addresses. The
-// server prefers the in-cluster Service, which keeps the traffic inside the
-// cluster and works even when the browser-facing value is a bare path. The
-// browser uses the value `_document.tsx` wrote into the page.
+// The server prefers the in-cluster Service, which also works when the
+// browser-facing value is a bare path.
 const isServer = typeof window === 'undefined'
 const baseUrl = isServer ? getServerBackendUrl() : getRuntimeConfig().backendUrl
 

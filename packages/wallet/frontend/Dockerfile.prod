@@ -31,12 +31,9 @@ COPY --from=base /testnet/node_modules ./node_modules
 COPY --from=base /testnet/packages/wallet/frontend/node_modules ./packages/wallet/frontend/node_modules
 COPY --from=base /testnet/packages/wallet/shared/node_modules ./packages/wallet/shared/node_modules
 
-# This build takes no configuration.
-#
-# Every URL, the theme and the feature flags are read from the environment when
-# the container serves a request. The image is therefore the same for every
-# deployment, and a URL changes without a rebuild. See
-# packages/wallet/frontend/src/lib/runtimeConfig.ts.
+# This build takes no configuration. Every URL, the theme and the feature flags
+# are read from the environment per request, so one image serves every
+# deployment. See packages/wallet/frontend/src/lib/runtimeConfig.ts.
 ENV NODE_ENV=production
 
 RUN pnpm wallet:frontend build
@@ -54,9 +51,9 @@ COPY --from=builder /testnet/packages/wallet/frontend/.next/static ./packages/wa
 COPY --from=builder /testnet/packages/wallet/shared/dist ./packages/wallet/shared/dist
 COPY --from=builder /testnet/packages/wallet/shared/package.json ./packages/wallet/shared/package.json
 
-# Sits next to the generated server.js and requires it. It checks that the
-# deployment supplied the variables the frontend cannot run without, so a pod
-# with an incomplete ConfigMap fails to start instead of serving broken links.
+# Requires the generated server.js, after checking the variables the frontend
+# cannot run without. An incomplete ConfigMap fails the pod instead of serving
+# broken links.
 COPY --from=builder /testnet/packages/wallet/frontend/scripts/start.js ./packages/wallet/frontend/start.js
 
 CMD ["node", "packages/wallet/frontend/start.js"]

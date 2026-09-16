@@ -5,13 +5,10 @@ import {
 import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
-  // This runs on the server for every request, so it reads the environment the
-  // pod runs with. `_app.tsx` keeps it that way by turning off Automatic
-  // Static Optimization.
+  // Runs on the server per request, so it reads the pod environment.
   const runtimeConfig = readRuntimeConfigFromEnv()
 
-  // `</script>` inside a string would close this tag early. Escaping `<` is
-  // the standard defence, and it keeps the JSON valid.
+  // `</script>` inside a string would close the tag early.
   const serialisedConfig = JSON.stringify(runtimeConfig).replace(
     /</g,
     '\\u003c'
@@ -25,10 +22,7 @@ export default function Document() {
     >
       <Head />
       <body className="h-screen bg-white text-black dark:bg-purple dark:text-white">
-        {/*
-          Written ahead of <Main /> and <NextScript /> so the value is present
-          before any application module reads it.
-        */}
+        {/* Ahead of <Main /> and <NextScript />, so it runs first. */}
         <script
           id="wallet-runtime-config"
           dangerouslySetInnerHTML={{

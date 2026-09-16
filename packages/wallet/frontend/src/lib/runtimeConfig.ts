@@ -1,48 +1,25 @@
 /**
- * Runtime configuration for the wallet frontend.
+ * Configuration read from the container environment per request, not baked in
+ * at build time. A deployment changes a URL by editing the ConfigMap and
+ * restarting the pod.
  *
- * Every value here is read from the container environment when a request is
- * served, not when the image is built. A deployment changes a URL by editing
- * the ConfigMap and restarting the pod. The image never has to be rebuilt.
+ * The names carry no `NEXT_PUBLIC_` prefix because Next.js replaces those with
+ * literals at build time. The same goes for `next.config.js`'s `env` key, and
+ * for `publicRuntimeConfig` under `output: 'standalone'`, which serialises the
+ * resolved config into the generated `server.js`.
  *
- * Why these names carry no `NEXT_PUBLIC_` prefix
- * ---------------------------------------------
- * Next.js replaces every `process.env.NEXT_PUBLIC_*` expression with a string
- * literal at build time, in the client bundle and in the server bundle. A
- * prefixed name can therefore never change after `next build`. These names are
- * invisible to that substitution, so the server reads the real environment.
- *
- * The same applies to the `env` key in `next.config.js`, which is why that key
- * is gone. With `output: 'standalone'` the whole resolved config is serialised
- * into the generated `server.js`, so `publicRuntimeConfig` would freeze at
- * build time as well. Reading `process.env` directly is the only mechanism
- * that survives a standalone build.
- *
- * How a value reaches the browser
- * -------------------------------
- * The server reads `process.env`. `_document.tsx` writes the result into the
- * HTML of every response, and the browser reads it back from
- * `window.__WALLET_RUNTIME_CONFIG__`.
- *
- * This works only while every page is server rendered. `_app.tsx` defines
- * `getInitialProps` for that reason: it turns off Automatic Static
- * Optimization, which would otherwise bake the HTML of the pages that have no
- * `getServerSideProps` — `/404`, `/no-access` and `/auth/*` — at build time.
+ * The server reads `process.env`; `_document.tsx` writes the result into every
+ * response and the browser reads it back. That needs every page server
+ * rendered, which is why `_app.tsx` defines `getInitialProps`.
  */
 
 export const RUNTIME_CONFIG_WINDOW_KEY = '__WALLET_RUNTIME_CONFIG__'
 
 export type RuntimeConfig = {
   /**
-   * The address the browser uses for the wallet backend.
-   *
-   * This may be an absolute URL (`https://api.example.dev`) when the backend
-   * has a hostname of its own, or a path (`/wallet-api`) when one hostname
-   * serves the frontend and the backend. A path needs no change when DNS
-   * changes, so prefer it wherever the ingress routes both on one host.
-   *
-   * Server-side code must not use a path. Use `getServerBackendUrl()`, which
-   * prefers the in-cluster address.
+   * The backend address the browser uses. Either absolute, or a path such as
+   * `/wallet-api` where one hostname serves both halves of the wallet. Server
+   * code must use `getServerBackendUrl()`, which cannot resolve a path.
    */
   backendUrl: string
   openPaymentsHost: string
@@ -61,11 +38,8 @@ const EMPTY_CONFIG: RuntimeConfig = {
   featuresEnabled: false
 }
 
-/**
- * The guardrail that used to live in `next.config.js`. It stops the public
- * features turning themselves on in a sandbox environment when nobody sets
- * `FEATURES_ENABLED`.
- */
+// Guardrail moved from next.config.js: public features stay off in a sandbox
+// unless something sets FEATURES_ENABLED.
 const resolveFeaturesEnabled = (gatehubEnv: string): boolean => {
   const explicit = process.env.FEATURES_ENABLED
 
@@ -76,11 +50,7 @@ const resolveFeaturesEnabled = (gatehubEnv: string): boolean => {
   return !(process.env.NODE_ENV === 'production' && gatehubEnv === 'sandbox')
 }
 
-/**
- * Reads the configuration from the environment. Server and Edge runtimes only.
- * On the client every value is empty, because the browser has no `process.env`
- * and Next.js inlines none of these names.
- */
+/** Server and Edge runtimes only. Every value is empty in the browser. */
 export const readRuntimeConfigFromEnv = (): RuntimeConfig => {
   const gatehubEnv = process.env.GATEHUB_ENV || 'sandbox'
 
@@ -95,11 +65,8 @@ export const readRuntimeConfigFromEnv = (): RuntimeConfig => {
 }
 
 /**
- * The address server-side code uses for the wallet backend.
- *
- * `BACKEND_INTERNAL_URL` keeps this traffic inside the cluster, and it is
- * required when `BACKEND_URL` is a path: server-side `fetch` cannot resolve a
- * path against an origin it does not have.
+ * The backend address server-side code uses. `BACKEND_INTERNAL_URL` keeps the
+ * traffic in-cluster, and is required when `BACKEND_URL` is a path.
  */
 export const getServerBackendUrl = (): string =>
   process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || ''
@@ -117,9 +84,8 @@ export const getRuntimeConfig = (): RuntimeConfig => {
     return injected
   }
 
-  // Reached only if a page was served from HTML that `next build` produced,
-  // which means Automatic Static Optimization came back on. See the note about
-  // `_app.tsx` above.
+  // Only reachable if the page came from build-time HTML, which means static
+  // optimization is back on.
   console.error(
     `[runtimeConfig] window.${RUNTIME_CONFIG_WINDOW_KEY} is missing. This page was not server rendered, so it has no configuration.`
   )

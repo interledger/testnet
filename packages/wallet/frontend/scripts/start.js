@@ -1,16 +1,9 @@
 /**
- * Entry point for the production image.
- *
- * The frontend reads its URLs from the environment when it serves a request,
- * so a missing variable is a deployment error, not a build error. This check
- * turns that error into a pod that fails to start with a readable reason. The
- * alternative is a pod that starts and serves `undefined` inside every link.
- *
- * Run before `server.js`, which is the file `next build` generates for
- * `output: 'standalone'`.
+ * Entry point for the production image. A missing URL is a deployment error,
+ * so fail here with a readable reason rather than serving `undefined` inside
+ * every link. Runs before the `server.js` that `next build` generates.
  */
 
-// Read by the browser, through the script `_document.tsx` writes into the page.
 const REQUIRED = ['BACKEND_URL', 'OPEN_PAYMENTS_HOST', 'AUTH_HOST']
 
 const missing = REQUIRED.filter((name) => !process.env[name])
@@ -23,8 +16,7 @@ if (missing.length > 0) {
   process.exit(1)
 }
 
-// A path means "the same origin as the page". The browser resolves it, the
-// server cannot, so the server needs an absolute address of its own.
+// A path resolves against the page origin, which the server does not have.
 if (
   process.env.BACKEND_URL.startsWith('/') &&
   !process.env.BACKEND_INTERNAL_URL

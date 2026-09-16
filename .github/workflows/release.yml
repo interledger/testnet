@@ -140,17 +140,15 @@ jobs:
           - name: test-wallet-backend
             identifier: 'wallet:backend'
             path: packages/wallet/backend
-          # The wallet frontend takes no build configuration. Every URL, the
-          # theme and the feature flags are read from the container
-          # environment when a request is served, so one image serves every
-          # deployment. The Helm chart supplies the values.
+          # No build configuration: every URL, the theme and the feature flags
+          # are read from the container environment per request, so one image
+          # serves every deployment. The Helm chart supplies the values.
           - name: test-wallet-frontend
             identifier: 'wallet:frontend'
             path: packages/wallet/frontend
-          # Byte-identical to test-wallet-frontend. It is still published so
-          # the interledger.cards deployments keep resolving the image name
-          # they already reference. Retire it once they point at
-          # test-wallet-frontend.
+          # Byte-identical to test-wallet-frontend, still published so the
+          # interledger.cards deployments keep resolving the name they
+          # reference. Retire once they repoint.
           - name: test-wallet-frontend-cards
             identifier: 'wallet:frontend'
             path: packages/wallet/frontend
