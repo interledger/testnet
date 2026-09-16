@@ -28,6 +28,24 @@ if (!NEXT_PUBLIC_FEATURES_ENABLED) {
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'none';"
+          }
+        ]
+      }
+    ]
+  },
   // ESLint 9.x removed options (useEslintrc, extensions) that Next.js 14
   // passes internally. Linting is handled separately via `pnpm lint:check`.
   eslint: { ignoreDuringBuilds: true },

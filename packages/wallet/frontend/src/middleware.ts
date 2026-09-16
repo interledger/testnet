@@ -12,6 +12,12 @@ const isPublicPath = (path: string) => {
 
 const publicPaths = ['/auth*']
 
+function withFrameProtection(response: NextResponse): NextResponse {
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('Content-Security-Policy', "frame-ancestors 'none';")
+  return response
+}
+
 // When running behind a reverse proxy (e.g. Traefik), Next.js middleware sees
 // the internal container URL (http://wallet-frontend:4003) as req.url. This
 // causes redirects to point to the internal hostname instead of the public
@@ -53,7 +59,7 @@ export async function middleware(req: NextRequest) {
       req.nextUrl.pathname !== '/kyc'
     ) {
       const url = new URL('/kyc', baseUrl)
-      return NextResponse.redirect(url)
+      return withFrameProtection(NextResponse.redirect(url))
     }
 
     // If KYC is completed and the user tries to navigate to the page, redirect
@@ -62,7 +68,7 @@ export async function middleware(req: NextRequest) {
       response.result.needsIDProof === false &&
       req.nextUrl.pathname.startsWith('/kyc')
     ) {
-      return NextResponse.redirect(new URL('/', baseUrl))
+      return withFrameProtection(NextResponse.redirect(new URL('/', baseUrl)))
     }
 
     if (isPublic) {
@@ -72,7 +78,7 @@ export async function middleware(req: NextRequest) {
         !callbackUrl.startsWith('//')
           ? callbackUrl
           : '/'
-      return NextResponse.redirect(new URL(dest, baseUrl))
+      return withFrameProtection(NextResponse.redirect(new URL(dest, baseUrl)))
     }
   } else {
     // If the user is not logged in and tries to access a private resource,
@@ -86,11 +92,11 @@ export async function middleware(req: NextRequest) {
           `${req.nextUrl.pathname}${req.nextUrl.search}`
         )
       }
-      return NextResponse.redirect(url)
+      return withFrameProtection(NextResponse.redirect(url))
     }
   }
 
-  return NextResponse.next()
+  return withFrameProtection(NextResponse.next())
 }
 
 // A simple trick to avoid running the middleware on all static files.
