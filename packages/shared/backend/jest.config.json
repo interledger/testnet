@@ -1,11 +1,9 @@
 {
   "preset": "ts-jest",
   "clearMocks": true,
-  "testEnvironment": "<rootDir>/jest.environment.js",
-  "setupFiles": ["<rootDir>/jest.setup.js"],
+  "testEnvironment": "node",
   "modulePathIgnorePatterns": ["<rootDir>/dist/"],
   "moduleNameMapper": {
-    "@/tests/(.*)": "<rootDir>/tests/$1",
     "@/(.*)": "<rootDir>/src/$1"
   }
 }

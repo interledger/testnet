@@ -1,6 +1,6 @@
 dependencies:
 - name: common
   repository: https://interledger.github.io/charts/interledger
-  version: 0.9.1
-digest: sha256:6644c11c8072f21d47ad47fda9380f589f2de2d996e3e5a56f0cd7181061d282
-generated: "2026-09-08T12:22:40.402639362+02:00"
+  version: 0.10.2
+digest: sha256:fe7286ef8d0717ccfc99357d8b1bb5a2bc43a6a4aa042922eebf9ccd24cd56ff
+generated: "2026-09-16T11:21:42.878828511+02:00"

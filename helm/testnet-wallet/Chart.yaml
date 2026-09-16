@@ -11,7 +11,7 @@ appVersion: 'v0.0.1'
 
 dependencies:
   - name: common
-    version: 0.9.1
+    version: 0.10.2
     repository: https://interledger.github.io/charts/interledger
 
 maintainers:

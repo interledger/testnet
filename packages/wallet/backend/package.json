@@ -11,6 +11,10 @@
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
     "@interledger/tlv-kit": "^1.1.0",
+    "@interledger/hsm-atalla-issuer": "^0.1.2",
+    "@interledger/hsm-atalla-merchant": "^0.1.2",
+    "@interledger/hsm-atalla-transport": "^0.1.2",
+    "@prometheus-io/client": "^0.16.1",
     "@sendgrid/mail": "^8.1.6",
     "@shared/backend": "workspace:*",
     "@wallet/shared": "workspace:*",
@@ -54,6 +58,7 @@
     "@types/node": "^24.13.1",
     "@types/uuid": "^10.0.0",
     "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
     "node-mocks-http": "^1.17.2",
     "testcontainers": "^10.28.0",
     "ts-jest": "^29.4.4",
