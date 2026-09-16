@@ -33,6 +33,15 @@ config:
     # already exist.
     shouldCreateSecrets: false
 
+    # Name of the Secret that holds the backend credentials. Empty means the
+    # Secret this chart names, `<fullname>-backend`, which is also the one
+    # shouldCreateSecrets creates.
+    #
+    # Set this when the Secret comes from somewhere else — a secret operator
+    # writing a Secret of its own name, for example. The keys it must hold are
+    # the `secretKeyRef.key` values below.
+    secretName: ''
+
     nodeEnv: production
     logLevel: info
     port: 4003
@@ -40,7 +49,9 @@ config:
 
     cookie:
       name: 'testnet.cookie'
-      ttl: 2630000
+      # Quoted. Helm parses a bare number as float64, and the ConfigMap would
+      # then read `COOKIE_TTL: "2.63e+06"`.
+      ttl: '2630000'
       password: # value: "a-very-secure-random-password"
         secretKeyRef:
           name: '{{ include "common.fullname" . }}-backend'
@@ -160,6 +171,52 @@ config:
         secretKeyRef:
           key: 'rafiki.adminApiSecret'
 
+    # The backend serves the issuer and merchant HSM adapter contracts over
+    # gRPC when `enabled` is true. One process runs both servers; `serverRole`
+    # chooses which. Only the cards environments run this, so it is off here.
+    #
+    # These keys reach the backend through the ConfigMap, but not through
+    # `configMaps.backend.contentMap`. The backend requires ATALLA_HOST and
+    # ATALLA_PORT when HSM_ENABLED is true and rejects an empty string for
+    # either, so a contentMap entry would break every environment that leaves
+    # them unset. templates/configMap.backend.yaml adds the whole block
+    # instead, and only when `enabled` is true.
+    #
+    # Turning this on is not enough by itself. Also give the backend:
+    #   - the gRPC container ports, in `deployments.backend.ports`
+    #   - the matching Service ports, in `services.backend.ports`
+    #   - the Atalla TLS files, through `deployments.backend.volumes` and
+    #     `deployments.backend.volumeMounts`
+    # Helm replaces a list rather than merging it, so each of those must be
+    # written out in full in the environment's values file.
+    hsm:
+      enabled: false
+      # both | issuer | merchant
+      serverRole: both
+      grpcHost: '0.0.0.0'
+      issuerPort: 50051
+      merchantPort: 50052
+
+      atalla:
+        # Required when hsm.enabled is true. The render fails without them.
+        host: ''
+        port: ''
+        timeoutMs: 2000
+        poolSize: 1
+        tls:
+          enabled: true
+          # Skips the hostname check only. The transport still sets
+          # rejectUnauthorized, so the HSM certificate must chain to the CA at
+          # caCertPath. Needed while the backend dials an IP and the
+          # certificate carries no matching IP SAN.
+          skipServerIdentityCheck: true
+          # Paths, not PEM text. The backend reads each file at start-up and
+          # exits if one is missing, unreadable, empty, or not PEM. Mount them
+          # with deployments.backend.volumes.
+          caCertPath: /etc/atalla/tls/ca.crt
+          clientCertPath: /etc/atalla/tls/client.crt
+          clientKeyPath: /etc/atalla/tls/client.key
+
 deployments:
   backend:
     name: backend
@@ -169,81 +226,105 @@ deployments:
       name: test-wallet-backend
       # tag: "v0.1.66"   # Use this to override the image tag for just this image
     imagePullPolicy: IfNotPresent
+    # Two ways to give the backend its secrets. Pick one per environment.
+    #
+    # 1. Per-key (the default below). The chart maps each environment variable
+    #    to one key of a single Secret. `config.backend.secretName` chooses the
+    #    Secret; `config.backend.<x>.secretKeyRef.key` chooses the key. Every
+    #    key listed must exist: a missing key stops the pod from starting,
+    #    unless the entry is marked `optional`. Use this when the same Secret
+    #    holds all of them.
+    #
+    # 2. Whole-Secret. Add a `secretRef` to `envFrom` and set `env: []`. Every
+    #    key of that Secret becomes an environment variable under its own name,
+    #    so the Secret's keys must themselves be environment variable names,
+    #    and keys that are absent are simply absent. Use this when the Secret
+    #    comes from an operator that writes only the values the environment
+    #    needs — see env/cards-playground in interledger/testnet-deploy.
+    #
+    # Helm replaces a list rather than merging it, so an environment that
+    # rewrites `envFrom` must repeat the configMapRef entry below.
     envFrom:
       - configMapRef:
           name: '{{ include "common.fullname" . }}-backend'
+
+    # Volumes for the backend pod. Empty here; the HSM adapter needs the Atalla
+    # TLS files, so an environment that sets config.backend.hsm.enabled must
+    # also fill these in. See config.backend.hsm.
+    volumes: []
+    volumeMounts: []
 
     env:
       - name: DATABASE_URL
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.database.url.secretKeyRef.key }}'
       - name: COOKIE_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.cookie.password.secretKeyRef.key }}'
       - name: AUTH_IDENTITY_SERVER_SECRET
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.identity.serverSecret.secretKeyRef.key }}'
       - name: REDIS_URL
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.redis.url.secretKeyRef.key }}'
       - name: RAFIKI_WEBHOOK_SIGNATURE_SECRET
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.webhook.signatureSecret.secretKeyRef.key }}'
       - name: GATEHUB_SECRET_KEY
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.gatehub.secretKey.secretKeyRef.key }}'
       - name: GATEHUB_SEPA_SECRET_KEY
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.gatehub.secretSepaKey.secretKeyRef.key }}'
       - name: GATEHUB_WEBHOOK_SECRET
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.gatehub.webhookSecret.secretKeyRef.key }}'
       - name: SENDGRID_API_KEY
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.email.sendgridKey.secretKeyRef.key }}'
       - name: ADMIN_NOTIFICATION_SECRET
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.email.adminNotificationSecret.secretKeyRef.key }}'
             optional: true
       - name: RATE_API_KEY
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.rate.apiKey.secretKeyRef.key }}'
       - name: STRIPE_WEBHOOK_SECRET
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.stripe.webhookSecret.secretKeyRef.key }}'
       - name: STRIPE_SECRET_KEY
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.stripe.secretKey.secretKeyRef.key }}'
       - name: ADMIN_API_SECRET
         valueFrom:
           secretKeyRef:
-            name: '{{ include "common.fullname" . }}-backend'
+            name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.rafiki.adminApiSecret.secretKeyRef.key }}'
 
     ports:
