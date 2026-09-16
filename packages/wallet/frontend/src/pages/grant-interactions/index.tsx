@@ -11,7 +11,7 @@ import { useDialog } from '@/lib/hooks/useDialog'
 import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
-import { FEATURES_ENABLED, THEME } from '@/utils/constants'
+import { AUTH_HOST, FEATURES_ENABLED, THEME } from '@/utils/constants'
 import { Logo, LogoWallet } from '@/ui/Logo'
 import { useEffect } from 'react'
 
@@ -47,9 +47,7 @@ const GrantInteractionPage = ({
       return
     }
 
-    router.push(
-      `${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
-    )
+    router.push(`${AUTH_HOST}/interact/${interactionId}/${nonce}/finish`)
   }
 
   useEffect(() => {

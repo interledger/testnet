@@ -2,27 +2,17 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
 
-if (!process.env.NEXT_PUBLIC_BACKEND_URL) {
-  throw new Error(
-    'Missing required environment variable: NEXT_PUBLIC_BACKEND_URL'
-  )
-}
-
-// Default to env override; fall back to previous production/sandbox rule, then to 'true'
-let NEXT_PUBLIC_FEATURES_ENABLED = process.env.NEXT_PUBLIC_FEATURES_ENABLED
-
-// This is a gaurdrail to prevent accidentally enabling features in production when the
-// env variable is not set.
-if (!NEXT_PUBLIC_FEATURES_ENABLED) {
-  if (
-    process.env.NODE_ENV === 'production' &&
-    process.env.NEXT_PUBLIC_GATEHUB_ENV === 'sandbox'
-  ) {
-    NEXT_PUBLIC_FEATURES_ENABLED = 'false'
-  } else {
-    NEXT_PUBLIC_FEATURES_ENABLED = 'true'
-  }
-}
+// This file deliberately declares no `env` and no `publicRuntimeConfig`.
+//
+// Both are resolved when the image is built. `env` is inlined into the bundles
+// by webpack, and with `output: 'standalone'` the whole resolved config —
+// `publicRuntimeConfig` included — is serialised into the generated
+// `server.js`. Either one would tie a URL to an image tag again.
+//
+// The frontend reads its configuration from `process.env` while it serves a
+// request instead. See `src/lib/runtimeConfig.ts`, and
+// `scripts/start.js` for the check that runs before the server accepts
+// traffic.
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -30,15 +20,7 @@ const nextConfig = {
   poweredByHeader: false,
   // ESLint 9.x removed options (useEslintrc, extensions) that Next.js 14
   // passes internally. Linting is handled separately via `pnpm lint:check`.
-  eslint: { ignoreDuringBuilds: true },
-  env: {
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    NEXT_PUBLIC_OPEN_PAYMENTS_HOST: process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST,
-    NEXT_PUBLIC_AUTH_HOST: process.env.NEXT_PUBLIC_AUTH_HOST,
-    NEXT_PUBLIC_THEME: process.env.NEXT_PUBLIC_THEME || 'light',
-    NEXT_PUBLIC_GATEHUB_ENV: process.env.NEXT_PUBLIC_GATEHUB_ENV || 'sandbox',
-    NEXT_PUBLIC_FEATURES_ENABLED
-  }
+  eslint: { ignoreDuringBuilds: true }
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

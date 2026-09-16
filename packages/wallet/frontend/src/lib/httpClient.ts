@@ -1,5 +1,7 @@
 import ky, { HTTPError } from 'ky'
 
+import { getRuntimeConfig, getServerBackendUrl } from '@/lib/runtimeConfig'
+
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
 const requestStartTimes = new WeakMap<Request, number>()
@@ -34,13 +36,12 @@ export type ErrorResponse<T = undefined> = {
   errors?: T extends FieldValues ? Record<FieldPath<T>, string> : undefined
 }
 
-// Use internal backend URL when running on the server (SSR/middleware)
+// The server and the browser reach the backend at different addresses. The
+// server prefers the in-cluster Service, which keeps the traffic inside the
+// cluster and works even when the browser-facing value is a bare path. The
+// browser uses the value `_document.tsx` wrote into the page.
 const isServer = typeof window === 'undefined'
-const baseUrl = isServer
-  ? process.env.BACKEND_INTERNAL_URL ||
-    process.env.BACKEND_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_URL
-  : process.env.NEXT_PUBLIC_BACKEND_URL
+const baseUrl = isServer ? getServerBackendUrl() : getRuntimeConfig().backendUrl
 
 export const httpClient = ky.extend({
   prefixUrl: baseUrl,

@@ -5,7 +5,7 @@ import {
   GateHubMessageType,
   type GateHubMessageError
 } from '@/lib/types/windowMessages'
-import { FEATURES_ENABLED, GATEHUB_ENV } from '@/utils/constants'
+import { BACKEND_URL, FEATURES_ENABLED, GATEHUB_ENV } from '@/utils/constants'
 import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
@@ -102,7 +102,7 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       url: response.result.url,
-      addUserToGatewayUrl: `${process.env.NEXT_PUBLIC_BACKEND_URL}/gatehub/add-user-to-gateway`
+      addUserToGatewayUrl: `${BACKEND_URL}/gatehub/add-user-to-gateway`
     }
   }
 }

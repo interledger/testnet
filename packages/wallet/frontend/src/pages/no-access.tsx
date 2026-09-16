@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { THEME } from '@/utils/constants'
+import { AUTH_HOST, THEME } from '@/utils/constants'
 import { useRouter } from 'next/router'
 
 const NoAccessPage = () => {
@@ -9,7 +9,7 @@ const NoAccessPage = () => {
   const imageName =
     THEME === 'dark' ? '/bird-error-dark.webp' : '/bird-error-light.webp'
 
-  const link = `${process.env.NEXT_PUBLIC_AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
+  const link = `${AUTH_HOST}/interact/${interactionId}/${nonce}/finish`
 
   return (
     <div className="bg-green-light dark:bg-purple flex h-full w-screen flex-col items-center justify-center text-center text-2xl font-semibold">

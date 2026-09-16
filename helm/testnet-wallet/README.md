@@ -21,20 +21,39 @@ All application configuration is driven through `values.yaml`. Environment varia
 
 Defined under `configMaps.backend.contentMap` and `configMaps.frontend.contentMap`. Keys map directly to environment variable names injected into each container via `envFrom`.
 
-**Frontend ConfigMap keys** (`NEXT_PUBLIC_*` vars + runtime config):
+**Frontend ConfigMap keys**
 
-| Key                              | `values.yaml` path                        |
-| -------------------------------- | ----------------------------------------- |
-| `NODE_ENV`                       | `config.frontend.nodeEnv`                 |
-| `PORT`                           | `config.frontend.port`                    |
-| `COOKIE_NAME`                    | `config.frontend.cookie.name`             |
-| `NEXT_PUBLIC_USE_TEST_KYC_DATA`  | `config.frontend.features.useTestKycData` |
-| `NEXT_PUBLIC_BACKEND_URL`        | `config.frontend.urls.backend`            |
-| `NEXT_PUBLIC_OPEN_PAYMENTS_HOST` | `config.frontend.urls.openPaymentsHost`   |
-| `NEXT_PUBLIC_AUTH_HOST`          | `config.frontend.urls.authHost`           |
-| `NEXT_PUBLIC_THEME`              | `config.frontend.theme`                   |
-| `NEXT_PUBLIC_GATEHUB_ENV`        | `config.frontend.gatehub.env`             |
-| `NEXT_PUBLIC_FEATURES_ENABLED`   | `config.frontend.features.enabled`        |
+The frontend reads all of these when it serves a request. None of them is
+baked into the image. To move the wallet to a different hostname, change the
+value and restart the pod. No rebuild, and no new image tag.
+
+The names carry no `NEXT_PUBLIC_` prefix on purpose. Next.js replaces every
+`process.env.NEXT_PUBLIC_*` expression with a literal when it builds, so a
+prefixed name cannot change afterwards.
+
+| Key                    | `values.yaml` path                        |
+| ---------------------- | ----------------------------------------- |
+| `NODE_ENV`             | `config.frontend.nodeEnv`                 |
+| `PORT`                 | `config.frontend.port`                    |
+| `COOKIE_NAME`          | `config.frontend.cookie.name`             |
+| `USE_TEST_KYC_DATA`    | `config.frontend.features.useTestKycData` |
+| `BACKEND_URL`          | `config.frontend.urls.backend`            |
+| `BACKEND_INTERNAL_URL` | `config.frontend.urls.backendInternal`    |
+| `OPEN_PAYMENTS_HOST`   | `config.frontend.urls.openPaymentsHost`   |
+| `AUTH_HOST`            | `config.frontend.urls.authHost`           |
+| `THEME`                | `config.frontend.theme`                   |
+| `GATEHUB_ENV`          | `config.frontend.gatehub.env`             |
+| `FEATURES_ENABLED`     | `config.frontend.features.enabled`        |
+
+`BACKEND_URL` may be an absolute URL, or a path such as `/wallet-api` where one
+hostname serves the frontend at `/` and the backend at a prefix. A path needs no
+edit when DNS changes. Set `BACKEND_INTERNAL_URL` to the in-cluster Service
+address whenever `BACKEND_URL` is a path: server-side rendering has no origin to
+resolve a path against, and the container refuses to start without it.
+
+`BACKEND_URL`, `OPEN_PAYMENTS_HOST` and `AUTH_HOST` are required. The container
+checks them before the server accepts traffic and exits with a readable message
+if one is missing.
 
 **Backend ConfigMap keys** (see `configMaps.backend.contentMap` in `values.yaml` for the full list — covers `NODE_ENV`, `PORT`, cookie settings, GateHub config, Rafiki endpoints, Stripe flags, rate limiting, card URLs, and more).
 
