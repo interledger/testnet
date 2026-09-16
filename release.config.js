@@ -11,7 +11,7 @@
 //           take the "Latest" badge away from main.
 //
 // You might ask, why are we not just using release/v1.0.x instead? The reason
-// is because we might want multiple feature versions of v1.x deployed in 
+// is because we might want multiple feature versions of v1.x deployed in
 // various environments simultaneously, and using release/v1.0.x would tie us to a
 // single patch line, which is less flexible.
 //
