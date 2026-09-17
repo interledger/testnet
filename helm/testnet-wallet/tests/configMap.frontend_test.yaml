@@ -1,0 +1,80 @@
+# The key names are a contract with
+# packages/wallet/frontend/src/lib/runtimeConfig.ts. A rename on one side alone
+# leaves the container with nothing to read, and it exits at start-up.
+suite: testnet-wallet frontend - runtime configuration
+templates:
+  - configMap.frontend.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+tests:
+  - it: 'emits the runtime keys the frontend reads'
+    set:
+      config:
+        frontend:
+          theme: dark
+          urls:
+            backend: https://api.example.test
+            openPaymentsHost: https://ilp.example.test
+            authHost: https://auth.example.test
+    asserts:
+      - equal:
+          path: data.BACKEND_URL
+          value: https://api.example.test
+      - equal:
+          path: data.OPEN_PAYMENTS_HOST
+          value: https://ilp.example.test
+      - equal:
+          path: data.AUTH_HOST
+          value: https://auth.example.test
+      - equal:
+          path: data.THEME
+          value: dark
+      # Booleans must reach the ConfigMap as strings.
+      - equal:
+          path: data.FEATURES_ENABLED
+          value: 'false'
+      - equal:
+          path: data.NODE_ENV
+          value: production
+      # Numbers must reach the ConfigMap as strings.
+      - equal:
+          path: data.PORT
+          value: '4003'
+
+  # The build-time names. The container does not look for them.
+  # USE_TEST_KYC_DATA is gone in both spellings: the frontend stopped reading it
+  # in #1643, when GateHub KYC replaced Rapyd.
+  - it: 'emits no NEXT_PUBLIC_ key'
+    asserts:
+      - notExists:
+          path: data.NEXT_PUBLIC_BACKEND_URL
+      - notExists:
+          path: data.NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+      - notExists:
+          path: data.NEXT_PUBLIC_AUTH_HOST
+      - notExists:
+          path: data.NEXT_PUBLIC_THEME
+      - notExists:
+          path: data.NEXT_PUBLIC_GATEHUB_ENV
+      - notExists:
+          path: data.NEXT_PUBLIC_FEATURES_ENABLED
+      - notExists:
+          path: data.USE_TEST_KYC_DATA
+
+  # A path means the page origin, so the server needs the in-cluster address.
+  - it: 'carries a path backend address and the in-cluster address together'
+    set:
+      config:
+        frontend:
+          urls:
+            backend: /wallet-api
+            backendInternal: http://test-testnet-wallet-backend-service:4003
+    asserts:
+      - equal:
+          path: data.BACKEND_URL
+          value: /wallet-api
+      - equal:
+          path: data.BACKEND_INTERNAL_URL
+          value: http://test-testnet-wallet-backend-service:4003

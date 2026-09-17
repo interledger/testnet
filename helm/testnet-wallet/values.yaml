@@ -11,7 +11,18 @@ config:
     theme: 'dark'
 
     urls:
+      # The backend address the browser uses. Absolute where the backend has
+      # its own hostname. Where one hostname serves the frontend at `/` and the
+      # backend at a prefix, use a path (`/wallet-api`): it follows the host
+      # that served the page, so it survives a DNS change. Set
+      # `backendInternal` too, because SSR cannot resolve a path.
       backend: 'https://api.interledger-test.dev'
+
+      # The backend address the frontend container uses. Point it at the
+      # in-cluster Service to keep SSR traffic inside the cluster. Required
+      # when `backend` is a path; empty reuses `backend`.
+      backendInternal: ''
+
       openPaymentsHost: 'https://ilp.interledger-test.dev'
       authHost: 'https://auth.interledger-test.dev'
 
@@ -19,7 +30,6 @@ config:
       name: 'testnet.cookie'
 
     features:
-      useTestKycData: true
       # Public features are intended for the production interledger.cards
       # environment only
       enabled: false
@@ -416,6 +426,10 @@ services:
 # This section of the values file defines Kubernetes config maps that will be created
 # for each service (backend and frontend).
 configMaps:
+  # Read per request, never baked into the image: change one, restart the pod.
+  # The names carry no `NEXT_PUBLIC_` prefix because Next.js replaces those with
+  # literals at build time. See
+  # packages/wallet/frontend/src/lib/runtimeConfig.ts.
   frontend:
     name: 'frontend'
     contentMap:
@@ -425,19 +439,19 @@ configMaps:
         valueRef: config.frontend.port
       - key: COOKIE_NAME
         valueRef: config.frontend.cookie.name
-      - key: NEXT_PUBLIC_USE_TEST_KYC_DATA
-        valueRef: config.frontend.features.useTestKycData
-      - key: NEXT_PUBLIC_BACKEND_URL
+      - key: BACKEND_URL
         valueRef: config.frontend.urls.backend
-      - key: NEXT_PUBLIC_OPEN_PAYMENTS_HOST
+      - key: BACKEND_INTERNAL_URL
+        valueRef: config.frontend.urls.backendInternal
+      - key: OPEN_PAYMENTS_HOST
         valueRef: config.frontend.urls.openPaymentsHost
-      - key: NEXT_PUBLIC_AUTH_HOST
+      - key: AUTH_HOST
         valueRef: config.frontend.urls.authHost
-      - key: NEXT_PUBLIC_THEME
+      - key: THEME
         valueRef: config.frontend.theme
-      - key: NEXT_PUBLIC_GATEHUB_ENV
+      - key: GATEHUB_ENV
         valueRef: config.frontend.gatehub.env
-      - key: NEXT_PUBLIC_FEATURES_ENABLED
+      - key: FEATURES_ENABLED
         valueRef: config.frontend.features.enabled
   backend:
     name: 'backend'

@@ -1,8 +1,15 @@
-export const OPEN_PAYMENTS_HOST = process.env.NEXT_PUBLIC_OPEN_PAYMENTS_HOST
-export const THEME = process.env.NEXT_PUBLIC_THEME
-export const GATEHUB_ENV = process.env.NEXT_PUBLIC_GATEHUB_ENV
-export const FEATURES_ENABLED =
-  process.env.NEXT_PUBLIC_FEATURES_ENABLED === 'true' ? true : false
+import { getRuntimeConfig } from '@/lib/runtimeConfig'
+
+// Read once per bundle. In the browser that happens after the inline script in
+// `_document.tsx`, which is written ahead of every Next.js bundle.
+const runtimeConfig = getRuntimeConfig()
+
+export const BACKEND_URL = runtimeConfig.backendUrl
+export const AUTH_HOST = runtimeConfig.authHost
+export const OPEN_PAYMENTS_HOST = runtimeConfig.openPaymentsHost
+export const THEME = runtimeConfig.theme
+export const GATEHUB_ENV = runtimeConfig.gatehubEnv
+export const FEATURES_ENABLED = runtimeConfig.featuresEnabled
 export const DEPOSITS_ENABLED = GATEHUB_ENV !== 'production'
 /**
  * Default text for Toggle Switch
