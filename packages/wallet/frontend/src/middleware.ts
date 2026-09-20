@@ -15,6 +15,10 @@ const publicPaths = ['/auth*']
 function withFrameProtection(response: NextResponse): NextResponse {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('Content-Security-Policy', "frame-ancestors 'none';")
+  response.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains'
+  )
   return response
 }
 
