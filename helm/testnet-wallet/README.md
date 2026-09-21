@@ -2,7 +2,9 @@
 
 Deploys the Interledger TestNet Wallet application to Kubernetes. The chart manages two workloads:
 
-- **backend** — NestJS API (`test-wallet-backend` image, port `4003`)
+- **backend** — NestJS API (`test-wallet-backend` image, HTTP port `4003`),
+  optionally hosting the issuer and merchant HSM adapters on ports `50051` and
+  `50052`
 - **frontend** — Next.js UI (`test-wallet-frontend` image, port `4003`)
 
 ## Dependencies
@@ -58,6 +60,43 @@ Defined under `secretsMaps.backend.contentMap`. Secrets are only created by the 
 | `rafiki.adminApiSecret`   | Rafiki admin API secret       |
 
 Secrets are mounted into the backend container via individual `env[].valueFrom.secretKeyRef` entries (not `envFrom`).
+
+### Atalla HSM adapters
+
+The wallet backend can host both Atalla HSM adapters. They are disabled by
+default, so local development and deployments without an HSM continue to start
+without an Atalla TLS secret.
+
+Enable the adapters and configure the HSM connection under
+`config.backend.hsm`:
+
+```yaml
+config:
+  backend:
+    hsm:
+      enabled: true
+      serverRole: both
+      grpcHost: 0.0.0.0
+      issuerGrpcPort: 50051
+      merchantGrpcPort: 50052
+      atalla:
+        host: atalla.example.internal
+        port: 1111
+        timeoutMs: 2000
+        poolSize: 1
+        tlsEnabled: false
+```
+
+The issuer and merchant listeners are cleartext h2c services intended for
+in-cluster access. The cards-playground Atalla connection is also configured
+without TLS. Restrict access to the backend service and HSM at the cluster
+network layer.
+
+The backend deliberately consumes the published
+`@interledger/hsm-atalla-issuer`, `@interledger/hsm-atalla-merchant`, and
+`@interledger/hsm-atalla-transport` packages rather than sibling workspace
+paths. Their generated protobuf dependencies are served by the Buf Schema
+Registry, so the `@buf` registry entry in the repository `.npmrc` is required.
 
 ## Image Tags
 

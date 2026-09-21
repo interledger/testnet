@@ -38,6 +38,19 @@ config:
     port: 4003
     metricsPort: 9464
 
+    hsm:
+      enabled: false
+      serverRole: both
+      grpcHost: 0.0.0.0
+      issuerGrpcPort: 50051
+      merchantGrpcPort: 50052
+      atalla:
+        host: localhost
+        port: 1111
+        timeoutMs: 2000
+        poolSize: 1
+        tlsEnabled: false
+
     cookie:
       name: 'testnet.cookie'
       ttl: 2630000
@@ -243,6 +256,12 @@ deployments:
       - name: metrics
         containerPort: 9464
         protocol: TCP
+      - name: issuer-grpc
+        containerPort: 50051
+        protocol: TCP
+      - name: merchant-grpc
+        containerPort: 50052
+        protocol: TCP
     resources:
       requests:
         memory: 256Mi
@@ -310,6 +329,14 @@ services:
         targetPort: 9464
         protocol: TCP
         name: metrics
+      - port: 50051
+        targetPort: 50051
+        protocol: TCP
+        name: issuer-grpc
+      - port: 50052
+        targetPort: 50052
+        protocol: TCP
+        name: merchant-grpc
 
   frontend:
     name: frontend-service
@@ -357,6 +384,26 @@ configMaps:
         valueRef: config.backend.port
       - key: METRICS_PORT
         valueRef: config.backend.metricsPort
+      - key: HSM_ENABLED
+        valueRef: config.backend.hsm.enabled
+      - key: HSM_SERVER_ROLE
+        valueRef: config.backend.hsm.serverRole
+      - key: HSM_GRPC_HOST
+        valueRef: config.backend.hsm.grpcHost
+      - key: ISSUER_GRPC_PORT
+        valueRef: config.backend.hsm.issuerGrpcPort
+      - key: MERCHANT_GRPC_PORT
+        valueRef: config.backend.hsm.merchantGrpcPort
+      - key: ATALLA_HOST
+        valueRef: config.backend.hsm.atalla.host
+      - key: ATALLA_PORT
+        valueRef: config.backend.hsm.atalla.port
+      - key: ATALLA_TIMEOUT_MS
+        valueRef: config.backend.hsm.atalla.timeoutMs
+      - key: ATALLA_POOL_SIZE
+        valueRef: config.backend.hsm.atalla.poolSize
+      - key: ATALLA_TLS_ENABLED
+        valueRef: config.backend.hsm.atalla.tlsEnabled
       - key: COOKIE_NAME
         valueRef: config.backend.cookie.name
       - key: COOKIE_TTL
