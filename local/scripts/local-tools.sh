@@ -23,6 +23,7 @@ HOSTS=(
   "api.boutique.test"
   "rafiki-card-service.testnet.test"
   "mockgatehub.testnet.test"
+  "mopca.testnet.test"
 )
 
 # If .env does not exist then create it with touch

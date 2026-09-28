@@ -3,7 +3,7 @@ services:
   rafiki-auth:
     container_name: rafiki-auth-local
     image: ghcr.io/interledger/rafiki-auth:v2.2.0-beta
-    restart: always
+    restart: unless-stopped
     networks:
       - testnet
     ports:
