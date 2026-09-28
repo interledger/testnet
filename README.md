@@ -157,6 +157,73 @@ Upon executing the above commands the following will be available:
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
 
+### Local Playground on Rhyza
+
+The Rhyza stack runs alongside the Rafiki v1 one. It is defined in `local/rhyza.yaml` and selected
+by `local/docker-compose.rhyza.yml`, which reuses the shared Traefik, Postgres, Redis and mock GateHub
+services. Only one stack can run at a time — the `:rhyza` commands swap the Rafiki half in place.
+
+testnet does not build Rhyza images — they are a **prerequisite**. Build them in your own
+`rafiki-v2` checkout, wherever it lives, then tell testnet which images to use. `RHYZA_IMAGE_PREFIX`
+and `RHYZA_IMAGE_TAG` are required: compose refuses to start if either is unset, rather than
+silently running a stale image.
+
+```sh
+# Prerequisite, in your rafiki-v2 checkout — produces rafiki-v2-<service>:latest
+cd <your rafiki-v2 checkout>
+docker compose -f docker/docker-compose.yaml build
+```
+
+```sh
+# In local/.env
+RHYZA_IMAGE_PREFIX=rafiki-v2
+RHYZA_IMAGE_TAG=latest
+```
+
+Then, back in this repo:
+
+```sh
+# One-off: hosts entries, certificates, bring the stack up, seed assets
+pnpm run local:setup:rhyza
+
+# Start the wallet and boutique against Rhyza
+pnpm run dev:rhyza
+```
+
+Day-to-day commands mirror the v1 ones:
+
+| Command                   | Purpose                                                           |
+| ------------------------- | ----------------------------------------------------------------- |
+| `pnpm local:up:rhyza`     | Start the stack (drops orphaned v1 containers)                    |
+| `pnpm local:down:rhyza`   | Stop the stack                                                    |
+| `pnpm local:reset:rhyza`  | Stop and delete **all** volumes — Kafka, MongoDB **and Postgres** |
+| `pnpm local:logs:rhyza`   | Follow logs                                                       |
+| `pnpm local:rhyza-assets` | Re-run asset seeding                                              |
+
+The stack adds Kafka and MongoDB. Kafka holds the event-sourced ledger, so dropping MongoDB alone
+leaves ledger state behind — the two have to go together.
+
+`local:reset:rhyza` wipes every volume in the project, Postgres included, which means every local
+wallet account, wallet address and transaction. To clear only the Rhyza ledger and keep your
+accounts:
+
+```sh
+pnpm local:reset:rhyza-data
+```
+
+That one does not go through compose, so it works even when `RHYZA_IMAGE_PREFIX` / `RHYZA_IMAGE_TAG`
+are unset. `pnpm clean` runs it too.
+
+Additional endpoints:
+
+- [https://ilp.testnet.test](https://ilp.testnet.test) - Open Payments resource server.
+- [https://auth.testnet.test](https://auth.testnet.test) - Open Payments (GNAP) auth server.
+- [https://rhyza-admin.testnet.test](https://rhyza-admin.testnet.test) - REST Admin API, replacing both v1 GraphQL endpoints.
+- [https://rhyza-idp.testnet.test](https://rhyza-idp.testnet.test) - IdP interaction service the wallet backend calls to read and accept/reject grants.
+- [https://connector.testnet.test](https://connector.testnet.test) - ILP connector.
+- `localhost:9092` - Kafka. `localhost:27017` - MongoDB.
+- Kafka console (`--profile observability`): [http://localhost:8090](http://localhost:8090)
+
 ## E2E Tests
 
 End-to-end tests use [Playwright](https://playwright.dev/) with [playwright-bdd](https://vitalets.github.io/playwright-bdd/) (Gherkin feature files). They run against the local environment and require the full stack to be up (`pnpm run local:setup && pnpm run dev`).

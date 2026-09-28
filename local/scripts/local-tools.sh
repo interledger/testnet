@@ -23,6 +23,11 @@ HOSTS=(
   "api.boutique.test"
   "rafiki-card-service.testnet.test"
   "mockgatehub.testnet.test"
+  # Rhyza stack -- see local/rhyza.yaml
+  "ilp.testnet.test"
+  "connector.testnet.test"
+  "rhyza-admin.testnet.test"
+  "rhyza-idp.testnet.test"
 )
 
 # If .env does not exist then create it with touch
@@ -244,6 +249,20 @@ run_trust() {
   fi
 }
 
+run_rhyza_reset_data() {
+  # Deliberately avoids docker compose: rhyza.yaml requires RHYZA_IMAGE_PREFIX /
+  # RHYZA_IMAGE_TAG to interpolate, and teardown must work without them.
+  echo "Removing Rhyza containers and ledger volumes..."
+  local ids
+  ids=$(docker ps -aq --filter "name=rhyza-" 2>/dev/null || true)
+  if [[ -n "$ids" ]]; then
+    # shellcheck disable=SC2086
+    docker rm -f $ids >/dev/null
+  fi
+  docker volume rm -f local_mongo-data local_kafka-data >/dev/null 2>&1 || true
+  echo "Rhyza ledger state removed. Postgres and Redis are untouched."
+}
+
 run_help() {
   cat <<'EOF'
 pnpm run <command>
@@ -251,18 +270,32 @@ pnpm run <command>
 e.g. pnpm local:all
 
 local:help                 Show this help message
-local:all                  Start full local stack (with Traefik)
-local:all-nowatch          Alias for local:all
-local:build                Build docker images for local stack
-local:rebuild              Force rebuild docker images (no cache)
-local:rafiki-assets        Run Rafiki asset setup script
-local:down                 Stop the local stack
-local:reset                Stop stack and remove volumes
+
+Shared
 local:hosts                Add testnet host aliases to /etc/hosts (requires sudo)
 local:certs                Generate TLS cert if missing (set FORCE_CERTS=1 to regenerate)
 local:trust                Trust local TLS certificate (auto-detect OS, reloads Traefik)
 local:trust:macos          Trust certificate on macOS
 local:trust:linux          Trust certificate on Debian-based Linux (reloads Traefik)
+
+Rafiki v1 stack
+local:all                  Start full local stack (with Traefik)
+local:build                Build docker images for local stack
+local:rebuild              Force rebuild docker images (no cache)
+local:up                   Build and start the stack
+local:down                 Stop the local stack
+local:reset                Stop stack and remove volumes (ALL volumes, incl. Postgres)
+local:rafiki-assets        Run Rafiki asset setup script
+local:setup                One-off setup for the v1 stack
+
+Rhyza (Rafiki v2) stack -- see local/rhyza.yaml
+local:setup:rhyza          One-off setup: hosts, certs, start stack, seed assets
+local:up:rhyza             Start the stack (images must be built beforehand)
+local:down:rhyza           Stop the stack
+local:reset:rhyza          Stop stack and remove volumes (ALL volumes, incl. Postgres)
+local:logs:rhyza           Follow stack logs
+local:rhyza-assets         Seed assets via the Rhyza REST Admin API
+local:reset:rhyza-data     Drop only Rhyza's Kafka + MongoDB state (keeps Postgres)
 EOF
 }
 
@@ -278,6 +311,9 @@ case "${1:-help}" in
     ;;
   hosts)
     run_hosts
+    ;;
+  rhyza-reset-data)
+    run_rhyza_reset_data
     ;;
   trust)
     run_trust
