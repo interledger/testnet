@@ -69,7 +69,8 @@ export class AdminNotificationService {
       batch = await this.emailService.sendAnnouncementBatch(
         recipients,
         input.subject,
-        input.bodyHtml
+        input.bodyHtml,
+        input.bcc
       )
     } catch (error) {
       await this.releaseIdempotencyKey(idempotencyKey)

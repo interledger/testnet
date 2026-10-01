@@ -306,7 +306,8 @@ describe('Admin Notification Controller', () => {
     expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledWith(
       ['user1@example.com', 'user2@example.com'],
       'Test',
-      '<p>Test</p>'
+      '<p>Test</p>',
+      undefined
     )
     expect(res._getJSONData()).toEqual({
       success: true,
@@ -423,7 +424,32 @@ describe('Admin Notification Controller', () => {
     expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledWith(
       ['verified1@example.com', 'verified2@example.com'],
       'Broadcast',
-      '<p>Broadcast</p>'
+      '<p>Broadcast</p>',
+      undefined
+    )
+  })
+
+  it('forwards optional bcc to the email service', async () => {
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+    req.body = {
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['user1@example.com'],
+      bcc: 'ops@example.com'
+    }
+
+    await adminNotificationController.send(req, res, next)
+
+    expect(res.statusCode).toBe(200)
+    expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledWith(
+      ['user1@example.com'],
+      'Test',
+      '<p>Test</p>',
+      'ops@example.com'
     )
   })
 })

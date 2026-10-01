@@ -15,6 +15,7 @@ interface EmailArgs {
   to: string
   subject: string
   html: string
+  bcc?: string
 }
 
 const disposableDomains: Set<string> = new Set(domains)
@@ -57,7 +58,12 @@ export class EmailService implements IEmailService {
   }
 
   private async send(email: EmailArgs): Promise<void> {
-    await sendgrid.send({ from: this.from, ...email })
+    const { bcc, ...rest } = email
+    await sendgrid.send({
+      from: this.from,
+      ...rest,
+      ...(bcc ? { bcc } : {})
+    })
   }
 
   async sendForgotPassword(to: string, token: string): Promise<void> {
@@ -134,20 +140,25 @@ export class EmailService implements IEmailService {
   async sendAnnouncementBatch(
     recipients: string[],
     subject: string,
-    bodyHtml: string
+    bodyHtml: string,
+    bcc?: string
   ): Promise<{ sent: number; failed: number; failedRecipients: string[] }> {
     const BATCH_SIZE = 100
     const BATCH_DELAY_MS = 100
+    const bccAddress = bcc?.trim() || undefined
 
     if (!this.env.SEND_EMAIL) {
       this.logger.info(
-        `Send email is disabled. Would send announcement "${subject}" to ${recipients.length} recipients`
+        `Send email is disabled. Would send announcement "${subject}" to ${recipients.length} recipients${bccAddress ? ` (bcc: ${bccAddress})` : ''}`
       )
       return { sent: recipients.length, failed: 0, failedRecipients: [] }
     }
 
     const emailSubject = `[${this.subjectPrefix}] ${subject}`
     const html = getAnnouncementEmailTemplate(subject, bodyHtml, this.imageSrc)
+    const bccPersonalization = bccAddress
+      ? { bcc: [{ email: bccAddress }] }
+      : undefined
 
     let sent = 0
     let failed = 0
@@ -162,7 +173,8 @@ export class EmailService implements IEmailService {
           subject: emailSubject,
           html,
           personalizations: batch.map((email) => ({
-            to: [{ email }]
+            to: [{ email }],
+            ...bccPersonalization
           }))
         })
         sent += batch.length
@@ -174,7 +186,12 @@ export class EmailService implements IEmailService {
 
         for (const to of batch) {
           try {
-            await this.send({ to, subject: emailSubject, html })
+            await this.send({
+              to,
+              subject: emailSubject,
+              html,
+              ...(bccAddress ? { bcc: bccAddress } : {})
+            })
             sent++
           } catch (individualError) {
             this.logger.error(
