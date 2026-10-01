@@ -96,7 +96,8 @@ describe('Admin Notification Service', () => {
     expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledWith(
       ['user@example.com'],
       'Test',
-      '<p>Test</p>'
+      '<p>Test</p>',
+      undefined
     )
     expect(result).toEqual({
       dryRun: false,
@@ -124,6 +125,33 @@ describe('Admin Notification Service', () => {
       message: 'One or more recipients are not registered users'
     })
     expect(mockEmailService.sendAnnouncementBatch).not.toHaveBeenCalled()
+  })
+
+  it('passes optional bcc through to the email service', async () => {
+    await createUser({
+      ...args,
+      email: 'user@example.com',
+      isEmailVerified: true
+    })
+    mockEmailService.sendAnnouncementBatch.mockResolvedValue({
+      sent: 1,
+      failed: 0,
+      failedRecipients: []
+    })
+
+    await adminNotificationService.sendNotification({
+      subject: 'Test',
+      bodyHtml: '<p>Test</p>',
+      recipients: ['user@example.com'],
+      bcc: 'ops@example.com'
+    })
+
+    expect(mockEmailService.sendAnnouncementBatch).toHaveBeenCalledWith(
+      ['user@example.com'],
+      'Test',
+      '<p>Test</p>',
+      'ops@example.com'
+    )
   })
 
   it('returns failed recipients when all sends fail', async () => {
@@ -454,6 +482,75 @@ describe('EmailService sendAnnouncementBatch', () => {
           { to: [{ email: 'b@example.com' }] },
           { to: [{ email: 'c@example.com' }] }
         ]
+      })
+    )
+  })
+
+  it('adds bcc to every personalization', async () => {
+    mockedSendgrid.send.mockResolvedValueOnce([{ statusCode: 202 }] as never)
+
+    const emailService = new EmailService(
+      { ...env, SEND_EMAIL: true, SENDGRID_API_KEY: 'test-key' },
+      { info: jest.fn(), error: jest.fn() } as never
+    )
+
+    await emailService.sendAnnouncementBatch(
+      ['a@example.com', 'b@example.com', 'c@example.com'],
+      'Subject',
+      '<p>Body</p>',
+      'ops@example.com'
+    )
+
+    expect(mockedSendgrid.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        personalizations: [
+          {
+            to: [{ email: 'a@example.com' }],
+            bcc: [{ email: 'ops@example.com' }]
+          },
+          {
+            to: [{ email: 'b@example.com' }],
+            bcc: [{ email: 'ops@example.com' }]
+          },
+          {
+            to: [{ email: 'c@example.com' }],
+            bcc: [{ email: 'ops@example.com' }]
+          }
+        ]
+      })
+    )
+  })
+
+  it('includes bcc on every individual send when a batch fails', async () => {
+    mockedSendgrid.send
+      .mockRejectedValueOnce(new Error('Batch failed'))
+      .mockResolvedValue([{ statusCode: 202 }] as never)
+
+    const emailService = new EmailService(
+      { ...env, SEND_EMAIL: true, SENDGRID_API_KEY: 'test-key' },
+      { info: jest.fn(), error: jest.fn() } as never
+    )
+
+    await emailService.sendAnnouncementBatch(
+      ['a@example.com', 'b@example.com'],
+      'Subject',
+      '<p>Body</p>',
+      'ops@example.com'
+    )
+
+    expect(mockedSendgrid.send).toHaveBeenCalledTimes(3)
+    expect(mockedSendgrid.send).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        to: 'a@example.com',
+        bcc: 'ops@example.com'
+      })
+    )
+    expect(mockedSendgrid.send).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        to: 'b@example.com',
+        bcc: 'ops@example.com'
       })
     )
   })
