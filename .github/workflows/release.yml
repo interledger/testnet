@@ -2,6 +2,12 @@ name: Create Release
 
 on:
   workflow_dispatch:
+    inputs:
+      republish_version:
+        description: 'Optional. Skip semantic-release and (re)publish Docker/Helm for an existing version. Leave empty for a normal release. Re-pushing Helm charts for an already published version changes their digest.'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -28,8 +34,39 @@ jobs:
           fi
           echo "Branch '$BRANCH' is valid for release."
 
+      - name: Validate republish_version
+        if: inputs.republish_version != ''
+        env:
+          VERSION: ${{ inputs.republish_version }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::republish_version must be a plain semver like 0.10.0 (no leading v). Got: $VERSION"
+            exit 1
+          fi
+          if ! git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            echo "::error::Tag v${VERSION} does not exist. Create a release first, or leave republish_version empty."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "v${VERSION}" HEAD; then
+            echo "::error::Tag v${VERSION} is not on branch '$BRANCH'. Run the workflow from the branch that released it."
+            exit 1
+          fi
+          # v1 and release/vX.Y share older history with main, so the ancestor
+          # check alone would let them republish main's 0.x tags.
+          case "$BRANCH" in
+            v[0-9]*) LINE="${BRANCH#v}" ;;
+            release/v*) LINE="${BRANCH#release/v}" ;;
+            *) LINE="" ;;
+          esac
+          if [ -n "$LINE" ] && [ "${VERSION#"$LINE".}" = "$VERSION" ]; then
+            echo "::error::Branch '$BRANCH' can only republish ${LINE}.x versions. Got: $VERSION"
+            exit 1
+          fi
+          echo "Will republish Docker images and Helm charts for v${VERSION}."
+
       - name: Enforce patch-only on maintenance branch
-        if: startsWith(github.ref_name, 'release/v')
+        if: startsWith(github.ref_name, 'release/v') && inputs.republish_version == ''
         run: |
           BRANCH="${{ github.ref_name }}"
           MAJOR_MINOR="${BRANCH#release/v}"
@@ -84,8 +121,9 @@ jobs:
     needs: validate
     timeout-minutes: 10
     outputs:
-      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      new_release_published: ${{ steps.semantic.outputs.new_release_published || steps.republish.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version || steps.republish.outputs.new_release_version }}
+      push_latest: ${{ steps.latest.outputs.push_latest }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -93,10 +131,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Node.js
+        if: inputs.republish_version == ''
         uses: actions/setup-node@v4
         with:
           node-version: '24.13.1'
       - name: Install semantic-release
+        if: inputs.republish_version == ''
         run: |
           npm install -g \
             semantic-release@25 \
@@ -105,18 +145,51 @@ jobs:
             @semantic-release/github@12
       - name: Run semantic-release
         id: semantic
+        if: inputs.republish_version == ''
         run: |
-          BEFORE=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -1)
+          # Compare the full tag set, not the globally highest tag. With parallel
+          # lines (main 0.x and v1 1.x), sort -V | tail -1 stays on v1.* and would
+          # miss a new v0.x release on main.
+          TAGS_BEFORE=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort)
           semantic-release
-          AFTER=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -1)
-          if [ -n "$AFTER" ] && [ "$AFTER" != "$BEFORE" ]; then
+          NEW_TAG=$(comm -13 <(echo "$TAGS_BEFORE") <(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort) | sort -V | tail -1)
+          if [ -n "$NEW_TAG" ]; then
             echo "new_release_published=true" >> $GITHUB_OUTPUT
-            echo "new_release_version=${AFTER#v}" >> $GITHUB_OUTPUT
+            echo "new_release_version=${NEW_TAG#v}" >> $GITHUB_OUTPUT
           else
             echo "new_release_published=false" >> $GITHUB_OUTPUT
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Republish existing version
+        id: republish
+        if: inputs.republish_version != ''
+        env:
+          VERSION: ${{ inputs.republish_version }}
+        run: |
+          echo "new_release_published=true" >> $GITHUB_OUTPUT
+          echo "new_release_version=${VERSION}" >> $GITHUB_OUTPUT
+      - name: Decide whether to move ":latest"
+        id: latest
+        if: steps.semantic.outputs.new_release_published == 'true' || inputs.republish_version != ''
+        env:
+          BRANCH: ${{ github.ref_name }}
+          REPUBLISH: ${{ inputs.republish_version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PUSH_LATEST=false
+          if [ "$BRANCH" = "main" ]; then
+            if [ -z "$REPUBLISH" ]; then
+              # A fresh release on main is always the newest production version.
+              PUSH_LATEST=true
+            else
+              # Republish: only if it's GitHub's "Latest" release. Main's history
+              # holds legacy v1.x tags, so the newest git tag can't be used here.
+              LATEST=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
+              [ "v${REPUBLISH}" = "$LATEST" ] && PUSH_LATEST=true
+            fi
+          fi
+          echo "push_latest=${PUSH_LATEST}" >> $GITHUB_OUTPUT
 
   helm-publish:
     name: Publish Helm charts
@@ -178,6 +251,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          ref: v${{ needs.release.outputs.new_release_version }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -193,15 +268,13 @@ jobs:
         env:
           IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.package.name }}
           VERSION: v${{ needs.release.outputs.new_release_version }}
-          BRANCH: ${{ github.ref_name }}
+          PUSH_LATEST: ${{ needs.release.outputs.push_latest }}
         run: |
           {
             echo 'tags<<TAGS_EOF'
             echo "${IMAGE}:${VERSION}"
-            # Push ":latest" only from `main`. ":latest" points to the
-            # production image. A release from `v1` must not move it to the
-            # next-major line.
-            if [ "$BRANCH" = "main" ]; then
+            # Decided in the release job: never from `v1`, never for an older republish.
+            if [ "$PUSH_LATEST" = "true" ]; then
               echo "${IMAGE}:latest"
             fi
             echo TAGS_EOF
