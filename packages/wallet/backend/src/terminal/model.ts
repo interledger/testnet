@@ -35,6 +35,11 @@ export class FieldDefinitions extends BaseModel {
   public validation?: Validation
   public format?: string
   public maxLength?: number
+  public minLength?: number
+  public pattern?: string
+  public min?: number
+  public max?: number
+  public mustEqual?: boolean
 
   static relationMappings = () => ({
     options: {
