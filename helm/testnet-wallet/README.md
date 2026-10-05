@@ -79,12 +79,19 @@ Secrets are mounted into the backend container via individual `env[].valueFrom.s
 
 ### Atalla HSM adapters
 
-The wallet backend can host both Atalla HSM adapters. They are disabled by
-default, so local development and deployments without an HSM continue to start
-without an Atalla TLS secret.
+The backend can serve the issuer and the merchant HSM adapter contracts over
+gRPC. One process runs both servers. `serverRole` chooses which servers start:
+`both`, `issuer`, or `merchant`.
 
-Enable the adapters and configure the HSM connection under
-`config.backend.hsm`:
+The adapters are off by default. Only the cards environments run them, so a
+deployment without an HSM starts without any Atalla configuration.
+
+`templates/configMap.backend.yaml` adds the `HSM_*` and `ATALLA_*` keys to the
+backend ConfigMap, and only when `enabled` is true. They are not
+`configMaps.backend.contentMap` entries: the backend rejects an empty
+`ATALLA_HOST` or `ATALLA_PORT` when `HSM_ENABLED` is true, and a contentMap
+entry would write an empty string in every environment that leaves the value
+unset. The render fails if `enabled` is true and either value is missing.
 
 ```yaml
 config:
@@ -92,27 +99,40 @@ config:
     hsm:
       enabled: true
       serverRole: both
-      grpcHost: 0.0.0.0
-      issuerGrpcPort: 50051
-      merchantGrpcPort: 50052
+      grpcHost: '0.0.0.0'
+      issuerPort: 50051
+      merchantPort: 50052
+
       atalla:
-        host: atalla.example.internal
-        port: 1111
+        host: 10.0.0.1
+        port: 13506
         timeoutMs: 2000
         poolSize: 1
-        tlsEnabled: false
+        tls:
+          enabled: true
+          # Skips the hostname check only. The transport still sets
+          # rejectUnauthorized, so the HSM certificate must chain to the CA at
+          # caCertPath.
+          skipServerIdentityCheck: true
+          # Paths, not PEM text. The backend reads each file at start-up.
+          caCertPath: /etc/atalla/tls/ca.crt
+          clientCertPath: /etc/atalla/tls/client.crt
+          clientKeyPath: /etc/atalla/tls/client.key
 ```
 
-The issuer and merchant listeners are cleartext h2c services intended for
-in-cluster access. The cards-playground Atalla connection is also configured
-without TLS. Restrict access to the backend service and HSM at the cluster
-network layer.
+The issuer and merchant listeners are cleartext h2c services. Reach them inside
+the namespace only, and keep the gRPC ports off the Ingress.
 
-The backend deliberately consumes the published
-`@interledger/hsm-atalla-issuer`, `@interledger/hsm-atalla-merchant`, and
-`@interledger/hsm-atalla-transport` packages rather than sibling workspace
-paths. Their generated protobuf dependencies are served by the Buf Schema
-Registry, so the `@buf` registry entry in the repository `.npmrc` is required.
+`enabled: true` is not enough on its own. Helm replaces a list rather than
+merging it, so the environment's values file must also write out, in full:
+
+- `deployments.backend.ports`, with the gRPC container ports added
+- `services.backend.ports`, with the matching Service ports added
+- `deployments.backend.volumes` and `deployments.backend.volumeMounts`, for the
+  Atalla TLS files at the paths above
+
+`env/cards-playground/wallet/testnet-wallet.yaml` in `testnet-deploy` is the
+worked example.
 
 ## Image Tags
 
