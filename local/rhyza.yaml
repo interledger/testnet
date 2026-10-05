@@ -1,0 +1,484 @@
+# Rhyza local stack.
+#
+# Replaces local/rafiki.yaml. Selected by local/docker-compose.rhyza.yml, so the v1
+# and v2 stacks stay side by side until the port is finished. Both share the
+# same compose project, so `pnpm local:up:rhyza` swaps the Rafiki half in place and
+# reuses traefik / postgres / redis / mockgatehub.
+#
+# This file never builds anything. The Rhyza images are a prerequisite: build them
+# in your own rafiki-v2 checkout (or pull them once they are published), then set
+# RHYZA_IMAGE_PREFIX and RHYZA_IMAGE_TAG in local/.env. Both are required -- compose
+# refuses to start if either is unset, rather than silently using a stale image.
+#
+#   cd <your rafiki-v2 checkout>
+#   docker compose -f docker/docker-compose.yaml build
+#   # -> images named rafiki-v2-<service>:latest
+#   # local/.env:  RHYZA_IMAGE_PREFIX=rafiki-v2
+#   #              RHYZA_IMAGE_TAG=latest
+
+x-rhyza-service: &rhyza-service
+  restart: unless-stopped
+  networks:
+    - testnet
+  extra_hosts:
+    # Services resolve the wallet backend and each other's public hostnames
+    # through the host, same as the v1 stack does.
+    - host.docker.internal:host-gateway
+    - testnet.test:host-gateway
+    - api.testnet.test:host-gateway
+    - auth.testnet.test:host-gateway
+    - ilp.testnet.test:host-gateway
+    - connector.testnet.test:host-gateway
+    - rhyza-admin.testnet.test:host-gateway
+    - rhyza-idp.testnet.test:host-gateway
+
+x-rhyza-env: &rhyza-env
+  LOG_LEVEL: ${RHYZA_LOG_LEVEL:-debug}
+  # The local certs are self-signed; outbound HTTPS to *.testnet.test fails otherwise.
+  NODE_TLS_REJECT_UNAUTHORIZED: ${RHYZA_NODE_TLS_REJECT_UNAUTHORIZED:-0}
+
+x-kafka-url: &kafka-url ${RHYZA_KAFKA_URL:-kafka:19092}
+# pal-* read MONGO_URL (trailing slash), every other service reads MONGODB_URL.
+x-mongodb-url: &mongodb-url ${RHYZA_MONGODB_URL:-mongodb://${RHYZA_MONGO_USER:-root}:${RHYZA_MONGO_PASSWORD:-mongoPass}@mongodb:27017}
+x-mongo-url: &mongo-url ${RHYZA_MONGO_URL:-mongodb://${RHYZA_MONGO_USER:-root}:${RHYZA_MONGO_PASSWORD:-mongoPass}@mongodb:27017/}
+# DB 2 keeps Rhyza off the wallet backend (DB 0) and boutique (DB 4) keyspaces.
+x-redis-url: &redis-url ${RHYZA_REDIS_URL:-redis://redis:6379/2}
+
+x-infra-deps: &infra-deps
+  init-kafka:
+    condition: service_completed_successfully
+  mongodb:
+    condition: service_healthy
+
+services:
+  # ---------------------------------------------------------------- API layer
+
+  admin-api-service:
+    <<: *rhyza-service
+    container_name: rhyza-admin-api-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-admin-api-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      PORT: 3001
+      PAL_GRPC_URL: pal-api-service:50051
+      PAYMENTS_GRPC_URL: payments-api-service:50052
+      ILP_GRPC_URL: ilp-api-service:50053
+      # Public OP resource URL: the admin API echoes it back as openPaymentsUrl.
+      OPEN_PAYMENTS_URL: ${RHYZA_OPEN_PAYMENTS_URL:-https://ilp.testnet.test}
+      MONGODB_URL: *mongodb-url
+      KAFKA_URL: *kafka-url
+    ports:
+      - '3021:3001'
+    depends_on:
+      <<: *infra-deps
+      pal-api-service:
+        condition: service_started
+      payments-api-service:
+        condition: service_started
+      ilp-api-service:
+        condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.rhyza-admin.rule=Host(`rhyza-admin.testnet.test`)
+      - traefik.http.routers.rhyza-admin.entrypoints=websecure
+      - traefik.http.routers.rhyza-admin.tls=true
+      - traefik.http.services.rhyza-admin.loadbalancer.server.port=3001
+
+  open-payments-resource-service:
+    <<: *rhyza-service
+    container_name: rhyza-op-resource-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-open-payments-resource-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      PORT: 3002
+      PAL_GRPC_URL: pal-api-service:50051
+      PAYMENTS_GRPC_URL: payments-api-service:50052
+      OPEN_PAYMENTS_RESOURCE_SERVICE_URL: ${RHYZA_OPEN_PAYMENTS_URL:-https://ilp.testnet.test}
+      OPEN_PAYMENTS_AUTH_SERVICE_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
+      # Must match ilp-command-handler-service or STREAM credentials won't verify.
+      STREAM_SERVER_SECRET: ${RHYZA_STREAM_SERVER_SECRET:-cmFmaWtpLXYyLWRldi1zdHJlYW0tc2VjcmV0LTAwMDE}
+      ILP_ADDRESS: ${RHYZA_ILP_ADDRESS:-test.net}
+    ports:
+      - '3022:3002'
+    depends_on:
+      pal-api-service:
+        condition: service_started
+      payments-api-service:
+        condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.rhyza-op-resource.rule=Host(`ilp.testnet.test`)
+      - traefik.http.routers.rhyza-op-resource.entrypoints=websecure
+      - traefik.http.routers.rhyza-op-resource.tls=true
+      - traefik.http.services.rhyza-op-resource.loadbalancer.server.port=3002
+
+  open-payments-auth-service:
+    <<: *rhyza-service
+    container_name: rhyza-op-auth-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-open-payments-auth-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      PORT: 3003
+      AUTH_GRPC_URL: auth-api-service:50054
+      # service.ts reads OPEN_PAYMENTS_AUTH_SERVER_URL; upstream's compose sets
+      # ..._SERVICE_URL instead, so set both until that is reconciled.
+      OPEN_PAYMENTS_AUTH_SERVER_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
+      OPEN_PAYMENTS_AUTH_SERVICE_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
+      # Where GET /interaction/:grantId/start sends the browser — the wallet's IdP screen.
+      IDP_URL: ${RHYZA_IDP_URL:-https://testnet.test/grant-interactions}
+    ports:
+      - '3023:3003'
+    depends_on:
+      auth-api-service:
+        condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.rhyza-op-auth.rule=Host(`auth.testnet.test`)
+      - traefik.http.routers.rhyza-op-auth.entrypoints=websecure
+      - traefik.http.routers.rhyza-op-auth.tls=true
+      - traefik.http.services.rhyza-op-auth.loadbalancer.server.port=3003
+
+  idp-interaction-service:
+    <<: *rhyza-service
+    container_name: rhyza-idp-interaction-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-idp-interaction-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      PORT: 3004
+      AUTH_GRPC_URL: auth-api-service:50054
+      OPEN_PAYMENTS_AUTH_SERVER_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
+      # Sent by the wallet backend as the x-idp-secret header; keep in sync with
+      # AUTH_IDENTITY_SERVER_SECRET in packages/wallet/backend/.env.local.
+      IDP_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-dev_identity_server_secret}
+    ports:
+      - '3024:3004'
+    depends_on:
+      auth-api-service:
+        condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.rhyza-idp.rule=Host(`rhyza-idp.testnet.test`)
+      - traefik.http.routers.rhyza-idp.entrypoints=websecure
+      - traefik.http.routers.rhyza-idp.tls=true
+      - traefik.http.services.rhyza-idp.loadbalancer.server.port=3004
+
+  http-signature-service:
+    <<: *rhyza-service
+    container_name: rhyza-http-signature-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-http-signature-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      HOST: http-signature-service
+      PORT: 3010
+    ports:
+      - '3030:3010'
+
+  # ------------------------------------------------- PAL (peers, accounts, ledger)
+
+  pal-api-service:
+    <<: *rhyza-service
+    container_name: rhyza-pal-api-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-pal-api-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      MONGO_URL: *mongo-url
+      KAFKA_URL: *kafka-url
+      # Yes, the name is odd — that is the variable pal-api-service actually reads.
+      SVCEXCHANGE_RATES_URL_PORT: ${RHYZA_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
+    depends_on:
+      <<: *infra-deps
+      redis:
+        condition: service_healthy
+
+  pal-event-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-pal-event-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-pal-event-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      MONGO_URL: *mongo-url
+      KAFKA_URL: *kafka-url
+      REDIS_URL: *redis-url
+      SVCEXCHANGE_RATES_URL_PORT: ${RHYZA_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
+    depends_on:
+      <<: *infra-deps
+      redis:
+        condition: service_healthy
+
+  pal-ledger-command-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-pal-ledger-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-pal-ledger-command-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      REDIS_URL: *redis-url
+    depends_on:
+      init-kafka:
+        condition: service_completed_successfully
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------ Payments
+
+  payments-api-service:
+    <<: *rhyza-service
+    container_name: rhyza-payments-api-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-payments-api-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+    depends_on: *infra-deps
+
+  payments-command-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-payments-command-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-payments-command-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+      PAL_GRPC_URL: pal-api-service:50051
+      UV_THREADPOOL_SIZE: 128
+    depends_on:
+      <<: *infra-deps
+      pal-api-service:
+        condition: service_started
+
+  payments-event-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-payments-event-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-payments-event-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+    depends_on:
+      init-kafka:
+        condition: service_completed_successfully
+
+  # ----------------------------------------------------------------------- ILP
+
+  ilp-api-service:
+    <<: *rhyza-service
+    container_name: rhyza-ilp-api-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-ilp-api-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+    depends_on: *infra-deps
+
+  ilp-command-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-ilp-command-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-ilp-command-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+      STREAM_SERVER_SECRET: ${RHYZA_STREAM_SERVER_SECRET:-cmFmaWtpLXYyLWRldi1zdHJlYW0tc2VjcmV0LTAwMDE}
+      ILP_ADDRESS: ${RHYZA_ILP_ADDRESS:-test.net}
+    depends_on: *infra-deps
+
+  ilp-event-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-ilp-event-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-ilp-event-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+    depends_on:
+      init-kafka:
+        condition: service_completed_successfully
+
+  ilp-connector-service:
+    <<: *rhyza-service
+    container_name: rhyza-ilp-connector-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-ilp-connector-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      REDIS_URL: *redis-url
+      ILP_CONNECTOR_HTTP_PORT: 4000
+      ILP_CONNECTOR_PUBLIC_URL: ${RHYZA_CONNECTOR_URL:-https://connector.testnet.test}
+    ports:
+      - '4000:4000'
+    depends_on:
+      init-kafka:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.rhyza-connector.rule=Host(`connector.testnet.test`)
+      - traefik.http.routers.rhyza-connector.entrypoints=websecure
+      - traefik.http.routers.rhyza-connector.tls=true
+      - traefik.http.services.rhyza-connector.loadbalancer.server.port=4000
+
+  # ---------------------------------------------------------------------- Auth
+
+  auth-api-service:
+    <<: *rhyza-service
+    container_name: rhyza-auth-api-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-auth-api-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+    depends_on: *infra-deps
+
+  auth-command-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-auth-command-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-auth-command-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+    depends_on: *infra-deps
+
+  # ------------------------------------------------------------- Notifications
+
+  notifications-command-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-notifications-command-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-notifications-command-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+      # The wallet backend runs on the host in dev (PORT=3003).
+      WEBHOOK_URL: ${RHYZA_WEBHOOK_URL:-http://host.docker.internal:3003/webhooks}
+    depends_on: *infra-deps
+
+  notifications-event-handler-service:
+    <<: *rhyza-service
+    container_name: rhyza-notifications-event-handler-local
+    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-notifications-event-handler-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
+    environment:
+      <<: *rhyza-env
+      KAFKA_URL: *kafka-url
+      MONGODB_URL: *mongodb-url
+      UV_THREADPOOL_SIZE: 128
+      NOTIFICATION_BATCH_SIZE: ${RHYZA_NOTIFICATION_BATCH_SIZE:-10}
+      RETRY_INTERVAL_MS: ${RHYZA_NOTIFICATION_RETRY_INTERVAL_MS:-20000}
+    depends_on: *infra-deps
+
+  # -------------------------------------------------------------- Infrastructure
+
+  mongodb:
+    container_name: rhyza-mongodb-local
+    image: mongo:7
+    restart: unless-stopped
+    networks:
+      - testnet
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${RHYZA_MONGO_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${RHYZA_MONGO_PASSWORD:-mongoPass}
+    ports:
+      - '${RHYZA_MONGO_HOST_PORT:-27017}:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  kafka:
+    container_name: rhyza-kafka-local
+    image: apache/kafka:4.0.0
+    restart: unless-stopped
+    networks:
+      - testnet
+    environment:
+      # Docker Desktop's VM on Apple silicon advertises SVE without a readable
+      # vector length; the JDK bundled in this image then crashes with SIGILL.
+      JAVA_TOOL_OPTIONS: -XX:UseSVE=0
+      KAFKA_BROKER_ID: 1
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      # EXTERNAL advertises localhost (upstream advertises `kafka`) so host-side
+      # tooling on :9092 can reach the broker without an /etc/hosts entry.
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19092,EXTERNAL://localhost:9092
+      KAFKA_LISTENERS: INTERNAL://:19092,CONTROLLER://:19093,EXTERNAL://:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:19093
+      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    ports:
+      - '${RHYZA_KAFKA_HOST_PORT:-9092}:9092'
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: nc -z localhost 19092 || exit -1
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  init-kafka:
+    container_name: rhyza-init-kafka-local
+    image: apache/kafka:4.0.0
+    networks:
+      - testnet
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:UseSVE=0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ['/bin/sh', '-c']
+    working_dir: /opt/kafka/bin/
+    command: |
+      "
+      set -e
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --topic audits
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --topic logs
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic payment-commands
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic payment-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic asset-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic peer-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic wallet-address-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic fxrate-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-commands
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-snapshot-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-state-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ilp-domain-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ilp-commands
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ilp-connector-commands
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic notification-commands
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic auth-commands
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic auth-domain-events
+      echo 'Rhyza topics ready:'
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --list
+      "
+
+  redpanda-console:
+    container_name: rhyza-redpanda-console-local
+    image: redpandadata/console:latest
+    restart: unless-stopped
+    networks:
+      - testnet
+    environment:
+      KAFKA_BROKERS: kafka:19092
+    ports:
+      # 8080 on the host is mockgatehub.
+      - '8090:8080'
+    depends_on:
+      kafka:
+        condition: service_healthy
+    profiles: [observability]

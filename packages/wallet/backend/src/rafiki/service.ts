@@ -24,8 +24,7 @@ export enum EventType {
   IncomingPaymentExpired = 'incoming_payment.expired',
   OutgoingPaymentCreated = 'outgoing_payment.created',
   OutgoingPaymentCompleted = 'outgoing_payment.completed',
-  OutgoingPaymentFailed = 'outgoing_payment.failed',
-  WalletAddressNotFound = 'wallet_address.not_found'
+  OutgoingPaymentFailed = 'outgoing_payment.failed'
 }
 
 export interface WebHook {
@@ -93,11 +92,7 @@ export class RafikiService implements IRafikiService {
   ) {}
 
   public async onWebHook(wh: WebhookType): Promise<void> {
-    this.logger.info(
-      `received webhook of type : ${wh.type} for : ${
-        wh.type === EventType.WalletAddressNotFound ? '' : `${wh.id}}`
-      }`
-    )
+    this.logger.info(`received webhook of type : ${wh.type} for : ${wh.id}`)
 
     switch (wh.type) {
       case EventType.OutgoingPaymentCreated:
@@ -117,9 +112,6 @@ export class RafikiService implements IRafikiService {
         break
       case EventType.IncomingPaymentExpired:
         await this.handleIncomingPaymentExpired(wh)
-        break
-      case EventType.WalletAddressNotFound:
-        this.logger.warn(`${EventType.WalletAddressNotFound} received`)
         break
     }
   }

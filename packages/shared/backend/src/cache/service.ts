@@ -2,6 +2,7 @@ import { EntryOptions, IRedisClient } from './redis-client'
 
 export interface ICacheService<T> {
   set(key: string, value: T | string): Promise<string>
+  setIfNotExists(key: string, value: T | string): Promise<boolean>
   get(key: string): Promise<T | null>
   delete(key: string): Promise<number>
 }
@@ -23,6 +24,15 @@ export class Cache<T> implements ICacheService<T> {
   ): Promise<string> {
     const namespacedKey = this.namespace + key
     return await this.cache.set<T>(namespacedKey, value, options)
+  }
+
+  async setIfNotExists(
+    key: string,
+    value: T | string,
+    options?: EntryOptions
+  ): Promise<boolean> {
+    const namespacedKey = this.namespace + key
+    return await this.cache.setIfNotExists<T>(namespacedKey, value, options)
   }
 
   async get(key: string): Promise<T | null> {

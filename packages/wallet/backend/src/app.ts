@@ -63,6 +63,7 @@ import { CardService } from './card/service'
 import { TerminalController } from './terminal/controller'
 import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
+import { isAdminSecret } from '@/middleware/isAdminSecret'
 import { HsmAtallaService } from '@/hsm/atalla/service'
 
 export interface Bindings {
@@ -210,6 +211,9 @@ export class App {
       'interledgerCardController'
     )
     const terminalController = this.container.resolve('terminalController')
+    const adminNotificationController = env.ADMIN_NOTIFICATION_SECRET
+      ? this.container.resolve('adminNotificationController')
+      : undefined
 
     const { httpMetricsMiddleware } = createHttpMetrics(metricsRegistry)
     app.use(httpMetricsMiddleware)
@@ -408,6 +412,15 @@ export class App {
       isGateHubSignedWebhook(env, logger),
       gateHubController.webhook
     )
+
+    if (env.ADMIN_NOTIFICATION_SECRET && adminNotificationController) {
+      router.post(
+        '/admin/notifications/email',
+        isAdminSecret(env),
+        adminNotificationController.send
+      )
+    }
+
     router.post(
       '/gatehub/add-user-to-gateway',
       isAuth,

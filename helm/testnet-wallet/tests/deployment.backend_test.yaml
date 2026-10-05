@@ -70,3 +70,44 @@ tests:
       - equal:
           path: data.GATEHUB_SEPA_ACCESS_KEY
           value: test-sepa-access-key
+  - it: 'secret references default to the Secret this chart names'
+    template: deployment.backend.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: test-testnet-wallet-backend
+  - it: 'secret references follow config.backend.secretName when it is set'
+    template: deployment.backend.yaml
+    set:
+      config:
+        backend:
+          secretName: wallet-credentials-from-operator
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: wallet-credentials-from-operator
+      # The key is unchanged; only the Secret it is read from moves.
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: databaseUrl
+  - it: 'mounts the Atalla TLS volume when an environment supplies one'
+    template: deployment.backend.yaml
+    set:
+      deployments:
+        backend:
+          volumeMounts:
+            - name: atalla-tls
+              mountPath: /etc/atalla/tls
+              readOnly: true
+          volumes:
+            - name: atalla-tls
+              secret:
+                secretName: wallet-atalla
+                defaultMode: 0400
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[0].secret.secretName
+          value: wallet-atalla
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
+          value: /etc/atalla/tls

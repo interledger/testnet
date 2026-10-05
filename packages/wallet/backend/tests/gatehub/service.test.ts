@@ -6,6 +6,7 @@ import { truncateTables } from '@shared/backend/tests'
 import type { AuthService } from '@/auth/service'
 import { faker } from '@faker-js/faker'
 import { AwilixContainer } from 'awilix'
+import { Forbidden } from '@shared/backend'
 import { GateHubService } from '@/gatehub/service'
 import { loginUser } from '../utils'
 import { User } from '@/user/model'
@@ -138,6 +139,7 @@ describe('GateHub Service', (): void => {
       isCard: false
     })
 
+    mockGateHubClient.isProduction = false
     mockGateHubClient.getUserState.mockReturnValue({
       profile: {
         last_name: user.lastName,
@@ -169,6 +171,37 @@ describe('GateHub Service', (): void => {
       await expect(
         gateHubService.getIframeUrl('withdrawal', user.id)
       ).rejects.toThrowError(/Not Found/)
+    })
+
+    it('should refuse deposit iframe urls in production', async () => {
+      mockGateHubClient.isProduction = true
+
+      const error = await gateHubService
+        .getIframeUrl('deposit', user.id)
+        .catch((e) => e)
+
+      expect(error).toBeInstanceOf(Forbidden)
+      expect(error.statusCode).toBe(403)
+      expect(error.message).toBe('Deposits are not available')
+      expect(mockGateHubClient.getIframeUrl).not.toHaveBeenCalled()
+    })
+
+    it('should return withdrawal iframe urls in production', async () => {
+      const mockedIframeUrl = 'URL'
+      mockGateHubClient.isProduction = true
+      mockGateHubClient.getIframeUrl.mockReturnValue(mockedIframeUrl)
+
+      const result = await gateHubService.getIframeUrl('withdrawal', user.id)
+      expect(result).toMatchObject({ url: mockedIframeUrl })
+    })
+
+    it('should return deposit iframe urls in sandbox', async () => {
+      const mockedIframeUrl = 'URL'
+      mockGateHubClient.isProduction = false
+      mockGateHubClient.getIframeUrl.mockReturnValue(mockedIframeUrl)
+
+      const result = await gateHubService.getIframeUrl('deposit', user.id)
+      expect(result).toMatchObject({ url: mockedIframeUrl })
     })
   })
 

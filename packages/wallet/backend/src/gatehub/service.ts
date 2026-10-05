@@ -1,7 +1,7 @@
 import { GateHubClient } from '@/gatehub/client'
 import { IFRAME_TYPE } from '@wallet/shared/src'
 import { User } from '@/user/model'
-import { NotFound } from '@shared/backend'
+import { Forbidden, NotFound } from '@shared/backend'
 import {
   IAddUserToGatewayResponse,
   ICardTransactionWebhookData,
@@ -35,6 +35,10 @@ export class GateHubService {
     iframeType: IFRAME_TYPE,
     userId: string
   ): Promise<{ url: string; isApproved?: boolean; customerId?: string }> {
+    if (iframeType === 'deposit' && this.gateHubClient.isProduction) {
+      throw new Forbidden('Deposits are not available')
+    }
+
     const user = await User.query().findById(userId)
     if (!user || !user.gateHubUserId) {
       throw new NotFound()

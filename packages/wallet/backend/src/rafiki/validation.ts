@@ -97,17 +97,10 @@ export const outgoingPaymentWebhookSchema = z.object({
   ]),
   data: outgoingPaymentSchema
 })
-export const walletAddressWebhookSchema = z.object({
-  id: z.string(),
-  type: z.literal(EventType.WalletAddressNotFound),
-  data: z.object({
-    walletAddressUrl: z.string()
-  })
-})
+
 export const webhookSchema = z.discriminatedUnion('type', [
   incomingPaymentWebhookSchema,
-  outgoingPaymentWebhookSchema,
-  walletAddressWebhookSchema
+  outgoingPaymentWebhookSchema
 ])
 
 export const webhookBodySchema = z.object({

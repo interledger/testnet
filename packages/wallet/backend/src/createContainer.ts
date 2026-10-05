@@ -64,6 +64,8 @@ import { InterledgerCardController } from '@/interledgerCard/controller'
 import { InterledgerCardService } from '@/interledgerCard/service'
 import { TerminalController } from '@/terminal/controller'
 import { TerminalService } from '@/terminal/service'
+import { AdminNotificationController } from '@/admin-notification/controller'
+import { AdminNotificationService } from '@/admin-notification/service'
 import { HsmAtallaService } from '@/hsm/atalla/service'
 
 export interface Cradle {
@@ -115,6 +117,8 @@ export interface Cradle {
   interledgerCardController: InterledgerCardController
   terminalService: TerminalService
   terminalController: TerminalController
+  adminNotificationService?: AdminNotificationService
+  adminNotificationController?: AdminNotificationController
   hsmAtallaService: HsmAtallaService
 }
 
@@ -155,6 +159,18 @@ export async function createContainer(
       ? {
           stripeService: asClassSingletonWithLogger(StripeService, logger),
           stripeController: asClassSingletonWithLogger(StripeController, logger)
+        }
+      : {}),
+    ...(env.ADMIN_NOTIFICATION_SECRET
+      ? {
+          adminNotificationService: asClassSingletonWithLogger(
+            AdminNotificationService,
+            logger
+          ),
+          adminNotificationController: asClassSingletonWithLogger(
+            AdminNotificationController,
+            logger
+          )
         }
       : {}),
     quoteService: asClass(QuoteService).singleton(),

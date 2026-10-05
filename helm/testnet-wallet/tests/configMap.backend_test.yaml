@@ -1,0 +1,109 @@
+suite: testnet-wallet backend - HSM adapter configuration
+templates:
+  - configMap.backend.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+tests:
+  # The backend rejects an empty ATALLA_HOST, so the keys must be absent
+  # rather than blank in every environment that does not run the adapter.
+  - it: 'omits every HSM key when the adapter is disabled'
+    asserts:
+      - notExists:
+          path: data.HSM_ENABLED
+      - notExists:
+          path: data.ATALLA_HOST
+      - notExists:
+          path: data.ISSUER_GRPC_PORT
+      # The contentMap keys are still there.
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: 'emits the adapter block when enabled, alongside the contentMap keys'
+    set:
+      config:
+        backend:
+          hsm:
+            enabled: true
+            atalla:
+              host: '10.0.0.1'
+              port: 13506
+    asserts:
+      - equal:
+          path: data.HSM_ENABLED
+          value: 'true'
+      - equal:
+          path: data.HSM_SERVER_ROLE
+          value: both
+      - equal:
+          path: data.HSM_GRPC_HOST
+          value: 0.0.0.0
+      - equal:
+          path: data.ISSUER_GRPC_PORT
+          value: '50051'
+      - equal:
+          path: data.MERCHANT_GRPC_PORT
+          value: '50052'
+      - equal:
+          path: data.ATALLA_HOST
+          value: '10.0.0.1'
+      # Numbers must reach the ConfigMap as strings.
+      - equal:
+          path: data.ATALLA_PORT
+          value: '13506'
+      - equal:
+          path: data.ATALLA_POOL_SIZE
+          value: '1'
+      - equal:
+          path: data.ATALLA_CA_CERT_PATH
+          value: /etc/atalla/tls/ca.crt
+      # The override must merge with the contentMap, not replace it.
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: 'drops the TLS paths when Atalla TLS is off'
+    set:
+      config:
+        backend:
+          hsm:
+            enabled: true
+            atalla:
+              host: '10.0.0.1'
+              port: 13506
+              tls:
+                enabled: false
+    asserts:
+      - equal:
+          path: data.ATALLA_TLS_ENABLED
+          value: 'false'
+      - notExists:
+          path: data.ATALLA_CA_CERT_PATH
+      - notExists:
+          path: data.ATALLA_SKIP_SERVER_IDENTITY_CHECK
+
+  - it: 'fails the render when the adapter is enabled without an Atalla host'
+    set:
+      config:
+        backend:
+          hsm:
+            enabled: true
+            atalla:
+              port: 13506
+    asserts:
+      - failedTemplate:
+          errorMessage: 'config.backend.hsm.atalla.host is required when config.backend.hsm.enabled is true'
+
+  - it: 'fails the render when the adapter is enabled without an Atalla port'
+    set:
+      config:
+        backend:
+          hsm:
+            enabled: true
+            atalla:
+              host: '10.0.0.1'
+    asserts:
+      - failedTemplate:
+          errorMessage: 'config.backend.hsm.atalla.port is required when config.backend.hsm.enabled is true'

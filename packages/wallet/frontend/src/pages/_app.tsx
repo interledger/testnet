@@ -5,7 +5,9 @@ import { AppProvider } from '@/components/providers'
 import { Progress } from '@/ui/Progress'
 import type { AppPropsWithLayout } from '@/lib/types/app'
 import { MoneyBird } from '@/components/icons/MoneyBird'
-import { io, Socket } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
+import NextApp, { type AppContext, type AppInitialProps } from 'next/app'
+import { connectToBackend } from '@/lib/socket'
 import { useEffect } from 'react'
 import { updateBalance } from '@/lib/balance'
 import { formatAmount } from '@/utils/helpers'
@@ -35,10 +37,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     let socket: Socket | null = null
     // Connect to the Socket.IO server
-    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL ?? '', {
-      withCredentials: true,
-      transports: ['websocket', 'polling']
-    })
+    socket = connectToBackend()
 
     // Event listeners
     socket?.on('MONEY_RECEIVED', (account, amount) => {
@@ -153,3 +152,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     </>
   )
 }
+
+/**
+ * Defined only for its side effect: it turns off Automatic Static Optimization
+ * so every page is server rendered, and `_document.tsx` can read the pod
+ * environment. Protects `/404`, `/no-access` and `/auth/*`, which have no
+ * `getServerSideProps`.
+ */
+App.getInitialProps = async (context: AppContext): Promise<AppInitialProps> =>
+  await NextApp.getInitialProps(context)
