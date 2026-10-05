@@ -370,7 +370,7 @@ export class App {
 
     // asset
     router.get('/assets', isAuth, assetController.list)
-    router.get('/assets/all', assetController.listAll)
+    router.get('/assets/all', isAuth, assetController.listAll)
 
     // grant
     router.get('/grants', isAuth, grantController.list)
