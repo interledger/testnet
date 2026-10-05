@@ -118,19 +118,20 @@ export class WalletAddressService implements IWalletAddressService {
         )
       }
     } else {
-      const assetId = account.assetId
-      const rafikiWalletAddress =
-        await this.rafikiClient.createRafikiWalletAddress(
+      const assetCode = account.assetCode
+      const rhyzaWalletAddress =
+        await this.rafikiClient.createRhyzaWalletAddress(
+          url,
+          assetCode,
           args.publicName,
-          assetId,
-          url
+          true
         )
 
       walletAddress = await WalletAddress.query().insert({
-        url: rafikiWalletAddress.address,
+        url: rhyzaWalletAddress.address,
         publicName: args.publicName,
         accountId: args.accountId,
-        id: rafikiWalletAddress.id,
+        id: rhyzaWalletAddress.id,
         isCard: args.isCard
       })
 

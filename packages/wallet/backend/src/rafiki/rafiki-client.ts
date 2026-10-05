@@ -269,6 +269,37 @@ export class RafikiClient implements IRafikiClient {
     return response.payment as OutgoingPayment
   }
 
+  public async createRhyzaWalletAddress(
+    address: string,
+    assetCode: string,
+    publicName: string,
+    isActive: boolean
+  ) {
+    const response = await fetch(`${process.env.RHYZA_ADMIN_API_URL}/wallet-addresses`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        address,
+        assetCode,
+        publicName,
+        isActive
+      })
+    })
+
+    if (response.status === 201) {
+      return await response.json() as {id: string, address: string}
+    }
+
+    if (response.status === 409) {
+      throw new Error()
+    }
+
+    throw new Error(`Failed to create wallet address: ${response.statusText}`)
+    
+  }
+
   public async createRafikiWalletAddress(
     publicName: string,
     assetId: string,
