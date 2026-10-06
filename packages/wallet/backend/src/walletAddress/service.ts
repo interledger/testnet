@@ -2,6 +2,7 @@ import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
 import axios from 'axios'
 import { getRandomValues } from 'crypto'
 import { Cache, RedisClient } from '@shared/backend'
@@ -77,6 +78,7 @@ export class WalletAddressService implements IWalletAddressService {
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
+    private rhyzaAdminClient: RhyzaAdminClient,
     private env: Env,
     redisClient: RedisClient,
     private transactionService: TransactionService
@@ -118,17 +120,26 @@ export class WalletAddressService implements IWalletAddressService {
         )
       }
     } else {
-      const assetCode = account.assetCode
-      const rhyzaWalletAddress =
-        await this.rafikiClient.createRhyzaWalletAddress(
-          url,
-          assetCode,
-          args.publicName,
-          true
-        )
+      const rhyzaWalletAddress = await this.rhyzaAdminClient
+        .createWalletAddress({
+          address: url,
+          assetCode: account.assetCode,
+          publicName: args.publicName,
+          isActive: true
+        })
+        .catch((e) => {
+          // Exists in Rhyza only, e.g. after a DB reset.
+          if (e instanceof Conflict) {
+            throw new Conflict(
+              'This wallet address already exists. Please choose another name.'
+            )
+          }
+          throw e
+        })
 
       walletAddress = await WalletAddress.query().insert({
-        url: rhyzaWalletAddress.address,
+        // Rhyza returns the address without a scheme.
+        url,
         publicName: args.publicName,
         accountId: args.accountId,
         id: rhyzaWalletAddress.id,

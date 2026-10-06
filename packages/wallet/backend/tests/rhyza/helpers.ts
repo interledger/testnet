@@ -13,7 +13,7 @@ export const mockLogger = () =>
     error: jest.fn()
   }) as unknown as Logger
 
-// Stands in for axios's network adapter; must be installed before the HttpClient is built.
+// Install before building the HttpClient.
 export const mockAdapter = () => {
   const original = axios.defaults.adapter
   const adapter = jest.fn<
@@ -29,7 +29,7 @@ export const mockAdapter = () => {
   }
 }
 
-// Mirrors axios's own settle(): non-2xx rejects with an AxiosError carrying the response.
+// Mirrors axios's settle(): non-2xx rejects.
 export const respond =
   (status: number, body?: unknown) =>
   async (config: InternalAxiosRequestConfig): Promise<AxiosResponse> => {

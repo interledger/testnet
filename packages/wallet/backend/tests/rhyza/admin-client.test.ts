@@ -53,4 +53,50 @@ describe('RhyzaAdminClient', () => {
       )
     })
   })
+
+  describe('createWalletAddress', () => {
+    const args = {
+      address: 'https://ilp.test/alice',
+      assetCode: 'USD',
+      publicName: 'Alice',
+      isActive: true
+    }
+
+    it('POSTs the address details to /wallet-addresses', async () => {
+      adapter.mockImplementationOnce(
+        respond(201, { id: 'wa-1', address: 'ilp.test/alice' })
+      )
+
+      await client.createWalletAddress(args)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/wallet-addresses')
+      expect(request.body).toEqual(args)
+    })
+
+    it('returns the Rhyza id and address on 201', async () => {
+      adapter.mockImplementationOnce(
+        respond(201, { id: 'wa-1', address: 'ilp.test/alice' })
+      )
+
+      await expect(client.createWalletAddress(args)).resolves.toEqual({
+        id: 'wa-1',
+        address: 'ilp.test/alice'
+      })
+    })
+
+    it('raises Conflict on 409', async () => {
+      adapter.mockImplementationOnce(
+        respond(409, {
+          error:
+            '13 INTERNAL: Wallet Address with that domain and pathName ilp.test/alice already exists'
+        })
+      )
+
+      await expect(client.createWalletAddress(args)).rejects.toBeInstanceOf(
+        Conflict
+      )
+    })
+  })
 })

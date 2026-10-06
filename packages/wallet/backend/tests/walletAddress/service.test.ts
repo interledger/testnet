@@ -14,7 +14,7 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { Logger } from 'winston'
 import { AwilixContainer } from 'awilix'
-import { NotFound } from '@shared/backend'
+import { Conflict, NotFound } from '@shared/backend'
 
 describe('Wallet Address Service', () => {
   let bindings: AwilixContainer<Cradle>
@@ -79,15 +79,17 @@ describe('Wallet Address Service', () => {
           id: faker.string.uuid(),
           address: faker.internet.url()
         }),
-        createRhyzaWalletAddress: () => ({
-          id: faker.string.uuid(),
-          address: faker.internet.url()
-        }),
         createRafikiWalletAddressKey: () => ({
           id: faker.string.uuid()
         }),
         revokeWalletAddressKey: jest.fn(),
         updateWalletAddress: jest.fn()
+      },
+      rhyzaAdminClient: {
+        createWalletAddress: jest.fn(async () => ({
+          id: faker.string.uuid(),
+          address: faker.internet.domainName()
+        }))
       },
       updateTransaction: jest.fn()
     }
@@ -164,6 +166,57 @@ describe('Wallet Address Service', () => {
       expect(result).toMatchObject({
         publicName: 'My Wallet'
       })
+    })
+
+    it('should create the WalletAddress in Rhyza and store our https URL', async () => {
+      const { account } = await prepareWADependencies('my-work')
+      const expectedUrl = `${serviceEnv.OPEN_PAYMENTS_HOST.replace(/^http:\/\//, 'https://')}/my-wallet`
+      const createWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').createWalletAddress
+      )
+      const rhyzaId = faker.string.uuid()
+      createWalletAddress.mockResolvedValueOnce({
+        id: rhyzaId,
+        address: 'backend/my-wallet'
+      })
+
+      const result = await waService.create({
+        userId,
+        accountId: account.id,
+        walletAddressName: 'my-wallet',
+        publicName: 'My Wallet'
+      })
+
+      expect(createWalletAddress).toHaveBeenCalledWith({
+        address: expectedUrl,
+        assetCode: account.assetCode,
+        publicName: 'My Wallet',
+        isActive: true
+      })
+      expect(result).toMatchObject({
+        id: rhyzaId,
+        url: expectedUrl
+      })
+    })
+
+    it('should return repetitive err when the address exists only in Rhyza', async () => {
+      const { account } = await prepareWADependencies('my-work')
+      jest
+        .mocked(Reflect.get(waService, 'rhyzaAdminClient').createWalletAddress)
+        .mockRejectedValueOnce(
+          new Conflict('13 INTERNAL: Wallet Address ... already exists')
+        )
+
+      await expect(
+        waService.create({
+          userId,
+          accountId: account.id,
+          walletAddressName: 'my-wallet',
+          publicName: 'My Wallet'
+        })
+      ).rejects.toThrow(
+        /^This wallet address already exists. Please choose another name.$/
+      )
     })
 
     it('should return repetitive err', async () => {

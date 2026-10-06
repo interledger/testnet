@@ -1,9 +1,12 @@
-// Wallet-owned shapes for Rhyza data. Not generated from any Rhyza or GraphQL artifact.
-
-// Rhyza identifies assets by code alone; scale is a display property.
+// Rhyza has no asset ids; code is the key.
 export interface Asset {
   code: string
   scale: number
+}
+
+export interface WalletAddress {
+  id: string
+  address: string
 }
 
 export type GrantState =

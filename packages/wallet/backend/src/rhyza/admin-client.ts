@@ -1,8 +1,20 @@
 import { HttpClient } from '@/rhyza/http-client'
-import { Asset } from '@/rhyza/types'
+import { Asset, WalletAddress } from '@/rhyza/types'
 
 interface AssetCreateResponse {
   code: string
+}
+
+export interface CreateWalletAddressArgs {
+  address: string
+  assetCode: string
+  publicName: string
+  isActive?: boolean
+}
+
+interface WalletAddressCreateResponse {
+  id: string
+  address: string
 }
 
 export class RhyzaAdminClient {
@@ -13,7 +25,17 @@ export class RhyzaAdminClient {
       code,
       scale
     })
-    // The response echoes only the code.
+    // The response carries only the code.
     return { code: response.code, scale }
+  }
+
+  async createWalletAddress(
+    args: CreateWalletAddressArgs
+  ): Promise<WalletAddress> {
+    const response = await this.http.post<WalletAddressCreateResponse>(
+      '/wallet-addresses',
+      args
+    )
+    return { id: response.id, address: response.address }
   }
 }

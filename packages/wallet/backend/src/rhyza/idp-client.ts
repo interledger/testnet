@@ -26,7 +26,7 @@ export class RhyzaIdpClient {
         subjectIds: response.subject?.sub_ids ?? []
       }
     } catch (e) {
-      // The IdP has no error handler, so a missing grant comes back as a 500 carrying the gRPC code.
+      // The IdP returns a missing grant as a 500 with gRPC code 5.
       if (isGrpcNotFound(e)) throw new NotFound(`Grant ${id} not found`)
       throw e
     }

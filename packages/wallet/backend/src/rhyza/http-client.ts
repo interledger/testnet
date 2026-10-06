@@ -23,7 +23,7 @@ export interface RequestOptions {
   headers?: Record<string, string>
 }
 
-// Users still see "Internal Server Error"; the upstream status and body stay on the error for logs and callers.
+// Generic message for users; upstream status and body are kept for logs.
 export class RhyzaServerError extends InternalServerError {
   constructor(
     public readonly status: number,
@@ -47,7 +47,7 @@ export class HttpClient {
       baseURL: options.baseUrl.replace(/\/+$/, ''),
       headers: options.headers,
       timeout: this.timeoutMs,
-      // Status mapping is ours; parse JSON leniently so a plain-text error body survives.
+      // Lenient parse so plain-text error bodies survive.
       responseType: 'text',
       transformResponse: (data: string) => (data ? parseBody(data) : undefined)
     })
@@ -72,7 +72,7 @@ export class HttpClient {
         method,
         url: path,
         data: hasBody ? JSON.stringify(options.body) : undefined,
-        // Fastify rejects an empty body sent with a content type; axios would otherwise add one to a bodyless POST.
+        // Fastify rejects an empty body with a content type.
         headers: {
           'Content-Type': hasBody ? 'application/json' : false,
           ...options.headers
@@ -92,7 +92,7 @@ export class HttpClient {
             { cause: e }
           )
         }
-        // The shared error handler only logs an AxiosError's response, which is absent here.
+        // The shared error handler would log a blank line for this AxiosError.
         throw new Error(
           `Rhyza ${method} ${path} failed: ${e.code ?? e.message}`,
           { cause: e }
@@ -120,7 +120,7 @@ function parseBody(text: string): unknown {
   }
 }
 
-// Admin API errors use `error`; Fastify defaults put the detail in `message`.
+// Admin API uses `error`; Fastify uses `message`.
 function messageFrom(body: unknown): string | undefined {
   if (typeof body === 'string') return body || undefined
   if (body && typeof body === 'object') {
@@ -131,7 +131,7 @@ function messageFrom(body: unknown): string | undefined {
   return undefined
 }
 
-// A 401/403 means the wallet's own credentials are wrong, so it falls through to RhyzaServerError.
+// 401/403 means our credentials are wrong, not the user's.
 function toError(status: number, body: unknown): BaseError {
   const message = messageFrom(body)
   switch (status) {
