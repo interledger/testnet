@@ -79,6 +79,10 @@ describe('Wallet Address Service', () => {
           id: faker.string.uuid(),
           address: faker.internet.url()
         }),
+        createRhyzaWalletAddress: () => ({
+          id: faker.string.uuid(),
+          address: faker.internet.url()
+        }),
         createRafikiWalletAddressKey: () => ({
           id: faker.string.uuid()
         }),
