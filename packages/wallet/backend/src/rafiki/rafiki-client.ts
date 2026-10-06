@@ -134,7 +134,7 @@ export class RafikiClient implements IRafikiClient {
     return response.assets.edges.map((el) => el.node as Asset)
   }
 
-  public async listAssetsRhyza(): Promise<
+  public async listRhyzaAssets(): Promise<
     {
       code: string
       scale: number

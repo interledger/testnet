@@ -30,7 +30,7 @@ export class AssetController implements IAssetController {
     next: NextFunction
   ) => {
     try {
-      const assets = await this.rafikiClient.listAssetsRhyza()
+      const assets = await this.rafikiClient.listRhyzaAssets()
       res.json(toSuccessResponse(assets))
     } catch (e) {
       next(e)
