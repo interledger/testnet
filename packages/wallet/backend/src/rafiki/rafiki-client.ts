@@ -134,6 +134,18 @@ export class RafikiClient implements IRafikiClient {
     return response.assets.edges.map((el) => el.node as Asset)
   }
 
+  public async listRhyzaAssets(): Promise<
+    {
+      code: string
+      scale: number
+    }[]
+  > {
+    return [
+      { code: 'USD', scale: 2 },
+      { code: 'EUR', scale: 2 }
+    ]
+  }
+
   public async getAssetById(id: string): Promise<Asset> {
     const response = await this.backendGraphQLClient.request<
       GetAssetQuery,

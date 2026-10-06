@@ -5,6 +5,7 @@ import { AssetResponse } from '@wallet/shared'
 
 interface IAssetController {
   list: Controller<AssetResponse[]>
+  listAll: Controller<Pick<AssetResponse, 'code' | 'scale'>[]>
 }
 
 export class AssetController implements IAssetController {
@@ -17,6 +18,19 @@ export class AssetController implements IAssetController {
   ) => {
     try {
       const assets = await this.rafikiClient.listAssets({ first: 100 })
+      res.json(toSuccessResponse(assets))
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  listAll = async (
+    _req: Request,
+    res: CustomResponse<Pick<AssetResponse, 'code' | 'scale'>[]>,
+    next: NextFunction
+  ) => {
+    try {
+      const assets = await this.rafikiClient.listRhyzaAssets()
       res.json(toSuccessResponse(assets))
     } catch (e) {
       next(e)
