@@ -68,6 +68,8 @@ export const envSchema = z
       .default('http://rafiki-auth:3008/graphql'),
     AUTH_DOMAIN: z.string().url().default('https://auth.testnet.test'),
     AUTH_IDENTITY_SERVER_SECRET: z.string().default('replace-me'),
+    RHYZA_ADMIN_API_URL: z.string().url().default('http://localhost:3021'),
+    RHYZA_IDP_API_URL: z.string().url().default('http://localhost:3024'),
     RAFIKI_WEBHOOK_SIGNATURE_SECRET: z.string().default('replace-me'),
     ADMIN_SIGNATURE_VERSION: z.string().default('1'),
     ADMIN_API_SECRET: z.string().default('replace-me'),
