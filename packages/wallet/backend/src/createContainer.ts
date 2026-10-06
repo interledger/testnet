@@ -18,6 +18,8 @@ import { RafikiAuthService } from '@/rafiki/auth/service'
 import { RafikiController } from '@/rafiki/controller'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { RafikiService } from '@/rafiki/service'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import { RhyzaIdpClient } from '@/rhyza/idp-client'
 import { SessionService } from '@/session/service'
 import { TransactionController } from '@/transaction/controller'
 import { TransactionService } from '@/transaction/service'
@@ -41,6 +43,7 @@ import {
   createAuthGraphQLClient,
   createBackendGraphQLClient
 } from '@/config/rafiki'
+import { createRhyzaAdminClient, createRhyzaIdpClient } from '@/config/rhyza'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { generateKnex } from '@/config/knex'
@@ -81,6 +84,8 @@ export interface Cradle {
   authGraphQLClient: GraphQLClient
   rafikiClient: RafikiClient
   rafikiAuthService: RafikiAuthService
+  rhyzaAdminClient: RhyzaAdminClient
+  rhyzaIdpClient: RhyzaIdpClient
   accountService: AccountService
   ratesService: RatesService
   redisClient: RedisClient
@@ -143,6 +148,8 @@ export async function createContainer(
     authGraphQLClient: asFunction(createAuthGraphQLClient).singleton(),
     rafikiClient: asClass(RafikiClient).singleton(),
     rafikiAuthService: asClass(RafikiAuthService).singleton(),
+    rhyzaAdminClient: asFunction(createRhyzaAdminClient).singleton(),
+    rhyzaIdpClient: asFunction(createRhyzaIdpClient).singleton(),
     accountService: asClass(AccountService).singleton(),
     ratesService: asClass(RatesService).singleton(),
     redisClient: asFunction(createRedis).singleton(),
