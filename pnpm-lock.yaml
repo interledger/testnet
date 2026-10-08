@@ -325,14 +325,14 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(winston@3.18.3)
       '@interledger/hsm-atalla-issuer':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@interledger/hsm-atalla-merchant':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@interledger/hsm-atalla-transport':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@interledger/tlv-kit':
         specifier: ^1.1.0
         version: 1.1.0
@@ -964,15 +964,15 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@buf/interledger_hsm-adapter.bufbuild_es@2.12.1-20260817095155-4a952f42ad9f.1':
-    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/interledger_hsm-adapter.bufbuild_es/-/interledger_hsm-adapter.bufbuild_es-2.12.1-20260817095155-4a952f42ad9f.1.tgz}
+  '@buf/interledger_hsm-adapter.bufbuild_es@2.14.1-20260908132548-6de218c8c2e5.3':
+    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/interledger_hsm-adapter.bufbuild_es/-/interledger_hsm-adapter.bufbuild_es-2.14.1-20260908132548-6de218c8c2e5.3.tgz}
     peerDependencies:
-      '@bufbuild/protobuf': ^2.12.1
+      '@bufbuild/protobuf': ^2.14.1
 
-  '@buf/interledger_hsm-adapter.bufbuild_es@2.14.0-20260824111522-a5e5aaef6263.1':
-    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/interledger_hsm-adapter.bufbuild_es/-/interledger_hsm-adapter.bufbuild_es-2.14.0-20260824111522-a5e5aaef6263.1.tgz}
+  '@buf/interledger_hsm-adapter.bufbuild_es@2.14.1-20261001101728-41b7848df712.3':
+    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/interledger_hsm-adapter.bufbuild_es/-/interledger_hsm-adapter.bufbuild_es-2.14.1-20261001101728-41b7848df712.3.tgz}
     peerDependencies:
-      '@bufbuild/protobuf': ^2.14.0
+      '@bufbuild/protobuf': ^2.14.1
 
   '@bufbuild/protobuf@2.14.1':
     resolution: {integrity: sha512-agRJn3+EJDUe8AvxTx/LnHA/GErvLE62pSaSk7+MwFOtOv8eWBu/qCq2qoZjBjVZ3C2aiFJCveuSs17KMkYGOw==}
@@ -1758,14 +1758,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@interledger/hsm-atalla-issuer@0.1.2':
-    resolution: {integrity: sha512-v1qJYtlMPNEKIw5+2PSY4OYYKY1yT3fWV37VdGfgckzdb6Cly7Ipf6Q8vyv1+mavzy5FebE37b9V0T2rvSGhhQ==}
+  '@interledger/hsm-atalla-issuer@0.2.0':
+    resolution: {integrity: sha512-I/cLOycke9epfGSFs/rj71GaER2lnTJhASowcC+u4Vw7Qm4iL6EgH2sfi2fZq/yPEZ9gI1UBnpL3QWrVSnqnMg==}
 
-  '@interledger/hsm-atalla-merchant@0.1.2':
-    resolution: {integrity: sha512-uHPXaUQgi+GQ75hsf6jN1vbjDOuhTdNmmcdIXFgQMsJcvDLedDVyWBNpGHEGCSsxeHFZQSpqoOZmK2xz2U4G0g==}
+  '@interledger/hsm-atalla-merchant@0.2.0':
+    resolution: {integrity: sha512-ILobtYww36SXIbABqx2PIncbhWmZ5LxlkQcXoNFRTtrnbHK5raLv5nMEGbHvrNoesj0Whgd/53PCfK2ySQe7mA==}
 
-  '@interledger/hsm-atalla-transport@0.1.2':
-    resolution: {integrity: sha512-1MIlRGwPIv5jWw7INqKhDKJI+2i2uTsyzD9lmTARHRGXqKrVFXhCSU1lacnpzThxnxLwBm8UfFAo9U70ntPtBg==}
+  '@interledger/hsm-atalla-transport@0.2.0':
+    resolution: {integrity: sha512-3avkxzP2bynzBxWq40Oh5M5Eet/aSOYHhIYQDvwY66lnVbgIilaaM7xRGG5Wga3CKXTF+yrhBO6mJT4UZM/iAw==}
 
   '@interledger/http-signature-utils@2.0.3':
     resolution: {integrity: sha512-/vn6+FxZ3g1A5ZC3vOVivjFns5A6F4lhEmdAGg3W9mD2uADXI575rIBcMdqI3wTOJo7qOXRutPXOG/jXONFs/Q==}
@@ -7653,11 +7653,11 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@buf/interledger_hsm-adapter.bufbuild_es@2.12.1-20260817095155-4a952f42ad9f.1(@bufbuild/protobuf@2.14.1)':
+  '@buf/interledger_hsm-adapter.bufbuild_es@2.14.1-20260908132548-6de218c8c2e5.3(@bufbuild/protobuf@2.14.1)':
     dependencies:
       '@bufbuild/protobuf': 2.14.1
 
-  '@buf/interledger_hsm-adapter.bufbuild_es@2.14.0-20260824111522-a5e5aaef6263.1(@bufbuild/protobuf@2.14.1)':
+  '@buf/interledger_hsm-adapter.bufbuild_es@2.14.1-20261001101728-41b7848df712.3(@bufbuild/protobuf@2.14.1)':
     dependencies:
       '@bufbuild/protobuf': 2.14.1
 
@@ -8617,24 +8617,24 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@interledger/hsm-atalla-issuer@0.1.2':
+  '@interledger/hsm-atalla-issuer@0.2.0':
     dependencies:
-      '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.0-20260824111522-a5e5aaef6263.1(@bufbuild/protobuf@2.14.1)
+      '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.1-20261001101728-41b7848df712.3(@bufbuild/protobuf@2.14.1)
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.14.1)
       '@connectrpc/connect-node': 2.2.0(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.14.1))
-      '@interledger/hsm-atalla-transport': 0.1.2
+      '@interledger/hsm-atalla-transport': 0.2.0
 
-  '@interledger/hsm-atalla-merchant@0.1.2':
+  '@interledger/hsm-atalla-merchant@0.2.0':
     dependencies:
-      '@buf/interledger_hsm-adapter.bufbuild_es': 2.12.1-20260817095155-4a952f42ad9f.1(@bufbuild/protobuf@2.14.1)
+      '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.1-20260908132548-6de218c8c2e5.3(@bufbuild/protobuf@2.14.1)
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.14.1)
       '@connectrpc/connect-node': 2.2.0(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.14.1))
-      '@interledger/hsm-atalla-transport': 0.1.2
+      '@interledger/hsm-atalla-transport': 0.2.0
       uint8arrays: 6.1.1
 
-  '@interledger/hsm-atalla-transport@0.1.2':
+  '@interledger/hsm-atalla-transport@0.2.0':
     dependencies:
       generic-pool: 3.9.0
 
