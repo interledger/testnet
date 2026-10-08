@@ -1,0 +1,5 @@
+{{- define "testnet-wallet.otelCollector.service" -}}
+{{- end }}
+{{- if .Values.otelCollector.enabled }}
+{{- include "common.svc" (list . .Values.otelCollector.service .Values.otelCollector "testnet-wallet.otelCollector.service") }}
+{{- end }}

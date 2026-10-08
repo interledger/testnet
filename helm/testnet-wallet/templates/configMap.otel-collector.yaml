@@ -1,0 +1,10 @@
+{{- if .Values.otelCollector.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "testnet-wallet.otelCollectorName" . }}
+  {{- include "common.metadata" (list . .Values.otelCollector) | nindent 2 }}
+data:
+  config.yaml: |
+    {{- include "testnet-wallet.otelCollectorConfig" . | nindent 4 }}
+{{- end }}

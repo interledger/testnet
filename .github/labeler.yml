@@ -1,5 +1,9 @@
-'package: wallet/backend': packages/wallet/backend/**/*
-'package: wallet/frontend': packages/wallet/frontend/**/*
+'package: wallet/backend':
+  - packages/wallet/backend/**/*
+  - packages/shared/telemetry/**/*
+'package: wallet/frontend':
+  - packages/wallet/frontend/**/*
+  - packages/shared/telemetry/**/*
 'package: boutique/backend': packages/boutique/backend/**/*
 'package: boutique/frontend': packages/boutique/frontend/**/*
 

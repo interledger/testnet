@@ -23,6 +23,7 @@ HOSTS=(
   "api.boutique.test"
   "rafiki-card-service.testnet.test"
   "mockgatehub.testnet.test"
+  "grafana.testnet.test"
   # Rhyza stack -- see local/rhyza.yaml
   "ilp.testnet.test"
   "connector.testnet.test"

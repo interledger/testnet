@@ -1,0 +1,28 @@
+{{- /*
+Rendered only where the Prometheus Operator CRDs exist, so the chart still
+installs on a cluster without them. Argo CD and `helm install` both pass the
+cluster's API versions; `helm template` needs `--api-versions
+monitoring.coreos.com/v1/ServiceMonitor`.
+*/}}
+{{- if and .Values.otelCollector.enabled .Values.otelCollector.serviceMonitor.enabled (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "testnet-wallet.otelCollectorName" . }}
+  {{- include "common.metadata" (list . .Values.otelCollector) | nindent 2 }}
+spec:
+  # Selects the Service, which common.svc labels after otelCollector.service.
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" (list . .Values.otelCollector.service) | nindent 6 }}
+  endpoints:
+    # The backend's and the frontend's metrics, converted from OTLP. Resource
+    # attributes arrive as labels, so each series names the pod it came from.
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.otelCollector.serviceMonitor.interval }}
+    # The collector's own metrics, where a dropped batch shows up.
+    - port: telemetry
+      path: /metrics
+      interval: {{ .Values.otelCollector.serviceMonitor.interval }}
+{{- end }}

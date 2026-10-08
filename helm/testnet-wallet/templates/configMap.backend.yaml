@@ -7,12 +7,22 @@ entry would emit `ATALLA_HOST: ""` in every environment that leaves it unset and
 stop the backend from starting. Here the whole block appears only when
 config.backend.hsm.enabled is true.
 
+The override also adds the TELEMETRY_* and SERVICE_* keys when
+config.telemetry.enabled is true. See testnet-wallet.telemetryData.
+
 common.utils.merge merges maps deeply, so these keys join the contentMap's
 `data` rather than replacing it.
 */}}
 {{- define "testnet-wallet.backend.ConfigMap" -}}
 {{- $top := first . }}
 {{- $hsm := $top.Values.config.backend.hsm }}
+{{- $telemetry := include "testnet-wallet.telemetryData" (list $top "backend") }}
+{{- if or $hsm.enabled $telemetry }}
+data:
+{{- end }}
+{{- with $telemetry }}
+  {{- . | nindent 2 }}
+{{- end }}
 {{- if $hsm.enabled }}
 {{- if not $hsm.atalla.host }}
 {{- fail "config.backend.hsm.atalla.host is required when config.backend.hsm.enabled is true" }}
@@ -20,7 +30,6 @@ common.utils.merge merges maps deeply, so these keys join the contentMap's
 {{- if not $hsm.atalla.port }}
 {{- fail "config.backend.hsm.atalla.port is required when config.backend.hsm.enabled is true" }}
 {{- end }}
-data:
   HSM_ENABLED: "true"
   HSM_SERVER_ROLE: {{ $hsm.serverRole | quote }}
   {{- /* ISSUER_GRPC_HOST and MERCHANT_GRPC_HOST are omitted: the backend falls

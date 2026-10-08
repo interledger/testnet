@@ -1,0 +1,13 @@
+suite: testnet-wallet otel-collector - serviceMonitor without the CRDs
+templates:
+  - serviceMonitor.otel-collector.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+tests:
+  # The chart must still install on a cluster without the Prometheus Operator.
+  - it: 'no ServiceMonitor on a cluster without the Prometheus Operator CRDs'
+    asserts:
+      - hasDocuments:
+          count: 0

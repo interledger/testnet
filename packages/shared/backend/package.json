@@ -25,7 +25,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@prometheus-io/client": "^0.16.1",
     "awilix": "^12.0.5",
     "axios": "^1.12.2",
     "express": "^4.21.2",

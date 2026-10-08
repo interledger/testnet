@@ -156,6 +156,22 @@ Upon executing the above commands the following will be available:
 - [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
+- [https://grafana.testnet.test](https://grafana.testnet.test) (or [http://localhost:3300](http://localhost:3300)) - Opt-in, see below. Grafana, with the wallet's metrics from Prometheus and its traces from Tempo. Open the **Testnet / Testnet Wallet** dashboard, or **Explore → Tempo** for traces. Prometheus itself is at [http://localhost:9090](http://localhost:9090).
+
+#### Traces and metrics
+
+The wallet backend and the frontend server send OpenTelemetry traces and metrics to a collector on `localhost:4317`. The collector exposes the metrics to Prometheus and forwards the traces to Tempo — the same path they take on the cluster. `local/observability.yaml` defines the four containers, and their configs are in `local/config`. Nothing is kept across `pnpm local:down`.
+
+The stack is opt-in, behind the compose profile `observability`, so `pnpm dev` does not start it and the apps send nothing.
+
+| Command                         | Purpose                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `pnpm dev:observability`        | `pnpm dev`, plus the observability stack, with `TELEMETRY_ENABLED=true` |
+| `pnpm dev:rhyza:observability`  | The same on the Rhyza stack                                             |
+| `pnpm local:up:observability`   | Start only the observability containers, next to a running stack        |
+| `pnpm local:down:observability` | Stop and remove them                                                    |
+
+To run the apps against a stack you started yourself, set `TELEMETRY_ENABLED=true` in the environment. If you set up the environment before Grafana was added, run `pnpm local:hosts` once for `grafana.testnet.test`.
 
 ### Local Playground on Rhyza
 
