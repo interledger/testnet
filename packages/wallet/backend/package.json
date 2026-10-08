@@ -11,9 +11,9 @@
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
     "@interledger/tlv-kit": "^1.1.0",
-    "@interledger/hsm-atalla-issuer": "^0.1.2",
-    "@interledger/hsm-atalla-merchant": "^0.1.2",
-    "@interledger/hsm-atalla-transport": "^0.1.2",
+    "@interledger/hsm-atalla-issuer": "^0.2.0",
+    "@interledger/hsm-atalla-merchant": "^0.2.0",
+    "@interledger/hsm-atalla-transport": "^0.2.0",
     "@prometheus-io/client": "^0.16.1",
     "@sendgrid/mail": "^8.1.6",
     "@shared/backend": "workspace:*",
