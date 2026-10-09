@@ -138,3 +138,56 @@ describe('env — Atalla TLS paths', () => {
     expect(errorsFor(overrides, 'ATALLA_CLIENT_KEY_PATH')).toHaveLength(0)
   })
 })
+
+describe('env — telemetry', () => {
+  const parse = (overrides: Record<string, string>) =>
+    envSchema.safeParse({ ...BASE, ...overrides })
+
+  const enabled = {
+    TELEMETRY_ENABLED: 'true',
+    TELEMETRY_ENDPOINT: 'testnet-wallet-otel-collector:4317',
+    TELEMETRY_INSECURE: 'true'
+  }
+
+  it('is disabled by default', (): void => {
+    const result = parse({})
+    expect(result.success).toBe(true)
+    expect(result.data).toMatchObject({
+      TELEMETRY_ENABLED: false,
+      TELEMETRY_ENDPOINT: '',
+      TELEMETRY_METRICS_INTERVAL: '15s',
+      TELEMETRY_TRACES_SAMPLE_RATIO: 1
+    })
+  })
+
+  it('accepts an enabled block with an endpoint', (): void => {
+    expect(parse(enabled).success).toBe(true)
+  })
+
+  it('rejects an enabled block without an endpoint', (): void => {
+    const result = parse({ TELEMETRY_ENABLED: 'true' })
+    expect(result.success).toBe(false)
+    expect(result.error?.flatten().fieldErrors.TELEMETRY_ENDPOINT).toEqual([
+      'telemetry is enabled, but TELEMETRY_ENDPOINT is not set'
+    ])
+  })
+
+  it('rejects an endpoint that is a URL', (): void => {
+    const result = parse({
+      ...enabled,
+      TELEMETRY_ENDPOINT: 'http://testnet-wallet-otel-collector:4317'
+    })
+    expect(result.success).toBe(false)
+    expect(result.error?.flatten().fieldErrors.TELEMETRY_ENDPOINT).toEqual([
+      expect.stringContaining('not a URL')
+    ])
+  })
+
+  it('checks telemetry when the HSM is disabled', (): void => {
+    const result = parse({ ...enabled, TELEMETRY_TRACES_SAMPLE_RATIO: '2' })
+    expect(result.success).toBe(false)
+    expect(
+      result.error?.flatten().fieldErrors.TELEMETRY_TRACES_SAMPLE_RATIO
+    ).toHaveLength(1)
+  })
+})

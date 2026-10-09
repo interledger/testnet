@@ -156,6 +156,7 @@ Upon executing the above commands the following will be available:
 - [https://mockgatehub.testnet.test](https://mockgatehub.testnet.test) - Mock GateHub service used for local funding and related sandbox flows.
 - [https://rafiki-frontend.testnet.test](https://rafiki-frontend.testnet.test) - Rafiki frontend UI.
 - [https://rafiki-backend.testnet.test](https://rafiki-backend.testnet.test) - Rafiki backend service.
+- [https://grafana.testnet.test](https://grafana.testnet.test) - Grafana with the wallet's metrics and traces. Opt-in: `pnpm dev:observability`. See `pnpm local:help`.
 
 ### Local Playground on Rhyza
 
