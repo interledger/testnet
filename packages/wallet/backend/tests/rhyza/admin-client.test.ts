@@ -1,4 +1,4 @@
-import { Conflict } from '@shared/backend'
+import { Conflict, NotFound } from '@shared/backend'
 import { HttpClient } from '@/rhyza/http-client'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
 import { lastRequest, mockAdapter, mockLogger, respond } from './helpers'
@@ -96,6 +96,57 @@ describe('RhyzaAdminClient', () => {
 
       await expect(client.createWalletAddress(args)).rejects.toBeInstanceOf(
         Conflict
+      )
+    })
+  })
+
+  describe('createPaymentIntent', () => {
+    const args = {
+      walletAddress: 'https://ilp.test/alice',
+      incomingAmount: 1000,
+      expiresAt: new Date().toISOString(),
+      metadata: 'Free Money!'
+    }
+
+    it('POSTs the payment intent details to /payment-intents', async () => {
+      adapter.mockImplementationOnce(
+        respond(201, {
+          id: 'pi-1',
+          openPaymentsUrl: 'https://ilp.test/pi-1'
+        })
+      )
+
+      await client.createPaymentIntent(args)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/payment-intents')
+      expect(request.body).toEqual(args)
+    })
+
+    it('returns the payment intent id and open payments URL on 201', async () => {
+      adapter.mockImplementationOnce(
+        respond(201, {
+          id: 'pi-1',
+          openPaymentsUrl: 'https://ilp.test/pi-1'
+        })
+      )
+
+      await expect(client.createPaymentIntent(args)).resolves.toEqual({
+        id: 'pi-1',
+        openPaymentsUrl: 'https://ilp.test/pi-1'
+      })
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error: "Wallet address 'https://ilp.test/alice' not found"
+        })
+      )
+
+      await expect(client.createPaymentIntent(args)).rejects.toBeInstanceOf(
+        NotFound
       )
     })
   })

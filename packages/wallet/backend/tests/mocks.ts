@@ -342,7 +342,7 @@ export function mockIncomingPaymentCreatedEvent(
     type: wh.type || EventType.IncomingPaymentCreated,
     data: wh.data || {
       id: 'mockedId',
-      walletAddressId: faker.string.uuid(),
+      walletAddress: faker.internet.url(),
       createdAt: faker.string.uuid(),
       expiresAt: faker.string.uuid(),
       receivedAmount: {
@@ -363,10 +363,11 @@ export function mockIncomingPaymentRequest(
 ): IncomingPaymentCreated {
   return {
     body: {
-      walletAddressId: faker.string.uuid(),
-      amount: Number(faker.finance.amount({ dec: 0 })),
-      description: faker.lorem.paragraph(2),
-      expiration: {
+      id: faker.string.uuid(),
+      walletAddress: faker.internet.url(),
+      incomingAmount: Number(faker.finance.amount({ dec: 0 })),
+      metadata: faker.lorem.paragraph(2),
+      expiresAt: {
         value: 1,
         unit: 'h'
       },
