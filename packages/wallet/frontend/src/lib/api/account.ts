@@ -23,7 +23,6 @@ export type Account = {
   name: string
   assetCode: string
   assetScale: number
-  assetId: string
   balance: string
   isHidden: boolean
   walletAddresses: WalletAddressResponse[]
@@ -104,7 +103,7 @@ const createAccountService = (): AccountService => ({
         .post('accounts', {
           json: {
             name: args.name,
-            assetId: args.asset.value
+            assetCode: args.asset.value
           }
         })
         .json<CreateAccountResult>()

@@ -13,7 +13,6 @@ import { Transaction } from '@/transaction/model'
 import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
 import { loginUser } from '@/tests/utils'
-import { mockedListAssets } from '@/tests/mocks'
 import { BadRequest } from '@shared/backend'
 import { UniqueViolationError } from 'objection'
 
@@ -204,7 +203,6 @@ describe('Stripe Service', (): void => {
       name: faker.string.alpha(10),
       userId: userId,
       assetCode: 'USD',
-      assetId: mockedListAssets[0].id,
       assetScale: 2,
       gateHubWalletId: 'gatehub-wallet-123'
     })

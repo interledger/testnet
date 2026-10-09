@@ -1,13 +1,14 @@
 import { AccountService } from '@/account/service'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { WalletAddress } from '@/walletAddress/model'
-import { Asset, Quote } from '@/rafiki/backend/generated/graphql'
+import { Quote } from '@/rafiki/backend/generated/graphql'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, transformBalance } from '@/utils/helpers'
 import { WalletAddressService } from '@/walletAddress/service'
 import { QuoteWithFees } from './controller'
 import { RatesService } from '@/rates/service'
-import { BadRequest, NotFound } from '@shared/backend'
+import { BadRequest } from '@shared/backend'
+import { AssetService } from '@/asset/service'
 
 interface IQuoteService {
   create: (params: CreateQuoteParams) => Promise<Quote>
@@ -35,7 +36,8 @@ export class QuoteService implements IQuoteService {
     private rafikiClient: RafikiClient,
     private incomingPaymentService: IncomingPaymentService,
     private ratesService: RatesService,
-    private walletAddressService: WalletAddressService
+    private walletAddressService: WalletAddressService,
+    private assetService: AssetService
   ) {}
 
   async create(params: CreateQuoteParams): Promise<QuoteWithFees> {
@@ -47,16 +49,12 @@ export class QuoteService implements IQuoteService {
       throw new BadRequest('Invalid wallet address')
     }
 
-    const { assetId, assetCode } = await this.accountService.findAccountById(
+    const { assetCode } = await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       params.userId
     )
 
-    let asset: Pick<Asset, 'scale' | 'code'> | undefined =
-      await this.rafikiClient.getAssetById(assetId)
-    if (!asset) {
-      throw new NotFound()
-    }
+    let asset = await this.assetService.getAssetByCode(assetCode)
 
     const account = await this.accountService.getAccountById(
       params.userId,

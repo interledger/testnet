@@ -49,9 +49,9 @@ describe('Socket Service', () => {
     accountService = await bindings.resolve('accountService')
 
     const accountServiceDepsMocked = {
-      rafikiClient: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id)
+      assetService: {
+        getAssetByCode: (code: string) =>
+          mockedListAssets.find((asset) => asset.code === code)
       },
       gateHubClient: mockGateHubClient
     }
