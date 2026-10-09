@@ -363,7 +363,6 @@ export function mockIncomingPaymentRequest(
 ): IncomingPaymentCreated {
   return {
     body: {
-      id: faker.string.uuid(),
       walletAddress: faker.internet.url(),
       incomingAmount: Number(faker.finance.amount({ dec: 0 })),
       metadata: faker.lorem.paragraph(2),
@@ -411,7 +410,10 @@ export function mockIncomingPaymentGetPaymentDetailsByUrlRequest(
 }
 
 export const mockIncomingPaymentService = {
-  create: () => 'https://www.some-domain.com',
+  create: () => ({
+    id: faker.string.uuid(),
+    openPaymentsUrl: 'https://www.some-domain.com'
+  }),
   getPaymentDetailsByUrl: () => ({
     value: faker.number.float(),
     description: faker.lorem.paragraph(2),

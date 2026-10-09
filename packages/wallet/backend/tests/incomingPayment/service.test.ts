@@ -34,7 +34,7 @@ describe('Incoming Payment Service', () => {
     })
 
     const walletAddress = await WalletAddress.query().insert({
-      url: faker.string.alpha(10),
+      url: faker.internet.url(),
       publicName: faker.string.alpha(10),
       accountId: account.id,
       id: faker.string.uuid()
@@ -122,22 +122,57 @@ describe('Incoming Payment Service', () => {
   })
 
   describe('Create', () => {
-    it('should create an IncomePayment successfully', async () => {
-      const createdId = faker.string.uuid()
-      await mockIncomePaymentDeps(createdId)
+    it('should create an incoming payment intent successfully', async () => {
+      const created = {
+        id: faker.string.uuid(),
+        openPaymentsUrl: faker.internet.url()
+      }
+      const createPaymentIntent = jest.fn().mockResolvedValue(created)
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        createPaymentIntent
+      })
+
       const { walletAddress } = await prepareIncomePaymentDependencies()
       const result = await incopmPaymentService.create(
         userId,
-        walletAddress.id,
-        100
+        walletAddress.url,
+        100,
+        undefined,
+        'note'
       )
-      expect(result).toEqual(createdId)
+
+      expect(result).toEqual(created)
+      expect(createPaymentIntent).toHaveBeenCalledWith({
+        walletAddress: walletAddress.url,
+        incomingAmount: 100,
+        expiresAt: undefined,
+        metadata: 'note'
+      })
     })
 
-    it('should return NotFound Err', async () => {
+    it('should return NotFound if the wallet address does not exist', async () => {
+      const createPaymentIntent = jest.fn()
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        createPaymentIntent
+      })
+
       await expect(
-        incopmPaymentService.create(userId, faker.string.uuid(), 100)
+        incopmPaymentService.create(userId, faker.internet.url(), 100)
       ).rejects.toThrowError(NotFound)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
+    })
+
+    it('should return NotFound if the wallet address belongs to another user', async () => {
+      const createPaymentIntent = jest.fn()
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        createPaymentIntent
+      })
+      const { walletAddress } = await prepareIncomePaymentDependencies()
+
+      await expect(
+        incopmPaymentService.create(faker.string.uuid(), walletAddress.url, 100)
+      ).rejects.toThrowError(NotFound)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
     })
   })
 
