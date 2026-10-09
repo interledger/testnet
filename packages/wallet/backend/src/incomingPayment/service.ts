@@ -1,14 +1,18 @@
+import { AccountService } from '@/account/service'
+import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformAmount } from '@/utils/helpers'
 import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add, Duration } from 'date-fns'
 import axios from 'axios'
 import { Env } from '@/config/env'
+import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
 interface IIncomingPaymentService {
   create: (
+    userId: string,
     walletAddress: string,
     incomingAmount: number,
     expiresAt?: Expiration,
@@ -45,17 +49,31 @@ export interface IExternalPayment {
 
 export class IncomingPaymentService implements IIncomingPaymentService {
   constructor(
+    private accountService: AccountService,
     private rafikiClient: RafikiClient,
     private rhyzaAdminClient: RhyzaAdminClient,
     private env: Env
   ) {}
 
   async create(
+    userId: string,
     walletAddress: string,
     incomingAmount: number,
     expiresAt?: Expiration,
     metadata?: string
   ): Promise<{ id: string; openPaymentsUrl: string }> {
+    const existingWalletAddress = await WalletAddress.query().findOne({
+      url: walletAddress
+    })
+    if (!existingWalletAddress || !existingWalletAddress.active) {
+      throw new NotFound()
+    }
+
+    await this.accountService.findAccountById(
+      existingWalletAddress.accountId,
+      userId
+    )
+
     let expiryDate: Date | undefined
 
     if (expiresAt) {
