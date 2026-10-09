@@ -61,10 +61,10 @@ describe('Incoming Payment Controller', () => {
       expect(createSpy).toHaveBeenCalledTimes(1)
       expect(createSpy).toHaveBeenCalledWith(
         req.session.user.id,
-        req.body.walletAddressId,
-        req.body.amount,
-        req.body.description,
-        req.body.expiration
+        req.body.walletAddress,
+        req.body.incomingAmount,
+        req.body.expiresAt,
+        req.body.metadata
       )
     })
 
@@ -83,7 +83,7 @@ describe('Incoming Payment Controller', () => {
 
     it('should return status 400 if the incomingPayment body is not valid', async () => {
       req.body = mockIncomingPaymentRequest().body
-      delete req.body.walletAddressId
+      delete req.body.walletAddress
 
       await incomingPaymentController.create(req, res, (err) => {
         next()
@@ -96,7 +96,7 @@ describe('Incoming Payment Controller', () => {
     it('should not call method create() in incomingPaymentService if the incomingPayment body is not valid', async () => {
       const createSpy = jest.spyOn(mockIncomingPaymentService, 'create')
       req.body = mockIncomingPaymentRequest().body
-      delete req.body.walletAddressId
+      delete req.body.walletAddress
 
       await incomingPaymentController.create(req, res, (err) => {
         next()

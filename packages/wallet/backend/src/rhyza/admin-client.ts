@@ -17,6 +17,13 @@ interface WalletAddressCreateResponse {
   address: string
 }
 
+export interface CreatePaymentIntentArgs {
+  walletAddress: string
+  incomingAmount: number
+  expiresAt?: string
+  metadata?: string
+}
+
 export class RhyzaAdminClient {
   constructor(private http: HttpClient) {}
 
@@ -37,5 +44,15 @@ export class RhyzaAdminClient {
       args
     )
     return { id: response.id, address: response.address }
+  }
+
+  async createPaymentIntent(
+    args: CreatePaymentIntentArgs
+  ): Promise<{ id: string; openPaymentsUrl: string }> {
+    const response = await this.http.post<{
+      id: string
+      openPaymentsUrl: string
+    }>('/payment-intents', args)
+    return { id: response.id, openPaymentsUrl: response.openPaymentsUrl }
   }
 }

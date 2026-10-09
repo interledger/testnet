@@ -8,14 +8,16 @@ import axios from 'axios'
 import { Env } from '@/config/env'
 import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
 interface IIncomingPaymentService {
   create: (
     userId: string,
-    walletAddressId: string,
-    amount: number,
-    description: string
-  ) => Promise<string>
+    walletAddress: string,
+    incomingAmount: number,
+    expiresAt?: Expiration,
+    metadata?: string
+  ) => Promise<{ id: string; openPaymentsUrl: string }>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetailsResponse>
 }
 
@@ -49,50 +51,46 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
+    private rhyzaAdminClient: RhyzaAdminClient,
     private env: Env
   ) {}
 
   async create(
     userId: string,
-    walletAddressId: string,
-    amount: number,
-    description?: string,
-    expiration?: Expiration
-  ): Promise<string> {
-    const existingWalletAddress =
-      await WalletAddress.query().findById(walletAddressId)
+    walletAddress: string,
+    incomingAmount: number,
+    expiresAt?: Expiration,
+    metadata?: string
+  ): Promise<{ id: string; openPaymentsUrl: string }> {
+    const existingWalletAddress = await WalletAddress.query().findOne({
+      url: walletAddress
+    })
     if (!existingWalletAddress || !existingWalletAddress.active) {
       throw new NotFound()
     }
 
-    const { assetId } = await this.accountService.findAccountById(
+    await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       userId
     )
-    const asset = await this.rafikiClient.getAssetById(assetId)
-    if (!asset) {
-      throw new NotFound()
-    }
 
     let expiryDate: Date | undefined
 
-    if (expiration) {
+    if (expiresAt) {
       expiryDate = add(
         new Date(),
-        this.generateExpiryObject(expiration.value, expiration.unit)
+        this.generateExpiryObject(expiresAt.value, expiresAt.unit)
       )
     }
 
-    const response = await this.rafikiClient.createReceiver({
-      walletAddressUrl: existingWalletAddress.url,
-      description,
-      asset,
-      amount: BigInt(amount * 10 ** asset.scale),
-      expiresAt: expiryDate,
-      vopNonce: ''
+    const response = await this.rhyzaAdminClient.createPaymentIntent({
+      walletAddress,
+      incomingAmount,
+      expiresAt: expiryDate?.toISOString(),
+      metadata
     })
 
-    return response.id
+    return response
   }
 
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetailsResponse> {

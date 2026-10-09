@@ -2,15 +2,15 @@ import { z } from 'zod'
 
 export const incomingPaymentSchema = z.object({
   body: z.object({
-    walletAddressId: z.string().uuid(),
-    amount: z.number().positive(),
-    description: z.string().optional(),
-    expiration: z
+    walletAddress: z.string(),
+    incomingAmount: z.number().positive(),
+    expiresAt: z
       .object({
         value: z.coerce.number().positive().int(),
         unit: z.enum(['s', 'm', 'h', 'd'])
       })
-      .optional()
+      .optional(),
+    metadata: z.string().optional()
   })
 })
 
