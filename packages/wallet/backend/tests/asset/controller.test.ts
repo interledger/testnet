@@ -85,4 +85,20 @@ describe('Asset Controller', (): void => {
       expect(jsonData?.result?.length).toEqual(mockedListAssets.length)
     })
   })
+
+  describe('listAll', (): void => {
+    it('should return the list of assets', async (): Promise<void> => {
+      Reflect.set(assetController, 'rhyzaAdminClient', {
+        listAssets: () => mockedListAssets
+      })
+
+      await assetController.listAll(req, res, next)
+
+      expect(res.statusCode).toBe(200)
+      expect(res._getJSONData()).toMatchObject({
+        message: 'SUCCESS',
+        result: mockedListAssets
+      })
+    })
+  })
 })

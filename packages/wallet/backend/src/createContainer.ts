@@ -70,6 +70,7 @@ import { TerminalService } from '@/terminal/service'
 import { AdminNotificationController } from '@/admin-notification/controller'
 import { AdminNotificationService } from '@/admin-notification/service'
 import { HsmAtallaService } from '@/hsm/atalla/service'
+import { AssetService } from './asset/service'
 
 export interface Cradle {
   env: Env
@@ -102,6 +103,7 @@ export interface Cradle {
   userController: UserController
   authController: AuthController
   assetController: AssetController
+  assetService: AssetService
   accountController: AccountController
   transactionController: TransactionController
   incomingPaymentController: IncomingPaymentController
@@ -187,6 +189,7 @@ export async function createContainer(
     userController: asClass(UserController).singleton(),
     authController: asClass(AuthController).singleton(),
     assetController: asClass(AssetController).singleton(),
+    assetService: asClass(AssetService).singleton(),
     accountController: asClass(AccountController).singleton(),
     transactionController: asClass(TransactionController).singleton(),
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),

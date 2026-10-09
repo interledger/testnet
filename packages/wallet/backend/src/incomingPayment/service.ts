@@ -8,6 +8,7 @@ import axios from 'axios'
 import { Env } from '@/config/env'
 import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
+import { AssetService } from '@/asset/service'
 
 interface IIncomingPaymentService {
   create: (
@@ -49,6 +50,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
+    private assetService: AssetService,
     private env: Env
   ) {}
 
@@ -65,14 +67,11 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
-    const { assetId } = await this.accountService.findAccountById(
+    const { assetCode } = await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       userId
     )
-    const asset = await this.rafikiClient.getAssetById(assetId)
-    if (!asset) {
-      throw new NotFound()
-    }
+    const asset = await this.assetService.getAssetByCode(assetCode)
 
     let expiryDate: Date | undefined
 

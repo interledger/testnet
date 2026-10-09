@@ -1,5 +1,6 @@
 import { NextFunction, Request } from 'express'
 import { RafikiClient } from '@/rafiki/rafiki-client'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { AssetResponse } from '@wallet/shared'
 
@@ -9,7 +10,10 @@ interface IAssetController {
 }
 
 export class AssetController implements IAssetController {
-  constructor(private rafikiClient: RafikiClient) {}
+  constructor(
+    private rafikiClient: RafikiClient,
+    private rhyzaAdminClient: RhyzaAdminClient
+  ) {}
 
   list = async (
     _req: Request,
@@ -30,7 +34,7 @@ export class AssetController implements IAssetController {
     next: NextFunction
   ) => {
     try {
-      const assets = await this.rafikiClient.listRhyzaAssets()
+      const assets = await this.rhyzaAdminClient.listAssets()
       res.json(toSuccessResponse(assets))
     } catch (e) {
       next(e)

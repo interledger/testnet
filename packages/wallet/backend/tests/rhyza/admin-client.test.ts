@@ -54,6 +54,15 @@ describe('RhyzaAdminClient', () => {
     })
   })
 
+  describe('listAssets', () => {
+    it('return Asset list', async () => {
+      await expect(client.listAssets()).resolves.toEqual([
+        { code: 'USD', scale: 2 },
+        { code: 'EUR', scale: 2 }
+      ])
+    })
+  })
+
   describe('createWalletAddress', () => {
     const args = {
       address: 'https://ilp.test/alice',
