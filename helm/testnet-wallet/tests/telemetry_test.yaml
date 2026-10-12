@@ -1,0 +1,312 @@
+# config.telemetry drives both components. The key names are a contract with
+# packages/shared/telemetry/src/config.ts.
+suite: testnet-wallet - OpenTelemetry wiring
+templates:
+  - configMap.backend.yaml
+  - configMap.frontend.yaml
+  - deployment.backend.yaml
+  - deployment.frontend.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+chart:
+  appVersion: v1.4.0
+tests:
+  - it: 'telemetry is off by default and writes no keys'
+    template: configMap.backend.yaml
+    asserts:
+      - notExists:
+          path: data.TELEMETRY_ENABLED
+      - notExists:
+          path: data.TELEMETRY_ENDPOINT
+      - notExists:
+          path: data.SERVICE_NAME
+      # The contentMap keys are still there.
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: 'telemetry is off by default in the frontend too'
+    template: configMap.frontend.yaml
+    asserts:
+      - notExists:
+          path: data.TELEMETRY_ENABLED
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: 'enabling telemetry points the backend at this release collector'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENABLED
+          value: 'true'
+      - equal:
+          path: data.TELEMETRY_ENDPOINT
+          value: test-testnet-wallet-otel-collector:4317
+      - equal:
+          path: data.TELEMETRY_INSECURE
+          value: 'true'
+      - equal:
+          path: data.TELEMETRY_TRACES_ENABLED
+          value: 'true'
+      # Numbers must reach the ConfigMap as strings.
+      - equal:
+          path: data.TELEMETRY_TRACES_SAMPLE_RATIO
+          value: '1'
+      - equal:
+          path: data.TELEMETRY_METRICS_ENABLED
+          value: 'true'
+      - equal:
+          path: data.TELEMETRY_METRICS_INTERVAL
+          value: 15s
+      - equal:
+          path: data.SERVICE_NAME
+          value: wallet-backend
+      - equal:
+          path: data.SERVICE_ENV
+          value: production
+      - equal:
+          path: data.SERVICE_VERSION
+          value: v1.4.0
+      # The override must merge with the contentMap, not replace it.
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: 'enabling telemetry points the frontend at the same collector'
+    template: configMap.frontend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENABLED
+          value: 'true'
+      - equal:
+          path: data.TELEMETRY_ENDPOINT
+          value: test-testnet-wallet-otel-collector:4317
+      - equal:
+          path: data.SERVICE_NAME
+          value: wallet-frontend
+      - equal:
+          path: data.SERVICE_VERSION
+          value: v1.4.0
+      - equal:
+          path: data.BACKEND_URL
+          value: https://api.interledger-test.dev
+
+  - it: 'an explicit endpoint wins over this release collector'
+    template: configMap.frontend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+          endpoint: otel-collector.observability:4317
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENDPOINT
+          value: otel-collector.observability:4317
+
+  - it: 'moving the collector otlp-grpc port moves the endpoint'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+      otelCollector:
+        service:
+          ports:
+            - name: otlp-grpc
+              port: 14317
+              targetPort: otlp-grpc
+              protocol: TCP
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENDPOINT
+          value: test-testnet-wallet-otel-collector:14317
+
+  - it: 'the endpoint names the collector Service, which may differ from the Deployment'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+      otelCollector:
+        service:
+          name: collector
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENDPOINT
+          value: test-testnet-wallet-collector:4317
+
+  - it: 'telemetry may be enabled without the collector when an endpoint names one elsewhere'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+          endpoint: otel-collector.observability:4317
+      otelCollector:
+        enabled: false
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENDPOINT
+          value: otel-collector.observability:4317
+
+  - it: 'service.version follows the component image tag'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+      deployments:
+        backend:
+          image:
+            tag: v2.0.0
+    asserts:
+      - equal:
+          path: data.SERVICE_VERSION
+          value: v2.0.0
+
+  - it: 'service.version follows versionOverride'
+    template: configMap.frontend.yaml
+    set:
+      versionOverride: v3.0.0
+      config:
+        telemetry:
+          enabled: true
+    asserts:
+      - equal:
+          path: data.SERVICE_VERSION
+          value: v3.0.0
+
+  - it: 'an explicit serviceVersion wins over the image tag'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+          serviceVersion: v9.9.9
+      deployments:
+        backend:
+          image:
+            tag: v2.0.0
+    asserts:
+      - equal:
+          path: data.SERVICE_VERSION
+          value: v9.9.9
+
+  - it: 'the sampling, interval, names and environment are passed through'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+          insecure: false
+          serviceEnv: cards-playground
+          serviceNames:
+            backend: wallet-b-backend
+          traces:
+            enabled: false
+            sampleRatio: 0.25
+          metrics:
+            interval: 30s
+    asserts:
+      - equal:
+          path: data.TELEMETRY_INSECURE
+          value: 'false'
+      - equal:
+          path: data.TELEMETRY_TRACES_ENABLED
+          value: 'false'
+      - equal:
+          path: data.TELEMETRY_TRACES_SAMPLE_RATIO
+          value: '0.25'
+      - equal:
+          path: data.TELEMETRY_METRICS_INTERVAL
+          value: 30s
+      - equal:
+          path: data.SERVICE_NAME
+          value: wallet-b-backend
+      - equal:
+          path: data.SERVICE_ENV
+          value: cards-playground
+
+  - it: 'telemetry and the HSM adapter block land in the same ConfigMap'
+    template: configMap.backend.yaml
+    set:
+      config:
+        telemetry:
+          enabled: true
+        backend:
+          hsm:
+            enabled: true
+            atalla:
+              host: '10.0.0.1'
+              port: 13506
+    asserts:
+      - equal:
+          path: data.TELEMETRY_ENABLED
+          value: 'true'
+      - equal:
+          path: data.HSM_ENABLED
+          value: 'true'
+      - equal:
+          path: data.ATALLA_HOST
+          value: '10.0.0.1'
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: 'the backend pod carries its identity for the OpenTelemetry resource'
+    template: deployment.backend.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: OTEL_RESOURCE_ATTRIBUTES
+            value: service.instance.id=$(POD_NAME),k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE)
+
+  - it: 'the pod identity survives an environment that empties env'
+    template: deployment.backend.yaml
+    set:
+      deployments:
+        backend:
+          env: []
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 3
+      - equal:
+          path: spec.template.spec.containers[0].env[2].name
+          value: OTEL_RESOURCE_ATTRIBUTES
+
+  - it: 'the frontend pod carries its identity, after the variables it references'
+    template: deployment.frontend.yaml
+    asserts:
+      # Kubernetes expands $(POD_NAME) only from variables defined earlier.
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: BACKEND_INTERNAL_URL
+      - equal:
+          path: spec.template.spec.containers[0].env[1].name
+          value: POD_NAME
+      - equal:
+          path: spec.template.spec.containers[0].env[2].name
+          value: POD_NAMESPACE
+      - equal:
+          path: spec.template.spec.containers[0].env[3].name
+          value: OTEL_RESOURCE_ATTRIBUTES

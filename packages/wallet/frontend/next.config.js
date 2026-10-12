@@ -13,7 +13,9 @@ const nextConfig = {
   poweredByHeader: false,
   // ESLint 9.x removed options (useEslintrc, extensions) that Next.js 14
   // passes internally. Linting is handled separately via `pnpm lint:check`.
-  eslint: { ignoreDuringBuilds: true }
+  eslint: { ignoreDuringBuilds: true },
+  // Loads src/instrumentation.ts, which starts OpenTelemetry on the server.
+  experimental: { instrumentationHook: true }
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

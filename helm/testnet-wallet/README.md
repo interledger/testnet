@@ -134,6 +134,55 @@ merging it, so the environment's values file must also write out, in full:
 `env/cards-playground/wallet/testnet-wallet.yaml` in `testnet-deploy` is the
 worked example.
 
+### OpenTelemetry
+
+The backend and the frontend's Node.js server can push traces and metrics over
+OTLP/gRPC. The chart runs one OpenTelemetry collector per release, built the
+same way as the collector in the merchant and issuer charts. The browser sends
+nothing.
+
+Telemetry is off by default. One block turns it on for both components:
+
+```yaml
+config:
+  telemetry:
+    enabled: true
+    serviceEnv: cards-playground
+```
+
+With `enabled: true` the chart:
+
+- adds the `TELEMETRY_*` and `SERVICE_*` keys to both ConfigMaps. They are not
+  contentMap entries; `templates/_helpers.tpl` renders them. See
+  `packages/shared/telemetry` for each key.
+- points both components at `<release>-otel-collector:4317`, unless
+  `config.telemetry.endpoint` names another collector. The render fails if
+  `otelCollector.enabled` is false and no endpoint is set.
+- sets `SERVICE_VERSION` to the component's image tag.
+
+Each pod gets `POD_NAME`, `POD_NAMESPACE` and `OTEL_RESOURCE_ATTRIBUTES` through
+`extraEnv`, not `env`, so an environment that rewrites `env` keeps them.
+`service.instance.id` keeps the series of two replicas apart.
+
+The collector:
+
+- exposes the metrics on a Prometheus endpoint (`metrics`, port 8889) and its
+  own metrics on `telemetry` (port 8888). A ServiceMonitor scrapes both. The
+  chart renders the ServiceMonitor only where the Prometheus Operator CRDs
+  exist; `helm template` needs `--api-versions
+monitoring.coreos.com/v1/ServiceMonitor` to show it.
+- forwards traces to `otelCollector.traces.endpoint`. Empty drops them. On
+  ilf-1 the Tempo address is `core-tempo.monitoring.svc.cluster.local:4317`,
+  and the namespace needs `network.allowTracingEgress` in its
+  deploy-environment.
+
+`otelCollector.config` replaces the generated collector config wholesale.
+
+The metrics follow the OpenTelemetry semantic conventions. Examples:
+`http_server_request_duration_seconds` (with `http_route` on the backend),
+`http_client_request_duration_seconds`, `db_client_operation_duration_seconds`
+and `nodejs_eventloop_*`.
+
 ## Image Tags
 
 By default both deployments use the chart's `appVersion` as the image tag. To pin a specific tag for one image:

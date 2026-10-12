@@ -23,6 +23,7 @@ HOSTS=(
   "api.boutique.test"
   "rafiki-card-service.testnet.test"
   "mockgatehub.testnet.test"
+  "grafana.testnet.test"
   # Rhyza stack -- see local/rhyza.yaml
   "ilp.testnet.test"
   "connector.testnet.test"
@@ -296,6 +297,15 @@ local:reset:rhyza          Stop stack and remove volumes (ALL volumes, incl. Pos
 local:logs:rhyza           Follow stack logs
 local:rhyza-assets         Seed assets via the Rhyza REST Admin API
 local:reset:rhyza-data     Drop only Rhyza's Kafka + MongoDB state (keeps Postgres)
+
+Metrics and traces (opt-in) -- see local/observability.yaml
+dev:observability          pnpm dev, plus Grafana, Prometheus, Tempo and the collector
+dev:rhyza:observability    The same on the Rhyza stack
+local:up:observability     Start only those containers, next to a running stack
+local:down:observability   Stop and remove them
+                           Grafana: https://grafana.testnet.test (or http://localhost:3300)
+                           The apps send only with TELEMETRY_ENABLED=true; the dev:
+                           commands set it.
 EOF
 }
 
