@@ -192,7 +192,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
               name="walletAddressId"
               control={requestForm.control}
               render={({ field: { value } }) => (
-                <Select<SelectOption>
+                <Select<SelectWalletAddressOption>
                   required
                   label="Wallet address"
                   options={walletAddresses}
@@ -234,10 +234,7 @@ const RequestPage: NextPageWithLayout<RequestProps> = ({ accounts }) => {
                 }
               }}
             />
-            <Input
-              {...requestForm.register('description')}
-              label="Description"
-            />
+            <Input {...requestForm.register('metadata')} label="Description" />
             <div className="flex items-center justify-between">
               <Label htmlFor="expiry">Expiry</Label>
               <div className="flex basis-5/6 justify-end space-x-2">
