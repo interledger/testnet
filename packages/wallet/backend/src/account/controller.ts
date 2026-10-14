@@ -24,13 +24,13 @@ export class AccountController implements IAccountController {
     try {
       const userId = req.session.user.id
       const {
-        body: { name, assetId }
+        body: { name, assetCode }
       } = await validate(accountSchema, req)
 
       const createAccountResult = await this.accountService.createAccount({
         userId,
         name,
-        assetId
+        assetCode
       })
 
       res.status(200).json(toSuccessResponse(createAccountResult))

@@ -17,6 +17,11 @@ interface WalletAddressCreateResponse {
   address: string
 }
 
+// interface ListAssetsResponse {
+//   code: string
+//   scale: number
+// }
+
 export class RhyzaAdminClient {
   constructor(private http: HttpClient) {}
 
@@ -37,5 +42,14 @@ export class RhyzaAdminClient {
       args
     )
     return { id: response.id, address: response.address }
+  }
+
+  async listAssets(): Promise<Asset[]> {
+    // const response = await this.http.get<ListAssetsResponse[]>('/assets')
+    // return response.map(({ code, scale }) => ({ code, scale }))
+    return [
+      { code: 'USD', scale: 2 },
+      { code: 'EUR', scale: 2 }
+    ]
   }
 }

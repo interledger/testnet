@@ -1,6 +1,5 @@
 import { Account } from './model'
 import { User } from '@/user/model'
-import { RafikiClient } from '@/rafiki/rafiki-client'
 import { transformBalance } from '@/utils/helpers'
 import { Amount } from '@/rafiki/service'
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
@@ -9,11 +8,12 @@ import { GateHubClient } from '@/gatehub/client'
 import { v4 as uuid } from 'uuid'
 import { MANUAL_NETWORK, TransactionTypeEnum } from '@/gatehub/consts'
 import { WalletAddress } from '../walletAddress/model'
+import { AssetService } from '@/asset/service'
 
 type CreateAccountArgs = {
   userId: string
   name: string
-  assetId: string
+  assetCode: string
   isDefaultCardsAccount?: boolean
   cardId?: string
 }
@@ -38,7 +38,7 @@ interface IAccountService {
 export class AccountService implements IAccountService {
   constructor(
     private gateHubClient: GateHubClient,
-    private rafikiClient: RafikiClient
+    private assetService: AssetService
   ) {}
 
   public async createAccount(args: CreateAccountArgs): Promise<Account> {
@@ -51,11 +51,7 @@ export class AccountService implements IAccountService {
         `An account with the name '${args.name}' already exists`
       )
     }
-    const asset = await this.rafikiClient.getAssetById(args.assetId)
-
-    if (!asset) {
-      throw new NotFound()
-    }
+    const asset = await this.assetService.getAssetByCode(args.assetCode)
 
     const existingAssetAccount = await Account.query()
       .where('assetCode', asset.code)
@@ -93,7 +89,6 @@ export class AccountService implements IAccountService {
       name: args.name,
       userId: args.userId,
       assetCode: asset.code,
-      assetId: args.assetId,
       assetScale: asset.scale,
       gateHubWalletId,
       cardId: args.cardId
@@ -259,16 +254,18 @@ export class AccountService implements IAccountService {
     isDefaultCardsAccount = false,
     cardId?: string
   ): Promise<Account | undefined> {
-    const asset = (await this.rafikiClient.listAssets({ first: 100 })).find(
-      (asset) => asset.code === 'EUR' && asset.scale === DEFAULT_ASSET_SCALE
+    const asset = await this.assetService.getAssetByCode(
+      'EUR',
+      DEFAULT_ASSET_SCALE
     )
+
     if (!asset) {
       return
     }
     const account = await this.createAccount({
       name,
       userId,
-      assetId: asset.id,
+      assetCode: asset.code,
       isDefaultCardsAccount,
       cardId
     })
