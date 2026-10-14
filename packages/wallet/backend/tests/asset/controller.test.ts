@@ -69,30 +69,11 @@ describe('Asset Controller', (): void => {
 
   describe('list', (): void => {
     it('should return the list of assets', async (): Promise<void> => {
-      const depsMocked = {
-        rafikiClient: {
-          listAssets: () => mockedListAssets
-        }
-      }
-      Reflect.set(assetController, 'rafikiClient', depsMocked.rafikiClient)
-
-      await assetController.list(req, res, next)
-      expect(res.statusCode).toBe(200)
-      const jsonData = res._getJSONData()
-      expect(jsonData).toMatchObject({
-        message: 'SUCCESS'
-      })
-      expect(jsonData?.result?.length).toEqual(mockedListAssets.length)
-    })
-  })
-
-  describe('listAll', (): void => {
-    it('should return the list of assets', async (): Promise<void> => {
       Reflect.set(assetController, 'rhyzaAdminClient', {
         listAssets: () => mockedListAssets
       })
 
-      await assetController.listAll(req, res, next)
+      await assetController.list(req, res, next)
 
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData()).toMatchObject({

@@ -55,7 +55,7 @@ describe('RhyzaAdminClient', () => {
   })
 
   describe('listAssets', () => {
-    it('return Asset list', async () => {
+    it('returns Asset list', async () => {
       await expect(client.listAssets()).resolves.toEqual([
         { code: 'USD', scale: 2 },
         { code: 'EUR', scale: 2 }
