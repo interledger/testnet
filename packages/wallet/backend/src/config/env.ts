@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { validateTlsFile } from '@/hsm/atalla/tls-files'
+import { refineTelemetryEnv, telemetryEnvShape } from '@shared/telemetry'
 
 const booleanString = (defaultValue: 'true' | 'false') =>
   z
@@ -10,7 +11,6 @@ const booleanString = (defaultValue: 'true' | 'false') =>
 export const envSchema = z
   .object({
     PORT: z.coerce.number().default(3000),
-    METRICS_PORT: z.coerce.number().default(9464),
     NODE_ENV: z.string().default('development'),
     DATABASE_URL: z
       .string()
@@ -114,9 +114,13 @@ export const envSchema = z
       .transform((val) => {
         const trimmed = val?.trim()
         return trimmed && trimmed.length > 0 ? trimmed : undefined
-      })
+      }),
+    // TELEMETRY_* and SERVICE_*. See packages/shared/telemetry.
+    ...telemetryEnvShape
   })
   .superRefine((env, ctx) => {
+    refineTelemetryEnv(env, ctx)
+
     if (!env.HSM_ENABLED) return
 
     for (const key of ['ATALLA_HOST', 'ATALLA_PORT'] as const) {

@@ -1,0 +1,19 @@
+{{- define "testnet-wallet.otelCollector.deployment" -}}
+{{- $top := first . }}
+{{- $values := $top.Values.otelCollector }}
+{{- $configHash := include "testnet-wallet.otelCollectorConfig" $top | sha256sum }}
+{{- $builtinVolumes := list
+      (dict "name" "otel-collector-config" "configMap" (dict "name" (include "testnet-wallet.otelCollectorName" $top)))
+}}
+spec:
+  template:
+    metadata:
+      annotations:
+        ilf-otel-collector-config-sha256: {{ $configHash | quote }}
+    spec:
+      volumes:
+        {{- toYaml (concat $builtinVolumes ($values.volumes | default list)) | nindent 8 }}
+{{- end }}
+{{- if .Values.otelCollector.enabled }}
+{{- include "common.deployment" (list . .Values.otelCollector .Values.otelCollector.autoscaling .Values.otelCollector.serviceAccount "testnet-wallet.otelCollector.deployment") }}
+{{- end }}

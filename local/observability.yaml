@@ -1,0 +1,94 @@
+# Traces and metrics for the wallet, the same path they take on ilf-1:
+#
+#   wallet backend, wallet frontend (on the host)
+#     -> otel-collector (OTLP on localhost:4317)
+#          -> metrics on its Prometheus exporter, scraped by prometheus
+#          -> traces to tempo
+#   grafana reads both: https://grafana.testnet.test or http://localhost:3300
+#
+# The collector config mirrors the one the testnet-wallet chart generates, so a
+# metric or label seen here is the one Prometheus on the cluster gets.
+#
+# Opt-in, behind the `observability` profile, so `pnpm local:up` does not start
+# it. `pnpm dev:observability` (or `dev:rhyza:observability`) starts it with the
+# rest of the stack and runs the apps with TELEMETRY_ENABLED=true;
+# `pnpm local:up:observability` and `local:down:observability` start and stop
+# it on its own. Nothing here keeps data once its containers are removed.
+services:
+  otel-collector:
+    container_name: otel-collector-local
+    profiles: [observability]
+    image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.162.0
+    command: ['--config=/etc/otelcol/config.yaml']
+    volumes:
+      - ./config/otel-collector/config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      # The apps run on the host and send here.
+      - '4317:4317'
+      - '4318:4318'
+    # memory_limiter's percentages are of this, as on the cluster.
+    mem_limit: 512m
+    depends_on:
+      - tempo
+    restart: unless-stopped
+    networks:
+      - testnet
+
+  prometheus:
+    container_name: prometheus-local
+    profiles: [observability]
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=2d
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - '9090:9090'
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+    networks:
+      - testnet
+
+  tempo:
+    container_name: tempo-local
+    profiles: [observability]
+    image: grafana/tempo:2.10.8
+    command: ['-config.file=/etc/tempo/tempo.yaml']
+    volumes:
+      - ./config/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+    restart: unless-stopped
+    networks:
+      - testnet
+
+  grafana:
+    container_name: grafana-local
+    profiles: [observability]
+    image: grafana/grafana:13.2.3
+    environment:
+      # Local only: no login, everyone is an admin.
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_NEWS_NEWS_FEED_ENABLED: 'false'
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - '3300:3000'
+    depends_on:
+      - prometheus
+      - tempo
+    restart: unless-stopped
+    networks:
+      - testnet
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=testnet
+      - traefik.http.routers.grafana.rule=Host(`grafana.testnet.test`)
+      - traefik.http.routers.grafana.entrypoints=websecure
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.services.grafana.loadbalancer.server.port=3000

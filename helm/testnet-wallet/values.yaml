@@ -55,7 +55,6 @@ config:
     nodeEnv: production
     logLevel: info
     port: 4003
-    metricsPort: 9464
 
     cookie:
       name: 'testnet.cookie'
@@ -227,6 +226,42 @@ config:
           clientCertPath: /etc/atalla/tls/client.crt
           clientKeyPath: /etc/atalla/tls/client.key
 
+  # ---------------------------------------------------------------------------
+  # OpenTelemetry
+  # ---------------------------------------------------------------------------
+  # One block for both components. With `enabled: true`, the backend and the
+  # frontend's Node.js server push traces and metrics over OTLP/gRPC to this
+  # release's collector (see `otelCollector`). The browser sends nothing.
+  #
+  # The chart writes these into each component's ConfigMap as TELEMETRY_* and
+  # SERVICE_* variables. See packages/shared/telemetry for what each one does.
+  telemetry:
+    enabled: false
+    # The collector's OTLP/gRPC target: host:port, no scheme. Left empty, the
+    # chart fills in this release's own collector, and fails the render if
+    # otelCollector.enabled is false.
+    endpoint: ''
+    # The in-release collector does not terminate TLS.
+    insecure: true
+    # The service.name of each component's traces and metrics.
+    serviceNames:
+      backend: wallet-backend
+      frontend: wallet-frontend
+    # deployment.environment.name
+    serviceEnv: production
+    # service.version. Empty means the component's image tag.
+    serviceVersion: ''
+    traces:
+      enabled: true
+      # Head sampling, 0 to 1. A trace that arrives already sampled is always
+      # followed, so lowering this thins only traces that begin here.
+      sampleRatio: 1.0
+    metrics:
+      enabled: true
+      # Keep at or below otelCollector.serviceMonitor.interval, or Prometheus
+      # reads the same values twice.
+      interval: 15s
+
 deployments:
   backend:
     name: backend
@@ -337,12 +372,27 @@ deployments:
             name: '{{ .Values.config.backend.secretName | default (printf "%s-backend" (include "common.fullname" .)) }}'
             key: '{{ .Values.config.backend.rafiki.adminApiSecret.secretKeyRef.key }}'
 
+    # Pod identity for the OpenTelemetry resource. service.instance.id is what
+    # separates one replica from another: one collector serves them all, so
+    # without it their metrics carry identical labels and overwrite each
+    # other. Kubernetes expands the $(...) references; no shell is involved.
+    # This is `extraEnv`, not `env`, so an environment that rewrites `env`
+    # keeps it.
+    extraEnv:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: service.instance.id=$(POD_NAME),k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE)
+
     ports:
       - name: http
         containerPort: 4003
-        protocol: TCP
-      - name: metrics
-        containerPort: 9464
         protocol: TCP
     resources:
       requests:
@@ -375,6 +425,23 @@ deployments:
     envFrom:
       - configMapRef:
           name: '{{ include "common.fullname" . }}-frontend'
+    # Pod identity for the OpenTelemetry resource. service.instance.id is what
+    # separates one replica from another: one collector serves them all, so
+    # without it their metrics carry identical labels and overwrite each
+    # other. Kubernetes expands the $(...) references; no shell is involved.
+    # This is `extraEnv`, not `env`, so an environment that rewrites `env`
+    # keeps it.
+    extraEnv:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: service.instance.id=$(POD_NAME),k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE)
     ports:
       - name: http
         containerPort: 4003
@@ -407,10 +474,6 @@ services:
         targetPort: 4003
         protocol: TCP
         name: http
-      - port: 9464
-        targetPort: 9464
-        protocol: TCP
-        name: metrics
 
   frontend:
     name: frontend-service
@@ -422,6 +485,157 @@ services:
         targetPort: 4003
         protocol: TCP
         name: http
+
+# -----------------------------------------------------------------------------
+# OpenTelemetry collector
+# -----------------------------------------------------------------------------
+# One collector per release, the same one the merchant and issuer charts run.
+# The backend and the frontend push traces and metrics to it over OTLP. It
+# exposes the metrics on a Prometheus endpoint, scraped through the
+# ServiceMonitor below, and forwards the traces to `traces.endpoint`.
+#
+# Scraping the collector means one target holds both signals for both
+# components, and each series carries the resource attributes of the pod that
+# produced it.
+# -----------------------------------------------------------------------------
+otelCollector:
+  name: otel-collector
+  # On by default, like the merchant and issuer charts, even while
+  # config.telemetry.enabled is false: the collector then runs and receives
+  # nothing. Turn it off only with telemetry off, or with
+  # config.telemetry.endpoint set to a collector outside this release; the
+  # render fails otherwise.
+  enabled: true
+  # One replica. The collector holds only in-flight batches, and a second
+  # would split a pod's series across two Prometheus endpoints, which makes a
+  # rate() over a restart read wrong.
+  replicaCount: 1
+
+  # Pinned explicitly. Without a tag the common library falls back to
+  # versionOverride or the chart's appVersion, which is a wallet release and
+  # means nothing here.
+  image:
+    repository: ghcr.io/open-telemetry/opentelemetry-collector-releases
+    name: opentelemetry-collector-contrib
+    tag: '0.162.0'
+
+  # Where traces go after the collector. Empty drops them: the pipeline still
+  # accepts spans, so the wallet sees a healthy export and nothing is stored.
+  #
+  # On ilf-1 this is core-tempo.monitoring.svc.cluster.local:4317, left empty
+  # here on purpose. A tenant namespace reaches those ports only when its
+  # deploy-environment sets `network.allowTracingEgress`, a reviewed change in
+  # clusternation-deploy. An endpoint a namespace cannot reach buys export
+  # failures, not traces.
+  traces:
+    endpoint: ''
+    insecure: true
+
+  # Replaces the generated collector config wholesale. Everything below feeds
+  # the generated one and is ignored once this is set.
+  config: {}
+
+  batch:
+    timeout: 5s
+    sendBatchSize: 1024
+
+  # Percentages of the container memory limit.
+  memoryLimiter:
+    limitPercentage: 80
+    spikeLimitPercentage: 25
+
+  # How long the Prometheus exporter keeps a series after the pod that
+  # produced it stops reporting. Must comfortably exceed the scrape interval.
+  metricExpiration: 5m
+
+  # The collector config listens on these, found by name: otlp-grpc,
+  # otlp-http, metrics, telemetry and health. Move a listener here.
+  ports:
+    - name: otlp-grpc
+      containerPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      containerPort: 4318
+      protocol: TCP
+    # The Prometheus exporter: the backend's and the frontend's metrics.
+    - name: metrics
+      containerPort: 8889
+      protocol: TCP
+    # The collector's own metrics.
+    - name: telemetry
+      containerPort: 8888
+      protocol: TCP
+    - name: health
+      containerPort: 13133
+      protocol: TCP
+
+  service:
+    name: otel-collector
+    type: ClusterIP
+    # A port named `otlp-grpc` must be here: the chart reads the telemetry
+    # endpoint off it.
+    ports:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: otlp-grpc
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: otlp-http
+        protocol: TCP
+      - name: metrics
+        port: 8889
+        targetPort: metrics
+        protocol: TCP
+      - name: telemetry
+        port: 8888
+        targetPort: telemetry
+        protocol: TCP
+    annotations: {}
+
+  # Scrapes both metrics ports. Rendered only where the Prometheus Operator
+  # CRDs exist.
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+
+  # The collector's health_check extension answers on /.
+  livenessProbe:
+    httpGet:
+      path: /
+      port: health
+  readinessProbe:
+    httpGet:
+      path: /
+      port: health
+
+  command:
+    - /otelcol-contrib
+  args:
+    - --config=/conf/config.yaml
+
+  volumeMounts:
+    - name: otel-collector-config
+      mountPath: /conf
+      readOnly: true
+  # The deployment template prepends the config volume.
+  volumes: []
+
+  # Sized for the whole release's telemetry, not one pod's. memoryLimiter is a
+  # percentage of the limit set here.
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+  serviceAccount: {}
+  autoscaling:
+    enabled: false
+  env: []
+  envFrom: []
 
 # This section of the values file defines Kubernetes config maps that will be created
 # for each service (backend and frontend).
@@ -460,8 +674,6 @@ configMaps:
         valueRef: config.backend.nodeEnv
       - key: PORT
         valueRef: config.backend.port
-      - key: METRICS_PORT
-        valueRef: config.backend.metricsPort
       - key: COOKIE_NAME
         valueRef: config.backend.cookie.name
       - key: COOKIE_TTL
