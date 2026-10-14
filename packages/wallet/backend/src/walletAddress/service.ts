@@ -1,7 +1,6 @@
 import { Account } from '@/account/model'
 import { AccountService } from '@/account/service'
 import { Env } from '@/config/env'
-import { RafikiClient } from '@/rafiki/rafiki-client'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
 import axios from 'axios'
 import { getRandomValues } from 'crypto'
@@ -77,7 +76,6 @@ export class WalletAddressService implements IWalletAddressService {
   private cache: Cache<WalletAddress>
   constructor(
     private accountService: AccountService,
-    private rafikiClient: RafikiClient,
     private rhyzaAdminClient: RhyzaAdminClient,
     private env: Env,
     redisClient: RedisClient,
@@ -111,6 +109,15 @@ export class WalletAddressService implements IWalletAddressService {
         walletAddress.accountId === args.accountId &&
         account.userId === args.userId
       ) {
+        if (!walletAddress.active) {
+          await this.rhyzaAdminClient
+            .activateWalletAddress(walletAddress.id)
+            .catch((e) => {
+              if (!(e instanceof Conflict)) {
+                throw e
+              }
+            })
+        }
         walletAddress = await WalletAddress.query().patchAndFetchById(
           walletAddress.id,
           {
@@ -224,6 +231,13 @@ export class WalletAddressService implements IWalletAddressService {
     // Check if the user owns the wallet address.
     // This function throws a NotFoundException.
     await this.accountService.findAccountById(walletAddress.accountId, userId)
+    await this.rhyzaAdminClient
+      .deactivateWalletAddress(walletAddress.id)
+      .catch((e) => {
+        if (!(e instanceof Conflict)) {
+          throw e
+        }
+      })
     await WalletAddress.query().findById(id).patch({
       active: false
     })
@@ -244,13 +258,7 @@ export class WalletAddressService implements IWalletAddressService {
     const trx = await WalletAddress.startTransaction()
 
     try {
-      await Promise.all([
-        walletAddress.$query(trx).patch({ publicName }),
-        this.rafikiClient.updateWalletAddress({
-          id: walletAddressId,
-          publicName
-        })
-      ])
+      await walletAddress.$query(trx).patch({ publicName })
 
       await this.cache.delete(walletAddressId)
       const updatedWalletAddress = await walletAddress

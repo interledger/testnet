@@ -38,4 +38,12 @@ export class RhyzaAdminClient {
     )
     return { id: response.id, address: response.address }
   }
+
+  async activateWalletAddress(id: string): Promise<void> {
+    await this.http.post(`/wallet-addresses/${id}/activate`)
+  }
+
+  async deactivateWalletAddress(id: string): Promise<void> {
+    await this.http.post(`/wallet-addresses/${id}/deactivate`)
+  }
 }
