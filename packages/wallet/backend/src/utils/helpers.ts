@@ -22,7 +22,7 @@ export const urlToPaymentId = (url: string) =>
   url.split('/incoming-payments/')[1]
 
 export const transformBalance = (value: number, scale: number): bigint => {
-  return BigInt(Math.floor(value * 10 ** scale))
+  return BigInt(Math.floor(Number((value * 10 ** scale).toPrecision(15))))
 }
 
 export const applyScale = (
