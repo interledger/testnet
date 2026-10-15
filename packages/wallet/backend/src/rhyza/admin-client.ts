@@ -64,4 +64,13 @@ export class RhyzaAdminClient {
     )
     return { id: response.id }
   }
+
+  async revokeWalletAddressKey(
+    walletAddressId: string,
+    keyId: string
+  ): Promise<void> {
+    await this.http.post<void>(
+      `/wallet-addresses/${walletAddressId}/keys/${keyId}/revoke`
+    )
+  }
 }
