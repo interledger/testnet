@@ -169,4 +169,55 @@ describe('RhyzaAdminClient', () => {
       ).rejects.toBeInstanceOf(Conflict)
     })
   })
+
+  describe('revokeWalletAddressKey', () => {
+    const walletAddressId = 'wa-1'
+    const keyId = 'key-1'
+
+    it('POSTs to /wallet-addresses/:id/keys/:keyId/revoke', async () => {
+      adapter.mockImplementationOnce(respond(204, {}))
+
+      await client.revokeWalletAddressKey(walletAddressId, keyId)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe(
+        'http://admin.test/wallet-addresses/wa-1/keys/key-1/revoke'
+      )
+    })
+
+    it('resolves on 204', async () => {
+      adapter.mockImplementationOnce(respond(204, {}))
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).resolves.toBeUndefined()
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error:
+            '5 NOT_FOUND: Wallet address key key-1 does not exist for wallet wa-1'
+        })
+      )
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).rejects.toBeInstanceOf(NotFound)
+    })
+
+    it('raises Conflict on 409', async () => {
+      adapter.mockImplementationOnce(
+        respond(409, {
+          error:
+            '9 FAILED_PRECONDITION: Wallet address key key-1 is already revoked'
+        })
+      )
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).rejects.toBeInstanceOf(Conflict)
+    })
+  })
 })
