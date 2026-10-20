@@ -55,7 +55,24 @@ describe('RhyzaAdminClient', () => {
   })
 
   describe('listAssets', () => {
-    it('returns Asset list', async () => {
+    it('GETs returns Asset list', async () => {
+      adapter.mockImplementationOnce(respond(200, { assets: [] }))
+
+      await client.listAssets()
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/assets')
+    })
+    it('returns the Asset list', async () => {
+      adapter.mockImplementationOnce(
+        respond(200, {
+          assets: [
+            { code: 'USD', scale: 2 },
+            { code: 'EUR', scale: 2 }
+          ]
+        })
+      )
       await expect(client.listAssets()).resolves.toEqual([
         { code: 'USD', scale: 2 },
         { code: 'EUR', scale: 2 }
