@@ -12,7 +12,6 @@ import { mockedListAssets, mockExternalPayment } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
 import axios from 'axios'
-import { Receiver } from '@/rafiki/backend/generated/graphql'
 import { NotFound } from '@shared/backend'
 
 describe('Incoming Payment Service', () => {
@@ -58,25 +57,6 @@ describe('Incoming Payment Service', () => {
           id: receiverID || faker.string.uuid(),
           walletAddressUrl: faker.internet.url(),
           completed: true
-        }),
-        getReceiverById: (): Receiver => ({
-          id: receiverID || faker.string.uuid(),
-          walletAddressUrl: faker.internet.url(),
-          completed: true,
-          incomingAmount: {
-            value: 1000n,
-            assetCode: 'USD',
-            assetScale: 2
-          },
-          receivedAmount: {
-            value: 500n,
-            assetCode: 'USD',
-            assetScale: 2
-          },
-          createdAt: faker.date.recent().toISOString(),
-          metadata: {
-            description: 'Fake receiver'
-          }
         })
       }
     }
@@ -177,17 +157,38 @@ describe('Incoming Payment Service', () => {
   })
 
   describe('Get PaymentDetails By Url', () => {
+    const paymentId = faker.string.uuid()
+    const url = `${faker.internet.url()}/incoming-payments/${paymentId}`
+
     it('should get payment details successfully', async () => {
-      const paymentId = faker.string.uuid()
-      const url = `${faker.internet.url()}/${paymentId}`
-      const result = await incopmPaymentService.getPaymentDetailsByUrl(url)
-      expect(result).toMatchObject({
-        description: 'Fake receiver',
-        assetCode: 'USD',
-        value: 5
+      const getPaymentIntentById = jest.fn().mockResolvedValue({
+        id: paymentId,
+        incomingAmount: { value: '1000', assetCode: 'USD', assetScale: 2 },
+        receivedAmount: { value: '500', assetCode: 'USD', assetScale: 2 }
       })
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        getPaymentIntentById
+      })
+
+      const result = await incopmPaymentService.getPaymentDetailsByUrl(url)
+
+      expect(getPaymentIntentById).toHaveBeenCalledWith(paymentId)
+      expect(result).toMatchObject({ assetCode: 'USD', value: 5 })
+    })
+
+    it('should return NotFound if the payment intent does not exist', async () => {
+      const getPaymentIntentById = jest.fn().mockRejectedValue(new NotFound())
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        getPaymentIntentById
+      })
+
+      await expect(
+        incopmPaymentService.getPaymentDetailsByUrl(url)
+      ).rejects.toThrowError(NotFound)
+      expect(getPaymentIntentById).toHaveBeenCalledWith(paymentId)
     })
   })
+
   describe('getExternalPayment', () => {
     beforeAll(async (): Promise<void> => {
       axios.get = jest.fn().mockImplementation(() =>

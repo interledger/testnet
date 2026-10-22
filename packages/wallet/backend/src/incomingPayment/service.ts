@@ -94,23 +94,16 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   }
 
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetailsResponse> {
-    const receiver = await this.rafikiClient.getReceiverById(url)
-    const asset = {
-      scale:
-        receiver.incomingAmount?.assetScale ??
-        receiver.receivedAmount.assetScale,
-      code:
-        receiver.incomingAmount?.assetCode ?? receiver.receivedAmount.assetCode
-    }
-
-    const value = receiver.incomingAmount?.value
-      ? receiver.incomingAmount.value - receiver.receivedAmount.value
-      : 0n
+    const id = new URL(url).pathname.split('/').pop()!
+    const paymentIntent = await this.rhyzaAdminClient.getPaymentIntentById(id)
+    const { assetScale: scale, assetCode } = paymentIntent.incomingAmount
+    const value =
+      BigInt(paymentIntent.incomingAmount.value) -
+      BigInt(paymentIntent.receivedAmount.value)
 
     return {
-      description: receiver.metadata?.description,
-      value: parseFloat(transformAmount(value.toString(), asset.scale)),
-      assetCode: asset.code
+      value: parseFloat(transformAmount(value.toString(), scale)),
+      assetCode
     }
   }
 
