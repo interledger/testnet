@@ -99,23 +99,23 @@ const GrantInteractionPage = ({
         ) : (
           <>
             <div className="mt-20 text-base">
-              {grant.access.length === 1 ? (
-                <div>
-                  {client} is requesting access to{' '}
-                  {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
-                </div>
-              ) : (
-                <div>
-                  {client} is requesting access to the following amounts:{' '}
-                  {grant.access
-                    .map(
-                      (accessItem) =>
-                        accessItem.limits?.debitAmount?.formattedAmount
-                    )
-                    .join(', ')}
-                  .
-                </div>
-              )}
+              {(() => {
+                const amounts = grant.access
+                  .map(
+                    (accessItem) =>
+                      accessItem.limits?.debitAmount?.formattedAmount
+                  )
+                  .filter((amount): amount is string => !!amount)
+                return (
+                  amounts.length > 0 && (
+                    <div>
+                      {amounts.length === 1
+                        ? `${client} is requesting access to ${amounts[0]}.`
+                        : `${client} is requesting access to the following amounts: ${amounts.join(', ')}.`}
+                    </div>
+                  )
+                )
+              })()}
             </div>
             <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
               <Button
@@ -152,23 +152,22 @@ const GrantInteractionPage = ({
           height={150}
         />
         <div className="mt-20 text-xl">
-          {grant.access.length === 1 ? (
-            <div>
-              {client} was previously granted access to{' '}
-              {grant.access[0]?.limits?.debitAmount?.formattedAmount}.
-            </div>
-          ) : (
-            <div>
-              {client} was previously granted access to the following amounts:{' '}
-              {grant.access
-                .map(
-                  (accessItem) =>
-                    accessItem.limits?.debitAmount?.formattedAmount
-                )
-                .join(', ')}
-              .
-            </div>
-          )}
+          {(() => {
+            const amounts = grant.access
+              .map(
+                (accessItem) => accessItem.limits?.debitAmount?.formattedAmount
+              )
+              .filter((amount): amount is string => !!amount)
+            return (
+              amounts.length > 0 && (
+                <div>
+                  {amounts.length === 1
+                    ? `${client} was previously granted access to ${amounts[0]}.`
+                    : `${client} was previously granted access to the following amounts: ${amounts.join(', ')}.`}
+                </div>
+              )
+            )
+          })()}
         </div>
         <div className="mx-auto mt-10 flex w-full max-w-xl justify-evenly">
           <Button
