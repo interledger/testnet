@@ -7,6 +7,8 @@ import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { webhookBodySchema, WebhookType } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
+import { EventType as RhyzaEventType } from '@/rhyza/service'
+import type { WebhookType as RhyzaWebhookType } from '@/rhyza/validation'
 import {
   EventType as RhyzaEventType,
   WebHook as RhyzaWebHook

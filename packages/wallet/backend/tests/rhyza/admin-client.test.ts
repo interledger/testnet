@@ -1,4 +1,4 @@
-import { Conflict } from '@shared/backend'
+import { BadRequest, Conflict, NotFound } from '@shared/backend'
 import { HttpClient } from '@/rhyza/http-client'
 import { RhyzaAdminClient, ListPaymentsResponse } from '@/rhyza/admin-client'
 import { lastRequest, mockAdapter, mockLogger, respond } from './helpers'
@@ -126,6 +126,73 @@ describe('RhyzaAdminClient', () => {
       expect(request.url).toBe(
         'http://admin.test/payments?paymentIntentId=intent+id&first=100&sortOrder=desc'
       )
+  describe('registerWalletAddressKey', () => {
+    const walletAddressId = 'wa-1'
+    const jwk = {
+      alg: 'EdDSA' as const,
+      crv: 'Ed25519' as const,
+      kid: 'key-1',
+      kty: 'OKP' as const,
+      x: 'base64url-encoded-public-key'
+    }
+
+    it('POSTs the JWK to /wallet-addresses/:id/keys', async () => {
+      adapter.mockImplementationOnce(respond(201, { id: 'key-1' }))
+
+      await client.registerWalletAddressKey(jwk, walletAddressId)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/wallet-addresses/wa-1/keys')
+      expect(request.body).toEqual(jwk)
+    })
+
+    it('returns the key id on 201', async () => {
+      adapter.mockImplementationOnce(respond(201, { id: 'key-1' }))
+
+      await expect(
+        client.registerWalletAddressKey(jwk, walletAddressId)
+      ).resolves.toEqual({
+        id: 'key-1'
+      })
+    })
+
+    it('raises BadRequest on 400', async () => {
+      adapter.mockImplementationOnce(
+        respond(400, {
+          error:
+            '3 INVALID_ARGUMENT: JWK must be an Ed25519 public key (alg=EdDSA, kty=OKP, crv=Ed25519)'
+        })
+      )
+
+      await expect(
+        client.registerWalletAddressKey(jwk, walletAddressId)
+      ).rejects.toBeInstanceOf(BadRequest)
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error: '5 NOT_FOUND: Wallet Address with id wa-1 does not exist'
+        })
+      )
+
+      await expect(
+        client.registerWalletAddressKey(jwk, walletAddressId)
+      ).rejects.toBeInstanceOf(NotFound)
+    })
+
+    it('raises Conflict on 409', async () => {
+      adapter.mockImplementationOnce(
+        respond(409, {
+          error:
+            '6 ALREADY_EXISTS: Wallet address key with kid bruno-client-key already exists'
+        })
+      )
+
+      await expect(
+        client.registerWalletAddressKey(jwk, walletAddressId)
+      ).rejects.toBeInstanceOf(Conflict)
     })
   })
 })
