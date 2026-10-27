@@ -70,7 +70,7 @@ export class RhyzaAdminClient {
     }>('/payment-intents', args)
     return { id: response.id, openPaymentsUrl: response.openPaymentsUrl }
   }
-  
+
   async activateWalletAddress(id: string): Promise<void> {
     await this.http.post(`/wallet-addresses/${id}/activate`)
   }
