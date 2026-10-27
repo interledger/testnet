@@ -18,13 +18,13 @@ process. The wallet backend does not connect to the HSM.
 
 The packages are used as published, at 0.3.0. The wrapper only:
 
-- reads the configuration from the environment;
+- reads the configuration from one YAML file;
 - fixes the connection pool at one connection;
 - owns the HSM transport and gives it to the server (the `transport` server
   option). The server does not connect or close a transport it did not
   create;
 - connects to the HSM first, then opens the gRPC port, then passes a health
-  check, all within `START_TIMEOUT_MS`. Otherwise it exits 1. The transport
+  check, all within `start_timeout_ms`. Otherwise it exits 1. The transport
   never gives up on a connection that fails, so Kubernetes does the back-off.
   The readiness probe checks the gRPC port, so the pod is ready only once the
   HSM answered;
@@ -33,7 +33,7 @@ The packages are used as published, at 0.3.0. The wrapper only:
   each call at `info`, but not the code the caller sees. Neither logs a
   request or a response;
 - on SIGTERM or SIGINT, stops the server, then closes the transport, and
-  exits after `STOP_TIMEOUT_MS` at the latest.
+  exits after `stop_timeout_ms` at the latest.
 
 The image runs Node 24. There, the server's stop sends GOAWAY to open HTTP/2
 sessions: calls in flight finish, and new calls are refused.
@@ -44,21 +44,33 @@ state, or map HSM errors to gRPC codes. Those belong in hsm-adapter-ts
 
 ## Configuration
 
-| Variable                            | Default                              | Meaning                                |
-| ----------------------------------- | ------------------------------------ | -------------------------------------- |
-| `ATALLA_HOST`                       | — (required)                         | The HSM host                           |
-| `ATALLA_PORT`                       | — (required)                         | The HSM port                           |
-| `ATALLA_TIMEOUT_MS`                 | `2000`                               | How long one HSM command may take      |
-| `ATALLA_TLS_ENABLED`                | `false`                              | Mutual TLS to the HSM                  |
-| `ATALLA_CA_CERT_PATH`               | `/etc/atalla/tls/ca.crt`             | With TLS: the CA                       |
-| `ATALLA_CLIENT_CERT_PATH`           | `/etc/atalla/tls/client.crt`         | With TLS: the client certificate       |
-| `ATALLA_CLIENT_KEY_PATH`            | `/etc/atalla/tls/client.key`         | With TLS: the client key               |
-| `ATALLA_SKIP_SERVER_IDENTITY_CHECK` | `false`                              | With TLS: skip the hostname check only |
-| `GRPC_HOST`                         | `0.0.0.0`                            | Listen address                         |
-| `GRPC_PORT`                         | `50051` (issuer), `50052` (merchant) | Listen port                            |
-| `START_TIMEOUT_MS`                  | `15000`                              | See above                              |
-| `STOP_TIMEOUT_MS`                   | `10000`                              | See above                              |
-| `LOG_LEVEL`                         | `info`                               | pino level                             |
+The adapter reads one YAML file, and no other settings from the environment.
+`HSM_ADAPTER_CONFIG_PATH` names the file. Unknown keys are rejected, so a typo
+stops the start instead of being ignored. Numbers must be numbers, not quoted
+strings.
+
+```yaml
+log:
+  level: info # pino level. Default info.
+grpc:
+  host: 0.0.0.0 # Listen address. Default 0.0.0.0.
+  port: 50051 # Default 50051 (issuer), 50052 (merchant).
+atalla:
+  host: 10.0.0.1 # Required.
+  port: 13506 # Required.
+  timeout_ms: 2000 # How long one HSM command may take. Default 2000.
+  tls:
+    enabled: true # Mutual TLS to the HSM. Default false.
+    # Paths, not PEM text. A relative path resolves against the directory of
+    # this file. These are the defaults.
+    ca_cert_path: /etc/atalla/tls/ca.crt
+    client_cert_path: /etc/atalla/tls/client.crt
+    client_key_path: /etc/atalla/tls/client.key
+    # Skips the hostname check only. Default false.
+    skip_server_identity_check: false
+start_timeout_ms: 15000 # See above. Default 15000.
+stop_timeout_ms: 10000 # See above. Default 10000.
+```
 
 ## Build and test
 
@@ -75,7 +87,8 @@ load.
 To run one against a local HSM or the simulator:
 
 ```bash
-ATALLA_HOST=localhost ATALLA_PORT=13506 pnpm wallet:hsm-adapter dev:merchant
+printf 'atalla:\n  host: localhost\n  port: 13506\n' > /tmp/hsm-adapter.yaml
+HSM_ADAPTER_CONFIG_PATH=/tmp/hsm-adapter.yaml pnpm wallet:hsm-adapter dev:merchant
 ```
 
 One Dockerfile builds both images, from the repository root:

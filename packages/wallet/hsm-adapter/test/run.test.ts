@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { after, test } from 'node:test'
 import { Code, ConnectError } from '@connectrpc/connect'
 import type {
   AtallaHealthCheckResult,
@@ -19,12 +22,26 @@ import {
 } from '../src/run'
 import { readConfig } from '../src/config'
 
-const env = {
-  ATALLA_HOST: 'atalla-hsm',
-  ATALLA_PORT: '13506',
-  START_TIMEOUT_MS: '50',
-  STOP_TIMEOUT_MS: '50'
+// main() reads the config file from disk, so each test writes a real one.
+const configDir = mkdtempSync(join(tmpdir(), 'hsm-adapter-test-'))
+after(() => rmSync(configDir, { recursive: true, force: true }))
+
+let configFiles = 0
+function configEnv(extra = '', startTimeoutMs = 50): Record<string, string> {
+  const path = join(configDir, `config-${configFiles++}.yaml`)
+  writeFileSync(
+    path,
+    `atalla:
+  host: atalla-hsm
+  port: 13506
+start_timeout_ms: ${startTimeoutMs}
+stop_timeout_ms: 50
+${extra}`
+  )
+  return { HSM_ADAPTER_CONFIG_PATH: path }
 }
+
+const env = configEnv()
 
 const never = new Promise<never>(() => {})
 
@@ -239,7 +256,7 @@ test('exits 1 without opening the gRPC port when the HSM connect fails or hangs'
 test('a SIGTERM during start-up stops without a second exit', async () => {
   let failConnect!: (error: Error) => void
   const server = new FakeServer()
-  const proc = new FakeProcess({ ...env, START_TIMEOUT_MS: '10000' })
+  const proc = new FakeProcess(configEnv('', 10_000))
   const { done } = run(
     server,
     proc,
@@ -282,7 +299,10 @@ test('bad configuration exits 1 before building a server', async () => {
   }
   assert.deepEqual(proc.exits, [1])
   assert.equal(built, false)
-  assert.match(String(errors[0]), /hsm-adapter-issuer: ATALLA_HOST is required/)
+  assert.match(
+    String(errors[0]),
+    /hsm-adapter-issuer: HSM_ADAPTER_CONFIG_PATH must be set/
+  )
 })
 
 test('logCalls logs the RPC name, duration and code at debug, never the payload', async () => {
@@ -331,7 +351,7 @@ test('withTimeout passes a result through and rejects a slow promise', async () 
 
 test('createLogger builds a pino logger at the configured level', () => {
   const logger = createLogger(
-    readConfig('issuer', { ...env, LOG_LEVEL: 'debug' })
+    readConfig('issuer', configEnv('log:\n  level: debug\n'))
   )
   assert.equal((logger as unknown as { level: string }).level, 'debug')
 })

@@ -1,10 +1,17 @@
 import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import type {
   AtallaTransportConfig,
   TlsMaterial
 } from '@interledger/hsm-atalla-transport'
+import { parse } from 'yaml'
+import { z } from 'zod'
 
 export type Role = 'issuer' | 'merchant'
+
+// The only environment variable the adapter reads. Every setting is in the
+// YAML file it names.
+export const CONFIG_PATH_ENV_VAR = 'HSM_ADAPTER_CONFIG_PATH'
 
 export const DEFAULT_GRPC_PORTS: Record<Role, number> = {
   issuer: 50051,
@@ -29,111 +36,135 @@ export type ReadFile = (path: string) => string
 
 const readUtf8: ReadFile = (path) => readFileSync(path, 'utf8')
 
+const port = z.number().int().min(1).max(65_535)
+const positive = z.number().positive()
+const path = z.string().trim().min(1)
+
+// The config file. Unknown keys are rejected, so a typo fails the start
+// instead of being ignored.
+const configFileSchema = z
+  .object({
+    log: z
+      .object({ level: z.string().trim().min(1).default('info') })
+      .strict()
+      .default({}),
+    grpc: z
+      .object({
+        host: z.string().trim().min(1).default('0.0.0.0'),
+        port: port.optional()
+      })
+      .strict()
+      .default({}),
+    atalla: z
+      .object({
+        host: z.string().trim().min(1),
+        port,
+        timeout_ms: positive.default(2_000),
+        tls: z
+          .object({
+            enabled: z.boolean().default(false),
+            // Paths, not PEM text. A relative path resolves against the
+            // directory of the config file.
+            ca_cert_path: path.default('/etc/atalla/tls/ca.crt'),
+            client_cert_path: path.default('/etc/atalla/tls/client.crt'),
+            client_key_path: path.default('/etc/atalla/tls/client.key'),
+            // Skips the hostname check only. The certificate must still chain
+            // to the CA.
+            skip_server_identity_check: z.boolean().default(false)
+          })
+          .strict()
+          .default({})
+      })
+      .strict(),
+    start_timeout_ms: positive.default(15_000),
+    stop_timeout_ms: positive.default(10_000)
+  })
+  .strict()
+
+type TlsFileKey = 'ca_cert_path' | 'client_cert_path' | 'client_key_path'
+
 export function readConfig(
   role: Role,
   env: Env = process.env,
   readFile: ReadFile = readUtf8
 ): AdapterConfig {
+  const configPath = env[CONFIG_PATH_ENV_VAR]?.trim()
+  if (!configPath) {
+    throw new Error(
+      `${CONFIG_PATH_ENV_VAR} must be set to the path of a YAML config file`
+    )
+  }
+
+  let text: string
+  try {
+    text = readFile(configPath)
+  } catch (error) {
+    throw new Error(`cannot read ${configPath}: ${errorMessage(error)}`)
+  }
+
+  let document: unknown
+  try {
+    document = parse(text) ?? {}
+  } catch (error) {
+    throw new Error(`cannot parse ${configPath}: ${errorMessage(error)}`)
+  }
+
+  const result = configFileSchema.safeParse(document)
+  if (!result.success) {
+    const problems = result.error.issues.map(
+      (issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`
+    )
+    throw new Error(`invalid ${configPath}: ${problems.join('; ')}`)
+  }
+  const file = result.data
+
   return {
     role,
-    logLevel: env.LOG_LEVEL ?? 'info',
+    logLevel: file.log.level,
     grpc: {
-      host: env.GRPC_HOST ?? '0.0.0.0',
-      port: readPort(env, 'GRPC_PORT', DEFAULT_GRPC_PORTS[role])
+      host: file.grpc.host,
+      port: file.grpc.port ?? DEFAULT_GRPC_PORTS[role]
     },
     hsm: {
-      host: readRequired(env, 'ATALLA_HOST'),
-      port: readPort(env, 'ATALLA_PORT'),
-      timeoutMs: readNumber(env, 'ATALLA_TIMEOUT_MS', 2_000),
+      host: file.atalla.host,
+      port: file.atalla.port,
+      timeoutMs: file.atalla.timeout_ms,
       // One connection per process. The real HSM accepts two from one public
       // IP: one for the issuer adapter, one for the merchant adapter.
       poolSize: 1,
-      tls: readTls(env, readFile)
+      tls: readTls(file.atalla.tls, dirname(configPath), readFile)
     },
-    startTimeoutMs: readNumber(env, 'START_TIMEOUT_MS', 15_000),
-    stopTimeoutMs: readNumber(env, 'STOP_TIMEOUT_MS', 10_000)
+    startTimeoutMs: file.start_timeout_ms,
+    stopTimeoutMs: file.stop_timeout_ms
   }
 }
 
-function readTls(env: Env, readFile: ReadFile): TlsMaterial | false {
-  if (!readBoolean(env, 'ATALLA_TLS_ENABLED', false)) return false
+function readTls(
+  tls: z.infer<typeof configFileSchema>['atalla']['tls'],
+  baseDir: string,
+  readFile: ReadFile
+): TlsMaterial | false {
+  if (!tls.enabled) return false
+
+  const read = (key: TlsFileKey): string => {
+    const file = resolve(baseDir, tls[key])
+    try {
+      return readFile(file)
+    } catch (error) {
+      throw new Error(
+        `atalla.tls.${key}: cannot read ${file}: ${errorMessage(error)}`
+      )
+    }
+  }
 
   return {
-    ca: readTlsFile(
-      env,
-      readFile,
-      'ATALLA_CA_CERT_PATH',
-      '/etc/atalla/tls/ca.crt'
-    ),
-    cert: readTlsFile(
-      env,
-      readFile,
-      'ATALLA_CLIENT_CERT_PATH',
-      '/etc/atalla/tls/client.crt'
-    ),
-    key: readTlsFile(
-      env,
-      readFile,
-      'ATALLA_CLIENT_KEY_PATH',
-      '/etc/atalla/tls/client.key'
-    ),
-    skipServerIdentityCheck: readBoolean(
-      env,
-      'ATALLA_SKIP_SERVER_IDENTITY_CHECK',
-      false
-    )
+    ca: read('ca_cert_path'),
+    cert: read('client_cert_path'),
+    key: read('client_key_path'),
+    skipServerIdentityCheck: tls.skip_server_identity_check
   }
 }
 
-function readTlsFile(
-  env: Env,
-  readFile: ReadFile,
-  name: string,
-  defaultPath: string
-): string {
-  const path = env[name] ?? defaultPath
-  try {
-    return readFile(path)
-  } catch (error) {
-    throw new Error(`${name}: cannot read ${path}: ${(error as Error).message}`)
-  }
-}
-
-function readRequired(env: Env, name: string): string {
-  const value = env[name]
-  if (!value) throw new Error(`${name} is required`)
-  return value
-}
-
-function readPort(env: Env, name: string, defaultValue?: number): number {
-  const value = env[name]
-  if (value === undefined) {
-    if (defaultValue === undefined) throw new Error(`${name} is required`)
-    return defaultValue
-  }
-
-  const port = Number(value)
-  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
-    throw new Error(`${name} must be an integer between 1 and 65535`)
-  }
-  return port
-}
-
-function readNumber(env: Env, name: string, defaultValue: number): number {
-  const value = env[name]
-  if (value === undefined) return defaultValue
-
-  const number = Number(value)
-  if (!Number.isFinite(number) || number <= 0) {
-    throw new Error(`${name} must be a positive number`)
-  }
-  return number
-}
-
-function readBoolean(env: Env, name: string, defaultValue: boolean): boolean {
-  const value = env[name]
-  if (value === undefined) return defaultValue
-  if (value === 'true') return true
-  if (value === 'false') return false
-  throw new Error(`${name} must be true or false`)
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }

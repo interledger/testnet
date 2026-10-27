@@ -687,6 +687,12 @@ importers:
       pino:
         specifier: ^10.3.1
         version: 10.4.0
+      yaml:
+        specifier: ^2.5.0
+        version: 2.5.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^24.13.1

@@ -8,6 +8,11 @@ port opens only after the HSM connection is up and a health check answered.
 
 Names and labels come from the common helpers, with the component name
 hsm-adapter-<role>, so they line up with the rest of the release.
+
+The adapter reads no settings from the environment, only the YAML file that
+HSM_ADAPTER_CONFIG_PATH names. Each role gets a ConfigMap holding that file,
+built from hsmAdapter. The TLS files it names come from the Secret
+hsmAdapter.atalla.tls.secretName, mounted at /etc/atalla/tls.
 */ -}}
 {{- $hsm := .Values.hsmAdapter -}}
 {{- $imageOverride := .Values.imageOverride | default dict -}}
@@ -26,6 +31,35 @@ hsm-adapter-<role>, so they line up with the rest of the release.
 {{- $image := $adapter.image | default dict }}
 {{- $repository := coalesce $image.repository $imageOverride.repository "ghcr.io/interledger" }}
 {{- $tag := coalesce $image.tag $.Values.versionOverride $imageOverride.tag $.Chart.AppVersion "latest" }}
+{{- $tls := dict "enabled" $hsm.atalla.tls.enabled }}
+{{- if $hsm.atalla.tls.enabled }}
+{{- $_ := set $tls "ca_cert_path" "/etc/atalla/tls/ca.crt" }}
+{{- $_ := set $tls "client_cert_path" "/etc/atalla/tls/client.crt" }}
+{{- $_ := set $tls "client_key_path" "/etc/atalla/tls/client.key" }}
+{{- $_ := set $tls "skip_server_identity_check" $hsm.atalla.tls.skipServerIdentityCheck }}
+{{- end }}
+{{- /* int: the adapter wants numbers, and --set or a quoted value gives a string. */}}
+{{- $config := dict
+      "log" (dict "level" $hsm.logLevel)
+      "grpc" (dict "port" (int $adapter.port))
+      "atalla" (dict
+        "host" $atallaHost
+        "port" (int $hsm.atalla.port)
+        "timeout_ms" (int $hsm.atalla.timeoutMs)
+        "tls" $tls)
+      "start_timeout_ms" (int $hsm.startTimeoutMs)
+      "stop_timeout_ms" (int $hsm.stopTimeoutMs) }}
+{{- $configYaml := toYaml $config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "common.labels" (list $ $component) | nindent 4 }}
+data:
+  config.yaml: |
+    {{- $configYaml | nindent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,16 +80,18 @@ spec:
     metadata:
       labels:
         {{- include "common.selectorLabels" (list $ $component) | nindent 8 }}
-      {{- with $adapter.podAnnotations }}
       annotations:
+        # Rolls the pod when the config file changes.
+        hsm-adapter-config-sha256: {{ $configYaml | sha256sum | quote }}
+        {{- with $adapter.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
       {{- with $hsm.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      # STOP_TIMEOUT_MS plus a margin.
+      # stop_timeout_ms plus a margin.
       terminationGracePeriodSeconds: {{ add (div $hsm.stopTimeoutMs 1000) 5 }}
       {{- with $hsm.nodeSelector }}
       nodeSelector:
@@ -70,26 +106,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
-            - name: LOG_LEVEL
-              value: {{ $hsm.logLevel | quote }}
-            - name: GRPC_PORT
-              value: {{ $adapter.port | quote }}
-            - name: ATALLA_HOST
-              value: {{ $atallaHost | quote }}
-            - name: ATALLA_PORT
-              value: {{ $hsm.atalla.port | quote }}
-            - name: ATALLA_TIMEOUT_MS
-              value: {{ $hsm.atalla.timeoutMs | quote }}
-            - name: ATALLA_TLS_ENABLED
-              value: {{ $hsm.atalla.tls.enabled | quote }}
-            {{- if $hsm.atalla.tls.enabled }}
-            - name: ATALLA_SKIP_SERVER_IDENTITY_CHECK
-              value: {{ $hsm.atalla.tls.skipServerIdentityCheck | quote }}
-            {{- end }}
-            - name: START_TIMEOUT_MS
-              value: {{ $hsm.startTimeoutMs | quote }}
-            - name: STOP_TIMEOUT_MS
-              value: {{ $hsm.stopTimeoutMs | quote }}
+            - name: HSM_ADAPTER_CONFIG_PATH
+              value: /etc/hsm-adapter/config/config.yaml
           ports:
             - name: grpc
               containerPort: {{ $adapter.port }}
@@ -103,14 +121,20 @@ spec:
             periodSeconds: 20
           resources:
             {{- toYaml $hsm.resources | nindent 12 }}
-          {{- if $hsm.atalla.tls.enabled }}
           volumeMounts:
+            - name: config
+              mountPath: /etc/hsm-adapter/config
+              readOnly: true
+          {{- if $hsm.atalla.tls.enabled }}
             - name: atalla-tls
               mountPath: /etc/atalla/tls
               readOnly: true
           {{- end }}
-      {{- if $hsm.atalla.tls.enabled }}
       volumes:
+        - name: config
+          configMap:
+            name: {{ $name }}
+      {{- if $hsm.atalla.tls.enabled }}
         - name: atalla-tls
           secret:
             secretName: {{ required "hsmAdapter.atalla.tls.secretName is required when hsmAdapter.atalla.tls.enabled is true" $hsm.atalla.tls.secretName }}

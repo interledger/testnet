@@ -1,0 +1,97 @@
+# hsm-adapter-issuer and hsm-adapter-merchant, the Atalla HSM adapters from
+# packages/wallet/hsm-adapter, built from its Dockerfile.prod:
+#
+#   issuer-api   -> localhost:50051 -> hsm-adapter-issuer   -> Atalla HSM
+#   merchant-api -> localhost:50052 -> hsm-adapter-merchant -> Atalla HSM
+#
+# testnet runs no HSM. Point ATALLA_HOST and ATALLA_PORT in local/.env at one:
+# atalla-sim from cards-devenv (mocks/atalla-sim), or a tunnel to a dev HSM.
+# The default is port 13506 on the host. Each adapter holds one connection.
+#
+# Opt-in, behind the `hsm` profile, and on the Rhyza stack only.
+# `pnpm local:up:rhyza:hsm` builds and starts both, `local:down:rhyza:hsm`
+# stops them. An adapter that cannot reach the HSM exits, and compose restarts
+# it.
+#
+# The adapters read no settings from the environment, only the config file
+# below. Compose fills in the ${...} values from local/.env.
+services:
+  hsm-adapter-issuer:
+    container_name: hsm-adapter-issuer-local
+    profiles: [hsm]
+    build:
+      context: ..
+      dockerfile: packages/wallet/hsm-adapter/Dockerfile.prod
+      target: issuer
+    image: testnet-hsm-adapter-issuer:local
+    environment:
+      HSM_ADAPTER_CONFIG_PATH: /etc/hsm-adapter/config.yaml
+    configs:
+      - source: hsm-adapter-issuer
+        target: /etc/hsm-adapter/config.yaml
+    ports:
+      - '${HSM_ADAPTER_ISSUER_PORT:-50051}:50051'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - testnet
+    # The gRPC port opens only once the HSM answered a health check.
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '50051']
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_interval: 1s
+      start_period: 20s
+
+  hsm-adapter-merchant:
+    container_name: hsm-adapter-merchant-local
+    profiles: [hsm]
+    build:
+      context: ..
+      dockerfile: packages/wallet/hsm-adapter/Dockerfile.prod
+      target: merchant
+    image: testnet-hsm-adapter-merchant:local
+    environment:
+      HSM_ADAPTER_CONFIG_PATH: /etc/hsm-adapter/config.yaml
+    configs:
+      - source: hsm-adapter-merchant
+        target: /etc/hsm-adapter/config.yaml
+    ports:
+      - '${HSM_ADAPTER_MERCHANT_PORT:-50052}:50052'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - testnet
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '50052']
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_interval: 1s
+      start_period: 20s
+
+# TLS is off: the simulator and a local tunnel speak plaintext. To test mutual
+# TLS, mount the three PEM files and add an atalla.tls block (see
+# packages/wallet/hsm-adapter/README.md).
+configs:
+  hsm-adapter-issuer:
+    content: |
+      log:
+        level: ${HSM_ADAPTER_LOG_LEVEL:-debug}
+      grpc:
+        port: 50051
+      atalla:
+        host: ${ATALLA_ISSUER_HOST:-${ATALLA_HOST:-host.docker.internal}}
+        port: ${ATALLA_ISSUER_PORT:-${ATALLA_PORT:-13506}}
+  hsm-adapter-merchant:
+    content: |
+      log:
+        level: ${HSM_ADAPTER_LOG_LEVEL:-debug}
+      grpc:
+        port: 50052
+      atalla:
+        host: ${ATALLA_MERCHANT_HOST:-${ATALLA_HOST:-host.docker.internal}}
+        port: ${ATALLA_MERCHANT_PORT:-${ATALLA_PORT:-13506}}

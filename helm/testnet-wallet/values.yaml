@@ -449,6 +449,10 @@ services:
 #
 # Off by default. Only the cards environments run them.
 #
+# The adapters read no settings from the environment. The chart writes these
+# values into each role's config file (a ConfigMap, mounted at
+# /etc/hsm-adapter/config/config.yaml), and the pod rolls when it changes.
+#
 # The listeners are cleartext h2c. Reach them inside the namespace only, and
 # keep the gRPC ports off the Ingress.
 hsmAdapter:
@@ -470,7 +474,8 @@ hsmAdapter:
     tls:
       enabled: true
       # A Secret that holds ca.crt, client.crt and client.key. Mounted at
-      # /etc/atalla/tls. Required when TLS is enabled.
+      # /etc/atalla/tls; the config file points at the three files there.
+      # Required when TLS is enabled.
       secretName: ''
       # Skips the hostname check only. The transport still sets
       # rejectUnauthorized, so the HSM certificate must chain to ca.crt.

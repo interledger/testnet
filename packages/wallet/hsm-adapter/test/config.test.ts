@@ -2,14 +2,28 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readConfig, type Env } from '../src/config'
 
-const base: Env = { ATALLA_HOST: 'atalla-hsm', ATALLA_PORT: '13506' }
+const CONFIG = '/etc/hsm-adapter/config/config.yaml'
+const env: Env = { HSM_ADAPTER_CONFIG_PATH: CONFIG }
 
-const noFiles = (path: string): string => {
-  throw new Error(`unexpected read of ${path}`)
+const minimal = `
+atalla:
+  host: atalla-hsm
+  port: 13506
+`
+
+// A file system of path -> content. Reading any other path fails.
+function files(entries: Record<string, string>) {
+  return (path: string): string => {
+    const content = entries[path]
+    if (content === undefined) throw new Error(`ENOENT: ${path}`)
+    return content
+  }
 }
 
 test('defaults: plaintext, one connection, the role port', () => {
-  const issuer = readConfig('issuer', base, noFiles)
+  const read = files({ [CONFIG]: minimal })
+
+  const issuer = readConfig('issuer', env, read)
   assert.deepEqual(issuer.grpc, { host: '0.0.0.0', port: 50051 })
   assert.deepEqual(issuer.hsm, {
     host: 'atalla-hsm',
@@ -22,97 +36,142 @@ test('defaults: plaintext, one connection, the role port', () => {
   assert.equal(issuer.startTimeoutMs, 15000)
   assert.equal(issuer.stopTimeoutMs, 10000)
 
-  assert.equal(readConfig('merchant', base, noFiles).grpc.port, 50052)
+  assert.equal(readConfig('merchant', env, read).grpc.port, 50052)
 })
 
-test('overrides', () => {
-  const config = readConfig(
-    'merchant',
-    {
-      ...base,
-      GRPC_HOST: '127.0.0.1',
-      GRPC_PORT: '6000',
-      ATALLA_TIMEOUT_MS: '500',
-      LOG_LEVEL: 'debug',
-      START_TIMEOUT_MS: '1000',
-      STOP_TIMEOUT_MS: '2000'
-    },
-    noFiles
-  )
+test('every setting comes from the file', () => {
+  const read = files({
+    [CONFIG]: `
+log:
+  level: debug
+grpc:
+  host: 127.0.0.1
+  port: 6000
+atalla:
+  host: 10.0.0.1
+  port: 13506
+  timeout_ms: 500
+start_timeout_ms: 1000
+stop_timeout_ms: 2000
+`
+  })
+
+  const config = readConfig('merchant', env, read)
   assert.deepEqual(config.grpc, { host: '127.0.0.1', port: 6000 })
+  assert.equal(config.hsm.host, '10.0.0.1')
   assert.equal(config.hsm.timeoutMs, 500)
   assert.equal(config.logLevel, 'debug')
   assert.equal(config.startTimeoutMs, 1000)
   assert.equal(config.stopTimeoutMs, 2000)
 })
 
-test('TLS reads the three files, from the default paths or the named ones', () => {
-  const read = (path: string): string => `pem:${path}`
-
-  const defaults = readConfig(
+test('ignores the old environment variables', () => {
+  const config = readConfig(
     'issuer',
-    { ...base, ATALLA_TLS_ENABLED: 'true' },
-    read
+    { ...env, ATALLA_HOST: 'from-env', GRPC_PORT: '7000', LOG_LEVEL: 'trace' },
+    files({ [CONFIG]: minimal })
   )
-  assert.deepEqual(defaults.hsm.tls, {
-    ca: 'pem:/etc/atalla/tls/ca.crt',
-    cert: 'pem:/etc/atalla/tls/client.crt',
-    key: 'pem:/etc/atalla/tls/client.key',
-    skipServerIdentityCheck: false
+  assert.equal(config.hsm.host, 'atalla-hsm')
+  assert.equal(config.grpc.port, 50051)
+  assert.equal(config.logLevel, 'info')
+})
+
+test('TLS reads the three files from the default paths', () => {
+  const read = files({
+    [CONFIG]: `${minimal}  tls:\n    enabled: true\n`,
+    '/etc/atalla/tls/ca.crt': 'ca-pem',
+    '/etc/atalla/tls/client.crt': 'cert-pem',
+    '/etc/atalla/tls/client.key': 'key-pem'
   })
 
-  const named = readConfig(
-    'issuer',
-    {
-      ...base,
-      ATALLA_TLS_ENABLED: 'true',
-      ATALLA_CA_CERT_PATH: '/a',
-      ATALLA_CLIENT_CERT_PATH: '/b',
-      ATALLA_CLIENT_KEY_PATH: '/c',
-      ATALLA_SKIP_SERVER_IDENTITY_CHECK: 'true'
-    },
-    read
-  )
-  assert.deepEqual(named.hsm.tls, {
-    ca: 'pem:/a',
-    cert: 'pem:/b',
-    key: 'pem:/c',
+  assert.deepEqual(readConfig('issuer', env, read).hsm.tls, {
+    ca: 'ca-pem',
+    cert: 'cert-pem',
+    key: 'key-pem',
+    skipServerIdentityCheck: false
+  })
+})
+
+test('TLS paths may be absolute or relative to the config file', () => {
+  const read = files({
+    [CONFIG]: `${minimal}  tls:
+    enabled: true
+    ca_cert_path: /a/ca.crt
+    client_cert_path: tls/client.crt
+    client_key_path: ../client.key
+    skip_server_identity_check: true
+`,
+    '/a/ca.crt': 'ca-pem',
+    '/etc/hsm-adapter/config/tls/client.crt': 'cert-pem',
+    '/etc/hsm-adapter/client.key': 'key-pem'
+  })
+
+  assert.deepEqual(readConfig('issuer', env, read).hsm.tls, {
+    ca: 'ca-pem',
+    cert: 'cert-pem',
+    key: 'key-pem',
     skipServerIdentityCheck: true
   })
 })
 
 test('TLS names the file it cannot read', () => {
+  const read = files({ [CONFIG]: `${minimal}  tls:\n    enabled: true\n` })
   assert.throws(
-    () =>
-      readConfig('issuer', { ...base, ATALLA_TLS_ENABLED: 'true' }, noFiles),
-    /ATALLA_CA_CERT_PATH: cannot read \/etc\/atalla\/tls\/ca.crt/
+    () => readConfig('issuer', env, read),
+    /atalla\.tls\.ca_cert_path: cannot read \/etc\/atalla\/tls\/ca\.crt/
   )
 })
 
-test('ATALLA_TLS_ENABLED=false is plaintext', () => {
-  assert.equal(
-    readConfig('issuer', { ...base, ATALLA_TLS_ENABLED: 'false' }, noFiles).hsm
-      .tls,
-    false
+test('TLS off reads no files', () => {
+  const read = files({ [CONFIG]: `${minimal}  tls:\n    enabled: false\n` })
+  assert.equal(readConfig('issuer', env, read).hsm.tls, false)
+})
+
+test('requires the path variable and a readable, parsable file', () => {
+  assert.throws(
+    () => readConfig('issuer', {}, files({})),
+    /HSM_ADAPTER_CONFIG_PATH must be set to the path of a YAML config file/
+  )
+  assert.throws(
+    () => readConfig('issuer', env, files({})),
+    /cannot read \/etc\/hsm-adapter\/config\/config\.yaml/
+  )
+  assert.throws(
+    () => readConfig('issuer', env, files({ [CONFIG]: 'atalla: [' })),
+    /cannot parse \/etc\/hsm-adapter\/config\/config\.yaml/
   )
 })
 
-test('rejects bad values', () => {
-  const cases: [Env, RegExp][] = [
-    [{ ATALLA_PORT: '13506' }, /ATALLA_HOST is required/],
-    [{ ATALLA_HOST: 'h' }, /ATALLA_PORT is required/],
-    [{ ...base, ATALLA_PORT: '0' }, /ATALLA_PORT must be an integer/],
-    [{ ...base, GRPC_PORT: 'x' }, /GRPC_PORT must be an integer/],
+test('rejects bad values and names the key', () => {
+  const cases: [string, RegExp][] = [
+    ['', /atalla: Required/],
+    ['atalla:\n  port: 13506\n', /atalla\.host: Required/],
+    ['atalla:\n  host: h\n', /atalla\.port: Required/],
+    ['atalla:\n  host: h\n  port: 0\n', /atalla\.port: Number must be/],
+    ["atalla:\n  host: h\n  port: '13506'\n", /atalla\.port: Expected number/],
+    [`${minimal}grpc:\n  port: x\n`, /grpc\.port: Expected number/],
+    [`${minimal}  timeout_ms: -1\n`, /atalla\.timeout_ms: Number must be/],
     [
-      { ...base, ATALLA_TIMEOUT_MS: '-1' },
-      /ATALLA_TIMEOUT_MS must be a positive number/
-    ],
-    [
-      { ...base, ATALLA_TLS_ENABLED: 'yes' },
-      /ATALLA_TLS_ENABLED must be true or false/
+      `${minimal}  tls:\n    enabled: yes\n`,
+      /atalla\.tls\.enabled: Expected boolean/
     ]
   ]
-  for (const [env, message] of cases) {
-    assert.throws(() => readConfig('issuer', env, noFiles), message)
+  for (const [content, message] of cases) {
+    assert.throws(
+      () => readConfig('issuer', env, files({ [CONFIG]: content })),
+      message
+    )
   }
+})
+
+test('rejects unknown keys, so a typo fails the start', () => {
+  assert.throws(
+    () =>
+      readConfig(
+        'issuer',
+        env,
+        files({ [CONFIG]: `${minimal}  timeoutMs: 500\n` })
+      ),
+    /atalla: Unrecognized key\(s\) in object: 'timeoutMs'/
+  )
 })

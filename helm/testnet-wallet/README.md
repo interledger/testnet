@@ -89,6 +89,12 @@ one replica with the `Recreate` strategy, and nothing else may connect to the
 same HSM. The backend does not connect to the HSM. See
 [`packages/wallet/hsm-adapter`](../../packages/wallet/hsm-adapter/README.md).
 
+The adapters read no settings from the environment. The chart writes
+`hsmAdapter` into a config file per role, a ConfigMap mounted at
+`/etc/hsm-adapter/config/config.yaml`, and sets `HSM_ADAPTER_CONFIG_PATH` to
+it. A change to the file rolls the pod. The TLS files the config file names
+come from the Secret, mounted at `/etc/atalla/tls`.
+
 Both are off by default. Only the cards environments run them. The render
 fails if an enabled role has no Atalla host or port, or if TLS is on and no
 Secret is named.

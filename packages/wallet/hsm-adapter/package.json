@@ -18,7 +18,9 @@
     "@interledger/hsm-atalla-issuer": "0.3.0",
     "@interledger/hsm-atalla-merchant": "0.3.0",
     "@interledger/hsm-atalla-transport": "0.3.0",
-    "pino": "^10.3.1"
+    "pino": "^10.3.1",
+    "yaml": "^2.5.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^24.13.1",

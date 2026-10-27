@@ -215,6 +215,30 @@ pnpm local:reset:rhyza-data
 That one does not go through compose, so it works even when `RHYZA_IMAGE_PREFIX` / `RHYZA_IMAGE_TAG`
 are unset. `pnpm clean` runs it too.
 
+#### HSM adapters (opt-in)
+
+`hsm-adapter-issuer` and `hsm-adapter-merchant` serve the HSM adapter contracts for the issuer API
+and the merchant API. They are defined in `local/hsm-adapter.yaml`, behind the `hsm` profile, and
+built from `packages/wallet/hsm-adapter`. See that package's README.
+
+testnet runs no HSM. Point the adapters at one in `local/.env`, for example `atalla-sim` from
+cards-devenv (`mocks/atalla-sim`) on port 13506 of this machine, which is the default:
+
+```sh
+# In local/.env
+ATALLA_HOST=host.docker.internal
+ATALLA_PORT=13506
+```
+
+| Command                     | Purpose                                                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `pnpm local:up:rhyza:hsm`   | Build and start both, next to a running stack: `localhost:50051` (issuer) and `localhost:50052` (merchant) |
+| `pnpm local:down:rhyza:hsm` | Stop and remove them                                                                                       |
+| `pnpm local:logs:rhyza:hsm` | Follow their logs                                                                                          |
+
+Each adapter opens its gRPC port only once the HSM answered a health check. Each holds one HSM
+connection. `local:down:rhyza` and `local:reset:rhyza` stop them too.
+
 Additional endpoints:
 
 - [https://ilp.testnet.test](https://ilp.testnet.test) - Open Payments resource server.
