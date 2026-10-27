@@ -1,11 +1,13 @@
 # TestNet Wallet Helm Chart
 
-Deploys the Interledger TestNet Wallet application to Kubernetes. The chart manages two workloads:
+Deploys the Interledger TestNet Wallet application to Kubernetes. The chart manages these workloads:
 
-- **backend** — NestJS API (`test-wallet-backend` image, HTTP port `4003`),
-  optionally hosting the issuer and merchant HSM adapters on ports `50051` and
-  `50052`
+- **backend** — NestJS API (`test-wallet-backend` image, HTTP port `4003`)
 - **frontend** — Next.js UI (`test-wallet-frontend` image, port `4003`)
+- **hsm-adapter-issuer** and **hsm-adapter-merchant** — optional, off by
+  default. The issuer and merchant HSM adapter contracts over gRPC
+  (`test-wallet-hsm-adapter-issuer` and `test-wallet-hsm-adapter-merchant`
+  images, ports `50051` and `50052`)
 
 ## Dependencies
 
@@ -79,60 +81,48 @@ Secrets are mounted into the backend container via individual `env[].valueFrom.s
 
 ### Atalla HSM adapters
 
-The backend can serve the issuer and the merchant HSM adapter contracts over
-gRPC. One process runs both servers. `serverRole` chooses which servers start:
-`both`, `issuer`, or `merchant`.
+The issuer and the merchant HSM adapter contracts run as two processes, each
+in its own Deployment and Service: `<fullname>-hsm-adapter-issuer` and
+`<fullname>-hsm-adapter-merchant`. Each holds one connection to the Atalla
+HSM. The real HSM accepts two connections from one public IP, so each runs
+one replica with the `Recreate` strategy, and nothing else may connect to the
+same HSM. The backend does not connect to the HSM. See
+[`packages/wallet/hsm-adapter`](../../packages/wallet/hsm-adapter/README.md).
 
-The adapters are off by default. Only the cards environments run them, so a
-deployment without an HSM starts without any Atalla configuration.
-
-`templates/configMap.backend.yaml` adds the `HSM_*` and `ATALLA_*` keys to the
-backend ConfigMap, and only when `enabled` is true. They are not
-`configMaps.backend.contentMap` entries: the backend rejects an empty
-`ATALLA_HOST` or `ATALLA_PORT` when `HSM_ENABLED` is true, and a contentMap
-entry would write an empty string in every environment that leaves the value
-unset. The render fails if `enabled` is true and either value is missing.
+Both are off by default. Only the cards environments run them. The render
+fails if an enabled role has no Atalla host or port, or if TLS is on and no
+Secret is named.
 
 ```yaml
-config:
-  backend:
-    hsm:
+hsmAdapter:
+  atalla:
+    # The default for both roles.
+    host: 10.0.0.1
+    port: 13506
+    tls:
       enabled: true
-      serverRole: both
-      grpcHost: '0.0.0.0'
-      issuerPort: 50051
-      merchantPort: 50052
+      # Holds ca.crt, client.crt and client.key. Mounted at /etc/atalla/tls,
+      # mode 0440, readable through fsGroup 1000.
+      secretName: wallet-atalla
+      skipServerIdentityCheck: true
 
-      atalla:
-        host: 10.0.0.1
-        port: 13506
-        timeoutMs: 2000
-        poolSize: 1
-        tls:
-          enabled: true
-          # Skips the hostname check only. The transport still sets
-          # rejectUnauthorized, so the HSM certificate must chain to the CA at
-          # caCertPath.
-          skipServerIdentityCheck: true
-          # Paths, not PEM text. The backend reads each file at start-up.
-          caCertPath: /etc/atalla/tls/ca.crt
-          clientCertPath: /etc/atalla/tls/client.crt
-          clientKeyPath: /etc/atalla/tls/client.key
+  issuer:
+    enabled: true
+  merchant:
+    enabled: true
+    # Optional: a different HSM for this role.
+    # atalla:
+    #   host: 10.0.0.2
 ```
 
-The issuer and merchant listeners are cleartext h2c services. Reach them inside
-the namespace only, and keep the gRPC ports off the Ingress.
+The pods are ready only once the HSM answered: an adapter opens its gRPC port
+after the HSM connection and a health check, and the readiness probe checks
+that port.
 
-`enabled: true` is not enough on its own. Helm replaces a list rather than
-merging it, so the environment's values file must also write out, in full:
-
-- `deployments.backend.ports`, with the gRPC container ports added
-- `services.backend.ports`, with the matching Service ports added
-- `deployments.backend.volumes` and `deployments.backend.volumeMounts`, for the
-  Atalla TLS files at the paths above
-
-`env/cards-playground/wallet/testnet-wallet.yaml` in `testnet-deploy` is the
-worked example.
+The listeners are cleartext h2c services. Reach them inside the namespace
+only, and keep the gRPC ports off the Ingress. The issuer API calls
+`<fullname>-hsm-adapter-issuer:50051`, and the merchant API calls
+`<fullname>-hsm-adapter-merchant:50052`.
 
 ### OpenTelemetry
 

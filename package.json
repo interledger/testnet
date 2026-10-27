@@ -14,7 +14,7 @@
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
     "test": "pnpm test:unit",
-    "test:unit": "pnpm boutique:backend test && pnpm --filter @shared/telemetry test && pnpm wallet:backend test",
+    "test:unit": "pnpm boutique:backend test && pnpm --filter @shared/telemetry test && pnpm wallet:backend test && pnpm wallet:hsm-adapter test",
     "clean": "pnpm clean:modules && pnpm clean:builds && pnpm local:down && pnpm local:reset && pnpm local:reset:rhyza-data",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
@@ -64,7 +64,8 @@
     "prettier:write": "prettier --config \".prettierrc.js\" --write .",
     "prettier:check": "prettier --config \".prettierrc.js\" --check .",
     "wallet:backend": "pnpm --filter @wallet/backend --",
-    "wallet:frontend": "pnpm --filter @wallet/frontend --"
+    "wallet:frontend": "pnpm --filter @wallet/frontend --",
+    "wallet:hsm-adapter": "pnpm --filter @wallet/hsm-adapter --"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

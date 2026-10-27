@@ -4,6 +4,7 @@
 'package: wallet/frontend':
   - packages/wallet/frontend/**/*
   - packages/shared/telemetry/**/*
+'package: wallet/hsm-adapter': packages/wallet/hsm-adapter/**/*
 'package: boutique/backend': packages/boutique/backend/**/*
 'package: boutique/frontend': packages/boutique/frontend/**/*
 
@@ -17,6 +18,7 @@
 'type: source':
   - packages/wallet/backend/src/**/*
   - packages/wallet/frontend/src/**/*
+  - packages/wallet/hsm-adapter/src/**/*
   - packages/boutique/backend/src/**/*
   - packages/boutique/backend/src/**/*
 

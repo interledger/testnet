@@ -1,0 +1,138 @@
+{{- /*
+hsm-adapter-issuer and hsm-adapter-merchant: one Deployment and one Service
+each. Each process holds one HSM connection.
+
+Written by hand, not through common.deployment: the readiness probe is a TCP
+check on the gRPC port, and common.probe renders only httpGet or exec. The
+port opens only after the HSM connection is up and a health check answered.
+
+Names and labels come from the common helpers, with the component name
+hsm-adapter-<role>, so they line up with the rest of the release.
+*/ -}}
+{{- $hsm := .Values.hsmAdapter -}}
+{{- $imageOverride := .Values.imageOverride | default dict -}}
+{{- range $role := list "issuer" "merchant" }}
+{{- $adapter := index $hsm $role }}
+{{- if $adapter.enabled }}
+{{- $component := dict "name" (printf "hsm-adapter-%s" $role) }}
+{{- $name := printf "%s-%s" (include "common.fullname" $) $component.name }}
+{{- $atallaHost := dig "atalla" "host" $hsm.atalla.host $adapter }}
+{{- if not $atallaHost }}
+{{- fail (printf "hsmAdapter.atalla.host or hsmAdapter.%s.atalla.host is required when hsmAdapter.%s.enabled is true" $role $role) }}
+{{- end }}
+{{- if not $hsm.atalla.port }}
+{{- fail (printf "hsmAdapter.atalla.port is required when hsmAdapter.%s.enabled is true" $role) }}
+{{- end }}
+{{- $image := $adapter.image | default dict }}
+{{- $repository := coalesce $image.repository $imageOverride.repository "ghcr.io/interledger" }}
+{{- $tag := coalesce $image.tag $.Values.versionOverride $imageOverride.tag $.Chart.AppVersion "latest" }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "common.labels" (list $ $component) | nindent 4 }}
+spec:
+  replicas: 1
+  # The HSM limits the connections. The old pod lets go of its connection
+  # before the new one opens one.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" (list $ $component) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.selectorLabels" (list $ $component) | nindent 8 }}
+      {{- with $adapter.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with $hsm.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # STOP_TIMEOUT_MS plus a margin.
+      terminationGracePeriodSeconds: {{ add (div $hsm.stopTimeoutMs 1000) 5 }}
+      {{- with $hsm.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $component.name }}
+          image: "{{ $repository }}/{{ $image.name }}:{{ $tag }}"
+          imagePullPolicy: {{ $hsm.imagePullPolicy }}
+          {{- with $hsm.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: LOG_LEVEL
+              value: {{ $hsm.logLevel | quote }}
+            - name: GRPC_PORT
+              value: {{ $adapter.port | quote }}
+            - name: ATALLA_HOST
+              value: {{ $atallaHost | quote }}
+            - name: ATALLA_PORT
+              value: {{ $hsm.atalla.port | quote }}
+            - name: ATALLA_TIMEOUT_MS
+              value: {{ $hsm.atalla.timeoutMs | quote }}
+            - name: ATALLA_TLS_ENABLED
+              value: {{ $hsm.atalla.tls.enabled | quote }}
+            {{- if $hsm.atalla.tls.enabled }}
+            - name: ATALLA_SKIP_SERVER_IDENTITY_CHECK
+              value: {{ $hsm.atalla.tls.skipServerIdentityCheck | quote }}
+            {{- end }}
+            - name: START_TIMEOUT_MS
+              value: {{ $hsm.startTimeoutMs | quote }}
+            - name: STOP_TIMEOUT_MS
+              value: {{ $hsm.stopTimeoutMs | quote }}
+          ports:
+            - name: grpc
+              containerPort: {{ $adapter.port }}
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 20
+          resources:
+            {{- toYaml $hsm.resources | nindent 12 }}
+          {{- if $hsm.atalla.tls.enabled }}
+          volumeMounts:
+            - name: atalla-tls
+              mountPath: /etc/atalla/tls
+              readOnly: true
+          {{- end }}
+      {{- if $hsm.atalla.tls.enabled }}
+      volumes:
+        - name: atalla-tls
+          secret:
+            secretName: {{ required "hsmAdapter.atalla.tls.secretName is required when hsmAdapter.atalla.tls.enabled is true" $hsm.atalla.tls.secretName }}
+            # Group-readable: fsGroup gives the node user the group.
+            defaultMode: 0440
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "common.labels" (list $ $component) | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "common.selectorLabels" (list $ $component) | nindent 4 }}
+  ports:
+    - name: grpc
+      port: {{ $adapter.port }}
+      targetPort: grpc
+      protocol: TCP
+      appProtocol: grpc
+{{- end }}
+{{- end }}
