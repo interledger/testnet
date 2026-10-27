@@ -9,8 +9,6 @@ import { z } from 'zod'
 
 export type Role = 'issuer' | 'merchant'
 
-// The only environment variable the adapter reads. Every setting is in the
-// YAML file it names.
 export const CONFIG_PATH_ENV_VAR = 'HSM_ADAPTER_CONFIG_PATH'
 
 export const DEFAULT_GRPC_PORTS: Record<Role, number> = {
@@ -23,11 +21,7 @@ export interface AdapterConfig {
   logLevel: string
   grpc: { host: string; port: number }
   hsm: AtallaTransportConfig
-  // How long the HSM connection, the listener and the first health check may
-  // take. The transport (0.3.0) never gives up on a connection that fails, so
-  // the process exits instead and Kubernetes backs off the restart.
   startTimeoutMs: number
-  // How long a SIGTERM waits for the server to stop before the process exits.
   stopTimeoutMs: number
 }
 
@@ -40,8 +34,6 @@ const port = z.number().int().min(1).max(65_535)
 const positive = z.number().positive()
 const path = z.string().trim().min(1)
 
-// The config file. Unknown keys are rejected, so a typo fails the start
-// instead of being ignored.
 const configFileSchema = z
   .object({
     log: z
@@ -63,13 +55,9 @@ const configFileSchema = z
         tls: z
           .object({
             enabled: z.boolean().default(false),
-            // Paths, not PEM text. A relative path resolves against the
-            // directory of the config file.
             ca_cert_path: path.default('/etc/atalla/tls/ca.crt'),
             client_cert_path: path.default('/etc/atalla/tls/client.crt'),
             client_key_path: path.default('/etc/atalla/tls/client.key'),
-            // Skips the hostname check only. The certificate must still chain
-            // to the CA.
             skip_server_identity_check: z.boolean().default(false)
           })
           .strict()
@@ -129,8 +117,6 @@ export function readConfig(
       host: file.atalla.host,
       port: file.atalla.port,
       timeoutMs: file.atalla.timeout_ms,
-      // One connection per process. The real HSM accepts two from one public
-      // IP: one for the issuer adapter, one for the merchant adapter.
       poolSize: 1,
       tls: readTls(file.atalla.tls, dirname(configPath), readFile)
     },

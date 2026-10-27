@@ -9,15 +9,12 @@ import {
 import { pino } from 'pino'
 import { readConfig, type AdapterConfig, type Env, type Role } from './config'
 
-// What createAtallaIssuerServer and createAtallaMerchantServer return.
 export interface AdapterServer {
   start(): Promise<void>
   stop(): Promise<void>
   healthCheck(): Promise<AtallaHealthCheckResult>
 }
 
-// The wrapper owns the transport. A server given a transport does not connect
-// or close it, so the wrapper decides when the HSM connection opens and closes.
 export interface ServerConfig {
   grpc: { host: string; port: number }
   transport: AtallaTransport
@@ -41,8 +38,6 @@ export interface Process {
 }
 
 export function createLogger(config: AdapterConfig): Logger {
-  // The services log only metadata (rpc name, timing, error message). The
-  // redaction is a second line of defence, as in hsm-atalla-server.
   return pino({
     level: config.logLevel,
     base: { adapter: config.role },
@@ -66,9 +61,6 @@ export function createLogger(config: AdapterConfig): Logger {
   })
 }
 
-// Runs one adapter until SIGTERM or SIGINT. The process exits 1 when the
-// server does not start, or the HSM does not answer a health check, within
-// startTimeoutMs.
 export async function main(
   role: Role,
   factory: ServerFactory,
@@ -130,8 +122,6 @@ export async function main(
       },
       'adapter failed to start'
     )
-    // No close(): the transport's close() waits for a connect that may never
-    // end. Exiting drops the connection attempt with the process.
     proc.exit(1)
     return
   }
@@ -145,8 +135,6 @@ export async function main(
   )
 }
 
-// The HSM connection comes first, so the gRPC port opens only once the HSM
-// answers. The readiness probe checks that port.
 async function startAndCheck(
   transport: AtallaTransport,
   server: AdapterServer
@@ -161,14 +149,9 @@ async function startAndCheck(
   }
 }
 
-// Logs each call's Connect code at debug. The library already logs each call
-// at info (`hsm rpc ok` / `hsm rpc failed`, with `rpc` and `ms`), but not the
-// code the caller sees. Never the request or the response, which carry key
-// and card data.
 export function logCalls(logger: Logger): Interceptor {
   return (next) => async (request) => {
     const started = performance.now()
-    // Connect's Code has no OK; a call that returns is logged as 'OK'.
     const done = (code: string): void => {
       logger.debug(
         {

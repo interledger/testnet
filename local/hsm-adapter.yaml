@@ -4,9 +4,8 @@
 #   issuer-api   -> localhost:50051 -> hsm-adapter-issuer   -> Atalla HSM
 #   merchant-api -> localhost:50052 -> hsm-adapter-merchant -> Atalla HSM
 #
-# testnet runs no HSM. Point ATALLA_HOST and ATALLA_PORT in local/.env at one:
-# atalla-sim from cards-devenv (mocks/atalla-sim), or a tunnel to a dev HSM.
-# The default is port 13506 on the host. Each adapter holds one connection.
+# testnet runs no HSM. Point ATALLA_HOST and ATALLA_PORT in local/.env at an
+# Atalla HSM or simulator. The default is port 13506 on the host.
 #
 # Opt-in, behind the `hsm` profile, and on the Rhyza stack only.
 # `pnpm local:up:rhyza:hsm` builds and starts both, `local:down:rhyza:hsm`
