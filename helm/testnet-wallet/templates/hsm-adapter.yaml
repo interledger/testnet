@@ -1,0 +1,145 @@
+{{- /*
+hsm-adapter-issuer and hsm-adapter-merchant. Rewritten, not through
+common.deployment, because common.probe cannot render a tcpSocket probe.
+*/ -}}
+{{- $hsm := .Values.hsmAdapter -}}
+{{- $imageOverride := .Values.imageOverride | default dict -}}
+{{- range $role := list "issuer" "merchant" }}
+{{- $adapter := index $hsm $role }}
+{{- if $adapter.enabled }}
+{{- $component := dict "name" (printf "hsm-adapter-%s" $role) }}
+{{- $name := printf "%s-%s" (include "common.fullname" $) $component.name }}
+{{- $atallaHost := dig "atalla" "host" $hsm.atalla.host $adapter }}
+{{- if not $atallaHost }}
+{{- fail (printf "hsmAdapter.atalla.host or hsmAdapter.%s.atalla.host is required when hsmAdapter.%s.enabled is true" $role $role) }}
+{{- end }}
+{{- if not $hsm.atalla.port }}
+{{- fail (printf "hsmAdapter.atalla.port is required when hsmAdapter.%s.enabled is true" $role) }}
+{{- end }}
+{{- $image := $adapter.image | default dict }}
+{{- $repository := coalesce $image.repository $imageOverride.repository "ghcr.io/interledger" }}
+{{- $tag := coalesce $image.tag $.Values.versionOverride $imageOverride.tag $.Chart.AppVersion "latest" }}
+{{- $tls := dict "enabled" $hsm.atalla.tls.enabled }}
+{{- if $hsm.atalla.tls.enabled }}
+{{- $_ := set $tls "ca_cert_path" "/etc/atalla/tls/ca.crt" }}
+{{- $_ := set $tls "client_cert_path" "/etc/atalla/tls/client.crt" }}
+{{- $_ := set $tls "client_key_path" "/etc/atalla/tls/client.key" }}
+{{- $_ := set $tls "skip_server_identity_check" $hsm.atalla.tls.skipServerIdentityCheck }}
+{{- end }}
+{{- $config := dict
+      "log" (dict "level" $hsm.logLevel)
+      "grpc" (dict "port" (int $adapter.port))
+      "atalla" (dict
+        "host" $atallaHost
+        "port" (int $hsm.atalla.port)
+        "timeout_ms" (int $hsm.atalla.timeoutMs)
+        "tls" $tls)
+      "start_timeout_ms" (int $hsm.startTimeoutMs)
+      "stop_timeout_ms" (int $hsm.stopTimeoutMs) }}
+{{- $configYaml := toYaml $config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "common.labels" (list $ $component) | nindent 4 }}
+data:
+  config.yaml: |
+    {{- $configYaml | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "common.labels" (list $ $component) | nindent 4 }}
+spec:
+  replicas: 1
+  # Never two HSM connections for one role.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" (list $ $component) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.selectorLabels" (list $ $component) | nindent 8 }}
+      annotations:
+        hsm-adapter-config-sha256: {{ $configYaml | sha256sum | quote }}
+        {{- with $adapter.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with $hsm.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ add (div $hsm.stopTimeoutMs 1000) 5 }}
+      {{- with $hsm.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $component.name }}
+          image: "{{ $repository }}/{{ $image.name }}:{{ $tag }}"
+          imagePullPolicy: {{ $hsm.imagePullPolicy }}
+          {{- with $hsm.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: HSM_ADAPTER_CONFIG_PATH
+              value: /etc/hsm-adapter/config/config.yaml
+          ports:
+            - name: grpc
+              containerPort: {{ $adapter.port }}
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 20
+          resources:
+            {{- toYaml $hsm.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/hsm-adapter/config
+              readOnly: true
+          {{- if $hsm.atalla.tls.enabled }}
+            - name: atalla-tls
+              mountPath: /etc/atalla/tls
+              readOnly: true
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ $name }}
+      {{- if $hsm.atalla.tls.enabled }}
+        - name: atalla-tls
+          secret:
+            secretName: {{ required "hsmAdapter.atalla.tls.secretName is required when hsmAdapter.atalla.tls.enabled is true" $hsm.atalla.tls.secretName }}
+            defaultMode: 0440
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "common.labels" (list $ $component) | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "common.selectorLabels" (list $ $component) | nindent 4 }}
+  ports:
+    - name: grpc
+      port: {{ $adapter.port }}
+      targetPort: grpc
+      protocol: TCP
+      appProtocol: grpc
+{{- end }}
+{{- end }}

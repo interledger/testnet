@@ -64,7 +64,6 @@ import { TerminalController } from '@/terminal/controller'
 import { TerminalService } from '@/terminal/service'
 import { AdminNotificationController } from '@/admin-notification/controller'
 import { AdminNotificationService } from '@/admin-notification/service'
-import { HsmAtallaService } from '@/hsm/atalla/service'
 import { RhyzaController } from './rhyza/controller'
 import { RhyzaService } from './rhyza/service'
 
@@ -122,7 +121,6 @@ export interface Cradle {
   terminalController: TerminalController
   adminNotificationService?: AdminNotificationService
   adminNotificationController?: AdminNotificationController
-  hsmAtallaService: HsmAtallaService
 }
 
 export async function createContainer(
@@ -203,8 +201,7 @@ export async function createContainer(
     interledgerCardService: asClass(InterledgerCardService).singleton(),
     interledgerCardController: asClass(InterledgerCardController).singleton(),
     terminalService: asClassSingletonWithLogger(TerminalService, logger),
-    terminalController: asClass(TerminalController).singleton(),
-    hsmAtallaService: asClassSingletonWithLogger(HsmAtallaService, logger)
+    terminalController: asClass(TerminalController).singleton()
   })
 
   return container
