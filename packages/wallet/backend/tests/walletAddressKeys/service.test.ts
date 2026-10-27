@@ -22,6 +22,7 @@ describe('Wallet Address Key Service', () => {
   let authService: AuthService
   let userId: string
   let rafikiClientMock: Record<string, () => unknown>
+  let rhyzaAdminClientMock: Record<string, () => unknown>
 
   const rafikiKeyId = faker.string.uuid()
   const walletAddress = {
@@ -58,16 +59,19 @@ describe('Wallet Address Key Service', () => {
 
   function prepareWSKDepsMock() {
     rafikiClientMock = {
-      createRafikiWalletAddressKey: () => ({
-        id: rafikiKeyId
-      }),
       revokeWalletAddressKey: jest.fn()
+    }
+    rhyzaAdminClientMock = {
+      registerWalletAddressKey: () => ({
+        id: rafikiKeyId
+      })
     }
     const wakServiceDepsMocked = {
       walletAddressService: {
         getById: () => Promise.resolve(walletAddress)
       },
-      rafikiClient: rafikiClientMock
+      rafikiClient: rafikiClientMock,
+      rhyzaAdminClient: rhyzaAdminClientMock
     }
 
     for (const key in wakServiceDepsMocked)
