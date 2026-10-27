@@ -3,7 +3,6 @@ import { User } from '@/user/model'
 import { transformBalance } from '@/utils/helpers'
 import { Amount } from '@/rafiki/service'
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
-import { DEFAULT_ASSET_SCALE } from '@/utils/consts'
 import { GateHubClient } from '@/gatehub/client'
 import { v4 as uuid } from 'uuid'
 import { MANUAL_NETWORK, TransactionTypeEnum } from '@/gatehub/consts'
@@ -254,10 +253,7 @@ export class AccountService implements IAccountService {
     isDefaultCardsAccount = false,
     cardId?: string
   ): Promise<Account | undefined> {
-    const asset = await this.assetService.getAssetByCode(
-      'EUR',
-      DEFAULT_ASSET_SCALE
-    )
+    const asset = await this.assetService.getAssetByCode('EUR')
 
     if (!asset) {
       return
