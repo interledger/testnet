@@ -49,13 +49,30 @@ describe('Grant Service', () => {
         revokeGrant: isFailure
           ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
           : jest.fn(),
-        getGrantByInteraction: jest.fn().mockReturnValue({
+        listGrants: jest.fn().mockReturnValue(mockedListGrant),
+        listGrantsWithPagination: jest.fn().mockReturnValue({
+          grants: {
+            edges: JSON.parse(
+              JSON.stringify(mockedListGrant.map((grant) => ({ node: grant })))
+            ),
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false
+            }
+          }
+        })
+      },
+      rhyzaIdpClient: {
+        getGrant: jest.fn().mockResolvedValue({
           id: 'grant',
+          state: 'PENDING',
+          subjectIds: [],
           access: [
             {
+              type: 'outgoing-payment',
+              actions: ['create', 'read'],
               identifier: faker.internet.url(),
               limits: {
-                receiver: null,
                 debitAmount: {
                   value: '12425',
                   assetCode: 'USD',
@@ -70,18 +87,6 @@ describe('Grant Service', () => {
               }
             }
           ]
-        }),
-        listGrants: jest.fn().mockReturnValue(mockedListGrant),
-        listGrantsWithPagination: jest.fn().mockReturnValue({
-          grants: {
-            edges: JSON.parse(
-              JSON.stringify(mockedListGrant.map((grant) => ({ node: grant })))
-            ),
-            pageInfo: {
-              hasNextPage: false,
-              hasPreviousPage: false
-            }
-          }
         })
       }
     }

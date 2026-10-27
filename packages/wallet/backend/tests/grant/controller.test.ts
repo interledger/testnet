@@ -61,7 +61,18 @@ describe('Grant Controller', () => {
         getGrantById: jest.fn().mockReturnValue({ id: 'grant' })
       },
       grantService: {
-        getGrantByInteraction: jest.fn().mockReturnValue(mockedListGrant[0]),
+        getGrantByInteraction: jest.fn().mockReturnValue({
+          id: 'grant',
+          state: 'PENDING',
+          subjectIds: [],
+          access: [
+            {
+              type: 'outgoing-payment',
+              actions: ['create', 'read'],
+              identifier: faker.internet.url()
+            }
+          ]
+        }),
         setInteractionResponse: jest
           .fn()
           .mockReturnValue(isFailure ? mockedListGrant[1] : mockedListGrant[0]),
@@ -169,8 +180,9 @@ describe('Grant Controller', () => {
       await grantController.getByInteraction(req, res, next)
       expect(res.statusCode).toBe(200)
       expect(res._getJSONData().result).toHaveProperty('id')
-      expect(res._getJSONData().result).toHaveProperty('client')
+      expect(res._getJSONData().result).toHaveProperty('access')
       expect(res._getJSONData().result).toHaveProperty('state')
+      expect(res._getJSONData().result).toHaveProperty('subjectIds')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS'
