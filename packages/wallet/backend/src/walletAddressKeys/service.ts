@@ -7,6 +7,7 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { BadRequest, NotFound } from '@shared/backend'
 import { UniqueViolationError } from 'objection'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
 export type KeyResponse = {
   privateKey: string
@@ -61,7 +62,8 @@ interface IWalletAddressKeyService {
 export class WalletAddressKeyService implements IWalletAddressKeyService {
   constructor(
     private walletAddressService: WalletAddressService,
-    private rafikiClient: RafikiClient
+    private rafikiClient: RafikiClient,
+    private rhyzaAdminClient: RhyzaAdminClient
   ) {}
 
   async uploadKey({
@@ -87,7 +89,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
         .toString()
 
       const walletAddressKey =
-        await this.rafikiClient.createRafikiWalletAddressKey(
+        await this.rhyzaAdminClient.registerWalletAddressKey(
           jwk,
           walletAddress.id
         )
@@ -151,7 +153,7 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
       .toString()
 
     const walletAddressKey =
-      await this.rafikiClient.createRafikiWalletAddressKey(
+      await this.rhyzaAdminClient.registerWalletAddressKey(
         generateJwk(privateKey, keyId),
         walletAddress.id
       )
