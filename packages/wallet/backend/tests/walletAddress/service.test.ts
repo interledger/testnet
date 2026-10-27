@@ -72,22 +72,13 @@ describe('Wallet Address Service', () => {
         set: jest.fn(),
         delete: jest.fn()
       },
-      rafikiClient: {
-        createRafikiWalletAddress: () => ({
-          id: faker.string.uuid(),
-          address: faker.internet.url()
-        }),
-        createRafikiWalletAddressKey: () => ({
-          id: faker.string.uuid()
-        }),
-        revokeWalletAddressKey: jest.fn(),
-        updateWalletAddress: jest.fn()
-      },
       rhyzaAdminClient: {
         createWalletAddress: jest.fn(async () => ({
           id: faker.string.uuid(),
           address: faker.internet.domainName()
-        }))
+        })),
+        activateWalletAddress: jest.fn(async () => undefined),
+        deactivateWalletAddress: jest.fn(async () => undefined)
       },
       updateTransaction: jest.fn()
     }
@@ -148,6 +139,83 @@ describe('Wallet Address Service', () => {
         publicName: 'My Wallet',
         url: `${serviceEnv.OPEN_PAYMENTS_HOST}/my-wallet`
       })
+    })
+
+    it('should reactivate an inactive wallet address in Rhyza', async () => {
+      const { account, walletAddress } =
+        await prepareWADependencies('my-wallet')
+      await WalletAddress.query().findById(walletAddress.id).patch({
+        active: false
+      })
+      const activateWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').activateWalletAddress
+      )
+      activateWalletAddress.mockClear()
+
+      const result = await waService.create({
+        userId,
+        accountId: account.id,
+        walletAddressName: 'my-wallet',
+        publicName: 'My Wallet'
+      })
+
+      expect(activateWalletAddress).toHaveBeenCalledWith(walletAddress.id)
+      expect(result).toMatchObject({
+        id: walletAddress.id,
+        active: true,
+        publicName: 'My Wallet'
+      })
+    })
+
+    it('should treat an activation conflict as already active', async () => {
+      const { account, walletAddress } =
+        await prepareWADependencies('my-wallet')
+      await WalletAddress.query().findById(walletAddress.id).patch({
+        active: false
+      })
+      const activateWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').activateWalletAddress
+      )
+      activateWalletAddress.mockRejectedValueOnce(
+        new Conflict('already active')
+      )
+
+      await expect(
+        waService.create({
+          userId,
+          accountId: account.id,
+          walletAddressName: 'my-wallet',
+          publicName: 'My Wallet'
+        })
+      ).resolves.toMatchObject({
+        id: walletAddress.id,
+        active: true
+      })
+    })
+
+    it('should propagate unexpected activation errors and leave the address inactive', async () => {
+      const { account, walletAddress } =
+        await prepareWADependencies('my-wallet')
+      await WalletAddress.query().findById(walletAddress.id).patch({
+        active: false
+      })
+      const activateWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').activateWalletAddress
+      )
+      const error = new Error('boom')
+      activateWalletAddress.mockRejectedValueOnce(error)
+
+      await expect(
+        waService.create({
+          userId,
+          accountId: account.id,
+          walletAddressName: 'my-wallet',
+          publicName: 'My Wallet'
+        })
+      ).rejects.toBe(error)
+      await expect(
+        WalletAddress.query().findById(walletAddress.id)
+      ).resolves.toMatchObject({ active: false })
     })
 
     it('should return an new WalletAddress', async () => {
@@ -291,10 +359,52 @@ describe('Wallet Address Service', () => {
   })
 
   describe('Soft delete', () => {
-    it('should return undefined', async () => {
+    it('should deactivate the Rhyza address and soft delete locally', async () => {
       const { walletAddress } = await prepareWADependencies('my-wallet')
+      const deactivateWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').deactivateWalletAddress
+      )
+      deactivateWalletAddress.mockClear()
+
       const result = await waService.softDelete(userId, walletAddress.id)
       expect(result).toBeUndefined()
+      expect(deactivateWalletAddress).toHaveBeenCalledWith(walletAddress.id)
+      await expect(
+        WalletAddress.query().findById(walletAddress.id)
+      ).resolves.toMatchObject({ active: false })
+    })
+
+    it('should soft delete locally when Rhyza reports the address already inactive', async () => {
+      const { walletAddress } = await prepareWADependencies('my-wallet')
+      const deactivateWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').deactivateWalletAddress
+      )
+      deactivateWalletAddress.mockRejectedValueOnce(
+        new Conflict('already inactive')
+      )
+
+      await expect(
+        waService.softDelete(userId, walletAddress.id)
+      ).resolves.toBeUndefined()
+      await expect(
+        WalletAddress.query().findById(walletAddress.id)
+      ).resolves.toMatchObject({ active: false })
+    })
+
+    it('should leave the address active when Rhyza deactivation fails', async () => {
+      const { walletAddress } = await prepareWADependencies('my-wallet')
+      const deactivateWalletAddress = jest.mocked(
+        Reflect.get(waService, 'rhyzaAdminClient').deactivateWalletAddress
+      )
+      const error = new Error('deactivation failed')
+      deactivateWalletAddress.mockRejectedValueOnce(error)
+
+      await expect(waService.softDelete(userId, walletAddress.id)).rejects.toBe(
+        error
+      )
+      await expect(
+        WalletAddress.query().findById(walletAddress.id)
+      ).resolves.toMatchObject({ active: true })
     })
 
     it('should reject NotFound', async () => {

@@ -66,6 +66,8 @@ import { AdminNotificationController } from '@/admin-notification/controller'
 import { AdminNotificationService } from '@/admin-notification/service'
 import { HsmAtallaService } from '@/hsm/atalla/service'
 import { AssetService } from './asset/service'
+import { RhyzaController } from './rhyza/controller'
+import { RhyzaService } from './rhyza/service'
 
 export interface Cradle {
   env: Env
@@ -90,6 +92,7 @@ export interface Cradle {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentService: OutgoingPaymentService
   rafikiService: RafikiService
+  rhyzaService: RhyzaService
   stripeService?: StripeService
   quoteService: QuoteService
   grantService: GrantService
@@ -103,6 +106,7 @@ export interface Cradle {
   incomingPaymentController: IncomingPaymentController
   outgoingPaymentController: OutgoingPaymentController
   rafikiController: RafikiController
+  rhyzaController: RhyzaController
   stripeController?: StripeController
   quoteController: QuoteController
   grantController: GrantController
@@ -157,6 +161,7 @@ export async function createContainer(
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
     rafikiService: asClassSingletonWithLogger(RafikiService, logger),
+    rhyzaService: asClassSingletonWithLogger(RhyzaService, logger),
     ...(env.USE_STRIPE
       ? {
           stripeService: asClassSingletonWithLogger(StripeService, logger),
@@ -188,6 +193,7 @@ export async function createContainer(
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),
     outgoingPaymentController: asClass(OutgoingPaymentController).singleton(),
     rafikiController: asClassSingletonWithLogger(RafikiController, logger),
+    rhyzaController: asClassSingletonWithLogger(RhyzaController, logger),
     quoteController: asClass(QuoteController).singleton(),
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),

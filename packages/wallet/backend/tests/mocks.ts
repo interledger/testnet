@@ -7,6 +7,8 @@ import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { webhookBodySchema, WebhookType } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
+import { EventType as RhyzaEventType } from '@/rhyza/service'
+import type { WebhookType as RhyzaWebhookType } from '@/rhyza/validation'
 import {
   incomingPaymentSchema,
   paymentDetailsSchema
@@ -350,6 +352,35 @@ export function mockIncomingPaymentCreatedEvent(
       metadata: {
         description: 'Free Money!'
       }
+    }
+  }
+}
+
+export function mockPaymentIntentCreatedEvent(
+  overrides?: Partial<RhyzaWebhookType>
+): RhyzaWebhookType {
+  return {
+    id: faker.string.uuid(),
+    type: RhyzaEventType.PaymentIntentCreated,
+    ...overrides,
+    data: {
+      id: faker.string.uuid(),
+      walletAddressId: faker.string.uuid(),
+      createdAt: faker.date.recent().toISOString(),
+      expiresAt: faker.date.soon().toISOString(),
+      state: 'CREATED',
+      receivedAmount: {
+        value: '0',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      incomingAmount: {
+        value: '1000',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      metadata: { description: 'Test payment' },
+      ...overrides?.data
     }
   }
 }

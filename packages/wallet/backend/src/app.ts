@@ -55,7 +55,6 @@ import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
 import { TerminalController } from './terminal/controller'
-import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 import { isAdminSecret } from '@/middleware/isAdminSecret'
 import { HsmAtallaService } from '@/hsm/atalla/service'
@@ -188,6 +187,7 @@ export class App {
     const grantController = this.container.resolve('grantController')
     const accountController = this.container.resolve('accountController')
     const rafikiController = this.container.resolve('rafikiController')
+    const rhyzaController = this.container.resolve('rhyzaController')
     const stripeController = env.USE_STRIPE
       ? this.container.resolve('stripeController')
       : undefined
@@ -386,7 +386,7 @@ export class App {
     }
 
     router.get('/rates', rafikiController.getRates)
-    router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
+    router.post('/webhooks', rhyzaController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)
