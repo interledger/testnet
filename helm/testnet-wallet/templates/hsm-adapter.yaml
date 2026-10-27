@@ -1,18 +1,6 @@
 {{- /*
-hsm-adapter-issuer and hsm-adapter-merchant: one Deployment and one Service
-each. Each process holds one HSM connection.
-
-Written by hand, not through common.deployment: the readiness probe is a TCP
-check on the gRPC port, and common.probe renders only httpGet or exec. The
-port opens only after the HSM connection is up and a health check answered.
-
-Names and labels come from the common helpers, with the component name
-hsm-adapter-<role>, so they line up with the rest of the release.
-
-The adapter reads no settings from the environment, only the YAML file that
-HSM_ADAPTER_CONFIG_PATH names. Each role gets a ConfigMap holding that file,
-built from hsmAdapter. The TLS files it names come from the Secret
-hsmAdapter.atalla.tls.secretName, mounted at /etc/atalla/tls.
+hsm-adapter-issuer and hsm-adapter-merchant. Rewritten, not through
+common.deployment, because common.probe cannot render a tcpSocket probe.
 */ -}}
 {{- $hsm := .Values.hsmAdapter -}}
 {{- $imageOverride := .Values.imageOverride | default dict -}}
@@ -38,7 +26,6 @@ hsmAdapter.atalla.tls.secretName, mounted at /etc/atalla/tls.
 {{- $_ := set $tls "client_key_path" "/etc/atalla/tls/client.key" }}
 {{- $_ := set $tls "skip_server_identity_check" $hsm.atalla.tls.skipServerIdentityCheck }}
 {{- end }}
-{{- /* int: the adapter wants numbers, and --set or a quoted value gives a string. */}}
 {{- $config := dict
       "log" (dict "level" $hsm.logLevel)
       "grpc" (dict "port" (int $adapter.port))
@@ -69,8 +56,7 @@ metadata:
     {{- include "common.labels" (list $ $component) | nindent 4 }}
 spec:
   replicas: 1
-  # The HSM limits the connections. The old pod lets go of its connection
-  # before the new one opens one.
+  # Never two HSM connections for one role.
   strategy:
     type: Recreate
   selector:
@@ -81,7 +67,6 @@ spec:
       labels:
         {{- include "common.selectorLabels" (list $ $component) | nindent 8 }}
       annotations:
-        # Rolls the pod when the config file changes.
         hsm-adapter-config-sha256: {{ $configYaml | sha256sum | quote }}
         {{- with $adapter.podAnnotations }}
         {{- toYaml . | nindent 8 }}
@@ -91,7 +76,6 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      # stop_timeout_ms plus a margin.
       terminationGracePeriodSeconds: {{ add (div $hsm.stopTimeoutMs 1000) 5 }}
       {{- with $hsm.nodeSelector }}
       nodeSelector:
@@ -138,7 +122,6 @@ spec:
         - name: atalla-tls
           secret:
             secretName: {{ required "hsmAdapter.atalla.tls.secretName is required when hsmAdapter.atalla.tls.enabled is true" $hsm.atalla.tls.secretName }}
-            # Group-readable: fsGroup gives the node user the group.
             defaultMode: 0440
       {{- end }}
 ---

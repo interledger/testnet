@@ -1,9 +1,3 @@
-# test-wallet-hsm-adapter-issuer and test-wallet-hsm-adapter-merchant. One
-# image per target, built from the repository root:
-#
-#   docker build -f packages/wallet/hsm-adapter/Dockerfile.prod --target issuer   .
-#   docker build -f packages/wallet/hsm-adapter/Dockerfile.prod --target merchant .
-
 FROM node:24-alpine AS base
 
 WORKDIR /testnet
@@ -34,7 +28,6 @@ COPY --from=builder /testnet/packages/wallet/hsm-adapter/node_modules ./packages
 COPY --from=builder /testnet/packages/wallet/hsm-adapter/dist ./packages/wallet/hsm-adapter/dist
 COPY --from=builder /testnet/packages/wallet/hsm-adapter/package.json ./packages/wallet/hsm-adapter/package.json
 
-# uid 1000 in the node image.
 USER node
 
 FROM runner AS issuer

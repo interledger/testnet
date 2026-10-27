@@ -81,54 +81,29 @@ Secrets are mounted into the backend container via individual `env[].valueFrom.s
 
 ### Atalla HSM adapters
 
-The issuer and the merchant HSM adapter contracts run as two processes, each
-in its own Deployment and Service: `<fullname>-hsm-adapter-issuer` and
-`<fullname>-hsm-adapter-merchant`. Each holds one connection to the Atalla
-HSM. The real HSM accepts two connections from one public IP, so each runs
-one replica with the `Recreate` strategy, and nothing else may connect to the
-same HSM. The backend does not connect to the HSM. See
+`hsmAdapter` deploys `<fullname>-hsm-adapter-issuer` (port `50051`, called by
+the issuer API) and `<fullname>-hsm-adapter-merchant` (port `50052`, called by
+the merchant API). Each runs one replica, with one HSM connection. See
 [`packages/wallet/hsm-adapter`](../../packages/wallet/hsm-adapter/README.md).
 
-The adapters read no settings from the environment. The chart writes
-`hsmAdapter` into a config file per role, a ConfigMap mounted at
-`/etc/hsm-adapter/config/config.yaml`, and sets `HSM_ADAPTER_CONFIG_PATH` to
-it. A change to the file rolls the pod. The TLS files the config file names
-come from the Secret, mounted at `/etc/atalla/tls`.
-
-Both are off by default. Only the cards environments run them. The render
-fails if an enabled role has no Atalla host or port, or if TLS is on and no
-Secret is named.
+Both are off by default. An enabled role needs an Atalla host and port, and a
+TLS Secret when TLS is on:
 
 ```yaml
 hsmAdapter:
   atalla:
-    # The default for both roles.
     host: 10.0.0.1
     port: 13506
     tls:
       enabled: true
-      # Holds ca.crt, client.crt and client.key. Mounted at /etc/atalla/tls,
-      # mode 0440, readable through fsGroup 1000.
-      secretName: wallet-atalla
-      skipServerIdentityCheck: true
-
+      secretName: wallet-atalla # ca.crt, client.crt and client.key
   issuer:
     enabled: true
   merchant:
     enabled: true
-    # Optional: a different HSM for this role.
-    # atalla:
-    #   host: 10.0.0.2
 ```
 
-The pods are ready only once the HSM answered: an adapter opens its gRPC port
-after the HSM connection and a health check, and the readiness probe checks
-that port.
-
-The listeners are cleartext h2c services. Reach them inside the namespace
-only, and keep the gRPC ports off the Ingress. The issuer API calls
-`<fullname>-hsm-adapter-issuer:50051`, and the merchant API calls
-`<fullname>-hsm-adapter-merchant:50052`.
+The listeners are cleartext h2c. Keep the gRPC ports off the Ingress.
 
 ### OpenTelemetry
 

@@ -22,7 +22,6 @@ import {
 } from '../src/run'
 import { readConfig } from '../src/config'
 
-// main() reads the config file from disk, so each test writes a real one.
 const configDir = mkdtempSync(join(tmpdir(), 'hsm-adapter-test-'))
 after(() => rmSync(configDir, { recursive: true, force: true }))
 
@@ -45,7 +44,6 @@ const env = configEnv()
 
 const never = new Promise<never>(() => {})
 
-// Records the order of lifecycle calls across the transport and the server.
 type Calls = string[]
 
 class FakeTransport implements AtallaTransport {
@@ -169,7 +167,6 @@ test('starts, checks health, stays up', async () => {
   assert.equal(config()?.transport, transport)
   assert.equal(config()?.interceptors.length, 1)
   assert.equal(hsm()?.poolSize, 1)
-  // The HSM connection opens before the gRPC port.
   assert.deepEqual(server.calls, ['connect', 'start'])
   assert.ok(
     record.lines.some((l) => l.msg === 'gRPC server listening, HSM healthy')
@@ -187,7 +184,6 @@ test('SIGTERM stops the server and exits 0', async () => {
   assert.equal(await proc.exitedWith, 0)
   assert.ok(server.stopped)
   assert.deepEqual(proc.exits, [0])
-  // The server stops before the wrapper closes the transport it owns.
   assert.deepEqual(server.calls, ['connect', 'start', 'stop', 'close'])
 })
 
@@ -228,7 +224,7 @@ test('exits 1 when start fails, hangs, or the HSM is unhealthy', async () => {
         (l) => l.level === 'error' && l.msg === 'adapter failed to start'
       )
     )
-    // No stop() and no close(): close() can hang on a pending connect.
+    // close() can hang on a pending connect.
     assert.equal(server.stopped, false)
     assert.ok(!server.calls.includes('close'))
   }
@@ -308,7 +304,6 @@ test('bad configuration exits 1 before building a server', async () => {
 test('logCalls logs the RPC name, duration and code at debug, never the payload', async () => {
   const record: Recorded = { lines: [] }
   const interceptor = logCalls(recordingLogger(record))
-  // Only method.name is read; the rest of the request is not logged.
   const request = {
     method: { name: 'TranslatePin' },
     message: { pinBlock: 'secret' }

@@ -441,46 +441,25 @@ services:
 # -----------------------------------------------------------------------------
 # HSM adapters
 # -----------------------------------------------------------------------------
-# The issuer and merchant HSM adapter contracts over gRPC, from
-# packages/wallet/hsm-adapter. Each role is its own Deployment and Service,
-# <fullname>-hsm-adapter-issuer and <fullname>-hsm-adapter-merchant, with one
-# HSM connection each. The real HSM accepts two connections from one public
-# IP, so keep one replica each and run nothing else against the same HSM.
-#
-# Off by default. Only the cards environments run them.
-#
-# The adapters read no settings from the environment. The chart writes these
-# values into each role's config file (a ConfigMap, mounted at
-# /etc/hsm-adapter/config/config.yaml), and the pod rolls when it changes.
-#
-# The listeners are cleartext h2c. Reach them inside the namespace only, and
-# keep the gRPC ports off the Ingress.
+# packages/wallet/hsm-adapter, one Deployment and Service per role. Off by
+# default. The listeners are cleartext h2c: keep them off the Ingress.
 hsmAdapter:
   imagePullPolicy: IfNotPresent
   logLevel: info
-  # The process exits when the HSM connection and the first health check
-  # take longer, and Kubernetes backs off the restart.
+  # Exit when the HSM does not answer within this time.
   startTimeoutMs: 15000
-  # How long a SIGTERM waits for open calls before the process exits.
   stopTimeoutMs: 10000
 
   atalla:
-    # The default for both roles. issuer.atalla.host and merchant.atalla.host
-    # override it, to give each role its own HSM. Required for each enabled
-    # role; the render fails without it.
+    # Required. <role>.atalla.host overrides the host per role.
     host: ''
     port: ''
     timeoutMs: 2000
     tls:
       enabled: true
-      # A Secret that holds ca.crt, client.crt and client.key. Mounted at
-      # /etc/atalla/tls; the config file points at the three files there.
-      # Required when TLS is enabled.
+      # Holds ca.crt, client.crt and client.key. Required when TLS is on.
       secretName: ''
-      # Skips the hostname check only. The transport still sets
-      # rejectUnauthorized, so the HSM certificate must chain to ca.crt.
-      # Needed while the adapters dial an IP and the certificate carries no
-      # matching IP SAN.
+      # Skips the hostname check only. The certificate must still chain to ca.crt.
       skipServerIdentityCheck: true
 
   issuer:
@@ -509,9 +488,7 @@ hsmAdapter:
       memory: 64Mi
     limits:
       memory: 256Mi
-  # The image runs as the node user, uid and gid 1000. The Atalla TLS
-  # Secret is mounted group-readable (0440), and fsGroup gives that user the
-  # group, so it can read the client key and nobody else can.
+  # The node user (gid 1000) reads the TLS Secret, mounted 0440.
   podSecurityContext:
     fsGroup: 1000
   securityContext: {}

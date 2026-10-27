@@ -48,7 +48,6 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: ghcr.io/interledger/test-wallet-hsm-adapter-issuer:v0.0.1
-      # One HSM connection: never two pods at once.
       - equal:
           path: spec.replicas
           value: 1
@@ -58,7 +57,6 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].ports[0].containerPort
           value: 50051
-      # The path to the config file is the only environment variable.
       - equal:
           path: spec.template.spec.containers[0].env
           value:
@@ -95,7 +93,6 @@ tests:
       - equal:
           path: metadata.name
           value: test-testnet-wallet-hsm-adapter-issuer
-      # Numbers, not strings: the adapter rejects a quoted port.
       - equal:
           path: data["config.yaml"]
           value: |

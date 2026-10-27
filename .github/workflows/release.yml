@@ -140,8 +140,6 @@ jobs:
           - name: test-wallet-backend
             identifier: 'wallet:backend'
             path: packages/wallet/backend
-          # One Dockerfile, one target per role. Each image runs one HSM
-          # adapter process with its own HSM connection.
           - name: test-wallet-hsm-adapter-issuer
             identifier: 'wallet:hsm-adapter'
             path: packages/wallet/hsm-adapter
