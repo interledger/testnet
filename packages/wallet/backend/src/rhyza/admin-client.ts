@@ -29,6 +29,8 @@ export interface ListPaymentsArgs {
 export interface ListPaymentsResponse {
   result: Payment[]
   pagination: Pagination
+}
+
 export interface RegisterWalletAddressKeyArgs {
   /** Cryptographic algorithm used with the key. The only allowed value is `EdDSA`. */
   alg: 'EdDSA'
@@ -74,6 +76,8 @@ export class RhyzaAdminClient {
 
     const path = query.size > 0 ? `/payments?${query.toString()}` : '/payments'
     return this.http.get<ListPaymentsResponse>(path)
+  }
+
   async registerWalletAddressKey(
     jwk: RegisterWalletAddressKeyArgs,
     walletAddressId: string

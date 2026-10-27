@@ -126,6 +126,9 @@ describe('RhyzaAdminClient', () => {
       expect(request.url).toBe(
         'http://admin.test/payments?paymentIntentId=intent+id&first=100&sortOrder=desc'
       )
+    })
+  })
+
   describe('registerWalletAddressKey', () => {
     const walletAddressId = 'wa-1'
     const jwk = {
