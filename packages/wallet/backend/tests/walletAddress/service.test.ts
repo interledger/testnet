@@ -169,7 +169,7 @@ describe('Wallet Address Service', () => {
       })
     })
 
-    it('should treat an activation Conflict as already active', async () => {
+    it('should treat an activation conflict as already active', async () => {
       const { account, walletAddress } =
         await prepareWADependencies('my-wallet')
       await WalletAddress.query().findById(walletAddress.id).patch({
