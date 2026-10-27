@@ -7,7 +7,10 @@ import { quoteSchema } from '@/quote/validation'
 import { uuid } from '@/tests/utils'
 import { webhookBodySchema, WebhookType } from '@/rafiki/validation'
 import { EventType, WebHook } from '@/rafiki/service'
-import { EventType as RhyzaEventType } from '@/rhyza/service'
+import {
+  EventType as RhyzaEventType,
+  WebHook as RhyzaWebHook
+} from '@/rhyza/service'
 import type { WebhookType as RhyzaWebhookType } from '@/rhyza/validation'
 import {
   incomingPaymentSchema,
@@ -361,7 +364,7 @@ export function mockIncomingPaymentCreatedEvent(
 }
 
 export function mockPaymentIntentCreatedEvent(
-  overrides?: Partial<RhyzaWebhookType>
+  overrides?: Partial<RhyzaWebHook>
 ): RhyzaWebhookType {
   return {
     id: faker.string.uuid(),
@@ -387,6 +390,24 @@ export function mockPaymentIntentCreatedEvent(
       ...overrides?.data
     }
   }
+}
+
+export function mockPaymentIntentCompletedEvent(
+  overrides?: Partial<RhyzaWebHook>
+): RhyzaWebhookType {
+  return mockPaymentIntentCreatedEvent({
+    ...overrides,
+    type: RhyzaEventType.PaymentIntentCompleted,
+    data: {
+      state: 'COMPLETED',
+      receivedAmount: {
+        value: '1000',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      ...overrides?.data
+    }
+  })
 }
 
 export function mockIncomingPaymentRequest(
