@@ -2,21 +2,25 @@
   "name": "@wallet/frontend",
   "scripts": {
     "dev": "next dev -p 4003",
-    "build:deps": "pnpm --filter @wallet/shared build",
+    "build:deps": "pnpm --filter @shared/telemetry build && pnpm --filter @wallet/shared build",
     "build": "pnpm build:deps && next build",
     "start": "next start"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^3.10.0",
+    "@opentelemetry/instrumentation-http": "^0.223.0",
+    "@opentelemetry/instrumentation-undici": "^0.33.0",
     "@radix-ui/react-toast": "^1.2.14",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@shared/telemetry": "workspace:^",
     "@types/node-rsa": "^1.1.4",
     "@wallet/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "jspdf": "^4.2.1",
     "ky": "^1.11.0",
     "next": "14.2.32",
+    "next-qrcode": "^2.5.1",
     "next-themes": "^0.4.6",
     "node-rsa": "^1.1.1",
     "nprogress": "^0.2.0",
@@ -30,8 +34,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "valtio": "^2.1.8",
-    "zod": "^3.25.76",
-    "next-qrcode": "^2.5.1"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.12",

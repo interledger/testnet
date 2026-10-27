@@ -48,20 +48,13 @@ import { SocketService } from './socket/service'
 import { GrantService } from '@/grant/service'
 import { AwilixContainer } from 'awilix'
 import { Cradle } from '@/createContainer'
-import {
-  Forbidden,
-  initErrorHandler,
-  RedisClient,
-  createHttpMetrics,
-  startMetricsServer
-} from '@shared/backend'
+import { Forbidden, initErrorHandler, RedisClient } from '@shared/backend'
 import { GateHubController } from '@/gatehub/controller'
 import { GateHubClient } from '@/gatehub/client'
 import { GateHubService } from '@/gatehub/service'
 import { CardController } from './card/controller'
 import { CardService } from './card/service'
 import { TerminalController } from './terminal/controller'
-import { isRafikiSignedWebhook } from '@/middleware/isRafikiSignedWebhook'
 import { isGateHubSignedWebhook } from '@/middleware/isGateHubSignedWebhook'
 import { isAdminSecret } from '@/middleware/isAdminSecret'
 import { HsmAtallaService } from '@/hsm/atalla/service'
@@ -109,7 +102,6 @@ export interface Bindings {
 
 export class App {
   private server!: Server
-  private metricsServer!: Server
 
   constructor(private container: AwilixContainer<Cradle>) {}
 
@@ -120,7 +112,6 @@ export class App {
     const knex = this.container.resolve('knex')
     const socketService = this.container.resolve('socketService')
     const hsmAtallaService = this.container.resolve('hsmAtallaService')
-    const metricsRegistry = this.container.resolve('metricsRegistry')
 
     await knex.migrate.latest({
       directory: __dirname + '/../migrations'
@@ -129,9 +120,6 @@ export class App {
 
     this.server = express.listen(env.PORT)
     logger.info(`Server started on port ${env.PORT}`)
-
-    this.metricsServer = startMetricsServer(metricsRegistry, env.METRICS_PORT)
-    logger.info(`Metrics server started on port ${env.METRICS_PORT}`)
 
     // Log the browser-facing auth configuration on every boot. These values
     // fail silently when wrong — a bad cookie domain or a missing CORS origin
@@ -149,7 +137,6 @@ export class App {
 
     await hsmAtallaService.start().catch((error) => {
       this.server.close()
-      this.metricsServer?.close()
       throw error
     })
 
@@ -159,7 +146,6 @@ export class App {
   public stop = async (): Promise<void> => {
     const hsmAtallaService = this.container.resolve('hsmAtallaService')
     this.server.close()
-    this.metricsServer?.close()
     await hsmAtallaService.stop()
   }
 
@@ -178,7 +164,6 @@ export class App {
 
     const env = this.container.resolve('env')
     const logger = this.container.resolve('logger')
-    const metricsRegistry = this.container.resolve('metricsRegistry')
     const authController = this.container.resolve('authController')
     const userController = this.container.resolve('userController')
     const walletAddressController = this.container.resolve(
@@ -202,6 +187,7 @@ export class App {
     const grantController = this.container.resolve('grantController')
     const accountController = this.container.resolve('accountController')
     const rafikiController = this.container.resolve('rafikiController')
+    const rhyzaController = this.container.resolve('rhyzaController')
     const stripeController = env.USE_STRIPE
       ? this.container.resolve('stripeController')
       : undefined
@@ -214,9 +200,6 @@ export class App {
     const adminNotificationController = env.ADMIN_NOTIFICATION_SECRET
       ? this.container.resolve('adminNotificationController')
       : undefined
-
-    const { httpMetricsMiddleware } = createHttpMetrics(metricsRegistry)
-    app.use(httpMetricsMiddleware)
 
     app.use(
       cors({
@@ -403,7 +386,7 @@ export class App {
     }
 
     router.get('/rates', rafikiController.getRates)
-    router.post('/webhooks', isRafikiSignedWebhook, rafikiController.onWebHook)
+    router.post('/webhooks', rhyzaController.onWebHook)
 
     // GateHub
     router.get('/iframe-urls/:type', isAuth, gateHubController.getIframeUrl)

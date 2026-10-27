@@ -4,6 +4,7 @@ include:
   - redis.yaml
   - mockgatehub.yaml
   - rafiki.yaml
+  - observability.yaml
 
 networks:
   testnet:

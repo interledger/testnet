@@ -1,3 +1,12 @@
+{{/*
+The override adds the TELEMETRY_* and SERVICE_* keys when
+config.telemetry.enabled is true. See testnet-wallet.telemetryData.
+*/}}
 {{- define "testnet-wallet.frontend.ConfigMap" -}}
+{{- $top := first . }}
+{{- with include "testnet-wallet.telemetryData" (list $top "frontend") }}
+data:
+  {{- . | nindent 2 }}
+{{- end }}
 {{- end }}
 {{- include "common.configMapper" (list . .Values.configMaps.frontend "testnet-wallet.frontend.ConfigMap") }}
