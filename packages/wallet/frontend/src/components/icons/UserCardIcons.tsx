@@ -76,4 +76,4 @@ export const Chip = (props: SVGProps<SVGSVGElement>) => {
       </defs>
     </svg>
   )
-} 
+}
