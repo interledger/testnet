@@ -9,6 +9,7 @@ import { Env } from '@/config/env'
 import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import { PaymentMetadata } from '@/rhyza/types'
 
 interface IIncomingPaymentService {
   create: (
@@ -16,7 +17,7 @@ interface IIncomingPaymentService {
     walletAddress: string,
     incomingAmount: number,
     expiresAt?: Expiration,
-    metadata?: string
+    metadata?: PaymentMetadata
   ) => Promise<{ id: string; openPaymentsUrl: string }>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetailsResponse>
 }
@@ -60,7 +61,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
     walletAddress: string,
     incomingAmount: number,
     expiresAt?: Expiration,
-    metadata?: string
+    metadata?: PaymentMetadata
   ): Promise<{ id: string; openPaymentsUrl: string }> {
     const existingWalletAddress = await WalletAddress.query().findOne({
       url: walletAddress

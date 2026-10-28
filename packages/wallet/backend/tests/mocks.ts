@@ -396,7 +396,7 @@ export function mockIncomingPaymentRequest(
     body: {
       walletAddress: faker.internet.url(),
       incomingAmount: Number(faker.finance.amount({ dec: 0 })),
-      metadata: faker.lorem.paragraph(2),
+      metadata: { description: faker.lorem.paragraph(2) },
       expiresAt: {
         value: 1,
         unit: 'h'

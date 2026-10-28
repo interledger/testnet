@@ -105,7 +105,7 @@ describe('RhyzaAdminClient', () => {
       walletAddress: 'https://ilp.test/alice',
       incomingAmount: 1000,
       expiresAt: new Date().toISOString(),
-      metadata: 'Free Money!'
+      metadata: { description: 'Free Money!' }
     }
 
     it('POSTs the payment intent details to /payment-intents', async () => {

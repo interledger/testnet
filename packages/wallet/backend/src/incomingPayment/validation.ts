@@ -1,4 +1,9 @@
 import { z } from 'zod'
+import { PaymentMetadata } from '@/rhyza/types'
+
+export const metadataSchema: z.ZodType<PaymentMetadata> = z.object({
+  description: z.string().optional()
+})
 
 export const incomingPaymentSchema = z.object({
   body: z.object({
@@ -10,7 +15,7 @@ export const incomingPaymentSchema = z.object({
         unit: z.enum(['s', 'm', 'h', 'd'])
       })
       .optional(),
-    metadata: z.string().optional()
+    metadata: metadataSchema.optional()
   })
 })
 

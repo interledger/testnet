@@ -138,7 +138,7 @@ describe('Incoming Payment Service', () => {
         walletAddress.url,
         100,
         undefined,
-        'note'
+        { description: 'Free Money!' }
       )
 
       expect(result).toEqual(created)
@@ -146,7 +146,7 @@ describe('Incoming Payment Service', () => {
         walletAddress: walletAddress.url,
         incomingAmount: 100,
         expiresAt: undefined,
-        metadata: 'note'
+        metadata: { description: 'Free Money!' }
       })
     })
 

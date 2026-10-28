@@ -1,5 +1,5 @@
 import { HttpClient } from '@/rhyza/http-client'
-import { Asset, WalletAddress } from '@/rhyza/types'
+import { Asset, PaymentMetadata, WalletAddress } from '@/rhyza/types'
 
 interface AssetCreateResponse {
   code: string
@@ -21,7 +21,7 @@ export interface CreatePaymentIntentArgs {
   walletAddress: string
   incomingAmount: number
   expiresAt?: string
-  metadata?: string
+  metadata?: PaymentMetadata
 }
 
 export interface RegisterWalletAddressKeyArgs {

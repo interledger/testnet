@@ -9,6 +9,10 @@ export interface WalletAddress {
   address: string
 }
 
+export interface PaymentMetadata {
+  description?: string
+}
+
 export type GrantState =
   | 'PROCESSING'
   | 'PENDING'
