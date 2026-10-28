@@ -89,7 +89,7 @@ export class RhyzaService implements IRhyzaService {
         walletAddresses: senderUrls.join(', ')
       }
     } catch (e) {
-      this.logger.warn('Error on getting payments by payment intent', e)
+      this.logger.warn('Error in getting payments by payment intent', e)
     }
   }
 
