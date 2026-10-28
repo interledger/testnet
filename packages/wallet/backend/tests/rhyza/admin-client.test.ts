@@ -131,6 +131,34 @@ describe('RhyzaAdminClient', () => {
       })
     })
   })
+  
+  describe('activateWalletAddress', () => {
+    it('POSTs to /wallet-addresses/:id/activate', async () => {
+      adapter.mockImplementationOnce(respond(200, {}))
+
+      await client.activateWalletAddress('wa-1')
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe(
+        'http://admin.test/wallet-addresses/wa-1/activate'
+      )
+    })
+  })
+
+  describe('deactivateWalletAddress', () => {
+    it('POSTs to /wallet-addresses/:id/deactivate', async () => {
+      adapter.mockImplementationOnce(respond(200, {}))
+
+      await client.deactivateWalletAddress('wa-1')
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe(
+        'http://admin.test/wallet-addresses/wa-1/deactivate'
+      )
+    })
+  })
 
   describe('registerWalletAddressKey', () => {
     const walletAddressId = 'wa-1'

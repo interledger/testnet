@@ -71,6 +71,14 @@ export class RhyzaAdminClient {
   async listPayments(args: ListPaymentsArgs): Promise<ListPaymentsResponse> {
     return this.http.get<ListPaymentsResponse>('/payments', { params: args })
   }
+  
+  async activateWalletAddress(id: string): Promise<void> {
+    await this.http.post(`/wallet-addresses/${id}/activate`)
+  }
+
+  async deactivateWalletAddress(id: string): Promise<void> {
+    await this.http.post(`/wallet-addresses/${id}/deactivate`)
+  }
 
   async registerWalletAddressKey(
     jwk: RegisterWalletAddressKeyArgs,
