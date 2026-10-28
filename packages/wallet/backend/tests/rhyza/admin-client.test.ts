@@ -131,7 +131,7 @@ describe('RhyzaAdminClient', () => {
       })
     })
   })
-  
+
   describe('activateWalletAddress', () => {
     it('POSTs to /wallet-addresses/:id/activate', async () => {
       adapter.mockImplementationOnce(respond(200, {}))
