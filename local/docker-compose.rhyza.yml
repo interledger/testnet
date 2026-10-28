@@ -11,6 +11,7 @@ include:
   - mockgatehub.yaml
   - rhyza.yaml
   - observability.yaml
+  - hsm-adapter.yaml
 
 networks:
   testnet:

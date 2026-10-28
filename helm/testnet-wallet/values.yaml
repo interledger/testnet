@@ -180,52 +180,6 @@ config:
         secretKeyRef:
           key: 'rafiki.adminApiSecret'
 
-    # The backend serves the issuer and merchant HSM adapter contracts over
-    # gRPC when `enabled` is true. One process runs both servers; `serverRole`
-    # chooses which. Only the cards environments run this, so it is off here.
-    #
-    # These keys reach the backend through the ConfigMap, but not through
-    # `configMaps.backend.contentMap`. The backend requires ATALLA_HOST and
-    # ATALLA_PORT when HSM_ENABLED is true and rejects an empty string for
-    # either, so a contentMap entry would break every environment that leaves
-    # them unset. templates/configMap.backend.yaml adds the whole block
-    # instead, and only when `enabled` is true.
-    #
-    # Turning this on is not enough by itself. Also give the backend:
-    #   - the gRPC container ports, in `deployments.backend.ports`
-    #   - the matching Service ports, in `services.backend.ports`
-    #   - the Atalla TLS files, through `deployments.backend.volumes` and
-    #     `deployments.backend.volumeMounts`
-    # Helm replaces a list rather than merging it, so each of those must be
-    # written out in full in the environment's values file.
-    hsm:
-      enabled: false
-      # both | issuer | merchant
-      serverRole: both
-      grpcHost: '0.0.0.0'
-      issuerPort: 50051
-      merchantPort: 50052
-
-      atalla:
-        # Required when hsm.enabled is true. The render fails without them.
-        host: ''
-        port: ''
-        timeoutMs: 2000
-        poolSize: 1
-        tls:
-          enabled: true
-          # Skips the hostname check only. The transport still sets
-          # rejectUnauthorized, so the HSM certificate must chain to the CA at
-          # caCertPath. Needed while the backend dials an IP and the
-          # certificate carries no matching IP SAN.
-          skipServerIdentityCheck: true
-          # Paths, not PEM text. The backend reads each file at start-up and
-          # exits if one is missing, unreadable, empty, or not PEM. Mount them
-          # with deployments.backend.volumes.
-          caCertPath: /etc/atalla/tls/ca.crt
-          clientCertPath: /etc/atalla/tls/client.crt
-          clientKeyPath: /etc/atalla/tls/client.key
-
   # ---------------------------------------------------------------------------
   # OpenTelemetry
   # ---------------------------------------------------------------------------
@@ -293,9 +247,7 @@ deployments:
       - configMapRef:
           name: '{{ include "common.fullname" . }}-backend'
 
-    # Volumes for the backend pod. Empty here; the HSM adapter needs the Atalla
-    # TLS files, so an environment that sets config.backend.hsm.enabled must
-    # also fill these in. See config.backend.hsm.
+    # Volumes for the backend pod. Empty here.
     volumes: []
     volumeMounts: []
 
@@ -485,6 +437,62 @@ services:
         targetPort: 4003
         protocol: TCP
         name: http
+
+# -----------------------------------------------------------------------------
+# HSM adapters
+# -----------------------------------------------------------------------------
+# packages/wallet/hsm-adapter, one Deployment and Service per role. Off by
+# default. The listeners are cleartext h2c: keep them off the Ingress.
+hsmAdapter:
+  imagePullPolicy: IfNotPresent
+  logLevel: info
+  # Exit when the HSM does not answer within this time.
+  startTimeoutMs: 15000
+  stopTimeoutMs: 10000
+
+  atalla:
+    # Required. <role>.atalla.host overrides the host per role.
+    host: ''
+    port: ''
+    timeoutMs: 2000
+    tls:
+      enabled: true
+      # Holds ca.crt, client.crt and client.key. Required when TLS is on.
+      secretName: ''
+      # Skips the hostname check only. The certificate must still chain to ca.crt.
+      skipServerIdentityCheck: true
+
+  issuer:
+    enabled: false
+    port: 50051
+    image:
+      name: test-wallet-hsm-adapter-issuer
+      # tag: "v0.1.66"   # Use this to override the image tag for just this image
+    # atalla:
+    #   host: 10.0.0.1
+    podAnnotations: {}
+
+  merchant:
+    enabled: false
+    port: 50052
+    image:
+      name: test-wallet-hsm-adapter-merchant
+      # tag: "v0.1.66"
+    # atalla:
+    #   host: 10.0.0.2
+    podAnnotations: {}
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+  # The node user (gid 1000) reads the TLS Secret, mounted 0440.
+  podSecurityContext:
+    fsGroup: 1000
+  securityContext: {}
+  nodeSelector: {}
 
 # -----------------------------------------------------------------------------
 # OpenTelemetry collector
