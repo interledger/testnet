@@ -17,7 +17,7 @@ interface WalletAddressCreateResponse {
   address: string
 }
 
-export interface ListPaymentsArgs {
+export type ListPaymentsArgs = {
   walletAddressId?: string
   paymentIntentId?: string
   cursor?: string
@@ -69,13 +69,7 @@ export class RhyzaAdminClient {
   }
 
   async listPayments(args: ListPaymentsArgs): Promise<ListPaymentsResponse> {
-    const query = new URLSearchParams()
-    for (const [key, value] of Object.entries(args)) {
-      if (value !== undefined) query.set(key, String(value))
-    }
-
-    const path = query.size > 0 ? `/payments?${query.toString()}` : '/payments'
-    return this.http.get<ListPaymentsResponse>(path)
+    return this.http.get<ListPaymentsResponse>('/payments', { params: args })
   }
 
   async registerWalletAddressKey(

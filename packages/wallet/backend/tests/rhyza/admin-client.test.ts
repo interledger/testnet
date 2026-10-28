@@ -101,7 +101,7 @@ describe('RhyzaAdminClient', () => {
   })
 
   describe('listPayments', () => {
-    it('GETs payments with encoded query parameters and documented pagination response', async () => {
+    it('GETs payments with the given query parameters and returns the pagination response', async () => {
       const response: ListPaymentsResponse = {
         result: [],
         pagination: {
@@ -123,9 +123,12 @@ describe('RhyzaAdminClient', () => {
 
       const request = lastRequest(adapter)
       expect(request.method).toBe('GET')
-      expect(request.url).toBe(
-        'http://admin.test/payments?paymentIntentId=intent+id&first=100&sortOrder=desc'
-      )
+      expect(request.url).toBe('http://admin.test/payments')
+      expect(request.params).toEqual({
+        paymentIntentId: 'intent id',
+        first: 100,
+        sortOrder: 'desc'
+      })
     })
   })
 
