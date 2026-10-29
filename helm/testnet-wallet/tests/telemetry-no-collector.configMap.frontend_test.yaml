@@ -1,0 +1,23 @@
+# helm-unittest reports a failure against the template that raised it, so
+# each template that renders the telemetry keys gets a suite of its own.
+suite: testnet-wallet - OpenTelemetry without a collector (configMap.frontend)
+templates:
+  - configMap.frontend.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+release:
+  name: test-testnet-wallet
+tests:
+  - it: 'enabling telemetry with no collector and no endpoint fails the render'
+    set:
+      config:
+        telemetry:
+          enabled: true
+      otelCollector:
+        enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: >-
+            config.telemetry.enabled is true, but otelCollector.enabled is false
+            and no config.telemetry.endpoint is set — enable the collector, or
+            point the endpoint at one outside this release

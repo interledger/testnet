@@ -44,21 +44,20 @@ tests:
       - equal:
           path: data.PORT
           value: '4003'
-      - equal:
+      - notExists:
           path: data.METRICS_PORT
-          value: '9464'
       - equal:
           path: data.COOKIE_NAME
           value: testnet.cookie
-  - it: 'should expose the metrics port on the container'
+  - it: 'exposes only the http port; metrics leave through the collector'
     template: deployment.backend.yaml
     asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].ports
+          count: 1
       - equal:
-          path: spec.template.spec.containers[0].ports[1].name
-          value: metrics
-      - equal:
-          path: spec.template.spec.containers[0].ports[1].containerPort
-          value: 9464
+          path: spec.template.spec.containers[0].ports[0].name
+          value: http
   - it: 'should handle accessSepaKey as a config'
     template: configMap.backend.yaml
     set:

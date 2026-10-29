@@ -47,12 +47,7 @@ import { createRhyzaAdminClient, createRhyzaIdpClient } from '@/config/rhyza'
 import { WalletAddressKeyController } from '@/walletAddressKeys/controller'
 import { WalletAddressKeyService } from '@/walletAddressKeys/service'
 import { generateKnex } from '@/config/knex'
-import {
-  asClassSingletonWithLogger,
-  RedisClient,
-  createMetricsRegistry,
-  type Registry
-} from '@shared/backend'
+import { asClassSingletonWithLogger, RedisClient } from '@shared/backend'
 import { generateLogger } from '@/config/logger'
 import { GraphQLClient } from 'graphql-request'
 import { KratosService } from './rafiki/kratos.service'
@@ -70,12 +65,13 @@ import { TerminalService } from '@/terminal/service'
 import { AdminNotificationController } from '@/admin-notification/controller'
 import { AdminNotificationService } from '@/admin-notification/service'
 import { HsmAtallaService } from '@/hsm/atalla/service'
+import { RhyzaController } from './rhyza/controller'
+import { RhyzaService } from './rhyza/service'
 
 export interface Cradle {
   env: Env
   logger: Logger
   knex: Knex
-  metricsRegistry: Registry
   sessionService: SessionService
   emailService: EmailService
   userService: UserService
@@ -95,6 +91,7 @@ export interface Cradle {
   incomingPaymentService: IncomingPaymentService
   outgoingPaymentService: OutgoingPaymentService
   rafikiService: RafikiService
+  rhyzaService: RhyzaService
   stripeService?: StripeService
   quoteService: QuoteService
   grantService: GrantService
@@ -107,6 +104,7 @@ export interface Cradle {
   incomingPaymentController: IncomingPaymentController
   outgoingPaymentController: OutgoingPaymentController
   rafikiController: RafikiController
+  rhyzaController: RhyzaController
   stripeController?: StripeController
   quoteController: QuoteController
   grantController: GrantController
@@ -138,7 +136,6 @@ export async function createContainer(
   container.register({
     env: asValue(env),
     logger: asValue(logger),
-    metricsRegistry: asFunction(createMetricsRegistry).singleton(),
     knex: asFunction(generateKnex).singleton(),
     sessionService: asClass(SessionService).singleton(),
     emailService: asClassSingletonWithLogger(EmailService, logger),
@@ -162,6 +159,7 @@ export async function createContainer(
     incomingPaymentService: asClass(IncomingPaymentService).singleton(),
     outgoingPaymentService: asClass(OutgoingPaymentService).singleton(),
     rafikiService: asClassSingletonWithLogger(RafikiService, logger),
+    rhyzaService: asClassSingletonWithLogger(RhyzaService, logger),
     ...(env.USE_STRIPE
       ? {
           stripeService: asClassSingletonWithLogger(StripeService, logger),
@@ -192,6 +190,7 @@ export async function createContainer(
     incomingPaymentController: asClass(IncomingPaymentController).singleton(),
     outgoingPaymentController: asClass(OutgoingPaymentController).singleton(),
     rafikiController: asClassSingletonWithLogger(RafikiController, logger),
+    rhyzaController: asClassSingletonWithLogger(RhyzaController, logger),
     quoteController: asClass(QuoteController).singleton(),
     grantController: asClass(GrantController).singleton(),
     walletAddressController: asClass(WalletAddressController).singleton(),

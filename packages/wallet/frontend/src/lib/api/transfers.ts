@@ -180,7 +180,8 @@ const createTransfersService = (): TransfersService => ({
             ...args,
             walletAddress: args.walletAddressId?.url,
             expiresAt: expiration,
-            incomingAmount: args.amount
+            incomingAmount: args.amount,
+            metadata: args.metadata ? { description: args.metadata } : undefined
           }
         })
         .json<SuccessResponse>()

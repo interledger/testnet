@@ -1,5 +1,5 @@
 import { HttpClient } from '@/rhyza/http-client'
-import { Asset, WalletAddress } from '@/rhyza/types'
+import { Asset, PaymentMetadata, WalletAddress } from '@/rhyza/types'
 
 interface AssetCreateResponse {
   code: string
@@ -21,7 +21,22 @@ export interface CreatePaymentIntentArgs {
   walletAddress: string
   incomingAmount: number
   expiresAt?: string
-  metadata?: string
+  metadata?: PaymentMetadata
+}
+
+export interface RegisterWalletAddressKeyArgs {
+  /** Cryptographic algorithm used with the key. The only allowed value is `EdDSA`. */
+  alg: 'EdDSA'
+  /** Cryptographic curve that the key pair is derived from. The only allowed value is `Ed25519`. */
+  crv: 'Ed25519'
+  /** Unique identifier for the key. */
+  kid: string
+  /** Key type. The only allowed value is `OKP`. */
+  kty: 'OKP'
+  /** Base64 url-encoded public key. */
+  x: string
+  /** Intended use of the key. */
+  use?: 'sig'
 }
 
 export interface PaymentIntentAmount {
@@ -80,5 +95,24 @@ export class RhyzaAdminClient {
     )
 
     return response
+  }
+
+  async activateWalletAddress(id: string): Promise<void> {
+    await this.http.post(`/wallet-addresses/${id}/activate`)
+  }
+
+  async deactivateWalletAddress(id: string): Promise<void> {
+    await this.http.post(`/wallet-addresses/${id}/deactivate`)
+  }
+
+  async registerWalletAddressKey(
+    jwk: RegisterWalletAddressKeyArgs,
+    walletAddressId: string
+  ): Promise<{ id: string }> {
+    const response = await this.http.post<{ id: string }>(
+      `/wallet-addresses/${walletAddressId}/keys`,
+      jwk
+    )
+    return { id: response.id }
   }
 }
