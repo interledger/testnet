@@ -1,5 +1,5 @@
 import { HttpClient } from '@/rhyza/http-client'
-import { Asset, WalletAddress } from '@/rhyza/types'
+import { Asset, WalletAddress, Payment, Pagination } from '@/rhyza/types'
 
 interface AssetCreateResponse {
   code: string
@@ -15,6 +15,20 @@ export interface CreateWalletAddressArgs {
 interface WalletAddressCreateResponse {
   id: string
   address: string
+}
+
+export type ListPaymentsArgs = {
+  walletAddressId?: string
+  paymentIntentId?: string
+  cursor?: string
+  first?: number
+  last?: number
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface ListPaymentsResponse {
+  result: Payment[]
+  pagination: Pagination
 }
 
 interface ListAssetsResponse {
@@ -58,6 +72,10 @@ export class RhyzaAdminClient {
       args
     )
     return { id: response.id, address: response.address }
+  }
+
+  async listPayments(args: ListPaymentsArgs): Promise<ListPaymentsResponse> {
+    return this.http.get<ListPaymentsResponse>('/payments', { params: args })
   }
 
   async listAssets(): Promise<Asset[]> {

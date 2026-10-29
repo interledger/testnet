@@ -1,6 +1,6 @@
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
 import { HttpClient } from '@/rhyza/http-client'
-import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import { RhyzaAdminClient, ListPaymentsResponse } from '@/rhyza/admin-client'
 import { lastRequest, mockAdapter, mockLogger, respond } from './helpers'
 
 describe('RhyzaAdminClient', () => {
@@ -123,6 +123,38 @@ describe('RhyzaAdminClient', () => {
       await expect(client.createWalletAddress(args)).rejects.toBeInstanceOf(
         Conflict
       )
+    })
+  })
+
+  describe('listPayments', () => {
+    it('GETs payments with the given query parameters and returns the pagination response', async () => {
+      const response: ListPaymentsResponse = {
+        result: [],
+        pagination: {
+          startCursor: 'start',
+          endCursor: 'end',
+          hasNextPage: false,
+          hasPreviousPage: true
+        }
+      }
+      adapter.mockImplementationOnce(respond(200, response))
+
+      await expect(
+        client.listPayments({
+          paymentIntentId: 'intent id',
+          first: 100,
+          sortOrder: 'desc'
+        })
+      ).resolves.toEqual(response)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/payments')
+      expect(request.params).toEqual({
+        paymentIntentId: 'intent id',
+        first: 100,
+        sortOrder: 'desc'
+      })
     })
   })
 
