@@ -6,12 +6,13 @@ import { grantResponseSchema, grantListRequestSchema } from '@/grant/validation'
 import { GrantService } from '@/grant/service'
 import { Controller, toSuccessResponse } from '@shared/backend'
 import { GrantResponse, GrantsListResponse } from '@wallet/shared'
+import { Grant as RhyzaGrant } from '@/rhyza/types'
 
 interface IGrantController {
   list: Controller<Grant[]>
   getById: Controller<Grant>
   revoke: Controller<void>
-  getByInteraction: Controller<Grant>
+  getByInteraction: Controller<RhyzaGrant>
   setInteractionResponse: Controller<Grant>
 }
 

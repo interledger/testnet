@@ -37,14 +37,13 @@ export const requestSchema = z
     walletAddressId: z
       .object({
         value: z.string().uuid(),
-        label: z.string().min(1),
-        url: z.string().url()
+        label: z.string().min(1)
       })
       .nullable(),
     amount: z.coerce.number({
       invalid_type_error: 'Please enter a valid amount'
     }),
-    metadata: z.string(),
+    description: z.string(),
     expiry: z.coerce
       .number()
       .int({ message: 'Expiry time amount should be a whole number' })
@@ -178,10 +177,10 @@ const createTransfersService = (): TransfersService => ({
         .post('incoming-payments', {
           json: {
             ...args,
-            walletAddress: args.walletAddressId?.url,
-            expiresAt: expiration,
-            incomingAmount: args.amount,
-            metadata: args.metadata ? { description: args.metadata } : undefined
+            walletAddressId: args.walletAddressId
+              ? args.walletAddressId.value
+              : undefined,
+            expiration
           }
         })
         .json<SuccessResponse>()

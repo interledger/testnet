@@ -1,0 +1,80 @@
+# TLS is off. See packages/wallet/hsm-adapter/README.md to turn it on.
+configs:
+  hsm-adapter-issuer:
+    content: |
+      log:
+        level: ${HSM_ADAPTER_LOG_LEVEL:-debug}
+      grpc:
+        port: 50051
+      atalla:
+        host: ${ATALLA_ISSUER_HOST:-${ATALLA_HOST:-host.docker.internal}}
+        port: ${ATALLA_ISSUER_PORT:-${ATALLA_PORT:-13506}}
+  hsm-adapter-merchant:
+    content: |
+      log:
+        level: ${HSM_ADAPTER_LOG_LEVEL:-debug}
+      grpc:
+        port: 50052
+      atalla:
+        host: ${ATALLA_MERCHANT_HOST:-${ATALLA_HOST:-host.docker.internal}}
+        port: ${ATALLA_MERCHANT_PORT:-${ATALLA_PORT:-13506}}
+
+# The HSM adapters from packages/wallet/hsm-adapter. Opt-in, behind the `hsm`
+# profile: `pnpm local:up:rhyza:hsm`. Set ATALLA_HOST and ATALLA_PORT in
+# local/.env to point them at an Atalla HSM or simulator.
+services:
+  hsm-adapter-issuer:
+    container_name: hsm-adapter-issuer-local
+    profiles: [hsm]
+    build:
+      context: ..
+      dockerfile: packages/wallet/hsm-adapter/Dockerfile.prod
+      target: issuer
+    image: testnet-hsm-adapter-issuer:local
+    environment:
+      HSM_ADAPTER_CONFIG_PATH: /etc/hsm-adapter/config.yaml
+    configs:
+      - source: hsm-adapter-issuer
+        target: /etc/hsm-adapter/config.yaml
+    ports:
+      - '${HSM_ADAPTER_ISSUER_PORT:-50051}:50051'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - testnet
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '50051']
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_interval: 1s
+      start_period: 20s
+
+  hsm-adapter-merchant:
+    container_name: hsm-adapter-merchant-local
+    profiles: [hsm]
+    build:
+      context: ..
+      dockerfile: packages/wallet/hsm-adapter/Dockerfile.prod
+      target: merchant
+    image: testnet-hsm-adapter-merchant:local
+    environment:
+      HSM_ADAPTER_CONFIG_PATH: /etc/hsm-adapter/config.yaml
+    configs:
+      - source: hsm-adapter-merchant
+        target: /etc/hsm-adapter/config.yaml
+    ports:
+      - '${HSM_ADAPTER_MERCHANT_PORT:-50052}:50052'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - testnet
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '50052']
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_interval: 1s
+      start_period: 20s

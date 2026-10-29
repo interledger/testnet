@@ -24,6 +24,13 @@ export interface CreatePaymentIntentArgs {
   metadata?: PaymentMetadata
 }
 
+interface ListAssetsResponse {
+  assets: {
+    code: string
+    scale: number
+  }[]
+}
+
 export interface RegisterWalletAddressKeyArgs {
   /** Cryptographic algorithm used with the key. The only allowed value is `EdDSA`. */
   alg: 'EdDSA'
@@ -97,6 +104,11 @@ export class RhyzaAdminClient {
     return response
   }
 
+  async listAssets(): Promise<Asset[]> {
+    const response = await this.http.get<ListAssetsResponse>('/assets')
+
+    return response.assets.map(({ code, scale }) => ({ code, scale }))
+  }
   async activateWalletAddress(id: string): Promise<void> {
     await this.http.post(`/wallet-addresses/${id}/activate`)
   }

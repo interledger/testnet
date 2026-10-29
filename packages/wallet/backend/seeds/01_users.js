@@ -30,7 +30,6 @@ exports.seed = async function (knex) {
     id: randomUUID(),
     name: 'ILP Account',
     userId: user.id,
-    assetId: randomUUID(),
     assetCode: 'EUR',
     assetScale: 2,
     balance: 100000n,

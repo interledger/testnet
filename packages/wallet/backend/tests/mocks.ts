@@ -78,21 +78,18 @@ export const mockedListAssets = [
   {
     code: 'BRG',
     createdAt: '2023-06-28T14:33:24.675Z',
-    id: '9c498723-95fc-418e-becc-012205f8dff6',
     scale: 3,
     withdrawalThreshold: null
   },
   {
     code: 'CRS',
     createdAt: '2023-06-28T14:33:24.695Z',
-    id: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
     scale: 4,
     withdrawalThreshold: null
   },
   {
     code: 'EUR',
     createdAt: '2023-06-28T14:33:24.888Z',
-    id: 'da1d9728-e38f-47e6-a88e-5bfe9e60438d',
     scale: 2,
     withdrawalThreshold: null
   }
@@ -103,7 +100,6 @@ export const mockedAccount = {
   name: faker.string.uuid(),
   balance: faker.number,
   gateHubWalletId: faker.string.uuid(),
-  assetId: mockedListAssets[0].id,
   assetCode: mockedListAssets[0].code,
   assetScale: mockedListAssets[0].scale,
   walletAddresses: [],
@@ -121,7 +117,7 @@ export const mockedAmount = {
 export const mockCreateAccountReq = {
   userId: faker.string.uuid(),
   name: faker.string.uuid(),
-  assetId: mockedListAssets[0].id
+  assetCode: mockedListAssets[0].code
 }
 
 export const mockedListGrant = [
@@ -344,7 +340,7 @@ export function mockIncomingPaymentCreatedEvent(
     type: wh.type || EventType.IncomingPaymentCreated,
     data: wh.data || {
       id: 'mockedId',
-      walletAddress: faker.internet.url(),
+      walletAddressId: faker.string.uuid(),
       createdAt: faker.string.uuid(),
       expiresAt: faker.string.uuid(),
       receivedAmount: {
@@ -394,10 +390,10 @@ export function mockIncomingPaymentRequest(
 ): IncomingPaymentCreated {
   return {
     body: {
-      walletAddress: faker.internet.url(),
-      incomingAmount: Number(faker.finance.amount({ dec: 0 })),
-      metadata: { description: faker.lorem.paragraph(2) },
-      expiresAt: {
+      walletAddressId: faker.string.uuid(),
+      amount: Number(faker.finance.amount({ dec: 0 })),
+      description: faker.lorem.paragraph(2),
+      expiration: {
         value: 1,
         unit: 'h'
       },
@@ -441,10 +437,7 @@ export function mockIncomingPaymentGetPaymentDetailsByUrlRequest(
 }
 
 export const mockIncomingPaymentService = {
-  create: () => ({
-    id: faker.string.uuid(),
-    openPaymentsUrl: 'https://www.some-domain.com'
-  }),
+  create: () => 'https://www.some-domain.com',
   getPaymentDetailsByUrl: () => ({
     value: faker.number.float(),
     description: faker.lorem.paragraph(2),

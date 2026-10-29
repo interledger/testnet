@@ -1,0 +1,250 @@
+suite: testnet-wallet - HSM adapters
+templates:
+  - hsm-adapter.yaml
+set:
+  fullnameOverride: test-testnet-wallet
+  hsmAdapter:
+    atalla:
+      host: '10.0.0.1'
+      port: 13506
+      tls:
+        secretName: wallet-atalla
+release:
+  name: test-testnet-wallet
+tests:
+  - it: 'renders nothing by default'
+    set:
+      hsmAdapter:
+        atalla:
+          host: ''
+          port: ''
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: 'renders one ConfigMap, Deployment and Service per enabled role'
+    set:
+      hsmAdapter:
+        issuer:
+          enabled: true
+        merchant:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 6
+
+  - it: 'runs the issuer adapter on its own image and port'
+    set:
+      hsmAdapter:
+        issuer:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-hsm-adapter-issuer
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/interledger/test-wallet-hsm-adapter-issuer:v0.0.1
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 50051
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: HSM_ADAPTER_CONFIG_PATH
+              value: /etc/hsm-adapter/config/config.yaml
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: config
+            mountPath: /etc/hsm-adapter/config
+            readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: config
+            configMap:
+              name: test-testnet-wallet-hsm-adapter-issuer
+      - exists:
+          path: spec.template.metadata.annotations["hsm-adapter-config-sha256"]
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: grpc
+
+  - it: 'writes the config file from the values'
+    set:
+      hsmAdapter:
+        logLevel: debug
+        issuer:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: ConfigMap
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-hsm-adapter-issuer
+      - equal:
+          path: data["config.yaml"]
+          value: |
+            atalla:
+              host: 10.0.0.1
+              port: 13506
+              timeout_ms: 2000
+              tls:
+                ca_cert_path: /etc/atalla/tls/ca.crt
+                client_cert_path: /etc/atalla/tls/client.crt
+                client_key_path: /etc/atalla/tls/client.key
+                enabled: true
+                skip_server_identity_check: true
+            grpc:
+              port: 50051
+            log:
+              level: debug
+            start_timeout_ms: 15000
+            stop_timeout_ms: 10000
+
+  - it: 'gives a role its own HSM host when set'
+    set:
+      hsmAdapter:
+        merchant:
+          enabled: true
+          atalla:
+            host: '10.0.0.2'
+    documentSelector:
+      path: kind
+      value: ConfigMap
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-hsm-adapter-merchant
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "host: 10.0.0.2\n"
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "grpc:\n  port: 50052\n"
+
+  - it: 'selects only its own pods from the Service'
+    set:
+      hsmAdapter:
+        merchant:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-testnet-wallet-hsm-adapter-merchant
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: test-testnet-wallet-hsm-adapter-merchant
+      - equal:
+          path: spec.ports[0].port
+          value: 50052
+      - equal:
+          path: spec.ports[0].appProtocol
+          value: grpc
+
+  - it: 'mounts the Atalla TLS Secret group-readable for the node user'
+    set:
+      hsmAdapter:
+        issuer:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[1].secret.secretName
+          value: wallet-atalla
+      - equal:
+          path: spec.template.spec.volumes[1].secret.defaultMode
+          value: 0440
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1000
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[1].mountPath
+          value: /etc/atalla/tls
+
+  - it: 'drops the TLS volume and settings when TLS is off'
+    set:
+      hsmAdapter:
+        issuer:
+          enabled: true
+        atalla:
+          tls:
+            enabled: false
+            secretName: ''
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.volumes
+          count: 1
+        documentSelector:
+          path: kind
+          value: Deployment
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: atalla-tls
+          any: true
+        documentSelector:
+          path: kind
+          value: Deployment
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "tls:\n    enabled: false\n"
+        documentSelector:
+          path: kind
+          value: ConfigMap
+      - notMatchRegex:
+          path: data["config.yaml"]
+          pattern: 'ca_cert_path'
+        documentSelector:
+          path: kind
+          value: ConfigMap
+
+  - it: 'fails the render without an Atalla host'
+    set:
+      hsmAdapter:
+        issuer:
+          enabled: true
+        atalla:
+          host: ''
+    asserts:
+      - failedTemplate:
+          errorMessage: 'hsmAdapter.atalla.host or hsmAdapter.issuer.atalla.host is required when hsmAdapter.issuer.enabled is true'
+
+  - it: 'fails the render without an Atalla port'
+    set:
+      hsmAdapter:
+        merchant:
+          enabled: true
+        atalla:
+          port: ''
+    asserts:
+      - failedTemplate:
+          errorMessage: 'hsmAdapter.atalla.port is required when hsmAdapter.merchant.enabled is true'
+
+  - it: 'fails the render with TLS on and no Secret'
+    set:
+      hsmAdapter:
+        issuer:
+          enabled: true
+        atalla:
+          tls:
+            secretName: ''
+    asserts:
+      - failedTemplate:
+          errorMessage: 'hsmAdapter.atalla.tls.secretName is required when hsmAdapter.atalla.tls.enabled is true'
