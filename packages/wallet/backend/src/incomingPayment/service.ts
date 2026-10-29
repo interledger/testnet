@@ -96,11 +96,12 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetailsResponse> {
     const id = new URL(url).pathname.split('/').pop()!
-    const paymentIntent = await this.rhyzaAdminClient.getPaymentIntentById(id)
-    const { assetScale: scale, assetCode } = paymentIntent.incomingAmount
-    const value =
-      BigInt(paymentIntent.incomingAmount.value) -
-      BigInt(paymentIntent.receivedAmount.value)
+    const { incomingAmount, receivedAmount } =
+      await this.rhyzaAdminClient.getPaymentIntentById(id)
+    const { assetScale: scale, assetCode } = incomingAmount ?? receivedAmount
+    const value = incomingAmount
+      ? BigInt(incomingAmount.value) - BigInt(receivedAmount.value)
+      : 0n
 
     return {
       value: parseFloat(transformAmount(value.toString(), scale)),

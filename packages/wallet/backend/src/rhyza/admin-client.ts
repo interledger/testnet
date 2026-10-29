@@ -51,10 +51,10 @@ export interface GetPaymentIntentResponse {
   state: 'CREATED' | 'COMPLETED'
   destination: string
   walletAddress: string
-  incomingAmount: PaymentIntentAmount
+  incomingAmount?: PaymentIntentAmount
   receivedAmount: PaymentIntentAmount
-  expiresAt: string
-  destinationIlpAddress: string
+  expiresAt?: string
+  destinationIlpAddress?: string
 }
 
 export class RhyzaAdminClient {
