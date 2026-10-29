@@ -177,6 +177,47 @@ describe('RhyzaAdminClient', () => {
     })
   })
 
+  describe('getPaymentIntentById', () => {
+    const paymentIntent = {
+      id: 'pi-1',
+      createdAt: '2026-10-19T13:52:00.855Z',
+      state: 'CREATED',
+      destination: 'https://ilp.test/alice',
+      walletAddress: 'https://ilp.test/alice',
+      incomingAmount: { value: '1000', assetCode: 'USD', assetScale: 2 },
+      receivedAmount: { value: '0', assetCode: 'USD', assetScale: 2 },
+      expiresAt: '2026-10-20T13:52:00.855Z'
+    }
+
+    it('GETs the payment intent details from /payment-intents/:id', async () => {
+      adapter.mockImplementationOnce(respond(200, paymentIntent))
+
+      await client.getPaymentIntentById('pi-1')
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/payment-intents/pi-1')
+    })
+
+    it('returns the payment intent on 200', async () => {
+      adapter.mockImplementationOnce(respond(200, paymentIntent))
+
+      await expect(client.getPaymentIntentById('pi-1')).resolves.toEqual(
+        paymentIntent
+      )
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, { error: "Payment intent 'pi-1' not found" })
+      )
+
+      await expect(client.getPaymentIntentById('pi-1')).rejects.toBeInstanceOf(
+        NotFound
+      )
+    })
+  })
+
   describe('listPayments', () => {
     it('GETs payments with the given query parameters and returns the pagination response', async () => {
       const response: ListPaymentsResponse = {

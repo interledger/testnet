@@ -66,6 +66,24 @@ export interface RegisterWalletAddressKeyArgs {
   use?: 'sig'
 }
 
+export interface PaymentIntentAmount {
+  value: string
+  assetCode: string
+  assetScale: number
+}
+
+export interface GetPaymentIntentResponse {
+  id: string
+  createdAt: string
+  state: 'CREATED' | 'COMPLETED'
+  destination: string
+  walletAddress: string
+  incomingAmount?: PaymentIntentAmount
+  receivedAmount: PaymentIntentAmount
+  expiresAt?: string
+  destinationIlpAddress?: string
+}
+
 export class RhyzaAdminClient {
   constructor(private http: HttpClient) {}
 
@@ -96,6 +114,14 @@ export class RhyzaAdminClient {
       openPaymentsUrl: string
     }>('/payment-intents', args)
     return { id: response.id, openPaymentsUrl: response.openPaymentsUrl }
+  }
+
+  async getPaymentIntentById(id: string): Promise<GetPaymentIntentResponse> {
+    const response = await this.http.get<GetPaymentIntentResponse>(
+      `/payment-intents/${id}`
+    )
+
+    return response
   }
 
   async listPayments(args: ListPaymentsArgs): Promise<ListPaymentsResponse> {
