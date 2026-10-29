@@ -107,7 +107,7 @@ export class RhyzaAdminClient {
 
     return response.assets.map(({ code, scale }) => ({ code, scale }))
   }
-  
+
   async activateWalletAddress(id: string): Promise<void> {
     await this.http.post(`/wallet-addresses/${id}/activate`)
   }
