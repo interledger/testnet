@@ -8,7 +8,7 @@ import axios from 'axios'
 import { Env } from '@/config/env'
 import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
-import { AssetService } from '@/asset/service'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
 interface IIncomingPaymentService {
   create: (
@@ -50,7 +50,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
   constructor(
     private accountService: AccountService,
     private rafikiClient: RafikiClient,
-    private assetService: AssetService,
+    private rhyzaAdminClient: RhyzaAdminClient,
     private env: Env
   ) {}
 
@@ -67,11 +67,10 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
-    const { assetCode } = await this.accountService.findAccountById(
+    await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       userId
     )
-    const asset = await this.assetService.getAssetByCode(assetCode)
 
     let expiryDate: Date | undefined
 
@@ -82,16 +81,14 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       )
     }
 
-    const response = await this.rafikiClient.createReceiver({
-      walletAddressUrl: existingWalletAddress.url,
-      description,
-      asset,
-      amount: BigInt(amount * 10 ** asset.scale),
-      expiresAt: expiryDate,
-      vopNonce: ''
+    const response = await this.rhyzaAdminClient.createPaymentIntent({
+      walletAddress: existingWalletAddress.url,
+      incomingAmount: amount,
+      expiresAt: expiryDate?.toISOString(),
+      metadata: description ? { description } : undefined
     })
 
-    return response.id
+    return response.openPaymentsUrl
   }
 
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetailsResponse> {

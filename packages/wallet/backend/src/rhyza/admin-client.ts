@@ -1,5 +1,11 @@
 import { HttpClient } from '@/rhyza/http-client'
-import { Asset, WalletAddress, Payment, Pagination } from '@/rhyza/types'
+import {
+  Asset,
+  PaymentMetadata,
+  WalletAddress,
+  Payment,
+  Pagination
+} from '@/rhyza/types'
 
 interface AssetCreateResponse {
   code: string
@@ -15,6 +21,13 @@ export interface CreateWalletAddressArgs {
 interface WalletAddressCreateResponse {
   id: string
   address: string
+}
+
+export interface CreatePaymentIntentArgs {
+  walletAddress: string
+  incomingAmount: number
+  expiresAt?: string
+  metadata?: PaymentMetadata
 }
 
 export type ListPaymentsArgs = {
@@ -37,6 +50,7 @@ interface ListAssetsResponse {
     scale: number
   }[]
 }
+
 export interface RegisterWalletAddressKeyArgs {
   /** Cryptographic algorithm used with the key. The only allowed value is `EdDSA`. */
   alg: 'EdDSA'
@@ -74,6 +88,16 @@ export class RhyzaAdminClient {
     return { id: response.id, address: response.address }
   }
 
+  async createPaymentIntent(
+    args: CreatePaymentIntentArgs
+  ): Promise<{ id: string; openPaymentsUrl: string }> {
+    const response = await this.http.post<{
+      id: string
+      openPaymentsUrl: string
+    }>('/payment-intents', args)
+    return { id: response.id, openPaymentsUrl: response.openPaymentsUrl }
+  }
+
   async listPayments(args: ListPaymentsArgs): Promise<ListPaymentsResponse> {
     return this.http.get<ListPaymentsResponse>('/payments', { params: args })
   }
@@ -83,6 +107,7 @@ export class RhyzaAdminClient {
 
     return response.assets.map(({ code, scale }) => ({ code, scale }))
   }
+
   async activateWalletAddress(id: string): Promise<void> {
     await this.http.post(`/wallet-addresses/${id}/activate`)
   }

@@ -22,6 +22,7 @@ describe('Incoming Payment Service', () => {
   let authService: AuthService
   let incopmPaymentService: IncomingPaymentService
   let userId: string
+  const createPaymentIntent = jest.fn()
 
   const prepareIncomePaymentDependencies = async () => {
     const account = await Account.query().insert({
@@ -50,16 +51,8 @@ describe('Incoming Payment Service', () => {
       accountService: await bindings.resolve('accountService'),
       logger: await bindings.resolve('logger'),
       env: await bindings.resolve('env'),
-      assetService: {
-        getAssetByCode: (code: string) =>
-          mockedListAssets.find((asset) => asset.code === code)
-      },
+      rhyzaAdminClient: { createPaymentIntent },
       rafikiClient: {
-        createReceiver: () => ({
-          id: receiverID || faker.string.uuid(),
-          walletAddressUrl: faker.internet.url(),
-          completed: true
-        }),
         getReceiverById: (): Receiver => ({
           id: receiverID || faker.string.uuid(),
           walletAddressUrl: faker.internet.url(),
@@ -123,22 +116,76 @@ describe('Incoming Payment Service', () => {
   })
 
   describe('Create', () => {
-    it('should create an IncomePayment successfully', async () => {
-      const createdId = faker.string.uuid()
-      await mockIncomePaymentDeps(createdId)
+    beforeEach(() => {
+      createPaymentIntent.mockReset()
+    })
+
+    it('should create a payment intent and return its url', async () => {
+      const openPaymentsUrl = `${faker.internet.url()}/incoming-payments/${faker.string.uuid()}`
+      createPaymentIntent.mockResolvedValue({
+        id: faker.string.uuid(),
+        openPaymentsUrl
+      })
       const { walletAddress } = await prepareIncomePaymentDependencies()
+
       const result = await incopmPaymentService.create(
         userId,
         walletAddress.id,
         100
       )
-      expect(result).toEqual(createdId)
+
+      expect(result).toEqual(openPaymentsUrl)
+      expect(createPaymentIntent).toHaveBeenCalledWith({
+        walletAddress: walletAddress.url,
+        incomingAmount: 100,
+        expiresAt: undefined,
+        metadata: undefined
+      })
     })
 
-    it('should return NotFound Err', async () => {
+    it('should map description and expiration to the Rhyza request', async () => {
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] })
+      jest.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
+      createPaymentIntent.mockResolvedValue({
+        id: faker.string.uuid(),
+        openPaymentsUrl: faker.internet.url()
+      })
+
+      try {
+        const { walletAddress } = await prepareIncomePaymentDependencies()
+        await incopmPaymentService.create(
+          userId,
+          walletAddress.id,
+          100,
+          'Free Money!',
+          { value: 2, unit: 'h' }
+        )
+
+        expect(createPaymentIntent).toHaveBeenCalledWith({
+          walletAddress: walletAddress.url,
+          incomingAmount: 100,
+          expiresAt: '2026-01-01T02:00:00.000Z',
+          metadata: { description: 'Free Money!' }
+        })
+      } finally {
+        jest.useRealTimers()
+      }
+    })
+
+    it('should return NotFound if the wallet address does not exist', async () => {
       await expect(
         incopmPaymentService.create(userId, faker.string.uuid(), 100)
       ).rejects.toThrowError(NotFound)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
+    })
+
+    it('should return NotFound if the wallet address belongs to another user', async () => {
+      const { walletAddress } = await prepareIncomePaymentDependencies()
+
+      await expect(
+        incopmPaymentService.create(faker.string.uuid(), walletAddress.id, 100)
+      ).rejects.toThrowError(NotFound)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
     })
   })
 
