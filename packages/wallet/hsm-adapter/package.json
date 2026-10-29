@@ -1,0 +1,30 @@
+{
+  "name": "@wallet/hsm-adapter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "hsm-adapter-issuer and hsm-adapter-merchant: the published hsm-adapter-ts servers, one process and one HSM connection each",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --import tsx --experimental-test-coverage --test-coverage-exclude='test/**' --test-coverage-exclude='src/issuer.ts' --test-coverage-exclude='src/merchant.ts' --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test test/*.test.ts",
+    "start:issuer": "node dist/issuer.js",
+    "start:merchant": "node dist/merchant.js",
+    "dev:issuer": "tsx src/issuer.ts",
+    "dev:merchant": "tsx src/merchant.ts"
+  },
+  "dependencies": {
+    "@connectrpc/connect": "^2.2.0",
+    "@interledger/hsm-atalla-issuer": "0.3.0",
+    "@interledger/hsm-atalla-merchant": "0.3.0",
+    "@interledger/hsm-atalla-transport": "0.3.0",
+    "pino": "^10.3.1",
+    "yaml": "^2.5.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

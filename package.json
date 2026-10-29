@@ -14,7 +14,7 @@
     "build": "pnpm -r build",
     "checks": "pnpm prettier:check && pnpm lint:check",
     "test": "pnpm test:unit",
-    "test:unit": "pnpm boutique:backend test && pnpm --filter @shared/telemetry test && pnpm wallet:backend test",
+    "test:unit": "pnpm boutique:backend test && pnpm --filter @shared/telemetry test && pnpm wallet:backend test && pnpm wallet:hsm-adapter test",
     "clean": "pnpm clean:modules && pnpm clean:builds && pnpm local:down && pnpm local:reset && pnpm local:reset:rhyza-data",
     "clean:builds": "find . \\( -name \"dist\" -o -name \".next\" \\) -type d -prune -exec rm -rf '{}' +",
     "clean:modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
@@ -50,9 +50,12 @@
     "local:trust:linux": "bash ./local/scripts/local-tools.sh trust-linux",
     "local:rafiki-assets": "node ./local/scripts/rafiki-setup.js",
     "local:up:rhyza": "pnpm compose:rhyza up -d --remove-orphans",
-    "local:down:rhyza": "pnpm compose:rhyza --profile observability down",
-    "local:reset:rhyza": "pnpm compose:rhyza --profile observability down -v",
+    "local:down:rhyza": "pnpm compose:rhyza --profile observability --profile hsm down",
+    "local:reset:rhyza": "pnpm compose:rhyza --profile observability --profile hsm down -v",
     "local:logs:rhyza": "pnpm compose:rhyza logs -f",
+    "local:up:rhyza:hsm": "pnpm compose:rhyza --profile hsm up -d --build hsm-adapter-issuer hsm-adapter-merchant",
+    "local:down:rhyza:hsm": "pnpm compose:rhyza --profile hsm rm --stop --force hsm-adapter-issuer hsm-adapter-merchant",
+    "local:logs:rhyza:hsm": "pnpm compose:rhyza --profile hsm logs -f hsm-adapter-issuer hsm-adapter-merchant",
     "local:setup:rhyza": "pnpm local:hosts && pnpm local:trust && pnpm local:up:rhyza && pnpm local:rhyza-assets",
     "local:rhyza-assets": "node ./local/scripts/rhyza-setup.js",
     "local:reset:rhyza-data": "bash ./local/scripts/local-tools.sh rhyza-reset-data",
@@ -64,7 +67,8 @@
     "prettier:write": "prettier --config \".prettierrc.js\" --write .",
     "prettier:check": "prettier --config \".prettierrc.js\" --check .",
     "wallet:backend": "pnpm --filter @wallet/backend --",
-    "wallet:frontend": "pnpm --filter @wallet/frontend --"
+    "wallet:frontend": "pnpm --filter @wallet/frontend --",
+    "wallet:hsm-adapter": "pnpm --filter @wallet/hsm-adapter --"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

@@ -27,7 +27,6 @@ describe('Quote Service', () => {
       name: faker.string.alpha(10),
       userId: userInfo.id,
       assetCode: mockedListAssets[0].code,
-      assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
       gateHubWalletId: 'mocked'
     })
@@ -55,8 +54,8 @@ describe('Quote Service', () => {
 
     const accountServiceDepsMocked = {
       rafikiClient: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id),
+        getRafikiAssets: (code: unknown) =>
+          mockedListAssets.find((asset) => asset.code === code),
         listAssets: () => mockedListAssets
       },
       gateHubClient: mockGateHubClient
@@ -69,10 +68,11 @@ describe('Quote Service', () => {
 
     const quoteServiceDepsMocked = {
       accountService,
+      assetService: {
+        getAssetByCode: (code: string) =>
+          mockedListAssets.find((asset) => asset.code === code)
+      },
       rafikiClient: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id),
-
         createQuote: () => ({
           id: uuid(),
           receiver: `${faker.internet.url({

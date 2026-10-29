@@ -298,6 +298,14 @@ local:logs:rhyza           Follow stack logs
 local:rhyza-assets         Seed assets via the Rhyza REST Admin API
 local:reset:rhyza-data     Drop only Rhyza's Kafka + MongoDB state (keeps Postgres)
 
+HSM adapters (opt-in, Rhyza stack) -- see local/hsm-adapter.yaml
+local:up:rhyza:hsm         Build and start hsm-adapter-issuer (localhost:50051) and
+                           hsm-adapter-merchant (localhost:50052), next to a running stack
+local:down:rhyza:hsm       Stop and remove them
+local:logs:rhyza:hsm       Follow their logs
+                           They need an Atalla HSM: set ATALLA_HOST and ATALLA_PORT
+                           in local/.env (default: the host, port 13506).
+
 Metrics and traces (opt-in) -- see local/observability.yaml
 dev:observability          pnpm dev, plus Grafana, Prometheus, Tempo and the collector
 dev:rhyza:observability    The same on the Rhyza stack
