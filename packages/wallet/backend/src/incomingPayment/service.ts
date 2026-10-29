@@ -9,16 +9,14 @@ import { Env } from '@/config/env'
 import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
-import { PaymentMetadata } from '@/rhyza/types'
 
 interface IIncomingPaymentService {
   create: (
     userId: string,
-    walletAddress: string,
-    incomingAmount: number,
-    expiresAt?: Expiration,
-    metadata?: PaymentMetadata
-  ) => Promise<{ id: string; openPaymentsUrl: string }>
+    walletAddressId: string,
+    amount: number,
+    description: string
+  ) => Promise<string>
   getPaymentDetailsByUrl: (url: string) => Promise<PaymentDetailsResponse>
 }
 
@@ -58,14 +56,13 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
   async create(
     userId: string,
-    walletAddress: string,
-    incomingAmount: number,
-    expiresAt?: Expiration,
-    metadata?: PaymentMetadata
-  ): Promise<{ id: string; openPaymentsUrl: string }> {
-    const existingWalletAddress = await WalletAddress.query().findOne({
-      url: walletAddress
-    })
+    walletAddressId: string,
+    amount: number,
+    description?: string,
+    expiration?: Expiration
+  ): Promise<string> {
+    const existingWalletAddress =
+      await WalletAddress.query().findById(walletAddressId)
     if (!existingWalletAddress || !existingWalletAddress.active) {
       throw new NotFound()
     }
@@ -77,21 +74,21 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     let expiryDate: Date | undefined
 
-    if (expiresAt) {
+    if (expiration) {
       expiryDate = add(
         new Date(),
-        this.generateExpiryObject(expiresAt.value, expiresAt.unit)
+        this.generateExpiryObject(expiration.value, expiration.unit)
       )
     }
 
     const response = await this.rhyzaAdminClient.createPaymentIntent({
-      walletAddress,
-      incomingAmount,
+      walletAddress: existingWalletAddress.url,
+      incomingAmount: amount,
       expiresAt: expiryDate?.toISOString(),
-      metadata
+      metadata: description ? { description } : undefined
     })
 
-    return response
+    return response.openPaymentsUrl
   }
 
   async getPaymentDetailsByUrl(url: string): Promise<PaymentDetailsResponse> {

@@ -24,15 +24,15 @@ export class IncomingPaymentController implements IIncomingPaymentController {
     try {
       const userId = req.session.user.id
       const {
-        body: { walletAddress, incomingAmount, expiresAt, metadata }
+        body: { walletAddressId, amount, description, expiration }
       } = await validate(incomingPaymentSchema, req)
 
-      const { openPaymentsUrl: url } = await this.incomingPaymentService.create(
+      const url = await this.incomingPaymentService.create(
         userId,
-        walletAddress,
-        incomingAmount,
-        expiresAt,
-        metadata
+        walletAddressId,
+        amount,
+        description,
+        expiration
       )
       res.status(200).json(toSuccessResponse({ url }))
     } catch (e) {

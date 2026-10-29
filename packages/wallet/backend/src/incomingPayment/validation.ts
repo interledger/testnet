@@ -1,21 +1,16 @@
 import { z } from 'zod'
-import { PaymentMetadata } from '@/rhyza/types'
-
-export const metadataSchema: z.ZodType<PaymentMetadata> = z.object({
-  description: z.string().optional()
-})
 
 export const incomingPaymentSchema = z.object({
   body: z.object({
-    walletAddress: z.string(),
-    incomingAmount: z.number().positive(),
-    expiresAt: z
+    walletAddressId: z.string().uuid(),
+    amount: z.number().positive(),
+    description: z.string().optional(),
+    expiration: z
       .object({
         value: z.coerce.number().positive().int(),
         unit: z.enum(['s', 'm', 'h', 'd'])
       })
-      .optional(),
-    metadata: metadataSchema.optional()
+      .optional()
   })
 })
 
