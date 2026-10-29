@@ -52,3 +52,39 @@ export interface Grant {
   access: GrantAccess[]
   subjectIds: GrantSubjectId[]
 }
+
+export interface Amount {
+  value: string
+  assetCode: string
+  assetScale: number
+}
+
+export type PaymentState =
+  | 'CREATED'
+  | 'PROCESSING'
+  | 'SENDING'
+  | 'CONFIRMED'
+  | 'REJECTED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'FAILED'
+
+export interface Payment {
+  createdAt: string
+  debitAmount: Amount
+  id: string
+  paymentIntentId: string
+  receiveAmount: Amount
+  senderWalletAddress: string
+  sentAmount: Amount
+  state: PaymentState
+  failReason?: string
+  quoteId?: string
+}
+
+export interface Pagination {
+  startCursor?: string
+  endCursor?: string
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}

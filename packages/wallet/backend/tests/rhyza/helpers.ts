@@ -62,6 +62,7 @@ export const lastRequest = (adapter: jest.Mock) => {
     method: config.method?.toUpperCase(),
     headers: config.headers.toJSON() as Record<string, string>,
     timeout: config.timeout,
-    body: config.data === undefined ? undefined : JSON.parse(config.data)
+    body: config.data === undefined ? undefined : JSON.parse(config.data),
+    params: config.params
   }
 }
