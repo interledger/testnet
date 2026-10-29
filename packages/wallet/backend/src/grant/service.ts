@@ -8,12 +8,15 @@ import { WalletAddressService } from '@/walletAddress/service'
 import { BadRequest, Forbidden } from '@shared/backend'
 import moment from 'moment'
 import { AxiosError } from 'axios'
+import { RhyzaIdpClient } from '@/rhyza/idp-client'
+import { Grant as RhyzaGrant } from '@/rhyza/types'
+
 interface IGrantService {
   getGrantByInteraction: (
     userId: string,
     interactionId: string,
     nonce: string
-  ) => Promise<Grant>
+  ) => Promise<RhyzaGrant>
   setInteractionResponse: (
     userId: string,
     interactionId: string,
@@ -25,23 +28,21 @@ interface IGrantService {
 export class GrantService implements IGrantService {
   constructor(
     private rafikiAuthService: RafikiAuthService,
-    private walletAddressService: WalletAddressService
+    private walletAddressService: WalletAddressService,
+    private rhyzaIdpClient: RhyzaIdpClient
   ) {}
 
   async getGrantByInteraction(
     userId: string,
     interactionId: string,
     nonce: string
-  ): Promise<Grant> {
-    const grant: Grant = await this.rafikiAuthService.getGrantByInteraction(
-      interactionId,
-      nonce
-    )
+  ): Promise<RhyzaGrant> {
+    const grant = await this.rhyzaIdpClient.getGrant(interactionId)
 
     const accessIdentifier = grant.access.find(
       ({ identifier }) => identifier
     )?.identifier
-    const subjectIdentifier = grant.subject?.sub_ids?.[0]?.id
+    const subjectIdentifier = grant.subjectIds?.[0]?.id
     const identifiers = [accessIdentifier, subjectIdentifier].filter(
       (identifier): identifier is string => !!identifier
     )
