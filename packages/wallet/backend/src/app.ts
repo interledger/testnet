@@ -342,7 +342,7 @@ export class App {
     router.post('/outgoing-payments', isAuth, outgoingPaymentController.create)
 
     // asset
-    router.get('/assets', isAuth, assetController.listAll)
+    router.get('/assets', isAuth, assetController.list)
 
     // grant
     router.get('/grants', isAuth, grantController.list)
