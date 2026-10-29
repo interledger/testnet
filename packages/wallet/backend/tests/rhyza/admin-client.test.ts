@@ -1,6 +1,6 @@
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
 import { HttpClient } from '@/rhyza/http-client'
-import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import { RhyzaAdminClient, ListPaymentsResponse } from '@/rhyza/admin-client'
 import { lastRequest, mockAdapter, mockLogger, respond } from './helpers'
 
 describe('RhyzaAdminClient', () => {
@@ -177,6 +177,38 @@ describe('RhyzaAdminClient', () => {
     })
   })
 
+  describe('listPayments', () => {
+    it('GETs payments with the given query parameters and returns the pagination response', async () => {
+      const response: ListPaymentsResponse = {
+        result: [],
+        pagination: {
+          startCursor: 'start',
+          endCursor: 'end',
+          hasNextPage: false,
+          hasPreviousPage: true
+        }
+      }
+      adapter.mockImplementationOnce(respond(200, response))
+
+      await expect(
+        client.listPayments({
+          paymentIntentId: 'intent id',
+          first: 100,
+          sortOrder: 'desc'
+        })
+      ).resolves.toEqual(response)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/payments')
+      expect(request.params).toEqual({
+        paymentIntentId: 'intent id',
+        first: 100,
+        sortOrder: 'desc'
+      })
+    })
+  })
+
   describe('activateWalletAddress', () => {
     it('POSTs to /wallet-addresses/:id/activate', async () => {
       adapter.mockImplementationOnce(respond(200, {}))
@@ -271,6 +303,57 @@ describe('RhyzaAdminClient', () => {
 
       await expect(
         client.registerWalletAddressKey(jwk, walletAddressId)
+      ).rejects.toBeInstanceOf(Conflict)
+    })
+  })
+
+  describe('revokeWalletAddressKey', () => {
+    const walletAddressId = 'wa-1'
+    const keyId = 'key-1'
+
+    it('POSTs to /wallet-addresses/:id/keys/:keyId/revoke', async () => {
+      adapter.mockImplementationOnce(respond(204, {}))
+
+      await client.revokeWalletAddressKey(walletAddressId, keyId)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe(
+        'http://admin.test/wallet-addresses/wa-1/keys/key-1/revoke'
+      )
+    })
+
+    it('resolves on 204', async () => {
+      adapter.mockImplementationOnce(respond(204, {}))
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).resolves.toBeUndefined()
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error:
+            '5 NOT_FOUND: Wallet address key key-1 does not exist for wallet wa-1'
+        })
+      )
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).rejects.toBeInstanceOf(NotFound)
+    })
+
+    it('raises Conflict on 409', async () => {
+      adapter.mockImplementationOnce(
+        respond(409, {
+          error:
+            '9 FAILED_PRECONDITION: Wallet address key key-1 is already revoked'
+        })
+      )
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
       ).rejects.toBeInstanceOf(Conflict)
     })
   })
