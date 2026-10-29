@@ -28,7 +28,6 @@ describe('Incoming Payment Service', () => {
       name: faker.string.alpha(10),
       userId,
       assetCode: mockedListAssets[0].code,
-      assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
       gateHubWalletId: 'mocked'
     })
@@ -51,9 +50,11 @@ describe('Incoming Payment Service', () => {
       accountService: await bindings.resolve('accountService'),
       logger: await bindings.resolve('logger'),
       env: await bindings.resolve('env'),
+      assetService: {
+        getAssetByCode: (code: string) =>
+          mockedListAssets.find((asset) => asset.code === code)
+      },
       rafikiClient: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id),
         createReceiver: () => ({
           id: receiverID || faker.string.uuid(),
           walletAddressUrl: faker.internet.url(),
