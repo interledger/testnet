@@ -11,6 +11,7 @@ export interface WalletAddress {
 
 export interface PaymentMetadata {
   description?: string
+  vopNonce?: string
 }
 
 export type GrantState =
@@ -87,4 +88,19 @@ export interface Pagination {
   endCursor?: string
   hasNextPage: boolean
   hasPreviousPage: boolean
+}
+
+export type QuoteState = 'PENDING' | 'FAILED' | 'COMPLETED'
+
+export interface Quote {
+  createdAt: string
+  id: string
+  paymentIntentId: string
+  senderWalletAddress: string
+  senderWalletAddressId: string
+  state: QuoteState
+  debitAmount?: string
+  exchangeRate?: number
+  expiresAt?: string
+  receiveAmount?: string
 }

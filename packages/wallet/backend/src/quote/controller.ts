@@ -1,4 +1,3 @@
-import { Amount, Quote } from '@/rafiki/backend/generated/graphql'
 import { validate } from '@/shared/validate'
 import type { NextFunction, Request } from 'express'
 import { QuoteService } from './service'
@@ -7,12 +6,10 @@ import { Controller, toSuccessResponse } from '@shared/backend'
 import { QuoteResponse } from '@wallet/shared'
 
 interface IQuoteController {
-  create: Controller<Quote>
+  create: Controller<QuoteResponse>
 }
 
-export type QuoteWithFees = Quote & {
-  fee?: Amount
-}
+export type QuoteWithFees = QuoteResponse
 
 export class QuoteController implements IQuoteController {
   constructor(private quoteService: QuoteService) {}
