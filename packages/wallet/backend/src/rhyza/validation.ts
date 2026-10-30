@@ -23,6 +23,27 @@ const paymentIntentSchema = z.object({
     .optional()
 })
 
+const paymentSchema = z.object({
+  id: z.string().uuid(),
+  walletAddressId: z.string().uuid(),
+  paymentIntentId: z.string().uuid().optional(),
+  state: z.enum([
+    'CREATED',
+    'PROCESSING',
+    'SENDING',
+    'CONFIRMED',
+    'REJECTED',
+    'COMPLETED',
+    'CANCELLED',
+    'FAILED'
+  ]),
+  createdAt: z.string(),
+  debitAmount: amountSchema,
+  sentAmount: amountSchema,
+  receiveAmount: amountSchema,
+  metadata: z.record(z.unknown()).optional()
+})
+
 export const paymentIntentWebhookSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
   type: z.enum([
@@ -32,8 +53,15 @@ export const paymentIntentWebhookSchema = z.object({
   data: paymentIntentSchema
 })
 
+export const paymentWebhookSchema = z.object({
+  id: z.string({ required_error: 'id is required' }),
+  type: z.enum([EventType.PaymentCompleted]),
+  data: paymentSchema
+})
+
 export const webhookSchema = z.discriminatedUnion('type', [
-  paymentIntentWebhookSchema
+  paymentIntentWebhookSchema,
+  paymentWebhookSchema
 ])
 
 export const webhookBodySchema = z.object({
