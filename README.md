@@ -164,20 +164,21 @@ The Rhyza stack runs alongside the Rafiki v1 one. It is defined in `local/rhyza.
 by `local/docker-compose.rhyza.yml`, which reuses the shared Traefik, Postgres, Redis and mock GateHub
 services. Only one stack can run at a time — the `:rhyza` commands swap the Rafiki half in place.
 
-testnet does not build Rhyza images — they are a **prerequisite**. Build them in your own
-`rafiki-v2` checkout, wherever it lives, then tell testnet which images to use. `RHYZA_IMAGE_PREFIX`
-and `RHYZA_IMAGE_TAG` are required: compose refuses to start if either is unset, rather than
-silently running a stale image.
+testnet does not build Rhyza images — they are a **prerequisite**. Build them from
+[interledger/rhyza](https://github.com/interledger/rhyza) `main`, then tell testnet which images to
+use. The published `v1.0.0-alpha` images predate rhyza#338 (path-only wallet addresses), which the
+wallet backend relies on. `RHYZA_IMAGE_PREFIX` and `RHYZA_IMAGE_TAG` are required: compose refuses
+to start if either is unset, rather than silently running a stale image.
 
 ```sh
-# Prerequisite, in your rafiki-v2 checkout — produces rafiki-v2-<service>:latest
-cd <your rafiki-v2 checkout>
+# Prerequisite, in your rhyza checkout — produces rhyza-<service>:latest
+cd <your rhyza checkout>
 docker compose -f docker/docker-compose.yaml build
 ```
 
 ```sh
 # In local/.env
-RHYZA_IMAGE_PREFIX=rafiki-v2
+RHYZA_IMAGE_PREFIX=rhyza
 RHYZA_IMAGE_TAG=latest
 ```
 

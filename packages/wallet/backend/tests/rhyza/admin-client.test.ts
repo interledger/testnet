@@ -82,7 +82,7 @@ describe('RhyzaAdminClient', () => {
 
   describe('createWalletAddress', () => {
     const args = {
-      address: 'https://ilp.test/alice',
+      pathName: 'alice',
       assetCode: 'USD',
       publicName: 'Alice',
       isActive: true
@@ -90,7 +90,7 @@ describe('RhyzaAdminClient', () => {
 
     it('POSTs the address details to /wallet-addresses', async () => {
       adapter.mockImplementationOnce(
-        respond(201, { id: 'wa-1', address: 'ilp.test/alice' })
+        respond(201, { id: 'wa-1', address: 'https://ilp.test/alice' })
       )
 
       await client.createWalletAddress(args)
@@ -103,12 +103,12 @@ describe('RhyzaAdminClient', () => {
 
     it('returns the Rhyza id and address on 201', async () => {
       adapter.mockImplementationOnce(
-        respond(201, { id: 'wa-1', address: 'ilp.test/alice' })
+        respond(201, { id: 'wa-1', address: 'https://ilp.test/alice' })
       )
 
       await expect(client.createWalletAddress(args)).resolves.toEqual({
         id: 'wa-1',
-        address: 'ilp.test/alice'
+        address: 'https://ilp.test/alice'
       })
     })
 
@@ -116,7 +116,7 @@ describe('RhyzaAdminClient', () => {
       adapter.mockImplementationOnce(
         respond(409, {
           error:
-            '13 INTERNAL: Wallet Address with that domain and pathName ilp.test/alice already exists'
+            '13 INTERNAL: Wallet Address with that domain and pathName alice already exists'
         })
       )
 

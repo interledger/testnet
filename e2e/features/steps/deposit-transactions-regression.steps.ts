@@ -25,6 +25,32 @@ async function readAccountBalance(page: Page) {
   return parseAmountFromText(balanceText)
 }
 
+// The page renders an empty #transactionsList before its fetch starts, so wait
+// for the GET /transactions response and for the table to show those rows.
+async function loadTransactionsTotal(
+  page: Page,
+  navigate: () => Promise<unknown>
+) {
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === '/transactions' &&
+        r.request().resourceType() === 'fetch'
+    ),
+    navigate()
+  ])
+  expect(response.ok(), `GET /transactions returned ${response.status()}`).toBe(
+    true
+  )
+
+  const { result } = await response.json()
+  await expect(
+    page.locator('#transactionsList tbody tr.cursor-pointer')
+  ).toHaveCount(result.results.length)
+  // The table shows one page (10 rows); the total keeps counting past that.
+  return result.total as number
+}
+
 When(
   'I open the EUR default account for deposit checks',
   async ({ page, flow }) => {
@@ -55,11 +81,10 @@ When('I record the current account balance', async ({ page, flow }) => {
 })
 
 When('I record the current transactions count', async ({ page, flow }) => {
-  await page.goto('/transactions')
+  flow.initialTransactionRows = await loadTransactionsTotal(page, () =>
+    page.goto('/transactions')
+  )
   await expect(page).toHaveURL(/\/transactions/)
-
-  const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
-  flow.initialTransactionRows = await rows.count()
 
   await flow.takeScreenshot('deposit-check-initial-transactions')
 
@@ -157,12 +182,6 @@ When(
 When(
   'I open the transactions page for deposit checks',
   async ({ page, flow }) => {
-    await page.goto('/transactions')
-    await expect(page).toHaveURL(/\/transactions/)
-    await expect(
-      page.getByRole('heading', { name: 'Transactions' })
-    ).toBeVisible()
-
     if (flow.initialTransactionRows === undefined) {
       throw new Error('Missing initial transactions count in flow state')
     }
@@ -171,17 +190,21 @@ When(
     let currentRows = 0
 
     for (let attempt = 0; attempt < 6; attempt++) {
-      const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
-      currentRows = await rows.count()
+      currentRows = await loadTransactionsTotal(page, () =>
+        attempt === 0 ? page.goto('/transactions') : page.reload()
+      )
 
       if (currentRows >= expectedMinimumRows) {
         break
       }
 
       await page.waitForTimeout(2000)
-      await page.reload()
-      await expect(page).toHaveURL(/\/transactions/)
     }
+
+    await expect(page).toHaveURL(/\/transactions/)
+    await expect(
+      page.getByRole('heading', { name: 'Transactions' })
+    ).toBeVisible()
 
     flow.postDepositTransactionRows = currentRows
 
@@ -214,7 +237,9 @@ When(
   'I wait {int} seconds and refresh transactions',
   async ({ page, flow }, seconds: number) => {
     await page.waitForTimeout(seconds * 1000)
-    await page.reload()
+    flow.delayedRefreshTransactionRows = await loadTransactionsTotal(page, () =>
+      page.reload()
+    )
 
     await expect(page).toHaveURL(/\/transactions/)
     await expect(
@@ -222,13 +247,6 @@ When(
     ).toBeVisible()
 
     const rows = page.locator('#transactionsList tbody tr.cursor-pointer')
-    // Wait for table data to load after page hydration; heading visible ≠ rows rendered.
-    try {
-      await rows.first().waitFor({ state: 'visible', timeout: 8000 })
-    } catch {
-      // Table may genuinely be empty — proceed with count of 0.
-    }
-    flow.delayedRefreshTransactionRows = await rows.count()
 
     if (flow.delayedRefreshTransactionRows > 0) {
       await expect(rows.first()).toBeVisible()
