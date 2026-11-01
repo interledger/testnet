@@ -406,6 +406,39 @@ export function mockPaymentIntentCompletedEvent(
   })
 }
 
+export function mockPaymentCompletedEvent(
+  overrides?: Partial<RhyzaWebHook>
+): RhyzaWebhookType {
+  return {
+    id: faker.string.uuid(),
+    type: RhyzaEventType.PaymentCompleted,
+    ...overrides,
+    data: {
+      id: faker.string.uuid(),
+      walletAddressId: faker.string.uuid(),
+      paymentIntentId: faker.string.uuid(),
+      state: 'COMPLETED',
+      createdAt: faker.date.recent().toISOString(),
+      debitAmount: {
+        value: '1000',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      sentAmount: {
+        value: '1000',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      receiveAmount: {
+        value: '1000',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      ...overrides?.data
+    }
+  }
+}
+
 export function mockIncomingPaymentRequest(
   overrides?: Partial<IncomingPaymentCreated['body']>
 ): IncomingPaymentCreated {

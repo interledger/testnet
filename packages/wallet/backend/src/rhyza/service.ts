@@ -7,6 +7,7 @@ import { BadRequest } from '@shared/backend'
 import { AccountService } from '@/account/service'
 import { GateHubClient } from '@/gatehub/client'
 import { SocketService } from '@/socket/service'
+import MessageType from '@/socket/messageType'
 import { Env } from '@/config/env'
 import { TransactionTypeEnum } from '@/gatehub/consts'
 import { RhyzaAdminClient } from './admin-client'
@@ -15,7 +16,8 @@ import { Amount } from './types'
 
 export enum EventType {
   PaymentIntentCreated = 'payment_intent.created',
-  PaymentIntentCompleted = 'payment_intent.completed'
+  PaymentIntentCompleted = 'payment_intent.completed',
+  PaymentCompleted = 'payment.completed'
 }
 
 export interface WebHook {
@@ -55,6 +57,9 @@ export class RhyzaService implements IRhyzaService {
         break
       case EventType.PaymentIntentCompleted:
         await this.handlePaymentIntentCompleted(wh)
+        break
+      case EventType.PaymentCompleted:
+        await this.handlePaymentCompleted(wh)
         break
     }
   }
@@ -113,6 +118,10 @@ export class RhyzaService implements IRhyzaService {
 
     if ([EventType.PaymentIntentCompleted].includes(wh.type)) {
       amount = this.parseAmount(wh.data.receivedAmount as AmountJSON)
+    }
+
+    if ([EventType.PaymentCompleted].includes(wh.type)) {
+      amount = this.parseAmount(wh.data.debitAmount as AmountJSON)
     }
 
     if (!amount) {
@@ -184,6 +193,59 @@ export class RhyzaService implements IRhyzaService {
       )} from settlement account ${
         this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS
       } into ${receiverWallet} `
+    )
+  }
+
+  private async handlePaymentCompleted(wh: WebHook) {
+    const walletAddress = await this.getWalletAddress(wh)
+    const debitAmount = this.getAmountFromWebhook(wh)
+
+    const {
+      gateHubWalletId: sendingWallet,
+      userId,
+      gateHubUserId
+    } = await this.accountService.getGateHubWalletAddress(walletAddress)
+
+    if (!this.validateAmount(debitAmount, wh.type)) {
+      return
+    }
+
+    await this.gateHubClient.createTransaction(
+      {
+        amount: this.amountToNumber(debitAmount),
+        vault_uuid: this.gateHubClient.getVaultUuid(debitAmount.assetCode),
+        sending_address: sendingWallet,
+        receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
+        type: TransactionTypeEnum.HOSTED,
+        message: 'Transfer'
+      },
+      gateHubUserId
+    )
+
+    await this.transactionService.updateTransaction(
+      { paymentId: wh.data.id },
+      { status: 'COMPLETED', value: BigInt(debitAmount.value) }
+    )
+
+    const isExchange = NodeCacheInstance.get(wh.data.id)
+    if (userId && !isExchange) {
+      const messageType =
+        wh.data.metadata?.type === 'instant'
+          ? MessageType.MONEY_SENT_SHOP
+          : MessageType.MONEY_SENT
+      await this.socketService.emitMoneySentByUserId(
+        userId.toString(),
+        debitAmount,
+        messageType
+      )
+    }
+
+    this.logger.info(
+      `Succesfully transfered ${this.amountToNumber(
+        debitAmount
+      )} from ${sendingWallet} to settlement account on ${
+        EventType.PaymentCompleted
+      }`
     )
   }
 }
