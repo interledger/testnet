@@ -398,4 +398,36 @@ describe('RhyzaAdminClient', () => {
       ).rejects.toBeInstanceOf(Conflict)
     })
   })
+
+  describe('createQuote', () => {
+    const quote = {
+      createdAt: '2026-10-28T11:00:00.000Z',
+      state: 'COMPLETED',
+      id: 'quote-1',
+      paymentIntentId: 'pi-1',
+      senderWalletAddress: 'https://ilp.test/alice',
+      senderWalletAddressId: 'wa-1',
+      expiresAt: '2026-10-28T12:00:00.000Z',
+      debitAmount: '1000',
+      receiveAmount: '1000',
+      exchangeRate: 1
+    }
+    const args = {
+      id: 'quote-1',
+      walletAddress: 'https://ilp.test/alice',
+      debitAmount: '1000',
+      paymentIntentId: 'pi-1'
+    }
+
+    it('POSTs the quote details to /quotes and returns the quote', async () => {
+      adapter.mockImplementationOnce(respond(201, quote))
+
+      await expect(client.createQuote(args)).resolves.toEqual(quote)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/quotes')
+      expect(request.body).toEqual(args)
+    })
+  })
 })

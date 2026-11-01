@@ -4,7 +4,8 @@ import {
   PaymentMetadata,
   WalletAddress,
   Payment,
-  Pagination
+  Pagination,
+  Quote
 } from '@/rhyza/types'
 
 interface AssetCreateResponse {
@@ -25,7 +26,7 @@ interface WalletAddressCreateResponse {
 
 export interface CreatePaymentIntentArgs {
   walletAddress: string
-  incomingAmount: number
+  incomingAmount?: number
   expiresAt?: string
   metadata?: PaymentMetadata
 }
@@ -82,6 +83,23 @@ export interface GetPaymentIntentResponse {
   receivedAmount: PaymentIntentAmount
   expiresAt?: string
   destinationIlpAddress?: string
+}
+
+type QuoteAmount =
+  | { debitAmount: string; receiveAmount?: never }
+  | { receiveAmount: string; debitAmount?: never }
+
+type QuoteCreate = {
+  id: string
+  walletAddress: string
+} & QuoteAmount
+
+export type QuoteCreateFromPaymentIntentId = QuoteCreate & {
+  paymentIntentId: string
+}
+
+export type QuoteCreateFromPaymentIntentUrl = QuoteCreate & {
+  paymentIntentUrl: string
 }
 
 export class RhyzaAdminClient {
@@ -160,5 +178,23 @@ export class RhyzaAdminClient {
     await this.http.post<void>(
       `/wallet-addresses/${walletAddressId}/keys/${keyId}/revoke`
     )
+  }
+
+  async createQuote(
+    args: QuoteCreateFromPaymentIntentId | QuoteCreateFromPaymentIntentUrl
+  ): Promise<Quote> {
+    const response = await this.http.post<Quote>('/quotes', args)
+    return {
+      createdAt: response.createdAt,
+      id: response.id,
+      paymentIntentId: response.paymentIntentId,
+      senderWalletAddress: response.senderWalletAddress,
+      senderWalletAddressId: response.senderWalletAddressId,
+      state: response.state,
+      debitAmount: response.debitAmount,
+      exchangeRate: response.exchangeRate,
+      expiresAt: response.expiresAt,
+      receiveAmount: response.receiveAmount
+    }
   }
 }

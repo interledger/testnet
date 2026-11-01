@@ -44,6 +44,17 @@ describe('Quote Service', () => {
     }
   }
 
+  const rhyzaCreateQuote = jest.fn().mockResolvedValue({
+    id: 'quote-1',
+    paymentIntentId: 'pi-1',
+    senderWalletAddress: 'https://ilp.test/alice',
+    senderWalletAddressId: 'wa-1',
+    expiresAt: '2026-10-28T12:00:00.000Z',
+    debitAmount: '1000',
+    receiveAmount: '1000',
+    exchangeRate: 1
+  })
+
   beforeAll(async (): Promise<void> => {
     bindings = await createContainer(env)
     appContainer = await createApp(bindings)
@@ -67,35 +78,17 @@ describe('Quote Service', () => {
     )
 
     const quoteServiceDepsMocked = {
-      accountService,
-      assetService: {
-        getAssetByCode: (code: string) =>
-          mockedListAssets.find((asset) => asset.code === code)
-      },
-      rafikiClient: {
-        createQuote: () => ({
-          id: uuid(),
-          receiver: `${faker.internet.url({
-            appendSlash: true
-          })}incoming-payments/${uuid()}`,
-          receiveAmount: {
-            assetCode: 'BRG',
-            assetScale: 3,
-            value: 100
-          },
-          debitAmount: {
-            assetCode: 'BRG',
-            assetScale: 3,
-            value: 100
-          },
-          fee: {
-            value: 100,
-            assetCode: 'BRG',
-            assetScale: 2
-          }
+      accountService: {
+        findAccountById: () => ({
+          assetCode: 'BRG',
+          assetScale: 3
         }),
-        getRafikiAsset: (assetCode: unknown) =>
-          mockedListAssets.find((asset) => asset.code === assetCode)
+        getAccountById: () => ({ balance: 100000 })
+      },
+      incomingPaymentService: {
+        getExternalPayment: () => ({
+          receivedAmount: { assetCode: 'BRG', assetScale: 3, value: '0' }
+        })
       },
       walletAddressService: {
         getExternalWalletAddress: () => ({
@@ -114,15 +107,11 @@ describe('Quote Service', () => {
           }
         })
       },
-      incomingPaymentService: {
-        createReceiver: () => faker.internet.url(),
-        getExternalPayment: () => ({
-          receivedAmount: {
-            assetCode: 'BRG',
-            assetScale: 3,
-            value: 0
-          }
-        })
+      rhyzaAdminClient: {
+        createQuote: rhyzaCreateQuote,
+        createPaymentIntent: jest
+          .fn()
+          .mockResolvedValue({ id: 'pi-created', openPaymentsUrl: '' })
       }
     }
 
@@ -157,34 +146,60 @@ describe('Quote Service', () => {
 
   afterEach(async (): Promise<void> => {
     await truncateTables(knex)
+    rhyzaCreateQuote.mockClear()
   })
 
   describe('Create Quote', () => {
-    // TODO: fix after GateHub balance is implemented
-    it.skip('should create quote or quote with fee', async () => {
+    it('creates a quote from a payment intent URL', async () => {
       const { walletAddress } = await prepareQuoteDependencies()
+      const receiver =
+        'https://rafiki-backend/work-acc/incoming-payments/d2697d29-ee3c-499f-bdbf-db49f57b1137'
 
       const result = await quoteService.create({
         userId: userInfo.id,
-        amount: 100,
+        amount: 1,
         walletAddressId: walletAddress.id,
-        receiver:
-          'https://rafiki-backend/work-acc/incoming-payments/d2697d29-ee3c-499f-bdbf-db49f57b1137',
-        vopNonce: '',
+        receiver,
         isReceive: true
       })
 
+      expect(rhyzaCreateQuote).toHaveBeenCalledWith({
+        id: expect.any(String),
+        walletAddress: walletAddress.url,
+        receiveAmount: '1000',
+        paymentIntentUrl: receiver
+      })
       expect(result).toMatchObject({
         debitAmount: {
           assetCode: 'BRG',
           assetScale: 3,
-          value: 100
+          value: '1000'
         },
         receiveAmount: {
           assetCode: 'BRG',
           assetScale: 3,
-          value: 100
+          value: '1000'
         }
+      })
+    })
+
+    it('creates a payment intent and quotes it by ID for wallet address receivers', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const receiver = 'https://ilp.test/bob'
+
+      await quoteService.create({
+        userId: userInfo.id,
+        amount: 1,
+        walletAddressId: walletAddress.id,
+        receiver,
+        isReceive: false
+      })
+
+      expect(rhyzaCreateQuote).toHaveBeenCalledWith({
+        id: expect.any(String),
+        walletAddress: walletAddress.url,
+        debitAmount: '1000',
+        paymentIntentId: 'pi-created'
       })
     })
   })

@@ -1,17 +1,16 @@
 import { AccountService } from '@/account/service'
 import { IncomingPaymentService } from '@/incomingPayment/service'
 import { WalletAddress } from '@/walletAddress/model'
-import { Quote } from '@/rafiki/backend/generated/graphql'
-import { RafikiClient } from '@/rafiki/rafiki-client'
 import { incomingPaymentRegexp, transformBalance } from '@/utils/helpers'
 import { WalletAddressService } from '@/walletAddress/service'
 import { QuoteWithFees } from './controller'
 import { RatesService } from '@/rates/service'
 import { BadRequest } from '@shared/backend'
-import { AssetService } from '@/asset/service'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import { randomUUID } from 'crypto'
 
 interface IQuoteService {
-  create: (params: CreateQuoteParams) => Promise<Quote>
+  create: (params: CreateQuoteParams) => Promise<QuoteWithFees>
 }
 
 type CreateQuoteParams = {
@@ -33,11 +32,10 @@ type ConvertParams = {
 export class QuoteService implements IQuoteService {
   constructor(
     private accountService: AccountService,
-    private rafikiClient: RafikiClient,
     private incomingPaymentService: IncomingPaymentService,
     private ratesService: RatesService,
     private walletAddressService: WalletAddressService,
-    private assetService: AssetService
+    private rhyzaAdminClient: RhyzaAdminClient
   ) {}
 
   async create(params: CreateQuoteParams): Promise<QuoteWithFees> {
@@ -49,12 +47,10 @@ export class QuoteService implements IQuoteService {
       throw new BadRequest('Invalid wallet address')
     }
 
-    const { assetCode } = await this.accountService.findAccountById(
+    const { assetCode, assetScale } = await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       params.userId
     )
-
-    let asset = await this.assetService.getAssetByCode(assetCode)
 
     const account = await this.accountService.getAccountById(
       params.userId,
@@ -62,7 +58,7 @@ export class QuoteService implements IQuoteService {
     )
     const balance = account.balance
 
-    const originalValue = BigInt((params.amount * 10 ** asset.scale).toFixed())
+    const originalValue = BigInt((params.amount * 10 ** assetScale).toFixed())
 
     if (Number(balance) < originalValue) {
       throw new BadRequest('Not enough funds in account')
@@ -70,28 +66,29 @@ export class QuoteService implements IQuoteService {
 
     let value = originalValue
 
-    let paymentUrl = params.receiver
-
     const isIncomingPayment = incomingPaymentRegexp.test(params.receiver)
 
     let assetDetails
     if (isIncomingPayment) {
-      const payment =
-        await this.incomingPaymentService.getExternalPayment(paymentUrl)
+      const payment = await this.incomingPaymentService.getExternalPayment(
+        params.receiver
+      )
       assetDetails = {
         assetCode: payment.receivedAmount.assetCode,
         assetScale: payment.receivedAmount.assetScale
       }
     } else {
       const walletAddress =
-        await this.walletAddressService.getExternalWalletAddress(paymentUrl)
+        await this.walletAddressService.getExternalWalletAddress(
+          params.receiver
+        )
       assetDetails = {
         assetCode: walletAddress.assetCode,
         assetScale: walletAddress.assetScale
       }
     }
 
-    if (params.isReceive && assetDetails.assetCode !== asset.code) {
+    if (params.isReceive && assetDetails.assetCode !== assetCode) {
       let convertedValue = await this.convert({
         from: assetCode,
         to: assetDetails.assetCode,
@@ -114,41 +111,56 @@ export class QuoteService implements IQuoteService {
       }
 
       value = convertedValue
-
-      asset = {
-        code: assetDetails.assetCode,
-        scale: assetDetails.assetScale
-      }
     }
 
-    if (!isIncomingPayment) {
-      paymentUrl = await this.incomingPaymentService.createReceiver({
-        amount: params.isReceive ? value : null,
-        asset: {
-          code: assetDetails.assetCode,
-          scale: assetDetails.assetScale
-        },
-        walletAddressUrl: params.receiver,
-        description: params.description,
+    let paymentIntentType:
+      | { paymentIntentId: string }
+      | { paymentIntentUrl: string }
+
+    if (isIncomingPayment) {
+      paymentIntentType = { paymentIntentUrl: params.receiver }
+    } else {
+      const { id } = await this.rhyzaAdminClient.createPaymentIntent({
+        walletAddress: params.receiver,
+        incomingAmount: params.isReceive ? Number(value) : undefined,
         expiresAt: params.isReceive
           ? undefined
-          : new Date(Date.now() + 1000 * 15),
-        vopNonce: params.vopNonce
+          : new Date(Date.now() + 1000 * 15).toISOString(),
+        metadata:
+          params.description || params.vopNonce
+            ? { description: params.description, vopNonce: params.vopNonce }
+            : undefined
       })
+      paymentIntentType = { paymentIntentId: id }
     }
 
-    const amountParams = {
-      assetCode: asset.code,
-      assetScale: asset.scale,
-      value
-    }
+    const amountParams = params.isReceive
+      ? { receiveAmount: value.toString() }
+      : { debitAmount: value.toString() }
 
-    const quote = await this.rafikiClient.createQuote({
-      walletAddressId: params.walletAddressId,
-      receiveAmount: params.isReceive ? amountParams : undefined,
-      receiver: paymentUrl,
-      debitAmount: params.isReceive ? undefined : amountParams
+    const rhyzaQuote = await this.rhyzaAdminClient.createQuote({
+      id: randomUUID(),
+      walletAddress: existingWalletAddress.url,
+      ...amountParams,
+      ...paymentIntentType
     })
+
+    if (!rhyzaQuote.debitAmount || !rhyzaQuote.receiveAmount) {
+      throw new BadRequest('Could not calculate quote')
+    }
+
+    const quote: QuoteWithFees = {
+      id: rhyzaQuote.id,
+      debitAmount: {
+        assetCode,
+        assetScale,
+        value: rhyzaQuote.debitAmount
+      },
+      receiveAmount: {
+        ...assetDetails,
+        value: rhyzaQuote.receiveAmount
+      }
+    }
 
     return this.addConversionInfo(
       quote,
@@ -157,16 +169,16 @@ export class QuoteService implements IQuoteService {
   }
 
   private async addConversionInfo(
-    quote: Quote,
+    quote: QuoteWithFees,
     originalValue?: bigint
-  ): Promise<QuoteWithFees | Quote> {
+  ): Promise<QuoteWithFees> {
     if (quote.receiveAmount.assetCode === quote.debitAmount.assetCode) {
       return quote
     }
     const value = await this.convert({
       from: quote.receiveAmount.assetCode,
       to: quote.debitAmount.assetCode,
-      amount: quote.receiveAmount.value
+      amount: BigInt(quote.receiveAmount.value)
     })
 
     const feeInSenderCurrency = BigInt(quote.debitAmount.value) - value
@@ -174,9 +186,10 @@ export class QuoteService implements IQuoteService {
     return {
       ...quote,
       fee: {
-        value: originalValue
+        value: (originalValue
           ? BigInt(quote.debitAmount.value) - originalValue
-          : feeInSenderCurrency,
+          : feeInSenderCurrency
+        ).toString(),
         assetScale: quote.debitAmount.assetScale,
         assetCode: quote.debitAmount.assetCode
       }
