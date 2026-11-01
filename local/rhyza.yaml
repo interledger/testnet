@@ -6,14 +6,15 @@
 # reuses traefik / postgres / redis / mockgatehub.
 #
 # This file never builds anything. The Rhyza images are a prerequisite: build them
-# in your own rafiki-v2 checkout (or pull them once they are published), then set
-# RHYZA_IMAGE_PREFIX and RHYZA_IMAGE_TAG in local/.env. Both are required -- compose
-# refuses to start if either is unset, rather than silently using a stale image.
+# from interledger/rhyza main, then set RHYZA_IMAGE_PREFIX and RHYZA_IMAGE_TAG in
+# local/.env. Both are required -- compose refuses to start if either is unset,
+# rather than silently using a stale image. The published v1.0.0-alpha images
+# predate rhyza#338 (path-only wallet addresses), which the wallet backend needs.
 #
-#   cd <your rafiki-v2 checkout>
+#   cd <your rhyza checkout>
 #   docker compose -f docker/docker-compose.yaml build
-#   # -> images named rafiki-v2-<service>:latest
-#   # local/.env:  RHYZA_IMAGE_PREFIX=rafiki-v2
+#   # -> images named rhyza-<service>:latest
+#   # local/.env:  RHYZA_IMAGE_PREFIX=rhyza
 #   #              RHYZA_IMAGE_TAG=latest
 
 x-rhyza-service: &rhyza-service
@@ -63,9 +64,9 @@ services:
       PAL_GRPC_URL: pal-api-service:50051
       PAYMENTS_GRPC_URL: payments-api-service:50052
       ILP_GRPC_URL: ilp-api-service:50053
+      AUTH_GRPC_URL: auth-api-service:50054
       # Public OP resource URL: the admin API echoes it back as openPaymentsUrl.
       OPEN_PAYMENTS_URL: ${RHYZA_OPEN_PAYMENTS_URL:-https://ilp.testnet.test}
-      MONGODB_URL: *mongodb-url
       KAFKA_URL: *kafka-url
     ports:
       - '3021:3001'
@@ -76,6 +77,8 @@ services:
       payments-api-service:
         condition: service_started
       ilp-api-service:
+        condition: service_started
+      auth-api-service:
         condition: service_started
     labels:
       - traefik.enable=true
@@ -122,10 +125,7 @@ services:
       <<: *rhyza-env
       PORT: 3003
       AUTH_GRPC_URL: auth-api-service:50054
-      # service.ts reads OPEN_PAYMENTS_AUTH_SERVER_URL; upstream's compose sets
-      # ..._SERVICE_URL instead, so set both until that is reconciled.
       OPEN_PAYMENTS_AUTH_SERVER_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
-      OPEN_PAYMENTS_AUTH_SERVICE_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
       # Where GET /interaction/:grantId/start sends the browser — the wallet's IdP screen.
       IDP_URL: ${RHYZA_IDP_URL:-https://testnet.test/grant-interactions}
     ports:
@@ -165,17 +165,6 @@ services:
       - traefik.http.routers.rhyza-idp.entrypoints=websecure
       - traefik.http.routers.rhyza-idp.tls=true
       - traefik.http.services.rhyza-idp.loadbalancer.server.port=3004
-
-  http-signature-service:
-    <<: *rhyza-service
-    container_name: rhyza-http-signature-local
-    image: ${RHYZA_IMAGE_PREFIX:?required, see local/.env.example}-http-signature-service:${RHYZA_IMAGE_TAG:?required, see local/.env.example}
-    environment:
-      <<: *rhyza-env
-      HOST: http-signature-service
-      PORT: 3010
-    ports:
-      - '3030:3010'
 
   # ------------------------------------------------- PAL (peers, accounts, ledger)
 
@@ -285,7 +274,11 @@ services:
       MONGODB_URL: *mongodb-url
       STREAM_SERVER_SECRET: ${RHYZA_STREAM_SERVER_SECRET:-cmFmaWtpLXYyLWRldi1zdHJlYW0tc2VjcmV0LTAwMDE}
       ILP_ADDRESS: ${RHYZA_ILP_ADDRESS:-test.net}
-    depends_on: *infra-deps
+      REDIS_URL: *redis-url
+    depends_on:
+      <<: *infra-deps
+      redis:
+        condition: service_healthy
 
   ilp-event-handler-service:
     <<: *rhyza-service
@@ -306,6 +299,8 @@ services:
       <<: *rhyza-env
       KAFKA_URL: *kafka-url
       REDIS_URL: *redis-url
+      # Must match ilp-command-handler-service.
+      ILP_ADDRESS: ${RHYZA_ILP_ADDRESS:-test.net}
       ILP_CONNECTOR_HTTP_PORT: 4000
       ILP_CONNECTOR_PUBLIC_URL: ${RHYZA_CONNECTOR_URL:-https://connector.testnet.test}
     ports:
@@ -456,6 +451,7 @@ services:
       ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-commands
       ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-domain-events
       ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-snapshot-events
+      ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-timer-events
       ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ledger-state-events
       ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ilp-domain-events
       ./kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --partitions ${RHYZA_KAFKA_PARTITIONS:-24} --topic ilp-commands

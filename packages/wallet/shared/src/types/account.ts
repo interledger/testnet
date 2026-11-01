@@ -7,7 +7,7 @@ export const createAccountSchema = z.object({
   asset: z.object({
     value: z
       .string({ required_error: 'Please select an asset for your account' })
-      .uuid(),
+      .min(1),
     label: z.string().min(1)
   })
 })

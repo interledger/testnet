@@ -129,7 +129,7 @@ export class WalletAddressService implements IWalletAddressService {
     } else {
       const rhyzaWalletAddress = await this.rhyzaAdminClient
         .createWalletAddress({
-          address: url,
+          pathName: args.walletAddressName,
           assetCode: account.assetCode,
           publicName: args.publicName,
           isActive: true
@@ -145,7 +145,6 @@ export class WalletAddressService implements IWalletAddressService {
         })
 
       walletAddress = await WalletAddress.query().insert({
-        // Rhyza returns the address without a scheme.
         url,
         publicName: args.publicName,
         accountId: args.accountId,

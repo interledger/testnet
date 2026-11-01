@@ -12,7 +12,7 @@ interface AssetCreateResponse {
 }
 
 export interface CreateWalletAddressArgs {
-  address: string
+  pathName: string
   assetCode: string
   publicName: string
   isActive?: boolean
