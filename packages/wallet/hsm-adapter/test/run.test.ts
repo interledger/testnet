@@ -166,7 +166,12 @@ test('starts, checks health, stays up', async () => {
   assert.deepEqual(config()?.grpc, { host: '0.0.0.0', port: 50052 })
   assert.equal(config()?.transport, transport)
   assert.equal(config()?.interceptors.length, 1)
-  assert.equal(hsm()?.poolSize, 1)
+  assert.deepEqual(hsm(), {
+    host: 'atalla-hsm',
+    port: 13506,
+    timeoutMs: 2000,
+    tls: false
+  })
   assert.deepEqual(server.calls, ['connect', 'start'])
   assert.ok(
     record.lines.some((l) => l.msg === 'gRPC server listening, HSM healthy')

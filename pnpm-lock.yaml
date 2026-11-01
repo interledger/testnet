@@ -676,14 +676,14 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(@bufbuild/protobuf@2.14.1)
       '@interledger/hsm-atalla-issuer':
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.4.0
+        version: 0.4.0
       '@interledger/hsm-atalla-merchant':
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.4.0
+        version: 0.4.0
       '@interledger/hsm-atalla-transport':
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.4.0
+        version: 0.4.0
       pino:
         specifier: ^10.3.1
         version: 10.4.0
@@ -2029,14 +2029,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@interledger/hsm-atalla-issuer@0.3.0':
-    resolution: {integrity: sha512-WV3tM9iZN1TJMaWwA+K3tMUC48qSxvcDogP1Nnf6zqjgxJh3W9ef6lHc25rWVOTI9/YckCZJIK72FEwtZisdUg==}
+  '@interledger/hsm-atalla-issuer@0.4.0':
+    resolution: {integrity: sha512-sT1s31qi49dYRnraBSwu8+L3nsq1oTNKnwCPLEO9IvW8sa4j4DI1mjTyn5vY117An0lOUJxWI5XrN5vT5j3s4Q==}
 
-  '@interledger/hsm-atalla-merchant@0.3.0':
-    resolution: {integrity: sha512-0nitouYCVi9Z/BUdvcuXTaDNvx8Z/jUMpvAl7Wpg1229ffuMRHVltWJtvlzqhDCmWTLobya1mcnkx9tYMOV/Yg==}
+  '@interledger/hsm-atalla-merchant@0.4.0':
+    resolution: {integrity: sha512-ccYYqyzFQQRJDIzHSLiP2gAMNg6ikV6Q9o4NZFfC6j+afYo6O80kh2s3AtX6Muo8NuvLSa7NCWY36ljiQYXkSA==}
 
-  '@interledger/hsm-atalla-transport@0.3.0':
-    resolution: {integrity: sha512-nSFpikFDO1QCjAX8qpEESdGkKW4H3sascssjQ1DCezKwHkmVjjtvfKsalhPRQCqRTpkGaQvUqlP5oyAgadilHw==}
+  '@interledger/hsm-atalla-transport@0.4.0':
+    resolution: {integrity: sha512-Rz4y4pO7RTQz3lWfXvG3d8TfQAAqR/UymGg+BvzYkN52lzQDW1BOLmJ3h9byT4ixnWMfBgNhBrLFvmpS8KCUHw==}
 
   '@interledger/http-signature-utils@2.0.3':
     resolution: {integrity: sha512-/vn6+FxZ3g1A5ZC3vOVivjFns5A6F4lhEmdAGg3W9mD2uADXI575rIBcMdqI3wTOJo7qOXRutPXOG/jXONFs/Q==}
@@ -4753,10 +4753,6 @@ packages:
   gcp-metadata@6.1.0:
     resolution: {integrity: sha512-Jh/AIwwgaxan+7ZUUmRLCjtchyDiqh4KjBJ5tW3plBZb5iL/BPcso8A5DlzeD9qlw0duCamnNdpFjxwaT0KyKg==}
     engines: {node: '>=14'}
-
-  generic-pool@3.9.0:
-    resolution: {integrity: sha512-hymDOu5B53XvN4QT9dBmZxPX4CWhBPPLguTZ9MMFeFa/Kg0xWVfylOVNlJji/E7yTZWFd/q9GO5TxDLq156D7g==}
-    engines: {node: '>= 4'}
 
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -9194,26 +9190,24 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@interledger/hsm-atalla-issuer@0.3.0':
+  '@interledger/hsm-atalla-issuer@0.4.0':
     dependencies:
       '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.1-20261001101728-41b7848df712.3(@bufbuild/protobuf@2.14.1)
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.14.1)
       '@connectrpc/connect-node': 2.2.0(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.14.1))
-      '@interledger/hsm-atalla-transport': 0.3.0
+      '@interledger/hsm-atalla-transport': 0.4.0
 
-  '@interledger/hsm-atalla-merchant@0.3.0':
+  '@interledger/hsm-atalla-merchant@0.4.0':
     dependencies:
       '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.1-20260908132548-6de218c8c2e5.3(@bufbuild/protobuf@2.14.1)
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.14.1)
       '@connectrpc/connect-node': 2.2.0(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.14.1))
-      '@interledger/hsm-atalla-transport': 0.3.0
+      '@interledger/hsm-atalla-transport': 0.4.0
       uint8arrays: 6.1.1
 
-  '@interledger/hsm-atalla-transport@0.3.0':
-    dependencies:
-      generic-pool: 3.9.0
+  '@interledger/hsm-atalla-transport@0.4.0': {}
 
   '@interledger/http-signature-utils@2.0.3':
     dependencies:
@@ -12346,8 +12340,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-
-  generic-pool@3.9.0: {}
 
   gensync@1.0.0-beta.2: {}
 
