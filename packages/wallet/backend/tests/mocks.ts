@@ -439,6 +439,24 @@ export function mockPaymentCompletedEvent(
   }
 }
 
+export function mockPaymentFailedEvent(
+  overrides?: Partial<RhyzaWebHook>
+): RhyzaWebhookType {
+  return mockPaymentCompletedEvent({
+    type: RhyzaEventType.PaymentFailed,
+    ...overrides,
+    data: {
+      state: 'FAILED',
+      sentAmount: {
+        value: '0',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      ...overrides?.data
+    }
+  })
+}
+
 export function mockIncomingPaymentRequest(
   overrides?: Partial<IncomingPaymentCreated['body']>
 ): IncomingPaymentCreated {
