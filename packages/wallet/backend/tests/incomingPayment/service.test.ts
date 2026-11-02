@@ -12,7 +12,7 @@ import { mockedListAssets, mockExternalPayment } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
 import axios from 'axios'
-import { NotFound } from '@shared/backend'
+import { BadRequest, NotFound } from '@shared/backend'
 import { Receiver } from '@/rafiki/backend/generated/graphql'
 
 describe('Incoming Payment Service', () => {
@@ -137,7 +137,7 @@ describe('Incoming Payment Service', () => {
       expect(result).toEqual(openPaymentsUrl)
       expect(createPaymentIntent).toHaveBeenCalledWith({
         walletAddress: walletAddress.url,
-        incomingAmount: 100,
+        incomingAmount: 100 * 10 ** mockedListAssets[0].scale,
         expiresAt: undefined,
         metadata: undefined
       })
@@ -163,13 +163,22 @@ describe('Incoming Payment Service', () => {
 
         expect(createPaymentIntent).toHaveBeenCalledWith({
           walletAddress: walletAddress.url,
-          incomingAmount: 100,
+          incomingAmount: 100 * 10 ** mockedListAssets[0].scale,
           expiresAt: '2026-01-01T02:00:00.000Z',
           metadata: { description: 'Free Money!' }
         })
       } finally {
         jest.useRealTimers()
       }
+    })
+
+    it('should reject amounts too large to send to Rhyza exactly', async () => {
+      const { walletAddress } = await prepareIncomePaymentDependencies()
+
+      await expect(
+        incopmPaymentService.create(userId, walletAddress.id, 1e14)
+      ).rejects.toBeInstanceOf(BadRequest)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
     })
 
     it('should return NotFound if the wallet address does not exist', async () => {

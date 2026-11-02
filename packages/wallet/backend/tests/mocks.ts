@@ -206,7 +206,8 @@ export const mockOutgoingPaymentRequest = (
 ): OutgoingPayment => {
   return {
     body: {
-      quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e'
+      quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
+      paymentIntentId: 'b2f6c1d4-8e3a-4c7b-9f1e-2d5a6b7c8e9f'
     },
     ...overrides
   }

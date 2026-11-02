@@ -6,7 +6,7 @@ import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add, Duration } from 'date-fns'
 import axios from 'axios'
 import { Env } from '@/config/env'
-import { NotFound } from '@shared/backend'
+import { BadRequest, NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
@@ -67,7 +67,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
-    await this.accountService.findAccountById(
+    const { assetScale } = await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       userId
     )
@@ -81,9 +81,15 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       )
     }
 
+    const incomingAmount = Number((amount * 10 ** assetScale).toFixed())
+    if (!Number.isSafeInteger(incomingAmount)) {
+      throw new BadRequest('Amount is too large')
+    }
+
     const response = await this.rhyzaAdminClient.createPaymentIntent({
       walletAddress: existingWalletAddress.url,
-      incomingAmount: amount,
+      // Rhyza expects base units.
+      incomingAmount,
       expiresAt: expiryDate?.toISOString(),
       metadata: description ? { description } : undefined
     })

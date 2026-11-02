@@ -48,6 +48,7 @@ describe('OutgoingPayment controller', () => {
   beforeEach(async (): Promise<void> => {
     req = createRequest()
     res = createResponse()
+    Reflect.set(req, 'session', { user: { id: 'user-1' } })
   })
 
   it('should call createByQuoteId in outgoingPaymentService', async () => {
@@ -61,7 +62,12 @@ describe('OutgoingPayment controller', () => {
 
     expect(createByQuoteIdSpy).toHaveBeenCalled()
     expect(createByQuoteIdSpy).toHaveBeenCalledTimes(1)
-    expect(createByQuoteIdSpy).toHaveBeenCalledWith(req.body.quoteId)
+    expect(createByQuoteIdSpy).toHaveBeenCalledWith({
+      userId: 'user-1',
+      quoteId: req.body.quoteId,
+      paymentIntentId: req.body.paymentIntentId,
+      description: undefined
+    })
   })
 
   it('should return status 400 if the request body is not valid', async () => {

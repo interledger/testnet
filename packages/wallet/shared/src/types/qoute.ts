@@ -6,6 +6,7 @@ type AmountProps = AssetOP & {
 
 export interface QuoteResponse {
   id: string
+  paymentIntentId: string
   receiveAmount: AmountProps
   debitAmount: AmountProps
   fee?: AmountProps

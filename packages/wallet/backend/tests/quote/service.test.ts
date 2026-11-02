@@ -9,8 +9,9 @@ import { AccountService } from '@/account/service'
 import { faker } from '@faker-js/faker'
 import { Account } from '@/account/model'
 import { WalletAddress } from '@/walletAddress/model'
-import { loginUser, uuid } from '@/tests/utils'
+import { loginUser } from '@/tests/utils'
 import { truncateTables } from '@shared/backend/tests'
+import { BadRequest, NotFound } from '@shared/backend'
 import { AwilixContainer } from 'awilix'
 
 describe('Quote Service', () => {
@@ -44,7 +45,34 @@ describe('Quote Service', () => {
     }
   }
 
+  const addLocalReceiver = async (
+    url: string,
+    { assetCode = 'BRG', active = true } = {}
+  ) => {
+    const account = await Account.query().insert({
+      name: faker.string.alpha(10),
+      userId: userInfo.id,
+      assetCode,
+      assetScale: 3,
+      gateHubWalletId: 'mocked'
+    })
+    return WalletAddress.query().insert({
+      url,
+      publicName: faker.string.alpha(10),
+      accountId: account.id,
+      id: faker.string.uuid(),
+      active
+    })
+  }
+
+  const remoteIncomingPaymentUrl =
+    'https://remote.test/incoming-payments/5b1a3c7e-2f4d-4e6a-8b9c-0d1e2f3a4b5c'
+  const getPaymentDetailsByUrl = jest.fn()
+  const createPaymentIntent = jest
+    .fn()
+    .mockResolvedValue({ id: 'pi-created', openPaymentsUrl: '' })
   const rhyzaCreateQuote = jest.fn().mockResolvedValue({
+    state: 'COMPLETED',
     id: 'quote-1',
     paymentIntentId: 'pi-1',
     senderWalletAddress: 'https://ilp.test/alice',
@@ -88,30 +116,20 @@ describe('Quote Service', () => {
       incomingPaymentService: {
         getExternalPayment: () => ({
           receivedAmount: { assetCode: 'BRG', assetScale: 3, value: '0' }
-        })
-      },
-      walletAddressService: {
-        getExternalWalletAddress: () => ({
-          assetCode: 'BRG',
-          assetScale: 3
         }),
-        create: () => ({
-          id: uuid(),
-          url: faker.internet.url()
-        })
+        getPaymentDetailsByUrl
       },
       ratesService: {
         getRates: () => ({
           rates: {
-            BRG: 100
+            BRG: 100,
+            EUR: 1
           }
         })
       },
       rhyzaAdminClient: {
         createQuote: rhyzaCreateQuote,
-        createPaymentIntent: jest
-          .fn()
-          .mockResolvedValue({ id: 'pi-created', openPaymentsUrl: '' })
+        createPaymentIntent
       }
     }
 
@@ -146,7 +164,7 @@ describe('Quote Service', () => {
 
   afterEach(async (): Promise<void> => {
     await truncateTables(knex)
-    rhyzaCreateQuote.mockClear()
+    jest.clearAllMocks()
   })
 
   describe('Create Quote', () => {
@@ -170,6 +188,8 @@ describe('Quote Service', () => {
         paymentIntentUrl: receiver
       })
       expect(result).toMatchObject({
+        id: 'quote-1',
+        paymentIntentId: 'pi-1',
         debitAmount: {
           assetCode: 'BRG',
           assetScale: 3,
@@ -183,9 +203,10 @@ describe('Quote Service', () => {
       })
     })
 
-    it('creates a payment intent and quotes it by ID for wallet address receivers', async () => {
+    it('creates a payment intent and quotes it by ID for local wallet address receivers', async () => {
       const { walletAddress } = await prepareQuoteDependencies()
       const receiver = 'https://ilp.test/bob'
+      await addLocalReceiver(receiver)
 
       await quoteService.create({
         userId: userInfo.id,
@@ -202,5 +223,176 @@ describe('Quote Service', () => {
         paymentIntentId: 'pi-created'
       })
     })
+
+    it('rejects wallet addresses at other providers', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+
+      await expect(
+        quoteService.create({
+          userId: userInfo.id,
+          amount: 1,
+          walletAddressId: walletAddress.id,
+          receiver: 'https://remote.test/carol',
+          isReceive: true
+        })
+      ).rejects.toBeInstanceOf(BadRequest)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
+      expect(rhyzaCreateQuote).not.toHaveBeenCalled()
+    })
+
+    it('finds local receivers entered as ilp.dev addresses', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const stored = await addLocalReceiver(`${env.OPEN_PAYMENTS_HOST}/gina`)
+
+      await quoteService.create({
+        userId: userInfo.id,
+        amount: 1,
+        walletAddressId: walletAddress.id,
+        receiver: 'https://ilp.dev/gina',
+        isReceive: false
+      })
+
+      expect(createPaymentIntent).toHaveBeenCalledWith(
+        expect.objectContaining({ walletAddress: stored.url })
+      )
+    })
+
+    it('rejects amounts too large to quote', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+
+      await expect(
+        quoteService.create({
+          userId: userInfo.id,
+          amount: 1e19,
+          walletAddressId: walletAddress.id,
+          receiver: remoteIncomingPaymentUrl,
+          isReceive: false
+        })
+      ).rejects.toBeInstanceOf(BadRequest)
+    })
+
+    it('rejects inactive local receivers', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const receiver = 'https://ilp.test/erin'
+      await addLocalReceiver(receiver, { active: false })
+
+      await expect(
+        quoteService.create({
+          userId: userInfo.id,
+          amount: 1,
+          walletAddressId: walletAddress.id,
+          receiver,
+          isReceive: true
+        })
+      ).rejects.toBeInstanceOf(BadRequest)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
+    })
+
+    it.each(['FAILED', 'PENDING'])(
+      'throws BadRequest when the Rhyza quote is %s',
+      async (state) => {
+        const { walletAddress } = await prepareQuoteDependencies()
+        rhyzaCreateQuote.mockResolvedValueOnce({
+          state,
+          id: 'quote-1',
+          paymentIntentId: 'pi-1'
+        })
+
+        await expect(
+          quoteService.create({
+            userId: userInfo.id,
+            amount: 1,
+            walletAddressId: walletAddress.id,
+            receiver: remoteIncomingPaymentUrl,
+            isReceive: false
+          })
+        ).rejects.toBeInstanceOf(BadRequest)
+      }
+    )
+
+    it('never reports a negative fee from rate rounding', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const receiver = 'https://ilp.test/frank'
+      await addLocalReceiver(receiver, { assetCode: 'EUR' })
+      rhyzaCreateQuote.mockResolvedValueOnce({
+        state: 'COMPLETED',
+        id: 'quote-1',
+        paymentIntentId: 'pi-1',
+        debitAmount: '100',
+        receiveAmount: '91',
+        exchangeRate: 0.9099999999
+      })
+
+      const result = await quoteService.create({
+        userId: userInfo.id,
+        amount: 0.1,
+        walletAddressId: walletAddress.id,
+        receiver,
+        isReceive: false
+      })
+
+      expect(result.fee?.value).toBe('0')
+    })
+
+    it('computes the cross-currency fee from the Rhyza exchange rate', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const receiver = 'https://ilp.test/dave'
+      await addLocalReceiver(receiver, { assetCode: 'EUR' })
+      rhyzaCreateQuote.mockResolvedValueOnce({
+        state: 'COMPLETED',
+        id: 'quote-1',
+        paymentIntentId: 'pi-1',
+        debitAmount: '1000',
+        receiveAmount: '1980',
+        exchangeRate: 2
+      })
+
+      const result = await quoteService.create({
+        userId: userInfo.id,
+        amount: 1,
+        walletAddressId: walletAddress.id,
+        receiver,
+        isReceive: false
+      })
+
+      expect(result.fee).toEqual({
+        value: '10',
+        assetCode: 'BRG',
+        assetScale: 3
+      })
+    })
+
+    it.each([new NotFound(), new Error('Rhyza is down')])(
+      'skips the optional amount adjustment when the lookup fails (%s)',
+      async (error) => {
+        const { walletAddress } = await prepareQuoteDependencies()
+        const receiveExternalPayment = jest.fn().mockReturnValue({
+          receivedAmount: { assetCode: 'EUR', assetScale: 3, value: '0' }
+        })
+        Reflect.set(quoteService, 'incomingPaymentService', {
+          getExternalPayment: receiveExternalPayment,
+          getPaymentDetailsByUrl: jest.fn().mockRejectedValue(error)
+        })
+
+        try {
+          await expect(
+            quoteService.create({
+              userId: userInfo.id,
+              amount: 1,
+              walletAddressId: walletAddress.id,
+              receiver: remoteIncomingPaymentUrl,
+              isReceive: true
+            })
+          ).resolves.toBeDefined()
+        } finally {
+          Reflect.set(quoteService, 'incomingPaymentService', {
+            getExternalPayment: () => ({
+              receivedAmount: { assetCode: 'BRG', assetScale: 3, value: '0' }
+            }),
+            getPaymentDetailsByUrl
+          })
+        }
+      }
+    )
   })
 })
