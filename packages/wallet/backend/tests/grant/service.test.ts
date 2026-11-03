@@ -8,7 +8,7 @@ import { loginUser } from '@/tests/utils'
 import { faker } from '@faker-js/faker'
 import { truncateTables } from '@shared/backend/tests'
 import { mockedListGrant } from '@/tests/mocks'
-import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
+import { GrantState } from '@/rafiki/auth/generated/graphql'
 import { AwilixContainer } from 'awilix'
 import { Forbidden } from '@shared/backend'
 
@@ -31,21 +31,13 @@ describe('Grant Service', () => {
   })
 
   const identifiers = ['test', 'wallet', 'new']
-  const createMockGrantServiceDeps = (
-    isFailure?: boolean,
-    IsGrantInteractionRejected?: boolean
-  ) => {
+  const createMockGrantServiceDeps = (isFailure?: boolean) => {
     const grantServiceDepsMocked = {
       walletAddressService: {
         belongsToUser: () => !isFailure,
         listIdentifiersByUserId: () => identifiers
       },
       rafikiAuthService: {
-        setInteractionResponse: jest
-          .fn()
-          .mockReturnValue(
-            IsGrantInteractionRejected ? mockedListGrant[1] : mockedListGrant[0]
-          ),
         revokeGrant: isFailure
           ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
           : jest.fn(),
@@ -87,7 +79,8 @@ describe('Grant Service', () => {
               }
             }
           ]
-        })
+        }),
+        setInteractionResponse: jest.fn()
       }
     }
 
@@ -146,35 +139,29 @@ describe('Grant Service', () => {
   })
 
   describe('set Interaction Response', () => {
-    it('should return a grant by accept', async () => {
+    it('should accept the interaction', async () => {
       const result = await grantService.setInteractionResponse(
         userId,
         'test1',
         'test2',
         'accept'
       )
-      expect(result).toHaveProperty('id')
-      expect(result).toHaveProperty('client')
-      expect(result).toHaveProperty('state')
-      expect(result).toMatchObject({
-        state: GrantState.Approved
-      })
+      expect(result).toBeUndefined()
+      expect(
+        Reflect.get(grantService, 'rhyzaIdpClient').setInteractionResponse
+      ).toHaveBeenCalledWith('test1', 'accept')
     })
-    it('should return a grant by reject', async () => {
-      createMockGrantServiceDeps(false, true)
+    it('should reject the interaction', async () => {
       const result = await grantService.setInteractionResponse(
         userId,
         'test1',
         'test2',
         'reject'
       )
-      expect(result).toHaveProperty('id')
-      expect(result).toHaveProperty('client')
-      expect(result).toHaveProperty('state')
-      expect(result).toMatchObject({
-        state: GrantState.Finalized,
-        finalizationReason: GrantFinalization.Rejected
-      })
+      expect(result).toBeUndefined()
+      expect(
+        Reflect.get(grantService, 'rhyzaIdpClient').setInteractionResponse
+      ).toHaveBeenCalledWith('test1', 'reject')
     })
   })
 

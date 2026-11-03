@@ -13,7 +13,7 @@ interface IGrantController {
   getById: Controller<Grant>
   revoke: Controller<void>
   getByInteraction: Controller<RhyzaGrant>
-  setInteractionResponse: Controller<Grant>
+  setInteractionResponse: Controller<void>
 }
 
 export class GrantController implements IGrantController {
@@ -99,7 +99,7 @@ export class GrantController implements IGrantController {
 
   setInteractionResponse = async (
     req: Request,
-    res: CustomResponse<GrantResponse>,
+    res: CustomResponse,
     next: NextFunction
   ) => {
     try {
@@ -107,14 +107,14 @@ export class GrantController implements IGrantController {
         body: { response }
       } = await validate(grantResponseSchema, req)
 
-      const grant = await this.grantService.setInteractionResponse(
+      await this.grantService.setInteractionResponse(
         req.session.user.id,
         req.params.interactionId,
         req.params.nonce,
         response
       )
 
-      res.json(toSuccessResponse(grant))
+      res.json(toSuccessResponse())
     } catch (e) {
       next(e)
     }
