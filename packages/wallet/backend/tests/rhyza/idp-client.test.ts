@@ -100,4 +100,36 @@ describe('RhyzaIdpClient', () => {
       )
     })
   })
+
+  describe('setInteractionResponse', () => {
+    it.each(['accept', 'reject'] as const)(
+      'POSTs /interaction/{grantId}/%s with the IdP secret and no body',
+      async (response) => {
+        adapter.mockImplementationOnce(respond(202, ''))
+
+        await expect(
+          client.setInteractionResponse('grant/1', response)
+        ).resolves.toBeUndefined()
+
+        const request = lastRequest(adapter)
+        expect(request.method).toBe('POST')
+        expect(request.url).toBe(
+          `http://idp.test/interaction/grant%2F1/${response}`
+        )
+        expect(request.headers['x-idp-secret']).toBe('shh')
+      }
+    )
+
+    it('raises a server error on 401', async () => {
+      adapter.mockImplementationOnce(
+        respond(401, {
+          message: 'The x-idp-secret header is missing or invalid.'
+        })
+      )
+
+      await expect(
+        client.setInteractionResponse('grant-1', 'accept')
+      ).rejects.toBeInstanceOf(RhyzaServerError)
+    })
+  })
 })

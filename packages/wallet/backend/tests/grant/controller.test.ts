@@ -18,7 +18,6 @@ import { Cradle, createContainer } from '@/createContainer'
 import { env } from '@/config/env'
 import { createUser, errorHandler } from '@/tests/helpers'
 import { truncateTables } from '@shared/backend/tests'
-import { GrantFinalization, GrantState } from '@/rafiki/auth/generated/graphql'
 import { AwilixContainer } from 'awilix'
 
 describe('Grant Controller', () => {
@@ -73,9 +72,7 @@ describe('Grant Controller', () => {
             }
           ]
         }),
-        setInteractionResponse: jest
-          .fn()
-          .mockReturnValue(isFailure ? mockedListGrant[1] : mockedListGrant[0]),
+        setInteractionResponse: jest.fn(),
         list: jest.fn().mockReturnValue(mockedListGrant)
       }
     }
@@ -191,39 +188,27 @@ describe('Grant Controller', () => {
   })
 
   describe('Set Interaction Response', () => {
-    it('should return a grant by accept', async () => {
+    it('should accept the grant interaction', async () => {
       req.body = {
         response: 'accept'
       }
       await grantController.setInteractionResponse(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().result).toHaveProperty('id')
-      expect(res._getJSONData().result).toHaveProperty('client')
-      expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
         message: 'SUCCESS'
       })
     })
 
-    it('should return a grant by reject', async () => {
+    it('should reject the grant interaction', async () => {
       req.body = {
         response: 'reject'
       }
-      createMockGrantControllerDeps(true)
-
       await grantController.setInteractionResponse(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().result).toHaveProperty('id')
-      expect(res._getJSONData().result).toHaveProperty('client')
-      expect(res._getJSONData().result).toHaveProperty('state')
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'SUCCESS',
-        result: {
-          state: GrantState.Finalized,
-          finalizationReason: GrantFinalization.Rejected
-        }
+        message: 'SUCCESS'
       })
     })
   })
