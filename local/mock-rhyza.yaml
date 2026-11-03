@@ -1,0 +1,95 @@
+# mock-rhyza: one container and one Postgres database in place of the Rhyza
+# stack in local/rhyza.yaml. It serves Rhyza's Admin API, Open Payments
+# resource and auth servers, IdP interaction API and ILP connector on the same
+# host ports and hostnames, so the wallet backend runs unchanged against either.
+
+x-mock-rhyza-router: &router
+  traefik.enable: true
+  traefik.docker.network: testnet
+
+services:
+  mock-rhyza-init-db:
+    container_name: mock-rhyza-init-db-local
+    image: 'postgres:15'
+    networks:
+      - testnet
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-password}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - |
+        psql -v ON_ERROR_STOP=1 -d postgres <<'SQL'
+        SELECT 'CREATE ROLE mockrhyza LOGIN PASSWORD ''mockrhyza''' WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'mockrhyza')\gexec
+        SELECT 'CREATE DATABASE mockrhyza OWNER mockrhyza' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'mockrhyza')\gexec
+        SQL
+
+  mock-rhyza:
+    container_name: mock-rhyza-local
+    image: ${MOCK_RHYZA_IMAGE:-ghcr.io/interledger/mock-rhyza:0.3.0}
+    restart: unless-stopped
+    networks:
+      - testnet
+    extra_hosts:
+      - host.docker.internal:host-gateway
+      - testnet.test:host-gateway
+      - api.testnet.test:host-gateway
+      - auth.testnet.test:host-gateway
+      - ilp.testnet.test:host-gateway
+      - connector.testnet.test:host-gateway
+    environment:
+      MOCK_RHYZA_DATABASE_URL: postgres://mockrhyza:mockrhyza@postgres:5432/mockrhyza?sslmode=disable
+      MOCK_RHYZA_LOG_LEVEL: ${MOCK_RHYZA_LOG_LEVEL:-debug}
+      MOCK_RHYZA_OPEN_PAYMENTS_URL: ${RHYZA_OPEN_PAYMENTS_URL:-https://ilp.testnet.test}
+      MOCK_RHYZA_AUTH_SERVER_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
+      MOCK_RHYZA_IDP_URL: ${RHYZA_IDP_URL:-https://testnet.test/grant-interactions}
+      MOCK_RHYZA_IDP_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-dev_identity_server_secret}
+      MOCK_RHYZA_WEBHOOK_URL: ${RHYZA_WEBHOOK_URL:-http://host.docker.internal:3003/webhooks}
+      MOCK_RHYZA_RATES_SOURCE: ase
+      MOCK_RHYZA_RATES_URL: ${RHYZA_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
+      MOCK_RHYZA_SEED_ASSETS: ${MOCK_RHYZA_SEED_ASSETS:-EUR:2,USD:2}
+      MOCK_RHYZA_PATH_NAME: ${MOCK_RHYZA_PATH_NAME:-strict}
+      MOCK_RHYZA_INTENT_EXPIRY: ${MOCK_RHYZA_INTENT_EXPIRY:-strict}
+      MOCK_RHYZA_ILP_ADDRESS: ${RHYZA_ILP_ADDRESS:-test.net}
+      MOCK_RHYZA_ILP_PUBLIC_URL: ${RHYZA_CONNECTOR_URL:-https://connector.testnet.test}
+    ports:
+      - '3021:3001'
+      - '3022:3002'
+      - '3023:3003'
+      - '3024:3004'
+      - '4000:4000'
+      - '${MOCK_RHYZA_CONTROL_PORT:-3099}:3099'
+    depends_on:
+      mock-rhyza-init-db:
+        condition: service_completed_successfully
+    labels:
+      <<: *router
+      traefik.http.routers.rhyza-admin.rule: Host(`rhyza-admin.testnet.test`)
+      traefik.http.routers.rhyza-admin.entrypoints: websecure
+      traefik.http.routers.rhyza-admin.tls: true
+      traefik.http.routers.rhyza-admin.service: rhyza-admin
+      traefik.http.services.rhyza-admin.loadbalancer.server.port: 3001
+      traefik.http.routers.rhyza-op-resource.rule: Host(`ilp.testnet.test`)
+      traefik.http.routers.rhyza-op-resource.entrypoints: websecure
+      traefik.http.routers.rhyza-op-resource.tls: true
+      traefik.http.routers.rhyza-op-resource.service: rhyza-op-resource
+      traefik.http.services.rhyza-op-resource.loadbalancer.server.port: 3002
+      traefik.http.routers.rhyza-op-auth.rule: Host(`auth.testnet.test`)
+      traefik.http.routers.rhyza-op-auth.entrypoints: websecure
+      traefik.http.routers.rhyza-op-auth.tls: true
+      traefik.http.routers.rhyza-op-auth.service: rhyza-op-auth
+      traefik.http.services.rhyza-op-auth.loadbalancer.server.port: 3003
+      traefik.http.routers.rhyza-idp.rule: Host(`rhyza-idp.testnet.test`)
+      traefik.http.routers.rhyza-idp.entrypoints: websecure
+      traefik.http.routers.rhyza-idp.tls: true
+      traefik.http.routers.rhyza-idp.service: rhyza-idp
+      traefik.http.services.rhyza-idp.loadbalancer.server.port: 3004
+      traefik.http.routers.rhyza-connector.rule: Host(`connector.testnet.test`)
+      traefik.http.routers.rhyza-connector.entrypoints: websecure
+      traefik.http.routers.rhyza-connector.tls: true
+      traefik.http.routers.rhyza-connector.service: rhyza-connector
+      traefik.http.services.rhyza-connector.loadbalancer.server.port: 4000

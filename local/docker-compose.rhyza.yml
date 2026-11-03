@@ -1,15 +1,14 @@
-# Entry point for the Rhyza local stack.
+# Entry point for the Rhyza local stack, with mock-rhyza in place of Rhyza.
 #
 # Same compose project as docker-compose.yml, so the shared services (traefik,
 # postgres, redis, mockgatehub) are reused and only the Rafiki half is swapped.
-# `pnpm local:up:rhyza` already passes --remove-orphans, so leftover v1 containers
-# are dropped on the way up.
+# docker-compose.rhyza-full.yml runs Rhyza itself instead.
 include:
   - traefik.yaml
   - postgres.yaml
   - redis.yaml
   - mockgatehub.yaml
-  - rhyza.yaml
+  - mock-rhyza.yaml
   - observability.yaml
   - hsm-adapter.yaml
 
@@ -24,5 +23,3 @@ networks:
 volumes:
   pg-data:
   redis-data:
-  mongo-data:
-  kafka-data:
