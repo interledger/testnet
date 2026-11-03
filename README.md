@@ -160,11 +160,44 @@ Upon executing the above commands the following will be available:
 
 ### Local Playground on Rhyza
 
-The Rhyza stack runs alongside the Rafiki v1 one. It is defined in `local/rhyza.yaml` and selected
-by `local/docker-compose.rhyza.yml`, which reuses the shared Traefik, Postgres, Redis and mock GateHub
-services. Only one stack can run at a time — the `:rhyza` commands swap the Rafiki half in place.
+The Rhyza stack runs alongside the Rafiki v1 one. By default it runs mock-rhyza
+(`ghcr.io/interledger/mock-rhyza`), a lightweight stand-in for Rhyza: one container and one Postgres
+database. It is defined in `local/mock-rhyza.yaml` and selected by `local/docker-compose.rhyza.yml`,
+which reuses the shared Traefik, Postgres, Redis and mock GateHub services. Only one stack can run at
+a time — the `:rhyza` commands swap the Rafiki half in place.
 
-testnet does not build Rhyza images — they are a **prerequisite**. Build them from
+```sh
+# One-off: hosts entries, certificates, bring the stack up, seed assets
+pnpm run local:setup:rhyza
+
+# Start the wallet and boutique against mock-rhyza
+pnpm run dev:rhyza
+```
+
+Day-to-day commands mirror the v1 ones:
+
+| Command                   | Purpose                                                         |
+| ------------------------- | --------------------------------------------------------------- |
+| `pnpm local:up:rhyza`     | Start the stack (drops orphaned containers of the other stacks) |
+| `pnpm local:down:rhyza`   | Stop the stack                                                  |
+| `pnpm local:reset:rhyza`  | Stop and delete **all** volumes, Postgres included              |
+| `pnpm local:logs:rhyza`   | Follow logs                                                     |
+| `pnpm local:rhyza-assets` | Re-run asset seeding                                            |
+
+`local:reset:rhyza` wipes every volume in the project, which means every local wallet account,
+wallet address and transaction. To clear only the Rhyza ledger and keep your accounts:
+
+```sh
+pnpm local:reset:rhyza-data
+```
+
+mock-rhyza also serves a control API on [http://localhost:3099](http://localhost:3099): `/health`,
+and `/_mock/*` to list what it holds, reset it or move its clock.
+
+#### Rhyza itself
+
+To run against Rhyza itself, with Kafka and MongoDB, use the `:rhyza-full` commands. testnet does
+not build Rhyza images — they are a **prerequisite**. Build them from
 [interledger/rhyza](https://github.com/interledger/rhyza) `main`, then tell testnet which images to
 use. The published `v1.0.0-alpha` images predate rhyza#338 (path-only wallet addresses), which the
 wallet backend relies on. `RHYZA_IMAGE_PREFIX` and `RHYZA_IMAGE_TAG` are required: compose refuses
@@ -182,49 +215,25 @@ RHYZA_IMAGE_PREFIX=rhyza
 RHYZA_IMAGE_TAG=latest
 ```
 
-Then, back in this repo:
-
 ```sh
-# One-off: hosts entries, certificates, bring the stack up, seed assets
-pnpm run local:setup:rhyza
-
-# Start the wallet and boutique against Rhyza
-pnpm run dev:rhyza
+pnpm run local:setup:rhyza-full
+pnpm run dev:rhyza-full
 ```
 
-Day-to-day commands mirror the v1 ones:
+`local:down:rhyza`, `local:reset:rhyza` and `local:reset:rhyza-data` stop and clear this stack too.
+Kafka holds the event-sourced ledger, so dropping MongoDB alone leaves ledger state behind — the
+two have to go together. `local:reset:rhyza-data` does not go through compose, so it works even when
+`RHYZA_IMAGE_PREFIX` / `RHYZA_IMAGE_TAG` are unset. `pnpm clean` runs it too.
 
-| Command                   | Purpose                                                           |
-| ------------------------- | ----------------------------------------------------------------- |
-| `pnpm local:up:rhyza`     | Start the stack (drops orphaned v1 containers)                    |
-| `pnpm local:down:rhyza`   | Stop the stack                                                    |
-| `pnpm local:reset:rhyza`  | Stop and delete **all** volumes — Kafka, MongoDB **and Postgres** |
-| `pnpm local:logs:rhyza`   | Follow logs                                                       |
-| `pnpm local:rhyza-assets` | Re-run asset seeding                                              |
-
-The stack adds Kafka and MongoDB. Kafka holds the event-sourced ledger, so dropping MongoDB alone
-leaves ledger state behind — the two have to go together.
-
-`local:reset:rhyza` wipes every volume in the project, Postgres included, which means every local
-wallet account, wallet address and transaction. To clear only the Rhyza ledger and keep your
-accounts:
-
-```sh
-pnpm local:reset:rhyza-data
-```
-
-That one does not go through compose, so it works even when `RHYZA_IMAGE_PREFIX` / `RHYZA_IMAGE_TAG`
-are unset. `pnpm clean` runs it too.
-
-Additional endpoints:
+Additional endpoints, on both stacks:
 
 - [https://ilp.testnet.test](https://ilp.testnet.test) - Open Payments resource server.
 - [https://auth.testnet.test](https://auth.testnet.test) - Open Payments (GNAP) auth server.
 - [https://rhyza-admin.testnet.test](https://rhyza-admin.testnet.test) - REST Admin API, replacing both v1 GraphQL endpoints.
 - [https://rhyza-idp.testnet.test](https://rhyza-idp.testnet.test) - IdP interaction service the wallet backend calls to read and accept/reject grants.
 - [https://connector.testnet.test](https://connector.testnet.test) - ILP connector.
-- `localhost:9092` - Kafka. `localhost:27017` - MongoDB.
-- Kafka console (`--profile observability`): [http://localhost:8090](http://localhost:8090)
+- Rhyza itself only: `localhost:9092` - Kafka. `localhost:27017` - MongoDB. Kafka console
+  (`--profile observability`): [http://localhost:8090](http://localhost:8090)
 
 ## E2E Tests
 

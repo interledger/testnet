@@ -1,9 +1,10 @@
 # Rhyza local stack.
 #
-# Replaces local/rafiki.yaml. Selected by local/docker-compose.rhyza.yml, so the v1
-# and v2 stacks stay side by side until the port is finished. Both share the
-# same compose project, so `pnpm local:up:rhyza` swaps the Rafiki half in place and
-# reuses traefik / postgres / redis / mockgatehub.
+# Replaces local/rafiki.yaml. Selected by local/docker-compose.rhyza-full.yml, so
+# the v1 and v2 stacks stay side by side until the port is finished. Both share
+# the same compose project, so `pnpm local:up:rhyza-full` swaps the Rafiki half in
+# place and reuses traefik / postgres / redis / mockgatehub. The default Rhyza
+# stack runs local/mock-rhyza.yaml instead.
 #
 # This file never builds anything. The Rhyza images are a prerequisite: build them
 # from interledger/rhyza main, then set RHYZA_IMAGE_PREFIX and RHYZA_IMAGE_TAG in
