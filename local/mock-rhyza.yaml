@@ -30,7 +30,7 @@ services:
 
   mock-rhyza:
     container_name: mock-rhyza-local
-    image: ${MOCK_RHYZA_IMAGE:-ghcr.io/interledger/mock-rhyza:0.2.0}
+    image: ${MOCK_RHYZA_IMAGE:-ghcr.io/interledger/mock-rhyza:0.3.0}
     restart: unless-stopped
     networks:
       - testnet

@@ -255,7 +255,7 @@ run_rhyza_reset_data() {
   # RHYZA_IMAGE_TAG to interpolate, and teardown must work without them.
   echo "Removing Rhyza and mock-rhyza containers and ledger volumes..."
   local ids
-  ids=$(docker ps -aq --filter "name=rhyza-" 2>/dev/null || true)
+  ids=$(docker ps -aq --filter "name=^/?(mock-)?rhyza-.*local$" 2>/dev/null || true)
   if [[ -n "$ids" ]]; then
     # shellcheck disable=SC2086
     docker rm -f $ids >/dev/null
