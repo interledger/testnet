@@ -24,7 +24,7 @@ HOSTS=(
   "rafiki-card-service.testnet.test"
   "mockgatehub.testnet.test"
   "grafana.testnet.test"
-  # Rhyza stack -- see local/rhyza.yaml
+  # Rhyza stack -- see local/mock-rhyza.yaml and local/rhyza.yaml
   "ilp.testnet.test"
   "connector.testnet.test"
   "rhyza-admin.testnet.test"
@@ -253,15 +253,19 @@ run_trust() {
 run_rhyza_reset_data() {
   # Deliberately avoids docker compose: rhyza.yaml requires RHYZA_IMAGE_PREFIX /
   # RHYZA_IMAGE_TAG to interpolate, and teardown must work without them.
-  echo "Removing Rhyza containers and ledger volumes..."
+  echo "Removing Rhyza and mock-rhyza containers and ledger volumes..."
   local ids
-  ids=$(docker ps -aq --filter "name=rhyza-" 2>/dev/null || true)
+  ids=$(docker ps -aq --filter "name=^/?(mock-)?rhyza-.*local$" 2>/dev/null || true)
   if [[ -n "$ids" ]]; then
     # shellcheck disable=SC2086
     docker rm -f $ids >/dev/null
   fi
   docker volume rm -f local_mongo-data local_kafka-data >/dev/null 2>&1 || true
-  echo "Rhyza ledger state removed. Postgres and Redis are untouched."
+  if docker ps -q --filter "name=^postgres-local$" | grep -q .; then
+    docker exec postgres-local sh -c \
+      'psql -U "$POSTGRES_USER" -d postgres -qc "DROP DATABASE IF EXISTS mockrhyza WITH (FORCE)"'
+  fi
+  echo "Rhyza ledger state removed. The other Postgres databases and Redis are untouched."
 }
 
 run_help() {
@@ -289,14 +293,28 @@ local:reset                Stop stack and remove volumes (ALL volumes, incl. Pos
 local:rafiki-assets        Run Rafiki asset setup script
 local:setup                One-off setup for the v1 stack
 
-Rhyza (Rafiki v2) stack -- see local/rhyza.yaml
+Rhyza (Rafiki v2) stack, on mock-rhyza -- see local/mock-rhyza.yaml
 local:setup:rhyza          One-off setup: hosts, certs, start stack, seed assets
-local:up:rhyza             Start the stack (images must be built beforehand)
-local:down:rhyza           Stop the stack
+local:up:rhyza             Start the stack
+local:down:rhyza           Stop the stack (also a full Rhyza stack)
 local:reset:rhyza          Stop stack and remove volumes (ALL volumes, incl. Postgres)
 local:logs:rhyza           Follow stack logs
 local:rhyza-assets         Seed assets via the Rhyza REST Admin API
-local:reset:rhyza-data     Drop only Rhyza's Kafka + MongoDB state (keeps Postgres)
+local:reset:rhyza-data     Drop only the Rhyza ledger: the mock-rhyza database, or
+                           Rhyza's Kafka + MongoDB state (keeps the other databases)
+
+Rhyza itself, with Kafka and MongoDB -- see local/rhyza.yaml
+local:setup:rhyza-full     One-off setup on Rhyza itself
+local:up:rhyza-full        Start the stack (Rhyza images must be built beforehand)
+dev:rhyza-full             pnpm dev on Rhyza itself
+
+HSM adapters (opt-in, Rhyza stack) -- see local/hsm-adapter.yaml
+local:up:rhyza:hsm         Build and start hsm-adapter-issuer (localhost:50051) and
+                           hsm-adapter-merchant (localhost:50052), next to a running stack
+local:down:rhyza:hsm       Stop and remove them
+local:logs:rhyza:hsm       Follow their logs
+                           They need an Atalla HSM: set ATALLA_HOST and ATALLA_PORT
+                           in local/.env (default: the host, port 13506).
 
 Metrics and traces (opt-in) -- see local/observability.yaml
 dev:observability          pnpm dev, plus Grafana, Prometheus, Tempo and the collector

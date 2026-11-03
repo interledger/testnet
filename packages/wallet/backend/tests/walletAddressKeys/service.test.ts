@@ -21,7 +21,6 @@ describe('Wallet Address Key Service', () => {
   let walletAddressKeyService: WalletAddressKeyService
   let authService: AuthService
   let userId: string
-  let rafikiClientMock: Record<string, () => unknown>
   let rhyzaAdminClientMock: Record<string, () => unknown>
 
   const rafikiKeyId = faker.string.uuid()
@@ -49,7 +48,6 @@ describe('Wallet Address Key Service', () => {
       name: faker.string.alpha(10),
       userId,
       assetCode: mockedListAssets[0].code,
-      assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
       gateHubWalletId: 'mocked'
     })
@@ -58,19 +56,16 @@ describe('Wallet Address Key Service', () => {
   }
 
   function prepareWSKDepsMock() {
-    rafikiClientMock = {
-      revokeWalletAddressKey: jest.fn()
-    }
     rhyzaAdminClientMock = {
       registerWalletAddressKey: () => ({
         id: rafikiKeyId
-      })
+      }),
+      revokeWalletAddressKey: jest.fn()
     }
     const wakServiceDepsMocked = {
       walletAddressService: {
         getById: () => Promise.resolve(walletAddress)
       },
-      rafikiClient: rafikiClientMock,
       rhyzaAdminClient: rhyzaAdminClientMock
     }
 
@@ -177,7 +172,7 @@ describe('Wallet Address Key Service', () => {
     })
 
     it('should delete key', async () => {
-      const spy = jest.spyOn(rafikiClientMock, 'revokeWalletAddressKey')
+      const spy = jest.spyOn(rhyzaAdminClientMock, 'revokeWalletAddressKey')
 
       await walletAddressKeyService.revokeKey({
         userId,
@@ -187,7 +182,7 @@ describe('Wallet Address Key Service', () => {
       })
       const key = await WalletAddressKeys.query().first()
       expect(key).toBeUndefined()
-      expect(spy).toHaveBeenCalledWith(newKey?.rafikiId)
+      expect(spy).toHaveBeenCalledWith(walletAddress.id, newKey?.rafikiId)
     })
   })
 
@@ -207,7 +202,7 @@ describe('Wallet Address Key Service', () => {
     })
 
     it('should delete key', async () => {
-      const spy = jest.spyOn(rafikiClientMock, 'revokeWalletAddressKey')
+      const spy = jest.spyOn(rhyzaAdminClientMock, 'revokeWalletAddressKey')
 
       await walletAddressKeyService.batchRevokeKeys(userId, [
         {
@@ -218,7 +213,7 @@ describe('Wallet Address Key Service', () => {
       ])
       const key = await WalletAddressKeys.query().first()
       expect(key).toBeUndefined()
-      expect(spy).toHaveBeenCalledWith(newKey?.rafikiId)
+      expect(spy).toHaveBeenCalledWith(walletAddress.id, newKey?.rafikiId)
     })
   })
 

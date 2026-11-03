@@ -12,6 +12,8 @@ const DEFAULT_TIMEOUT_MS = 10_000
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
+type QueryParams = Record<string, string | number | boolean | undefined>
+
 export interface HttpClientOptions {
   baseUrl: string
   headers?: Record<string, string>
@@ -21,6 +23,7 @@ export interface HttpClientOptions {
 export interface RequestOptions {
   body?: unknown
   headers?: Record<string, string>
+  params?: QueryParams
 }
 
 // Generic message for users; upstream status and body are kept for logs.
@@ -76,7 +79,8 @@ export class HttpClient {
         headers: {
           'Content-Type': hasBody ? 'application/json' : false,
           ...options.headers
-        }
+        },
+        params: options.params
       })
       this.logger.debug(`${method} ${path} ${response.status}`)
       return response.data

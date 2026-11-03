@@ -9,7 +9,6 @@ export class Account extends BaseModel {
   public name!: string
   public balance!: bigint
   public gateHubWalletId!: string
-  public readonly assetId!: string
   public readonly assetCode!: string
   public readonly assetScale!: number
   public readonly userId!: string

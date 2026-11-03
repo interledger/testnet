@@ -9,6 +9,11 @@ export interface WalletAddress {
   address: string
 }
 
+export interface PaymentMetadata {
+  description?: string
+  vopNonce?: string
+}
+
 export type GrantState =
   | 'PROCESSING'
   | 'PENDING'
@@ -47,4 +52,55 @@ export interface Grant {
   state: GrantState
   access: GrantAccess[]
   subjectIds: GrantSubjectId[]
+}
+
+export interface Amount {
+  value: string
+  assetCode: string
+  assetScale: number
+}
+
+export type PaymentState =
+  | 'CREATED'
+  | 'PROCESSING'
+  | 'SENDING'
+  | 'CONFIRMED'
+  | 'REJECTED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'FAILED'
+
+export interface Payment {
+  createdAt: string
+  debitAmount: Amount
+  id: string
+  paymentIntentId: string
+  receiveAmount: Amount
+  senderWalletAddress: string
+  sentAmount: Amount
+  state: PaymentState
+  failReason?: string
+  quoteId?: string
+}
+
+export interface Pagination {
+  startCursor?: string
+  endCursor?: string
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+export type QuoteState = 'PENDING' | 'FAILED' | 'COMPLETED'
+
+export interface Quote {
+  createdAt: string
+  id: string
+  paymentIntentId: string
+  senderWalletAddress: string
+  senderWalletAddressId: string
+  state: QuoteState
+  debitAmount?: string
+  exchangeRate?: number
+  expiresAt?: string
+  receiveAmount?: string
 }

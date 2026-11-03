@@ -61,6 +61,18 @@ describe('Rhyza HttpClient', () => {
     })
   })
 
+  it('passes query params on GET', async () => {
+    adapter.mockImplementationOnce(respond(200, {}))
+
+    await client.get('/things', { params: { a: 'x y', b: 2, c: undefined } })
+
+    expect(lastRequest(adapter).params).toEqual({
+      a: 'x y',
+      b: 2,
+      c: undefined
+    })
+  })
+
   it('sends no body on GET', async () => {
     adapter.mockImplementationOnce(respond(200, {}))
 

@@ -19,8 +19,6 @@ import {
   CreateReceiverMutationVariables,
   DepositLiquidityMutation,
   DepositLiquidityMutationVariables,
-  GetAssetQuery,
-  GetAssetQueryVariables,
   GetAssetsQuery,
   GetAssetsQueryVariables,
   GetQuoteQuery,
@@ -53,7 +51,6 @@ import {
 } from './backend/generated/graphql'
 import {
   createAssetMutation,
-  getAssetQuery,
   getAssetsQuery
 } from './backend/request/asset.request'
 import { getIncomingPaymentQuery } from './backend/request/incoming-payment.request'
@@ -90,7 +87,6 @@ import { replaceIlpDev } from '@/utils/helpers'
 interface IRafikiClient {
   createAsset(code: string, scale: number): Promise<Asset>
   listAssets(args?: QueryAssetsArgs): Promise<Asset[]>
-  getAssetById(id: string): Promise<Asset>
   getRafikiAsset(assetCode: string): Promise<Asset | undefined>
 }
 
@@ -132,27 +128,6 @@ export class RafikiClient implements IRafikiClient {
     >(getAssetsQuery, args ?? {})
 
     return response.assets.edges.map((el) => el.node as Asset)
-  }
-
-  public async listRhyzaAssets(): Promise<
-    {
-      code: string
-      scale: number
-    }[]
-  > {
-    return [
-      { code: 'USD', scale: 2 },
-      { code: 'EUR', scale: 2 }
-    ]
-  }
-
-  public async getAssetById(id: string): Promise<Asset> {
-    const response = await this.backendGraphQLClient.request<
-      GetAssetQuery,
-      GetAssetQueryVariables
-    >(getAssetQuery, { id })
-
-    return response.asset as Asset
   }
 
   public async createReceiver(params: CreateReceiverParams): Promise<Receiver> {

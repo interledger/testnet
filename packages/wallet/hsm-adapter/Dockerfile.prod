@@ -1,0 +1,39 @@
+FROM node:24-alpine AS base
+
+WORKDIR /testnet
+
+RUN corepack enable
+RUN corepack prepare pnpm@9.1.4 --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .nvmrc ./
+COPY packages/wallet/hsm-adapter/package.json ./packages/wallet/hsm-adapter/package.json
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --filter @wallet/hsm-adapter --frozen-lockfile
+
+FROM base AS builder
+
+COPY tsconfig.base.json ./
+COPY packages/wallet/hsm-adapter ./packages/wallet/hsm-adapter
+RUN pnpm --filter @wallet/hsm-adapter build
+RUN rm -rf ./node_modules ./packages/wallet/hsm-adapter/node_modules
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --filter @wallet/hsm-adapter --frozen-lockfile --prod
+
+FROM node:24-alpine AS runner
+
+WORKDIR /testnet
+
+ENV NODE_ENV=production
+
+COPY --from=builder /testnet/node_modules ./node_modules
+COPY --from=builder /testnet/packages/wallet/hsm-adapter/node_modules ./packages/wallet/hsm-adapter/node_modules
+COPY --from=builder /testnet/packages/wallet/hsm-adapter/dist ./packages/wallet/hsm-adapter/dist
+COPY --from=builder /testnet/packages/wallet/hsm-adapter/package.json ./packages/wallet/hsm-adapter/package.json
+
+USER node
+
+FROM runner AS issuer
+EXPOSE 50051
+CMD ["node", "packages/wallet/hsm-adapter/dist/issuer.js"]
+
+FROM runner AS merchant
+EXPOSE 50052
+CMD ["node", "packages/wallet/hsm-adapter/dist/merchant.js"]

@@ -1,4 +1,3 @@
-import { RafikiClient } from '@/rafiki/rafiki-client'
 import { generateJwk, validateJwk } from '@/utils/jwk'
 import { createPublicKey, createPrivateKey, generateKeyPairSync } from 'crypto'
 import { v4 as uuid } from 'uuid'
@@ -62,7 +61,6 @@ interface IWalletAddressKeyService {
 export class WalletAddressKeyService implements IWalletAddressKeyService {
   constructor(
     private walletAddressService: WalletAddressService,
-    private rafikiClient: RafikiClient,
     private rhyzaAdminClient: RhyzaAdminClient
   ) {}
 
@@ -195,7 +193,10 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
     try {
       await Promise.all([
         walletAddressKey.$query(trx).delete(),
-        this.rafikiClient.revokeWalletAddressKey(walletAddressKey.rafikiId)
+        this.rhyzaAdminClient.revokeWalletAddressKey(
+          walletAddressKey.walletAddressId,
+          walletAddressKey.rafikiId
+        )
       ])
       await trx.commit()
     } catch {
@@ -227,7 +228,10 @@ export class WalletAddressKeyService implements IWalletAddressKeyService {
         keys.map(async (walletAddressKey) => {
           await Promise.all([
             walletAddressKey.$query(trx).delete(),
-            this.rafikiClient.revokeWalletAddressKey(walletAddressKey.rafikiId)
+            this.rhyzaAdminClient.revokeWalletAddressKey(
+              walletAddressKey.walletAddressId,
+              walletAddressKey.rafikiId
+            )
           ])
         })
       )

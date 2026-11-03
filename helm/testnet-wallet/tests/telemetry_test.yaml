@@ -238,28 +238,16 @@ tests:
           path: data.SERVICE_ENV
           value: cards-playground
 
-  - it: 'telemetry and the HSM adapter block land in the same ConfigMap'
+  - it: 'telemetry keys join the contentMap keys in the same ConfigMap'
     template: configMap.backend.yaml
     set:
       config:
         telemetry:
           enabled: true
-        backend:
-          hsm:
-            enabled: true
-            atalla:
-              host: '10.0.0.1'
-              port: 13506
     asserts:
       - equal:
           path: data.TELEMETRY_ENABLED
           value: 'true'
-      - equal:
-          path: data.HSM_ENABLED
-          value: 'true'
-      - equal:
-          path: data.ATALLA_HOST
-          value: '10.0.0.1'
       - equal:
           path: data.NODE_ENV
           value: production

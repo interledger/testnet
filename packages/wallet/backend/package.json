@@ -10,9 +10,6 @@
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
-    "@interledger/hsm-atalla-issuer": "^0.2.0",
-    "@interledger/hsm-atalla-merchant": "^0.2.0",
-    "@interledger/hsm-atalla-transport": "^0.2.0",
     "@interledger/tlv-kit": "^1.1.0",
     "@opentelemetry/instrumentation-express": "^0.71.0",
     "@opentelemetry/instrumentation-http": "^0.223.0",

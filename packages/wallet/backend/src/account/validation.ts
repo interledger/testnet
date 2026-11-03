@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const accountSchema = z.object({
   body: z.object({
     name: z.string(),
-    assetId: z.string().uuid()
+    assetCode: z.string()
   })
 })
 

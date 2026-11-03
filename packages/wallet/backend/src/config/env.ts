@@ -1,12 +1,5 @@
 import { z } from 'zod'
-import { validateTlsFile } from '@/hsm/atalla/tls-files'
 import { refineTelemetryEnv, telemetryEnvShape } from '@shared/telemetry'
-
-const booleanString = (defaultValue: 'true' | 'false') =>
-  z
-    .enum(['true', 'false'])
-    .default(defaultValue)
-    .transform((value) => value === 'true')
 
 export const envSchema = z
   .object({
@@ -84,27 +77,6 @@ export const envSchema = z
       .transform((value) => value === 'true'),
     CARD_DATA_HREF: z.string().default('UPDATEME'),
     CARD_PIN_HREF: z.string().default('UPDATEME'),
-    HSM_ENABLED: booleanString('false'),
-    HSM_SERVER_ROLE: z.enum(['both', 'issuer', 'merchant']).default('both'),
-    HSM_GRPC_HOST: z.string().trim().min(1).default('0.0.0.0'),
-    ISSUER_GRPC_HOST: z.string().trim().min(1).optional(),
-    ISSUER_GRPC_PORT: z.coerce.number().int().min(1).max(65_535).default(50051),
-    MERCHANT_GRPC_HOST: z.string().trim().min(1).optional(),
-    MERCHANT_GRPC_PORT: z.coerce
-      .number()
-      .int()
-      .min(1)
-      .max(65_535)
-      .default(50052),
-    ATALLA_HOST: z.string().trim().min(1).optional(),
-    ATALLA_PORT: z.coerce.number().int().min(1).max(65_535).optional(),
-    ATALLA_TIMEOUT_MS: z.coerce.number().positive().default(2_000),
-    ATALLA_POOL_SIZE: z.coerce.number().int().positive().default(1),
-    ATALLA_TLS_ENABLED: booleanString('true'),
-    ATALLA_SKIP_SERVER_IDENTITY_CHECK: booleanString('true'),
-    ATALLA_CA_CERT_PATH: z.string().trim().min(1).optional(),
-    ATALLA_CLIENT_CERT_PATH: z.string().trim().min(1).optional(),
-    ATALLA_CLIENT_KEY_PATH: z.string().trim().min(1).optional(),
     STRIPE_SECRET_KEY: z.string().default('STRIPE_SECRET_KEY'),
     STRIPE_WEBHOOK_SECRET: z.string().default('STRIPE_WEBHOOK_SECRET'),
     USE_STRIPE: z.coerce.boolean().default(false),
@@ -120,50 +92,6 @@ export const envSchema = z
   })
   .superRefine((env, ctx) => {
     refineTelemetryEnv(env, ctx)
-
-    if (!env.HSM_ENABLED) return
-
-    for (const key of ['ATALLA_HOST', 'ATALLA_PORT'] as const) {
-      if (env[key]) continue
-
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: [key],
-        message: `${key} is required when HSM_ENABLED=true`
-      })
-    }
-
-    if (!env.ATALLA_TLS_ENABLED) return
-
-    // The process must stop at start-up if a certificate is missing or
-    // unreadable. This loop checks each path on disk. It records a reason for
-    // every bad path, so one start-up reports all of them.
-    for (const key of [
-      'ATALLA_CA_CERT_PATH',
-      'ATALLA_CLIENT_CERT_PATH',
-      'ATALLA_CLIENT_KEY_PATH'
-    ] as const) {
-      const filePath = env[key]
-
-      if (!filePath) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [key],
-          message: `${key} is required when HSM_ENABLED=true and ATALLA_TLS_ENABLED=true`
-        })
-        continue
-      }
-
-      const problem = validateTlsFile(filePath)
-
-      if (problem) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [key],
-          message: problem
-        })
-      }
-    }
   })
 
 export type Env = z.infer<typeof envSchema>

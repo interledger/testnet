@@ -12,8 +12,8 @@ import { mockedListAssets, mockExternalPayment } from '@/tests/mocks'
 import { WalletAddress } from '@/walletAddress/model'
 import { env } from '@/config/env'
 import axios from 'axios'
-import { Receiver } from '@/rafiki/backend/generated/graphql'
 import { NotFound } from '@shared/backend'
+import { Receiver } from '@/rafiki/backend/generated/graphql'
 
 describe('Incoming Payment Service', () => {
   let bindings: AwilixContainer<Cradle>
@@ -22,13 +22,13 @@ describe('Incoming Payment Service', () => {
   let authService: AuthService
   let incopmPaymentService: IncomingPaymentService
   let userId: string
+  const createPaymentIntent = jest.fn()
 
   const prepareIncomePaymentDependencies = async () => {
     const account = await Account.query().insert({
       name: faker.string.alpha(10),
       userId,
       assetCode: mockedListAssets[0].code,
-      assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
       gateHubWalletId: 'mocked'
     })
@@ -51,14 +51,8 @@ describe('Incoming Payment Service', () => {
       accountService: await bindings.resolve('accountService'),
       logger: await bindings.resolve('logger'),
       env: await bindings.resolve('env'),
+      rhyzaAdminClient: { createPaymentIntent },
       rafikiClient: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id),
-        createReceiver: () => ({
-          id: receiverID || faker.string.uuid(),
-          walletAddressUrl: faker.internet.url(),
-          completed: true
-        }),
         getReceiverById: (): Receiver => ({
           id: receiverID || faker.string.uuid(),
           walletAddressUrl: faker.internet.url(),
@@ -122,37 +116,112 @@ describe('Incoming Payment Service', () => {
   })
 
   describe('Create', () => {
-    it('should create an IncomePayment successfully', async () => {
-      const createdId = faker.string.uuid()
-      await mockIncomePaymentDeps(createdId)
+    beforeEach(() => {
+      createPaymentIntent.mockReset()
+    })
+
+    it('should create a payment intent and return its url', async () => {
+      const openPaymentsUrl = `${faker.internet.url()}/incoming-payments/${faker.string.uuid()}`
+      createPaymentIntent.mockResolvedValue({
+        id: faker.string.uuid(),
+        openPaymentsUrl
+      })
       const { walletAddress } = await prepareIncomePaymentDependencies()
+
       const result = await incopmPaymentService.create(
         userId,
         walletAddress.id,
         100
       )
-      expect(result).toEqual(createdId)
+
+      expect(result).toEqual(openPaymentsUrl)
+      expect(createPaymentIntent).toHaveBeenCalledWith({
+        walletAddress: walletAddress.url,
+        incomingAmount: 100,
+        expiresAt: undefined,
+        metadata: undefined
+      })
     })
 
-    it('should return NotFound Err', async () => {
+    it('should map description and expiration to the Rhyza request', async () => {
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] })
+      jest.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
+      createPaymentIntent.mockResolvedValue({
+        id: faker.string.uuid(),
+        openPaymentsUrl: faker.internet.url()
+      })
+
+      try {
+        const { walletAddress } = await prepareIncomePaymentDependencies()
+        await incopmPaymentService.create(
+          userId,
+          walletAddress.id,
+          100,
+          'Free Money!',
+          { value: 2, unit: 'h' }
+        )
+
+        expect(createPaymentIntent).toHaveBeenCalledWith({
+          walletAddress: walletAddress.url,
+          incomingAmount: 100,
+          expiresAt: '2026-01-01T02:00:00.000Z',
+          metadata: { description: 'Free Money!' }
+        })
+      } finally {
+        jest.useRealTimers()
+      }
+    })
+
+    it('should return NotFound if the wallet address does not exist', async () => {
       await expect(
         incopmPaymentService.create(userId, faker.string.uuid(), 100)
       ).rejects.toThrowError(NotFound)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
+    })
+
+    it('should return NotFound if the wallet address belongs to another user', async () => {
+      const { walletAddress } = await prepareIncomePaymentDependencies()
+
+      await expect(
+        incopmPaymentService.create(faker.string.uuid(), walletAddress.id, 100)
+      ).rejects.toThrowError(NotFound)
+      expect(createPaymentIntent).not.toHaveBeenCalled()
     })
   })
 
   describe('Get PaymentDetails By Url', () => {
+    const paymentId = faker.string.uuid()
+    const url = `${faker.internet.url()}/incoming-payments/${paymentId}`
+
     it('should get payment details successfully', async () => {
-      const paymentId = faker.string.uuid()
-      const url = `${faker.internet.url()}/${paymentId}`
-      const result = await incopmPaymentService.getPaymentDetailsByUrl(url)
-      expect(result).toMatchObject({
-        description: 'Fake receiver',
-        assetCode: 'USD',
-        value: 5
+      const getPaymentIntentById = jest.fn().mockResolvedValue({
+        id: paymentId,
+        incomingAmount: { value: '1000', assetCode: 'USD', assetScale: 2 },
+        receivedAmount: { value: '500', assetCode: 'USD', assetScale: 2 }
       })
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        getPaymentIntentById
+      })
+
+      const result = await incopmPaymentService.getPaymentDetailsByUrl(url)
+
+      expect(getPaymentIntentById).toHaveBeenCalledWith(paymentId)
+      expect(result).toMatchObject({ assetCode: 'USD', value: 5 })
+    })
+
+    it('should return NotFound if the payment intent does not exist', async () => {
+      const getPaymentIntentById = jest.fn().mockRejectedValue(new NotFound())
+      Reflect.set(incopmPaymentService, 'rhyzaAdminClient', {
+        getPaymentIntentById
+      })
+
+      await expect(
+        incopmPaymentService.getPaymentDetailsByUrl(url)
+      ).rejects.toThrowError(NotFound)
+      expect(getPaymentIntentById).toHaveBeenCalledWith(paymentId)
     })
   })
+
   describe('getExternalPayment', () => {
     beforeAll(async (): Promise<void> => {
       axios.get = jest.fn().mockImplementation(() =>

@@ -1,6 +1,6 @@
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
 import { HttpClient } from '@/rhyza/http-client'
-import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import { RhyzaAdminClient, ListPaymentsResponse } from '@/rhyza/admin-client'
 import { lastRequest, mockAdapter, mockLogger, respond } from './helpers'
 
 describe('RhyzaAdminClient', () => {
@@ -54,9 +54,35 @@ describe('RhyzaAdminClient', () => {
     })
   })
 
+  describe('listAssets', () => {
+    it('GETs returns Asset list', async () => {
+      adapter.mockImplementationOnce(respond(200, { assets: [] }))
+
+      await client.listAssets()
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/assets')
+    })
+    it('returns the Asset list', async () => {
+      adapter.mockImplementationOnce(
+        respond(200, {
+          assets: [
+            { code: 'USD', scale: 2 },
+            { code: 'EUR', scale: 2 }
+          ]
+        })
+      )
+      await expect(client.listAssets()).resolves.toEqual([
+        { code: 'USD', scale: 2 },
+        { code: 'EUR', scale: 2 }
+      ])
+    })
+  })
+
   describe('createWalletAddress', () => {
     const args = {
-      address: 'https://ilp.test/alice',
+      pathName: 'alice',
       assetCode: 'USD',
       publicName: 'Alice',
       isActive: true
@@ -64,7 +90,7 @@ describe('RhyzaAdminClient', () => {
 
     it('POSTs the address details to /wallet-addresses', async () => {
       adapter.mockImplementationOnce(
-        respond(201, { id: 'wa-1', address: 'ilp.test/alice' })
+        respond(201, { id: 'wa-1', address: 'https://ilp.test/alice' })
       )
 
       await client.createWalletAddress(args)
@@ -77,12 +103,12 @@ describe('RhyzaAdminClient', () => {
 
     it('returns the Rhyza id and address on 201', async () => {
       adapter.mockImplementationOnce(
-        respond(201, { id: 'wa-1', address: 'ilp.test/alice' })
+        respond(201, { id: 'wa-1', address: 'https://ilp.test/alice' })
       )
 
       await expect(client.createWalletAddress(args)).resolves.toEqual({
         id: 'wa-1',
-        address: 'ilp.test/alice'
+        address: 'https://ilp.test/alice'
       })
     })
 
@@ -90,13 +116,137 @@ describe('RhyzaAdminClient', () => {
       adapter.mockImplementationOnce(
         respond(409, {
           error:
-            '13 INTERNAL: Wallet Address with that domain and pathName ilp.test/alice already exists'
+            '13 INTERNAL: Wallet Address with that domain and pathName alice already exists'
         })
       )
 
       await expect(client.createWalletAddress(args)).rejects.toBeInstanceOf(
         Conflict
       )
+    })
+  })
+
+  describe('createPaymentIntent', () => {
+    const args = {
+      walletAddress: 'https://ilp.test/alice',
+      incomingAmount: 1000,
+      expiresAt: new Date().toISOString(),
+      metadata: { description: 'Free Money!' }
+    }
+
+    it('POSTs the payment intent details to /payment-intents', async () => {
+      adapter.mockImplementationOnce(
+        respond(201, {
+          id: 'pi-1',
+          openPaymentsUrl: 'https://ilp.test/pi-1'
+        })
+      )
+
+      await client.createPaymentIntent(args)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/payment-intents')
+      expect(request.body).toEqual(args)
+    })
+
+    it('returns the payment intent id and open payments URL on 201', async () => {
+      adapter.mockImplementationOnce(
+        respond(201, {
+          id: 'pi-1',
+          openPaymentsUrl: 'https://ilp.test/pi-1'
+        })
+      )
+
+      await expect(client.createPaymentIntent(args)).resolves.toEqual({
+        id: 'pi-1',
+        openPaymentsUrl: 'https://ilp.test/pi-1'
+      })
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error: "Wallet address 'https://ilp.test/alice' not found"
+        })
+      )
+
+      await expect(client.createPaymentIntent(args)).rejects.toBeInstanceOf(
+        NotFound
+      )
+    })
+  })
+
+  describe('getPaymentIntentById', () => {
+    const paymentIntent = {
+      id: 'pi-1',
+      createdAt: '2026-10-19T13:52:00.855Z',
+      state: 'CREATED',
+      destination: 'https://ilp.test/alice',
+      walletAddress: 'https://ilp.test/alice',
+      incomingAmount: { value: '1000', assetCode: 'USD', assetScale: 2 },
+      receivedAmount: { value: '0', assetCode: 'USD', assetScale: 2 },
+      expiresAt: '2026-10-20T13:52:00.855Z'
+    }
+
+    it('GETs the payment intent details from /payment-intents/:id', async () => {
+      adapter.mockImplementationOnce(respond(200, paymentIntent))
+
+      await client.getPaymentIntentById('pi-1')
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/payment-intents/pi-1')
+    })
+
+    it('returns the payment intent on 200', async () => {
+      adapter.mockImplementationOnce(respond(200, paymentIntent))
+
+      await expect(client.getPaymentIntentById('pi-1')).resolves.toEqual(
+        paymentIntent
+      )
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, { error: "Payment intent 'pi-1' not found" })
+      )
+
+      await expect(client.getPaymentIntentById('pi-1')).rejects.toBeInstanceOf(
+        NotFound
+      )
+    })
+  })
+
+  describe('listPayments', () => {
+    it('GETs payments with the given query parameters and returns the pagination response', async () => {
+      const response: ListPaymentsResponse = {
+        result: [],
+        pagination: {
+          startCursor: 'start',
+          endCursor: 'end',
+          hasNextPage: false,
+          hasPreviousPage: true
+        }
+      }
+      adapter.mockImplementationOnce(respond(200, response))
+
+      await expect(
+        client.listPayments({
+          paymentIntentId: 'intent id',
+          first: 100,
+          sortOrder: 'desc'
+        })
+      ).resolves.toEqual(response)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/payments')
+      expect(request.params).toEqual({
+        paymentIntentId: 'intent id',
+        first: 100,
+        sortOrder: 'desc'
+      })
     })
   })
 
@@ -195,6 +345,89 @@ describe('RhyzaAdminClient', () => {
       await expect(
         client.registerWalletAddressKey(jwk, walletAddressId)
       ).rejects.toBeInstanceOf(Conflict)
+    })
+  })
+
+  describe('revokeWalletAddressKey', () => {
+    const walletAddressId = 'wa-1'
+    const keyId = 'key-1'
+
+    it('POSTs to /wallet-addresses/:id/keys/:keyId/revoke', async () => {
+      adapter.mockImplementationOnce(respond(204, {}))
+
+      await client.revokeWalletAddressKey(walletAddressId, keyId)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe(
+        'http://admin.test/wallet-addresses/wa-1/keys/key-1/revoke'
+      )
+    })
+
+    it('resolves on 204', async () => {
+      adapter.mockImplementationOnce(respond(204, {}))
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).resolves.toBeUndefined()
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error:
+            '5 NOT_FOUND: Wallet address key key-1 does not exist for wallet wa-1'
+        })
+      )
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).rejects.toBeInstanceOf(NotFound)
+    })
+
+    it('raises Conflict on 409', async () => {
+      adapter.mockImplementationOnce(
+        respond(409, {
+          error:
+            '9 FAILED_PRECONDITION: Wallet address key key-1 is already revoked'
+        })
+      )
+
+      await expect(
+        client.revokeWalletAddressKey(walletAddressId, keyId)
+      ).rejects.toBeInstanceOf(Conflict)
+    })
+  })
+
+  describe('createQuote', () => {
+    const quote = {
+      createdAt: '2026-10-28T11:00:00.000Z',
+      state: 'COMPLETED',
+      id: 'quote-1',
+      paymentIntentId: 'pi-1',
+      senderWalletAddress: 'https://ilp.test/alice',
+      senderWalletAddressId: 'wa-1',
+      expiresAt: '2026-10-28T12:00:00.000Z',
+      debitAmount: '1000',
+      receiveAmount: '1000',
+      exchangeRate: 1
+    }
+    const args = {
+      id: 'quote-1',
+      walletAddress: 'https://ilp.test/alice',
+      debitAmount: '1000',
+      paymentIntentId: 'pi-1'
+    }
+
+    it('POSTs the quote details to /quotes and returns the quote', async () => {
+      adapter.mockImplementationOnce(respond(201, quote))
+
+      await expect(client.createQuote(args)).resolves.toEqual(quote)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/quotes')
+      expect(request.body).toEqual(args)
     })
   })
 })

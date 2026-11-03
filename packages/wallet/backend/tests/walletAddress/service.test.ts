@@ -37,7 +37,6 @@ describe('Wallet Address Service', () => {
         name: faker.string.alpha(10),
         userId,
         assetCode: mockedListAssets[0].code,
-        assetId: mockedListAssets[0].id,
         assetScale: mockedListAssets[0].scale,
         gateHubWalletId: 'mocked'
       })
@@ -46,7 +45,6 @@ describe('Wallet Address Service', () => {
       name: faker.string.alpha(10),
       userId,
       assetCode: mockedListAssets[0].code,
-      assetId: mockedListAssets[0].id,
       assetScale: mockedListAssets[0].scale,
       gateHubWalletId: 'mocked'
     })
@@ -245,7 +243,7 @@ describe('Wallet Address Service', () => {
       const rhyzaId = faker.string.uuid()
       createWalletAddress.mockResolvedValueOnce({
         id: rhyzaId,
-        address: 'backend/my-wallet'
+        address: expectedUrl
       })
 
       const result = await waService.create({
@@ -256,7 +254,7 @@ describe('Wallet Address Service', () => {
       })
 
       expect(createWalletAddress).toHaveBeenCalledWith({
-        address: expectedUrl,
+        pathName: 'my-wallet',
         assetCode: account.assetCode,
         publicName: 'My Wallet',
         isActive: true

@@ -61,7 +61,7 @@ describe('Account Controller', (): void => {
   const createMockAccount = async () => {
     req.body = {
       name: accountName,
-      assetId: mockedAsset.id
+      assetCode: mockedAsset.code
     }
     await accountController.createAccount(req, res, next)
     createdAccount = res._getJSONData().result
@@ -75,17 +75,10 @@ describe('Account Controller', (): void => {
     accountController = await bindings.resolve('accountController')
     accountService = await bindings.resolve('accountService')
 
-    const accountServiceDepsMocked = {
-      rafikiClient: {
-        getAssetById: (id: unknown) =>
-          mockedListAssets.find((asset) => asset.id === id)
-      }
-    }
-    Reflect.set(
-      accountService,
-      'rafikiClient',
-      accountServiceDepsMocked.rafikiClient
-    )
+    Reflect.set(accountService, 'assetService', {
+      getAssetByCode: (code: string) =>
+        mockedListAssets.find((asset) => asset.code === code)
+    })
     Reflect.set(accountService, 'gateHubClient', mockGateHubClient)
 
     Reflect.set(accountController, 'accountService', accountService)
@@ -109,7 +102,7 @@ describe('Account Controller', (): void => {
     it('should create Account for User for a given Asset', async (): Promise<void> => {
       req.body = {
         name: accountName,
-        assetId: mockedAsset.id
+        assetCode: mockedAsset.code
       }
       await accountController.createAccount(req, res, next)
       expect(res.statusCode).toBe(200)

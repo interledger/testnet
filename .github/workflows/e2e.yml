@@ -2,9 +2,10 @@ name: E2E
 
 on:
   pull_request:
+    # v1 is off until Rhyza publishes images that include interledger/rhyza#338:
+    # the wallet backend on v1 needs Rhyza, and CI cannot build it cheaply.
     branches:
       - main
-      - v1
     types:
       - opened
       - synchronize

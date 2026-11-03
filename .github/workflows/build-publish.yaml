@@ -18,6 +18,7 @@ jobs:
           [
             'wallet:backend',
             'wallet:frontend',
+            'wallet:hsm-adapter',
             'boutique:backend',
             'boutique:frontend'
           ]

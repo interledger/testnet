@@ -307,7 +307,6 @@ describe('GateHub Service', (): void => {
           name: faker.string.alpha(10),
           userId: user.id,
           assetCode: mockedListAssets[2].code,
-          assetId: mockedListAssets[2].id,
           assetScale: mockedListAssets[2].scale,
           gateHubWalletId: 'mocked'
         })

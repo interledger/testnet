@@ -89,24 +89,24 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
           value: databaseUrl
-  - it: 'mounts the Atalla TLS volume when an environment supplies one'
+  - it: 'mounts the volumes an environment supplies'
     template: deployment.backend.yaml
     set:
       deployments:
         backend:
           volumeMounts:
-            - name: atalla-tls
-              mountPath: /etc/atalla/tls
+            - name: extra-files
+              mountPath: /etc/extra
               readOnly: true
           volumes:
-            - name: atalla-tls
+            - name: extra-files
               secret:
-                secretName: wallet-atalla
+                secretName: extra-files
                 defaultMode: 0400
     asserts:
       - equal:
           path: spec.template.spec.volumes[0].secret.secretName
-          value: wallet-atalla
+          value: extra-files
       - equal:
           path: spec.template.spec.containers[0].volumeMounts[0].mountPath
-          value: /etc/atalla/tls
+          value: /etc/extra
