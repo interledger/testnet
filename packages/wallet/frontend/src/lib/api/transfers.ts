@@ -26,7 +26,7 @@ export const sendSchema = z.object({
 
 export const acceptQuoteSchema = z.object({
   quoteId: z.string().uuid(),
-  paymentIntentId: z.string().uuid(),
+  paymentIntentId: z.string().min(1),
   description: z.string().optional()
 })
 

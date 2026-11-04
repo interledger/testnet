@@ -1,7 +1,7 @@
 import { AccountService } from '@/account/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { transformAmount } from '@/utils/helpers'
+import { toBaseUnits, transformAmount } from '@/utils/helpers'
 import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add, Duration } from 'date-fns'
 import axios from 'axios'
@@ -67,7 +67,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       throw new NotFound()
     }
 
-    await this.accountService.findAccountById(
+    const { assetScale } = await this.accountService.findAccountById(
       existingWalletAddress.accountId,
       userId
     )
@@ -83,7 +83,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
 
     const response = await this.rhyzaAdminClient.createPaymentIntent({
       walletAddress: existingWalletAddress.url,
-      incomingAmount: amount,
+      incomingAmount: Number(toBaseUnits(amount, assetScale)),
       expiresAt: expiryDate?.toISOString(),
       metadata: description ? { description } : undefined
     })

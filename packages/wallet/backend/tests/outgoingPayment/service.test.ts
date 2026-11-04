@@ -1,72 +1,173 @@
-import { RhyzaAdminClient } from '@/rhyza/admin-client'
-import { Quote } from '@/rhyza/types'
+import { createApp, TestApp } from '@/tests/app'
+import { Knex } from 'knex'
+import { AuthService } from '@/auth/service'
 import { OutgoingPaymentService } from '@/outgoingPayment/service'
+import { Cradle, createContainer } from '@/createContainer'
+import { env } from '@/config/env'
+import { mockedListAssets } from '@/tests/mocks'
+import { faker } from '@faker-js/faker'
+import { Account } from '@/account/model'
+import { WalletAddress } from '@/walletAddress/model'
+import { loginUser } from '@/tests/utils'
+import { truncateTables } from '@shared/backend/tests'
+import { AwilixContainer } from 'awilix'
+import { BadRequest, NotFound } from '@shared/backend'
 
-describe('OutgoingPaymentService', () => {
-  const quoteId = 'quote-1'
-  const paymentIntentId = 'payment-intent-1'
-  const description = 'Free Money!'
-  const quote: Quote = {
-    createdAt: '2026-11-02T10:00:00.000Z',
-    id: quoteId,
-    paymentIntentId,
-    senderWalletAddress: 'https://ilp.test/alice',
-    senderWalletAddressId: 'wallet-address-1',
-    state: 'COMPLETED',
-    debitAmount: '150',
-    receiveAmount: '150'
+describe('OutgoingPayment Service', () => {
+  let bindings: AwilixContainer<Cradle>
+  let appContainer: TestApp
+  let knex: Knex
+  let authService: AuthService
+  let outgoingPaymentService: OutgoingPaymentService
+  let userId: string
+
+  const getQuoteById = jest.fn()
+  const createPayment = jest.fn()
+
+  const prepareWalletAddress = async (ownerId: string) => {
+    const account = await Account.query().insert({
+      name: faker.string.alpha(10),
+      userId: ownerId,
+      assetCode: mockedListAssets[0].code,
+      assetScale: mockedListAssets[0].scale,
+      gateHubWalletId: 'mocked'
+    })
+
+    return WalletAddress.query().insert({
+      url: `https://ilp.test/${faker.string.alpha(10)}`,
+      publicName: faker.string.alpha(10),
+      accountId: account.id,
+      id: faker.string.uuid()
+    })
   }
 
-  let getQuoteById: jest.Mock
-  let createPayment: jest.Mock
-  let service: OutgoingPaymentService
+  const completedQuote = (walletAddress: WalletAddress) => ({
+    id: 'quote-1',
+    paymentIntentId: 'pi-1',
+    senderWalletAddress: walletAddress.url,
+    senderWalletAddressId: walletAddress.id,
+    state: 'COMPLETED',
+    expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    debitAmount: '1000',
+    receiveAmount: '1000'
+  })
 
-  beforeEach(() => {
-    getQuoteById = jest.fn().mockResolvedValue(quote)
-    createPayment = jest.fn().mockResolvedValue({
-      id: 'payment-1',
-      paymentIntentId
-    })
-
-    const rhyzaAdminClient = {
+  beforeAll(async (): Promise<void> => {
+    bindings = await createContainer(env)
+    appContainer = await createApp(bindings)
+    knex = appContainer.knex
+    authService = await bindings.resolve('authService')
+    outgoingPaymentService = await bindings.resolve('outgoingPaymentService')
+    Reflect.set(outgoingPaymentService, 'rhyzaAdminClient', {
       getQuoteById,
       createPayment
-    } as unknown as RhyzaAdminClient
-
-    service = new OutgoingPaymentService(rhyzaAdminClient)
-  })
-
-  it('gets the quote and creates a payment using the quote sender address', async () => {
-    await service.createByQuoteId(quoteId, paymentIntentId, description)
-
-    expect(getQuoteById).toHaveBeenCalledWith(paymentIntentId, quoteId)
-    expect(createPayment).toHaveBeenCalledWith({
-      walletAddress: quote.senderWalletAddress,
-      quoteId,
-      metadata: { description },
-      paymentIntentId
     })
   })
 
-  it('creates a payment without metadata when no description is provided', async () => {
-    await service.createByQuoteId(quoteId, paymentIntentId)
+  beforeEach(async (): Promise<void> => {
+    const { user } = await loginUser({
+      authService,
+      extraUserArgs: { isEmailVerified: true, gateHubUserId: 'mocked' }
+    })
+    userId = user.id
+  })
 
+  afterEach(async (): Promise<void> => {
+    await truncateTables(knex)
+    jest.clearAllMocks()
+  })
+
+  afterAll(async (): Promise<void> => {
+    await appContainer.stop()
+    await knex.destroy()
+  })
+
+  it('creates a Rhyza payment from the quote', async () => {
+    const walletAddress = await prepareWalletAddress(userId)
+    getQuoteById.mockResolvedValue(completedQuote(walletAddress))
+
+    await outgoingPaymentService.createByQuoteId({
+      userId,
+      quoteId: 'quote-1',
+      paymentIntentId: 'pi-1',
+      description: 'rent'
+    })
+
+    expect(getQuoteById).toHaveBeenCalledWith('pi-1', 'quote-1')
     expect(createPayment).toHaveBeenCalledWith({
-      walletAddress: quote.senderWalletAddress,
-      quoteId,
-      metadata: undefined,
-      paymentIntentId
+      walletAddress: walletAddress.url,
+      paymentIntentId: 'pi-1',
+      quoteId: 'quote-1',
+      metadata: { description: 'rent' }
     })
   })
 
-  it('does not create a payment if the quote lookup fails', async () => {
-    const lookupError = new Error('Quote not found')
-    getQuoteById.mockRejectedValueOnce(lookupError)
+  it('rejects a quote that is not completed', async () => {
+    const walletAddress = await prepareWalletAddress(userId)
+    getQuoteById.mockResolvedValue({
+      ...completedQuote(walletAddress),
+      state: 'FAILED'
+    })
 
     await expect(
-      service.createByQuoteId(quoteId, paymentIntentId, description)
-    ).rejects.toBe(lookupError)
+      outgoingPaymentService.createByQuoteId({
+        userId,
+        quoteId: 'quote-1',
+        paymentIntentId: 'pi-1'
+      })
+    ).rejects.toBeInstanceOf(BadRequest)
+    expect(createPayment).not.toHaveBeenCalled()
+  })
 
+  it('rejects an expired quote', async () => {
+    const walletAddress = await prepareWalletAddress(userId)
+    getQuoteById.mockResolvedValue({
+      ...completedQuote(walletAddress),
+      expiresAt: new Date(Date.now() - 1000).toISOString()
+    })
+
+    await expect(
+      outgoingPaymentService.createByQuoteId({
+        userId,
+        quoteId: 'quote-1',
+        paymentIntentId: 'pi-1'
+      })
+    ).rejects.toBeInstanceOf(BadRequest)
+    expect(createPayment).not.toHaveBeenCalled()
+  })
+
+  it('rejects a quote from a deactivated wallet address', async () => {
+    const walletAddress = await prepareWalletAddress(userId)
+    await WalletAddress.query().patchAndFetchById(walletAddress.id, {
+      active: false
+    })
+    getQuoteById.mockResolvedValue(completedQuote(walletAddress))
+
+    await expect(
+      outgoingPaymentService.createByQuoteId({
+        userId,
+        quoteId: 'quote-1',
+        paymentIntentId: 'pi-1'
+      })
+    ).rejects.toBeInstanceOf(BadRequest)
+    expect(createPayment).not.toHaveBeenCalled()
+  })
+
+  it("rejects a quote from another user's wallet address", async () => {
+    const { user: otherUser } = await loginUser({
+      authService,
+      extraUserArgs: { isEmailVerified: true, gateHubUserId: 'mocked' }
+    })
+    const walletAddress = await prepareWalletAddress(otherUser.id)
+    getQuoteById.mockResolvedValue(completedQuote(walletAddress))
+
+    await expect(
+      outgoingPaymentService.createByQuoteId({
+        userId,
+        quoteId: 'quote-1',
+        paymentIntentId: 'pi-1'
+      })
+    ).rejects.toBeInstanceOf(NotFound)
     expect(createPayment).not.toHaveBeenCalled()
   })
 })

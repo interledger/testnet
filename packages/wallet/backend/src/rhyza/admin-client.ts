@@ -192,19 +192,7 @@ export class RhyzaAdminClient {
   async createQuote(
     args: QuoteCreateFromPaymentIntentId | QuoteCreateFromPaymentIntentUrl
   ): Promise<Quote> {
-    const response = await this.http.post<Quote>('/quotes', args)
-    return {
-      createdAt: response.createdAt,
-      id: response.id,
-      paymentIntentId: response.paymentIntentId,
-      senderWalletAddress: response.senderWalletAddress,
-      senderWalletAddressId: response.senderWalletAddressId,
-      state: response.state,
-      debitAmount: response.debitAmount,
-      exchangeRate: response.exchangeRate,
-      expiresAt: response.expiresAt,
-      receiveAmount: response.receiveAmount
-    }
+    return this.http.post<Quote>('/quotes', args)
   }
 
   async createPayment(
@@ -218,9 +206,8 @@ export class RhyzaAdminClient {
   }
 
   async getQuoteById(paymentIntentId: string, quoteId: string): Promise<Quote> {
-    const response = await this.http.get<Quote>(
-      `/payment-intents/${paymentIntentId}/quotes/${quoteId}`
+    return this.http.get<Quote>(
+      `/payment-intents/${encodeURIComponent(paymentIntentId)}/quotes/${encodeURIComponent(quoteId)}`
     )
-    return response
   }
 }

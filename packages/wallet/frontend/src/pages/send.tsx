@@ -349,8 +349,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
           const response = await transfersService.send(data, sepaDetails.nonce)
           if (response.success) {
             if (response.result) {
-              const quoteId = response.result.id
-              const paymentIntentId = response.result.paymentIntentId
+              const { id: quoteId, paymentIntentId } = response.result
               openDialog(
                 <QuoteDialog
                   quote={response.result}
