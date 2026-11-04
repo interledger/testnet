@@ -21,7 +21,7 @@ describe('OutgoingPayment Service', () => {
   let outgoingPaymentService: OutgoingPaymentService
   let userId: string
 
-  const getQuote = jest.fn()
+  const getQuoteById = jest.fn()
   const createPayment = jest.fn()
 
   const prepareWalletAddress = async (ownerId: string) => {
@@ -59,7 +59,7 @@ describe('OutgoingPayment Service', () => {
     authService = await bindings.resolve('authService')
     outgoingPaymentService = await bindings.resolve('outgoingPaymentService')
     Reflect.set(outgoingPaymentService, 'rhyzaAdminClient', {
-      getQuote,
+      getQuoteById,
       createPayment
     })
   })
@@ -84,7 +84,7 @@ describe('OutgoingPayment Service', () => {
 
   it('creates a Rhyza payment from the quote', async () => {
     const walletAddress = await prepareWalletAddress(userId)
-    getQuote.mockResolvedValue(completedQuote(walletAddress))
+    getQuoteById.mockResolvedValue(completedQuote(walletAddress))
 
     await outgoingPaymentService.createByQuoteId({
       userId,
@@ -93,7 +93,7 @@ describe('OutgoingPayment Service', () => {
       description: 'rent'
     })
 
-    expect(getQuote).toHaveBeenCalledWith('pi-1', 'quote-1')
+    expect(getQuoteById).toHaveBeenCalledWith('pi-1', 'quote-1')
     expect(createPayment).toHaveBeenCalledWith({
       walletAddress: walletAddress.url,
       paymentIntentId: 'pi-1',
@@ -104,7 +104,7 @@ describe('OutgoingPayment Service', () => {
 
   it('rejects a quote that is not completed', async () => {
     const walletAddress = await prepareWalletAddress(userId)
-    getQuote.mockResolvedValue({
+    getQuoteById.mockResolvedValue({
       ...completedQuote(walletAddress),
       state: 'FAILED'
     })
@@ -121,7 +121,7 @@ describe('OutgoingPayment Service', () => {
 
   it('rejects an expired quote', async () => {
     const walletAddress = await prepareWalletAddress(userId)
-    getQuote.mockResolvedValue({
+    getQuoteById.mockResolvedValue({
       ...completedQuote(walletAddress),
       expiresAt: new Date(Date.now() - 1000).toISOString()
     })
@@ -141,7 +141,7 @@ describe('OutgoingPayment Service', () => {
     await WalletAddress.query().patchAndFetchById(walletAddress.id, {
       active: false
     })
-    getQuote.mockResolvedValue(completedQuote(walletAddress))
+    getQuoteById.mockResolvedValue(completedQuote(walletAddress))
 
     await expect(
       outgoingPaymentService.createByQuoteId({
@@ -159,7 +159,7 @@ describe('OutgoingPayment Service', () => {
       extraUserArgs: { isEmailVerified: true, gateHubUserId: 'mocked' }
     })
     const walletAddress = await prepareWalletAddress(otherUser.id)
-    getQuote.mockResolvedValue(completedQuote(walletAddress))
+    getQuoteById.mockResolvedValue(completedQuote(walletAddress))
 
     await expect(
       outgoingPaymentService.createByQuoteId({

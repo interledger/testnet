@@ -66,7 +66,7 @@ describe('OutgoingPayment controller', () => {
       userId: 'user-1',
       quoteId: req.body.quoteId,
       paymentIntentId: req.body.paymentIntentId,
-      description: undefined
+      description: req.body.description
     })
   })
 

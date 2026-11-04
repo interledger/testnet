@@ -117,7 +117,6 @@ export function readConfig(
       host: file.atalla.host,
       port: file.atalla.port,
       timeoutMs: file.atalla.timeout_ms,
-      poolSize: 1,
       tls: readTls(file.atalla.tls, dirname(configPath), readFile)
     },
     startTimeoutMs: file.start_timeout_ms,

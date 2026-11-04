@@ -10,6 +10,7 @@ import type { RhyzaAdminClient } from '@/rhyza/admin-client'
 import MessageType from '@/socket/messageType'
 import {
   mockPaymentCompletedEvent,
+  mockPaymentFailedEvent,
   mockPaymentIntentCompletedEvent,
   mockPaymentIntentCreatedEvent
 } from '../mocks'
@@ -340,6 +341,107 @@ describe('Rhyza Service', () => {
 
       expect(gateHubClient.createTransaction).not.toHaveBeenCalled()
       expect(transactionService.updateTransaction).not.toHaveBeenCalled()
+    })
+
+    it('should mark a failed payment with nothing sent as failed', async () => {
+      const paymentEvent = mockPaymentFailedEvent({
+        data: { id: 'payment-id', walletAddressId: walletAddress.id }
+      })
+
+      await service.onWebHook(paymentEvent)
+
+      expect(transactionService.updateTransaction).toHaveBeenCalledTimes(1)
+      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
+        { paymentId: 'payment-id' },
+        { status: 'FAILED', value: 0n }
+      )
+      expect(gateHubClient.createTransaction).not.toHaveBeenCalled()
+      expect(socketService.emitMoneySentByUserId).not.toHaveBeenCalled()
+    })
+
+    it('should settle the sent amount of a partially sent failed payment', async () => {
+      const paymentEvent = mockPaymentFailedEvent({
+        data: {
+          id: 'payment-id',
+          walletAddressId: walletAddress.id,
+          sentAmount: {
+            value: '500',
+            assetCode: 'USD',
+            assetScale: 2
+          }
+        }
+      })
+
+      await service.onWebHook(paymentEvent)
+
+      expect(gateHubClient.createTransaction).toHaveBeenCalledWith(
+        {
+          amount: 5,
+          vault_uuid: 'vault-id',
+          sending_address: 'user-wallet-id',
+          receiving_address: 'settlement-wallet',
+          type: expect.anything(),
+          message: 'Transfer'
+        },
+        'gatehub-user-id'
+      )
+      expect(transactionService.updateTransaction).toHaveBeenCalledTimes(1)
+      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
+        { paymentId: 'payment-id' },
+        { status: 'COMPLETED', value: 500n }
+      )
+    })
+
+    it('should not update a partially sent failed payment if the GateHub settlement fails', async () => {
+      const paymentEvent = mockPaymentFailedEvent({
+        data: {
+          walletAddressId: walletAddress.id,
+          sentAmount: {
+            value: '500',
+            assetCode: 'USD',
+            assetScale: 2
+          }
+        }
+      })
+      gateHubClient.createTransaction.mockRejectedValue(
+        new Error('GateHub transfer failed')
+      )
+
+      await expect(service.onWebHook(paymentEvent)).rejects.toThrow(
+        'GateHub transfer failed'
+      )
+
+      expect(transactionService.updateTransaction).not.toHaveBeenCalled()
+    })
+
+    it('should settle a partially sent failed payment regardless of its debit amount', async () => {
+      const paymentEvent = mockPaymentFailedEvent({
+        data: {
+          id: 'payment-id',
+          walletAddressId: walletAddress.id,
+          debitAmount: {
+            value: '0',
+            assetCode: 'USD',
+            assetScale: 2
+          },
+          sentAmount: {
+            value: '500',
+            assetCode: 'USD',
+            assetScale: 2
+          }
+        }
+      })
+
+      await service.onWebHook(paymentEvent)
+
+      expect(gateHubClient.createTransaction).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 5 }),
+        'gatehub-user-id'
+      )
+      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
+        { paymentId: 'payment-id' },
+        { status: 'COMPLETED', value: 500n }
+      )
     })
   })
 })

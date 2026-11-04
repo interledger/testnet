@@ -17,7 +17,8 @@ import { Amount } from './types'
 export enum EventType {
   PaymentIntentCreated = 'payment_intent.created',
   PaymentIntentCompleted = 'payment_intent.completed',
-  PaymentCompleted = 'payment.completed'
+  PaymentCompleted = 'payment.completed',
+  PaymentFailed = 'payment.failed'
 }
 
 export interface WebHook {
@@ -60,6 +61,9 @@ export class RhyzaService implements IRhyzaService {
         break
       case EventType.PaymentCompleted:
         await this.handlePaymentCompleted(wh)
+        break
+      case EventType.PaymentFailed:
+        await this.handlePaymentFailed(wh)
         break
     }
   }
@@ -210,15 +214,9 @@ export class RhyzaService implements IRhyzaService {
       return
     }
 
-    await this.gateHubClient.createTransaction(
-      {
-        amount: this.amountToNumber(debitAmount),
-        vault_uuid: this.gateHubClient.getVaultUuid(debitAmount.assetCode),
-        sending_address: sendingWallet,
-        receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
-        type: TransactionTypeEnum.HOSTED,
-        message: 'Transfer'
-      },
+    await this.settleToSettlementWallet(
+      debitAmount,
+      sendingWallet,
       gateHubUserId
     )
 
@@ -246,6 +244,60 @@ export class RhyzaService implements IRhyzaService {
       )} from ${sendingWallet} to settlement account on ${
         EventType.PaymentCompleted
       }`
+    )
+  }
+
+  private async handlePaymentFailed(wh: WebHook) {
+    const sentAmount = this.parseAmount(wh.data.sentAmount as AmountJSON)
+
+    if (BigInt(sentAmount.value) <= 0n) {
+      await this.transactionService.updateTransaction(
+        { paymentId: wh.data.id },
+        { status: 'FAILED', value: 0n }
+      )
+      return
+    }
+
+    const walletAddress = await this.getWalletAddress(wh)
+    const { gateHubWalletId: sendingWallet, gateHubUserId } =
+      await this.accountService.getGateHubWalletAddress(walletAddress)
+
+    // A partially sent payment still settles what actually left the wallet
+    await this.settleToSettlementWallet(
+      sentAmount,
+      sendingWallet,
+      gateHubUserId
+    )
+
+    await this.transactionService.updateTransaction(
+      { paymentId: wh.data.id },
+      { status: 'COMPLETED', value: BigInt(sentAmount.value) }
+    )
+
+    this.logger.info(
+      `Succesfully transfered ${this.amountToNumber(
+        sentAmount
+      )} from ${sendingWallet} to settlement account on ${
+        EventType.PaymentFailed
+      }`
+    )
+  }
+
+  private async settleToSettlementWallet(
+    amount: Amount,
+    sendingWallet: string,
+    gateHubUserId: string
+  ) {
+    await this.gateHubClient.createTransaction(
+      {
+        amount: this.amountToNumber(amount),
+        vault_uuid: this.gateHubClient.getVaultUuid(amount.assetCode),
+        sending_address: sendingWallet,
+        receiving_address: this.env.GATEHUB_SETTLEMENT_WALLET_ADDRESS,
+        type: TransactionTypeEnum.HOSTED,
+        message: 'Transfer'
+      },
+      gateHubUserId
     )
   }
 }

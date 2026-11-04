@@ -207,7 +207,8 @@ export const mockOutgoingPaymentRequest = (
   return {
     body: {
       quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
-      paymentIntentId: 'b2f6c1d4-8e3a-4c7b-9f1e-2d5a6b7c8e9f'
+      paymentIntentId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
+      description: 'Free Money!'
     },
     ...overrides
   }
@@ -438,6 +439,24 @@ export function mockPaymentCompletedEvent(
       ...overrides?.data
     }
   }
+}
+
+export function mockPaymentFailedEvent(
+  overrides?: Partial<RhyzaWebHook>
+): RhyzaWebhookType {
+  return mockPaymentCompletedEvent({
+    type: RhyzaEventType.PaymentFailed,
+    ...overrides,
+    data: {
+      state: 'FAILED',
+      sentAmount: {
+        value: '0',
+        assetCode: 'USD',
+        assetScale: 2
+      },
+      ...overrides?.data
+    }
+  })
 }
 
 export function mockIncomingPaymentRequest(

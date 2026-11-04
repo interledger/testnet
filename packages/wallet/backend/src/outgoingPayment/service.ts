@@ -21,7 +21,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
   ) {}
 
   async createByQuoteId(params: CreateByQuoteIdParams): Promise<void> {
-    const quote = await this.rhyzaAdminClient.getQuote(
+    const quote = await this.rhyzaAdminClient.getQuoteById(
       params.paymentIntentId,
       params.quoteId
     )

@@ -31,6 +31,21 @@ export class RhyzaIdpClient {
       throw e
     }
   }
+
+  async setInteractionResponse(
+    grantId: string,
+    response: 'accept' | 'reject'
+  ): Promise<void> {
+    try {
+      await this.http.post(
+        `/interaction/${encodeURIComponent(grantId)}/${response}`
+      )
+    } catch (e) {
+      // The IdP returns a missing grant as a 500 with gRPC code 5.
+      if (isGrpcNotFound(e)) throw new NotFound(`Grant ${grantId} not found`)
+      throw e
+    }
+  }
 }
 
 function isGrpcNotFound(e: unknown): boolean {

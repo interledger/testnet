@@ -431,16 +431,24 @@ describe('RhyzaAdminClient', () => {
     })
   })
 
-  describe('getQuote', () => {
-    it('GETs the quote from /payment-intents/:intentId/quotes/:id', async () => {
-      const quote = {
-        id: 'quote-1',
-        paymentIntentId: 'pi-1',
-        state: 'COMPLETED'
-      }
+  describe('getQuoteById', () => {
+    const quote = {
+      createdAt: '2026-10-28T11:00:00.000Z',
+      state: 'COMPLETED',
+      id: 'quote-1',
+      paymentIntentId: 'pi-1',
+      senderWalletAddress: 'https://ilp.test/alice',
+      senderWalletAddressId: 'wa-1',
+      expiresAt: '2026-10-28T12:00:00.000Z',
+      debitAmount: '1000',
+      receiveAmount: '1000',
+      exchangeRate: 1
+    }
+
+    it('GETs the quote details from /payment-intents/:paymentIntentId/quotes/:quoteId', async () => {
       adapter.mockImplementationOnce(respond(200, quote))
 
-      await expect(client.getQuote('pi-1', 'quote-1')).resolves.toEqual(quote)
+      await client.getQuoteById('pi-1', 'quote-1')
 
       const request = lastRequest(adapter)
       expect(request.method).toBe('GET')
@@ -449,36 +457,63 @@ describe('RhyzaAdminClient', () => {
       )
     })
 
-    it('raises NotFound on 404', async () => {
-      adapter.mockImplementationOnce(respond(404, { error: 'Quote not found' }))
+    it('returns the quote on 200', async () => {
+      adapter.mockImplementationOnce(respond(200, quote))
 
-      await expect(client.getQuote('pi-1', 'quote-1')).rejects.toBeInstanceOf(
-        NotFound
+      await expect(client.getQuoteById('pi-1', 'quote-1')).resolves.toEqual(
+        quote
       )
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, { error: "Quote 'quote-1' not found" })
+      )
+
+      await expect(
+        client.getQuoteById('pi-1', 'quote-1')
+      ).rejects.toBeInstanceOf(NotFound)
     })
   })
 
   describe('createPayment', () => {
-    it('POSTs the payment details to /payments', async () => {
-      const args = {
-        walletAddress: 'https://ilp.test/alice',
-        paymentIntentId: 'pi-1',
-        quoteId: 'quote-1',
-        metadata: { description: 'rent' }
-      }
-      adapter.mockImplementationOnce(
-        respond(201, { id: 'payment-1', paymentIntentId: 'pi-1' })
-      )
+    const payment = {
+      createdAt: '2026-10-28T11:00:00.000Z',
+      state: 'CREATED',
+      id: 'payment-1',
+      paymentIntentId: 'pi-1',
+      senderWalletAddress: 'https://ilp.test/alice',
+      senderWalletAddressId: 'wa-1',
+      debitAmount: { value: '1000', assetCode: 'USD', assetScale: 2 },
+      receiveAmount: { value: '1000', assetCode: 'USD', assetScale: 2 }
+    }
+    const args = {
+      walletAddress: 'https://ilp.test/alice',
+      paymentIntentId: 'pi-1'
+    }
+
+    it('POSTs the payment details to /payments and returns the payment', async () => {
+      adapter.mockImplementationOnce(respond(201, payment))
 
       await expect(client.createPayment(args)).resolves.toEqual({
-        id: 'payment-1',
-        paymentIntentId: 'pi-1'
+        id: payment.id,
+        paymentIntentId: payment.paymentIntentId
       })
 
       const request = lastRequest(adapter)
       expect(request.method).toBe('POST')
       expect(request.url).toBe('http://admin.test/payments')
       expect(request.body).toEqual(args)
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(
+        respond(404, {
+          error: "Wallet address 'https://ilp.test/alice' not found"
+        })
+      )
+
+      await expect(client.createPayment(args)).rejects.toBeInstanceOf(NotFound)
     })
   })
 })
