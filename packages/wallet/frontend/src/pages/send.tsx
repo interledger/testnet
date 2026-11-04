@@ -12,7 +12,11 @@ import { PageHeader } from '@/components/PageHeader'
 import { TogglePayment } from '@/ui/TogglePayment'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { accountService } from '@/lib/api/account'
-import { sendSchema, transfersService } from '@/lib/api/transfers'
+import {
+  AcceptQuoteArgs,
+  sendSchema,
+  transfersService
+} from '@/lib/api/transfers'
 import { SuccessDialog } from '@/components/dialogs/SuccessDialog'
 import {
   formatAmount,
@@ -294,8 +298,8 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
     }
   }
 
-  const handleAcceptQuote = async (id: string) => {
-    const response = await transfersService.acceptQuote({ quoteId: id })
+  const handleAcceptQuote = async (args: AcceptQuoteArgs) => {
+    const response = await transfersService.acceptQuote(args)
     if (response.success) {
       openDialog(
         <SuccessDialog
@@ -346,6 +350,7 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
           if (response.success) {
             if (response.result) {
               const quoteId = response.result.id
+              const paymentIntentId = response.result.paymentIntentId
               openDialog(
                 <QuoteDialog
                   quote={response.result}
@@ -353,7 +358,11 @@ const SendPage: NextPageWithLayout<SendProps> = ({ accounts, user }) => {
                   sepaMatch={sepaDetails.description}
                   type="quote"
                   onAccept={() => {
-                    handleAcceptQuote(quoteId)
+                    handleAcceptQuote({
+                      quoteId,
+                      paymentIntentId,
+                      description: data.description || undefined
+                    })
                     closeDialog()
                   }}
                   onClose={closeDialog}

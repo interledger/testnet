@@ -61,7 +61,11 @@ describe('OutgoingPayment controller', () => {
 
     expect(createByQuoteIdSpy).toHaveBeenCalled()
     expect(createByQuoteIdSpy).toHaveBeenCalledTimes(1)
-    expect(createByQuoteIdSpy).toHaveBeenCalledWith(req.body.quoteId)
+    expect(createByQuoteIdSpy).toHaveBeenCalledWith(
+      req.body.quoteId,
+      req.body.paymentIntentId,
+      req.body.description
+    )
   })
 
   it('should return status 400 if the request body is not valid', async () => {

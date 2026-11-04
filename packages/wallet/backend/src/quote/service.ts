@@ -159,7 +159,8 @@ export class QuoteService implements IQuoteService {
       receiveAmount: {
         ...assetDetails,
         value: rhyzaQuote.receiveAmount
-      }
+      },
+      paymentIntentId: rhyzaQuote.paymentIntentId
     }
 
     return this.addConversionInfo(
