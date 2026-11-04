@@ -1,28 +1,32 @@
-import { IncomingPaymentService } from '@/incomingPayment/service'
-import { RafikiClient } from '@/rafiki/rafiki-client'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
 interface IOutgoingPaymentService {
-  createByQuoteId: (quoteId: string) => Promise<void>
+  createByQuoteId: (
+    quoteId: string,
+    paymentIntentId: string,
+    description?: string
+  ) => Promise<void>
 }
 
 export class OutgoingPaymentService implements IOutgoingPaymentService {
-  constructor(
-    private rafikiClient: RafikiClient,
-    private incomingPaymentService: IncomingPaymentService
-  ) {}
+  constructor(private rhyzaAdminClient: RhyzaAdminClient) {}
 
-  async createByQuoteId(quoteId: string): Promise<void> {
-    const quote = await this.rafikiClient.getQuote(quoteId)
-    const walletAddressId = quote.walletAddressId
+  async createByQuoteId(
+    quoteId: string,
+    paymentIntentId: string,
+    description?: string
+  ): Promise<void> {
+    const quote = await this.rhyzaAdminClient.getQuoteById(
+      paymentIntentId,
+      quoteId
+    )
+    const walletAddress = quote.senderWalletAddress
 
-    const incomingPayment =
-      await this.incomingPaymentService.getPaymentDetailsByUrl(quote.receiver)
-    const description = incomingPayment?.description
-
-    await this.rafikiClient.createOutgoingPayment({
-      walletAddressId,
+    await this.rhyzaAdminClient.createPayment({
+      walletAddress,
       quoteId,
-      metadata: { description }
+      metadata: description ? { description } : undefined,
+      paymentIntentId
     })
   }
 }

@@ -9,4 +9,5 @@ export interface QuoteResponse {
   receiveAmount: AmountProps
   debitAmount: AmountProps
   fee?: AmountProps
+  paymentIntentId: string
 }
