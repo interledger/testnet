@@ -1,12 +1,12 @@
 import { AccountService } from '@/account/service'
 import { WalletAddress } from '@/walletAddress/model'
 import { RafikiClient } from '@/rafiki/rafiki-client'
-import { transformAmount } from '@/utils/helpers'
+import { toBaseUnits, transformAmount } from '@/utils/helpers'
 import { Amount, Asset } from '@/rafiki/backend/generated/graphql'
 import { add, Duration } from 'date-fns'
 import axios from 'axios'
 import { Env } from '@/config/env'
-import { BadRequest, NotFound } from '@shared/backend'
+import { NotFound } from '@shared/backend'
 import { PaymentDetailsResponse } from '@wallet/shared'
 import { RhyzaAdminClient } from '@/rhyza/admin-client'
 
@@ -81,15 +81,9 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       )
     }
 
-    const incomingAmount = Number((amount * 10 ** assetScale).toFixed())
-    if (!Number.isSafeInteger(incomingAmount)) {
-      throw new BadRequest('Amount is too large')
-    }
-
     const response = await this.rhyzaAdminClient.createPaymentIntent({
       walletAddress: existingWalletAddress.url,
-      // Rhyza expects base units.
-      incomingAmount,
+      incomingAmount: Number(toBaseUnits(amount, assetScale)),
       expiresAt: expiryDate?.toISOString(),
       metadata: description ? { description } : undefined
     })

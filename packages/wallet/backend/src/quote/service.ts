@@ -4,7 +4,7 @@ import { WalletAddress } from '@/walletAddress/model'
 import {
   incomingPaymentRegexp,
   replaceIlpDev,
-  transformBalance
+  toBaseUnits
 } from '@/utils/helpers'
 import { WalletAddressService } from '@/walletAddress/service'
 import { QuoteWithFees } from './controller'
@@ -63,11 +63,7 @@ export class QuoteService implements IQuoteService {
     )
     const balance = account.balance
 
-    const scaledAmount = params.amount * 10 ** assetScale
-    if (!Number.isSafeInteger(Math.round(scaledAmount))) {
-      throw new BadRequest('Amount is too large')
-    }
-    const originalValue = BigInt(scaledAmount.toFixed())
+    const originalValue = toBaseUnits(params.amount, assetScale)
 
     if (Number(balance) < originalValue) {
       throw new BadRequest('Not enough funds in account')
@@ -114,17 +110,20 @@ export class QuoteService implements IQuoteService {
         amount: value
       })
       if (isIncomingPayment) {
-        // Optional adjustment; only intents held by this Rhyza instance can be looked up.
+        // Snap to the request's remaining amount if within 1%; skip if unknown or paid.
         const payment = await this.incomingPaymentService
           .getPaymentDetailsByUrl(params.receiver)
           .catch(() => undefined)
 
-        const amount = payment?.value
-          ? transformBalance(payment?.value, assetDetails.assetScale)
-          : undefined
+        const amount =
+          payment && payment.value > 0
+            ? BigInt(Math.round(payment.value * 10 ** assetDetails.assetScale))
+            : undefined
 
-        // adjust the amount in case that after converting it to the receiver currency it is off by a small margin
-        if (amount && 1 - Number(amount) / Number(convertedValue) < 0.01) {
+        if (
+          amount &&
+          Math.abs(1 - Number(amount) / Number(convertedValue)) < 0.01
+        ) {
           convertedValue = amount
         }
       }
@@ -176,6 +175,11 @@ export class QuoteService implements IQuoteService {
       throw new InternalServerError()
     }
 
+    // Conversion and the 1% snap can raise the debit above the requested amount.
+    if (Number(balance) < Number(rhyzaQuote.debitAmount)) {
+      throw new BadRequest('Not enough funds in account')
+    }
+
     const quote: QuoteWithFees = {
       id: rhyzaQuote.id,
       paymentIntentId: rhyzaQuote.paymentIntentId,
@@ -190,42 +194,31 @@ export class QuoteService implements IQuoteService {
       }
     }
 
-    return this.addConversionInfo(
-      quote,
-      rhyzaQuote,
-      params.isReceive ? originalValue : undefined
-    )
+    return this.addConversionInfo(quote, rhyzaQuote)
   }
 
   private async addConversionInfo(
     quote: QuoteWithFees,
-    rhyzaQuote: RhyzaQuote,
-    originalValue?: bigint
+    rhyzaQuote: RhyzaQuote
   ): Promise<QuoteWithFees> {
     if (quote.receiveAmount.assetCode === quote.debitAmount.assetCode) {
       return quote
     }
 
-    const debitValue = BigInt(quote.debitAmount.value)
-    let fee: bigint
-    if (originalValue) {
-      fee = debitValue - originalValue
-    } else {
-      // Rhyza's exchangeRate is in base units: receiveAmount = debitAmount * exchangeRate.
-      const receiveInSenderCurrency = rhyzaQuote.exchangeRate
-        ? BigInt(
-            Math.floor(
-              Number(quote.receiveAmount.value) / rhyzaQuote.exchangeRate
-            )
+    // exchangeRate is Rhyza's pre-fee rate in base units; round away float error.
+    const receiveInSenderCurrency = rhyzaQuote.exchangeRate
+      ? BigInt(
+          Math.round(
+            Number(quote.receiveAmount.value) / rhyzaQuote.exchangeRate
           )
-        : await this.convert({
-            from: quote.receiveAmount.assetCode,
-            to: quote.debitAmount.assetCode,
-            amount: BigInt(quote.receiveAmount.value)
-          })
-      fee = debitValue - receiveInSenderCurrency
-    }
-    // Rate rounding or drift can push this just below zero.
+        )
+      : await this.convert({
+          from: quote.receiveAmount.assetCode,
+          to: quote.debitAmount.assetCode,
+          amount: BigInt(quote.receiveAmount.value)
+        })
+    let fee = BigInt(quote.debitAmount.value) - receiveInSenderCurrency
+    // Rounding can land just below zero.
     if (fee < 0n) fee = 0n
 
     return {

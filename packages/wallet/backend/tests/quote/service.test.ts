@@ -310,7 +310,7 @@ describe('Quote Service', () => {
       }
     )
 
-    it('never reports a negative fee from rate rounding', async () => {
+    it('reports a zero fee when the converted receive amount exceeds the debit', async () => {
       const { walletAddress } = await prepareQuoteDependencies()
       const receiver = 'https://ilp.test/frank'
       await addLocalReceiver(receiver, { assetCode: 'EUR' })
@@ -319,8 +319,8 @@ describe('Quote Service', () => {
         id: 'quote-1',
         paymentIntentId: 'pi-1',
         debitAmount: '100',
-        receiveAmount: '91',
-        exchangeRate: 0.9099999999
+        receiveAmount: '110',
+        exchangeRate: 1
       })
 
       const result = await quoteService.create({
@@ -332,6 +332,117 @@ describe('Quote Service', () => {
       })
 
       expect(result.fee?.value).toBe('0')
+    })
+
+    it('rounds the converted receive amount instead of truncating float error', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const receiver = 'https://ilp.test/hank'
+      await addLocalReceiver(receiver, { assetCode: 'EUR' })
+      rhyzaCreateQuote.mockResolvedValueOnce({
+        state: 'COMPLETED',
+        id: 'quote-1',
+        paymentIntentId: 'pi-1',
+        debitAmount: '110',
+        receiveAmount: '110',
+        exchangeRate: 1.1
+      })
+
+      const result = await quoteService.create({
+        userId: userInfo.id,
+        amount: 0.11,
+        walletAddressId: walletAddress.id,
+        receiver,
+        isReceive: false
+      })
+
+      // 110 / 1.1 = 99.999…, which must count as 100 (fee 10), not 99 (fee 11).
+      expect(result.fee?.value).toBe('10')
+    })
+
+    it.each([
+      { remaining: 0.995, expected: '995' },
+      { remaining: 500, expected: '1000' },
+      { remaining: -2, expected: '1000' },
+      { remaining: 0.0001, expected: '1000' }
+    ])(
+      'adjusts to the payment request amount only within 1% (remaining $remaining)',
+      async ({ remaining, expected }) => {
+        const { walletAddress } = await prepareQuoteDependencies()
+        Reflect.set(quoteService, 'incomingPaymentService', {
+          getExternalPayment: () => ({
+            receivedAmount: { assetCode: 'EUR', assetScale: 3, value: '0' }
+          }),
+          getPaymentDetailsByUrl: jest
+            .fn()
+            .mockResolvedValue({ value: remaining, assetCode: 'EUR' })
+        })
+
+        try {
+          await quoteService.create({
+            userId: userInfo.id,
+            amount: 1,
+            walletAddressId: walletAddress.id,
+            receiver: remoteIncomingPaymentUrl,
+            isReceive: true
+          })
+
+          expect(rhyzaCreateQuote).toHaveBeenCalledWith(
+            expect.objectContaining({ receiveAmount: expected })
+          )
+        } finally {
+          Reflect.set(quoteService, 'incomingPaymentService', {
+            getExternalPayment: () => ({
+              receivedAmount: { assetCode: 'BRG', assetScale: 3, value: '0' }
+            }),
+            getPaymentDetailsByUrl
+          })
+        }
+      }
+    )
+
+    it('computes the fee from the Rhyza exchange rate for fixed-receive quotes too', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      const receiver = 'https://ilp.test/ivan'
+      await addLocalReceiver(receiver, { assetCode: 'EUR' })
+      rhyzaCreateQuote.mockResolvedValueOnce({
+        state: 'COMPLETED',
+        id: 'quote-1',
+        paymentIntentId: 'pi-1',
+        debitAmount: '1010',
+        receiveAmount: '2000',
+        exchangeRate: 2
+      })
+
+      const result = await quoteService.create({
+        userId: userInfo.id,
+        amount: 1,
+        walletAddressId: walletAddress.id,
+        receiver,
+        isReceive: true
+      })
+
+      expect(result.fee?.value).toBe('10')
+    })
+
+    it('rejects quotes whose debit exceeds the balance', async () => {
+      const { walletAddress } = await prepareQuoteDependencies()
+      rhyzaCreateQuote.mockResolvedValueOnce({
+        state: 'COMPLETED',
+        id: 'quote-1',
+        paymentIntentId: 'pi-1',
+        debitAmount: '100001',
+        receiveAmount: '1000'
+      })
+
+      await expect(
+        quoteService.create({
+          userId: userInfo.id,
+          amount: 1,
+          walletAddressId: walletAddress.id,
+          receiver: remoteIncomingPaymentUrl,
+          isReceive: true
+        })
+      ).rejects.toThrow('Not enough funds in account')
     })
 
     it('computes the cross-currency fee from the Rhyza exchange rate', async () => {

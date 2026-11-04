@@ -33,7 +33,7 @@ export class OutgoingPaymentService implements IOutgoingPaymentService {
       throw new BadRequest('Quote has expired')
     }
 
-    // Match by URL: older wallet addresses keep their Rafiki id locally.
+    // By URL: pre-Rhyza wallet addresses keep their Rafiki id locally.
     const walletAddress = await WalletAddress.query().findOne({
       url: quote.senderWalletAddress
     })
