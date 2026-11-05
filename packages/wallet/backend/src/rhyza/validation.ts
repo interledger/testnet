@@ -55,7 +55,11 @@ export const paymentIntentWebhookSchema = z.object({
 
 export const paymentWebhookSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-  type: z.enum([EventType.PaymentCompleted, EventType.PaymentFailed]),
+  type: z.enum([
+    EventType.PaymentCompleted,
+    EventType.PaymentFailed,
+    EventType.PaymentCreated
+  ]),
   data: paymentSchema
 })
 

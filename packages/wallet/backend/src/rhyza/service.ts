@@ -13,10 +13,13 @@ import { TransactionTypeEnum } from '@/gatehub/consts'
 import { RhyzaAdminClient } from './admin-client'
 import { NodeCacheInstance } from '@/utils/helpers'
 import { Amount } from './types'
+import { Card } from '@/interledgerCard/model'
+import { InterledgerCardService } from '@/interledgerCard/service'
 
 export enum EventType {
   PaymentIntentCreated = 'payment_intent.created',
   PaymentIntentCompleted = 'payment_intent.completed',
+  PaymentCreated = 'payment.created',
   PaymentCompleted = 'payment.completed',
   PaymentFailed = 'payment.failed'
 }
@@ -47,6 +50,7 @@ export class RhyzaService implements IRhyzaService {
     private transactionService: TransactionService,
     private walletAddressService: WalletAddressService,
     private accountService: AccountService,
+    private interledgerCardService: InterledgerCardService,
     private rhyzaAdminClient: RhyzaAdminClient
   ) {}
 
@@ -58,6 +62,9 @@ export class RhyzaService implements IRhyzaService {
         break
       case EventType.PaymentIntentCompleted:
         await this.handlePaymentIntentCompleted(wh)
+        break
+      case EventType.PaymentCreated:
+        await this.handlePaymentCreated(wh)
         break
       case EventType.PaymentCompleted:
         await this.handlePaymentCompleted(wh)
@@ -122,6 +129,10 @@ export class RhyzaService implements IRhyzaService {
 
     if ([EventType.PaymentIntentCompleted].includes(wh.type)) {
       amount = this.parseAmount(wh.data.receivedAmount as AmountJSON)
+    }
+
+    if ([EventType.PaymentCreated].includes(wh.type)) {
+      amount = this.parseAmount(wh.data.debitAmount as AmountJSON)
     }
 
     if ([EventType.PaymentCompleted].includes(wh.type)) {
@@ -299,5 +310,137 @@ export class RhyzaService implements IRhyzaService {
       },
       gateHubUserId
     )
+  }
+
+  private async handlePaymentCreated(wh: WebHook) {
+    const walletAddress = await this.getWalletAddress(wh)
+    const amount = this.getAmountFromWebhook(wh)
+    const { gateHubWalletId, gateHubUserId } =
+      await this.accountService.getGateHubWalletAddress(walletAddress)
+
+    if (!this.validateAmount(amount, wh.type)) {
+      return
+    }
+
+    let card: Card | undefined
+
+    if (wh.data?.cardDetails) {
+      card = await this.interledgerCardService.findActiveCardByWalletAddress(
+        walletAddress.id
+      )
+
+      if (!card) {
+        this.logger.info(
+          `Active card for wallet address ${walletAddress.id} - ${walletAddress.url} not found`
+        )
+        await this.rhyzaAdminClient.cancelPayment({
+          paymentIntentId: wh.data.paymentIntentId,
+          id: wh.data.id,
+          reason: 'No active card found'
+        })
+        return
+      }
+
+      try {
+        await this.interledgerCardService.processCardPayment(
+          wh.data.cardDetails?.data?.payload,
+          card,
+          walletAddress.url
+        )
+        this.logger.info(
+          `Card payment processed for outgoing payment ${wh.data.id}`
+        )
+      } catch (e) {
+        this.logger.info(
+          `Error processing card payment for outgoing payment ${wh.data.id}: ${e}`
+        )
+        await this.rhyzaAdminClient.cancelPayment({
+          paymentIntentId: wh.data.paymentIntentId,
+          id: wh.data.id,
+          reason: 'Card payment processing failed'
+        })
+        return
+      }
+    }
+
+    const secondParty = await this.getPaymentSecondPartyByPaymentIntentId(
+      wh.data.paymentIntentId
+    )
+
+    await this.transactionService.createOutgoingTransaction(
+      wh.data,
+      walletAddress,
+      secondParty
+    )
+
+    const balance = await this.getWalletBalance(
+      gateHubWalletId,
+      gateHubUserId,
+      amount.assetCode
+    )
+    const amountValue = this.amountToNumber(amount)
+
+    if (balance < amountValue) {
+      this.logger.info(
+        `Insufficient funds. Payment amount ${amountValue}, balance ${balance}`
+      )
+      await this.rhyzaAdminClient.cancelPayment({
+        paymentIntentId: wh.data.paymentIntentId,
+        id: wh.data.id,
+        reason: 'Insufficient funds'
+      })
+      await this.transactionService.updateTransaction(
+        { paymentId: wh.data.id },
+        { status: 'FAILED', value: 0n }
+      )
+      return
+    }
+
+    await this.rhyzaAdminClient.approvePayment(
+      wh.data.paymentIntentId,
+      wh.data.id
+    )
+
+    this.logger.info(
+      `Approved payment ${wh.data.id} of ${amountValue} from ${gateHubWalletId} on ${EventType.PaymentCreated}`
+    )
+  }
+
+  private async getWalletBalance(
+    gateHubWalletId: string,
+    gateHubUserId: string,
+    assetCode: string
+  ) {
+    const balances = await this.gateHubClient.getWalletBalance(
+      gateHubWalletId,
+      gateHubUserId
+    )
+
+    return Number(
+      balances.find((balance) => balance.vault.asset_code === assetCode)
+        ?.available ?? 0
+    )
+  }
+
+  async getPaymentSecondPartyByPaymentIntentId(paymentIntentId: string) {
+    try {
+      const receiver =
+        await this.rhyzaAdminClient.getPaymentIntentById(paymentIntentId)
+      const receiverWA = await this.walletAddressService.getByUrl(
+        receiver.walletAddress
+      )
+
+      const response: ISecondParty = {
+        walletAddresses: receiver.walletAddress
+      }
+
+      if (receiverWA?.account?.user) {
+        response.names = `${receiverWA.account.user.firstName} ${receiverWA.account.user.lastName}`
+      }
+
+      return response
+    } catch (e) {
+      this.logger.warn('Error on getting receiver wallet address', e)
+    }
   }
 }

@@ -5,7 +5,8 @@ import {
   WalletAddress,
   Payment,
   Pagination,
-  Quote
+  Quote,
+  PaymentState
 } from '@/rhyza/types'
 
 interface AssetCreateResponse {
@@ -102,6 +103,16 @@ export type QuoteCreateFromPaymentIntentUrl = QuoteCreate & {
   paymentIntentUrl: string
 }
 
+export interface CancelPaymentArgs {
+  paymentIntentId: string
+  id: string
+  reason?: string
+}
+
+interface CancelPaymentResponse {
+  id: string
+}
+
 export class RhyzaAdminClient {
   constructor(private http: HttpClient) {}
 
@@ -196,5 +207,22 @@ export class RhyzaAdminClient {
       expiresAt: response.expiresAt,
       receiveAmount: response.receiveAmount
     }
+  }
+
+  async cancelPayment(args: CancelPaymentArgs): Promise<{ id: string }> {
+    const response = await this.http.post<CancelPaymentResponse>(
+      `/payment-intents/${encodeURIComponent(args.paymentIntentId)}/payments/${encodeURIComponent(args.id)}/cancel`,
+      { reason: args.reason }
+    )
+    return { id: response.id }
+  }
+
+  async approvePayment(
+    paymentIntentId: string,
+    id: string
+  ): Promise<{ id: string; state: PaymentState }> {
+    return this.http.post<{ id: string; state: PaymentState }>(
+      `/payment-intents/${encodeURIComponent(paymentIntentId)}/payments/${encodeURIComponent(id)}/approve`
+    )
   }
 }

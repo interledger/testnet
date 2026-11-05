@@ -1,6 +1,7 @@
 import { webhookBodySchema } from '@/rhyza/validation'
 import {
   mockPaymentCompletedEvent,
+  mockPaymentCreatedEvent,
   mockPaymentFailedEvent,
   mockPaymentIntentCompletedEvent
 } from '../mocks'
@@ -51,5 +52,13 @@ describe('Rhyza webhook validation', () => {
     const result = webhookBodySchema.safeParse({ body: event })
 
     expect(result.success).toBe(false)
+  })
+
+  it('should create a payment event', () => {
+    const result = webhookBodySchema.safeParse({
+      body: mockPaymentCreatedEvent()
+    })
+
+    expect(result.success).toBe(true)
   })
 })

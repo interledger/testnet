@@ -10,10 +10,12 @@ import type { RhyzaAdminClient } from '@/rhyza/admin-client'
 import MessageType from '@/socket/messageType'
 import {
   mockPaymentCompletedEvent,
+  mockPaymentCreatedEvent,
   mockPaymentFailedEvent,
   mockPaymentIntentCompletedEvent,
   mockPaymentIntentCreatedEvent
 } from '../mocks'
+import { InterledgerCardService } from '@/interledgerCard/service'
 
 describe('Rhyza Service', () => {
   describe('OnWebHook', () => {
@@ -21,9 +23,11 @@ describe('Rhyza Service', () => {
     let walletAddress: {
       id: string
       accountId: string
+      url: string
     }
     let transactionService: {
       createIncomingTransaction: jest.Mock
+      createOutgoingTransaction: jest.Mock
       updateTransaction: jest.Mock
     }
     let walletAddressService: {
@@ -37,17 +41,29 @@ describe('Rhyza Service', () => {
     let gateHubClient: {
       createTransaction: jest.Mock
       getVaultUuid: jest.Mock
+      getWalletBalance: jest.Mock
+    }
+    let interledgerCardService: {
+      findActiveCardByWalletAddress: jest.Mock
+      processCardPayment: jest.Mock
     }
     let accountService: { getGateHubWalletAddress: jest.Mock }
-    let rhyzaAdminClient: { listPayments: jest.Mock }
+    let rhyzaAdminClient: {
+      listPayments: jest.Mock
+      cancelPayment: jest.Mock
+      getPaymentIntentById: jest.Mock
+      approvePayment: jest.Mock
+    }
 
     beforeEach(() => {
       walletAddress = {
         id: 'wallet-address-id',
-        accountId: 'account-id'
+        accountId: 'account-id',
+        url: 'https://wallet.test/sender'
       }
       transactionService = {
         createIncomingTransaction: jest.fn().mockResolvedValue(undefined),
+        createOutgoingTransaction: jest.fn().mockResolvedValue(undefined),
         updateTransaction: jest.fn().mockResolvedValue(undefined)
       }
       walletAddressService = {
@@ -60,7 +76,12 @@ describe('Rhyza Service', () => {
       }
       gateHubClient = {
         createTransaction: jest.fn().mockResolvedValue(undefined),
-        getVaultUuid: jest.fn().mockReturnValue('vault-id')
+        getVaultUuid: jest.fn().mockReturnValue('vault-id'),
+        getWalletBalance: jest
+          .fn()
+          .mockResolvedValue([
+            { vault: { asset_code: 'USD' }, available: '100' }
+          ])
       }
       accountService = {
         getGateHubWalletAddress: jest.fn().mockResolvedValue({
@@ -69,9 +90,23 @@ describe('Rhyza Service', () => {
           gateHubUserId: 'gatehub-user-id'
         })
       }
-      rhyzaAdminClient = {
-        listPayments: jest.fn().mockResolvedValue({ result: [] })
+      interledgerCardService = {
+        findActiveCardByWalletAddress: jest
+          .fn()
+          .mockResolvedValue({ id: 'card-id' }),
+        processCardPayment: jest.fn().mockResolvedValue(true)
       }
+      rhyzaAdminClient = {
+        listPayments: jest.fn().mockResolvedValue({ result: [] }),
+        cancelPayment: jest.fn().mockResolvedValue({ id: 'payment-id' }),
+        getPaymentIntentById: jest
+          .fn()
+          .mockResolvedValue({ walletAddress: 'https://wallet.test/receiver' }),
+        approvePayment: jest
+          .fn()
+          .mockResolvedValue({ id: 'payment-id', state: 'PROCESSING' })
+      }
+
       const logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() }
       service = new RhyzaService(
         socketService as unknown as SocketService,
@@ -83,6 +118,7 @@ describe('Rhyza Service', () => {
         transactionService as unknown as TransactionService,
         walletAddressService as unknown as WalletAddressService,
         accountService as unknown as AccountService,
+        interledgerCardService as unknown as InterledgerCardService,
         rhyzaAdminClient as unknown as RhyzaAdminClient
       )
     })
@@ -442,6 +478,58 @@ describe('Rhyza Service', () => {
         { paymentId: 'payment-id' },
         { status: 'COMPLETED', value: 500n }
       )
+    })
+
+    it('should create the outgoing transaction and approve a payment', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+
+      await service.onWebHook(paymentEvent)
+
+      expect(rhyzaAdminClient.getPaymentIntentById).toHaveBeenCalledWith(
+        'payment-intent-id'
+      )
+      expect(transactionService.createOutgoingTransaction).toHaveBeenCalledWith(
+        paymentEvent.data,
+        walletAddress,
+        { walletAddresses: 'https://wallet.test/receiver' }
+      )
+      expect(rhyzaAdminClient.approvePayment).toHaveBeenCalledWith(
+        'payment-intent-id',
+        'payment-id'
+      )
+      expect(rhyzaAdminClient.cancelPayment).not.toHaveBeenCalled()
+    })
+
+    it('should cancel and fail a payment with insufficient funds', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      gateHubClient.getWalletBalance.mockResolvedValue([
+        { vault: { asset_code: 'USD' }, available: '5' }
+      ])
+
+      await service.onWebHook(paymentEvent)
+
+      expect(rhyzaAdminClient.cancelPayment).toHaveBeenCalledWith({
+        paymentIntentId: 'payment-intent-id',
+        id: 'payment-id',
+        reason: 'Insufficient funds'
+      })
+      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
+        { paymentId: 'payment-id' },
+        { status: 'FAILED', value: 0n }
+      )
+      expect(rhyzaAdminClient.approvePayment).not.toHaveBeenCalled()
     })
   })
 })
