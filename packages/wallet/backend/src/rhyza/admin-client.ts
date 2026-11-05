@@ -113,6 +113,15 @@ interface CancelPaymentResponse {
   id: string
 }
 
+interface PaymentCreateFromPaymentIntentIdArgs {
+  id?: string
+  walletAddress: string
+  quoteId?: string
+  debitAmount?: number
+  metadata?: PaymentMetadata
+  paymentIntentId: string
+}
+
 export class RhyzaAdminClient {
   constructor(private http: HttpClient) {}
 
@@ -194,18 +203,16 @@ export class RhyzaAdminClient {
   async createQuote(
     args: QuoteCreateFromPaymentIntentId | QuoteCreateFromPaymentIntentUrl
   ): Promise<Quote> {
-    const response = await this.http.post<Quote>('/quotes', args)
+    return this.http.post<Quote>('/quotes', args)
+  }
+
+  async createPayment(
+    args: PaymentCreateFromPaymentIntentIdArgs
+  ): Promise<{ id: string; paymentIntentId: string }> {
+    const response = await this.http.post<Payment>('/payments', args)
     return {
-      createdAt: response.createdAt,
       id: response.id,
-      paymentIntentId: response.paymentIntentId,
-      senderWalletAddress: response.senderWalletAddress,
-      senderWalletAddressId: response.senderWalletAddressId,
-      state: response.state,
-      debitAmount: response.debitAmount,
-      exchangeRate: response.exchangeRate,
-      expiresAt: response.expiresAt,
-      receiveAmount: response.receiveAmount
+      paymentIntentId: response.paymentIntentId
     }
   }
 
@@ -223,6 +230,12 @@ export class RhyzaAdminClient {
   ): Promise<{ id: string; state: PaymentState }> {
     return this.http.post<{ id: string; state: PaymentState }>(
       `/payment-intents/${encodeURIComponent(paymentIntentId)}/payments/${encodeURIComponent(id)}/approve`
+    )
+  }
+
+  async getQuoteById(paymentIntentId: string, quoteId: string): Promise<Quote> {
+    return this.http.get<Quote>(
+      `/payment-intents/${encodeURIComponent(paymentIntentId)}/quotes/${encodeURIComponent(quoteId)}`
     )
   }
 }

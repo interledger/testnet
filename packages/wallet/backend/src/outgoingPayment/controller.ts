@@ -13,11 +13,17 @@ export class OutgoingPaymentController implements IOutgoingPaymentController {
 
   create = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
+      const userId = req.session.user.id
       const {
-        body: { quoteId }
+        body: { quoteId, paymentIntentId, description }
       } = await validate(outgoingPaymentSchema, req)
 
-      await this.outgoingPaymentService.createByQuoteId(quoteId)
+      await this.outgoingPaymentService.createByQuoteId({
+        userId,
+        quoteId,
+        paymentIntentId,
+        description
+      })
 
       res.status(200).json(toSuccessResponse())
     } catch (e) {

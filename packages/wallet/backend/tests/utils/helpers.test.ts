@@ -1,4 +1,5 @@
-import { applyScale } from '@/utils/helpers'
+import { applyScale, toBaseUnits } from '@/utils/helpers'
+import { BadRequest } from '@shared/backend'
 
 describe('Utils Helper Functions', (): void => {
   describe('applyScale', (): void => {
@@ -17,6 +18,23 @@ describe('Utils Helper Functions', (): void => {
 
     it('should use default scale if not provided', (): void => {
       expect(applyScale(1000)).toBe(10)
+    })
+  })
+
+  describe('toBaseUnits', (): void => {
+    it('converts to base units, absorbing float error', (): void => {
+      expect(toBaseUnits(10, 2)).toBe(1000n)
+      expect(toBaseUnits(0.29, 2)).toBe(29n)
+      expect(toBaseUnits(1.005, 3)).toBe(1005n)
+    })
+
+    it('rejects amounts that round to zero', (): void => {
+      expect(() => toBaseUnits(0.001, 2)).toThrow(BadRequest)
+    })
+
+    it('rejects amounts above the safe integer range', (): void => {
+      expect(() => toBaseUnits(1e14, 3)).toThrow(BadRequest)
+      expect(() => toBaseUnits(1e19, 2)).toThrow(BadRequest)
     })
   })
 })

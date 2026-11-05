@@ -4,6 +4,7 @@ import { createHash, randomBytes } from 'crypto'
 import NodeCache from 'node-cache'
 import { env } from '@/config/env'
 import { DEFAULT_ASSET_SCALE } from './consts'
+import { BadRequest } from '@shared/backend'
 
 export const transformAmount = (
   amount: string | bigint,
@@ -23,6 +24,18 @@ export const urlToPaymentId = (url: string) =>
 
 export const transformBalance = (value: number, scale: number): bigint => {
   return BigInt(Math.floor(value * 10 ** scale))
+}
+
+// Rhyza takes amounts as JS numbers, so they must be safe integers.
+export const toBaseUnits = (amount: number, scale: number): bigint => {
+  const value = Math.round(amount * 10 ** scale)
+  if (!Number.isSafeInteger(value)) {
+    throw new BadRequest('Amount is too large')
+  }
+  if (value <= 0) {
+    throw new BadRequest('Amount is too small')
+  }
+  return BigInt(value)
 }
 
 export const applyScale = (

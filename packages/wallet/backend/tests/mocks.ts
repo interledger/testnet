@@ -206,7 +206,9 @@ export const mockOutgoingPaymentRequest = (
 ): OutgoingPayment => {
   return {
     body: {
-      quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e'
+      quoteId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
+      paymentIntentId: 'ca1d9728-d38f-47e6-a88e-3bfe9e60438e',
+      description: 'Free Money!'
     },
     ...overrides
   }

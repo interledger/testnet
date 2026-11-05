@@ -1,28 +1,26 @@
 import {
   Access,
-  GetGrantsQueryVariables,
-  Grant
+  GetGrantsQueryVariables
 } from '@/rafiki/auth/generated/graphql'
 import { RafikiAuthService } from '@/rafiki/auth/service'
 import { WalletAddressService } from '@/walletAddress/service'
-import { BadRequest, Forbidden } from '@shared/backend'
+import { Forbidden } from '@shared/backend'
 import moment from 'moment'
-import { AxiosError } from 'axios'
 import { RhyzaIdpClient } from '@/rhyza/idp-client'
 import { Grant as RhyzaGrant } from '@/rhyza/types'
 
 interface IGrantService {
   getGrantByInteraction: (
     userId: string,
-    interactionId: string,
+    grantId: string,
     nonce: string
   ) => Promise<RhyzaGrant>
   setInteractionResponse: (
     userId: string,
-    interactionId: string,
+    grantId: string,
     nonce: string,
     response: 'accept' | 'reject'
-  ) => Promise<Grant>
+  ) => Promise<void>
 }
 
 export class GrantService implements IGrantService {
@@ -34,10 +32,10 @@ export class GrantService implements IGrantService {
 
   async getGrantByInteraction(
     userId: string,
-    interactionId: string,
-    nonce: string
+    grantId: string,
+    _nonce: string
   ): Promise<RhyzaGrant> {
-    const grant = await this.rhyzaIdpClient.getGrant(interactionId)
+    const grant = await this.rhyzaIdpClient.getGrant(grantId)
 
     const accessIdentifier = grant.access.find(
       ({ identifier }) => identifier
@@ -56,11 +54,7 @@ export class GrantService implements IGrantService {
 
     if (!belongsToUser) {
       // reject the grant if the user does not have access
-      await this.rafikiAuthService.setInteractionResponse(
-        interactionId,
-        nonce,
-        'reject'
-      )
+      await this.rhyzaIdpClient.setInteractionResponse(grantId, 'reject')
       throw new Forbidden('NO_ACCESS')
     }
 
@@ -69,25 +63,13 @@ export class GrantService implements IGrantService {
 
   async setInteractionResponse(
     userId: string,
-    interactionId: string,
+    grantId: string,
     nonce: string,
     response: 'accept' | 'reject'
-  ): Promise<Grant> {
-    await this.getGrantByInteraction(userId, interactionId, nonce)
+  ): Promise<void> {
+    await this.getGrantByInteraction(userId, grantId, nonce)
 
-    try {
-      return await this.rafikiAuthService.setInteractionResponse(
-        interactionId,
-        nonce,
-        response
-      )
-    } catch (e) {
-      if (e instanceof AxiosError && e.response?.data === 'Bad Request') {
-        throw new BadRequest('Expired Grant Interaction')
-      }
-
-      throw e
-    }
+    return await this.rhyzaIdpClient.setInteractionResponse(grantId, response)
   }
 
   async list(userId: string) {

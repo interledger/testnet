@@ -25,7 +25,9 @@ export const sendSchema = z.object({
 })
 
 export const acceptQuoteSchema = z.object({
-  quoteId: z.string().uuid()
+  quoteId: z.string().uuid(),
+  paymentIntentId: z.string().min(1),
+  description: z.string().optional()
 })
 
 const TIME_UNITS = ['s', 'm', 'h', 'd'] as const
@@ -91,7 +93,7 @@ type QuoteResult = SuccessResponse<QuoteResponse>
 type SendError = ErrorResponse<SendArgs | undefined>
 type SendResponse = QuoteResult | SendError
 
-type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
+export type AcceptQuoteArgs = z.infer<typeof acceptQuoteSchema>
 type AcceptQuoteError = ErrorResponse<AcceptQuoteArgs | undefined>
 type AcceptQuoteResponse = SuccessResponse | AcceptQuoteError
 
