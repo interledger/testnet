@@ -27,7 +27,7 @@ common.deployment, because common.probe cannot render a tcpSocket probe.
 {{- $_ := set $tls "skip_server_identity_check" $hsm.atalla.tls.skipServerIdentityCheck }}
 {{- end }}
 {{- $config := dict
-      "log" (dict "level" $hsm.logLevel)
+      "log" (dict "level" $hsm.logLevel "payloads" $hsm.logPayloads)
       "grpc" (dict "port" (int $adapter.port))
       "atalla" (dict
         "host" $atallaHost

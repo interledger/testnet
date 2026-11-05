@@ -19,6 +19,7 @@ export const DEFAULT_GRPC_PORTS: Record<Role, number> = {
 export interface AdapterConfig {
   role: Role
   logLevel: string
+  logPayloads: boolean
   grpc: { host: string; port: number }
   hsm: AtallaTransportConfig
   startTimeoutMs: number
@@ -37,7 +38,10 @@ const path = z.string().trim().min(1)
 const configFileSchema = z
   .object({
     log: z
-      .object({ level: z.string().trim().min(1).default('info') })
+      .object({
+        level: z.string().trim().min(1).default('info'),
+        payloads: z.boolean().default(false)
+      })
       .strict()
       .default({}),
     grpc: z
@@ -109,6 +113,7 @@ export function readConfig(
   return {
     role,
     logLevel: file.log.level,
+    logPayloads: file.log.payloads,
     grpc: {
       host: file.grpc.host,
       port: file.grpc.port ?? DEFAULT_GRPC_PORTS[role]

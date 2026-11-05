@@ -672,6 +672,9 @@ importers:
 
   packages/wallet/hsm-adapter:
     dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^2.14.1
+        version: 2.14.1
       '@connectrpc/connect':
         specifier: ^2.2.0
         version: 2.2.0(@bufbuild/protobuf@2.14.1)
