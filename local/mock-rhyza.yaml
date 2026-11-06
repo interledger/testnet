@@ -3,6 +3,34 @@
 # resource and auth servers, IdP interaction API and ILP connector on the same
 # host ports and hostnames, so the wallet backend runs unchanged against either.
 
+configs:
+  mock-rhyza-config:
+    content: |
+      log:
+        level: ${MOCK_RHYZA_LOG_LEVEL:-debug}
+      open_payments:
+        url: ${RHYZA_OPEN_PAYMENTS_URL:-https://ilp.testnet.test}
+      auth:
+        url: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
+      idp:
+        url: ${RHYZA_IDP_URL:-https://testnet.test/grant-interactions}
+      webhooks:
+        url: ${RHYZA_WEBHOOK_URL:-http://host.docker.internal:3003/webhooks}
+      rates:
+        source: ase
+        url: ${RHYZA_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
+      seed_assets: ${MOCK_RHYZA_SEED_ASSETS:-[{code: EUR, scale: 2}, {code: USD, scale: 2}]}
+      compat:
+        path_name: ${MOCK_RHYZA_PATH_NAME:-strict}
+        intent_expiry: ${MOCK_RHYZA_INTENT_EXPIRY:-strict}
+      ilp:
+        ilp_address: ${RHYZA_ILP_ADDRESS:-test.net}
+        public_url: ${RHYZA_CONNECTOR_URL:-https://connector.testnet.test}
+  mock-rhyza-secrets:
+    content: |
+      connection_string: postgres://mockrhyza:mockrhyza@postgres:5432/mockrhyza?sslmode=disable
+      idp_secret: ${AUTH_IDENTITY_SERVER_SECRET:-dev_identity_server_secret}
+
 x-mock-rhyza-router: &router
   traefik.enable: true
   traefik.docker.network: testnet
@@ -30,7 +58,7 @@ services:
 
   mock-rhyza:
     container_name: mock-rhyza-local
-    image: ${MOCK_RHYZA_IMAGE:-ghcr.io/interledger/mock-rhyza:0.3.0}
+    image: ${MOCK_RHYZA_IMAGE:-ghcr.io/interledger/mock-rhyza:0.4.0}
     restart: unless-stopped
     networks:
       - testnet
@@ -42,20 +70,13 @@ services:
       - ilp.testnet.test:host-gateway
       - connector.testnet.test:host-gateway
     environment:
-      MOCK_RHYZA_DATABASE_URL: postgres://mockrhyza:mockrhyza@postgres:5432/mockrhyza?sslmode=disable
-      MOCK_RHYZA_LOG_LEVEL: ${MOCK_RHYZA_LOG_LEVEL:-debug}
-      MOCK_RHYZA_OPEN_PAYMENTS_URL: ${RHYZA_OPEN_PAYMENTS_URL:-https://ilp.testnet.test}
-      MOCK_RHYZA_AUTH_SERVER_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
-      MOCK_RHYZA_IDP_URL: ${RHYZA_IDP_URL:-https://testnet.test/grant-interactions}
-      MOCK_RHYZA_IDP_SECRET: ${AUTH_IDENTITY_SERVER_SECRET:-dev_identity_server_secret}
-      MOCK_RHYZA_WEBHOOK_URL: ${RHYZA_WEBHOOK_URL:-http://host.docker.internal:3003/webhooks}
-      MOCK_RHYZA_RATES_SOURCE: ase
-      MOCK_RHYZA_RATES_URL: ${RHYZA_EXCHANGE_RATES_URL:-http://host.docker.internal:3003/rates}
-      MOCK_RHYZA_SEED_ASSETS: ${MOCK_RHYZA_SEED_ASSETS:-EUR:2,USD:2}
-      MOCK_RHYZA_PATH_NAME: ${MOCK_RHYZA_PATH_NAME:-strict}
-      MOCK_RHYZA_INTENT_EXPIRY: ${MOCK_RHYZA_INTENT_EXPIRY:-strict}
-      MOCK_RHYZA_ILP_ADDRESS: ${RHYZA_ILP_ADDRESS:-test.net}
-      MOCK_RHYZA_ILP_PUBLIC_URL: ${RHYZA_CONNECTOR_URL:-https://connector.testnet.test}
+      MOCK_RHYZA_CONFIG_PATH: /etc/mock-rhyza/config.yaml
+      MOCK_RHYZA_SECRETS_PATH: /etc/mock-rhyza/secrets.yaml
+    configs:
+      - source: mock-rhyza-config
+        target: /etc/mock-rhyza/config.yaml
+      - source: mock-rhyza-secrets
+        target: /etc/mock-rhyza/secrets.yaml
     ports:
       - '3021:3001'
       - '3022:3002'
