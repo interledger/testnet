@@ -13,6 +13,7 @@ import { TransactionTypeEnum } from '@/gatehub/consts'
 import { RhyzaAdminClient } from './admin-client'
 import { NodeCacheInstance } from '@/utils/helpers'
 import { Amount } from './types'
+
 export enum EventType {
   PaymentIntentCreated = 'payment_intent.created',
   PaymentIntentCompleted = 'payment_intent.completed',
