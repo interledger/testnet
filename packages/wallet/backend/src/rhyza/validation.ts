@@ -26,7 +26,7 @@ const paymentIntentSchema = z.object({
 const paymentSchema = z.object({
   id: z.string().uuid(),
   walletAddressId: z.string().uuid(),
-  paymentIntentId: z.string().uuid().optional(),
+  paymentIntentId: z.string().uuid(),
   state: z.enum([
     'CREATED',
     'PROCESSING',

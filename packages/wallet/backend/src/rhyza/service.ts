@@ -13,9 +13,6 @@ import { TransactionTypeEnum } from '@/gatehub/consts'
 import { RhyzaAdminClient } from './admin-client'
 import { NodeCacheInstance } from '@/utils/helpers'
 import { Amount } from './types'
-import { Card } from '@/interledgerCard/model'
-import { InterledgerCardService } from '@/interledgerCard/service'
-
 export enum EventType {
   PaymentIntentCreated = 'payment_intent.created',
   PaymentIntentCompleted = 'payment_intent.completed',
@@ -50,7 +47,6 @@ export class RhyzaService implements IRhyzaService {
     private transactionService: TransactionService,
     private walletAddressService: WalletAddressService,
     private accountService: AccountService,
-    private interledgerCardService: InterledgerCardService,
     private rhyzaAdminClient: RhyzaAdminClient
   ) {}
 
@@ -320,47 +316,6 @@ export class RhyzaService implements IRhyzaService {
 
     if (!this.validateAmount(amount, wh.type)) {
       return
-    }
-
-    let card: Card | undefined
-
-    if (wh.data?.cardDetails) {
-      card = await this.interledgerCardService.findActiveCardByWalletAddress(
-        walletAddress.id
-      )
-
-      if (!card) {
-        this.logger.info(
-          `Active card for wallet address ${walletAddress.id} - ${walletAddress.url} not found`
-        )
-        await this.rhyzaAdminClient.cancelPayment({
-          paymentIntentId: wh.data.paymentIntentId,
-          id: wh.data.id,
-          reason: 'No active card found'
-        })
-        return
-      }
-
-      try {
-        await this.interledgerCardService.processCardPayment(
-          wh.data.cardDetails?.data?.payload,
-          card,
-          walletAddress.url
-        )
-        this.logger.info(
-          `Card payment processed for outgoing payment ${wh.data.id}`
-        )
-      } catch (e) {
-        this.logger.info(
-          `Error processing card payment for outgoing payment ${wh.data.id}: ${e}`
-        )
-        await this.rhyzaAdminClient.cancelPayment({
-          paymentIntentId: wh.data.paymentIntentId,
-          id: wh.data.id,
-          reason: 'Card payment processing failed'
-        })
-        return
-      }
     }
 
     const secondParty = await this.getPaymentSecondPartyByPaymentIntentId(

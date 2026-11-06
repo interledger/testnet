@@ -15,7 +15,6 @@ import {
   mockPaymentIntentCompletedEvent,
   mockPaymentIntentCreatedEvent
 } from '../mocks'
-import { InterledgerCardService } from '@/interledgerCard/service'
 
 describe('Rhyza Service', () => {
   describe('OnWebHook', () => {
@@ -42,10 +41,6 @@ describe('Rhyza Service', () => {
       createTransaction: jest.Mock
       getVaultUuid: jest.Mock
       getWalletBalance: jest.Mock
-    }
-    let interledgerCardService: {
-      findActiveCardByWalletAddress: jest.Mock
-      processCardPayment: jest.Mock
     }
     let accountService: { getGateHubWalletAddress: jest.Mock }
     let rhyzaAdminClient: {
@@ -90,12 +85,6 @@ describe('Rhyza Service', () => {
           gateHubUserId: 'gatehub-user-id'
         })
       }
-      interledgerCardService = {
-        findActiveCardByWalletAddress: jest
-          .fn()
-          .mockResolvedValue({ id: 'card-id' }),
-        processCardPayment: jest.fn().mockResolvedValue(true)
-      }
       rhyzaAdminClient = {
         listPayments: jest.fn().mockResolvedValue({ result: [] }),
         cancelPayment: jest.fn().mockResolvedValue({ id: 'payment-id' }),
@@ -118,7 +107,6 @@ describe('Rhyza Service', () => {
         transactionService as unknown as TransactionService,
         walletAddressService as unknown as WalletAddressService,
         accountService as unknown as AccountService,
-        interledgerCardService as unknown as InterledgerCardService,
         rhyzaAdminClient as unknown as RhyzaAdminClient
       )
     })
