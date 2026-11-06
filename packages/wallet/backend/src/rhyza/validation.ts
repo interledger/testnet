@@ -26,7 +26,7 @@ const paymentIntentSchema = z.object({
 const paymentSchema = z.object({
   id: z.string().uuid(),
   walletAddressId: z.string().uuid(),
-  paymentIntentId: z.string().uuid().optional(),
+  paymentIntentId: z.string().uuid(),
   state: z.enum([
     'CREATED',
     'PROCESSING',
@@ -55,7 +55,11 @@ export const paymentIntentWebhookSchema = z.object({
 
 export const paymentWebhookSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-  type: z.enum([EventType.PaymentCompleted, EventType.PaymentFailed]),
+  type: z.enum([
+    EventType.PaymentCompleted,
+    EventType.PaymentFailed,
+    EventType.PaymentCreated
+  ]),
   data: paymentSchema
 })
 
