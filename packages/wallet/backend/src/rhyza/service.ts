@@ -316,6 +316,12 @@ export class RhyzaService implements IRhyzaService {
       await this.accountService.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
+      await this.rhyzaAdminClient.cancelPayment({
+        paymentIntentId: wh.data.paymentIntentId,
+        id: wh.data.id,
+        reason: 'Invalid amount'
+      })
+
       return
     }
 
