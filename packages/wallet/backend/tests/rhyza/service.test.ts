@@ -1,4 +1,5 @@
-import { RhyzaService } from '@/rhyza/service'
+import { EventType, RhyzaService } from '@/rhyza/service'
+import type { WebhookType } from '@/rhyza/validation'
 import type { TransactionService } from '@/transaction/service'
 import type { WalletAddressService } from '@/walletAddress/service'
 import type { Logger } from 'winston'
@@ -49,6 +50,7 @@ describe('Rhyza Service', () => {
       getPaymentIntentById: jest.Mock
       approvePayment: jest.Mock
     }
+    let logger: { info: jest.Mock; warn: jest.Mock; error: jest.Mock }
 
     beforeEach(() => {
       walletAddress = {
@@ -96,7 +98,7 @@ describe('Rhyza Service', () => {
           .mockResolvedValue({ id: 'payment-id', state: 'PROCESSING' })
       }
 
-      const logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() }
+      logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() }
       service = new RhyzaService(
         socketService as unknown as SocketService,
         gateHubClient as unknown as GateHubClient,
@@ -518,6 +520,48 @@ describe('Rhyza Service', () => {
         { status: 'FAILED', value: 0n }
       )
       expect(rhyzaAdminClient.approvePayment).not.toHaveBeenCalled()
+    })
+
+    it('should log when grant revoked webhook is received', async () => {
+      const grantRevokedEvent = {
+        id: 'grant-revoked-id',
+        type: EventType.GrantRevoked,
+        data: {
+          createdAt: new Date().toISOString(),
+          id: 'grant-id',
+          status: 'PROCESSING',
+          access: [
+            {
+              type: 'INCOMING_PAYMENT',
+              actions: ['CREATE'],
+              identifier: 'receiver',
+              limits: {
+                receiver: 'receiver',
+                assetCode: 'USD',
+                assetScale: 2,
+                receiveAmount: '1000'
+              }
+            }
+          ],
+          client: 'client-id',
+          clientName: 'Client',
+          subjectIds: [{ id: 'subject-id', format: 'url' }]
+        }
+      } satisfies WebhookType
+
+      await service.onWebHook(grantRevokedEvent)
+
+      expect(logger.info).toHaveBeenCalledWith(
+        `Grant revoked webhook received with id ${grantRevokedEvent.id}, grant id ${grantRevokedEvent.data.id} and status ${grantRevokedEvent.data.status}`
+      )
+      expect(
+        transactionService.createIncomingTransaction
+      ).not.toHaveBeenCalled()
+      expect(transactionService.updateTransaction).not.toHaveBeenCalled()
+      expect(gateHubClient.createTransaction).not.toHaveBeenCalled()
+      expect(rhyzaAdminClient.listPayments).not.toHaveBeenCalled()
+      expect(socketService.emitMoneyReceivedByUserId).not.toHaveBeenCalled()
+      expect(socketService.emitMoneySentByUserId).not.toHaveBeenCalled()
     })
   })
 })
