@@ -86,6 +86,10 @@ config:
         # value: "SG.xxxxxxxx"
         secretKeyRef:
           key: 'email.sendgridKey'
+      adminNotificationSecret:
+        # value: ""
+        secretKeyRef:
+          key: 'email.adminNotificationSecret'
 
     stripe:
       enabled: false
@@ -214,6 +218,12 @@ deployments:
           secretKeyRef:
             name: '{{ include "common.fullname" . }}-backend'
             key: '{{ .Values.config.backend.email.sendgridKey.secretKeyRef.key }}'
+      - name: ADMIN_NOTIFICATION_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: '{{ include "common.fullname" . }}-backend'
+            key: '{{ .Values.config.backend.email.adminNotificationSecret.secretKeyRef.key }}'
+            optional: true
       - name: RATE_API_KEY
         valueFrom:
           secretKeyRef:
@@ -445,6 +455,8 @@ secretsMaps:
         valueRef: config.backend.gatehub.webhookSecret.value
       - key: email.sendgridKey
         valueRef: config.backend.email.sendgridKey.value
+      - key: email.adminNotificationSecret
+        valueRef: config.backend.email.adminNotificationSecret.value
       - key: rate.apiKey
         valueRef: config.backend.rate.apiKey.value
       - key: stripe.webhookSecret

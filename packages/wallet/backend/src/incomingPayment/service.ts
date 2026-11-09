@@ -87,7 +87,7 @@ export class IncomingPaymentService implements IIncomingPaymentService {
       walletAddressUrl: existingWalletAddress.url,
       description,
       asset,
-      amount: BigInt(amount * 10 ** asset.scale),
+      amount: BigInt((amount * 10 ** asset.scale).toFixed()),
       expiresAt: expiryDate,
       vopNonce: ''
     })

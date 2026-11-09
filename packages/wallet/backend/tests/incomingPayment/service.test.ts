@@ -134,6 +134,27 @@ describe('Incoming Payment Service', () => {
       expect(result).toEqual(createdId)
     })
 
+    it('should create an IncomePayment for a decimal amount', async () => {
+      const createdId = faker.string.uuid()
+      await mockIncomePaymentDeps(createdId)
+      const createReceiver = jest.fn(() => ({ id: createdId }))
+      Reflect.set(incopmPaymentService, 'rafikiClient', {
+        ...Reflect.get(incopmPaymentService, 'rafikiClient'),
+        getAssetById: () => mockedListAssets[2],
+        createReceiver
+      })
+      const { walletAddress } = await prepareIncomePaymentDependencies()
+      const result = await incopmPaymentService.create(
+        userId,
+        walletAddress.id,
+        1.13
+      )
+      expect(result).toEqual(createdId)
+      expect(createReceiver).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 113n })
+      )
+    })
+
     it('should return NotFound Err', async () => {
       await expect(
         incopmPaymentService.create(userId, faker.string.uuid(), 100)

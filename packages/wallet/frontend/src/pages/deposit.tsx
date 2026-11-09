@@ -2,6 +2,7 @@ import { AppLayout } from '@/components/layouts/AppLayout'
 import { PageHeader } from '@/components/PageHeader'
 import { userService } from '@/lib/api/user'
 import { NextPageWithLayout } from '@/lib/types/app'
+import { DEPOSITS_ENABLED } from '@/utils/constants'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { useEffect } from 'react'
 
@@ -24,26 +25,46 @@ const DepositPage: NextPageWithLayout<DepositPageProps> = ({ url }) => {
   return (
     <>
       <PageHeader title="Deposit" />
-      <iframe
-        src={url}
-        sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
-        className="w-full h-full md:w-[85%]"
-      ></iframe>
+      {url === null ? (
+        <p className="text-sm">Deposits are not available.</p>
+      ) : (
+        <iframe
+          src={url}
+          sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups allow-scripts"
+          className="w-full h-full md:w-[85%]"
+        ></iframe>
+      )}
     </>
   )
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  url: string
+  url: string | null
   user: { isCardsVisible: boolean }
 }> = async (ctx) => {
+  const user = await userService.me(ctx.req.headers.cookie)
+
+  if (!user.success) {
+    return {
+      notFound: true
+    }
+  }
+
+  if (!DEPOSITS_ENABLED) {
+    return {
+      props: {
+        url: null,
+        user: { isCardsVisible: user.result?.isCardsVisible ?? false }
+      }
+    }
+  }
+
   const response = await userService.getGateHubIframeSrc(
     'deposit',
     ctx.req.headers.cookie
   )
-  const user = await userService.me(ctx.req.headers.cookie)
 
-  if (!response.success || !response.result || !user.success) {
+  if (!response.success || !response.result) {
     return {
       notFound: true
     }

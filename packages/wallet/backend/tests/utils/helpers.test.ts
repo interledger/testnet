@@ -1,4 +1,4 @@
-import { applyScale } from '@/utils/helpers'
+import { applyScale, transformBalance } from '@/utils/helpers'
 
 describe('Utils Helper Functions', (): void => {
   describe('applyScale', (): void => {
@@ -17,6 +17,18 @@ describe('Utils Helper Functions', (): void => {
 
     it('should use default scale if not provided', (): void => {
       expect(applyScale(1000)).toBe(10)
+    })
+  })
+
+  describe('transformBalance', (): void => {
+    it('should not lose a cent to floating point error', (): void => {
+      expect(transformBalance(19.99, 2)).toBe(1999n)
+      expect(transformBalance(1.13, 2)).toBe(113n)
+      expect(transformBalance(0.29, 2)).toBe(29n)
+    })
+
+    it('should floor values below the asset scale', (): void => {
+      expect(transformBalance(19.999, 2)).toBe(1999n)
     })
   })
 })
