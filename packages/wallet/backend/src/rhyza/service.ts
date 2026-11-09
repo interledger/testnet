@@ -19,7 +19,8 @@ export enum EventType {
   PaymentIntentCompleted = 'payment_intent.completed',
   PaymentCreated = 'payment.created',
   PaymentCompleted = 'payment.completed',
-  PaymentFailed = 'payment.failed'
+  PaymentFailed = 'payment.failed',
+  GrantRevoked = 'grant.revoked'
 }
 
 export interface WebHook {
@@ -68,6 +69,11 @@ export class RhyzaService implements IRhyzaService {
         break
       case EventType.PaymentFailed:
         await this.handlePaymentFailed(wh)
+        break
+      case EventType.GrantRevoked:
+        this.logger.info(
+          `Grant revoked webhook received with id ${wh.id}, grant id ${wh.data.id} and status ${wh.data.status}`
+        )
         break
     }
   }

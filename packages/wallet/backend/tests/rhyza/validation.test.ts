@@ -15,7 +15,9 @@ describe('Rhyza webhook validation', () => {
     const result = webhookBodySchema.safeParse({ body: event })
 
     expect(result.success).toBe(true)
-    expect(result.data?.body.data.metadata).toEqual({ type: 'instant' })
+    expect(result.data?.body).toMatchObject({
+      data: { metadata: { type: 'instant' } }
+    })
   })
 
   it('should accept a payment failed event', () => {
@@ -60,5 +62,93 @@ describe('Rhyza webhook validation', () => {
     })
 
     expect(result.success).toBe(true)
+  })
+
+  const createGrantRevokedEvent = (
+    limits: Record<string, string | number>,
+    client?: string | Record<string, string>
+  ) => ({
+    id: '86f1c0c6-53d7-4e15-88e7-110ad7f35c11',
+    type: 'grant.revoked',
+    data: {
+      id: '5f8ad5a1-d4e2-4595-8f02-d68a69055945',
+      createdAt: '2026-01-01T00:00:00Z',
+      status: 'PROCESSING',
+      access: [
+        {
+          type: 'INCOMING_PAYMENT',
+          actions: ['CREATE'],
+          identifier: 'identifier',
+          limits
+        }
+      ],
+      client,
+      subjectIds: [
+        {
+          format: 'format',
+          id: 'subject-id'
+        }
+      ]
+    }
+  })
+
+  it.each([
+    [
+      'receiveAmount with string client',
+      {
+        receiver: 'receiver',
+        assetCode: 'USD',
+        assetScale: 2,
+        receiveAmount: '1000'
+      },
+      'client-id'
+    ],
+    [
+      'debitAmount with JWK client',
+      {
+        receiver: 'receiver',
+        assetCode: 'USD',
+        assetScale: 2,
+        debitAmount: '1000'
+      },
+      {
+        alg: 'ES256',
+        crv: 'P-256',
+        kid: 'key-id',
+        kty: 'EC',
+        use: 'sig',
+        x: 'public-key'
+      }
+    ],
+    [
+      'both amount limits without client',
+      {
+        receiver: 'receiver',
+        assetCode: 'USD',
+        assetScale: 2,
+        debitAmount: '1000',
+        receiveAmount: '1000'
+      },
+      undefined
+    ]
+  ])(
+    'should accept a grant revoked event with %s',
+    (_description, limits, client) => {
+      const event = createGrantRevokedEvent(limits, client)
+      const result = webhookBodySchema.safeParse({ body: event })
+
+      expect(result.success).toBe(true)
+    }
+  )
+
+  it('should reject a grant revoked event when neither amount limit is provided', () => {
+    const event = createGrantRevokedEvent({
+      receiver: 'receiver',
+      assetCode: 'USD',
+      assetScale: 2
+    })
+    const result = webhookBodySchema.safeParse({ body: event })
+
+    expect(result.success).toBe(false)
   })
 })
