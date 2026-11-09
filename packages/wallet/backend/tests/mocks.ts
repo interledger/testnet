@@ -477,19 +477,18 @@ export function mockPaymentCompletedEvent(
 export function mockPaymentFailedEvent(
   overrides?: Partial<RhyzaWebHook>
 ): RhyzaWebhookType {
-  return mockPaymentCompletedEvent({
+  return {
+    id: faker.string.uuid(),
     type: RhyzaEventType.PaymentFailed,
     ...overrides,
     data: {
-      state: 'FAILED',
-      sentAmount: {
-        value: '0',
-        assetCode: 'USD',
-        assetScale: 2
-      },
+      id: faker.string.uuid(),
+      paymentIntentId: faker.string.uuid(),
+      errorName: 'PaymentIntentInvalidState',
+      message: 'Payment intent is in an invalid state for payment: COMPLETED',
       ...overrides?.data
     }
-  })
+  }
 }
 
 export function mockIncomingPaymentRequest(

@@ -55,12 +55,21 @@ export const paymentIntentWebhookSchema = z.object({
 
 export const paymentWebhookSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-  type: z.enum([
-    EventType.PaymentCompleted,
-    EventType.PaymentFailed,
-    EventType.PaymentCreated
-  ]),
+  type: z.enum([EventType.PaymentCompleted, EventType.PaymentCreated]),
   data: paymentSchema
+})
+
+export const paymentFailedWebhookSchema = z.object({
+  id: z.string({ required_error: 'id is required' }),
+  type: z.literal(EventType.PaymentFailed),
+  data: z.object({
+    id: z.string().uuid(),
+    paymentIntentId: z.string().uuid(),
+    errorName: z.string(),
+    message: z.string(),
+    walletAddressId: z.string().uuid().optional(),
+    sentAmount: amountSchema.optional()
+  })
 })
 
 const limitsBaseSchema = z.object({
@@ -148,6 +157,7 @@ export const grantRevokedWebhookSchema = z.object({
 export const webhookSchema = z.discriminatedUnion('type', [
   paymentIntentWebhookSchema,
   paymentWebhookSchema,
+  paymentFailedWebhookSchema,
   grantRevokedWebhookSchema
 ])
 
