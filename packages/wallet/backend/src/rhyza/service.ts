@@ -3,7 +3,7 @@ import { Logger } from 'winston'
 import { ISecondParty } from '@/transaction/service'
 import { TransactionService } from '@/transaction/service'
 import { WalletAddressService } from '@/walletAddress/service'
-import { BadRequest } from '@shared/backend'
+import { BadRequest, BaseError } from '@shared/backend'
 import { AccountService } from '@/account/service'
 import { GateHubClient } from '@/gatehub/client'
 import { SocketService } from '@/socket/service'
@@ -35,6 +35,9 @@ export interface AmountJSON {
   assetCode: string
   assetScale: number
 }
+
+const isPermanentError = (e: unknown) =>
+  e instanceof BaseError && e.statusCode < 500
 
 interface IRhyzaService {
   onWebHook: (wh: WebhookType) => Promise<void>
@@ -262,13 +265,17 @@ export class RhyzaService implements IRhyzaService {
   }
 
   private async handlePaymentFailed(wh: WebHook) {
-    const sentAmount = this.parseAmount(wh.data.sentAmount as AmountJSON)
+    this.logger.info(
+      `Payment ${wh.data.id} failed: ${wh.data.errorName} - ${wh.data.message}`
+    )
 
-    if (BigInt(sentAmount.value) <= 0n) {
-      await this.transactionService.updateTransaction(
-        { paymentId: wh.data.id },
-        { status: 'FAILED', value: 0n }
-      )
+    // Only present once funds have moved
+    const sentAmount = wh.data.sentAmount
+      ? this.parseAmount(wh.data.sentAmount as AmountJSON)
+      : undefined
+
+    if (!sentAmount || BigInt(sentAmount.value) <= 0n) {
+      await this.markTransactionFailed(wh.data.id)
       return
     }
 
@@ -284,7 +291,7 @@ export class RhyzaService implements IRhyzaService {
     )
 
     await this.transactionService.updateTransaction(
-      { paymentId: wh.data.id },
+      { paymentId: wh.data.id, status: 'PENDING' },
       { status: 'COMPLETED', value: BigInt(sentAmount.value) }
     )
 
@@ -315,19 +322,45 @@ export class RhyzaService implements IRhyzaService {
     )
   }
 
+  private async markTransactionFailed(paymentId: string) {
+    // payment.failed can arrive for an already finished payment
+    await this.transactionService.updateTransaction(
+      { paymentId, status: 'PENDING' },
+      { status: 'FAILED', value: 0n }
+    )
+  }
+
+  private async cancelPayment(wh: WebHook, reason: string) {
+    await this.rhyzaAdminClient.cancelPayment({
+      paymentIntentId: wh.data.paymentIntentId,
+      id: wh.data.id,
+      reason
+    })
+    await this.markTransactionFailed(wh.data.id)
+  }
+
   private async handlePaymentCreated(wh: WebHook) {
+    try {
+      await this.approveOrCancelPayment(wh)
+    } catch (e) {
+      // 4xx responses aren't redelivered, so cancel instead of leaving the payment in CREATED
+      if (!isPermanentError(e)) throw e
+
+      this.logger.warn(
+        `Payment ${wh.data.id} could not be processed, cancelling: ${(e as Error).message}`
+      )
+      await this.cancelPayment(wh, 'Payment could not be processed')
+    }
+  }
+
+  private async approveOrCancelPayment(wh: WebHook) {
     const walletAddress = await this.getWalletAddress(wh)
     const amount = this.getAmountFromWebhook(wh)
     const { gateHubWalletId, gateHubUserId } =
       await this.accountService.getGateHubWalletAddress(walletAddress)
 
     if (!this.validateAmount(amount, wh.type)) {
-      await this.rhyzaAdminClient.cancelPayment({
-        paymentIntentId: wh.data.paymentIntentId,
-        id: wh.data.id,
-        reason: 'Invalid amount'
-      })
-
+      await this.cancelPayment(wh, 'Invalid amount')
       return
     }
 
@@ -352,15 +385,7 @@ export class RhyzaService implements IRhyzaService {
       this.logger.info(
         `Insufficient funds. Payment amount ${amountValue}, balance ${balance}`
       )
-      await this.rhyzaAdminClient.cancelPayment({
-        paymentIntentId: wh.data.paymentIntentId,
-        id: wh.data.id,
-        reason: 'Insufficient funds'
-      })
-      await this.transactionService.updateTransaction(
-        { paymentId: wh.data.id },
-        { status: 'FAILED', value: 0n }
-      )
+      await this.cancelPayment(wh, 'Insufficient funds')
       return
     }
 

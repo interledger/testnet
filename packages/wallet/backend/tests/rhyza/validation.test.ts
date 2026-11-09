@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import { webhookBodySchema } from '@/rhyza/validation'
 import {
   mockPaymentCompletedEvent,
@@ -20,12 +21,34 @@ describe('Rhyza webhook validation', () => {
     })
   })
 
-  it('should accept a payment failed event', () => {
+  it('should accept a payment failed event without amounts or wallet address', () => {
     const result = webhookBodySchema.safeParse({
       body: mockPaymentFailedEvent()
     })
 
     expect(result.success).toBe(true)
+  })
+
+  it('should accept a payment failed event with a sent amount', () => {
+    const result = webhookBodySchema.safeParse({
+      body: mockPaymentFailedEvent({
+        data: {
+          walletAddressId: faker.string.uuid(),
+          sentAmount: { value: '500', assetCode: 'USD', assetScale: 2 }
+        }
+      })
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject a payment created event without a payment intent id', () => {
+    const event = mockPaymentCreatedEvent()
+    delete (event.data as { paymentIntentId?: string }).paymentIntentId
+
+    const result = webhookBodySchema.safeParse({ body: event })
+
+    expect(result.success).toBe(false)
   })
 
   it('should still accept a payment intent completed event', () => {

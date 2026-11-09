@@ -9,6 +9,8 @@ import type { SocketService } from '@/socket/service'
 import type { Env } from '@/config/env'
 import type { RhyzaAdminClient } from '@/rhyza/admin-client'
 import MessageType from '@/socket/messageType'
+import { BadRequest, Conflict } from '@shared/backend'
+import { RhyzaServerError } from '@/rhyza/http-client'
 import {
   mockPaymentCompletedEvent,
   mockPaymentCreatedEvent,
@@ -122,7 +124,7 @@ describe('Rhyza Service', () => {
 
       expect(
         walletAddressService.findByIdWithoutValidation
-      ).toHaveBeenCalledWith(paymentIntentEvent.data.walletAddressId)
+      ).toHaveBeenCalledWith(walletAddress.id)
       expect(transactionService.createIncomingTransaction).toHaveBeenCalledWith(
         paymentIntentEvent.data,
         walletAddress
@@ -369,20 +371,38 @@ describe('Rhyza Service', () => {
       expect(transactionService.updateTransaction).not.toHaveBeenCalled()
     })
 
-    it('should mark a failed payment with nothing sent as failed', async () => {
+    it('should mark a failed payment without a sent amount as failed', async () => {
       const paymentEvent = mockPaymentFailedEvent({
-        data: { id: 'payment-id', walletAddressId: walletAddress.id }
+        data: { id: 'payment-id' }
       })
 
       await service.onWebHook(paymentEvent)
 
       expect(transactionService.updateTransaction).toHaveBeenCalledTimes(1)
       expect(transactionService.updateTransaction).toHaveBeenCalledWith(
-        { paymentId: 'payment-id' },
+        { paymentId: 'payment-id', status: 'PENDING' },
         { status: 'FAILED', value: 0n }
       )
       expect(gateHubClient.createTransaction).not.toHaveBeenCalled()
       expect(socketService.emitMoneySentByUserId).not.toHaveBeenCalled()
+    })
+
+    it('should mark a failed payment with a zero sent amount as failed', async () => {
+      const paymentEvent = mockPaymentFailedEvent({
+        data: {
+          id: 'payment-id',
+          walletAddressId: walletAddress.id,
+          sentAmount: { value: '0', assetCode: 'USD', assetScale: 2 }
+        }
+      })
+
+      await service.onWebHook(paymentEvent)
+
+      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
+        { paymentId: 'payment-id', status: 'PENDING' },
+        { status: 'FAILED', value: 0n }
+      )
+      expect(gateHubClient.createTransaction).not.toHaveBeenCalled()
     })
 
     it('should settle the sent amount of a partially sent failed payment', async () => {
@@ -413,7 +433,7 @@ describe('Rhyza Service', () => {
       )
       expect(transactionService.updateTransaction).toHaveBeenCalledTimes(1)
       expect(transactionService.updateTransaction).toHaveBeenCalledWith(
-        { paymentId: 'payment-id' },
+        { paymentId: 'payment-id', status: 'PENDING' },
         { status: 'COMPLETED', value: 500n }
       )
     })
@@ -438,36 +458,6 @@ describe('Rhyza Service', () => {
       )
 
       expect(transactionService.updateTransaction).not.toHaveBeenCalled()
-    })
-
-    it('should settle a partially sent failed payment regardless of its debit amount', async () => {
-      const paymentEvent = mockPaymentFailedEvent({
-        data: {
-          id: 'payment-id',
-          walletAddressId: walletAddress.id,
-          debitAmount: {
-            value: '0',
-            assetCode: 'USD',
-            assetScale: 2
-          },
-          sentAmount: {
-            value: '500',
-            assetCode: 'USD',
-            assetScale: 2
-          }
-        }
-      })
-
-      await service.onWebHook(paymentEvent)
-
-      expect(gateHubClient.createTransaction).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 5 }),
-        'gatehub-user-id'
-      )
-      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
-        { paymentId: 'payment-id' },
-        { status: 'COMPLETED', value: 500n }
-      )
     })
 
     it('should create the outgoing transaction and approve a payment', async () => {
@@ -516,9 +506,151 @@ describe('Rhyza Service', () => {
         reason: 'Insufficient funds'
       })
       expect(transactionService.updateTransaction).toHaveBeenCalledWith(
-        { paymentId: 'payment-id' },
+        { paymentId: 'payment-id', status: 'PENDING' },
         { status: 'FAILED', value: 0n }
       )
+      expect(rhyzaAdminClient.approvePayment).not.toHaveBeenCalled()
+    })
+
+    it('should cancel a payment with a zero amount', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id,
+          debitAmount: { value: '0', assetCode: 'USD', assetScale: 2 }
+        }
+      })
+
+      await service.onWebHook(paymentEvent)
+
+      expect(rhyzaAdminClient.cancelPayment).toHaveBeenCalledWith({
+        paymentIntentId: 'payment-intent-id',
+        id: 'payment-id',
+        reason: 'Invalid amount'
+      })
+      expect(rhyzaAdminClient.approvePayment).not.toHaveBeenCalled()
+    })
+
+    it('should cancel and fail a payment that Rhyza rejects on approval', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      rhyzaAdminClient.approvePayment.mockRejectedValue(
+        new Conflict('Payment intent is in an invalid state')
+      )
+
+      await service.onWebHook(paymentEvent)
+
+      expect(rhyzaAdminClient.cancelPayment).toHaveBeenCalledWith({
+        paymentIntentId: 'payment-intent-id',
+        id: 'payment-id',
+        reason: 'Payment could not be processed'
+      })
+      expect(transactionService.updateTransaction).toHaveBeenCalledWith(
+        { paymentId: 'payment-id', status: 'PENDING' },
+        { status: 'FAILED', value: 0n }
+      )
+    })
+
+    it('should cancel a payment from a wallet without a GateHub account', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      accountService.getGateHubWalletAddress.mockRejectedValue(
+        new BadRequest('No account associated to the provided wallet address')
+      )
+
+      await service.onWebHook(paymentEvent)
+
+      expect(rhyzaAdminClient.cancelPayment).toHaveBeenCalledWith({
+        paymentIntentId: 'payment-intent-id',
+        id: 'payment-id',
+        reason: 'Payment could not be processed'
+      })
+      expect(rhyzaAdminClient.approvePayment).not.toHaveBeenCalled()
+    })
+
+    it('should rethrow when a rejected payment cannot be cancelled', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      rhyzaAdminClient.approvePayment.mockRejectedValue(
+        new Conflict('Payment is already complete')
+      )
+      rhyzaAdminClient.cancelPayment.mockRejectedValue(
+        new Conflict('Payment is already complete')
+      )
+
+      await expect(service.onWebHook(paymentEvent)).rejects.toBeInstanceOf(
+        Conflict
+      )
+      expect(transactionService.updateTransaction).not.toHaveBeenCalled()
+    })
+
+    it('should rethrow without cancelling when Rhyza fails with a server error', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      rhyzaAdminClient.approvePayment.mockRejectedValue(
+        new RhyzaServerError(503, 'Service Unavailable')
+      )
+
+      await expect(service.onWebHook(paymentEvent)).rejects.toBeInstanceOf(
+        RhyzaServerError
+      )
+      expect(rhyzaAdminClient.cancelPayment).not.toHaveBeenCalled()
+    })
+
+    it('should rethrow without cancelling when approval fails temporarily', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      rhyzaAdminClient.approvePayment.mockRejectedValue(
+        new Error('Rhyza POST /approve timed out')
+      )
+
+      await expect(service.onWebHook(paymentEvent)).rejects.toThrow('timed out')
+      expect(rhyzaAdminClient.cancelPayment).not.toHaveBeenCalled()
+      expect(transactionService.updateTransaction).not.toHaveBeenCalled()
+    })
+
+    it('should rethrow without cancelling when the GateHub lookup fails', async () => {
+      const paymentEvent = mockPaymentCreatedEvent({
+        data: {
+          id: 'payment-id',
+          paymentIntentId: 'payment-intent-id',
+          walletAddressId: walletAddress.id
+        }
+      })
+      accountService.getGateHubWalletAddress.mockRejectedValue(
+        new Error('GateHub unavailable')
+      )
+
+      await expect(service.onWebHook(paymentEvent)).rejects.toThrow(
+        'GateHub unavailable'
+      )
+      expect(rhyzaAdminClient.cancelPayment).not.toHaveBeenCalled()
       expect(rhyzaAdminClient.approvePayment).not.toHaveBeenCalled()
     })
 
