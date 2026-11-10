@@ -110,6 +110,7 @@ tests:
               port: 50051
             log:
               level: debug
+              payloads: false
             start_timeout_ms: 15000
             stop_timeout_ms: 10000
 

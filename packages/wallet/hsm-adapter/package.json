@@ -14,6 +14,7 @@
     "dev:merchant": "tsx src/merchant.ts"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.14.1",
     "@connectrpc/connect": "^2.2.0",
     "@interledger/hsm-atalla-issuer": "0.5.0",
     "@interledger/hsm-atalla-merchant": "0.5.0",

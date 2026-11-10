@@ -3,7 +3,12 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
-import { Code, ConnectError } from '@connectrpc/connect'
+import { create } from '@bufbuild/protobuf'
+import { Code, ConnectError, createConnectRouter } from '@connectrpc/connect'
+import {
+  AtallaMerchantService,
+  createMerchantConnectRoutes
+} from '@interledger/hsm-atalla-merchant'
 import type {
   AtallaHealthCheckResult,
   AtallaResponse,
@@ -311,6 +316,7 @@ test('logCalls logs the RPC name, duration and code at debug, never the payload'
   const interceptor = logCalls(recordingLogger(record))
   const request = {
     method: { name: 'TranslatePin' },
+    header: new Headers(),
     message: { pinBlock: 'secret' }
   } as never
 
@@ -339,6 +345,184 @@ test('logCalls logs the RPC name, duration and code at debug, never the payload'
   assert.ok(logged.every((l) => typeof l.ms === 'number'))
   assert.ok(record.lines.every((l) => l.level === 'debug'))
   assert.ok(!JSON.stringify(record.lines).includes('secret'))
+})
+
+test('logCalls logs the x-request-id header as request_id', async () => {
+  const record: Recorded = { lines: [] }
+  const call = logCalls(recordingLogger(record))(
+    async () => ({ message: {} }) as never
+  )
+  const request = (header: Headers) =>
+    ({ method: { name: 'TranslatePin' }, header, message: {} }) as never
+
+  await call(request(new Headers({ 'x-request-id': 'pos-42' })))
+  await call(request(new Headers()))
+
+  const [tagged, untagged] = record.lines.map((l) => l.obj)
+  assert.equal((tagged as { request_id?: string }).request_id, 'pos-42')
+  assert.ok(!('request_id' in untagged))
+})
+
+test('createLogger tags every line logged during a call with its request_id', async () => {
+  const lines: { msg: string; request_id?: string }[] = []
+  const logger = createLogger(
+    readConfig('merchant', configEnv('log:\n  level: debug\n')),
+    { write: (line) => lines.push(JSON.parse(line)) }
+  )
+  const call = logCalls(logger)(async () => {
+    logger.debug({}, 'hsm rpc start')
+    await new Promise((resolve) => setImmediate(resolve))
+    logger.info({}, 'hsm rpc ok')
+    return { message: {} } as never
+  })
+
+  await call({
+    method: { name: 'TranslatePin' },
+    header: new Headers({ 'x-request-id': 'pos-42' }),
+    message: {}
+  } as never)
+  logger.info({}, 'after the call')
+
+  assert.deepEqual(
+    lines.map((l) => [l.msg, l.request_id]),
+    [
+      ['hsm rpc start', 'pos-42'],
+      ['hsm rpc ok', 'pos-42'],
+      ['grpc call done', 'pos-42'],
+      ['after the call', undefined]
+    ]
+  )
+})
+
+function translatePinCall() {
+  const router = createConnectRouter()
+  createMerchantConnectRoutes(new AtallaMerchantService(new FakeTransport([])))(
+    router
+  )
+  const method = router.handlers.find(
+    (h) => h.method.name === 'TranslatePin'
+  )!.method
+  if (method.methodKind !== 'unary') throw new Error('TranslatePin is unary')
+  const request = {
+    stream: false,
+    method,
+    header: new Headers({ 'x-request-id': 'pos-42' }),
+    message: create(method.input, {
+      pan: '4111111111111111',
+      pinBlock: Uint8Array.of(1, 2, 3)
+    })
+  } as never
+  const ok = async () =>
+    ({
+      stream: false,
+      method,
+      message: create(method.output, { pinBlock: Uint8Array.of(9) })
+    }) as never
+  const failing = async () => {
+    throw new ConnectError('hsm down', Code.Unavailable)
+  }
+  return { request, ok, failing }
+}
+
+test('logCalls logs request and response payloads as protobuf JSON when payload logging is on', async () => {
+  const record: Recorded = { lines: [] }
+  const interceptor = logCalls(recordingLogger(record), true)
+  const { request, ok, failing } = translatePinCall()
+
+  await interceptor(ok)(request)
+  await assert.rejects(interceptor(failing)(request), /hsm down/)
+
+  assert.ok(record.lines.every((l) => l.level === 'debug'))
+  assert.deepEqual(
+    record.lines.map((l) => {
+      const { ms, ...rest } = l.obj as { ms?: number }
+      return [l.msg, typeof ms, rest]
+    }),
+    [
+      [
+        'grpc call start',
+        'undefined',
+        {
+          request_id: 'pos-42',
+          rpc: 'TranslatePin',
+          request: { pan: '4111111111111111', pinBlock: 'AQID' }
+        }
+      ],
+      [
+        'grpc call done',
+        'number',
+        {
+          request_id: 'pos-42',
+          rpc: 'TranslatePin',
+          code: 'OK',
+          response: { pinBlock: 'CQ==' }
+        }
+      ],
+      [
+        'grpc call start',
+        'undefined',
+        {
+          request_id: 'pos-42',
+          rpc: 'TranslatePin',
+          request: { pan: '4111111111111111', pinBlock: 'AQID' }
+        }
+      ],
+      [
+        'grpc call done',
+        'number',
+        {
+          request_id: 'pos-42',
+          rpc: 'TranslatePin',
+          code: 'Unavailable',
+          err: 'hsm down'
+        }
+      ]
+    ]
+  )
+})
+
+test('logCalls logs no payload, response or error message when payload logging is off', async () => {
+  const record: Recorded = { lines: [] }
+  const interceptor = logCalls(recordingLogger(record), false)
+  const { request, ok, failing } = translatePinCall()
+
+  await interceptor(ok)(request)
+  await assert.rejects(interceptor(failing)(request), /hsm down/)
+
+  assert.deepEqual(
+    record.lines.map((l) => [l.msg, Object.keys(l.obj)]),
+    [
+      ['grpc call done', ['request_id', 'rpc', 'ms', 'code']],
+      ['grpc call done', ['request_id', 'rpc', 'ms', 'code']]
+    ]
+  )
+})
+
+test('main logs payloads only when log.payloads is true', async () => {
+  for (const [extra, logged] of [
+    ['', false],
+    ['log:\n  payloads: true\n', true]
+  ] as const) {
+    const { done, record, config } = run(
+      new FakeServer(),
+      new FakeProcess(configEnv(extra))
+    )
+    await done
+    const { request, ok } = translatePinCall()
+    await config()!.interceptors[0](ok)(request)
+    assert.equal(
+      record.lines.some((l) => l.msg === 'grpc call start'),
+      logged
+    )
+  }
+})
+
+test('readConfig turns payload logging on only when log.payloads is true', () => {
+  assert.equal(readConfig('merchant', env).logPayloads, false)
+  assert.equal(
+    readConfig('merchant', configEnv('log:\n  payloads: true\n')).logPayloads,
+    true
+  )
 })
 
 test('withTimeout passes a result through and rejects a slow promise', async () => {

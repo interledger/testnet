@@ -446,6 +446,8 @@ services:
 hsmAdapter:
   imagePullPolicy: IfNotPresent
   logLevel: info
+  # Logs each gRPC request and response at debug, unredacted. Local debugging only.
+  logPayloads: false
   # Exit when the HSM does not answer within this time.
   startTimeoutMs: 15000
   stopTimeoutMs: 10000
