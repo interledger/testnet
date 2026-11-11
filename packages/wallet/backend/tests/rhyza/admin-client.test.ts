@@ -1,6 +1,10 @@
 import { BadRequest, Conflict, NotFound } from '@shared/backend'
 import { HttpClient } from '@/rhyza/http-client'
-import { RhyzaAdminClient, ListPaymentsResponse } from '@/rhyza/admin-client'
+import {
+  RhyzaAdminClient,
+  ListGrantsResponse,
+  ListPaymentsResponse
+} from '@/rhyza/admin-client'
 import { lastRequest, mockAdapter, mockLogger, respond } from './helpers'
 
 describe('RhyzaAdminClient', () => {
@@ -247,6 +251,78 @@ describe('RhyzaAdminClient', () => {
         first: 100,
         sortOrder: 'desc'
       })
+    })
+  })
+
+  describe('listGrants', () => {
+    it('GETs grants with the given query parameters and returns the pagination response', async () => {
+      const response: ListGrantsResponse = {
+        result: [],
+        pagination: {
+          startCursor: 'start',
+          endCursor: 'end',
+          hasNextPage: true,
+          hasPreviousPage: false
+        }
+      }
+      adapter.mockImplementationOnce(respond(200, response))
+
+      await expect(
+        client.listGrants({
+          walletAddress: 'https://ilp.test/alice',
+          state: 'ISSUED',
+          cursor: 'end',
+          first: 10,
+          sortOrder: 'desc'
+        })
+      ).resolves.toEqual(response)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/grants')
+      expect(request.params).toEqual({
+        walletAddress: 'https://ilp.test/alice',
+        state: 'ISSUED',
+        cursor: 'end',
+        first: 10,
+        sortOrder: 'desc'
+      })
+    })
+  })
+
+  describe('getGrant', () => {
+    it('GETs /grants/:id with the id encoded', async () => {
+      const grant = {
+        id: 'grant/1',
+        createdAt: '2026-10-28T11:00:00.000Z',
+        state: 'ISSUED'
+      }
+      adapter.mockImplementationOnce(respond(200, grant))
+
+      await expect(client.getGrant('grant/1')).resolves.toEqual(grant)
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('GET')
+      expect(request.url).toBe('http://admin.test/grants/grant%2F1')
+    })
+
+    it('raises NotFound on 404', async () => {
+      adapter.mockImplementationOnce(respond(404, { error: 'Grant not found' }))
+
+      await expect(client.getGrant('grant-1')).rejects.toBeInstanceOf(NotFound)
+    })
+  })
+
+  describe('revokeGrant', () => {
+    it('POSTs to /grants/:id/revoke without a body', async () => {
+      adapter.mockImplementationOnce(respond(200, { id: 'grant-1' }))
+
+      await expect(client.revokeGrant('grant-1')).resolves.toBeUndefined()
+
+      const request = lastRequest(adapter)
+      expect(request.method).toBe('POST')
+      expect(request.url).toBe('http://admin.test/grants/grant-1/revoke')
+      expect(request.body).toBeUndefined()
     })
   })
 

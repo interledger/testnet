@@ -12,6 +12,7 @@ import {
   WebHook as RhyzaWebHook
 } from '@/rhyza/service'
 import type { WebhookType as RhyzaWebhookType } from '@/rhyza/validation'
+import type { AdminGrant } from '@/rhyza/types'
 import {
   incomingPaymentSchema,
   paymentDetailsSchema
@@ -123,23 +124,20 @@ export const mockCreateAccountReq = {
   assetCode: mockedListAssets[0].code
 }
 
-export const mockedListGrant = [
+export const mockedListGrant: AdminGrant[] = [
   {
     id: faker.string.uuid(),
-    client: faker.lorem.slug(),
+    createdAt: new Date().toISOString(),
+    client: { walletAddress: faker.internet.url() },
     state: 'APPROVED',
-    access: [
+    accesses: [
       {
+        type: 'outgoing-payment',
+        actions: ['create', 'read'],
         identifier: faker.internet.url(),
         limits: {
-          receiver: null,
           debitAmount: {
             value: '12425',
-            assetCode: 'USD',
-            assetScale: 2
-          },
-          receiveAmount: {
-            value: '12300',
             assetCode: 'USD',
             assetScale: 2
           },
@@ -150,28 +148,16 @@ export const mockedListGrant = [
   },
   {
     id: faker.string.uuid(),
-    client: faker.lorem.slug(),
-    state: 'FINALIZED',
-    access: [
+    createdAt: new Date().toISOString(),
+    client: faker.internet.url(),
+    state: 'REJECTED',
+    subjectIds: [{ format: 'uri', id: faker.internet.url() }],
+    accesses: [
       {
-        identifier: faker.internet.url(),
-        limits: {
-          receiver: null,
-          debitAmount: {
-            value: '12425',
-            assetCode: 'USD',
-            assetScale: 2
-          },
-          receiveAmount: {
-            value: '12300',
-            assetCode: 'USD',
-            assetScale: 2
-          },
-          interval: 'R/2016-08-23T08:00:00Z/P2Y'
-        }
+        type: 'incoming-payment',
+        actions: ['read']
       }
-    ],
-    finalizationReason: 'REJECTED'
+    ]
   }
 ]
 

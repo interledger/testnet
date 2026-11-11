@@ -6,7 +6,9 @@ import {
   Payment,
   Pagination,
   Quote,
-  PaymentState
+  PaymentState,
+  AdminGrant,
+  GrantState
 } from '@/rhyza/types'
 
 interface AssetCreateResponse {
@@ -43,6 +45,20 @@ export type ListPaymentsArgs = {
 
 export interface ListPaymentsResponse {
   result: Payment[]
+  pagination: Pagination
+}
+
+export type ListGrantsArgs = {
+  walletAddress: string
+  state?: GrantState
+  cursor?: string
+  first?: number
+  last?: number
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface ListGrantsResponse {
+  result: AdminGrant[]
   pagination: Pagination
 }
 
@@ -236,6 +252,20 @@ export class RhyzaAdminClient {
   async getQuoteById(paymentIntentId: string, quoteId: string): Promise<Quote> {
     return this.http.get<Quote>(
       `/payment-intents/${encodeURIComponent(paymentIntentId)}/quotes/${encodeURIComponent(quoteId)}`
+    )
+  }
+
+  async listGrants(args: ListGrantsArgs): Promise<ListGrantsResponse> {
+    return this.http.get<ListGrantsResponse>('/grants', { params: args })
+  }
+
+  async getGrant(id: string): Promise<AdminGrant> {
+    return this.http.get<AdminGrant>(`/grants/${encodeURIComponent(id)}`)
+  }
+
+  async revokeGrant(id: string): Promise<void> {
+    await this.http.post<{ id: string }>(
+      `/grants/${encodeURIComponent(id)}/revoke`
     )
   }
 }

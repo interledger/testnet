@@ -9,15 +9,16 @@ import { Table } from '@/ui/Table'
 import {
   formatDateNoTime,
   formatDateOnlyTime,
+  replaceCardWalletAddressDomain,
   replaceWalletAddressProtocol
 } from '@/utils/helpers'
-import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { IconButton } from '@/ui/IconButton'
 import { Play } from '@/components/icons/Play'
-import { cx } from 'class-variance-authority'
 import { useMemo, useState, Fragment } from 'react'
-import { grantsService } from '@/lib/api/grants'
+import { walletAddressService } from '@/lib/api/walletAddress'
+import { Select, SelectOption } from '@/ui/forms/Select'
 import { GrantResponse } from '@wallet/shared'
+import { GrantStatusBadge } from '@/components/GrantStatusBadge'
 import { GrantDetailsDialog } from '@/components/dialogs/GrantDetailsDialog'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next/types'
 import { userService } from '@/lib/api/user'
@@ -25,24 +26,87 @@ import { formatAmount } from '@/utils/helpers'
 
 type GrantsPageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
-const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
+const states: SelectOption[] = [
+  { label: 'All', value: '' },
+  { label: 'Approved', value: 'ISSUED' },
+  { label: 'Pending', value: 'PENDING' },
+  { label: 'Awaiting client', value: 'APPROVED' },
+  { label: 'Processing', value: 'PROCESSING' },
+  { label: 'Rejected', value: 'REJECTED' },
+  { label: 'Revoked', value: 'REVOKED' }
+]
+
+// Cursors are only valid for the filters they were issued for
+const resetPaging = { cursor: '', direction: '' }
+
+const GrantsPage: NextPageWithLayout<GrantsPageProps> = ({
+  walletAddresses
+}) => {
   const redirect = useRedirect<GrantListArgs>({
     path: '/grants',
     persistQuery: true
   })
-  const [grantsList, pagination, fetch, loading, error] = useGrants()
-  const grants = grantsList.grants
+  const walletAddressIds = useMemo(
+    () => walletAddresses.map(({ value }) => value),
+    [walletAddresses]
+  )
+  const [grantsList, filters, fetch, loading, error] =
+    useGrants(walletAddressIds)
+  const { grants, pageInfo } = grantsList
+
+  const currentWalletAddress = useMemo<SelectOption | undefined>(
+    () =>
+      walletAddresses.find(
+        (walletAddress) => walletAddress.value === filters.walletAddressId
+      ),
+    [walletAddresses, filters.walletAddressId]
+  )
+  const currentState = useMemo<SelectOption>(
+    () => states.find((state) => state.value === filters.state) ?? states[0],
+    [filters.state]
+  )
+
+  const goToPreviousPage = () => {
+    if (!pageInfo.hasPreviousPage || !pageInfo.startCursor) return
+    redirect({
+      walletAddressId: filters.walletAddressId,
+      cursor: pageInfo.startCursor,
+      direction: 'previous'
+    })
+  }
+  const goToNextPage = () => {
+    if (!pageInfo.hasNextPage || !pageInfo.endCursor) return
+    redirect({
+      walletAddressId: filters.walletAddressId,
+      cursor: pageInfo.endCursor,
+      direction: 'next'
+    })
+  }
+
+  // A revoked grant drops out of a status filter, which could empty this page
+  const handleRevoked = () => {
+    const pageWouldEmpty =
+      grants.length === 1 &&
+      !!filters.cursor &&
+      !!filters.state &&
+      filters.state !== 'REVOKED'
+
+    if (pageWouldEmpty) {
+      redirect({ walletAddressId: filters.walletAddressId, ...resetPaging })
+    } else {
+      fetch(filters)
+    }
+  }
 
   const [selectedGrant, setSelectedGrant] = useState<GrantResponse | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const handleRowClick = async (grantId: string) => {
-    const res = await grantsService.get(grantId)
-    if (res.success && res.result) {
-      formattedAmount(res.result)
-      setSelectedGrant(res.result)
-      setIsDialogOpen(true)
-    }
+  // Clone so formatting doesn't mutate list state
+  const handleRowClick = (grant: GrantResponse) => {
+    const selected = structuredClone(grant)
+    formattedAmount(selected)
+    setSelectedGrant(selected)
+    setIsDialogOpen(true)
   }
 
   const formattedAmount = (grant: GrantResponse) => {
@@ -67,26 +131,40 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
     })
   }
 
-  const totalPages = useMemo<number>(
-    () => Math.ceil(grants.pageInfo.totalCount / Number(pagination.pageSize)),
-    [grants.pageInfo.totalCount, pagination.pageSize]
-  )
-
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-
-  const morePagesDisplay = (
-    <>
-      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
-      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
-      <div className="bg-green-4 ring-green-3 mx-1 mt-6 h-1 w-1 rounded-full ring-1" />
-    </>
-  )
   let groupByDate = ''
 
   return (
     <div className="flex flex-col items-start justify-start space-y-5 lg:max-w-xl xl:max-w-5xl">
       <div className="flex items-center justify-between md:flex-col md:items-start md:justify-start">
         <PageHeader title="Grants" />
+      </div>
+      <div className="grid w-full grid-cols-4 gap-3 md:grid-cols-6">
+        <div className="col-span-4 md:col-span-3">
+          <Select
+            options={walletAddresses}
+            label="Wallet Address"
+            placeholder="Select wallet address..."
+            value={currentWalletAddress}
+            onChange={(option) => {
+              if (option) {
+                redirect({ walletAddressId: option.value, ...resetPaging })
+              }
+            }}
+          />
+        </div>
+        <div className="col-span-4 md:col-span-3">
+          <Select
+            options={states}
+            label="Status"
+            placeholder="Select status..."
+            value={currentState}
+            onChange={(option) => {
+              if (option) {
+                redirect({ state: option.value, ...resetPaging })
+              }
+            }}
+          />
+        </div>
       </div>
 
       {error ? (
@@ -95,7 +173,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
           <Button
             aria-label="refresh grants table"
             intent="outline"
-            onClick={() => fetch(pagination)}
+            onClick={() => fetch(filters)}
           >
             Refresh table
           </Button>
@@ -104,7 +182,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
         <Table.Shimmer />
       ) : (
         <div className="w-full" id="grantsList">
-          <Table>
+          <Table className="w-full">
             <Table.Head
               columns={['Date', 'Client', 'Status']}
               sort={[
@@ -112,32 +190,31 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                   header: 'Date',
                   sortFn: () => {
                     redirect({
-                      sortOrder:
-                        pagination.sortOrder === 'DESC' ? 'ASC' : 'DESC'
+                      sortOrder: filters.sortOrder === 'DESC' ? 'ASC' : 'DESC',
+                      ...resetPaging
                     })
                   },
                   getDirection: () => {
-                    return pagination.sortOrder === 'DESC' ? 'down' : 'up'
+                    return filters.sortOrder === 'DESC' ? 'down' : 'up'
                   }
                 }
               ]}
               hideForMobile={['Status']}
             />
             <Table.Body>
-              {grants.edges.length ? (
-                grants.edges.map((grant) => {
+              {grants.length ? (
+                grants.map((grant) => {
                   let showDateHeader = false
                   if (
-                    groupByDate !==
-                    formatDateNoTime({ date: grant.node.createdAt })
+                    groupByDate !== formatDateNoTime({ date: grant.createdAt })
                   ) {
                     groupByDate = formatDateNoTime({
-                      date: grant.node.createdAt
+                      date: grant.createdAt
                     })
                     showDateHeader = true
                   }
                   return (
-                    <Fragment key={grant.node.id}>
+                    <Fragment key={grant.id}>
                       {showDateHeader ? (
                         <Table.Row>
                           <Table.Cell className="bg-green-dark dark:bg-pink-dark text-white text-center text-sm rounded-xl !p-1">
@@ -150,39 +227,18 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
                         </Table.Row>
                       ) : null}
                       <Table.Row
-                        key={grant.node.id}
-                        onClick={() => handleRowClick(grant.node.id)}
+                        key={grant.id}
+                        onClick={() => handleRowClick(grant)}
                         className="cursor-pointer hover:bg-gray-100 dark:hover:bg-purple-dark transition"
                       >
                         <Table.Cell className="whitespace-nowrap">
-                          {formatDateOnlyTime({ date: grant.node.createdAt })}
+                          {formatDateOnlyTime({ date: grant.createdAt })}
                         </Table.Cell>
                         <Table.Cell className="whitespace-nowrap">
-                          {replaceWalletAddressProtocol(grant.node.client)}
+                          {replaceWalletAddressProtocol(grant.client)}
                         </Table.Cell>
                         <Table.Cell className="hidden sm:table-cell">
-                          {!grant.node.finalizationReason ? (
-                            <Badge
-                              intent={getStatusBadgeIntent(grant.node.state)}
-                              size="md"
-                              text={grant.node.state}
-                            />
-                          ) : null}
-                          {grant.node.finalizationReason ? (
-                            <Badge
-                              intent={getStatusBadgeIntent(
-                                grant.node.finalizationReason
-                              )}
-                              size="md"
-                              text={
-                                grant.node.finalizationReason === 'REVOKED'
-                                  ? 'REVOKED'
-                                  : grant.node.finalizationReason === 'ISSUED'
-                                    ? 'APPROVED'
-                                    : 'REJECTED'
-                              }
-                            />
-                          ) : null}
+                          <GrantStatusBadge grant={grant} />
                         </Table.Cell>
                       </Table.Row>
                     </Fragment>
@@ -191,7 +247,9 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
               ) : (
                 <Table.Row>
                   <Table.Cell colSpan={4} className="text-center">
-                    No grants found.
+                    {walletAddresses.length
+                      ? 'No grants found.'
+                      : 'Create a wallet address to see its grants.'}
                   </Table.Cell>
                 </Table.Row>
               )}
@@ -206,92 +264,34 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
             <Button
               className="hidden md:flex"
               aria-label="go to previous page"
-              disabled={Number(pagination.page) - 1 < 0}
-              onClick={() => {
-                const previousPage = Number(pagination.page) - 1
-                if (isNaN(previousPage) || previousPage < 0) return
-                redirect({
-                  page: previousPage.toString(),
-                  sortOrder: pagination.sortOrder
-                })
-              }}
+              disabled={!pageInfo.hasPreviousPage}
+              onClick={goToPreviousPage}
             >
               Previous
             </Button>
-            {totalPages !== 1 && (
-              <div className="flex w-full justify-center">
-                <IconButton
-                  className="mx-3 md:hidden"
-                  aria-label="go back"
-                  onClick={() => {
-                    const previousPage = Number(pagination.page) - 1
-                    if (isNaN(previousPage) || previousPage < 0) return
-                    redirect({
-                      page: previousPage.toString(),
-                      sortOrder: pagination.sortOrder
-                    })
-                  }}
-                >
-                  <Play className="h-4 w-4 rotate-180 text-green dark:text-pink-neon" />
-                </IconButton>
-                {pages.map((page) => {
-                  if (
-                    Math.abs(page - 1 - Number(pagination.page)) <= 1 ||
-                    page === 1 ||
-                    page === totalPages
-                  ) {
-                    return (
-                      <li key={page} className="list-none p-1">
-                        <Button
-                          intent="outline"
-                          className={cx(
-                            page - 1 === Number(pagination.page) &&
-                              'border-pink-dark text-pink-dark dark:border-teal-neon dark:text-teal-neon'
-                          )}
-                          aria-label={`go to page ${page}`}
-                          onClick={() => {
-                            redirect({
-                              page: page - 1,
-                              sortOrder: pagination.sortOrder
-                            })
-                          }}
-                        >
-                          {page}
-                        </Button>
-                      </li>
-                    )
-                  } else if (page === 2 || page === totalPages - 1) {
-                    return morePagesDisplay
-                  } else return null
-                })}
-                <IconButton
-                  className="mx-3 md:hidden"
-                  aria-label="go forward"
-                  onClick={() => {
-                    const nextPage = Number(pagination.page) + 1
-                    if (isNaN(nextPage) || nextPage > totalPages - 1) return
-                    redirect({
-                      page: nextPage.toString(),
-                      sortOrder: pagination.sortOrder
-                    })
-                  }}
-                >
-                  <Play className="h-4 w-4 text-green dark:text-pink-neon" />
-                </IconButton>
-              </div>
-            )}
+            <div className="flex w-full justify-center md:hidden">
+              <IconButton
+                className="mx-3"
+                aria-label="go back"
+                disabled={!pageInfo.hasPreviousPage}
+                onClick={goToPreviousPage}
+              >
+                <Play className="h-4 w-4 rotate-180 text-green dark:text-pink-neon" />
+              </IconButton>
+              <IconButton
+                className="mx-3"
+                aria-label="go forward"
+                disabled={!pageInfo.hasNextPage}
+                onClick={goToNextPage}
+              >
+                <Play className="h-4 w-4 text-green dark:text-pink-neon" />
+              </IconButton>
+            </div>
             <Button
               className="hidden md:flex"
               aria-label="go to next page"
-              disabled={Number(pagination.page) + 1 > totalPages - 1}
-              onClick={() => {
-                const nextPage = Number(pagination.page) + 1
-                if (isNaN(nextPage) || nextPage > totalPages - 1) return
-                redirect({
-                  page: nextPage.toString(),
-                  sortOrder: pagination.sortOrder
-                })
-              }}
+              disabled={!pageInfo.hasNextPage}
+              onClick={goToNextPage}
             >
               Next
             </Button>
@@ -302,6 +302,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
       {isDialogOpen && selectedGrant && (
         <GrantDetailsDialog
           grant={selectedGrant}
+          onRevoked={handleRevoked}
           onClose={() => setIsDialogOpen(false)}
         />
       )}
@@ -310,20 +311,39 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = () => {
 }
 
 export const getServerSideProps: GetServerSideProps<{
+  walletAddresses: SelectOption[]
   user: {
     isCardsVisible: boolean
   }
 }> = async (ctx) => {
-  const user = await userService.me(ctx.req.headers.cookie)
+  const [user, walletAddressesResponse] = await Promise.all([
+    userService.me(ctx.req.headers.cookie),
+    walletAddressService.listAll(ctx.req.headers.cookie)
+  ])
 
-  if (!user.success) {
+  if (
+    !user.success ||
+    !walletAddressesResponse.success ||
+    !walletAddressesResponse.result
+  ) {
     return {
       notFound: true
     }
   }
 
+  const walletAddresses = walletAddressesResponse.result.map(
+    (walletAddress) => ({
+      label: replaceCardWalletAddressDomain(
+        replaceWalletAddressProtocol(walletAddress.url),
+        walletAddress.isCard
+      ),
+      value: walletAddress.id
+    })
+  )
+
   return {
     props: {
+      walletAddresses,
       user: {
         isCardsVisible: user.result?.isCardsVisible ?? false
       }
