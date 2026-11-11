@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
+import { toJson } from '@bufbuild/protobuf'
 import { Code, ConnectError, type Interceptor } from '@connectrpc/connect'
 import {
   AtallaClient,
@@ -6,7 +8,7 @@ import {
   type AtallaTransportConfig,
   type Logger
 } from '@interledger/hsm-atalla-transport'
-import { pino } from 'pino'
+import { pino, type DestinationStream } from 'pino'
 import { readConfig, type AdapterConfig, type Env, type Role } from './config'
 
 export interface AdapterServer {
@@ -37,28 +39,37 @@ export interface Process {
   once(signal: NodeJS.Signals, handler: () => void): void
 }
 
-export function createLogger(config: AdapterConfig): Logger {
-  return pino({
-    level: config.logLevel,
-    base: { adapter: config.role },
-    redact: {
-      paths: [
-        'bdk',
-        'ksn',
-        'iv',
-        'pinBlock',
-        'pwk',
-        'pan',
-        'key',
-        'cipherData',
-        'dataKeyUnderLmk',
-        'pvk',
-        'pvv',
-        'offset'
-      ],
-      censor: '[REDACTED]'
-    }
-  })
+const callContext = new AsyncLocalStorage<{ request_id?: string }>()
+
+export function createLogger(
+  config: AdapterConfig,
+  destination?: DestinationStream
+): Logger {
+  return pino(
+    {
+      level: config.logLevel,
+      base: { adapter: config.role },
+      mixin: () => callContext.getStore() ?? {},
+      redact: {
+        paths: [
+          'bdk',
+          'ksn',
+          'iv',
+          'pinBlock',
+          'pwk',
+          'pan',
+          'key',
+          'cipherData',
+          'dataKeyUnderLmk',
+          'pvk',
+          'pvv',
+          'offset'
+        ],
+        censor: '[REDACTED]'
+      }
+    },
+    destination
+  )
 }
 
 export async function main(
@@ -83,7 +94,7 @@ export async function main(
   const server = factory({
     grpc: config.grpc,
     transport,
-    interceptors: [logCalls(logger)],
+    interceptors: [logCalls(logger, config.logPayloads)],
     logger
   })
 
@@ -149,25 +160,48 @@ async function startAndCheck(
   }
 }
 
-export function logCalls(logger: Logger): Interceptor {
+export function logCalls(logger: Logger, logPayloads = false): Interceptor {
   return (next) => async (request) => {
+    const requestId = request.header.get('x-request-id')
+    const context = requestId === null ? {} : { request_id: requestId }
     const started = performance.now()
-    const done = (code: string): void => {
+    const done = (code: string, payload: object): void => {
       logger.debug(
         {
+          ...context,
           rpc: request.method.name,
           ms: Math.round(performance.now() - started),
-          code
+          code,
+          ...payload
         },
         'grpc call done'
       )
     }
+    if (logPayloads && !request.stream) {
+      logger.debug(
+        {
+          ...context,
+          rpc: request.method.name,
+          request: toJson(request.method.input, request.message)
+        },
+        'grpc call start'
+      )
+    }
     try {
-      const response = await next(request)
-      done('OK')
+      const response = await callContext.run(context, () => next(request))
+      done(
+        'OK',
+        logPayloads && !response.stream
+          ? { response: toJson(response.method.output, response.message) }
+          : {}
+      )
       return response
     } catch (error) {
-      done(Code[ConnectError.from(error).code])
+      const connectError = ConnectError.from(error)
+      done(
+        Code[connectError.code],
+        logPayloads ? { err: connectError.rawMessage } : {}
+      )
       throw error
     }
   }

@@ -18,6 +18,7 @@ Each application reads one YAML file, named by `HSM_ADAPTER_CONFIG_PATH`:
 ```yaml
 log:
   level: info
+  payloads: false # true logs each gRPC request and response at debug, unredacted
 grpc:
   host: 0.0.0.0
   port: 50051 # 50052 for the merchant
