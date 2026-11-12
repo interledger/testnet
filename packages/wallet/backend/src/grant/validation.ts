@@ -8,7 +8,7 @@ export const grantResponseSchema = z.object({
 
 export const grantListRequestSchema = z.object({
   body: z.object({
-    walletAddressId: z.string().uuid(),
+    walletAddressId: z.string().uuid().optional(),
     state: z
       .enum([
         'PROCESSING',

@@ -49,7 +49,7 @@ export interface ListPaymentsResponse {
 }
 
 export type ListGrantsArgs = {
-  walletAddress: string
+  walletAddress: string[]
   state?: GrantState
   cursor?: string
   first?: number
@@ -256,6 +256,14 @@ export class RhyzaAdminClient {
   }
 
   async listGrants(args: ListGrantsArgs): Promise<ListGrantsResponse> {
+    // An empty filter would list every grant
+    if (!args.walletAddress.length) {
+      return {
+        result: [],
+        pagination: { hasNextPage: false, hasPreviousPage: false }
+      }
+    }
+
     return this.http.get<ListGrantsResponse>('/grants', { params: args })
   }
 

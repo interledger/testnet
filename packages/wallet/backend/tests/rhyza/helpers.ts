@@ -63,6 +63,7 @@ export const lastRequest = (adapter: jest.Mock) => {
     headers: config.headers.toJSON() as Record<string, string>,
     timeout: config.timeout,
     body: config.data === undefined ? undefined : JSON.parse(config.data),
-    params: config.params
+    params: config.params,
+    uri: axios.getUri(config)
   }
 }

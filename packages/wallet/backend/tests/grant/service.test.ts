@@ -11,6 +11,7 @@ import { truncateTables } from '@shared/backend/tests'
 import { mockedListGrant } from '@/tests/mocks'
 import { AwilixContainer } from 'awilix'
 import { Forbidden } from '@shared/backend'
+import { GRANTS_MAX_WALLET_ADDRESSES } from '@wallet/shared'
 
 describe('Grant Service', () => {
   let bindings: AwilixContainer<Cradle>
@@ -54,7 +55,8 @@ describe('Grant Service', () => {
           url: walletAddressUrl,
           active: true,
           account: { userId: isFailure ? 'someone-else' : userId }
-        }))
+        })),
+        listAll: jest.fn().mockResolvedValue([])
       },
       rhyzaAdminClient: {
         listGrants: jest
@@ -181,7 +183,7 @@ describe('Grant Service', () => {
       expect(
         Reflect.get(grantService, 'rhyzaAdminClient').listGrants
       ).toHaveBeenCalledWith({
-        walletAddress: walletAddressUrl,
+        walletAddress: [walletAddressUrl],
         state: undefined,
         cursor: undefined,
         first: 10,
@@ -230,7 +232,7 @@ describe('Grant Service', () => {
       expect(
         Reflect.get(grantService, 'rhyzaAdminClient').listGrants
       ).toHaveBeenCalledWith({
-        walletAddress: walletAddressUrl,
+        walletAddress: [walletAddressUrl],
         state: 'ISSUED',
         cursor: 'start',
         first: undefined,
@@ -333,6 +335,67 @@ describe('Grant Service', () => {
       const result = await grantService.listWithPagination(userId, listArgs)
       expect(result.grants[0].access[0].limits).toMatchObject({ interval })
       expect(result.grants[0].access[0].limits?.intervalHR).toBe(intervalHR)
+    })
+
+    it('lists grants across all of the user wallet addresses', async () => {
+      const urls = [faker.internet.url(), faker.internet.url()]
+      const walletAddressService = Reflect.get(
+        grantService,
+        'walletAddressService'
+      )
+      walletAddressService.listAll.mockResolvedValueOnce(
+        urls.map((url) => ({ url }))
+      )
+
+      await grantService.listWithPagination(userId, {
+        ...listArgs,
+        walletAddressId: undefined
+      })
+
+      expect(walletAddressService.listAll).toHaveBeenCalledWith(userId)
+      expect(
+        Reflect.get(grantService, 'rhyzaAdminClient').listGrants
+      ).toHaveBeenCalledWith(expect.objectContaining({ walletAddress: urls }))
+    })
+
+    it('lists grants for as many wallet addresses as the filter allows', async () => {
+      const urls = Array.from({ length: GRANTS_MAX_WALLET_ADDRESSES }, () =>
+        faker.internet.url()
+      )
+      Reflect.get(
+        grantService,
+        'walletAddressService'
+      ).listAll.mockResolvedValueOnce(urls.map((url) => ({ url })))
+
+      await grantService.listWithPagination(userId, {
+        ...listArgs,
+        walletAddressId: undefined
+      })
+
+      expect(
+        Reflect.get(grantService, 'rhyzaAdminClient').listGrants
+      ).toHaveBeenCalledWith(expect.objectContaining({ walletAddress: urls }))
+    })
+
+    it('fails if the user has more wallet addresses than the filter allows', async () => {
+      Reflect.get(
+        grantService,
+        'walletAddressService'
+      ).listAll.mockResolvedValueOnce(
+        Array.from({ length: GRANTS_MAX_WALLET_ADDRESSES + 1 }, () => ({
+          url: faker.internet.url()
+        }))
+      )
+
+      await expect(
+        grantService.listWithPagination(userId, {
+          ...listArgs,
+          walletAddressId: undefined
+        })
+      ).rejects.toThrowError(/Select a wallet address/)
+      expect(
+        Reflect.get(grantService, 'rhyzaAdminClient').listGrants
+      ).not.toHaveBeenCalled()
     })
 
     it('fails if the wallet address is inactive', async () => {

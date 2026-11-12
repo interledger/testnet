@@ -12,7 +12,10 @@ const DEFAULT_TIMEOUT_MS = 10_000
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
-type QueryParams = Record<string, string | number | boolean | undefined>
+type QueryParams = Record<
+  string,
+  string | string[] | number | boolean | undefined
+>
 
 export interface HttpClientOptions {
   baseUrl: string
@@ -50,6 +53,8 @@ export class HttpClient {
       baseURL: options.baseUrl.replace(/\/+$/, ''),
       headers: options.headers,
       timeout: this.timeoutMs,
+      // Send arrays as a=1&a=2, not a[]=1&a[]=2
+      paramsSerializer: { indexes: null },
       // Lenient parse so plain-text error bodies survive.
       responseType: 'text',
       transformResponse: (data: string) => (data ? parseBody(data) : undefined)

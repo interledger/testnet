@@ -1,5 +1,5 @@
 import { WalletAddressService } from '@/walletAddress/service'
-import { Forbidden } from '@shared/backend'
+import { BadRequest, Forbidden } from '@shared/backend'
 import moment from 'moment'
 import { ListUserGrantsArgs } from '@/grant/validation'
 import { RhyzaIdpClient } from '@/rhyza/idp-client'
@@ -16,7 +16,8 @@ import {
   GrantResponse,
   GrantsListResponse,
   GrantState,
-  GrantFinalization
+  GrantFinalization,
+  GRANTS_MAX_WALLET_ADDRESSES
 } from '@wallet/shared'
 
 interface IGrantService {
@@ -79,20 +80,16 @@ export class GrantService implements IGrantService {
     userId: string,
     args: ListUserGrantsArgs
   ): Promise<GrantsListResponse> {
-    const walletAddress =
-      await this.walletAddressService.getByIdWIthUserDetails(
-        args.walletAddressId
-      )
-
-    if (!walletAddress?.active || walletAddress.account?.userId !== userId) {
-      throw new Forbidden('Invalid wallet address provided')
-    }
+    const walletAddressUrls = await this.getWalletAddressUrls(
+      userId,
+      args.walletAddressId
+    )
 
     // Paging back needs a cursor
     const backwards = args.direction === 'previous' && !!args.cursor
 
     const { result, pagination } = await this.rhyzaAdminClient.listGrants({
-      walletAddress: walletAddress.url,
+      walletAddress: walletAddressUrls,
       state: args.state,
       cursor: args.cursor,
       first: backwards ? undefined : args.pageSize,
@@ -115,6 +112,31 @@ export class GrantService implements IGrantService {
   async revoke(userId: string, grantId: string): Promise<void> {
     await this.getOwnedGrant(userId, grantId)
     await this.rhyzaAdminClient.revokeGrant(grantId)
+  }
+
+  // Defaults to all of the user's wallet addresses
+  private async getWalletAddressUrls(
+    userId: string,
+    walletAddressId?: string
+  ): Promise<string[]> {
+    if (walletAddressId) {
+      const walletAddress =
+        await this.walletAddressService.getByIdWIthUserDetails(walletAddressId)
+
+      if (!walletAddress?.active || walletAddress.account?.userId !== userId) {
+        throw new Forbidden('Invalid wallet address provided')
+      }
+
+      return [walletAddress.url]
+    }
+
+    const walletAddresses = await this.walletAddressService.listAll(userId)
+
+    if (walletAddresses.length > GRANTS_MAX_WALLET_ADDRESSES) {
+      throw new BadRequest('Select a wallet address to see its grants')
+    }
+
+    return walletAddresses.map(({ url }) => url)
   }
 
   private async getOwnedGrant(

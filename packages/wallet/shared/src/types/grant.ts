@@ -40,6 +40,9 @@ export interface GrantResponse {
   subject?: Subject
 }
 
+// Max wallet addresses per grants list request
+export const GRANTS_MAX_WALLET_ADDRESSES = 50
+
 export type GrantsPageInfo = {
   startCursor?: string
   endCursor?: string
