@@ -131,8 +131,21 @@ describe('Grant Controller', () => {
       })
     })
 
-    it('rejects a request without a wallet address', async () => {
+    it('lists all wallet addresses when none is given', async () => {
       req.body = {}
+      await grantController.listWithPagination(req, res, next)
+      expect(res.statusCode).toBe(200)
+      expect(
+        Reflect.get(grantController, 'grantService').listWithPagination
+      ).toHaveBeenCalledWith(req.session.user.id, {
+        direction: 'next',
+        pageSize: 10,
+        sortOrder: 'DESC'
+      })
+    })
+
+    it('rejects an invalid wallet address id', async () => {
+      req.body = { walletAddressId: 'not-a-uuid' }
       await grantController.listWithPagination(req, res, (err) => {
         next()
         errorHandler(err, req, res, next)

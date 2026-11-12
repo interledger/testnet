@@ -269,7 +269,7 @@ describe('RhyzaAdminClient', () => {
 
       await expect(
         client.listGrants({
-          walletAddress: 'https://ilp.test/alice',
+          walletAddress: ['https://ilp.test/alice', 'https://ilp.test/bob'],
           state: 'ISSUED',
           cursor: 'end',
           first: 10,
@@ -281,12 +281,36 @@ describe('RhyzaAdminClient', () => {
       expect(request.method).toBe('GET')
       expect(request.url).toBe('http://admin.test/grants')
       expect(request.params).toEqual({
-        walletAddress: 'https://ilp.test/alice',
+        walletAddress: ['https://ilp.test/alice', 'https://ilp.test/bob'],
         state: 'ISSUED',
         cursor: 'end',
         first: 10,
         sortOrder: 'desc'
       })
+    })
+
+    it('returns an empty page without a request when no wallet address is given', async () => {
+      await expect(client.listGrants({ walletAddress: [] })).resolves.toEqual({
+        result: [],
+        pagination: { hasNextPage: false, hasPreviousPage: false }
+      })
+      expect(adapter).not.toHaveBeenCalled()
+    })
+
+    it('repeats the walletAddress parameter for each wallet address', async () => {
+      adapter.mockImplementationOnce(
+        respond(200, { result: [], pagination: {} })
+      )
+
+      await client.listGrants({
+        walletAddress: ['https://ilp.test/alice', 'https://ilp.test/bob']
+      })
+
+      const url = new URL(lastRequest(adapter).uri)
+      expect(url.searchParams.getAll('walletAddress')).toEqual([
+        'https://ilp.test/alice',
+        'https://ilp.test/bob'
+      ])
     })
   })
 

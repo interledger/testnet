@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GrantListArgs, grantsListSchema, grantsService } from '../api/grants'
 import { GRANTS_DISPLAY_NR } from '@/utils/constants'
 import { useTypedRouter } from './useTypedRouter'
-import { GrantsListResponse } from '@wallet/shared'
+import { GrantsListResponse, GRANTS_MAX_WALLET_ADDRESSES } from '@wallet/shared'
 
 const defaultState: GrantsListResponse = {
   grants: [],
@@ -17,28 +17,36 @@ export const useGrants = (walletAddressIds: string[]) => {
   const { walletAddressId, state, cursor, direction, pageSize, sortOrder } =
     router.query
   // Avoids flashing the empty state before the first fetch
-  const [loading, setLoading] = useState(walletAddressIds.length > 0)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | undefined>()
   const [grantsList, setGrantsList] = useState<GrantsListResponse>(defaultState)
 
+  const canListAll =
+    walletAddressIds.length > 0 &&
+    walletAddressIds.length <= GRANTS_MAX_WALLET_ADDRESSES
+
   const filters = useMemo(() => {
-    const isKnownWalletAddress =
-      !!walletAddressId && walletAddressIds.includes(walletAddressId)
+    // No wallet address means All
+    const isValidWalletAddress = walletAddressId
+      ? walletAddressIds.includes(walletAddressId)
+      : canListAll
+    const fallbackWalletAddressId = canListAll ? undefined : walletAddressIds[0]
 
     return {
-      walletAddressId: isKnownWalletAddress
+      walletAddressId: isValidWalletAddress
         ? walletAddressId
-        : walletAddressIds[0],
+        : fallbackWalletAddressId,
       state,
-      // A cursor is only valid for the wallet address it was issued for
-      cursor: isKnownWalletAddress ? cursor : undefined,
-      direction: isKnownWalletAddress ? direction : undefined,
+      // Cursors are bound to their wallet addresses
+      cursor: isValidWalletAddress ? cursor : undefined,
+      direction: isValidWalletAddress ? direction : undefined,
       pageSize: pageSize ?? GRANTS_DISPLAY_NR,
       sortOrder: sortOrder ?? 'DESC'
     }
   }, [
     walletAddressId,
     walletAddressIds,
+    canListAll,
     state,
     cursor,
     direction,
@@ -51,14 +59,6 @@ export const useGrants = (walletAddressIds: string[]) => {
   // Ignore responses superseded by a newer request
   const fetch = useCallback(async (args: GrantListArgs) => {
     const requestId = ++latestRequest.current
-
-    if (!args.walletAddressId) {
-      setGrantsList(defaultState)
-      setLoading(false)
-      setError(undefined)
-      return
-    }
-
     setLoading(true)
     setError(undefined)
     const response = await grantsService.list(args)
@@ -79,5 +79,5 @@ export const useGrants = (walletAddressIds: string[]) => {
     fetch(filters)
   }, [fetch, filters])
 
-  return [grantsList, filters, fetch, loading, error] as const
+  return [grantsList, filters, fetch, loading, error, canListAll] as const
 }

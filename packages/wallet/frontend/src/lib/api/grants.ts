@@ -17,7 +17,7 @@ export const grantStates = [
 ] as const
 
 export const grantsListSchema = z.object({
-  walletAddressId: z.string().optional().catch(undefined),
+  walletAddressId: z.string().min(1).optional().catch(undefined),
   state: z.enum(grantStates).optional().catch(undefined),
   cursor: z.string().min(1).optional().catch(undefined),
   direction: z.enum(['next', 'previous']).optional().catch(undefined),

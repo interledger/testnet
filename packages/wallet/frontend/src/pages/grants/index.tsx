@@ -50,16 +50,24 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = ({
     () => walletAddresses.map(({ value }) => value),
     [walletAddresses]
   )
-  const [grantsList, filters, fetch, loading, error] =
+  const [grantsList, filters, fetch, loading, error, canListAll] =
     useGrants(walletAddressIds)
   const { grants, pageInfo } = grantsList
 
+  const walletAddressOptions = useMemo<SelectOption[]>(
+    () =>
+      canListAll
+        ? [{ label: 'All', value: '' }, ...walletAddresses]
+        : walletAddresses,
+    [canListAll, walletAddresses]
+  )
   const currentWalletAddress = useMemo<SelectOption | undefined>(
     () =>
-      walletAddresses.find(
-        (walletAddress) => walletAddress.value === filters.walletAddressId
+      walletAddressOptions.find(
+        (walletAddress) =>
+          walletAddress.value === (filters.walletAddressId ?? '')
       ),
-    [walletAddresses, filters.walletAddressId]
+    [walletAddressOptions, filters.walletAddressId]
   )
   const currentState = useMemo<SelectOption>(
     () => states.find((state) => state.value === filters.state) ?? states[0],
@@ -141,7 +149,7 @@ const GrantsPage: NextPageWithLayout<GrantsPageProps> = ({
       <div className="grid w-full grid-cols-4 gap-3 md:grid-cols-6">
         <div className="col-span-4 md:col-span-3">
           <Select
-            options={walletAddresses}
+            options={walletAddressOptions}
             label="Wallet Address"
             placeholder="Select wallet address..."
             value={currentWalletAddress}
