@@ -1,4 +1,3 @@
-import { SortOrder } from '@/rafiki/backend/generated/graphql'
 import { z } from 'zod'
 
 export const grantResponseSchema = z.object({
@@ -9,11 +8,22 @@ export const grantResponseSchema = z.object({
 
 export const grantListRequestSchema = z.object({
   body: z.object({
-    page: z.coerce.number().int().nonnegative().default(0),
+    walletAddressId: z.string().uuid(),
+    state: z
+      .enum([
+        'PROCESSING',
+        'PENDING',
+        'APPROVED',
+        'ISSUED',
+        'REJECTED',
+        'REVOKED'
+      ])
+      .optional(),
+    cursor: z.string().min(1).optional(),
+    direction: z.enum(['next', 'previous']).default('next'),
     pageSize: z.coerce.number().int().positive().max(100).default(10),
-    sortOrder: z
-      .enum(['ASC', 'DESC'])
-      .transform((val) => val as SortOrder)
-      .default(SortOrder.Desc)
+    sortOrder: z.enum(['ASC', 'DESC']).default('DESC')
   })
 })
+
+export type ListUserGrantsArgs = z.infer<typeof grantListRequestSchema>['body']

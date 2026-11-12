@@ -1,7 +1,3 @@
-# Skipped until quotes and outgoing payments move off Rafiki v1 GraphQL
-# (quote/service.ts, outgoingPayment/service.ts). The wallet backend needs the
-# Rhyza stack, which does not run Rafiki v1, so the payment step fails.
-@skip
 Feature: Cross-currency payment transfers
   As a wallet user
   I want to send payments between accounts in different currencies
@@ -15,6 +11,10 @@ Feature: Cross-currency payment transfers
     When I select a wallet address
     Then I should see the recipient address input field
 
+  # Skipped until Rhyza's payment intent expiry webhook lands: send mode creates
+  # an intent without incomingAmount, so it never completes and the receiver is
+  # never credited.
+  @skip
   Scenario: User can send a cross-currency payment
     Given I am a verified and logged-in wallet user
     And I have a source wallet address configured backed by a EUR account

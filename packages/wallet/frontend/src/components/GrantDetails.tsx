@@ -1,5 +1,5 @@
-import { Badge, getStatusBadgeIntent } from '@/ui/Badge'
 import { GrantResponse } from '@wallet/shared'
+import { GrantStatusBadge } from '@/components/GrantStatusBadge'
 import { formatDate } from '@/utils/helpers'
 type GrantDetailsProps = { grant: GrantResponse }
 
@@ -18,28 +18,7 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
       </div>
       <div className="flex items-center">
         <span className="mr-4">Status: </span>
-        {!grant.finalizationReason ? (
-          <Badge
-            intent={getStatusBadgeIntent(grant.state)}
-            size="md"
-            text={grant.state}
-          />
-        ) : null}
-        {grant.finalizationReason ? (
-          <>
-            <Badge
-              intent={getStatusBadgeIntent(grant.finalizationReason)}
-              size="md"
-              text={
-                grant.finalizationReason === 'REVOKED'
-                  ? 'REVOKED'
-                  : grant.finalizationReason === 'ISSUED'
-                    ? 'APPROVED'
-                    : 'REJECTED'
-              }
-            />
-          </>
-        ) : null}
+        <GrantStatusBadge grant={grant} />
       </div>
       <div className="border-b border-b-green dark:border-b-pink-neon py-2 text-lg font-semibold">
         Access - Permissions:
@@ -94,7 +73,8 @@ export const GrantDetails = ({ grant }: GrantDetailsProps) => {
                 <div>
                   <span>Interval between payments: </span>
                   <span className="font-light">
-                    {accessDetails.limits.interval}
+                    {accessDetails.limits.intervalHR ??
+                      accessDetails.limits.interval}
                   </span>
                 </div>
               ) : null}

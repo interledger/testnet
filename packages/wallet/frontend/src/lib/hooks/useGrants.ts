@@ -1,58 +1,83 @@
-import { useHttpRequest } from './useHttp'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GrantListArgs, grantsListSchema, grantsService } from '../api/grants'
 import { GRANTS_DISPLAY_NR } from '@/utils/constants'
 import { useTypedRouter } from './useTypedRouter'
 import { GrantsListResponse } from '@wallet/shared'
 
-type GrantQueryParams = Record<keyof GrantListArgs, string | number>
-
-const defaultState = {
-  grants: {
-    edges: [],
-    pageInfo: {
-      endCursor: '',
-      startCursor: '',
-      hasNextPage: false,
-      hasPreviousPage: false,
-      totalCount: 0
-    }
+const defaultState: GrantsListResponse = {
+  grants: [],
+  pageInfo: {
+    hasNextPage: false,
+    hasPreviousPage: false
   }
 }
 
-export const useGrants = () => {
+export const useGrants = (walletAddressIds: string[]) => {
   const router = useTypedRouter(grantsListSchema)
-  const { page, pageSize, sortOrder } = router.query as GrantQueryParams
-  const [request, loading, error] = useHttpRequest()
+  const { walletAddressId, state, cursor, direction, pageSize, sortOrder } =
+    router.query
+  // Avoids flashing the empty state before the first fetch
+  const [loading, setLoading] = useState(walletAddressIds.length > 0)
+  const [error, setError] = useState<string | undefined>()
   const [grantsList, setGrantsList] = useState<GrantsListResponse>(defaultState)
 
-  const fetch = useCallback(
-    async (pagination: Record<string, string | number>) => {
-      const response = await request(grantsService.list, pagination)
-      if (response.success) {
-        setGrantsList(response.result ?? defaultState)
-      }
-    },
-    [request]
-  )
+  const filters = useMemo(() => {
+    const isKnownWalletAddress =
+      !!walletAddressId && walletAddressIds.includes(walletAddressId)
+
+    return {
+      walletAddressId: isKnownWalletAddress
+        ? walletAddressId
+        : walletAddressIds[0],
+      state,
+      // A cursor is only valid for the wallet address it was issued for
+      cursor: isKnownWalletAddress ? cursor : undefined,
+      direction: isKnownWalletAddress ? direction : undefined,
+      pageSize: pageSize ?? GRANTS_DISPLAY_NR,
+      sortOrder: sortOrder ?? 'DESC'
+    }
+  }, [
+    walletAddressId,
+    walletAddressIds,
+    state,
+    cursor,
+    direction,
+    pageSize,
+    sortOrder
+  ])
+
+  const latestRequest = useRef(0)
+
+  // Ignore responses superseded by a newer request
+  const fetch = useCallback(async (args: GrantListArgs) => {
+    const requestId = ++latestRequest.current
+
+    if (!args.walletAddressId) {
+      setGrantsList(defaultState)
+      setLoading(false)
+      setError(undefined)
+      return
+    }
+
+    setLoading(true)
+    setError(undefined)
+    const response = await grantsService.list(args)
+
+    if (requestId !== latestRequest.current) return
+
+    if (response.success) {
+      setGrantsList(response.result ?? defaultState)
+    } else {
+      setError(
+        response.message ?? 'We encountered a network error. Please try again.'
+      )
+    }
+    setLoading(false)
+  }, [])
 
   useEffect(() => {
-    fetch({
-      page: page ?? 0,
-      pageSize: pageSize ?? GRANTS_DISPLAY_NR,
-      sortOrder: sortOrder ?? 'DESC'
-    })
-  }, [fetch, page, pageSize, sortOrder])
+    fetch(filters)
+  }, [fetch, filters])
 
-  return [
-    grantsList,
-    {
-      page: page ?? 0,
-      pageSize: pageSize ?? GRANTS_DISPLAY_NR,
-      sortOrder: sortOrder ?? 'DESC'
-    },
-    fetch,
-    loading,
-    error
-  ] as const
+  return [grantsList, filters, fetch, loading, error] as const
 }

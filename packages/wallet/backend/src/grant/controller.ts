@@ -1,6 +1,4 @@
 import { NextFunction, Request } from 'express'
-import { RafikiAuthService } from '@/rafiki/auth/service'
-import { Grant } from '@/rafiki/auth/generated/graphql'
 import { validate } from '@/shared/validate'
 import { grantResponseSchema, grantListRequestSchema } from '@/grant/validation'
 import { GrantService } from '@/grant/service'
@@ -9,31 +7,15 @@ import { GrantResponse, GrantsListResponse } from '@wallet/shared'
 import { Grant as RhyzaGrant } from '@/rhyza/types'
 
 interface IGrantController {
-  list: Controller<Grant[]>
-  getById: Controller<Grant>
+  listWithPagination: Controller<GrantsListResponse>
+  getById: Controller<GrantResponse>
   revoke: Controller<void>
   getByInteraction: Controller<RhyzaGrant>
   setInteractionResponse: Controller<void>
 }
 
 export class GrantController implements IGrantController {
-  constructor(
-    private rafikiAuthService: RafikiAuthService,
-    private grantService: GrantService
-  ) {}
-
-  list = async (
-    req: Request,
-    res: CustomResponse<GrantResponse[]>,
-    next: NextFunction
-  ) => {
-    try {
-      const grants = await this.grantService.list(req.session.user.id)
-      res.json(toSuccessResponse(grants))
-    } catch (e) {
-      next(e)
-    }
-  }
+  constructor(private grantService: GrantService) {}
 
   listWithPagination = async (
     req: Request,
@@ -41,13 +23,11 @@ export class GrantController implements IGrantController {
     next: NextFunction
   ) => {
     try {
-      const {
-        body: { page, pageSize, sortOrder }
-      } = await validate(grantListRequestSchema, req)
+      const { body } = await validate(grantListRequestSchema, req)
 
       const grants = await this.grantService.listWithPagination(
         req.session.user.id,
-        { page, pageSize, sortOrder }
+        body
       )
       res.json(toSuccessResponse(grants))
     } catch (e) {
@@ -57,7 +37,7 @@ export class GrantController implements IGrantController {
 
   revoke = async (req: Request, res: CustomResponse, next: NextFunction) => {
     try {
-      await this.rafikiAuthService.revokeGrant(req.params.id)
+      await this.grantService.revoke(req.session.user.id, req.params.id)
 
       res.json(toSuccessResponse())
     } catch (e) {
@@ -71,7 +51,10 @@ export class GrantController implements IGrantController {
     next: NextFunction
   ) => {
     try {
-      const grant = await this.rafikiAuthService.getGrantById(req.params.id)
+      const grant = await this.grantService.getById(
+        req.session.user.id,
+        req.params.id
+      )
 
       res.json(toSuccessResponse(grant))
     } catch (e) {

@@ -54,6 +54,22 @@ export interface Grant {
   subjectIds: GrantSubjectId[]
 }
 
+// The spec documents the wrapped forms; the API currently returns a string or flat JWK
+export type GrantClient =
+  | string
+  | { walletAddress: string }
+  | { jwk: { kid: string } }
+  | { kid: string }
+
+export interface AdminGrant {
+  id: string
+  createdAt: string
+  state: GrantState
+  client?: GrantClient
+  subjectIds?: GrantSubjectId[]
+  accesses?: GrantAccess[]
+}
+
 export interface Amount {
   value: string
   assetCode: string

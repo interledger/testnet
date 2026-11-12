@@ -14,19 +14,19 @@ import { ErrorDialog } from '@/components/dialogs/ErrorDialog'
 import { useDialog } from '@/lib/hooks/useDialog'
 import { grantsService } from '@/lib/api/grants'
 import { GrantResponse } from '@wallet/shared'
-import { useRouter } from 'next/router'
 
 type GrantDetailsDialogProps = {
   onClose: () => void
+  onRevoked: () => void
   grant: GrantResponse
 }
 
 export const GrantDetailsDialog = ({
   onClose,
+  onRevoked,
   grant
 }: GrantDetailsDialogProps) => {
   const [openDialog, closeDialog] = useDialog()
-  const router = useRouter()
 
   const handleRevoke = async (id: string) => {
     const res = await grantsService.delete(id)
@@ -38,7 +38,7 @@ export const GrantDetailsDialog = ({
           content="Grant successfully revoked."
         />
       )
-      router.replace('/grants')
+      onRevoked()
       onClose()
     } else {
       openDialog(<ErrorDialog onClose={closeDialog} content={res.message} />)

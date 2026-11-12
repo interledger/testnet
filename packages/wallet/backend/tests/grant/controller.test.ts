@@ -52,13 +52,6 @@ describe('Grant Controller', () => {
 
   const createMockGrantControllerDeps = (isFailure?: boolean) => {
     const grantControllerDepsMocked = {
-      rafikiAuthService: {
-        listGrants: jest.fn().mockReturnValue(mockedListGrant),
-        revokeGrant: isFailure
-          ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
-          : jest.fn(),
-        getGrantById: jest.fn().mockReturnValue({ id: 'grant' })
-      },
       grantService: {
         getGrantByInteraction: jest.fn().mockReturnValue({
           id: 'grant',
@@ -73,7 +66,14 @@ describe('Grant Controller', () => {
           ]
         }),
         setInteractionResponse: jest.fn(),
-        list: jest.fn().mockReturnValue(mockedListGrant)
+        listWithPagination: jest.fn().mockResolvedValue({
+          grants: mockedListGrant,
+          pageInfo: { hasNextPage: false, hasPreviousPage: false }
+        }),
+        revoke: isFailure
+          ? jest.fn().mockRejectedValueOnce(new Error('Unexpected error'))
+          : jest.fn(),
+        getById: jest.fn().mockResolvedValue({ id: 'grant' })
       }
     }
     for (const key in grantControllerDepsMocked)
@@ -109,19 +109,35 @@ describe('Grant Controller', () => {
     createMockGrantControllerDeps()
   })
 
-  describe('Get list of grants', () => {
-    it('should return all grants', async () => {
-      await grantController.list(req, res, next)
+  describe('List grants with pagination', () => {
+    it('validates the body and returns the page', async () => {
+      const walletAddressId = faker.string.uuid()
+      req.body = { walletAddressId, cursor: 'end' }
+      await grantController.listWithPagination(req, res, next)
       expect(res.statusCode).toBe(200)
-      expect(res._getJSONData().result).toHaveLength(2)
-      const data = res._getJSONData().result[0]
-      expect(data).toHaveProperty('id')
-      expect(data).toHaveProperty('client')
-      expect(data).toHaveProperty('state')
+      expect(
+        Reflect.get(grantController, 'grantService').listWithPagination
+      ).toHaveBeenCalledWith(req.session.user.id, {
+        walletAddressId,
+        cursor: 'end',
+        direction: 'next',
+        pageSize: 10,
+        sortOrder: 'DESC'
+      })
       expect(res._getJSONData()).toMatchObject({
         success: true,
-        message: 'SUCCESS'
+        message: 'SUCCESS',
+        result: { grants: expect.any(Array), pageInfo: { hasNextPage: false } }
       })
+    })
+
+    it('rejects a request without a wallet address', async () => {
+      req.body = {}
+      await grantController.listWithPagination(req, res, (err) => {
+        next()
+        errorHandler(err, req, res, next)
+      })
+      expect(res.statusCode).toBe(400)
     })
   })
 

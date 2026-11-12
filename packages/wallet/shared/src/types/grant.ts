@@ -1,6 +1,6 @@
-type GrantState = 'APPROVED' | 'FINALIZED' | 'PENDING' | 'PROCESSING'
+export type GrantState = 'APPROVED' | 'FINALIZED' | 'PENDING' | 'PROCESSING'
 
-type GrantFinalization = 'ISSUED' | 'REJECTED' | 'REVOKED'
+export type GrantFinalization = 'ISSUED' | 'REJECTED' | 'REVOKED'
 
 type PaymentAmount = {
   value: string
@@ -9,7 +9,7 @@ type PaymentAmount = {
   formattedAmount?: string
 }
 
-type Access = {
+export type Access = {
   id: string
   identifier: string | null
   actions: string[]
@@ -19,16 +19,15 @@ type Access = {
     debitAmount: PaymentAmount | null
     receiveAmount: PaymentAmount | null
     interval: string | null
+    intervalHR?: string
   } | null
 }
 
 type Subject = {
-  sub_ids: [
-    {
-      id: string
-      format: string
-    }
-  ]
+  sub_ids: {
+    id: string
+    format: string
+  }[]
 }
 
 export interface GrantResponse {
@@ -41,19 +40,14 @@ export interface GrantResponse {
   subject?: Subject
 }
 
-type GrantNode = {
-  cursor: string
-  node: GrantResponse
-}
-
-type GrantsPageInfo = {
+export type GrantsPageInfo = {
+  startCursor?: string
+  endCursor?: string
   hasNextPage: boolean
   hasPreviousPage: boolean
-  totalCount: number
 }
+
 export interface GrantsListResponse {
-  grants: {
-    edges: GrantNode[]
-    pageInfo: GrantsPageInfo
-  }
+  grants: GrantResponse[]
+  pageInfo: GrantsPageInfo
 }

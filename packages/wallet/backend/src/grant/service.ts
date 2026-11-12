@@ -1,13 +1,23 @@
-import {
-  Access,
-  GetGrantsQueryVariables
-} from '@/rafiki/auth/generated/graphql'
-import { RafikiAuthService } from '@/rafiki/auth/service'
 import { WalletAddressService } from '@/walletAddress/service'
 import { Forbidden } from '@shared/backend'
 import moment from 'moment'
+import { ListUserGrantsArgs } from '@/grant/validation'
 import { RhyzaIdpClient } from '@/rhyza/idp-client'
-import { Grant as RhyzaGrant } from '@/rhyza/types'
+import { RhyzaAdminClient } from '@/rhyza/admin-client'
+import {
+  AdminGrant,
+  GrantAccess,
+  GrantClient,
+  GrantState as RhyzaGrantState,
+  GrantSubjectId,
+  Grant as RhyzaGrant
+} from '@/rhyza/types'
+import {
+  GrantResponse,
+  GrantsListResponse,
+  GrantState,
+  GrantFinalization
+} from '@wallet/shared'
 
 interface IGrantService {
   getGrantByInteraction: (
@@ -21,13 +31,21 @@ interface IGrantService {
     nonce: string,
     response: 'accept' | 'reject'
   ) => Promise<void>
+  listWithPagination: (
+    userId: string,
+    args: ListUserGrantsArgs
+  ) => Promise<GrantsListResponse>
+  getById: (userId: string, grantId: string) => Promise<GrantResponse>
+  revoke: (userId: string, grantId: string) => Promise<void>
 }
+
+const FINALIZED_STATES: RhyzaGrantState[] = ['ISSUED', 'REJECTED', 'REVOKED']
 
 export class GrantService implements IGrantService {
   constructor(
-    private rafikiAuthService: RafikiAuthService,
     private walletAddressService: WalletAddressService,
-    private rhyzaIdpClient: RhyzaIdpClient
+    private rhyzaIdpClient: RhyzaIdpClient,
+    private rhyzaAdminClient: RhyzaAdminClient
   ) {}
 
   async getGrantByInteraction(
@@ -37,22 +55,7 @@ export class GrantService implements IGrantService {
   ): Promise<RhyzaGrant> {
     const grant = await this.rhyzaIdpClient.getGrant(grantId)
 
-    const accessIdentifier = grant.access.find(
-      ({ identifier }) => identifier
-    )?.identifier
-    const subjectIdentifier = grant.subjectIds?.[0]?.id
-    const identifiers = [accessIdentifier, subjectIdentifier].filter(
-      (identifier): identifier is string => !!identifier
-    )
-    const ownershipChecks = await Promise.all(
-      identifiers.map((identifier) =>
-        this.walletAddressService.belongsToUser(userId, identifier)
-      )
-    )
-    const belongsToUser =
-      identifiers.length && ownershipChecks.every((belongs) => belongs)
-
-    if (!belongsToUser) {
+    if (!(await this.belongsToUser(userId, grant.access, grant.subjectIds))) {
       // reject the grant if the user does not have access
       await this.rhyzaIdpClient.setInteractionResponse(grantId, 'reject')
       throw new Forbidden('NO_ACCESS')
@@ -72,107 +75,173 @@ export class GrantService implements IGrantService {
     return await this.rhyzaIdpClient.setInteractionResponse(grantId, response)
   }
 
-  async list(userId: string) {
-    const identifiers =
-      await this.walletAddressService.listIdentifiersByUserId(userId)
-    return await this.rafikiAuthService.listGrants(identifiers)
-  }
-
-  async listWithPagination(userId: string, args: GetGrantsQueryVariables) {
-    const identifiers =
-      await this.walletAddressService.listIdentifiersByUserId(userId)
-
-    if (args.filter?.identifier?.in) {
-      const identifiersBelongToUser = args.filter?.identifier?.in.every(
-        (identifier) => identifiers.includes(identifier)
+  async listWithPagination(
+    userId: string,
+    args: ListUserGrantsArgs
+  ): Promise<GrantsListResponse> {
+    const walletAddress =
+      await this.walletAddressService.getByIdWIthUserDetails(
+        args.walletAddressId
       )
 
-      if (!identifiersBelongToUser) {
-        throw new Forbidden('Invalid identifiers provided')
-      }
-    } else {
-      args.filter = args.filter ?? {}
-      args.filter.identifier = { in: identifiers }
+    if (!walletAddress?.active || walletAddress.account?.userId !== userId) {
+      throw new Forbidden('Invalid wallet address provided')
     }
 
-    const grants = await this.rafikiAuthService.listGrantsWithPagination(args)
+    // Paging back needs a cursor
+    const backwards = args.direction === 'previous' && !!args.cursor
 
-    const totalCount = grants.grants.edges.length
-    const page = args.page ?? 0
-    const pageSize = args.pageSize ?? 10
-    const pageStart = page * pageSize
-    const pageEnd = pageStart + pageSize
-    const pageEdges = grants.grants.edges.slice(pageStart, pageEnd)
-
-    pageEdges.forEach((edge) => {
-      edge.node.access = this.parseIntervals(edge.node.access)
+    const { result, pagination } = await this.rhyzaAdminClient.listGrants({
+      walletAddress: walletAddress.url,
+      state: args.state,
+      cursor: args.cursor,
+      first: backwards ? undefined : args.pageSize,
+      last: backwards ? args.pageSize : undefined,
+      sortOrder: args.sortOrder === 'ASC' ? 'asc' : 'desc'
     })
 
-    grants.grants.edges = pageEdges
-    grants.grants.pageInfo = {
-      ...grants.grants.pageInfo,
-      hasPreviousPage: page > 0,
-      hasNextPage: totalCount > pageEnd,
-      totalCount: totalCount
+    return {
+      grants: result.map((grant) => this.toGrantResponse(grant)),
+      pageInfo: pagination
+    }
+  }
+
+  async getById(userId: string, grantId: string): Promise<GrantResponse> {
+    const grant = await this.getOwnedGrant(userId, grantId)
+
+    return this.toGrantResponse(grant)
+  }
+
+  async revoke(userId: string, grantId: string): Promise<void> {
+    await this.getOwnedGrant(userId, grantId)
+    await this.rhyzaAdminClient.revokeGrant(grantId)
+  }
+
+  private async getOwnedGrant(
+    userId: string,
+    grantId: string
+  ): Promise<AdminGrant> {
+    const grant = await this.rhyzaAdminClient.getGrant(grantId)
+
+    if (!(await this.belongsToUser(userId, grant.accesses, grant.subjectIds))) {
+      throw new Forbidden('NO_ACCESS')
     }
 
-    return grants
+    return grant
   }
 
-  private parseIntervals(access: Access[]): Access[] {
-    return access.map((accessElement) => {
-      if (accessElement.limits?.interval) {
-        return {
-          ...accessElement,
-          limits: {
-            ...accessElement.limits,
-            intervalHR: this.transformFromIntervalToHR(
-              accessElement.limits.interval
-            )
-          }
-        }
-      }
-      return accessElement
-    })
+  private async belongsToUser(
+    userId: string,
+    accesses: GrantAccess[] = [],
+    subjectIds: GrantSubjectId[] = []
+  ): Promise<boolean> {
+    const identifiers = new Set([
+      ...accesses.flatMap(({ identifier }) => (identifier ? [identifier] : [])),
+      ...subjectIds.map(({ id }) => id)
+    ])
+
+    if (!identifiers.size) return false
+
+    const ownershipChecks = await Promise.all(
+      [...identifiers].map((identifier) =>
+        this.walletAddressService.belongsToUser(userId, identifier)
+      )
+    )
+
+    return ownershipChecks.every((belongs) => belongs)
   }
 
-  private transformFromIntervalToHR(interval: string): string {
+  // Legacy shape the grant pages still render
+  private toGrantResponse(grant: AdminGrant): GrantResponse {
+    const finalized = FINALIZED_STATES.includes(grant.state)
+
+    return {
+      id: grant.id,
+      client: this.clientName(grant.client),
+      state: finalized ? 'FINALIZED' : (grant.state as GrantState),
+      finalizationReason: finalized
+        ? (grant.state as GrantFinalization)
+        : undefined,
+      createdAt: grant.createdAt,
+      access: (grant.accesses ?? []).map((access, index) => ({
+        id: `${grant.id}-${index}`,
+        identifier: access.identifier ?? null,
+        actions: access.actions,
+        type: access.type,
+        limits: access.limits
+          ? {
+              receiver: access.limits.receiver ?? null,
+              debitAmount: access.limits.debitAmount ?? null,
+              receiveAmount: access.limits.receiveAmount ?? null,
+              interval: access.limits.interval ?? null,
+              intervalHR: access.limits.interval
+                ? this.transformFromIntervalToHR(access.limits.interval)
+                : undefined
+            }
+          : null
+      })),
+      subject: grant.subjectIds?.length
+        ? { sub_ids: grant.subjectIds }
+        : undefined
+    }
+  }
+
+  private clientName(client?: GrantClient): string {
+    if (!client) return ''
+    if (typeof client === 'string') return client
+    if ('walletAddress' in client && client.walletAddress)
+      return client.walletAddress
+    if ('jwk' in client && client.jwk?.kid) return client.jwk.kid
+    if ('kid' in client && client.kid) return client.kid
+
+    return ''
+  }
+
+  private transformFromIntervalToHR(interval: string): string | undefined {
     const time = interval.split('/')
+
+    if (time.length !== 3 || !time[0].startsWith('R')) return undefined
+
     const isEnd = time[1].startsWith('P')
-    const duration = moment.duration(time.find((it) => it.startsWith('P')))
-    const date = moment(time.find((it) => it.endsWith('Z')))
-    const repetition = time.find((it) => it.startsWith('R'))?.[1]
+    const durationPart = isEnd ? time[1] : time[2]
+    const datePart = isEnd ? time[2] : time[1]
+
+    if (!durationPart.startsWith('P')) return undefined
+
+    // Keep the date as written, offset included
+    const date = moment.parseZone(datePart, moment.ISO_8601)
+
+    if (!date.isValid()) return undefined
+
+    const repetition = time[0].slice(1) || undefined
+    const units = this.processDuration(durationPart)
+
+    if (!units) return undefined
 
     if (repetition === '0')
       return `${isEnd ? 'Until' : 'From'} ${date.format('MMMM Do YYYY')} with no repetition`
 
     if (repetition === undefined)
-      return `${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+      return `Every ${units} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
 
-    return `${repetition} times ${this.processDuration(duration)} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
+    return `${repetition} ${repetition === '1' ? 'time' : 'times'}, every ${units} ${isEnd ? 'until' : 'from'} ${date.format('MMMM Do YYYY')}`
   }
-  private processDuration(duration: moment.Duration) {
-    const years =
-      duration.years() !== 0
-        ? `${duration.years()} ${duration.years() > 1 ? 'years' : 'year'}, `
-        : ''
-    const months =
-      duration.months() !== 0
-        ? `${duration.months()} ${duration.months() > 1 ? 'months' : 'month'}, `
-        : ''
-    const days =
-      duration.days() !== 0
-        ? `${duration.days()} ${duration.days() > 1 ? 'days' : 'day'}, `
-        : ''
-    const hours =
-      duration.hours() !== 0
-        ? `${duration.hours()} ${duration.hours() > 1 ? 'hours' : 'hour'}, `
-        : ''
-    const minutes =
-      duration.minutes() !== 0
-        ? `${duration.minutes()} ${duration.minutes() > 1 ? 'minutes' : 'minute'}`
-        : ''
 
-    return `Every ${years}${months}${days}${hours}${minutes}`.replace(/, $/, '')
+  // moment.duration would normalise e.g. P365D into months
+  private processDuration(duration: string): string | undefined {
+    const match = duration.match(
+      /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/
+    )
+
+    if (!match) return undefined
+
+    const units = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second']
+    const parts = match
+      .slice(1)
+      .map((value, index) => [Number(value ?? 0), units[index]] as const)
+      .filter(([value]) => value !== 0)
+      .map(([value, unit]) => `${value} ${unit}${value > 1 ? 's' : ''}`)
+
+    return parts.length ? parts.join(', ') : undefined
   }
 }
