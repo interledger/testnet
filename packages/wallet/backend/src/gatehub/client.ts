@@ -22,6 +22,7 @@ import {
   IRatesResponse,
   ITokenRequest,
   ITokenResponse,
+  IVaultFee,
   IWalletBalance
 } from '@/gatehub/types'
 import { Env } from '@/config/env'
@@ -452,6 +453,14 @@ export class GateHubClient {
         managedUserUuid
       }
     )
+
+    return response
+  }
+
+  async getVaultFee(assetCode: string): Promise<IVaultFee> {
+    const url = `${this.apiUrl}/core/v1/gateways/${this.env.GATEHUB_GATEWAY_UUID}/vaults/${this.vaultIds[assetCode]}`
+
+    const response = await this.request<IVaultFee>('GET', url)
 
     return response
   }

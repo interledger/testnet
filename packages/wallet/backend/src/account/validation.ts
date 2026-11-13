@@ -29,3 +29,9 @@ export const fundSchema = z.object({
       .positive()
   })
 })
+
+export const accountIdSchema = z.object({
+  params: z.object({
+    accountId: z.string().uuid()
+  })
+})

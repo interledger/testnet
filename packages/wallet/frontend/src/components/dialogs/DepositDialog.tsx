@@ -6,14 +6,14 @@ import {
   Transition,
   TransitionChild
 } from '@headlessui/react'
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { DialogProps } from '@/lib/types/dialog'
 import { Form } from '@/ui/forms/Form'
 import { useZodForm } from '@/lib/hooks/useZodForm'
 import { Input } from '@/ui/forms/Input'
 import { useRouter } from 'next/router'
 import { getCurrencySymbol } from '@/utils/helpers'
-import { accountService, depositSchema } from '@/lib/api/account'
+import { accountService, depositSchema, DepositFee } from '@/lib/api/account'
 import { useToast } from '@/lib/hooks/useToast'
 import { MoneyBird } from '../icons/MoneyBird'
 import { Warning } from '../icons/Warning'
@@ -33,11 +33,36 @@ export const DepositDialog = ({
     schema: depositSchema
   })
   const { toast } = useToast()
+  const [vaultFee, setVaultFee] = useState<DepositFee | null>(null)
+  const amount = Number(depositForm.watch('amount')) || 0
+  let depositFee = null
+
+  if (vaultFee) {
+    if (vaultFee.fee_deposit_absolute === '0') {
+      const relativeFee = Number(vaultFee.fee_deposit_relative)
+      depositFee = amount - amount / (1 + relativeFee)
+    } else {
+      depositFee = Number(vaultFee.fee_deposit_absolute)
+    }
+  }
+
+  const isBelow = amount > 0 && depositFee !== null && amount <= depositFee
 
   useEffect(() => {
     depositForm.setFocus('amount')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const fetchFee = async () => {
+      const response = await accountService.getDepositFee(accountId)
+
+      if (response.success && response.result) {
+        setVaultFee(response.result)
+      }
+    }
+    fetchFee()
+  }, [accountId])
 
   return (
     <Transition show={true} as={Fragment} appear={true}>
@@ -69,9 +94,28 @@ export const DepositDialog = ({
                 <DialogTitle as="h3" className="text-center text-2xl font-bold">
                   Deposit to Account
                 </DialogTitle>
-                <p className="text-xs text-center">
-                  A small fee might be applied when making a deposit.
-                </p>
+                <div className="text-sm text-center">
+                  {isBelow ? (
+                    <p className="mt-1 text-sm text-pink-dark dark:text-pink-light">
+                      {`The amount cannot be lower than the deposit fee of 
+                      ${getCurrencySymbol(assetCode)} ${depositFee!.toFixed(Number(vaultFee!.scale))}`}
+                      .
+                    </p>
+                  ) : vaultFee && depositFee !== null && amount > 0 ? (
+                    <div className="text-sm text-center">
+                      <p>
+                        {`Deposit fee: ${getCurrencySymbol(assetCode)} ${depositFee.toFixed(Number(vaultFee.scale))}`}
+                      </p>
+                      <p>
+                        {`You will receive: ${getCurrencySymbol(assetCode)} ${(amount - depositFee).toFixed(Number(vaultFee.scale))}`}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-center">
+                      A small fee might be applied when making a deposit.
+                    </p>
+                  )}
+                </div>
                 <p className=" text-xs text-center">
                   <Warning
                     strokeWidth={2}
