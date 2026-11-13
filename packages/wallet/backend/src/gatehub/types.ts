@@ -230,3 +230,9 @@ export interface IAddUserToGatewayResponse {
   isApproved: boolean
   customerId?: string
 }
+
+export interface IVaultFee {
+  fee_deposit_relative: string
+  scale: string
+  fee_deposit_absolute: string
+}

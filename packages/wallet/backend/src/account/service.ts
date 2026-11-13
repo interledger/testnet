@@ -9,6 +9,7 @@ import { GateHubClient } from '@/gatehub/client'
 import { v4 as uuid } from 'uuid'
 import { MANUAL_NETWORK, TransactionTypeEnum } from '@/gatehub/consts'
 import { WalletAddress } from '../walletAddress/model'
+import { IVaultFee } from '@/gatehub/types'
 
 type CreateAccountArgs = {
   userId: string
@@ -33,6 +34,7 @@ interface IAccountService {
     accountId: string,
     amount: number
   ) => Promise<void>
+  getDepositFee: (userId: string, accountId: string) => Promise<IVaultFee>
 }
 
 export class AccountService implements IAccountService {
@@ -274,6 +276,13 @@ export class AccountService implements IAccountService {
     })
 
     return account
+  }
+
+  async getDepositFee(userId: string, accountId: string) {
+    const account = await this.findAccountById(accountId, userId)
+    const fee = await this.gateHubClient.getVaultFee(account.assetCode)
+
+    return fee
   }
 
   async fundAccount(userId: string, accountId: string, amount: number) {

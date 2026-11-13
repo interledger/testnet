@@ -29,6 +29,12 @@ export type Account = {
   walletAddresses: WalletAddressResponse[]
 }
 
+export type DepositFee = {
+  fee_deposit_relative: string
+  scale: string
+  fee_deposit_absolute: string
+}
+
 type GetAccountResult = SuccessResponse<Account>
 type GetAccountResponse = GetAccountResult | ErrorResponse
 
@@ -49,6 +55,8 @@ type DepositArgs = z.infer<typeof depositSchema>
 type DepositResult = SuccessResponse
 type DepositError = ErrorResponse<DepositArgs | undefined>
 type DepositResponse = DepositResult | DepositError
+type GetDepositFeeResult = SuccessResponse<DepositFee>
+type GetDepositFeeResponse = GetDepositFeeResult | ErrorResponse
 
 interface AccountService {
   get: (accountId: string, cookies?: string) => Promise<GetAccountResponse>
@@ -59,6 +67,7 @@ interface AccountService {
   create: (args: CreateAccountArgs) => Promise<CreateAccountResponse>
   update: (args: UpdateAccountArgs) => Promise<SuccessResponse | ErrorResponse>
   deposit: (args: DepositArgs) => Promise<DepositResponse>
+  getDepositFee: (accountId: string) => Promise<GetDepositFeeResponse>
 }
 
 const createAccountService = (): AccountService => ({
@@ -150,6 +159,18 @@ const createAccountService = (): AccountService => ({
         error,
         'We were not able to fund your account. Please try again.'
       )
+    }
+  },
+
+  async getDepositFee(accountId) {
+    try {
+      const response = await httpClient
+        .get(`accounts/${accountId}/deposit-fee`)
+        .json<GetDepositFeeResponse>()
+
+      return response
+    } catch (error) {
+      return getError(error, 'We were not able to get trx vault.')
     }
   }
 })

@@ -373,6 +373,12 @@ export class App {
         isAuth,
         accountController.fundAccount
       )
+
+      router.get(
+        '/accounts/:accountId/deposit-fee',
+        isAuth,
+        accountController.getDepositFee
+      )
     }
 
     router.get('/rates', rafikiController.getRates)
