@@ -224,7 +224,7 @@ export class OpenPayments implements IOpenPayments {
     }
 
     const data = `${clientNonce}\n${interactNonce}\n${interactRef}\n${url}`
-    const hash = createHash('sha-256').update(data).digest('base64')
+    const hash = createHash('sha-256').update(data).digest('base64url')
 
     if (hash !== receivedHash) {
       this.logger.error(`Invalid hash.`)
@@ -312,8 +312,15 @@ export class OpenPayments implements IOpenPayments {
           interact_ref: interactRef
         }
       )
-      .catch(() => {
-        this.logger.error('Could not finish the continuation request.')
+      .catch((err) => {
+        this.logger.error('Could not finish the continuation request.', {
+          message: err?.message,
+          status: err?.status,
+          code: err?.code,
+          description: err?.description,
+          validationErrors: err?.validationErrors,
+          details: err?.details
+        })
         throw new InternalServerError()
       })
 

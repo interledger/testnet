@@ -23,13 +23,11 @@ import {
 interface IGrantService {
   getGrantByInteraction: (
     userId: string,
-    grantId: string,
-    nonce: string
+    grantId: string
   ) => Promise<RhyzaGrant>
   setInteractionResponse: (
     userId: string,
     grantId: string,
-    nonce: string,
     response: 'accept' | 'reject'
   ) => Promise<void>
   listWithPagination: (
@@ -51,8 +49,7 @@ export class GrantService implements IGrantService {
 
   async getGrantByInteraction(
     userId: string,
-    grantId: string,
-    _nonce: string
+    grantId: string
   ): Promise<RhyzaGrant> {
     const grant = await this.rhyzaIdpClient.getGrant(grantId)
 
@@ -68,10 +65,9 @@ export class GrantService implements IGrantService {
   async setInteractionResponse(
     userId: string,
     grantId: string,
-    nonce: string,
     response: 'accept' | 'reject'
   ): Promise<void> {
-    await this.getGrantByInteraction(userId, grantId, nonce)
+    await this.getGrantByInteraction(userId, grantId)
 
     return await this.rhyzaIdpClient.setInteractionResponse(grantId, response)
   }

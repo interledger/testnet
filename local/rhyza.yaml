@@ -126,6 +126,8 @@ services:
       <<: *rhyza-env
       PORT: 3003
       AUTH_GRPC_URL: auth-api-service:50054
+      REDIS_URL: *redis-url
+      SESSION_SECRET: ${RHYZA_SESSION_SECRET:-local-dev-session-secret-not-for-production}
       OPEN_PAYMENTS_AUTH_SERVER_URL: ${RHYZA_AUTH_URL:-https://auth.testnet.test}
       # Where GET /interaction/:grantId/start sends the browser — the wallet's IdP screen.
       IDP_URL: ${RHYZA_IDP_URL:-https://testnet.test/grant-interactions}

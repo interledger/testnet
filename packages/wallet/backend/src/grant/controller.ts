@@ -70,8 +70,7 @@ export class GrantController implements IGrantController {
     try {
       const grant = await this.grantService.getGrantByInteraction(
         req.session.user.id,
-        req.params.interactionId,
-        req.params.nonce
+        req.params.interactionId
       )
 
       res.json(toSuccessResponse(grant))
@@ -93,7 +92,6 @@ export class GrantController implements IGrantController {
       await this.grantService.setInteractionResponse(
         req.session.user.id,
         req.params.interactionId,
-        req.params.nonce,
         response
       )
 

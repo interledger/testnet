@@ -22,7 +22,6 @@ type GrantInteractionPageProps = InferGetServerSidePropsType<
 const GrantInteractionPage = ({
   grant,
   interactionId,
-  nonce,
   clientName,
   grantWalletAddress
 }: GrantInteractionPageProps) => {
@@ -36,10 +35,9 @@ const GrantInteractionPage = ({
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
       interactionId: interactionId,
-      nonce: nonce,
       action: action
     })
-
+    console.log('finalizeInteraction response:', response)
     if (!response.success) {
       openDialog(
         <ErrorDialog onClose={() => closeDialog()} content={response.message} />
@@ -47,7 +45,13 @@ const GrantInteractionPage = ({
       return
     }
 
-    router.push(`${AUTH_HOST}/interact/${interactionId}/${nonce}/finish`)
+    // router.push(`${AUTH_HOST}/interact/${interactionId}/${nonce}/finish`)
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.enctype = 'text/plain'
+    form.action = `${AUTH_HOST}/interaction/${interactionId}/finish`
+    document.body.appendChild(form)
+    form.submit()
   }
 
   useEffect(() => {
@@ -185,7 +189,7 @@ const GrantInteractionPage = ({
 
 const querySchema = z.object({
   interactId: z.string(),
-  nonce: z.string(),
+  nonce: z.string().optional().default(''),
   clientUri: z.string(),
   clientName: z.string()
 })
@@ -206,7 +210,6 @@ export const getServerSideProps: GetServerSideProps<{
 
   const grantInteractionResponse = await grantsService.getInteraction(
     result.data.interactId,
-    result.data.nonce,
     ctx.req.headers.cookie
   )
 
