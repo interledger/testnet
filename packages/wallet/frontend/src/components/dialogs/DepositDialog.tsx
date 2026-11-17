@@ -38,12 +38,10 @@ export const DepositDialog = ({
   let depositFee = null
 
   if (vaultFee) {
-    if (vaultFee.fee_deposit_absolute === '0') {
-      const relativeFee = Number(vaultFee.fee_deposit_relative)
-      depositFee = amount - amount / (1 + relativeFee)
-    } else {
-      depositFee = Number(vaultFee.fee_deposit_absolute)
-    }
+    depositFee =
+      amount * (1 + Number(vaultFee.fee_deposit_relative)) +
+      Number(vaultFee.fee_deposit_absolute) -
+      amount
   }
 
   const isBelow = amount > 0 && depositFee !== null && amount <= depositFee
