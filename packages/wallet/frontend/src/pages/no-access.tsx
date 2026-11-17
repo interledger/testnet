@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import Image from 'next/image'
 import { AUTH_HOST, THEME } from '@/utils/constants'
 import { useRouter } from 'next/router'
@@ -14,11 +13,7 @@ const NoAccessPage = () => {
   return (
     <div className="bg-green-light dark:bg-purple flex h-full w-screen flex-col items-center justify-center text-center text-2xl font-semibold">
       <h1>Access to the given resource is forbidden.</h1>
-      <form
-        method="POST"
-        encType="text/plain"
-        action={`${AUTH_HOST}/interaction/${interactionId}/finish`}
-      >
+      <form method="POST" encType="text/plain" action={link}>
         <button
           type="submit"
           className="dark:hover:text-pink-neon mt-5 text-xl font-semibold underline hover:text-green"
