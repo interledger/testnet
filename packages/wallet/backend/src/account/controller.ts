@@ -1,9 +1,15 @@
 import type { NextFunction, Request } from 'express'
 import { validate } from '@/shared/validate'
 import { AccountService } from './service'
-import { accountSchema, fundSchema, patchAccountSchema } from './validation'
+import {
+  accountIdSchema,
+  accountSchema,
+  fundSchema,
+  patchAccountSchema
+} from './validation'
 import { Account } from '@/account/model'
 import { Controller, toSuccessResponse } from '@shared/backend'
+import { IVaultFee } from '@/gatehub/types'
 
 interface IAccountController {
   createAccount: Controller<Account>
@@ -11,6 +17,7 @@ interface IAccountController {
   getAccountById: Controller<Account>
   patchAccount: Controller
   fundAccount: Controller
+  getDepositFee: Controller<IVaultFee>
 }
 
 export class AccountController implements IAccountController {
@@ -104,6 +111,24 @@ export class AccountController implements IAccountController {
       await this.accountService.fundAccount(userId, accountId, amount)
 
       res.status(200).json(toSuccessResponse(undefined, 'Account funded'))
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  getDepositFee = async (
+    req: Request,
+    res: CustomResponse,
+    next: NextFunction
+  ) => {
+    const {
+      params: { accountId }
+    } = await validate(accountIdSchema, req)
+
+    const userId = req.session.user.id
+    try {
+      const fee = await this.accountService.getDepositFee(userId, accountId)
+      res.status(200).json(toSuccessResponse(fee))
     } catch (e) {
       next(e)
     }

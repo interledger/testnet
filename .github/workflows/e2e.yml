@@ -18,7 +18,7 @@ concurrency:
 jobs:
   e2e:
     name: Playwright E2E (local stack)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       # Non-interactive OpenSSL subject values when local:certs generates the
