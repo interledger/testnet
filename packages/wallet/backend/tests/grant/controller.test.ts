@@ -200,7 +200,7 @@ describe('Grant Controller', () => {
   describe('Get By Interaction', () => {
     it('should return a grant', async () => {
       req.params = {
-        interactionId: faker.string.uuid(),
+        grantId: faker.string.uuid(),
         nonce: faker.string.uuid()
       }
       await grantController.getByInteraction(req, res, next)

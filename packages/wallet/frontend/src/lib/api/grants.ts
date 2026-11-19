@@ -40,7 +40,7 @@ type GetGrantResponse = GetGrantResult | ErrorResponse
 type DeleteGrantResponse = SuccessResponse | ErrorResponse
 
 type FinalizeInteractionParams = {
-  interactionId: string
+  grantId: string
   action: string
 }
 type FinalizeInteractionResponse = SuccessResponse | ErrorResponse
@@ -52,7 +52,7 @@ interface GrantsService {
   ) => Promise<GrantsListApiResponse>
   get: (grantId: string, cookies?: string) => Promise<GetGrantResponse>
   getInteraction: (
-    interactionId: string,
+    grantId: string,
     cookies?: string
   ) => Promise<GetGrantResponse>
   finalizeInteraction: (
@@ -93,10 +93,10 @@ const createGrantsService = (): GrantsService => ({
     }
   },
 
-  async getInteraction(interactionId, cookies) {
+  async getInteraction(grantId, cookies) {
     try {
       const response = await httpClient
-        .get(`grant-interactions/${interactionId}`, {
+        .get(`grant-interactions/${grantId}`, {
           headers: {
             ...(cookies ? { Cookie: cookies } : {})
           }
@@ -111,7 +111,7 @@ const createGrantsService = (): GrantsService => ({
   async finalizeInteraction(args) {
     try {
       const response = await httpClient
-        .patch(`grant-interactions/${args.interactionId}`, {
+        .patch(`grant-interactions/${args.grantId}`, {
           json: { response: args.action }
         })
         .json<SuccessResponse>()

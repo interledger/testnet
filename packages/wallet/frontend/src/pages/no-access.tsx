@@ -4,11 +4,11 @@ import { useRouter } from 'next/router'
 
 const NoAccessPage = () => {
   const router = useRouter()
-  const { interactionId } = router.query
+  const { grantId } = router.query
   const imageName =
     THEME === 'dark' ? '/bird-error-dark.webp' : '/bird-error-light.webp'
 
-  const link = `${AUTH_HOST}/interaction/${interactionId}/finish`
+  const link = `${AUTH_HOST}/interaction/${grantId}/finish`
 
   return (
     <div className="bg-green-light dark:bg-purple flex h-full w-screen flex-col items-center justify-center text-center text-2xl font-semibold">
