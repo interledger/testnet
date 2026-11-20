@@ -679,14 +679,14 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(@bufbuild/protobuf@2.14.1)
       '@interledger/hsm-atalla-issuer':
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.8.0
+        version: 0.8.0
       '@interledger/hsm-atalla-merchant':
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.8.0
+        version: 0.8.0
       '@interledger/hsm-atalla-transport':
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.8.0
+        version: 0.8.0
       pino:
         specifier: ^10.3.1
         version: 10.4.0
@@ -2032,14 +2032,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@interledger/hsm-atalla-issuer@0.7.0':
-    resolution: {integrity: sha512-D9K5NXuZoG/Jwv4daYOi4aKhzd6oNoDceDPYndht77u6CEhpjVIVaW9Tp6JhffsrMnkw05ccxsHN2L2lxJXSog==}
+  '@interledger/hsm-atalla-issuer@0.8.0':
+    resolution: {integrity: sha512-qJzYmvE7d8AicpD/B58R5DMS8EirN71EYCl4nqskaOHXqb5aEYWGOf2/QrZ30+a+1e2LIpUBtiTlYUObwx/rPA==}
 
-  '@interledger/hsm-atalla-merchant@0.7.0':
-    resolution: {integrity: sha512-e7j8sfad9iZ8r1yvkc70IzuCZ6RL4/vklzfl+z2kOzahf1+hCddpEzuBt+lREhbFjRFOA36DMn+71Oui59gDmQ==}
+  '@interledger/hsm-atalla-merchant@0.8.0':
+    resolution: {integrity: sha512-dpycyrwuR3U9BIPHZg9nHFc6dappzKpccXGFqL3Yz6jxJEa3k9OCSAkn2Ri7vLyjycn9vvmurT62KWc78eWiUA==}
 
-  '@interledger/hsm-atalla-transport@0.7.0':
-    resolution: {integrity: sha512-L0+YurNlxVIx2uwWPbfZY+jTtn9crc+l4hJaIfTn1kUBCuF7hZeZmxWC+Z0t1J6ZJQyaYfeuLoBA++uTWljYPg==}
+  '@interledger/hsm-atalla-transport@0.8.0':
+    resolution: {integrity: sha512-1nJNvZUka9GScRjgyKnFjPzjP7AsGm5gh7S0Et+AhKxl+TFwEqUw0MLRW54t8w6RJuqd8ehDS61n3zazmhpuTw==}
 
   '@interledger/http-signature-utils@2.0.3':
     resolution: {integrity: sha512-/vn6+FxZ3g1A5ZC3vOVivjFns5A6F4lhEmdAGg3W9mD2uADXI575rIBcMdqI3wTOJo7qOXRutPXOG/jXONFs/Q==}
@@ -2366,12 +2366,14 @@ packages:
   '@opentelemetry/sdk-trace-base@2.12.0':
     resolution: {integrity: sha512-JOERgZCxRM06FEJ5kEWxlSRChah6MmXDx3KwCruqEv/iEyLkTokCSemf2y1w8oIHtfrr8EVTpzebq/31vn2Cpg==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-node@2.12.0':
     resolution: {integrity: sha512-9DufH1IlmQMoKAfot5y/FhTP1RnmhLb5K6eKmJO/bvzPjYwPAazoiAUbTZFdPbqxOXN0FEbhZx/e6SB1Og4jmg==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
@@ -9193,24 +9195,24 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@interledger/hsm-atalla-issuer@0.7.0':
+  '@interledger/hsm-atalla-issuer@0.8.0':
     dependencies:
       '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.1-20261112083719-3a1473953a42.3(@bufbuild/protobuf@2.14.1)
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.14.1)
       '@connectrpc/connect-node': 2.2.0(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.14.1))
-      '@interledger/hsm-atalla-transport': 0.7.0
+      '@interledger/hsm-atalla-transport': 0.8.0
 
-  '@interledger/hsm-atalla-merchant@0.7.0':
+  '@interledger/hsm-atalla-merchant@0.8.0':
     dependencies:
       '@buf/interledger_hsm-adapter.bufbuild_es': 2.14.1-20260908132548-6de218c8c2e5.3(@bufbuild/protobuf@2.14.1)
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.14.1)
       '@connectrpc/connect-node': 2.2.0(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.14.1))
-      '@interledger/hsm-atalla-transport': 0.7.0
+      '@interledger/hsm-atalla-transport': 0.8.0
       uint8arrays: 6.1.1
 
-  '@interledger/hsm-atalla-transport@0.7.0': {}
+  '@interledger/hsm-atalla-transport@0.8.0': {}
 
   '@interledger/http-signature-utils@2.0.3':
     dependencies:
