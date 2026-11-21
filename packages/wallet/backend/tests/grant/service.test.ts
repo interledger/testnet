@@ -128,11 +128,7 @@ describe('Grant Service', () => {
 
   describe('Get Grant By Interaction', () => {
     it('should return a grant', async () => {
-      const result = await grantService.getGrantByInteraction(
-        userId,
-        'test1',
-        'test2'
-      )
+      const result = await grantService.getGrantByInteraction(userId, 'test1')
       expect(result).toMatchObject({
         id: 'grant'
       })
@@ -144,7 +140,7 @@ describe('Grant Service', () => {
     it('should return no access err', async () => {
       createMockGrantServiceDeps(true)
       await expect(
-        grantService.getGrantByInteraction(userId, 'test1', 'test2')
+        grantService.getGrantByInteraction(userId, 'test1')
       ).rejects.toThrowError(new Forbidden('NO_ACCESS'))
     })
   })
@@ -154,7 +150,6 @@ describe('Grant Service', () => {
       const result = await grantService.setInteractionResponse(
         userId,
         'test1',
-        'test2',
         'accept'
       )
       expect(result).toBeUndefined()
@@ -166,7 +161,6 @@ describe('Grant Service', () => {
       const result = await grantService.setInteractionResponse(
         userId,
         'test1',
-        'test2',
         'reject'
       )
       expect(result).toBeUndefined()

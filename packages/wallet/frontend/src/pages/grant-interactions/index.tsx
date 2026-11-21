@@ -13,7 +13,7 @@ import { useRouter } from 'next/router'
 import { GrantResponse } from '@wallet/shared'
 import { AUTH_HOST, FEATURES_ENABLED, THEME } from '@/utils/constants'
 import { Logo, LogoWallet } from '@/ui/Logo'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 type GrantInteractionPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -21,13 +21,13 @@ type GrantInteractionPageProps = InferGetServerSidePropsType<
 
 const GrantInteractionPage = ({
   grant,
-  interactionId,
-  nonce,
+  grantId,
   clientName,
   grantWalletAddress
 }: GrantInteractionPageProps) => {
   const [openDialog, closeDialog] = useDialog()
   const router = useRouter()
+  const finishFormRef = useRef<HTMLFormElement>(null)
   const isPendingGrant = grant.state === 'PENDING'
   const client = clientName ? clientName : grant.client
   const imageName =
@@ -35,8 +35,7 @@ const GrantInteractionPage = ({
 
   async function finalizeGrantRequest(action: string) {
     const response = await grantsService.finalizeInteraction({
-      interactionId: interactionId,
-      nonce: nonce,
+      grantId: grantId,
       action: action
     })
 
@@ -46,8 +45,7 @@ const GrantInteractionPage = ({
       )
       return
     }
-
-    router.push(`${AUTH_HOST}/interact/${interactionId}/${nonce}/finish`)
+    finishFormRef.current?.submit()
   }
 
   useEffect(() => {
@@ -73,6 +71,13 @@ const GrantInteractionPage = ({
           quality={100}
           width={500}
           height={150}
+        />
+        <form
+          ref={finishFormRef}
+          method="POST"
+          encType="text/plain"
+          action={`${AUTH_HOST}/interaction/${grantId}/finish`}
+          hidden
         />
         {grantWalletAddress.length > 0 ? (
           <>
@@ -185,14 +190,14 @@ const GrantInteractionPage = ({
 
 const querySchema = z.object({
   interactId: z.string(),
-  nonce: z.string(),
+  nonce: z.string().optional().default(''),
   clientUri: z.string(),
   clientName: z.string()
 })
 
 export const getServerSideProps: GetServerSideProps<{
   grant: GrantResponse
-  interactionId: string
+  grantId: string
   nonce: string
   clientName: string
   grantWalletAddress: string[]
@@ -206,7 +211,6 @@ export const getServerSideProps: GetServerSideProps<{
 
   const grantInteractionResponse = await grantsService.getInteraction(
     result.data.interactId,
-    result.data.nonce,
     ctx.req.headers.cookie
   )
 
@@ -215,7 +219,7 @@ export const getServerSideProps: GetServerSideProps<{
       return {
         redirect: {
           permanent: false,
-          destination: `/no-access?interactionId=${result.data.interactId}&nonce=${result.data.nonce}`
+          destination: `/no-access?grantId=${result.data.interactId}&nonce=${result.data.nonce}`
         }
       }
     }
@@ -253,7 +257,7 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       grant: grantInteractionResponse.result,
-      interactionId: result.data.interactId,
+      grantId: result.data.interactId,
       nonce: result.data.nonce,
       clientName: result.data.clientName,
       grantWalletAddress: walletAddressList
